@@ -28,9 +28,6 @@ CometChat UIKit (built using **CometChat Pro**) is a fully functional messaging 
 
 6. [Contributing](#Contributing) 
 
-<img align="left" src="https://github.com/cometchat-pro-samples/ios-swift-chat-app/blob/v2/Screenshots/Screenshots.png">
-   
-<br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
 
 # Screenshots
 
