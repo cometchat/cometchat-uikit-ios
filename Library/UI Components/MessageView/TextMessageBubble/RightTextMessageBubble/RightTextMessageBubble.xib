@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" restorationIdentifier="rightTextMessageBubble" selectionStyle="default" indentationWidth="10" reuseIdentifier="rightTextMessageBubble" rowHeight="79" id="KGk-i7-Jjw" customClass="RightTextMessageBubble" customModule="CometChatUIKitDemo" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="348" height="79"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="348" height="79"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NdX-Me-irr" customClass="ChattingBubble" customModule="CometChatUIKitDemo" customModuleProvider="target">
+                        <rect key="frame" x="271" y="0.0" width="62" height="56"/>
+                        <color key="backgroundColor" red="0.0" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="topInset">
+                                <real key="value" value="10"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="bottomInset">
+                                <real key="value" value="10"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="leftInset">
+                                <real key="value" value="10"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="rightInset">
+                                <real key="value" value="10"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </label>
+                    <stackView opaque="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="Ky3-yr-XEJ">
+                        <rect key="frame" x="283" y="59" width="48" height="18"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10:43" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="unw-2V-ffH">
+                                <rect key="frame" x="0.0" y="0.0" width="30" height="18"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                <color key="textColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="wait.png" translatesAutoresizingMaskIntoConstraints="NO" id="5Wo-rW-MRP">
+                                <rect key="frame" x="30" y="0.0" width="18" height="18"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="18" id="5QD-hm-Qk4"/>
+                                    <constraint firstAttribute="height" constant="18" id="n3c-dp-3ap"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="18" id="6TH-te-oFE"/>
+                        </constraints>
+                    </stackView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="NdX-Me-irr" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="5Yg-NQ-nFl"/>
+                    <constraint firstAttribute="trailing" secondItem="NdX-Me-irr" secondAttribute="trailing" constant="15" id="J2A-Fj-mdS"/>
+                    <constraint firstAttribute="bottom" secondItem="Ky3-yr-XEJ" secondAttribute="bottom" constant="2" id="a0R-aN-8fL"/>
+                    <constraint firstItem="Ky3-yr-XEJ" firstAttribute="trailing" secondItem="NdX-Me-irr" secondAttribute="trailing" constant="-2" id="gmh-va-3x5"/>
+                    <constraint firstItem="Ky3-yr-XEJ" firstAttribute="top" secondItem="NdX-Me-irr" secondAttribute="bottom" constant="3" id="h61-5M-8jF"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="heightConstraint" destination="6TH-te-oFE" id="edX-lz-Lb1"/>
+                <outlet property="message" destination="NdX-Me-irr" id="8bK-9M-Uiu"/>
+                <outlet property="receipt" destination="5Wo-rW-MRP" id="tdt-Lc-6bm"/>
+                <outlet property="receiptStack" destination="Ky3-yr-XEJ" id="pGW-XJ-cV6"/>
+                <outlet property="timeStamp" destination="unw-2V-ffH" id="toQ-mw-Hm9"/>
+            </connections>
+            <point key="canvasLocation" x="153.62318840579712" y="116.85267857142857"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="wait.png" width="18" height="18"/>
+    </resources>
+</document>

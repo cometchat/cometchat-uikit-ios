@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="SF-Pro-Display-Regular.otf">
+            <string>SFProDisplay-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatMessageList" customModule="CometChatUIKitDemo" customModuleProvider="target">
+            <connections>
+                <outlet property="chatView" destination="zhP-kp-dK8" id="4NW-rm-HZm"/>
+                <outlet property="tableView" destination="lFr-Q7-eoy" id="3VA-PD-dIX"/>
+                <outlet property="textView" destination="l7M-Im-dI4" id="6O4-pJ-ARd"/>
+                <outlet property="textViewBottomConstraint" destination="836-dB-Vi8" id="7h6-1k-8fD"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="lFr-Q7-eoy">
+                    <rect key="frame" x="0.0" y="44" width="414" height="762"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                </tableView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zhP-kp-dK8" customClass="ChatView" customModule="CometChatUIKitDemo" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="806" width="414" height="56"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MEN-6h-Cq0">
+                            <rect key="frame" x="50" y="8" width="314" height="40"/>
+                            <subviews>
+                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="l7M-Im-dI4">
+                                    <rect key="frame" x="12" y="0.0" width="257" height="40"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="textColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                                    <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="18"/>
+                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="maxLength">
+                                            <integer key="value" value="200"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="maxHeight">
+                                            <real key="value" value="100"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="placeholder" value="Message"/>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="placeholderColor">
+                                            <color key="value" red="0.60392156860000001" green="0.60392156860000001" blue="0.60392156860000001" alpha="1" colorSpace="calibratedRGB"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="minHeight">
+                                            <real key="value" value="40"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                </textView>
+                                <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="m6S-gX-4oV">
+                                    <rect key="frame" x="279" y="5" width="30" height="30"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="30" id="EXy-be-Sl8"/>
+                                        <constraint firstAttribute="width" constant="30" id="J97-xU-oZy"/>
+                                    </constraints>
+                                    <state key="normal" image="sticker.png"/>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                            <integer key="value" value="15"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                    <connections>
+                                        <action selector="stickerButtonPressed:" destination="zhP-kp-dK8" eventType="touchUpInside" id="o1v-ud-Nkd"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529999999" green="0.47058823529999999" blue="0.50196078430000002" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                            <constraints>
+                                <constraint firstItem="l7M-Im-dI4" firstAttribute="leading" secondItem="MEN-6h-Cq0" secondAttribute="leading" constant="12" id="FoQ-0X-vNU"/>
+                                <constraint firstAttribute="bottom" secondItem="l7M-Im-dI4" secondAttribute="bottom" id="byh-Ty-hEK"/>
+                                <constraint firstAttribute="trailing" secondItem="m6S-gX-4oV" secondAttribute="trailing" constant="5" id="dPo-U1-VHP"/>
+                                <constraint firstItem="l7M-Im-dI4" firstAttribute="top" secondItem="MEN-6h-Cq0" secondAttribute="top" id="jz1-Ae-Zgn"/>
+                                <constraint firstItem="m6S-gX-4oV" firstAttribute="leading" secondItem="l7M-Im-dI4" secondAttribute="trailing" constant="10" id="sU3-Yb-ytM"/>
+                            </constraints>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                    <integer key="value" value="20"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                        </view>
+                        <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SC4-HH-0UW">
+                            <rect key="frame" x="374" y="13" width="30" height="30"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="30" id="V9T-sQ-6EP"/>
+                                <constraint firstAttribute="height" constant="30" id="kjk-J0-qJJ"/>
+                            </constraints>
+                            <state key="normal" image="send.png"/>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                    <integer key="value" value="15"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                            <connections>
+                                <action selector="sendButtonPressed:" destination="zhP-kp-dK8" eventType="touchUpInside" id="L5a-3x-xo2"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cvL-3A-I0M">
+                            <rect key="frame" x="10" y="13" width="30" height="30"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="30" id="pQQ-7A-3HA"/>
+                                <constraint firstAttribute="height" constant="30" id="q0e-iJ-Wst"/>
+                            </constraints>
+                            <state key="normal" image="add.png"/>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                    <integer key="value" value="15"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                            <connections>
+                                <action selector="attachmentButtonPressed:" destination="zhP-kp-dK8" eventType="touchUpInside" id="lsP-7m-Nde"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="MEN-6h-Cq0" secondAttribute="bottom" constant="8" id="836-dB-Vi8"/>
+                        <constraint firstItem="m6S-gX-4oV" firstAttribute="bottom" secondItem="SC4-HH-0UW" secondAttribute="bottom" id="FXb-AI-s51"/>
+                        <constraint firstItem="SC4-HH-0UW" firstAttribute="leading" secondItem="MEN-6h-Cq0" secondAttribute="trailing" constant="10" id="Gad-7u-Dgb"/>
+                        <constraint firstItem="cvL-3A-I0M" firstAttribute="leading" secondItem="zhP-kp-dK8" secondAttribute="leading" constant="10" id="KRF-7Q-27R"/>
+                        <constraint firstItem="MEN-6h-Cq0" firstAttribute="leading" secondItem="cvL-3A-I0M" secondAttribute="trailing" constant="10" id="MQy-W8-8j0"/>
+                        <constraint firstItem="MEN-6h-Cq0" firstAttribute="top" secondItem="zhP-kp-dK8" secondAttribute="top" constant="8" id="Ojs-xX-ISm"/>
+                        <constraint firstItem="cvL-3A-I0M" firstAttribute="centerY" secondItem="MEN-6h-Cq0" secondAttribute="centerY" id="QLC-fw-p9j"/>
+                        <constraint firstItem="cvL-3A-I0M" firstAttribute="baseline" secondItem="SC4-HH-0UW" secondAttribute="baseline" id="ZNU-Sl-NwR"/>
+                        <constraint firstItem="SC4-HH-0UW" firstAttribute="firstBaseline" secondItem="cvL-3A-I0M" secondAttribute="firstBaseline" id="ds7-XN-NpR"/>
+                        <constraint firstAttribute="trailing" secondItem="SC4-HH-0UW" secondAttribute="trailing" constant="10" id="iiE-aP-ZPo"/>
+                        <constraint firstItem="m6S-gX-4oV" firstAttribute="bottom" secondItem="cvL-3A-I0M" secondAttribute="bottom" id="nrh-ZO-zD1"/>
+                        <constraint firstItem="SC4-HH-0UW" firstAttribute="bottom" secondItem="MEN-6h-Cq0" secondAttribute="bottom" constant="-5" id="xKf-yW-fNb"/>
+                    </constraints>
+                    <connections>
+                        <outlet property="attachment" destination="cvL-3A-I0M" id="s5a-x0-xhi"/>
+                        <outlet property="send" destination="SC4-HH-0UW" id="YPF-1b-eXY"/>
+                        <outlet property="sticker" destination="m6S-gX-4oV" id="80n-Bq-cxj"/>
+                        <outlet property="textView" destination="l7M-Im-dI4" id="sfV-4F-pXI"/>
+                    </connections>
+                </view>
+            </subviews>
+            <color key="backgroundColor" systemColor="tertiarySystemBackgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="zhP-kp-dK8" secondAttribute="trailing" id="7C0-wf-2QQ"/>
+                <constraint firstItem="lFr-Q7-eoy" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="B5f-Mk-SJC"/>
+                <constraint firstItem="lFr-Q7-eoy" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Mml-8L-738"/>
+                <constraint firstItem="zhP-kp-dK8" firstAttribute="top" secondItem="lFr-Q7-eoy" secondAttribute="bottom" id="OxV-M4-IX8"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="zhP-kp-dK8" secondAttribute="bottom" id="g6P-vR-Kfp"/>
+                <constraint firstItem="zhP-kp-dK8" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="gah-R8-WZv"/>
+                <constraint firstItem="lFr-Q7-eoy" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="jTK-Zf-e8c"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="131.8840579710145" y="100.44642857142857"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="add.png" width="29" height="30"/>
+        <image name="send.png" width="30" height="31"/>
+        <image name="sticker.png" width="24" height="24"/>
+    </resources>
+</document>
