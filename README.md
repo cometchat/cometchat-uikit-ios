@@ -2,7 +2,7 @@
 <div style="width:100%">
     <div style="width:50%; display:inline-block">
         <p align="center">
-        <img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-swift-chat-app/blob//v2/Screenshots/CometChat%20Logo.png">    
+        <img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro-samples/ios-chat-uikit-app/blob/master/Screenshots/logo.png">    
         </p>    
     </div>    
 </div>
@@ -27,8 +27,6 @@ The **CometChat Kitchen Sink**  has three different ways to make fully customiza
 
 5. [Troubleshoot](#Troubleshoot)
 
-
-<img align="left" src="https://github.com/cometchat-pro-samples/ios-swift-chat-app/blob/v2/Screenshots/Screenshots.png">
    
 <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
 
@@ -40,7 +38,7 @@ The **CometChat Kitchen Sink**  has three different ways to make fully customiza
 
 # Prerequisites
 
-Before you begin, we strongly recommend you read the Prerequisites which are required to add CometChat Kitchen Sink inside your app. Kindly, [Click here]() for further information.
+Before you begin, we strongly recommend you read the Prerequisites which are required to add CometChat Kitchen Sink inside your app. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Prerequisites.md) for further information.
 
 # Setup
 
@@ -73,7 +71,7 @@ The **CometChat Kitchen Sink**  has  three different ways to make chat Applicati
 
 **UI Unified** is a way to launch a fully working chat application using the **CometChat Kitchen Sink** In UI Unified all the UI Screens and UI Components working together to give the full experience of a chat application.
 
-Know more about how to integrate UI Unified  inside your app. Kindly, [Click here]() for further information.
+Know more about how to integrate UI Unified  inside your app. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/UIUnified.md) for further information.
 
 ## UI Screens 
 
@@ -85,7 +83,7 @@ Know more about how to integrate UI Unified  inside your app. Kindly, [Click her
   * CometChatMessageList
   * CometChatUserInfo
 
-Know more about how to integrate UIScreens inside your app. Kindly, [Click here]() for further information.
+Know more about how to integrate UIScreens inside your app. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/UIScreens.md) for further information.
 
 ## UI Components
 
@@ -98,9 +96,9 @@ Know more about how to integrate UIScreens inside your app. Kindly, [Click here]
   * GroupView
   * ConversationView
 
-Know more about how to integrate UI Components inside your app. Kindly, [Click here]() for further information.
+Know more about how to integrate UI Components inside your app. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/UIComponents.md) for further information.
 
 
 ## Troubleshoot
 
-Facing any issues while integrating or installing the CometChat Kitchen Sink. Kindly, [Click here](Troubleshoot.md link here).
+Facing any issues while integrating or installing the CometChat Kitchen Sink. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Troubleshoot.md).
