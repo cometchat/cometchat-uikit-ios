@@ -12,7 +12,8 @@
 </div>
 
 
-CometChat UIKit (built using **CometChat Pro**) is a fully functional messaging kit capable of **one-on-one** (private) and **group** messaging along with recent conversations. This kit enables users to send **text** and **multimedia messages like  images, documents.**
+The **CometChat Kitchen Sink**  has three different ways to make fully customizable UI required to build a chat application. The **CometChat Kitchen Sink** has been developed to help developers of different levels of experience to build a chat application in few minutes to a couple of hours. 
+
 
 ## Table of Contents
 
@@ -26,8 +27,10 @@ CometChat UIKit (built using **CometChat Pro**) is a fully functional messaging 
 
 5. [Troubleshoot](#Troubleshoot)
 
-6. [Contributing](#Contributing) 
 
+<img align="left" src="https://github.com/cometchat-pro-samples/ios-swift-chat-app/blob/v2/Screenshots/Screenshots.png">
+   
+<br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
 
 # Screenshots
 
@@ -37,7 +40,7 @@ CometChat UIKit (built using **CometChat Pro**) is a fully functional messaging 
 
 # Prerequisites
 
-Before you begin, we strongly recommend you read the Prerequisites which are required to add CometChat UIKit inside your app. Kindly, [Click here](https://Prerequisites.md link here).
+Before you begin, we strongly recommend you read the Prerequisites which are required to add CometChat Kitchen Sink inside your app. Kindly, [Click here]() for further information.
 
 # Setup
 
@@ -57,88 +60,47 @@ To integrate CometChat UIKit inside your app. Kindly follow the below steps:
 
 ![Studio Guide](https://Enter library structure to project link here)
 
-You can refer the CometChat UIKit iOS Sample app. [Click here](https://Sample app link here) to refer the sample app. 
+You can refer the CometChat UIKit iOS Sample app. [Click here](https://github.com/cometchat-pro-samples/ios-chat-uikit-app) to refer the sample app. 
 
 # Integration
 
-CometChat UIKit is Divided into two sections i.e. UIComponents and UIScreens. UIScreens are ready made easy to use predefined screens present in library. User can create their own layout using screen in few minutes whereas  UIComponents includes components such as Avtar, Status Indicator, Badge Count etc. which user can use anywhere inside the App. 
+The **CometChat Kitchen Sink**  has  three different ways to make chat Application
+1. UI Unified 
+2. UI Screens
+3. UI Components 
 
-## UIScreens: 
+## UI Unified 
 
-1. CometChatLauncher: 
+**UI Unified** is a way to launch a fully working chat application using the **CometChat Kitchen Sink** In UI Unified all the UI Screens and UI Components working together to give the full experience of a chat application.
 
-CometChatLauncher is a combined screen which is a subclass of UITabBarController and includes all screens as shown in the image. Developer can launch this screen using below code snippet or assign the class to UITabBarController to launch this activity. 
+Know more about how to integrate UI Unified  inside your app. Kindly, [Click here]() for further information.
 
-```
-let launcher = CometChatLauncher()
-launcher.setup(withStyle: .fullScreen)
-self.present(launcher, animated: true, completion: nil)
+## UI Screens 
 
-```
+ CometChat Kitchen Sink provides list of screens by using which developer can create screens like User List, Group List, Conversation List, Message List etc. These screens will be the class of UIViewController. These screens can be easily integrated into any view or view controller with minimal efforts. There are different screens available in **UI-KIT**.
 
-2. CometChatUserList: 
+  * CometChatUserList 
+  * CometChatGroupList
+  * CometChatConversationList
+  * CometChatMessageList
+  * CometChatUserInfo
 
-CometChatUserList is a subclass of UIViewController which displays user list in alphabetical sections.  Developer can launch this screen using below code snippet or assign the class to UIViewController to launch this activity. To display the title in `CometChatUserList` please attach the UINavigationController to it. 
+Know more about how to integrate UIScreens inside your app. Kindly, [Click here]() for further information.
 
-```
-let userList = CometChatUserList()
-let navigationController = UINavigationController(rootViewController: userList)
-navigationController.modalPresentationStyle = .fullScreen
-userList.set(title: "Contacts", mode: .automatic)
-self.present(navigationController, animated: true, completion: nil)
+## UI Components
 
-```
+**UI Components** are building a block of the **CometChat Kitchen Sink**. **UI Components** are set of custom classes specially designed to build a rich chat app. To achieve high customizability while building an app one can use the UI Components. There are different UI Components available in the **CometChat Kitchen Sink** library.
 
-3. CometChatGroupList: 
+  * Avatar
+  * BadgeCount
+  * StatusIndicator
+  * UserView
+  * GroupView
+  * ConversationView
 
-CometChatGroupList is a subclass of UIViewController which displays list of groups.  Developer can launch this screen using below code snippet or assign the class to UIViewController to launch this activity. To display the title in `CometChatGroupList` please attach the UINavigationController to it. 
-
-```
-let groupList = CometChatGroupList()
-let navigationController = UINavigationController(rootViewController: groupList)
-navigationController.modalPresentationStyle = .fullScreen
-groupList.set(title: "Groups", mode: .automatic)
-self.present(navigationController, animated: true, completion: nil)
-
-```
-
-4. CometChatConversationList: 
-
-CometChatConversationList is a subclass of UIViewController which displays list of recent conversations.  Developer can launch this screen using below code snippet or assign the class to UIViewController to launch this activity. To display the title in `CometChatConversationList` please attach the UINavigationController to it. 
-
-```
-let conversationList = CometChatConversationList()
-let navigationController = UINavigationController(rootViewController: conversationList)
-navigationController.modalPresentationStyle = .fullScreen
-conversationList.set(title: "Chats", mode: .automatic)
-self.present(navigationController, animated: true, completion: nil)
-
-```
-
-5. CometChatConversationList: 
-
-CometChatConversationList is a subclass of UIViewController which displays list of recent conversations.  Developer can launch this screen using below code snippet or assign the class to UIViewController to launch this activity. To display the title in `CometChatConversationList` please attach the UINavigationController to it. 
-
-```
-let conversationList = CometChatConversationList()
-let navigationController = UINavigationController(rootViewController: conversationList)
-navigationController.modalPresentationStyle = .fullScreen
-conversationList.set(title: "Chats", mode: .automatic)
-self.present(navigationController, animated: true, completion: nil)
-
-```
+Know more about how to integrate UI Components inside your app. Kindly, [Click here]() for further information.
 
 
-## UIComponents:
+## Troubleshoot
 
-This will be the UI components dedicated to chat interface like Avatar, BadgeCount, StatusIndicator, ChatView, MessageBubbles etc. These Components will be highly customizable to meet users demand.
-
-Kindly, [Click here](https://UIComponents doocumentation link here) to refer further documentation for UIComponents. 
-
-
-5. [Troubleshoot](#Troubleshoot)
-
-6. [Contributing](#Contributing) 
-
-
-
+Facing any issues while integrating or installing the CometChat Kitchen Sink. Kindly, [Click here](Troubleshoot.md link here).

@@ -106,10 +106,11 @@ public class CometChatMessageList: UIViewController, UIDocumentPickerDelegate {
     internal func setupNavigationBar(withImage URL: String){
          DispatchQueue.main.async {
             // Avtar apperance:
-            let avtarView = UIView(frame: CGRect(x: -10 , y: 0, width: 38, height: 38))
+            let avtarView = UIView(frame: CGRect(x: -10 , y: 0, width: 40, height: 40))
             avtarView.backgroundColor = UIColor.clear
             avtarView.layer.masksToBounds = true
-            let avtar = Avtar(frame: CGRect(x: 0, y: 0, width: 38, height: 38))
+            avtarView.layer.cornerRadius = 19
+            let avtar = Avtar(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
             avtar.set(cornerRadius: 19).set(borderColor: .clear).set(image: URL)
             avtarView.addSubview(avtar)
             let rightBarButton = UIBarButtonItem(customView: avtarView)

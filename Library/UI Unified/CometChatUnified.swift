@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CometChatLauncher: UITabBarController {
+class CometChatUnified: UITabBarController {
     
     public let conversations = UINavigationController()
     public let users = UINavigationController()

@@ -16,7 +16,7 @@ import  Kingfisher
 @IBDesignable
 
 @objc public class Avtar: UIImageView {
-    @IBInspectable var cornerRadius: CGFloat = 27.5  // This parameter specifies the corner radius for Avtar class
+    @IBInspectable var cornerRadius: CGFloat = 0  // This parameter specifies the corner radius for Avtar class
     @IBInspectable var borderColor: UIColor = UIColor.lightGray  // This parameter specifies the border color for Avtar class
     @IBInspectable var borderWidth: CGFloat = 0.5  // This parameter specifies the border width for Avtar class
     
@@ -35,19 +35,20 @@ import  Kingfisher
     
     // This function used to ser the cornerRadius for Avtar class
     @objc public func set(cornerRadius : CGFloat) -> Avtar {
-        self.cornerRadius = cornerRadius
+        self.layer.cornerRadius = cornerRadius
+        self.clipsToBounds = true
         return self
     }
     
     // This function used to ser the borderColor for Avtar class
     @objc public func set(borderColor : UIColor) -> Avtar {
-           self.borderColor = borderColor
+           self.layer.borderColor = borderColor.cgColor
            return self
     }
     
     // This function used to ser the borderWidth for Avtar class
     @objc public func set(borderWidth : CGFloat) -> Avtar {
-              self.borderWidth = borderWidth
+              self.layer.borderWidth = borderWidth
               return self
     }
     

@@ -67,9 +67,12 @@ import CometChatPro
     }
     
     @objc public func set(count : Int) -> BadgeCount {
-        if count >= 1{
+        if count >=  1 && count < 999 {
+               self.isHidden = false
+                self.text = "\(count)"
+        }else if count > 999 {
             self.isHidden = false
-            self.text = "\(count)"
+            self.text = "999+"
         }else{
             self.isHidden = true
         }
