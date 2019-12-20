@@ -27,14 +27,11 @@ The **CometChat Kitchen Sink**  has three different ways to make fully customiza
 
 5. [Troubleshoot](#Troubleshoot)
 
-   
-<br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
-
 # Screenshots
 
-<img align="left" src="Enter Link here">
+<img align="left" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/kitScreenshot.png">
    
-<br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+<br></br><br></br><br></br><br></br><br>
 
 # Prerequisites
 
