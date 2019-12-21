@@ -11,7 +11,7 @@ This component will be the class of UIImageView which is customizable to display
 
 | **Sr. No.**| **Parameter** | **Description** |
 | :---: | :---: | :--- |
-|1 | Corner Radius | This field specifies the regular font used in entire app. |
+|1 | Corner Radius | This field specifies the shape for Avtar. |
 |2 | Image URL  | This will take Image url and load the corresponding url |
 |3 | Border Width | This will accept Int number as parameter.  |
 |4 | Border Color | This will accept UIColor as parameter. |
@@ -68,8 +68,8 @@ Developer can use this class by assigning it to the UIImageView and modify it as
 ```
 statusIndicator.set(cornerRadius: 10)
                .set(borderColor: .white)
-			   .set(borderWidth: 2)
-			   .set(status: .online)
+	       .set(borderWidth: 2) 
+	       .set(status: .online)
 ```
 <br>
 
@@ -102,9 +102,9 @@ Developer can use this class by assigning it to the UIImageView and modify it as
 
 ```
 badgeCount.set(count: 10)
-	      .set(borderColor: .white)
-		  .set(borderWidth: 2)
-	      .set(backgroundColor: .red)
+	  .set(borderColor: .white)
+	  .set(borderWidth: 2)
+	  .set(backgroundColor: .red)
 ```
 <br>
 
