@@ -17,7 +17,8 @@ The  **CometChat Kitchen Sink**  Library depends on two major libraries. i.e `Co
 
 ## **Add CometChatPro dependancy**
 
-CometChatPro SDK supports installation through Cocoapods. To Add CometChatPro dependancy. Kindly, [Click here](https://prodocs.cometchat.com/docs/ios-quick-start).
+ CometChatPro SDK supports installation through Cocoapods. To Add CometChatPro dependancy. Kindly, [Click here](https://prodocs.cometchat.com/docs/ios-quick-start).
+
 ---
 
 ## **Add Kingfisher dependancy**
