@@ -9,7 +9,8 @@
 ---
 ## 1. Avtar
 
-<img align="center" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/avatar.png"> 
+<p align="center"><img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/avatar.png"></p>    
+
 
 This component will be the class of UIImageView which is customizable to display Avatar. This view has the following custom parameters:
 
@@ -46,7 +47,7 @@ avtar.set(borderWidth: 5)
 
 ## 2. Status Indicator 
 
-<img align="center" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/statusIndicator.png"> 
+<p align="center"><img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/statusIndicator.png"></p>    
 
 This component will be the class of UIImageView which is customizable to display the status of the user. This view has the following custom parameters:
 
@@ -85,7 +86,7 @@ statusIndicator.set(cornerRadius: 10)
 
 ## 3. Badge Count 
 
-<img align="center" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/badgeCount.png"> 
+<p align="center"><img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/badgeCount.png"></p>
 
 This component will be the class of UILabel which is customizable to display the unread message count for conversations. This view has the following custom parameters:
 
@@ -124,7 +125,7 @@ badgeCount.set(count: 10)
 
 ## 4. UserView
 
-<img align="center" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/userView.png"> 
+<p align="center"><img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/userView.png"></p>
 
 This component will be the class of UITableViewCell with components such as userAvtar(Avtar), userName(UILabel).
 
@@ -154,7 +155,7 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
 
 ## 5. GroupView
 
-<img align="center" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/groupView.png"> 
+<p align="center"><img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/groupView.png"></p>
 
 This component will be the class of UITableViewCell with components such as groupAvtar(Avtar),  groupName(UILabel), groupDetails(UILabel). 
 
@@ -182,7 +183,7 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
 
 ## 6. ConversationView
 
-<img align="center" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/conversationView.png"> 
+<p align="center"><img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/conversationView.png"></p>
 
 This component will be the class of UITableViewCell with components such as groupAvtar(Avtar),  groupName(UILabel), groupDetails(UILabel). 
 
