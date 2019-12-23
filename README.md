@@ -2,15 +2,16 @@
 <div style="width:100%">
     <div style="width:50%; display:inline-block">
         <p align="center">
-        <img align="left" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/kitScreenshot.png">    
+        <img align="left" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/MainScreenshot.png">    
         </p>    
     </div>    
 </div>
 
-</br>
-</br>
+</br></br>
 </div>
 
+
+</br></br></br></br>
 
 The **CometChat Kitchen Sink**  has three different ways to make fully customizable UI required to build a chat application. The **CometChat Kitchen Sink** has been developed to help developers of different levels of experience to build a chat application in few minutes to a couple of hours. 
 
@@ -35,21 +36,7 @@ Before you begin, we strongly recommend you read the Prerequisites which are req
 
 We hope you followed instructions given in Prerequisites section and you have added necessory dependancies inside you app. 
 
-To integrate CometChat UIKit inside your app. Kindly follow the below steps: 
-
-1. Simply clone the UIKit Library from ios-chat-uikit repository. 
-
-2. After cloning the repository, Navigate to `Library` folder and Add the folder inside your app. 
-
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/addLibraryToProject.png)
-
-3. Make sure you've selected `✅ Copy items if needed`  as well as `🔘 Create groups` options while adding Library inside your project. 
-
-4. If the Library is added sucessfully, it will look like mentioned in the below image. 
-
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/LibraryStructure.png)
-
-You can refer the CometChat UIKit iOS Sample app. [Click here](https://github.com/cometchat-pro-samples/ios-chat-uikit-app) to refer the sample app. 
+To integrate CometChat UIKit inside your app. Kindly refer setup section. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Setup.md) for further information.
 
 # Integration
 
