@@ -2,7 +2,7 @@
 <div style="width:100%">
     <div style="width:50%; display:inline-block">
         <p align="center">
-        <img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro-samples/ios-chat-uikit-app/blob/master/Screenshots/logo.png">    
+        <img align="left" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/kitScreenshot.png">    
         </p>    
     </div>    
 </div>
@@ -17,21 +17,15 @@ The **CometChat Kitchen Sink**  has three different ways to make fully customiza
 
 ## Table of Contents
 
-1. [Screenshots](#Screenshots)
+1. [Prerequisites](#Prerequisites)
 
-2. [Prerequisites](#Prerequisites)
+2. [Setup](#Setup)
 
-3. [Setup](#Setup)
+3. [Integration](#Integration)
 
-4. [Integration](#Integration)
+4. [Troubleshoot](#Troubleshoot)
 
-5. [Troubleshoot](#Troubleshoot)
 
-# Screenshots
-
-<img align="left" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/kitScreenshot.png">
-   
-<br></br><br></br><br></br><br></br><br>
 
 # Prerequisites
 
@@ -47,13 +41,13 @@ To integrate CometChat UIKit inside your app. Kindly follow the below steps:
 
 2. After cloning the repository, Navigate to `Library` folder and Add the folder inside your app. 
 
-![Studio Guide](https://Enter add library to project link here)
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/addLibraryToProject.png)
 
 3. Make sure you've selected `✅ Copy items if needed`  as well as `🔘 Create groups` options while adding Library inside your project. 
 
 4. If the Library is added sucessfully, it will look like mentioned in the below image. 
 
-![Studio Guide](https://Enter library structure to project link here)
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/LibraryStructure.png)
 
 You can refer the CometChat UIKit iOS Sample app. [Click here](https://github.com/cometchat-pro-samples/ios-chat-uikit-app) to refer the sample app. 
 
@@ -66,11 +60,15 @@ The **CometChat Kitchen Sink**  has  three different ways to make chat Applicati
 
 ## UI Unified 
 
+  ![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIUnified.png) 
+
 **UI Unified** is a way to launch a fully working chat application using the **CometChat Kitchen Sink** In UI Unified all the UI Screens and UI Components working together to give the full experience of a chat application.
 
 Know more about how to integrate UI Unified  inside your app. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/UIUnified.md) for further information.
 
 ## UI Screens 
+
+ ![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIScreens.png) 
 
  CometChat Kitchen Sink provides list of screens by using which developer can create screens like User List, Group List, Conversation List, Message List etc. These screens will be the class of UIViewController. These screens can be easily integrated into any view or view controller with minimal efforts. There are different screens available in **UI-KIT**.
 
@@ -83,6 +81,9 @@ Know more about how to integrate UI Unified  inside your app. Kindly, [Click her
 Know more about how to integrate UIScreens inside your app. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/UIScreens.md) for further information.
 
 ## UI Components
+
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIComponents.png) 
+
 
 **UI Components** are building a block of the **CometChat Kitchen Sink**. **UI Components** are set of custom classes specially designed to build a rich chat app. To achieve high customizability while building an app one can use the UI Components. There are different UI Components available in the **CometChat Kitchen Sink** library.
 
