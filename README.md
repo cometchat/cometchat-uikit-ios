@@ -2,7 +2,7 @@
 <div style="width:100%">
     <div style="width:50%; display:inline-block">
         <p align="center">
-        <img align="left" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/MainScreenshot.png">    
+        <img align="left" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/MainScreenshot.jpg">    
         </p>    
     </div>    
 </div>
@@ -11,7 +11,7 @@
 </div>
 
 
-</br></br></br></br>
+</br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
 
 The **CometChat Kitchen Sink**  has three different ways to make fully customizable UI required to build a chat application. The **CometChat Kitchen Sink** has been developed to help developers of different levels of experience to build a chat application in few minutes to a couple of hours. 
 
