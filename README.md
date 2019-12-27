@@ -110,14 +110,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate{
     
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-  let mySettings =       AppSettings.AppSettingsBuilder().subscribePresenceForAllUsers().setRegion(region: region).build()
-        
+  let mySettings = AppSettings.AppSettingsBuilder().subscribePresenceForAllUsers().setRegion(region: region).build()
   CometChat(appId: appId ,appSettings: mySettings,onSuccess: { (isSuccess) in
-            if (isSuccess) {
+  
                 print("CometChat Pro SDK intialise successfully.")
             }
         }) { (error) in
-            print("CometChat Pro SDK failed intialise with error: \        (error.errorDescription)")
+            print("CometChat Pro SDK failed intialise with error: \(error.errorDescription)")
         }
         return true
     }
@@ -181,7 +180,7 @@ self.present(unfiedUI, animated: true, completion: nil)
 
 ```
 
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIunified.gif)
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIUnified.gif)
 
 `CometChatUnified` provides below method to present this activity: 
 
