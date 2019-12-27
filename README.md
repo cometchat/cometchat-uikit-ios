@@ -169,6 +169,9 @@ ___
 
 # Launch UI Unified
 
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIUnified.jpg)
+
+
 **UI Unified** is a way to launch a fully working chat application using the **CometChat Kitchen Sink**.In UI Unified all the UI Screens and UI Components working together to give the full experience of a chat application with minimal coding effort. 
 
 To use Unified UI one has to launch `CometChatUnified` class.  `CometChatUnified` is a subclass of  `UITabbarController`.
