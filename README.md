@@ -181,45 +181,7 @@ self.present(unfiedUI, animated: true, completion: nil)
 
 ```
 
-<br>
-<div class="quickstart">
-<div width="100%" style="display:inline-block;border-color:#fff">
-  <div width="50%" style="float: left;height: 330px;padding-bottom: 20px;background-color:
-#131415;border-radius: 8px;width: 70%;color:#fff;">
-     <div style="display:inline-block;width:100%;opacity:0.6;padding-left:10px;padding-top:10px;padding-bottom:10px;color:#000;background-color:#eaeaea; border-top-right-radius: 8px;border-top-left-radius: 8px;">
-      <b>Swift</b>
-      <div style="color:grey;float:right;margin-right:10px;"onclick="copyFunction()" onMouseOut="this.style.color='grey'" onMouseOver="this.style.color='black'"><a href="">Copy</a></div>
-    </div>
-    <br/><br/><br/><br/><br/><br/>
-       <code id="codeValue" style="color:#fff;padding-left:15px;"><span style= "color:#B046A8"> let</span>
-       <span style= "color:#FFFFFF">unfiedUI =</span>  
-       <span style= "color:#81CA21">CometChatUnified()</span> <br>
-       <span style= "color:#FFFFFF;padding-left:15px;">unfiedUI.</span><span style= "color:#46858C">setup</span><span style= "color:#FFFFFF">(withStyle: .</span><span style= "color:#966CC4">fullScreen</span><span style= "color:#FFFFFF">)</span> <br>
-       <span style= "color:#B046A8;padding-left:15px;">self</span><span style= "color:#FFFFFF">.present(unfiedUI, animated:</span><span style= "color:#B046A8">true</span><span style= "color:#FFFFFF">, completion:</span><span style= "color:#B046A8">nil</span><span style= "color:#FFFFFF">)</span> <br>  
-       </code>
-  </div>
-  <div style="width:30%;margin-top:0px;float:left;">
-    <figure>   
-      <img src="https://files.readme.io/734ac49-conversationList.gif" width="165px" height="330px"/>
-			</figure>
-  </div>
-<div style="clear:both"></div>
-</div>
-</div>
-
-<script type="text/javascript">
-//document.onload=()=>{
-  let copyFunction=()=>{
-    const el = document.createElement('textarea');
-  el.value = "let unfiedUI = CometChatUnified() \n unfiedUI.setup(withStyle: .fullScreen) \n self.present(unfiedUI, animated:true, completion:nil)";
-  document.body.appendChild(el);
-  el.select();
-  document.execCommand('copy');
-  document.body.removeChild(el);
-  }
-  //}
-</script>
-
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIunified.gif)
 
 `CometChatUnified` provides below method to present this activity: 
 
