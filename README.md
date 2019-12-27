@@ -30,24 +30,23 @@ Follow the below metioned steps for easy setup and seamless integration with **U
 
 ### Add the CometChat Dependency
 
-We recommend using CocoaPods, as they are the most advanced way of managing iOS project dependencies. Open a terminal window, move to your project directory, and then create a Podfile by running the following command.
+We recommend using CocoaPods, as they are the most advanced way of managing iOS project dependencies. Open a terminal window, move to your project directory, and then create a Podfile by running the following command
+ 
+**Note:**
+</br>
+* CometChatPro SDK supports installation through Cocoapods only and it will support up to two latest releases of    
+  Xcode. Currently, we are supporting Xcode 11.2.1 and Xcode 11.
+  
+* CometChatPro SDK includes video calling components. We suggest you run on physical devices to avoid errors.
 
-```
- Note:
-
- 1. CometChatPro SDK supports installation through Cocoapods only and it will support up to two latest releases of Xcode. Currently, we are supporting Xcode 11.2.1 and Xcode 11.
-
-2. CometChatPro SDK includes video calling components. We suggest you run on physical devices to avoid errors.
-
-```
 Create podfile using below command.
 
-```
+```bash
 $ pod init
 ```
 Add the following lines to the Podfile.
 
-```
+```bash
 ________________________________________________________________
 
 For Xcode 11.2.1(Latest):
@@ -71,7 +70,7 @@ end
 ________________________________________________________________
 ```
 And then install the `CometChatPro` framework through CocoaPods.
-```
+```bash
 pod install
 ```
 ___
@@ -99,7 +98,7 @@ ___
 
 The `init()` method initializes the settings required for CometChat. We suggest calling the `init()` method on app startup, preferably in the `onCreate()` method of the Application class.
 
-```
+```swift
 import CometChatPro
 
 class AppDelegate: UIResponder, UIApplicationDelegate{
@@ -130,7 +129,7 @@ ___
 
 The `login()` method returns the User object containing all the information of the logged-in user.
 
-```
+```swift
 let uid    = "SUPERHERO1"
 let apiKey = "YOUR_API_KEY"
 
@@ -176,10 +175,12 @@ ___
 
 To use Unified UI one has to launch `CometChatUnified` class.  `CometChatUnified` is a subclass of  `UITabbarController`.
 
-```
+```swift
+
 let unfiedUI = CometChatUnified()
 unfiedUI.setup(withStyle: .fullScreen)
 self.present(unfiedUI, animated: true, completion: nil)
+
 
 ```
 
