@@ -93,7 +93,7 @@ ___
 
 Set the `Header Search Paths` to `$SDKROOT/usr/include/libxml2`.
 
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/headerSearchPath1.png) 
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/headerSearchPath.png) 
 ___
 # Initialize CometChat
 
