@@ -9,7 +9,6 @@
 import Foundation
 import  UIKit
 import  CometChatPro
-import  Kingfisher
 
 
 //////////////////////////////   COMETCHATPRO : AVTAR  //////////////////////////////

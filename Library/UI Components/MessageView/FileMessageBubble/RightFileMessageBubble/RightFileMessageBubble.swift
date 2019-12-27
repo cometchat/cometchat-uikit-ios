@@ -8,7 +8,6 @@
 
 import UIKit
 import CometChatPro
-import Kingfisher
 
 class RightFileMessageBubble: UITableViewCell {
 

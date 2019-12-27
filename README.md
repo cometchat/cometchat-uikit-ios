@@ -10,80 +10,242 @@
 </br></br>
 </div>
 
-
 </br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
 
-The **CometChat Kitchen Sink**  has three different ways to make fully customizable UI required to build a chat application. The **CometChat Kitchen Sink** has been developed to help developers of different levels of experience to build a chat application in few minutes to a couple of hours. 
+# What is UI Kit
+
+The **UI Kit** library is collection of custom **UI Components** and **UI Screens** design to build chat application within few minutes. **UI kit** is designed to avoid boilerplate code for building UI,it has three different ways to build a chat application with fully customizable UI.It will help developers to build a chat application within using various **UI Components**.
 
 
-## Table of Contents
+## Setup
 
-1. [Prerequisites](#Prerequisites)
+Follow the below metioned steps for easy setup and seamless integration with **UI Kit**.
 
-2. [Setup](#Setup)
+### Get your Application Keys
+<a href="https://app.cometchat.io/" traget="_blank">Signup for CometChat</a> and then:
 
-3. [Integration](#Integration)
+* Create a new app
+* Head over to the API Keys section and note the `API_Key`,`App_ID` and `REGION`.
+---
 
-4. [Troubleshoot](#Troubleshoot)
+### Add the CometChat Dependency
+
+We recommend using CocoaPods, as they are the most advanced way of managing iOS project dependencies. Open a terminal window, move to your project directory, and then create a Podfile by running the following command.
+
+```
+ Note:
+
+ 1. CometChatPro SDK supports installation through Cocoapods only and it will support up to two latest releases of Xcode. Currently, we are supporting Xcode 11.2.1 and Xcode 11.
+
+2. CometChatPro SDK includes video calling components. We suggest you run on physical devices to avoid errors.
+
+```
+Create podfile using below command.
+
+```
+$ pod init
+```
+Add the following lines to the Podfile.
+
+```
+________________________________________________________________
+
+For Xcode 11.2.1(Latest):
+
+platform :ios, '10.0'
+use_frameworks!
+
+target 'MyApp' do
+  pod 'CometChatPro', '~> 2.0.5'
+end
+________________________________________________________________
+
+For Xcode 11(Older):
+
+platform :ios, '10.0'
+use_frameworks!
+
+target 'MyApp' do
+    pod 'CometChatPro', '~> 2.0.5-Xcode11'
+end
+________________________________________________________________
+```
+And then install the `CometChatPro` framework through CocoaPods.
+```
+pod install
+```
+___
+### Setup Bitcode
+
+Set the Enable Bitcode to NO.
+
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/bitcodeEnabled.png) 
+___
+
+### Swift Standard Libraries
+
+`CometChatPro` framework build on Swift, you have to ensure the required libraries are embedded. This can be done by setting the “Always Embed Swift Standard Libraries” checkbox in your target’s build settings to “Yes”:
 
 
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/AlwaysEmbedLibraries.png) 
+___
+### Set Header Search Path
 
-# Prerequisites
+Set the `Header Search Paths` to `$SDKROOT/usr/include/libxml2`.
 
-Before you begin, we strongly recommend you read the Prerequisites which are required to add CometChat Kitchen Sink inside your app. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Prerequisites.md) for further information.
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/headerSearchPath.png) 
+___
+# Initialize CometChat
 
-# Setup
+The `init()` method initializes the settings required for CometChat. We suggest calling the `init()` method on app startup, preferably in the `onCreate()` method of the Application class.
 
-We hope you followed instructions given in Prerequisites section and you have added necessory dependancies inside you app. 
+```
+import CometChatPro
 
-To integrate CometChat UIKit inside your app. Kindly refer setup section. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Setup.md) for further information.
+class AppDelegate: UIResponder, UIApplicationDelegate{
+{
+   var window: UIWindow ?
+   let appId: String = "ENTER API KEY"
+   let region: String = "ENTER REGION CODE"
+    
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-# Integration
+  let mySettings =       AppSettings.AppSettingsBuilder().subscribePresenceForAllUsers().setRegion(region: region).build()
+        
+  CometChat(appId: appId ,appSettings: mySettings,onSuccess: { (isSuccess) in
+            if (isSuccess) {
+                print("CometChat Pro SDK intialise successfully.")
+            }
+        }) { (error) in
+            print("CometChat Pro SDK failed intialise with error: \        (error.errorDescription)")
+        }
+        return true
+    }
+}
+```
+**Note :**
+Make sure you replace the APP_ID with your CometChat `App_ID` and `REGION` with your app region in the above code.
 
-The **CometChat Kitchen Sink**  has  three different ways to make chat Application
-1. UI Unified 
-2. UI Screens
-3. UI Components 
+___
+# Log in your User
 
-## UI Unified 
+The `login()` method returns the User object containing all the information of the logged-in user.
 
-  ![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIUnified.png) 
+```
+let uid    = "SUPERHERO1"
+let apiKey = "YOUR_API_KEY"
 
-**UI Unified** is a way to launch a fully working chat application using the **CometChat Kitchen Sink** In UI Unified all the UI Screens and UI Components working together to give the full experience of a chat application.
+CometChat.login(UID: uid, apiKey: apiKey, onSuccess: { (user) in
 
-Know more about how to integrate UI Unified  inside your app. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/UIUnified.md) for further information.
+  print("Login successful : " + user.stringValue())
 
-## UI Screens 
+}) { (error) in
 
- ![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIScreens.png) 
+  print("Login failed with error: " + error.errorDescription);
 
- CometChat Kitchen Sink provides list of screens by using which developer can create screens like User List, Group List, Conversation List, Message List etc. These screens will be the class of UIViewController. These screens can be easily integrated into any view or view controller with minimal efforts. There are different screens available in **UI-KIT**.
+}
+```
+**Note :** </br>
+* Make sure you replace the `API_KEY` with your CometChat API Key in the above code.
+* We have setup 5 users for testing having UIDs: `SUPERHERO1`, `SUPERHERO2`, `SUPERHERO3`,`SUPERHERO4` and `SUPERHERO5`.
+___
 
-  * CometChatUserList 
-  * CometChatGroupList
-  * CometChatConversationList
-  * CometChatMessageList
-  * CometChatUserInfo
+# Add UI Kit to your project
 
-Know more about how to integrate UIScreens inside your app. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/UIScreens.md) for further information.
+To integrate CometChat UIKit inside your app. Kindly follow the below steps: 
 
-## UI Components
+1. Simply clone the UIKit Library from ios-chat-uikit repository. 
 
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIComponents.png) 
+2. After cloning the repository, Navigate to `Library` folder and Add the folder inside your app. 
+
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/addLibraryToProject.png)
+
+3. Make sure you've selected `✅ Copy items if needed`  as well as `🔘 Create groups` options while adding Library inside your project. 
+
+4. If the Library is added sucessfully, it will look like mentioned in the below image. 
+
+![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/LibraryStructure.png)
+
+___
+
+# Launch UI Unified
+
+**UI Unified** is a way to launch a fully working chat application using the **CometChat Kitchen Sink**.In UI Unified all the UI Screens and UI Components working together to give the full experience of a chat application with minimal coding effort. 
+
+To use Unified UI one has to launch `CometChatUnified` class.  `CometChatUnified` is a subclass of  `UITabbarController`.
+
+```
+let unfiedUI = CometChatUnified()
+unfiedUI.setup(withStyle: .fullScreen)
+self.present(unfiedUI, animated: true, completion: nil)
+
+```
+
+<br>
+<div class="quickstart">
+<div width="100%" style="display:inline-block;border-color:#fff">
+  <div width="50%" style="float: left;height: 330px;padding-bottom: 20px;background-color:
+#131415;border-radius: 8px;width: 70%;color:#fff;">
+     <div style="display:inline-block;width:100%;opacity:0.6;padding-left:10px;padding-top:10px;padding-bottom:10px;color:#000;background-color:#eaeaea; border-top-right-radius: 8px;border-top-left-radius: 8px;">
+      <b>Swift</b>
+      <div style="color:grey;float:right;margin-right:10px;"onclick="copyFunction()" onMouseOut="this.style.color='grey'" onMouseOver="this.style.color='black'"><a href="">Copy</a></div>
+    </div>
+    <br/><br/><br/><br/><br/><br/>
+       <code id="codeValue" style="color:#fff;padding-left:15px;"><span style= "color:#B046A8"> let</span>
+       <span style= "color:#FFFFFF">unfiedUI =</span>  
+       <span style= "color:#81CA21">CometChatUnified()</span> <br>
+       <span style= "color:#FFFFFF;padding-left:15px;">unfiedUI.</span><span style= "color:#46858C">setup</span><span style= "color:#FFFFFF">(withStyle: .</span><span style= "color:#966CC4">fullScreen</span><span style= "color:#FFFFFF">)</span> <br>
+       <span style= "color:#B046A8;padding-left:15px;">self</span><span style= "color:#FFFFFF">.present(unfiedUI, animated:</span><span style= "color:#B046A8">true</span><span style= "color:#FFFFFF">, completion:</span><span style= "color:#B046A8">nil</span><span style= "color:#FFFFFF">)</span> <br>  
+       </code>
+  </div>
+  <div style="width:30%;margin-top:0px;float:left;">
+    <figure>   
+      <img src="https://files.readme.io/734ac49-conversationList.gif" width="165px" height="330px"/>
+			</figure>
+  </div>
+<div style="clear:both"></div>
+</div>
+</div>
+
+<script type="text/javascript">
+//document.onload=()=>{
+  let copyFunction=()=>{
+    const el = document.createElement('textarea');
+  el.value = "let unfiedUI = CometChatUnified() \n unfiedUI.setup(withStyle: .fullScreen) \n self.present(unfiedUI, animated:true, completion:nil)";
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+  }
+  //}
+</script>
 
 
-**UI Components** are building a block of the **CometChat Kitchen Sink**. **UI Components** are set of custom classes specially designed to build a rich chat app. To achieve high customizability while building an app one can use the UI Components. There are different UI Components available in the **CometChat Kitchen Sink** library.
+`CometChatUnified` provides below method to present this activity: 
 
-  * Avatar
-  * BadgeCount
-  * StatusIndicator
-  * UserView
-  * GroupView
-  * ConversationView
+1. `setup(withStyle: .fullScreen)` : This will present the window in Full screen.
 
-Know more about how to integrate UI Components inside your app. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/UIComponents.md) for further information.
+2. `setup(withStyle: .popover)` : This will present the window as a popover.
 
+---
 
-## Troubleshoot
+# Run the sample App
 
-Facing any issues while integrating or installing the CometChat Kitchen Sink. Kindly, [Click here](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Troubleshoot.md).
+Visit our [UI Kit sample app](https://github.com/cometchat-pro-samples/ios-chat-uikit-app) repo to run the sample app.
+
+**Note :** </br>
+* To run the sample app kindly follow the instructions provided in `Readme.md` file.
+
+---
+
+# UI Kit Documentation 
+
+To read the full dcoumentation on UI Kit integration visit our [Documentation](https://prodocs.cometchat.com/docs/ios-ui-kit)  .
+
+---
+
+# Troubleshooting
+Facing any issues while integrating or installing the UI Kit please <a href="https://forum.cometchat.com/"> visit our forum</a>.
+
+---
+
