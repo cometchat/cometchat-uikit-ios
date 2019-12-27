@@ -2,7 +2,7 @@
 <div style="width:100%">
     <div style="width:50%; display:inline-block">
         <p align="center">
-        <img align="left" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/MainScreenshot.jpg">    
+        <img align="left" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/MainScreenshot1.jpg">    
         </p>    
     </div>    
 </div>
