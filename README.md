@@ -177,9 +177,9 @@ To use Unified UI one has to launch `CometChatUnified` class.  `CometChatUnified
 
 ```swift
 
-let unfiedUI = CometChatUnified()
-unfiedUI.setup(withStyle: .fullScreen)
-self.present(unfiedUI, animated: true, completion: nil)
+let unifiedUI = CometChatUnified()
+unifiedUI.setup(withStyle: .fullScreen)
+self.present(unifiedUI, animated: true, completion: nil)
 
 
 ```
