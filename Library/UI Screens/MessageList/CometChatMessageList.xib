@@ -8,13 +8,18 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
+        <array key="SF-Pro-Display-Medium.otf">
+            <string>SFProDisplay-Medium</string>
+        </array>
         <array key="SF-Pro-Display-Regular.otf">
             <string>SFProDisplay-Regular</string>
         </array>
     </customFonts>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatMessageList" customModule="CometChatUIKitDemo" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatMessageList" customModule="ios_chat_uikit_app" customModuleProvider="target">
             <connections>
+                <outlet property="blockedMessage" destination="73X-Jn-qcs" id="rHE-Pv-otG"/>
+                <outlet property="blockedView" destination="1A5-8b-n5h" id="gHR-7J-JZV"/>
                 <outlet property="chatView" destination="zhP-kp-dK8" id="4NW-rm-HZm"/>
                 <outlet property="tableView" destination="lFr-Q7-eoy" id="3VA-PD-dIX"/>
                 <outlet property="textView" destination="l7M-Im-dI4" id="6O4-pJ-ARd"/>
@@ -30,7 +35,7 @@
                     <rect key="frame" x="0.0" y="44" width="414" height="762"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                 </tableView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zhP-kp-dK8" customClass="ChatView" customModule="CometChatUIKitDemo" customModuleProvider="target">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zhP-kp-dK8" customClass="ChatView" customModule="ios_chat_uikit_app" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="806" width="414" height="56"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MEN-6h-Cq0">
@@ -76,7 +81,7 @@
                                     </connections>
                                 </button>
                             </subviews>
-                            <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529999999" green="0.47058823529999999" blue="0.50196078430000002" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
                             <constraints>
                                 <constraint firstItem="l7M-Im-dI4" firstAttribute="leading" secondItem="MEN-6h-Cq0" secondAttribute="leading" constant="12" id="FoQ-0X-vNU"/>
                                 <constraint firstAttribute="bottom" secondItem="l7M-Im-dI4" secondAttribute="bottom" id="byh-Ty-hEK"/>
@@ -147,6 +152,56 @@
                         <outlet property="textView" destination="l7M-Im-dI4" id="sfV-4F-pXI"/>
                     </connections>
                 </view>
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1A5-8b-n5h">
+                    <rect key="frame" x="0.0" y="696" width="414" height="200"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You've blocked Mangesh " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="73X-Jn-qcs">
+                            <rect key="frame" x="114" y="20" width="186" height="20"/>
+                            <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You can't message them in this chat, and you won't receive their messages." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vvs-3i-llC">
+                            <rect key="frame" x="50" y="50" width="314" height="35"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="35" id="fDO-ky-FyR"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="11"/>
+                            <color key="textColor" systemColor="systemGrayColor" red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="beb-2q-s54">
+                            <rect key="frame" x="20" y="95" width="374" height="55"/>
+                            <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="55" id="ZaA-7u-zjG"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="18"/>
+                            <state key="normal" title="Unblock">
+                                <color key="titleColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                            </state>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                    <integer key="value" value="12"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                            <connections>
+                                <action selector="didUnblockedUserPressed:" destination="-1" eventType="touchUpInside" id="9Cv-ju-Aqj"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="secondarySystemBackgroundColor" red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="200" id="6um-VK-m0y"/>
+                        <constraint firstItem="Vvs-3i-llC" firstAttribute="top" secondItem="73X-Jn-qcs" secondAttribute="bottom" constant="10" id="I1o-Gf-l12"/>
+                        <constraint firstItem="73X-Jn-qcs" firstAttribute="centerX" secondItem="1A5-8b-n5h" secondAttribute="centerX" id="TtF-dj-f9W"/>
+                        <constraint firstItem="beb-2q-s54" firstAttribute="top" secondItem="Vvs-3i-llC" secondAttribute="bottom" constant="10" id="Y86-44-WB9"/>
+                        <constraint firstAttribute="trailing" secondItem="Vvs-3i-llC" secondAttribute="trailing" constant="50" id="a8O-Sn-xe3"/>
+                        <constraint firstAttribute="bottom" secondItem="beb-2q-s54" secondAttribute="bottom" constant="50" id="c9O-IV-SXm"/>
+                        <constraint firstAttribute="trailing" secondItem="beb-2q-s54" secondAttribute="trailing" constant="20" id="sbv-L3-RNO"/>
+                        <constraint firstItem="Vvs-3i-llC" firstAttribute="leading" secondItem="1A5-8b-n5h" secondAttribute="leading" constant="50" id="uhg-FO-fu9"/>
+                        <constraint firstItem="beb-2q-s54" firstAttribute="leading" secondItem="1A5-8b-n5h" secondAttribute="leading" constant="20" id="wy8-Pw-0Xr"/>
+                    </constraints>
+                </view>
             </subviews>
             <color key="backgroundColor" systemColor="tertiarySystemBackgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
@@ -154,6 +209,9 @@
                 <constraint firstItem="lFr-Q7-eoy" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="B5f-Mk-SJC"/>
                 <constraint firstItem="lFr-Q7-eoy" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Mml-8L-738"/>
                 <constraint firstItem="zhP-kp-dK8" firstAttribute="top" secondItem="lFr-Q7-eoy" secondAttribute="bottom" id="OxV-M4-IX8"/>
+                <constraint firstItem="1A5-8b-n5h" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="ULk-OF-xuY"/>
+                <constraint firstAttribute="bottom" secondItem="1A5-8b-n5h" secondAttribute="bottom" id="fND-cl-4wS"/>
+                <constraint firstItem="1A5-8b-n5h" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="g5E-Oj-VLK"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="zhP-kp-dK8" secondAttribute="bottom" id="g6P-vR-Kfp"/>
                 <constraint firstItem="zhP-kp-dK8" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="gah-R8-WZv"/>
                 <constraint firstItem="lFr-Q7-eoy" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="jTK-Zf-e8c"/>

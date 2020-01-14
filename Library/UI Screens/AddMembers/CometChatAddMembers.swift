@@ -9,22 +9,21 @@
 import UIKit
 import CometChatPro
 
-public protocol UserListDelegate {
-    func didSelectUserAtIndexPath(user: User, indexPath: IndexPath)
-}
 
-public class CometChatUserList: UIViewController{
+public class CometChatAddMembers: UIViewController {
     
     var userRequest = UsersRequest.UsersRequestBuilder(limit: 20).build()
+    var memberRequest: GroupMembersRequest?
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
     var users: [User] = [User]()
+    var members: [User] = [User]()
     var filteredUsers: [User] = [User]()
-    var delegate : UserListDelegate?
     var activityIndicator:UIActivityIndicatorView?
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
     var sectionTitle : UILabel?
     var sectionsArray = [String]()
+    var currentGroup: Group?
     
     override public func loadView() {
         super.loadView()
@@ -57,9 +56,19 @@ public class CometChatUserList: UIViewController{
         self.tableView.register(CometChatUserView, forCellReuseIdentifier: "userView")
     }
     
+    public func set(group: Group){
+        
+        guard group != nil else {
+            return
+        }
+        self.currentGroup = group
+        self.fetchGroupMembers(group: group)
+    }
+    
     private func setupNavigationBar(){
         if navigationController != nil{
             // NavigationBar Appearance
+       
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
@@ -69,8 +78,20 @@ public class CometChatUserList: UIViewController{
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
+                  }
+                let closeButton = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(closeButtonPressed))
+                self.navigationItem.rightBarButtonItem = closeButton
+            self.set(title: "Add Members", mode: .automatic)
+            self.setLargeTitleDisplayMode(.always)
             }
-        }}
+        }
+    
+    public override func viewWillAppear(_ animated: Bool) {
+    }
+    
+    @objc func closeButtonPressed(){
+        self.dismiss(animated: true, completion: nil)
+    }
     
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
        if navigationController != nil{
@@ -160,6 +181,16 @@ public class CometChatUserList: UIViewController{
         }
     }
     
+    private func fetchGroupMembers(group: Group){
+        memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: group.guid).set(limit: 100).build()
+        memberRequest?.fetchNext(onSuccess: { (groupMember) in
+            self.members = groupMember
+            DispatchQueue.main.async {self.tableView.reloadData() }
+        }, onError: { (error) in
+            print("Group Member list fetching failed with exception:" + error!.errorDescription);
+        })
+    }
+    
     // MARK: - Private instance methods
     func searchBarIsEmpty() -> Bool {
         return searchController.searchBar.text?.isEmpty ?? true
@@ -172,7 +203,7 @@ public class CometChatUserList: UIViewController{
 }
 
 
-extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
+extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
     
     // MARK: - Table view data source
     public func numberOfSections(in tableView: UITableView) -> Int {
@@ -246,7 +277,6 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
         } else {
             user = users[indexPath.row]
         }
-        print("user : \(user?.stringValue())")
             if sectionsArray[indexPath.section] == user?.name?.first?.uppercased(){
                 let userCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserView
                 userCell.user = user
@@ -285,24 +315,26 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+        tableView.deselectRow(at: indexPath, animated: true)
         guard let selectedUser = tableView.cellForRow(at: indexPath) as? CometChatUserView else{
             return
         }
-        tableView.deselectRow(at: indexPath, animated: true)
-        let  messageList = CometChatMessageList()
-        messageList.set(conversationWith: selectedUser.user!, type: .user)
-        messageList.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(messageList, animated: true)
-        delegate?.didSelectUserAtIndexPath(user: selectedUser.user!, indexPath: indexPath)
+        let userDetail = CometChatUserDetail()
+        userDetail.set(user: selectedUser.user)
+        userDetail.currentGroup = currentGroup
+        self.navigationController?.pushViewController(userDetail, animated: true)
+        
+      
     }
+    
+    
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // MARK: - UISearchResultsUpdating Delegate
-extension CometChatUserList : UISearchBarDelegate, UISearchResultsUpdating {
+extension CometChatAddMembers : UISearchBarDelegate, UISearchResultsUpdating {
     public func updateSearchResults(for searchController: UISearchController) {
         userRequest = UsersRequest.UsersRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").build()
         userRequest.fetchNext(onSuccess: { (users) in
@@ -315,4 +347,6 @@ extension CometChatUserList : UISearchBarDelegate, UISearchResultsUpdating {
         }
     }
 }
+
+
 

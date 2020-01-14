@@ -1,31 +1,23 @@
 //
-//  CometChatUserInfo.swift
-//  CometChatUIKitDemo
+//  CometChatPrivacyAndSecurity.swift
+//  ios-chat-uikit-app
 //
-//  Created by Pushpsen Airekar on 20/09/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
+//  Created by Pushpsen Airekar on 08/01/20.
+//  Copyright © 2020 Pushpsen Airekar. All rights reserved.
 //
 
 import UIKit
 import CometChatPro
 
-
-class MoreSettingsCell {
-    
-    static let VIEW_PROFILE_CELL = 0
-    static let PRIVACY_AND_SECURITY_CELL = 1
-    static let NOTIFICATION_CELL = 2
-    static let CHAT_CELL = 3
-    static let HELP_CELL = 4
-    static let REPORT_CELL = 5
-}
-
-public class CometChatUserInfo: UIViewController {
+class CometChatPrivacyAndSecurity: UIViewController {
     
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
-    var preferances:[Int] = [Int]()
-    var others:[Int] = [Int]()
+    var privacy:[Int] = [Int]()
+    var blockedUserRequest: BlockedUserRequest?
+    var blockUsersCount: String = ""
+    static let GROUP_CELL = 0
+    static let CALLS_CELL = 1
     
     override public func loadView() {
         super.loadView()
@@ -35,12 +27,29 @@ public class CometChatUserInfo: UIViewController {
         self.setupTableView()
         self.setupNavigationBar()
         self.setupSettingsItems()
+        self.fetchBlockedUsersCount()
+        self.addObservers()
+        self.set(title: "Privacy and Security", mode: .automatic)
     }
+    
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        self.addObservers()
+    }
+    
+    fileprivate func addObservers(){
+        
+        NotificationCenter.default.addObserver(self, selector:#selector(self.didUserBlocked(_:)), name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil)
+    }
+    
+    @objc func didUserBlocked(_ notification: NSNotification) {
+        self.fetchBlockedUsersCount()
+    }
+    
     
     private func setupSettingsItems(){
         
-        preferances = [MoreSettingsCell.NOTIFICATION_CELL, MoreSettingsCell.PRIVACY_AND_SECURITY_CELL,MoreSettingsCell.CHAT_CELL]
-        others = [MoreSettingsCell.HELP_CELL,MoreSettingsCell.REPORT_CELL]
+        privacy = [CometChatPrivacyAndSecurity.GROUP_CELL,CometChatPrivacyAndSecurity.CALLS_CELL]
         
     }
     
@@ -58,11 +67,9 @@ public class CometChatUserInfo: UIViewController {
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.tableView.tableFooterView = UIView(frame: .zero)
-        let CometChatUserView  = UINib.init(nibName: "CometChatUserView", bundle: nil)
-        self.tableView.register(CometChatUserView, forCellReuseIdentifier: "userView")
         
-        let CometChatSettingsView  = UINib.init(nibName: "CometChatSettingsView", bundle: nil)
-        self.tableView.register(CometChatSettingsView, forCellReuseIdentifier: "cometChatSettingsView")
+        let AdministratorView  = UINib.init(nibName: "AdministratorView", bundle: nil)
+        self.tableView.register(AdministratorView, forCellReuseIdentifier: "administratorView")
     }
     
     
@@ -98,13 +105,30 @@ public class CometChatUserInfo: UIViewController {
         }
     }
     
+    private func fetchBlockedUsersCount(){
+        blockedUserRequest = BlockedUserRequest.BlockedUserRequestBuilder(limit: 20).build()
+        blockedUserRequest?.fetchNext(onSuccess: { (blockedUsers) in
+            if let count =  blockedUsers?.count {
+                if  count == 0 {
+                    self.blockUsersCount = "0 Users"
+                }else if count > 0 && count < 100 {
+                    self.blockUsersCount = "\(count) users"
+                }else{
+                    self.blockUsersCount = "100+ users"
+                }
+                DispatchQueue.main.async { self.tableView.reloadData() }
+            }
+        }, onError: { (error) in
+            print("error while fetchBlockedUsersCount: \(String(describing: error?.errorDescription))")
+        })
+    }
 }
 
 
-extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
+extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSource {
     
     public func numberOfSections(in tableView: UITableView) -> Int {
-        return 3
+        return 2
     }
     
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -122,9 +146,7 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
-            sectionTitle.text =  "PREFERENCES"
-        }else if section == 2{
-            sectionTitle.text =  "OTHERS"
+            sectionTitle.text =  "PRIVACY"
         }
         sectionTitle.font = UIFont(name: "SFProDisplay-Medium", size: 13)
         if #available(iOS 13.0, *) {
@@ -136,84 +158,39 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        if  section == 0 {
-            return 1
-        }else if section == 1{
-            return preferances.count
-        }else if section == 2 {
-            return others.count
-        }else{
-            return 0
-        }
+        switch section {
+        case 0: return 1
+        case 1: return privacy.count
+        default: return 0 }
     }
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if  indexPath.section == 0 {
-            return 140
-        }else if indexPath.section == 1{
-            return 60
-        }else if indexPath.section == 2 {
-            return 60
-        }else{
-            return 0
-        }
+        return 60
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell:UITableViewCell = UITableViewCell()
+        let cell = UITableViewCell()
         
         if indexPath.section == 0 && indexPath.row == 0 {
-            
-            let userCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserView
-            userCell.avtarWidth.constant = 80
-            userCell.avtarHeight.constant = 80
-            userCell.userAvtar.set(cornerRadius: 40)
-            userCell.userName.font =  UIFont(name: "SFProDisplay-Bold", size: 22)
-            userCell.userStatus.font =  UIFont(name: "SFProDisplay-Regular", size: 15)
-            userCell.user = CometChat.getLoggedInUser()
-            userCell.userStatus.isHidden = false
-            userCell.userStatus.text = "Online"
-            userCell.separatorInset = UIEdgeInsets(top: 0, left: tableView.frame.size.width, bottom: 0, right: 0)
-            return userCell
-            
-        }else if indexPath.section == 1{
-            
-            let settingsCell = tableView.dequeueReusableCell(withIdentifier: "cometChatSettingsView", for: indexPath) as! CometChatSettingsView
-            
-            switch preferances[indexPath.row] {
-            case MoreSettingsCell.NOTIFICATION_CELL:
-                settingsCell.settingsName.text = "Notifications"
-                settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀋚")
-                return settingsCell
+            let blockedUserCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
+            blockedUserCell.title.text = "Blocked Users"
+            blockedUserCell.adminCount.text =  blockUsersCount
+            return blockedUserCell
+        }else{
+            switch privacy[indexPath.row] {
+            case CometChatPrivacyAndSecurity.GROUP_CELL:
+                let groupsCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
+                groupsCell.title.text = "Groups"
+                groupsCell.adminCount.text = "Everybody"
+                return groupsCell
                 
-            case MoreSettingsCell.PRIVACY_AND_SECURITY_CELL:
-                settingsCell.settingsName.text = "Privacy & Security"
-                settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀉼")
-                return settingsCell
-            case MoreSettingsCell.CHAT_CELL:
-                settingsCell.settingsName.text = "Chats"
-                settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀌧")
-               
-                return settingsCell
-            default:
-                break
-            }
-        }else if indexPath.section == 2{
-            
-            let settingsCell = tableView.dequeueReusableCell(withIdentifier: "cometChatSettingsView", for: indexPath) as! CometChatSettingsView
-            switch others[indexPath.row] {
-            case MoreSettingsCell.HELP_CELL:
-                settingsCell.settingsName.text = "Help"
-               settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀁝")
-                return settingsCell
-            case MoreSettingsCell.REPORT_CELL:
-                settingsCell.settingsName.text = "Report a Problem"
-                settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀇿")
-                return settingsCell
-            default:
-                break
+            case CometChatPrivacyAndSecurity.CALLS_CELL:
+                let callsCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
+                callsCell.title.text = "Calls"
+                callsCell.adminCount.text = "Everybody"
+                return callsCell
+            default: break
             }
         }
         return cell
@@ -221,5 +198,17 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        if indexPath.section == 0 && indexPath.row == 0 {
+            let blockedUsers = CometChatBlockedUsers()
+            self.navigationController?.pushViewController(blockedUsers, animated: true)
+        }else{
+            switch privacy[indexPath.row] {
+            case CometChatPrivacyAndSecurity.GROUP_CELL: break
+            case CometChatPrivacyAndSecurity.CALLS_CELL: break
+            default: break
+            }
+        }
     }
+    
 }

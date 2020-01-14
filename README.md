@@ -49,13 +49,13 @@ Add the following lines to the Podfile.
 ```bash
 ________________________________________________________________
 
-For Xcode 11.2.1(Latest):
+For Xcode 11.3(Latest):
 
 platform :ios, '10.0'
 use_frameworks!
 
 target 'MyApp' do
-  pod 'CometChatPro', '~> 2.0.5'
+  pod 'CometChatPro', '~> 2.0.6'
 end
 ________________________________________________________________
 
@@ -65,7 +65,7 @@ platform :ios, '10.0'
 use_frameworks!
 
 target 'MyApp' do
-    pod 'CometChatPro', '~> 2.0.5-Xcode11'
+    pod 'CometChatPro', '~> 2.0.6-Xcode11'
 end
 ________________________________________________________________
 ```

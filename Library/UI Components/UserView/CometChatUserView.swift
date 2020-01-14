@@ -22,14 +22,18 @@ class CometChatUserView: UITableViewCell {
         didSet {
             userName.text = user?.name
             userAvtar.set(image: user?.avatar ?? "")
-            switch user.status {
-            case .online:
-                userStatus.text = "Online"
-            case .offline:
-                userStatus.text = "Offline"
-            @unknown default:
-                userStatus.text = "Offline"
+            
+            if  user.status != nil {
+                switch user.status {
+                case .online:
+                    userStatus.text = "Online"
+                case .offline:
+                    userStatus.text = "Offline"
+                @unknown default:
+                    userStatus.text = "Offline"
+                }
             }
+            
         }
     }
     

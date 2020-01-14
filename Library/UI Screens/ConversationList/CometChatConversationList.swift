@@ -20,10 +20,13 @@ public class CometChatConversationList: UIViewController {
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
     var conversations: [Conversation] = [Conversation]()
+    var filteredConversations: [Conversation] = [Conversation]()
     var delegate : ConversationListDelegate?
     var storedVariable: String?
     var activityIndicator:UIActivityIndicatorView?
+    var searchedText: String = ""
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
+    
     
     override public func loadView() {
         super.loadView()
@@ -47,6 +50,7 @@ public class CometChatConversationList: UIViewController {
     public func setupDelegates(){
         CometChat.messagedelegate = self
         CometChat.userdelegate = self
+        CometChat.groupdelegate = self
     }
        
     
@@ -67,7 +71,6 @@ public class CometChatConversationList: UIViewController {
         self.tableView.dataSource = self
         let CometChatConversationView  = UINib.init(nibName: "CometChatConversationView", bundle: nil)
         self.tableView.register(CometChatConversationView, forCellReuseIdentifier: "conversationView")
-        
     }
     
    private func setupNavigationBar(){
@@ -131,6 +134,15 @@ public class CometChatConversationList: UIViewController {
         } else {}
     }
     
+    // MARK: - Private instance methods
+       func searchBarIsEmpty() -> Bool {
+           return searchController.searchBar.text?.isEmpty ?? true
+       }
+       
+       func isSearching() -> Bool {
+           let searchBarScopeIsFiltering = searchController.searchBar.selectedScopeButtonIndex != 0
+           return searchController.isActive && (!searchBarIsEmpty() || searchBarScopeIsFiltering)
+       }
    
     
     internal func refreshConversations(){
@@ -146,16 +158,25 @@ public class CometChatConversationList: UIViewController {
         
         conversationRequest.fetchNext(onSuccess: { (fetchedConversations) in
             print("fetchedConversations onSuccess: \(fetchedConversations)")
-            if fetchedConversations != nil {
-                self.conversations = fetchedConversations
+            
+            var newConversations: [Conversation] =  [Conversation]()
+            
+            for conversation in fetchedConversations {
+                
+                if conversation.lastMessage == nil {
+                    
+                }else{
+                    newConversations.append(conversation)
+                }
+            }
+             self.conversations = newConversations
                 DispatchQueue.main.async {
                     self.activityIndicator?.stopAnimating()
                     self.tableView.tableFooterView?.isHidden = true
                     self.tableView.reloadData()
                 }
-            }
         }) { (error) in
-            print("fetchUsers error:\(String(describing: error?.errorDescription))")
+            print("refreshConversations error:\(String(describing: error?.errorDescription))")
         }
     }
 }
@@ -177,7 +198,12 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     }
     
    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+    if isSearching(){
+        return filteredConversations.count
+    }else{
         return conversations.count
+    }
     }
     
    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -187,8 +213,16 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     
    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "conversationView", for: indexPath) as! CometChatConversationView
-        let conversation = conversations[indexPath.row]
-        
+         var conversation: Conversation?
+          cell.searchedText = searchedText
+         if isSearching() {
+               conversation = filteredConversations[indexPath.row]
+              
+           } else {
+               conversation = conversations[indexPath.row]
+           }
+    
+    print(" con user: \(String(describing: (conversation?.conversationWith as? User)?.stringValue()))")
         cell.conversation = conversation
         return cell
     }
@@ -228,8 +262,16 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
 extension CometChatConversationList : UISearchBarDelegate, UISearchResultsUpdating {
     
    public func updateSearchResults(for searchController: UISearchController) {
-        
-        
+    
+    if let text = searchController.searchBar.text {
+        filteredConversations = conversations.filter { (conversation: Conversation) -> Bool in
+                   // If dataItem matches the searchText, return true to include it
+             self.searchedText = text
+            return (((conversation.conversationWith as? User)?.name?.lowercased().contains(text.lowercased()) ?? false) || ((conversation.conversationWith as? Group)?.name?.lowercased().contains(text.lowercased()) ?? false) || ((conversation.lastMessage as? TextMessage)?.text.lowercased().contains(text.lowercased()) ?? false) || ((conversation.lastMessage as? ActionMessage)?.message?.lowercased().contains(text.lowercased()) ?? false))
+           
+        }
+        self.tableView.reloadData()
+    }
     }
 }
 
@@ -328,5 +370,35 @@ extension CometChatConversationList : CometChatUserDelegate {
             }
         }
     }
+}
+
+extension CometChatConversationList : CometChatGroupDelegate {
+    public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
+         refreshConversations()
+    }
+    
+    public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
+         refreshConversations()
+    }
+    
+    public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
+         refreshConversations()
+    }
+    
+    public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
+         refreshConversations()
+    }
+    
+    public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
+         refreshConversations()
+    }
+    
+    public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
+         refreshConversations()
+    }
+    
+    public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
+         refreshConversations()
+    } 
 }
 
