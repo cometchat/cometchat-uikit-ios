@@ -684,21 +684,6 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
         return cell
     }
     
-    @available(iOS 13.0, *)
-    public func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-          return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
-              
-                  let removeMember = UIAction(title: "Remove Member", image: UIImage(systemName: "trash"), attributes: .destructive) { action in
-                      
-                  
-                      
-                  }
-                
-                  return UIMenu(title: "" , children: [removeMember])
-          })
-          
-      }
-    
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
