@@ -1,16 +1,19 @@
-//
+
 //  CometChatUserInfo.swift
-//  CometChatUIKitDemo
-//
+//  CometChatUIKit
 //  Created by Pushpsen Airekar on 20/09/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
 
 public class CometChatUserInfo: UIViewController {
+    
+    // MARK: - Declaration of Variables
     
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
@@ -24,6 +27,7 @@ public class CometChatUserInfo: UIViewController {
     static let HELP_CELL = 4
     static let REPORT_CELL = 5
     
+      // MARK: - View controller lifecycle methods
     
     override public func loadView() {
         super.loadView()
@@ -32,16 +36,57 @@ public class CometChatUserInfo: UIViewController {
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
         self.setupNavigationBar()
-        self.setupSettingsItems()
+        self.setupItems()
     }
     
-    private func setupSettingsItems(){
+     // MARK: - Public instance methods
+    
+    
+    /**
+    This method specifies the navigation bar title for CometChatUserInfo.
+    - Parameters:
+    - title: This takes the String to set title for CometChatUserInfo.
+    - mode: This specifies the TitleMode such as :
+    * .automatic : Automatically use the large out-of-line title based on the state of the previous item in the navigation bar.
+    *  .never: Never use a larger title when this item is topmost.
+    * .always: Always use a larger title when this item is topmost.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
+    @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
+          if navigationController != nil{
+              navigationItem.title = NSLocalizedString(title, comment: "")
+              navigationItem.largeTitleDisplayMode = mode
+              switch mode {
+              case .automatic:
+                  navigationController?.navigationBar.prefersLargeTitles = true
+              case .always:
+                  navigationController?.navigationBar.prefersLargeTitles = true
+              case .never:
+                  navigationController?.navigationBar.prefersLargeTitles = false
+              @unknown default:break }
+          }
+      }
+    
+     // MARK: - Private instance methods
+    
+    /**
+         This method sets the list of items needs to be display in CometChatUserInfo.
+         - Author: CometChat Team
+         - Copyright:  ©  2019 CometChat Inc.
+         */
+    private func setupItems(){
         
         preferances = [CometChatUserInfo.NOTIFICATION_CELL, CometChatUserInfo.PRIVACY_AND_SECURITY_CELL,CometChatUserInfo.CHAT_CELL]
         others = [CometChatUserInfo.HELP_CELL,CometChatUserInfo.REPORT_CELL]
         
     }
     
+    /**
+    This method setup the tableview to load CometChatUserInfo.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     private func setupTableView() {
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
@@ -56,15 +101,27 @@ public class CometChatUserInfo: UIViewController {
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.tableView.tableFooterView = UIView(frame: .zero)
-        let CometChatUserView  = UINib.init(nibName: "CometChatUserView", bundle: nil)
-        self.tableView.register(CometChatUserView, forCellReuseIdentifier: "userView")
-        
-        let CometChatSettingsView  = UINib.init(nibName: "CometChatSettingsView", bundle: nil)
-        self.tableView.register(CometChatSettingsView, forCellReuseIdentifier: "cometChatSettingsView")
+        self.registerCells()
     }
     
-    
-    
+    /**
+      This method register the cells for CometChatUserInfo.
+      - Author: CometChat Team
+      - Copyright:  ©  2019 CometChat Inc.
+      */
+      private func registerCells(){
+          let CometChatUserView  = UINib.init(nibName: "CometChatUserView", bundle: nil)
+                 self.tableView.register(CometChatUserView, forCellReuseIdentifier: "userView")
+                 
+                 let CometChatSettingsView  = UINib.init(nibName: "CometChatSettingsView", bundle: nil)
+                 self.tableView.register(CometChatSettingsView, forCellReuseIdentifier: "cometChatSettingsView")
+      }
+      
+    /**
+           This method setup navigationBar for CometChatUserInfo viewController.
+           - Author: CometChat Team
+           - Copyright:  ©  2019 CometChat Inc.
+           */
     private func setupNavigationBar(){
         if navigationController != nil{
             // NavigationBar Appearance
@@ -80,31 +137,24 @@ public class CometChatUserInfo: UIViewController {
             }
         }
     }
-    
-    @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
-        if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
-            navigationItem.largeTitleDisplayMode = mode
-            switch mode {
-            case .automatic:
-                navigationController?.navigationBar.prefersLargeTitles = true
-            case .always:
-                navigationController?.navigationBar.prefersLargeTitles = true
-            case .never:
-                navigationController?.navigationBar.prefersLargeTitles = false
-            @unknown default:break }
-        }
-    }
-    
 }
 
+/*  ----------------------------------------------------------------------------------------- */
+
+ // MARK: - Table view Methods
 
 extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
     
+    /// This method specifies the number of sections to display list of items.
+    /// - Parameter tableView: An object representing the table view requesting this information.
     public func numberOfSections(in tableView: UITableView) -> Int {
         return 3
     }
     
+    /// This method specifies height for section in CometChatUserInfo
+      /// - Parameters:
+      ///   - tableView: The table-view object requesting this information.
+      ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         
         if section == 0 {
@@ -114,6 +164,10 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specifies the view for header  in CometChatUserInfo
+          /// - Parameters:
+          ///   - tableView: The table-view object requesting this information.
+          ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 25))
         let sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: view.frame.size.width, height: 20))
@@ -133,6 +187,10 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         return returnedView
     }
     
+    /// This method specifiesnumber of rows in CometChatUserInfo
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if  section == 0 {
@@ -146,6 +204,10 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specifies the view for user  in CometChatUserInfo
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if  indexPath.section == 0 {
             return 140
@@ -158,16 +220,18 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specifies the view for user  in CometChatUserInfo
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell:UITableViewCell = UITableViewCell()
-        
         if indexPath.section == 0 && indexPath.row == 0 {
-            
             let userCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserView
-            userCell.avtarWidth.constant = 80
-            userCell.avtarHeight.constant = 80
-            userCell.userAvtar.cornerRadius = 40
+            userCell.avatarWidth.constant = 80
+            userCell.avatarHeight.constant = 80
+            userCell.userAvatar.cornerRadius = 40
             userCell.userName.font =  UIFont(name: "SFProDisplay-Bold", size: 22)
             userCell.userStatus.font =  UIFont(name: "SFProDisplay-Regular", size: 15)
             userCell.user = CometChat.getLoggedInUser()
@@ -217,6 +281,10 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         return cell
     }
     
+    /// This method triggers when particular cell is clicked by the user .
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - indexPath: specifies current index for TableViewCell.
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -241,3 +309,6 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         
     }
 }
+
+
+/*  ----------------------------------------------------------------------------------------- */

@@ -1,20 +1,32 @@
-//
-//  GroupView.swift
+//  CometChatGroupView.swift
 //  CometChatUIKit
-//
 //  Created by Pushpsen Airekar on 20/09/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+CometChatGroupView: This component will be the class of UITableViewCell with components such as groupAvtar(Avtar), groupName(UILabel), groupDetails(UILabel).
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
+
 class CometChatGroupView: UITableViewCell {
 
-    @IBOutlet weak var groupAvtar: Avtar!
+     // MARK: - Declaration of IBOutlets
+    
+    @IBOutlet weak var groupAvatar: Avatar!
     @IBOutlet weak var groupName: UILabel!
     @IBOutlet weak var groupDetails: UILabel!
     @IBOutlet weak var typing: UILabel!
+    
+    // MARK: - Declaration of Variables
     
     var group: Group! {
         didSet {
@@ -29,9 +41,11 @@ class CometChatGroupView: UITableViewCell {
             @unknown default:
                 break
             }
-            groupAvtar.set(image: group.icon ?? "")
+            groupAvatar.set(image: group.icon ?? "")
         }
     }
+    
+    // MARK: - Initialization of required Methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -43,3 +57,5 @@ class CometChatGroupView: UITableViewCell {
     }
     
 }
+
+/*  ----------------------------------------------------------------------------------------- */

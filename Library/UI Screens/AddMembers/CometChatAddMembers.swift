@@ -1,16 +1,19 @@
-//
-//  CometChatListView.swift
+//  CometChatAddMembers.swift
 //  CometChatUIKit
-//
 //  Created by Pushpsen Airekar on 20/09/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
 
 public class CometChatAddMembers: UIViewController {
+    
+     // MARK: - Declaration of Variables
     
     var userRequest = UsersRequest.UsersRequestBuilder(limit: 20).build()
     var memberRequest: GroupMembersRequest?
@@ -25,6 +28,9 @@ public class CometChatAddMembers: UIViewController {
     var sectionsArray = [String]()
     var currentGroup: Group?
     
+     
+    // MARK: - View controller lifecycle methods
+    
     override public func loadView() {
         super.loadView()
         UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
@@ -37,6 +43,80 @@ public class CometChatAddMembers: UIViewController {
         print(#function)
     }
     
+    // MARK: - Public instance methods
+    
+    /**
+       This method specifies the `group` Objects to add or remove members it it..
+       - Parameter group: This specifies `Group` Object.
+       - Author: CometChat Team
+       - Copyright:  ©  2019 CometChat Inc.
+       */
+    public func set(group: Group){
+        
+        guard group != nil else {
+            return
+        }
+        self.currentGroup = group
+        self.fetchGroupMembers(group: group)
+    }
+    
+    /**
+       This method specifies the navigation bar title for CometChatAddMembers.
+       - Parameters:
+       - title: This takes the String to set title for CometChatAddMembers.
+       - mode: This specifies the TitleMode such as :
+       * .automatic : Automatically use the large out-of-line title based on the state of the previous item in the navigation bar.
+       *  .never: Never use a larger title when this item is topmost.
+       * .always: Always use a larger title when this item is topmost.
+       - Author: CometChat Team
+       - Copyright:  ©  2019 CometChat Inc.
+       */
+    @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
+         if navigationController != nil{
+          navigationItem.title = NSLocalizedString(title, comment: "")
+          navigationItem.largeTitleDisplayMode = mode
+          switch mode {
+          case .automatic:
+              navigationController?.navigationBar.prefersLargeTitles = true
+          case .always:
+              navigationController?.navigationBar.prefersLargeTitles = true
+          case .never:
+              navigationController?.navigationBar.prefersLargeTitles = false
+          @unknown default:break }
+          }}
+      
+    /**
+    This method specifies the navigation bar color for CometChatAddMembers.
+      - Parameters:
+        - barColor: This specifes navigation bar color.
+        - color:  This specifes navigation bar title color.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
+      @objc public func set(barColor :UIColor, titleColor color: UIColor){
+       if navigationController != nil{
+                 // NavigationBar Appearance
+                 if #available(iOS 13.0, *) {
+                     let navBarAppearance = UINavigationBarAppearance()
+                     navBarAppearance.configureWithOpaqueBackground()
+                    navBarAppearance.titleTextAttributes = [ .foregroundColor: color,.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
+                     navBarAppearance.largeTitleTextAttributes = [.foregroundColor: color, .font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                     navBarAppearance.shadowColor = .clear
+                     navBarAppearance.backgroundColor = barColor
+                     navigationController?.navigationBar.standardAppearance = navBarAppearance
+                     navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
+                     self.navigationController?.navigationBar.isTranslucent = true
+                 }
+             }
+      }
+    
+    
+     // MARK: - Private instance methods
+    /**
+    This method setup the tableview to load CometChatAddMembers.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     private func setupTableView() {
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
@@ -56,15 +136,12 @@ public class CometChatAddMembers: UIViewController {
         self.tableView.register(CometChatUserView, forCellReuseIdentifier: "userView")
     }
     
-    public func set(group: Group){
-        
-        guard group != nil else {
-            return
-        }
-        self.currentGroup = group
-        self.fetchGroupMembers(group: group)
-    }
     
+    /**
+       This method setup navigationBar for addMembers viewController.
+       - Author: CometChat Team
+       - Copyright:  ©  2019 CometChat Inc.
+       */
     private func setupNavigationBar(){
         if navigationController != nil{
             // NavigationBar Appearance
@@ -85,45 +162,22 @@ public class CometChatAddMembers: UIViewController {
             self.setLargeTitleDisplayMode(.always)
             }
         }
-    
-    public override func viewWillAppear(_ animated: Bool) {
-    }
-    
+
+    /**
+    This method triggers when user clicks on close button.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     @objc func closeButtonPressed(){
         self.dismiss(animated: true, completion: nil)
     }
     
-    @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
-       if navigationController != nil{
-        navigationItem.title = NSLocalizedString(title, comment: "")
-        navigationItem.largeTitleDisplayMode = mode
-        switch mode {
-        case .automatic:
-            navigationController?.navigationBar.prefersLargeTitles = true
-        case .always:
-            navigationController?.navigationBar.prefersLargeTitles = true
-        case .never:
-            navigationController?.navigationBar.prefersLargeTitles = false
-        @unknown default:break }
-        }}
-    
-    @objc public func set(barColor :UIColor, titleColor color: UIColor){
-     if navigationController != nil{
-               // NavigationBar Appearance
-               if #available(iOS 13.0, *) {
-                   let navBarAppearance = UINavigationBarAppearance()
-                   navBarAppearance.configureWithOpaqueBackground()
-                  navBarAppearance.titleTextAttributes = [ .foregroundColor: color,.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                   navBarAppearance.largeTitleTextAttributes = [.foregroundColor: color, .font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
-                   navBarAppearance.shadowColor = .clear
-                   navBarAppearance.backgroundColor = barColor
-                   navigationController?.navigationBar.standardAppearance = navBarAppearance
-                   navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
-                   self.navigationController?.navigationBar.isTranslucent = true
-               }
-           }
-    }
-    
+  
+    /**
+        This method setup the search bar for addMembers viewController.
+        - Author: CometChat Team
+        - Copyright:  ©  2019 CometChat Inc.
+        */
     private func setupSearchBar(){
         // SearchBar Apperance
          searchController.searchResultsUpdater = self
@@ -151,6 +205,11 @@ public class CometChatAddMembers: UIViewController {
         } else {}
     }
     
+    /**
+     This method fetches the list of users to add inside a group..
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     */
     private func fetchUsers(){
         activityIndicator?.startAnimating()
         activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
@@ -181,6 +240,12 @@ public class CometChatAddMembers: UIViewController {
         }
     }
     
+    /**
+    This method fetches the list of group members for specified group.
+      - Parameter group: This specifies `Group` Object.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     private func fetchGroupMembers(group: Group){
         memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: group.guid).set(limit: 100).build()
         memberRequest?.fetchNext(onSuccess: { (groupMember) in
@@ -191,21 +256,37 @@ public class CometChatAddMembers: UIViewController {
         })
     }
     
-    // MARK: - Private instance methods
-    func searchBarIsEmpty() -> Bool {
+    /**
+    This method returns true if  search bar is empty.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    
+    */
+     func searchBarIsEmpty() -> Bool {
         return searchController.searchBar.text?.isEmpty ?? true
     }
     
-    func isSearching() -> Bool {
+    /**
+       This method returns true if  search bar is in active state.
+       - Author: CometChat Team
+       - Copyright:  ©  2019 CometChat Inc.
+       */
+     func isSearching() -> Bool {
         let searchBarScopeIsFiltering = searchController.searchBar.selectedScopeButtonIndex != 0
         return searchController.isActive && (!searchBarIsEmpty() || searchBarScopeIsFiltering)
     }
 }
 
 
+/*  ----------------------------------------------------------------------------------------- */
+
+// MARK: - Table view Methods
+
+
 extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
     
-    // MARK: - Table view data source
+    /// This method specifies the number of sections to display list of users. In CometChatAddMembers, the users which has same starting alphabets are clubbed in single section.
+       /// - Parameter tableView: An object representing the table view requesting this information.
     public func numberOfSections(in tableView: UITableView) -> Int {
         
         if isSearching() {
@@ -229,6 +310,10 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specifies height for section in CometChatAddMembers
+      /// - Parameters:
+      ///   - tableView: The table-view object requesting this information.
+      ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if isSearching(){
             return 0
@@ -237,6 +322,10 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specifiesnumber of rows in CometChatAddMembers
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if isSearching(){
@@ -246,6 +335,10 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specifies the height for row in CometChatAddMembers
+       /// - Parameters:
+       ///   - tableView: The table-view object requesting this information.
+       ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
         if isSearching() {
@@ -266,7 +359,10 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
     }
     
     
-    
+    /// This method specifies the view for user  in CometChatAddMembers
+       /// - Parameters:
+       ///   - tableView: The table-view object requesting this information.
+       ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell:UITableViewCell = UITableViewCell()
@@ -287,7 +383,10 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
             }
         }
     
-    
+    /// This method specifies the view for header  in CometChatAddMembers
+       /// - Parameters:
+       ///   - tableView: The table-view object requesting this information.
+       ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 25))
         sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: view.frame.size.width, height: 25))
@@ -300,6 +399,11 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
         return returnedView
     }
     
+   /// This method specifies upcoming cells to be display in tableView
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - cell: The TableViewCell object requesting this information.
+    ///   - indexPath: specifies current index for TableViewCell.
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastSectionIndex = tableView.numberOfSections - 1
         let lastRowIndex = tableView.numberOfRows(inSection: lastSectionIndex) - 1
@@ -308,12 +412,21 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specified te section index title for current index
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - title: specifies current index title.
+    ///   - index: specifies current index.
     public func tableView(_ tableView: UITableView,
                           sectionForSectionIndexTitle title: String,
                           at index: Int) -> Int{
         return index
     }
     
+    /// This method triggers when particulat cell is clicked by the user .
+       /// - Parameters:
+       ///   - tableView: The table-view object requesting this information.
+       ///   - indexPath: specifies current index for TableViewCell.
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         guard let selectedUser = tableView.cellForRow(at: indexPath) as? CometChatUserView else{
@@ -323,18 +436,17 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
         userDetail.set(user: selectedUser.user)
         userDetail.currentGroup = currentGroup
         self.navigationController?.pushViewController(userDetail, animated: true)
-        
-      
     }
-    
-    
 }
 
+/*  ----------------------------------------------------------------------------------------- */
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MARK: - UISearchBar Delegate
 
-// MARK: - UISearchResultsUpdating Delegate
 extension CometChatAddMembers : UISearchBarDelegate, UISearchResultsUpdating {
+    
+    // This method update the list of users as per string provided in search bar
+    /// - Parameter searchController: The UISearchController object used as the search bar.
     public func updateSearchResults(for searchController: UISearchController) {
         userRequest = UsersRequest.UsersRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").build()
         userRequest.fetchNext(onSuccess: { (users) in
@@ -348,5 +460,5 @@ extension CometChatAddMembers : UISearchBarDelegate, UISearchResultsUpdating {
     }
 }
 
-
+/*  ----------------------------------------------------------------------------------------- */
 

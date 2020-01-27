@@ -34,7 +34,7 @@
             <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvtar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="pdW-1k-bM5" customClass="Avtar" customModule="ios_chat_uikit_app" customModuleProvider="target">
+                <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvtar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="pdW-1k-bM5" customClass="Avatar" customModule="ios_chat_uikit_app" customModuleProvider="target">
                     <rect key="frame" x="142" y="54" width="130" height="110"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="130" id="jTd-RH-a9X"/>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -42,7 +42,7 @@
                             </label>
                         </subviews>
                     </stackView>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvtar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="qg6-2M-6C7" customClass="Avtar" customModule="ios_chat_uikit_app" customModuleProvider="target">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvatar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="qg6-2M-6C7" customClass="Avatar" customModule="ios_chat_uikit_app" customModuleProvider="target">
                         <rect key="frame" x="12" y="23" width="45" height="45"/>
                         <color key="backgroundColor" red="0.62740999460220337" green="0.76244419813156128" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -75,9 +75,9 @@
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <inset key="separatorInset" minX="70" minY="0.0" maxX="18" maxY="0.0"/>
             <connections>
-                <outlet property="avtarHeight" destination="Z8U-wt-Ota" id="rGG-Z5-OaI"/>
-                <outlet property="avtarWidth" destination="gEj-ND-IEA" id="iuq-x0-dwm"/>
-                <outlet property="userAvtar" destination="qg6-2M-6C7" id="364-Xc-tbu"/>
+                <outlet property="AvatarHeight" destination="Z8U-wt-Ota" id="rGG-Z5-OaI"/>
+                <outlet property="AvatarWidth" destination="gEj-ND-IEA" id="iuq-x0-dwm"/>
+                <outlet property="userAvatar" destination="qg6-2M-6C7" id="364-Xc-tbu"/>
                 <outlet property="userName" destination="gys-GO-h7D" id="3om-pY-rHy"/>
                 <outlet property="userStatus" destination="EF7-gC-Zys" id="5lp-RY-Qfp"/>
             </connections>
@@ -85,6 +85,6 @@
         </tableViewCell>
     </objects>
     <resources>
-        <image name="defaultAvtar.jpg" width="240" height="240"/>
+        <image name="defaultAvatar.jpg" width="16" height="16"/>
     </resources>
 </document>

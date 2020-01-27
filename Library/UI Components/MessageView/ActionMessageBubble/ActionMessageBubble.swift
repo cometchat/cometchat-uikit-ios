@@ -1,17 +1,20 @@
-//
-//  ChatActionMessageCell.swift
-//  CometChatPro-swift-sampleApp
-//
-//  Created by Pushpsen Airekar on 06/03/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  ActionMessageBubble.swift
+//  CometChatUIKit
+//  Created by Pushpsen Airekar on 20/09/19.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
 
+// MARK: - Importing Frameworks.
 import UIKit
+import CometChatPro
+
+/*  ----------------------------------------------------------------------------------------- */
 
 class ActionMessageBubble: UITableViewCell {
     
+    // MARK: - Declaration of IBInspectable
     @IBOutlet weak var message: UILabel!
     
+    // MARK: - Initialization of required Methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -28,3 +31,5 @@ class ActionMessageBubble: UITableViewCell {
     }
     
 }
+
+/*  ----------------------------------------------------------------------------------------- */

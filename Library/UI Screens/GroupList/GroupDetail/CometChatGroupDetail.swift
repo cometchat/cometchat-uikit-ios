@@ -1,21 +1,25 @@
-//
-//  CometChatUserDetail.swift
-//  ios-chat-uikit-app
-//
-//  Created by Pushpsen Airekar on 30/12/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  CometChatGroupDetail.swift
+//  CometChatUIKit
+//  Created by Pushpsen Airekar on 20/09/19.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
+
 class CometChatGroupDetail: UIViewController {
+    
+      // MARK: - Declaration of Variables
     
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
     var settingsItems:[Int] = [Int]()
     var supportItems:[Int] = [Int]()
-    var viewMoreItems:[Int] = [Int]()
     var members:[GroupMember] = [GroupMember]()
     var administrators:[GroupMember] = [GroupMember]()
     var memberRequest: GroupMembersRequest?
@@ -27,11 +31,11 @@ class CometChatGroupDetail: UIViewController {
     static let ADMINISTRATOR_CELL = 2
     static let ADD_MEMBER_CELL = 3
     static let MEMBERS_CELL = 4
-    static let VIEW_MORE_CELL = 5
-    static let DELETE_AND_EXIT_CELL = 6
-    static let EXIT_CELL = 7
-    static let REPORT_CELL = 8
+    static let DELETE_AND_EXIT_CELL = 5
+    static let EXIT_CELL = 6
+    static let REPORT_CELL = 7
     
+       // MARK: - View controller lifecycle methods
     
     override public func loadView() {
         super.loadView()
@@ -49,7 +53,59 @@ class CometChatGroupDetail: UIViewController {
         self.addObsevers()
     }
     
+     // MARK: - Public Instance methods
     
+    /**
+        This method specifies the **Group** Object to along wih Group Members to present details in it.
+        - Parameter group: This specifies `Group` Object.
+        - Author: CometChat Team
+        - Copyright:  ©  2019 CometChat Inc.
+        */
+    public func set(group: Group, with members: [GroupMember]){
+        guard  group != nil else { return }
+        currentGroup = group
+        self.getGroup(group: group)
+        self.members = members
+        administrators = members.filter {$0.scope == .admin }
+        if members.isEmpty {
+            self.fetchGroupMembers(group: group)
+        }
+    }
+  
+    
+    /**
+    This method specifies the navigation bar title for CometChatGroupDetail.
+    - Parameters:
+    - title: This takes the String to set title for CometChatGroupDetail.
+    - mode: This specifies the TitleMode such as :
+    * .automatic : Automatically use the large out-of-line title based on the state of the previous item in the navigation bar.
+    *  .never: Never use a larger title when this item is topmost.
+    * .always: Always use a larger title when this item is topmost.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
+    @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
+          if navigationController != nil{
+              navigationItem.title = NSLocalizedString(title, comment: "")
+              navigationItem.largeTitleDisplayMode = mode
+              switch mode {
+              case .automatic:
+                  navigationController?.navigationBar.prefersLargeTitles = true
+              case .always:
+                  navigationController?.navigationBar.prefersLargeTitles = true
+              case .never:
+                  navigationController?.navigationBar.prefersLargeTitles = false
+              @unknown default:break }
+          }
+      }
+    
+    // MARK: - Private Instance methods
+    
+    /**
+    This method observers for the notifications of certain events.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     private func addObsevers(){
         CometChat.groupdelegate = self
         NotificationCenter.default.addObserver(self, selector:#selector(self.didRefreshGroupDetails(_:)), name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil)
@@ -60,10 +116,14 @@ class CometChatGroupDetail: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
+    /**
+    This method sets the list of items needs to be display in CometChatGroupDetail.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     private func setupItems(){
         settingsItems.removeAll()
         supportItems.removeAll()
-        viewMoreItems.removeAll()
         
         if currentGroup?.scope == .admin || currentGroup?.owner == CometChat.getLoggedInUser()?.uid {
             settingsItems = [CometChatGroupDetail.GROUP_INFO_CELL, CometChatGroupDetail.NOTIFICATION_CELL, CometChatGroupDetail.ADMINISTRATOR_CELL]
@@ -72,13 +132,17 @@ class CometChatGroupDetail: UIViewController {
             settingsItems = [CometChatGroupDetail.GROUP_INFO_CELL, CometChatGroupDetail.NOTIFICATION_CELL]
             supportItems = [CometChatGroupDetail.EXIT_CELL, CometChatGroupDetail.REPORT_CELL]
         }
-        viewMoreItems = [CometChatGroupDetail.VIEW_MORE_CELL]
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
-
+        
     }
     
+    /**
+       This method setup the tableview to load CometChatGroupDetail.
+       - Author: CometChat Team
+       - Copyright:  ©  2019 CometChat Inc.
+       */
     private func setupTableView() {
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
@@ -93,45 +157,38 @@ class CometChatGroupDetail: UIViewController {
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.tableView.tableFooterView = UIView(frame: .zero)
-        
-        let CometChatUserView  = UINib.init(nibName: "CometChatGroupView", bundle: nil)
-        self.tableView.register(CometChatUserView, forCellReuseIdentifier: "groupView")
-        
-        let NotificationsView  = UINib.init(nibName: "NotificationsView", bundle: nil)
-        self.tableView.register(NotificationsView, forCellReuseIdentifier: "notificationsView")
-        
-        let AdministratorView  = UINib.init(nibName: "AdministratorView", bundle: nil)
-        self.tableView.register(AdministratorView, forCellReuseIdentifier: "administratorView")
-        
-        let AddMemberView  = UINib.init(nibName: "AddMemberView", bundle: nil)
-        self.tableView.register(AddMemberView, forCellReuseIdentifier: "addMemberView")
-        
-        let MembersView  = UINib.init(nibName: "MembersView", bundle: nil)
-        self.tableView.register(MembersView, forCellReuseIdentifier: "membersView")
-        
-        let SupportView  = UINib.init(nibName: "SupportView", bundle: nil)
-        self.tableView.register(SupportView, forCellReuseIdentifier: "supportView")
-        
-        let ViewMoreView  = UINib.init(nibName: "ViewMoreView", bundle: nil)
-        self.tableView.register(ViewMoreView, forCellReuseIdentifier: "viewMoreView")
-        
-        
+        self.registerCells()
+       
+    }
+    
+    /**
+        This method register the cells for CometChatGroupDetail.
+        - Author: CometChat Team
+        - Copyright:  ©  2019 CometChat Inc.
+        */
+    private func registerCells(){
+              let CometChatUserView  = UINib.init(nibName: "CometChatGroupView", bundle: nil)
+               self.tableView.register(CometChatUserView, forCellReuseIdentifier: "groupView")
+               
+               let NotificationsView  = UINib.init(nibName: "NotificationsView", bundle: nil)
+               self.tableView.register(NotificationsView, forCellReuseIdentifier: "notificationsView")
+               
+               let AdministratorView  = UINib.init(nibName: "AdministratorView", bundle: nil)
+               self.tableView.register(AdministratorView, forCellReuseIdentifier: "administratorView")
+               
+               let AddMemberView  = UINib.init(nibName: "AddMemberView", bundle: nil)
+               self.tableView.register(AddMemberView, forCellReuseIdentifier: "addMemberView")
+               
+               let MembersView  = UINib.init(nibName: "MembersView", bundle: nil)
+               self.tableView.register(MembersView, forCellReuseIdentifier: "membersView")
+               
+               let SupportView  = UINib.init(nibName: "SupportView", bundle: nil)
+               self.tableView.register(SupportView, forCellReuseIdentifier: "supportView")
+
     }
     
     
-    public func set(group: Group, with members: [GroupMember]){
-        
-        guard  group != nil else {
-            return
-        }
-        currentGroup = group
-        self.getGroup(group: group)
-        self.members = members
-        administrators = members.filter {$0.scope == .admin}
-        if members.isEmpty {
-            self.fetchGroupMembers(group: group)
-        }
-    }
+  
     
     private func getGroup(group: Group){
         CometChat.getGroup(GUID: group.guid, onSuccess: { (group) in
@@ -142,8 +199,15 @@ class CometChatGroupDetail: UIViewController {
         }
     }
     
+    
+    /**
+    This method fetches  the **Group Members**  for particular group.
+    - Parameter group: This specifies `Group` Object.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     public func fetchGroupMembers(group: Group){
-        memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: group.guid).set(limit: 10).build()
+        memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: group.guid).set(limit: 100).build()
         memberRequest?.fetchNext(onSuccess: { (groupMember) in
             self.members = groupMember
             self.administrators = groupMember.filter {$0.scope == .admin}
@@ -154,6 +218,12 @@ class CometChatGroupDetail: UIViewController {
     }
     
     
+    /**
+    This method refreshes te group details when triggered.
+    - Parameter group: This specifies `Group` Object.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     @objc func didRefreshGroupDetails(_ notification: NSNotification) {
         if let guid = notification.userInfo?["guid"] as? String {
             members.removeAll()
@@ -173,7 +243,11 @@ class CometChatGroupDetail: UIViewController {
         }
     }
     
-    
+    /**
+        This method setup navigationBar for CometChatGroupDetail viewController.
+        - Author: CometChat Team
+        - Copyright:  ©  2019 CometChat Inc.
+        */
     private func setupNavigationBar(){
         if navigationController != nil{
             // NavigationBar Appearance
@@ -193,47 +267,49 @@ class CometChatGroupDetail: UIViewController {
         }
     }
     
-    
+    /**
+        This method triggers when user clicks on close button.
+        - Author: CometChat Team
+        - Copyright:  ©  2019 CometChat Inc.
+        */
     @objc func closeButtonPressed(){
         self.dismiss(animated: true, completion: nil)
     }
-    
-    @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
-        if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
-            navigationItem.largeTitleDisplayMode = mode
-            switch mode {
-            case .automatic:
-                navigationController?.navigationBar.prefersLargeTitles = true
-            case .always:
-                navigationController?.navigationBar.prefersLargeTitles = true
-            case .never:
-                navigationController?.navigationBar.prefersLargeTitles = false
-            @unknown default:break }
-        }
-    }
-    
 }
+
+
+/*  ----------------------------------------------------------------------------------------- */
+
+// MARK: - Table view Methods
 
 
 extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
     
+    /// This method specifies the number of sections to display list of items.
+    /// - Parameter tableView: An object representing the table view requesting this information.
     public func numberOfSections(in tableView: UITableView) -> Int {
-        return 5
+        return 4
     }
     
+    /// This method specifies height for section in CometChatGroupDetail
+       /// - Parameters:
+       ///   - tableView: The table-view object requesting this information.
+       ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if section == 0 || section == 2 || section == 3 {
+        if section == 0 || section == 2 {
             return 0
         }else{
             return 25
         }
     }
     
+    /// This method specifies the view for header  in CometChatGroupDetail
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 25))
         let sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: view.frame.size.width, height: 20))
-        
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
@@ -241,8 +317,6 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
         }else if section == 2{
             sectionTitle.text =  ""
         }else if section == 3{
-            sectionTitle.text =  ""
-        }else if section == 4{
             sectionTitle.text =  "PRIVACY & SUPPORT"
         }
         sectionTitle.font = UIFont(name: "SFProDisplay-Medium", size: 13)
@@ -254,23 +328,27 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
         return returnedView
     }
     
+    /// This method specifiesnumber of rows in CometChatGroupDetail
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         switch section {
         case 0: return settingsItems.count
         case 1: return 1
         case 2: return members.count
-        case 3: return viewMoreItems.count
-        case 4:return supportItems.count
+        case 3: return supportItems.count
         default: return 0
         }
     }
     
+    /// This method specifies the view for user  in CometChatGroupDetail
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if  indexPath.section == 0 && indexPath.row == 0 {
             return 100
-        }else if members.count < 10 && indexPath.section == 3 {
-            return 0
         }else if currentGroup?.owner == CometChat.getLoggedInUser()?.uid && indexPath.section == 1 {
             return 60
         }else if currentGroup?.scope != .admin && indexPath.section == 1 {
@@ -280,16 +358,18 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specifies the view for user  in CometChatGroupDetail
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell:UITableViewCell = UITableViewCell()
-        
         switch indexPath.section {
         case 0:
             switch settingsItems[indexPath.row] {
             case CometChatGroupDetail.GROUP_INFO_CELL:
                 let groupInfoCell = tableView.dequeueReusableCell(withIdentifier: "groupView", for: indexPath) as! CometChatGroupView
-                groupInfoCell.groupAvtar.set(image: "")
+                groupInfoCell.groupAvatar.set(image: "")
                 groupInfoCell.groupName.text = currentGroup?.name?.capitalized ?? ""
                 if members.count < 100 {
                     groupInfoCell.groupDetails.text = "\(members.count) Members"
@@ -304,7 +384,6 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                 return notificationsCell
                 
             case CometChatGroupDetail.ADMINISTRATOR_CELL:
-                
                 let administratorCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
                 administratorCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 administratorCell.adminCount.text = "\(administrators.count)"
@@ -318,22 +397,16 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             return addMemberCell
             
         case 2:
-            let member = members[indexPath.row]
-            let membersCell = tableView.dequeueReusableCell(withIdentifier: "membersView", for: indexPath) as! MembersView
-            membersCell.member = member
-            if member.uid == currentGroup?.owner {
-                membersCell.scope.text = "Owner"
-            }
-            membersCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-            return membersCell
+                let member = members[indexPath.row]
+                let membersCell = tableView.dequeueReusableCell(withIdentifier: "membersView", for: indexPath) as! MembersView
+                membersCell.member = member
+                if member.uid == currentGroup?.owner {
+                    membersCell.scope.text = "Owner"
+                }
+                membersCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+                return membersCell
             
         case 3:
-            
-            let viewMoreCell = tableView.dequeueReusableCell(withIdentifier: "viewMoreView", for: indexPath) as! ViewMoreView
-            viewMoreCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-            return viewMoreCell
-            
-        case 4:
             switch supportItems[indexPath.row] {
             case CometChatGroupDetail.DELETE_AND_EXIT_CELL:
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
@@ -355,11 +428,13 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             }
         default: break
         }
-        
-        
         return cell
     }
     
+    /// This method triggers when particular cell is clicked by the user .
+      /// - Parameters:
+      ///   - tableView: The table-view object requesting this information.
+      ///   - indexPath: specifies current index for TableViewCell.
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -375,8 +450,6 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                 addAdmins.set(group: group)
                 let navigationController: UINavigationController = UINavigationController(rootViewController: addAdmins)
                 self.present(navigationController, animated: true, completion: nil)
-                
-                
             default:break }
         case 1:
             let addMembers = CometChatAddMembers()
@@ -386,8 +459,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             self.present(navigationController, animated: true, completion: nil)
         case 2: break
         // Members here
-        case 3 : break
-        case 4:
+        case 3:
             switch supportItems[indexPath.row] {
             case CometChatGroupDetail.DELETE_AND_EXIT_CELL:
                 
@@ -427,22 +499,13 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             default:break }
         default: break
         }
-        if  let selectedCell = tableView.cellForRow(at: indexPath) as? ViewMoreView {
-            selectedCell.activityIndicator.startAnimating()
-            memberRequest?.fetchNext(onSuccess: { (groupMember) in
-                if groupMember.isEmpty { self.viewMoreItems.removeAll()}
-                DispatchQueue.main.async {selectedCell.activityIndicator.stopAnimating()}
-                self.members.append(contentsOf: groupMember)
-                self.administrators = groupMember.filter {$0.scope == .admin}
-                DispatchQueue.main.async {self.tableView.reloadData() }
-            }, onError: { (error) in
-                DispatchQueue.main.async {selectedCell.activityIndicator.stopAnimating()}
-                print("Group Member list fetching failed with exception:" + error!.errorDescription);
-            })
-        }
     }
     
-    
+    /// This method triggers the `UIMenu` when user holds on TableView cell.
+       /// - Parameters:
+        ///   - tableView: The table-view object requesting this information.
+       ///   - indexPath: specifies current index for TableViewCell.
+       ///   - point: A structure that contains a point in a two-dimensional coordinate system.
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
@@ -484,8 +547,22 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
     }
 }
 
+/*  ----------------------------------------------------------------------------------------- */
+
+
+// MARK: - CometChatGroupDelegate Delegate
+
 extension CometChatGroupDetail: CometChatGroupDelegate {
     
+    /**
+    This method triggers when someone joins group.
+    - Parameters
+    - action: Spcifies `ActionMessage` Object
+    - joinedUser: Specifies `User` Object
+    - joinedGroup: Specifies `Group` Object
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
         if let group = currentGroup {
             if group == joinedGroup {
@@ -494,6 +571,16 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
         }
     }
     
+    /**
+    This method triggers when someone lefts group.
+    - Parameters
+    - action: Spcifies `ActionMessage` Object
+    - leftUser: Specifies `User` Object
+    - leftGroup: Specifies `Group` Object
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+
+    */
     public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
         if let group = currentGroup {
             if group == leftGroup {
@@ -503,6 +590,17 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
         }
     }
     
+    /**
+      This method triggers when someone kicked from the  group.
+      - Parameters
+      - action: Spcifies `ActionMessage` Object
+      - kickedUser: Specifies `User` Object
+      - kickedBy: Specifies `User` Object
+      - kickedFrom: Specifies `Group` Object
+      - Author: CometChat Team
+      - Copyright:  ©  2019 CometChat Inc.
+      
+      */
     public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
         if let group = currentGroup {
             if group == kickedFrom {
@@ -512,24 +610,58 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
         }
     }
     
+    /**
+       This method triggers when someone banned from the  group.
+       - Parameters
+       - action: Spcifies `ActionMessage` Object
+       - bannedUser: Specifies `User` Object
+       - bannedBy: Specifies `User` Object
+       - bannedFrom: Specifies `Group` Object
+       - Author: CometChat Team
+       - Copyright:  ©  2019 CometChat Inc.
+       - See Also:
+       [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
+       */
     public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
         if let group = currentGroup {
             if group == bannedFrom {
-                 getGroup(group: group)
+                getGroup(group: group)
                 fetchGroupMembers(group: group)
             }
         }
     }
     
+    /**
+    This method triggers when someone unbanned from the  group.
+    - Parameters
+    - action: Spcifies `ActionMessage` Object
+    - unbannedUser: Specifies `User` Object
+    - unbannedBy: Specifies `User` Object
+    - unbannedFrom: Specifies `Group` Object
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
         if let group = currentGroup {
             if group == unbannedFrom {
-                 getGroup(group: group)
+                getGroup(group: group)
                 fetchGroupMembers(group: group)
             }
         }
     }
     
+    /**
+           This method triggers when someone's scope changed  in the  group.
+           - Parameters
+           - action: Spcifies `ActionMessage` Object
+           - scopeChangeduser: Specifies `User` Object
+           - scopeChangedBy: Specifies `User` Object
+           - scopeChangedTo: Specifies `User` Object
+           - scopeChangedFrom:  Specifies  description for scope changed
+           - group: Specifies `Group` Object
+           - Author: CometChat Team
+           - Copyright:  ©  2019 CometChat Inc.
+           */
     public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
         if let group = currentGroup {
             if group == group {
@@ -540,12 +672,24 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
         }
     }
     
+    /**
+           This method triggers when someone added in  the  group.
+           - Parameters:
+           - action:  Spcifies `ActionMessage` Object
+           - addedBy: Specifies `User` Object
+           - addedUser: Specifies `User` Object
+           - addedTo: Specifies `Group` Object
+           - Author: CometChat Team
+           - Copyright:  ©  2019 CometChat Inc.
+           */
     public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
         if let group = currentGroup {
             if group == group {
-                 getGroup(group: group)
+                getGroup(group: group)
                 fetchGroupMembers(group: group)
             }
         }
     }
 }
+
+/*  ----------------------------------------------------------------------------------------- */

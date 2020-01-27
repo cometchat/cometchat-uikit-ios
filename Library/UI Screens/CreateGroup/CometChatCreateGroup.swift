@@ -1,38 +1,79 @@
-//
+
 //  CometChatCreateGroup.swift
-//  ios-chat-uikit-app
-//
-//  Created by Pushpsen Airekar on 06/01/20.
-//  Copyright © 2020 Pushpsen Airekar. All rights reserved.
-//
+//  CometChatUIKit
+//  Created by Pushpsen Airekar on 20/09/19.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
 
 class CometChatCreateGroup: UIViewController {
     
+    // MARK: - Declaration of Outlets
+    
     @IBOutlet weak var name: UITextField!
-    @IBOutlet weak var icon: Avtar!
+    @IBOutlet weak var icon: Avatar!
     @IBOutlet weak var createGroup: UIButton!
-    
     @IBOutlet var backgroundView: UIView!
-    let modelName = UIDevice.modelName
-   
-    
-    
     @IBOutlet weak var createGroupBtnBottomConstraint: NSLayoutConstraint!
     
+    
+    // MARK: - Declaration of Variables
+    
+    let modelName = UIDevice.modelName
     var documentsUrl: URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }
     
+    // MARK: - View controller lifecycle methods
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupNavigationBar()
-        self.registerObservers()
+        self.addObservers()
     }
     
+     // MARK: - Public Instance methods
+    
+    /**
+    This method specifies the navigation bar title for CometChatCreateGroup.
+    - Parameters:
+    - title: This takes the String to set title for CometChatGroupList.
+    - mode: This specifies the TitleMode such as :
+    * .automatic : Automatically use the large out-of-line title based on the state of the previous item in the navigation bar.
+    *  .never: Never use a larger title when this item is topmost.
+    * .always: Always use a larger title when this item is topmost.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
+    @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
+          if navigationController != nil{
+              navigationItem.title = NSLocalizedString(title, comment: "")
+              navigationItem.largeTitleDisplayMode = mode
+              switch mode {
+              case .automatic:
+                  navigationController?.navigationBar.prefersLargeTitles = true
+              case .always:
+                  navigationController?.navigationBar.prefersLargeTitles = true
+              case .never:
+                  navigationController?.navigationBar.prefersLargeTitles = false
+              @unknown default:break }
+              
+          }
+      }
+    
+    
+    // MARK: - Private Instance methods
+    
+    /**
+        This method setup navigationBar for createGroup viewController.
+        - Author: CometChat Team
+        - Copyright:  ©  2019 CometChat Inc.
+    */
     private func setupNavigationBar(){
         if navigationController != nil{
             // NavigationBar Appearance
@@ -52,7 +93,12 @@ class CometChatCreateGroup: UIViewController {
         }
     }
     
-    fileprivate func registerObservers(){
+    /**
+    This method observes for perticular events such as `didGroupDeleted`, `keyboardWillShow`, `dismissKeyboard` in CometChatCreateGroup..
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
+    fileprivate func addObservers(){
         //Register Notifications
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(dismissKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -61,12 +107,24 @@ class CometChatCreateGroup: UIViewController {
         
     }
     
+    /**
+    This method triggers when  group is deleted.
+    - Parameter notification: Specifies the `NSNotification` Object.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     @objc func didGroupDeleted(_ notification: NSNotification) {
            
         self.dismiss(animated: true, completion: nil)
            
      }
     
+    /**
+    This method triggers when  keyboard is shown.
+    - Parameter notification: Specifies the `NSNotification` Object.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     @objc func keyboardWillShow(notification: NSNotification) {
         
         if let userinfo = notification.userInfo
@@ -87,13 +145,21 @@ class CometChatCreateGroup: UIViewController {
         }
     }
     
-    fileprivate func hideKeyboardWhenTappedArround() {
+    /**
+    This method triggers when  user taps arround the view.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
+    private func hideKeyboardWhenTappedArround() {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         backgroundView.addGestureRecognizer(tap)
     }
     
-    
-    // This function dismiss the  keyboard
+     /**
+    This method dismiss the  keyboard
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     @objc  func dismissKeyboard() {
         name.resignFirstResponder()
         if self.createGroup.frame.origin.y != 0 {
@@ -105,6 +171,38 @@ class CometChatCreateGroup: UIViewController {
     }
     
     
+    /**
+    This method triggeres when  create group button pressed.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
+    @IBAction func didCreateGroupPressed(_ sender: Any) {
+        guard let name = name.text else {
+            self.view.makeToast("Kindly, enter group name.")
+            return
+        }
+        let group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name , groupType: .public, password: nil, icon: "http://support.universum.com/bitbucket-old/atlassian-bitbucket/static/bitbucket/internal/images/avatar/group-avatar-256.png", description: ".")
+        CometChat.createGroup(group: group, onSuccess: { (group) in
+            print("createGroup: \(group.stringValue())")
+            DispatchQueue.main.async {
+                let data:[String: Group] = ["group": group]
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupCreated"), object: nil, userInfo: data)
+                self.dismiss(animated: true, completion: nil)
+            }
+        }) { (error) in
+                DispatchQueue.main.async {
+                    print("error while creating group: \(String(describing: error?.errorDescription))")
+                    self.view.makeToast(error?.errorDescription)
+            }
+        }
+    }
+    
+    
+    /**
+    This method triggeres when upload icon is pressed.  This view is hidden by default. If user wants to upload its own image in group icon then he can use this option.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     @IBAction func didUploadIconPressed(_ sender: Any) {
         
         CameraHandler.shared.presentPhotoLibrary(for: self)
@@ -115,35 +213,11 @@ class CometChatCreateGroup: UIViewController {
         
     }
     
-    @IBAction func didCreateGroupPressed(_ sender: Any) {
-        
-        guard let name = name.text else {
-            self.view.makeToast("Kindly, enter group name.")
-            return
-        }
-        
-        let group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name , groupType: .public, password: nil, icon: "http://support.universum.com/bitbucket-old/atlassian-bitbucket/static/bitbucket/internal/images/avatar/group-avatar-256.png", description: ".")
-        
-        CometChat.createGroup(group: group, onSuccess: { (group) in
-            print("createGroup: \(group.stringValue())")
-            DispatchQueue.main.async {
-                let data:[String: Group] = ["group": group]
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupCreated"), object: nil, userInfo: data)
-                self.dismiss(animated: true, completion: nil)
-            }
-            
-        }) { (error) in
-                DispatchQueue.main.async {
-                    print("error while creating group: \(String(describing: error?.errorDescription))")
-                    self.view.makeToast(error?.errorDescription)
-            }
-        }
-        
-        
-        
-    }
-    
-    
+    /**
+    This method loads the image using filepath.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     private func load(fileName: String) -> UIImage? {
         let fileURL = documentsUrl.appendingPathComponent(fileName)
         do {
@@ -155,23 +229,15 @@ class CometChatCreateGroup: UIViewController {
         return nil
     }
     
+    /**
+    This method when user clicks on Close button.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     @objc func closeButtonPressed(){
         self.dismiss(animated: true, completion: nil)
     }
-    
-    @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
-        if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
-            navigationItem.largeTitleDisplayMode = mode
-            switch mode {
-            case .automatic:
-                navigationController?.navigationBar.prefersLargeTitles = true
-            case .always:
-                navigationController?.navigationBar.prefersLargeTitles = true
-            case .never:
-                navigationController?.navigationBar.prefersLargeTitles = false
-            @unknown default:break }
-            
-        }
-    }
 }
+
+
+/*  ----------------------------------------------------------------------------------------- */

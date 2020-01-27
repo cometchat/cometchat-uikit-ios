@@ -1,18 +1,26 @@
-//
 //  StatusIndicator.swift
 //  CometChatUIKit
-//
-//  Created by Pushpsen Airekar on 23/09/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  Created by Pushpsen Airekar on 20/09/19.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ 
+ StatusIndicator: This component will be the class of UImageView which is customizable to display the status of the user.
+ 
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
+
+// MARK: - Importing Frameworks.
 
 import Foundation
 import  UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
 
-//////////////////////////////   COMETCHATPRO : STATUS INDICATOR //////////////////////////////
 @objc @IBDesignable public class StatusIndicator: UIView {
+    
+    // MARK: - Declaration of IBInspectable
+    
     @IBInspectable var cornerRadius: CGFloat = 0.0
     @IBInspectable var borderColor: UIColor = UIColor.black
     @IBInspectable var borderWidth: CGFloat = 0.5
@@ -23,6 +31,9 @@ import CometChatPro
             super.backgroundColor = UIColor.clear
         }
     }
+    
+    // MARK: - Initialization of required Methods
+    
     func setup() {
         super.backgroundColor = UIColor.clear
     }
@@ -45,37 +56,80 @@ import CometChatPro
         borderPath.stroke()
     }
     
+    // MARK: - Public instance methods
     
+    /**
+     This method used to set the cornerRadius for StatusIndicator class
+     - Parameter cornerRadius: This specifies a float value  which sets corner radius.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     - See Also:
+     [StatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
+     */
     @objc public func set(cornerRadius: CGFloat) -> StatusIndicator {
         self.cornerRadius = cornerRadius
         return self
     }
     
+    /**
+     This method used to set the borderColor for StatusIndicator class
+     - Parameter borderColor: This specifies a `UIColor` for border of the StatusIndicator.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     - See Also:
+     [StatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
+     */
     @objc public func set(borderColor: UIColor) -> StatusIndicator {
-           self.borderColor = borderColor
-           return self
+        self.borderColor = borderColor
+        return self
     }
     
+    /**
+     This method used to set the borderWidth for StatusIndicator class
+     - Parameter borderWidth: This specifies a `CGFloat` for border width of the StatusIndicator.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     - See Also:
+     [StatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
+     */
     @objc public func set(borderWidth: CGFloat) -> StatusIndicator {
-              self.borderWidth = borderWidth
-              return self
+        self.borderWidth = borderWidth
+        return self
     }
     
+    /**
+     This method used to set the Color for StatusIndicator class
+     - Parameter color: This specifies a `UIColor` for  of the StatusIndicator.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     - See Also:
+     [StatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
+     */
     @objc public func set(color: UIColor) -> StatusIndicator {
         self.backgroundColor = color
-              return self
+        return self
     }
     
+    
+    /**
+     This method used to set the Color according to the status of the user for StatusIndicator class
+     -  - Parameter status:  This specifies a `UserStatus` such as `.online` or `.offline`.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     - See Also:
+     [StatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
+     */
     @objc public func set(status: CometChatPro.CometChat.UserStatus) -> StatusIndicator {
         switch status {
         case .online:
-             self.backgroundColor = #colorLiteral(red: 0.6039215686, green: 0.8039215686, blue: 0.1960784314, alpha: 1)
+            self.backgroundColor = #colorLiteral(red: 0.6039215686, green: 0.8039215686, blue: 0.1960784314, alpha: 1)
         case .offline:
-             self.backgroundColor = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1)
+            self.backgroundColor = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1)
         @unknown default:
             break
         }
         return self
-       }
+    }
 }
-//////////////////////////////////////////////////////////////////////////////////////////
+
+/*  ----------------------------------------------------------------------------------------- */

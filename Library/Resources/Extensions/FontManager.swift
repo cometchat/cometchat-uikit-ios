@@ -13,6 +13,7 @@ public extension UIFont {
         registerFontWithFilenameString(filenameString: "SF-Pro-Display-Black.otf", bundleIdentifierString: bundleIdentifierString)
         registerFontWithFilenameString(filenameString: "SF-Pro-Display-Bold.otf", bundleIdentifierString: bundleIdentifierString)
         registerFontWithFilenameString(filenameString: "SF-Pro-Display-Regular.otf", bundleIdentifierString: bundleIdentifierString)
+        registerFontWithFilenameString(filenameString: "SF-Pro-Display-RegularItalic.otf", bundleIdentifierString: bundleIdentifierString)
     }
     
     static func registerFontWithFilenameString(filenameString: String, bundleIdentifierString: String) {

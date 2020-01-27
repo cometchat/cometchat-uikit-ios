@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell contentMode="scaleToFill" restorationIdentifier="leftFileMessageBubble" selectionStyle="default" indentationWidth="10" reuseIdentifier="leftFileMessageBubble" rowHeight="75" id="KGk-i7-Jjw" customClass="LeftFileMessageBubble" customModule="CometChatUIKitDemo" customModuleProvider="target">
+        <tableViewCell contentMode="scaleToFill" restorationIdentifier="leftFileMessageBubble" selectionStyle="default" indentationWidth="10" reuseIdentifier="leftFileMessageBubble" rowHeight="75" id="KGk-i7-Jjw" customClass="LeftFileMessageBubble" customModule="ios_chat_uikit_app" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="320" height="75"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
                 <rect key="frame" x="0.0" y="0.0" width="320" height="75"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvtar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="HpJ-Zw-5Ia" customClass="Avtar" customModule="CometChatUIKitDemo" customModuleProvider="target">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvtar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="HpJ-Zw-5Ia" customClass="Avatar" customModule="ios_chat_uikit_app" customModuleProvider="target">
                         <rect key="frame" x="5" y="35" width="25" height="25"/>
-                        <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529999999" green="0.47058823529999999" blue="0.50196078430000002" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="25" id="d7n-sm-DGa"/>
                             <constraint firstAttribute="height" constant="25" id="qVU-4f-tbc"/>
@@ -40,16 +40,16 @@
                                 <rect key="frame" x="197" y="7.5" width="45" height="45"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="OQb-7i-HIR">
-                                        <rect key="frame" x="11.5" y="7" width="22.5" height="33"/>
+                                        <rect key="frame" x="11.5" y="7" width="22" height="33"/>
                                         <subviews>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="doc.text.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Urt-0t-CMY">
-                                                <rect key="frame" x="0.0" y="-2.5" width="22.5" height="24.5"/>
+                                                <rect key="frame" x="0.0" y="-2.5" width="22" height="24"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
                                             </imageView>
                                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="PDF" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cSS-Es-tXg">
-                                                <rect key="frame" x="0.0" y="24" width="22.5" height="9"/>
+                                                <rect key="frame" x="0.0" y="24" width="22" height="9"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="8"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
@@ -92,7 +92,7 @@
                                 </subviews>
                             </stackView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529999999" green="0.47058823529999999" blue="0.50196078430000002" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="hvo-a8-rqI" firstAttribute="leading" secondItem="alw-MY-xmy" secondAttribute="leading" constant="8" id="3aE-uZ-JbF"/>
                             <constraint firstAttribute="width" constant="250" id="Azw-Zb-uHI"/>
@@ -114,7 +114,7 @@
                             <constraint firstAttribute="height" constant="12" id="5uY-fj-ffr"/>
                         </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="11"/>
-                        <color key="textColor" systemColor="systemGrayColor" red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="textColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                 </subviews>
@@ -130,7 +130,7 @@
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
-                <outlet property="avtar" destination="HpJ-Zw-5Ia" id="Q1m-Te-Y7G"/>
+                <outlet property="Avatar" destination="HpJ-Zw-5Ia" id="Q1m-Te-Y7G"/>
                 <outlet property="heightConstraint" destination="5uY-fj-ffr" id="RNm-TZ-rfE"/>
                 <outlet property="icon" destination="Urt-0t-CMY" id="fMh-y2-YYz"/>
                 <outlet property="name" destination="CQU-tj-KLP" id="mbP-jP-2K3"/>

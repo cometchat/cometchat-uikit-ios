@@ -1,27 +1,39 @@
-//
-//  UserView.swift
+//  CometChatUserView.swift
 //  CometChatUIKit
-//
 //  Created by Pushpsen Airekar on 20/09/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+CometChatUserView: This component will be the class of UITableViewCell with components such as userAvtar(Avtar), userName(UILabel).
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
+
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
+
 class CometChatUserView: UITableViewCell {
     
-    @IBOutlet weak var userAvtar: Avtar!
+     // MARK: - Declaration of IBOutlets
+    
+    @IBOutlet weak var userAvatar: Avatar!
     @IBOutlet weak var userName: UILabel!
     @IBOutlet weak var userStatus: UILabel!
+    @IBOutlet weak var avatarHeight: NSLayoutConstraint!
+    @IBOutlet weak var avatarWidth: NSLayoutConstraint!
     
-    @IBOutlet weak var avtarHeight: NSLayoutConstraint!
-    @IBOutlet weak var avtarWidth: NSLayoutConstraint!
+    // MARK: - Declaration of Variables
     
     var user: User! {
         didSet {
             userName.text = user?.name
-            userAvtar.set(image: user?.avatar ?? "")
+            userAvatar.set(image: user?.avatar ?? "")
             
             if  user.status != nil {
                 switch user.status {
@@ -37,6 +49,8 @@ class CometChatUserView: UITableViewCell {
         }
     }
     
+    // MARK: - Initialization of required Methods
+       
     override func awakeFromNib() {
         super.awakeFromNib()
     }
@@ -46,5 +60,7 @@ class CometChatUserView: UITableViewCell {
         
         // Configure the view for the selected state
     }
-    
 }
+
+
+/*  ----------------------------------------------------------------------------------------- */

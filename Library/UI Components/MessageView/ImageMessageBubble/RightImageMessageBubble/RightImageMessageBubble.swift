@@ -1,15 +1,19 @@
-//
-//  TextBubble.swift
+
+//  RightImageMessageBubble.swift
 //  CometChatUIKit
-//
-//  Created by Pushpsen Airekar on 16/10/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  Created by Pushpsen Airekar on 20/09/19.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
+
 class RightImageMessageBubble: UITableViewCell {
+    
+     // MARK: - Declaration of IBInspectable
     
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var heightConstraint: NSLayoutConstraint!
@@ -17,6 +21,7 @@ class RightImageMessageBubble: UITableViewCell {
     @IBOutlet weak var activityIndicator: CCActivityIndicator!
     @IBOutlet weak var receipt: UIImageView!
     
+    // MARK: - Declaration of Variables
     
     var mediaMessage: MediaMessage! {
         didSet {
@@ -54,7 +59,7 @@ class RightImageMessageBubble: UITableViewCell {
         
     }
     
-    
+     // MARK: - Initialization of required Methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -68,6 +73,13 @@ class RightImageMessageBubble: UITableViewCell {
         // Configure the view for the selected state
     }
     
+    
+    /**
+    This method used to set the image for RightImageMessageBubble class
+    - Parameter image: This specifies a `URL` for  the Avatar.
+    - Author: CometChat Team
+    - Copyright:  ©  2019 CometChat Inc.
+    */
     public func set(Image: UIImageView, forURL url: String) {
         let url = URL(string: url)
         Image.kf.setImage(with: url)

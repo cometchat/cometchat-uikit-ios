@@ -1,35 +1,62 @@
 
-//  CombinedList.swift
-//  CometChatUIKitDemo
-//
+//  CometChatUnified.swift
+//  CometChatUIKit
 //  Created by Pushpsen Airekar on 20/09/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
 
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ 
+ UI Unified : UI Unified is a way to launch a fully working chat application using the UI Kit. In UI Unified all the UI Screens and UI Components working together to give the full experience of a chat application with minimal coding effort.
+ 
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
+
+
+// MARK: - Importing Frameworks.
 
 import UIKit
+import CometChatPro
 
-class CometChatUnified: UITabBarController {
+/*  ----------------------------------------------------------------------------------------- */
+
+/// **CometChatUnified**  is a way to launch a fully working chat application using the UI Kit. In UI Unified all the UI Screens and UI Components working together to give the full experience of a chat application with minimal coding effort.
+@objc public class CometChatUnified: UITabBarController {
     
-    public let conversations = UINavigationController()
+    // MARK: - Declaration of Variables
+    
+    // Declaration of UINavigationController's  to Embed CometChatConversationList, CometChatUserList, CometChatGroupList, CometChatUserInfo.
+    public let conversations = UINavigationController()  
     public let users = UINavigationController()
     public let groups = UINavigationController()
     public let more = UINavigationController()
     
-    
+    //  Initialization of variables for UIScreens such as CometChatConversationList, CometChatUserList, CometChatGroupList, CometChatUserInfo.
     var conversationList:CometChatConversationList = CometChatConversationList()
     var userList:CometChatUserList =  CometChatUserList()
     var groupList:CometChatGroupList = CometChatGroupList()
     var userInfo: CometChatUserInfo = CometChatUserInfo()
-
     
+    
+    // MARK: - Public Methods
+    
+    /**
+     This methods sets the UI Screens tabs for the view controllers which user wants to display in Tabbar.
+     - Parameter controllers: This takes the array of UIScreens view controllers.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     - See Also:
+     [UI Unified Documentation](https://prodocs.cometchat.com/docs/ios-ui-unified)
+     */
     @objc public func set(controllers: [UIViewController]?){
-         UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+        
+        // Loading the fonts which required for the application.
+        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+        
         // Adding Navigation controllers for view controllers.
         conversations.viewControllers = [conversationList]
         users.viewControllers = [userList]
         groups.viewControllers = [groupList]
         more.viewControllers = [userInfo]
-        
         
         // Setting title and icons for Tabbar
         if #available(iOS 13.0, *) {
@@ -52,14 +79,25 @@ class CometChatUnified: UITabBarController {
         groupList.set(title: "Groups", mode: .automatic)
         userInfo.set(title: "More", mode: .automatic)
         
-        
         // Adding view controllers in Tabbar
         self.viewControllers = controllers
     }
     
+    
+    /**
+     This methods provides the modalPresentationStyle to display UI Unified such as `.fullSreen` or `.popover`.
+     -  Parameter withStyle: Specifies the  modalPresentationStyle to display UI Unified such as `.fullSreen` or `.popover`
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     - See Also:
+     [UI Unified Documentation](https://prodocs.cometchat.com/docs/ios-ui-unified)
+     */
     @objc public func setup(withStyle: UIModalPresentationStyle){
         self.modalPresentationStyle = withStyle
         set(controllers: [conversations,users,groups, more])
     }
-    
 }
+ 
+/*  ----------------------------------------------------------------------------------------- */
+
+

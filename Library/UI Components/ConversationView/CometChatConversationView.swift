@@ -1,17 +1,28 @@
-//
-//  UserView.swift
+
+//  CometChatConversationView.swift
 //  CometChatUIKit
-//
 //  Created by Pushpsen Airekar on 20/09/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  Copyright ©  2019 CometChat Inc. All rights reserved
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+CometChatConversationView: This component will be the class of UITableViewCell with components such as avtar(Avtar), name(UILabel), message(UILabel).
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
+
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
+
 class CometChatConversationView: UITableViewCell {
     
-    @IBOutlet weak var avtar: Avtar!
+     // MARK: - Declaration of IBOutlets
+    
+    @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var status: StatusIndicator!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var message: UILabel!
@@ -20,12 +31,13 @@ class CometChatConversationView: UITableViewCell {
     @IBOutlet weak var read: UIImageView!
     @IBOutlet weak var typing: UILabel!
     
+    // MARK: - Declaration of Variables
+    
     var searchedText: String = ""
     let normalTitlefont = UIFont(name: "SFProDisplay-Medium", size: 17)
     let boldTitlefont = UIFont(name: "SFProDisplay-Bold", size: 17)
     let normalSubtitlefont = UIFont(name: "SFProDisplay-Regular", size: 15)
     let boldSubtitlefont = UIFont(name: "SFProDisplay-Bold", size: 15)
-    
     var conversation: Conversation! {
         didSet {
             if conversation.lastMessage != nil {
@@ -35,7 +47,7 @@ class CometChatConversationView: UITableViewCell {
                         return
                     }
                     name.attributedText = addBoldText(fullString: user.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont)
-                    avtar.set(image: user.avatar ?? "")
+                    avatar.set(image: user.avatar ?? "")
                     status.isHidden = false
                     status.set(status: user.status)
                 case .group:
@@ -44,7 +56,7 @@ class CometChatConversationView: UITableViewCell {
                     }
                     name.attributedText = addBoldText(fullString: group.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont)
                     
-                    avtar.set(image: group.icon ?? "")
+                    avatar.set(image: group.icon ?? "")
                     status.isHidden = true
                 case .none:
                     break
@@ -122,6 +134,8 @@ class CometChatConversationView: UITableViewCell {
         }
     }
     
+    // MARK: - Initialization of required Methods
+    
     override func awakeFromNib() {
         super.awakeFromNib()
     }
@@ -132,7 +146,15 @@ class CometChatConversationView: UITableViewCell {
         // Configure the view for the selected state
     }
     
-    func addBoldText(fullString: NSString, boldPartOfString: NSString, font: UIFont!, boldFont: UIFont!) -> NSAttributedString {
+     // MARK: - Private Instance Methods
+    
+    /// This method bold the text which is added in Search bar.
+    /// - Parameters:
+    ///   - fullString: Contains full string
+    ///   - boldPartOfString: contains searched text string
+    ///   - font: normal font
+    ///   - boldFont: bold font
+    private func addBoldText(fullString: NSString, boldPartOfString: NSString, font: UIFont!, boldFont: UIFont!) -> NSAttributedString {
         let nonBoldFontAttribute = [NSAttributedString.Key.font:font!]
         let boldFontAttribute = [NSAttributedString.Key.font:boldFont!]
         let boldString = NSMutableAttributedString(string: fullString as String, attributes:nonBoldFontAttribute)
@@ -141,3 +163,4 @@ class CometChatConversationView: UITableViewCell {
     }
 }
 
+/*  ----------------------------------------------------------------------------------------- */

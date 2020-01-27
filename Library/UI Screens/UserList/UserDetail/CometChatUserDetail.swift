@@ -1,21 +1,26 @@
-//
+
 //  CometChatUserDetail.swift
-//  ios-chat-uikit-app
-//
-//  Created by Pushpsen Airekar on 30/12/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  CometChatUIKit
+//  Created by Pushpsen Airekar on 20/09/19.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
+
 class CometChatUserDetail: UIViewController {
+    
+    // MARK: - Declaration of Variables
     
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
     var settingItems:[Int] = [Int]()
     var actionsItems:[Int] = [Int]()
     var supportItems:[Int] = [Int]()
+    var isPresentedFromMessageList: Bool?
     var currentUser: User?
     var currentGroup: Group?
     
@@ -27,6 +32,8 @@ class CometChatUserDetail: UIViewController {
     static let BLOCK_USER_CELL = 5
     static let REPORT_CELL = 6
     
+    // MARK: - View controller lifecycle methods
+    
     override public func loadView() {
         super.loadView()
         UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
@@ -37,12 +44,76 @@ class CometChatUserDetail: UIViewController {
         self.setupItems()
     }
     
+    // MARK: - Public Instance methods
+    
+    /**
+     This method specifies the **User** Object to present details for it.
+     - Parameter group: This specifies `Group` Object.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     */
+    public func set(user: User){
+        guard  user != nil else {
+            return
+        }
+        currentUser = user
+        CometChat.getUser(UID: user.uid ?? "", onSuccess: { (updatedUser) in
+            self.currentUser = updatedUser
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }) { (error) in
+            print("unable to fetch user information: \(String(describing: error?.errorDescription))")
+        }
+    }
+    
+    /**
+     This method specifies the navigation bar title for CometChatUserDetail.
+     - Parameters:
+     - title: This takes the String to set title for CometChatUserDetail.
+     - mode: This specifies the TitleMode such as :
+     * .automatic : Automatically use the large out-of-line title based on the state of the previous item in the navigation bar.
+     *  .never: Never use a larger title when this item is topmost.
+     * .always: Always use a larger title when this item is topmost.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     */
+    @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
+        if navigationController != nil{
+            navigationItem.title = NSLocalizedString(title, comment: "")
+            navigationItem.largeTitleDisplayMode = mode
+            switch mode {
+            case .automatic:
+                navigationController?.navigationBar.prefersLargeTitles = true
+            case .always:
+                navigationController?.navigationBar.prefersLargeTitles = true
+            case .never:
+                navigationController?.navigationBar.prefersLargeTitles = false
+            @unknown default:break }
+        }
+    }
+    
+    
+    
+    
+    // MARK: - Private Instance methods
+    
+    /**
+     This method sets the list of items needs to be display in CometChatUserDetail.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     */
     private func setupItems(){
         settingItems = [CometChatUserDetail.USER_INFO_CELL, CometChatUserDetail.NOTIFICATION_CELL]
         actionsItems = [CometChatUserDetail.SEND_MESSAGE_CELL, CometChatUserDetail.ADD_TO_CONTACTS_CELL]
         supportItems = [CometChatUserDetail.CLEAR_CHAT_CELL, CometChatUserDetail.BLOCK_USER_CELL, CometChatUserDetail.REPORT_CELL]
     }
     
+    /**
+     This method setup the tableview to load CometChatUserDetail.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     */
     private func setupTableView() {
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
@@ -57,7 +128,15 @@ class CometChatUserDetail: UIViewController {
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.tableView.tableFooterView = UIView(frame: .zero)
-        
+        self.registerCells()
+    }
+    
+    /**
+     This method register the cells for CometChatUserDetail.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     */
+    private func registerCells(){
         let CometChatUserView  = UINib.init(nibName: "CometChatGroupView", bundle: nil)
         self.tableView.register(CometChatUserView, forCellReuseIdentifier: "groupView")
         
@@ -66,17 +145,14 @@ class CometChatUserDetail: UIViewController {
         
         let SupportView  = UINib.init(nibName: "SupportView", bundle: nil)
         self.tableView.register(SupportView, forCellReuseIdentifier: "supportView")
-        
     }
+
     
-    public func set(user: User){
-        guard  user != nil else {
-            return
-        }
-        currentUser = user
-    }
-    
-    
+    /**
+     This method setup navigationBar for CometChatUserDetail viewController.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     */
     private func setupNavigationBar(){
         
         if navigationController != nil{
@@ -99,33 +175,26 @@ class CometChatUserDetail: UIViewController {
     }
     
     @objc func closeButtonPressed(){
-        self.dismiss(animated: true, completion: nil)
-    }
-    
-    @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
-        if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
-            navigationItem.largeTitleDisplayMode = mode
-            switch mode {
-            case .automatic:
-                navigationController?.navigationBar.prefersLargeTitles = true
-            case .always:
-                navigationController?.navigationBar.prefersLargeTitles = true
-            case .never:
-                navigationController?.navigationBar.prefersLargeTitles = false
-            @unknown default:break }
-        }
-    }
-    
+           self.dismiss(animated: true, completion: nil)
+    }  
 }
 
+/*  ----------------------------------------------------------------------------------------- */
+
+// MARK: - Table view Methods
 
 extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
     
+    /// This method specifies the number of sections to display list of items.
+    /// - Parameter tableView: An object representing the table view requesting this information.
     public func numberOfSections(in tableView: UITableView) -> Int {
         return 3
     }
     
+    /// This method specifies height for section in CometChatUserDetail
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section == 0  {
             return 0
@@ -134,6 +203,10 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specifies the view for header  in CometChatUserDetail
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 25))
         let sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: view.frame.size.width, height: 20))
@@ -154,6 +227,10 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         return returnedView
     }
     
+    /// This method specifiesnumber of rows in CometChatUserDetail
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         switch section {
@@ -164,6 +241,10 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specifies the view for user  in CometChatUserDetail
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if  indexPath.section == 0 && indexPath.row == 0 {
             return 100
@@ -172,15 +253,18 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    /// This method specifies the view for user  in CometChatUserDetail
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell:UITableViewCell = UITableViewCell()
         switch indexPath.section {
         case 0:
             switch settingItems[indexPath.row] {
             case CometChatUserDetail.USER_INFO_CELL:
                 let userInfoCell = tableView.dequeueReusableCell(withIdentifier: "groupView", for: indexPath) as! CometChatGroupView
-                userInfoCell.groupAvtar.set(image: currentUser?.avatar ?? "")
+                userInfoCell.groupAvatar.set(image: currentUser?.avatar ?? "")
                 userInfoCell.groupName.text = currentUser?.name?.capitalized ?? ""
                 userInfoCell.groupDetails.isHidden = false
                 switch currentUser!.status {
@@ -210,9 +294,9 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
                 
                 if let groupName = currentGroup?.name {
-                  supportCell.textLabel?.text = "Add in \(groupName)"
+                    supportCell.textLabel?.text = "Add in \(groupName)"
                 }else{
-                  supportCell.textLabel?.text = "Add Contact"
+                    supportCell.textLabel?.text = "Add Contact"
                 }
                 supportCell.textLabel?.textColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
@@ -220,7 +304,6 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                 
             default: break
             }
-            
             
         case 2:
             switch supportItems[indexPath.row] {
@@ -233,7 +316,12 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
             case CometChatUserDetail.BLOCK_USER_CELL:
                 
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
-                supportCell.textLabel?.text = "Block User"
+                
+                if currentUser?.blockedByMe == true {
+                    supportCell.textLabel?.text = "Unblock User"
+                }else {
+                    supportCell.textLabel?.text = "Block User"
+                }
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return supportCell
                 
@@ -246,11 +334,13 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
             }
         default: break
         }
-        
-        
         return cell
     }
     
+    /// This method triggers when particular cell is clicked by the user .
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - indexPath: specifies current index for TableViewCell.
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -264,13 +354,17 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         case 1:
             switch actionsItems[indexPath.row] {
             case CometChatUserDetail.SEND_MESSAGE_CELL:
-                guard let user = currentUser else { return }
-                let messageList = CometChatMessageList()
-                messageList.set(conversationWith: user, type: .user)
-                navigationController?.pushViewController(messageList, animated: true)
+                
+                if isPresentedFromMessageList == true {
+                    self.dismiss(animated: true, completion: nil)
+                }else{
+                    guard let user = currentUser else { return }
+                    let messageList = CometChatMessageList()
+                    messageList.set(conversationWith: user, type: .user)
+                    navigationController?.pushViewController(messageList, animated: true)
+                }
                 
             case CometChatUserDetail.ADD_TO_CONTACTS_CELL:
-                
                 
                 CometChat.addMembersToGroup(guid: currentGroup?.guid ?? "", groupMembers: [GroupMember(UID: currentUser?.uid ?? "", groupMemberScope: .participant)], onSuccess: { (sucess) in
                     DispatchQueue.main.async {
@@ -284,34 +378,45 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                 }) { (error) in
                     print("Error while adding in group: \(String(describing: error?.errorDescription))")
                 }
-                
-                
-                
             default: break}
         case 2:
             switch supportItems[indexPath.row] {
             case CometChatUserDetail.CLEAR_CHAT_CELL:break
             case CometChatUserDetail.BLOCK_USER_CELL:
                 
-                CometChat.blockUsers([(currentUser?.uid ?? "")], onSuccess: { (success) in
-                    DispatchQueue.main.async {
-                        if let name = self.currentUser?.name {
-                            let data:[String: String] = ["name": name]
-                            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: data)
-                            self.view.makeToast("\(name) blocked successfully.")
+                switch  currentUser!.blockedByMe  {
+                case true:
+                    CometChat.unblockUsers([(currentUser?.uid ?? "")],onSuccess: { (success) in
+                        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserUnblocked"), object: nil, userInfo: nil)
+                        if let user = self.currentUser, let name = user.name {
+                            self.set(user: user)
+                            DispatchQueue.main.async {
+                                self.view.makeToast("\(name) unblocked successfully.")
+                            }
                         }
+                    }) { (error) in
+                        print("Error while blocking the user: \(String(describing: error?.errorDescription))")
                     }
-                }) { (error) in
-                     print("Error while blocking the user: \(String(describing: error?.errorDescription))")
+                    
+                case false:
+                    CometChat.blockUsers([(currentUser?.uid ?? "")], onSuccess: { (success) in
+                        DispatchQueue.main.async {
+                            if let user = self.currentUser, let name = user.name {
+                                self.set(user: user)
+                                let data:[String: String] = ["name": name]
+                                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: data)
+                                self.view.makeToast("\(name) blocked successfully.")
+                            }
+                        }
+                    }) { (error) in
+                        print("Error while blocking the user: \(String(describing: error?.errorDescription))")
+                    }
                 }
                 
             case CometChatUserDetail.REPORT_CELL:break
-            default:break
-            }
-        default: break
-        }
-        
-        
+            default:break}
+        default: break}
     }
 }
 
+/*  ----------------------------------------------------------------------------------------- */

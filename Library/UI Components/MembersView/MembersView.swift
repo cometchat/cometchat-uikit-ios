@@ -1,19 +1,27 @@
-//
+
 //  MembersView.swift
-//  ios-chat-uikit-app
-//
-//  Created by Pushpsen Airekar on 30/12/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  CometChatUIKit
+//  Created by Pushpsen Airekar on 20/09/19.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
+
 class MembersView: UITableViewCell {
 
-    @IBOutlet weak var avtar: Avtar!
+    // MARK: - Declaration of IBOutlet
+    
+    @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var scope: UILabel!
+    
+    // MARK: - Declaration of Variables
+    
     var member: GroupMember! {
         didSet {
             
@@ -23,7 +31,7 @@ class MembersView: UITableViewCell {
             }else{
                 name.text = member.name
             }
-            avtar.set(image: member.avatar ?? "")
+            avatar.set(image: member.avatar ?? "")
             switch member.scope {
             case .admin:  scope.text = "Admin"
             case .moderator: scope.text = "Moderator"
@@ -32,6 +40,7 @@ class MembersView: UITableViewCell {
          }
     }
     
+     // MARK: - Initialization of required Methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -46,3 +55,5 @@ class MembersView: UITableViewCell {
     }
     
 }
+
+/*  ----------------------------------------------------------------------------------------- */

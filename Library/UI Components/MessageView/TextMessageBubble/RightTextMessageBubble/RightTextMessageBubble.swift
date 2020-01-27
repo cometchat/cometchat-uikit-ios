@@ -1,21 +1,29 @@
-//
-//  TextBubble.swift
+
+//  RightTextMessageBubble.swift
 //  CometChatUIKit
-//
-//  Created by Pushpsen Airekar on 16/10/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  Created by Pushpsen Airekar on 20/09/19.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+/*  ----------------------------------------------------------------------------------------- */
+
 class RightTextMessageBubble: UITableViewCell {
+    
+    // MARK: - Declaration of IBInspectable
+    
     
     @IBOutlet weak var message: ChattingBubble!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receipt: UIImageView!
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var heightConstraint: NSLayoutConstraint!
+    
+     // MARK: - Declaration of Variables
     
     var textMessage: TextMessage! {
         didSet {
@@ -34,9 +42,32 @@ class RightTextMessageBubble: UITableViewCell {
                receipt.image = #imageLiteral(resourceName: "wait")
                timeStamp.text = "Sending..."
             }
+            message.textColor = .white
+            message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
         }
     }
     
+    var deletedMessage: BaseMessage! {
+        didSet {
+            self.selectionStyle = .none
+            
+         switch deletedMessage.messageType {
+         case .text:  message.text = "⚠️ You deleted this Message"
+         case .image: message.text = "⚠️ You deleted this Image"
+         case .video: message.text = "⚠️ You deleted this Video"
+         case .audio: message.text =  "⚠️ You deleted this Audio"
+         case .file:  message.text = "⚠️ You deleted this File"
+         case .custom: message.text = "⚠️ You deleted this Custom Message"
+         case .groupMember: break
+         @unknown default: break }
+            message.textColor = .darkGray
+            message.font = UIFont (name: "SFProDisplay-RegularItalic", size: 17)
+            timeStamp.isHidden = true
+            heightConstraint.constant = 0
+            timeStamp.text = String().setMessageTime(time: Int(deletedMessage?.sentAt ?? 0))
+        }
+    }
+      // MARK: - Initialization of required Methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -51,3 +82,5 @@ class RightTextMessageBubble: UITableViewCell {
     }
     
 }
+
+/*  ----------------------------------------------------------------------------------------- */

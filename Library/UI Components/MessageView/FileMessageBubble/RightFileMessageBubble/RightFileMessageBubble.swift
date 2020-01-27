@@ -1,16 +1,21 @@
-//
-//  SenderFileBubble.swift
-//  CometChatUIKitDemo
-//
+//  RightFileMessageBubble.swift
+//  CometChatUIKit
 //  Created by Pushpsen Airekar on 20/09/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+
+// MARK: - Importing Frameworks.
 
 import UIKit
 import CometChatPro
 
+
+/*  ----------------------------------------------------------------------------------------- */
+
 class RightFileMessageBubble: UITableViewCell {
 
+    // MARK: - Declaration of IBOutlets
+    
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var type: UILabel!
     @IBOutlet weak var size: UILabel!
@@ -18,9 +23,9 @@ class RightFileMessageBubble: UITableViewCell {
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var heightConstraint: NSLayoutConstraint!
     @IBOutlet weak var receipt: UIImageView!
-    
     @IBOutlet weak var receiptStack: UIStackView!
     
+     // MARK: - Declaration of Variables
     var fileMessage: MediaMessage! {
         didSet {
                    self.selectionStyle = .none
@@ -55,11 +60,9 @@ class RightFileMessageBubble: UITableViewCell {
                           timeStamp.text = "Sending..."
                        }
                }
-        
-        
-        
     }
     
+    // MARK: - Initialization of required Methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -73,3 +76,5 @@ class RightFileMessageBubble: UITableViewCell {
     }
     
 }
+
+/*  ----------------------------------------------------------------------------------------- */

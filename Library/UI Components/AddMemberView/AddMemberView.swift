@@ -1,16 +1,19 @@
-//
 //  AddMemberView.swift
-//  ios-chat-uikit-app
-//
-//  Created by Pushpsen Airekar on 30/12/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
-//
+//  CometChatUIKit
+//  Created by Pushpsen Airekar on 20/09/19.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
+
+
+// MARK: - Importing Frameworks.
 
 import UIKit
+import CometChatPro
+
+/*  ----------------------------------------------------------------------------------------- */
 
 class AddMemberView: UITableViewCell {
 
-    
+    // MARK: - Initialization of required Methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -24,3 +27,4 @@ class AddMemberView: UITableViewCell {
     }
     
 }
+/*  ----------------------------------------------------------------------------------------- */

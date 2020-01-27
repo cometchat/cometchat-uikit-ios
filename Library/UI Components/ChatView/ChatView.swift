@@ -1,13 +1,17 @@
-//
+
 //  ChatView.swift
-//
-//  Created by  Pushpsen Airekar on 06/08/19.
+//  CometChatUIKit
+//  Created by Pushpsen Airekar on 20/09/19.
+//  Copyright ©  2019 CometChat Inc. All rights reserved.
 
-//
-
+// MARK: - Importing Frameworks.
 
 import UIKit
 import Foundation
+import CometChatPro
+
+
+// MARK: - Declaration of Protocol
 
  protocol ChatViewInternalDelegate {
     func didMicrophoneButtonPressed()
@@ -16,11 +20,18 @@ import Foundation
     func didStickerButtonPressed()
 }
 
+
+/*  ----------------------------------------------------------------------------------------- */
+
 @IBDesignable class ChatView:UIView
 {
+    
+      // MARK: - Declaration of Variables
+    
     var view:UIView!
     var internalDelegate : ChatViewInternalDelegate?
     
+     // MARK: - Declaration of IBOutlet
     @IBOutlet weak var attachment: UIView!
     @IBOutlet weak var send: UIView!
     @IBOutlet weak var microphone: UIView!
@@ -28,15 +39,16 @@ import Foundation
     @IBOutlet weak var textView: UITextView!
     @IBOutlet weak var sticker: UIButton!
     
+    // MARK: - Initialization of required Methods
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-//        loadViewFromNib ()
 
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-//        loadViewFromNib ()
+
     }
     func loadViewFromNib() {
         let bundle = Bundle(for: type(of: self))
@@ -48,28 +60,34 @@ import Foundation
     }
     
     
+    /// This method triggers when microphone button pressed
+    /// - Parameter sender: This specifies the sender Object
     @IBAction func microphoneButtonPressed(_ sender: Any) {
         internalDelegate?.didMicrophoneButtonPressed()
         
     }
     
+    /// This method triggers when send button pressed
+       /// - Parameter sender: This specifies the sender Object
     @IBAction func sendButtonPressed(_ sender: Any) {
         internalDelegate?.didSendButtonPressed()
     }
     
-    
+    /// This method triggers when sticker button pressed
+    /// - Parameter sender: This specifies the sender Object
     @IBAction func stickerButtonPressed(_ sender: Any) {
         internalDelegate?.didStickerButtonPressed()
     }
     
-    
+    /// This method triggers when attchment button pressed
+    /// - Parameter sender: This specifies the sender Object
     @IBAction func attachmentButtonPressed(_ sender: Any) {
         internalDelegate?.didAttachmentButtonPressed()
     }
     
 }
 
-
+/*  ----------------------------------------------------------------------------------------- */
 
 @objc public protocol GrowingTextViewDelegate: UITextViewDelegate {
     @objc optional func textViewDidChangeHeight(_ textView: GrowingTextView, height: CGFloat)
@@ -252,3 +270,4 @@ open class GrowingTextView: UITextView {
     }
 }
 
+/*  ----------------------------------------------------------------------------------------- */
