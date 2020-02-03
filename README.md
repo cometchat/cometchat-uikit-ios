@@ -55,7 +55,7 @@ platform :ios, '10.0'
 use_frameworks!
 
 target 'MyApp' do
-pod 'CometChatPro', '~> 2.0.6-Xcode11.3'
+pod 'CometChatPro', '~> 2.0.5'
 end
 ________________________________________________________________
 
@@ -65,14 +65,24 @@ platform :ios, '10.0'
 use_frameworks!
 
 target 'MyApp' do
-    pod 'CometChatPro', '~> 2.0.6-Xcode11'
+    pod 'CometChatPro', '~> 2.0.5-Xcode11'
 end
 ________________________________________________________________
 ```
 And then install the `CometChatPro` framework through CocoaPods.
 ```bash
-pod install
+
+$ pod install
+
 ```
+Always get the latest version of CometChatPro by command.
+
+```bash
+
+$ pod update CometChatPro
+
+```
+
 ___
 ### Setup Bitcode
 
@@ -96,7 +106,7 @@ Set the `Header Search Paths` to `$SDKROOT/usr/include/libxml2`.
 ___
 # Initialize CometChat
 
-The `init()` method initializes the settings required for CometChat. We suggest calling the `init()` method on app startup, preferably in the `onCreate()` method of the Application class.
+The `init()` method initializes the settings required for CometChat. We suggest you call the method on app startup preferably in the `didFinishLaunchingWithOptions:` method of the `AppDelegate` class.
 
 ```swift
 import CometChatPro
