@@ -35,7 +35,7 @@ We recommend using CocoaPods, as they are the most advanced way of managing iOS 
 **Note:**
 </br>
 * CometChatPro SDK supports installation through Cocoapods only and it will support up to two latest releases of    
-  Xcode. Currently, we are supporting Xcode 11.2.1 and Xcode 11.
+  Xcode. Currently, we are supporting Xcode 11.3 and Xcode 11.
   
 * CometChatPro SDK includes video calling components. We suggest you run on physical devices to avoid errors.
 
