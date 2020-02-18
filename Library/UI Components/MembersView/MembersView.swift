@@ -31,7 +31,7 @@ class MembersView: UITableViewCell {
             }else{
                 name.text = member.name
             }
-            avatar.set(image: member.avatar ?? "")
+            avatar.set(image: member.avatar ?? "", with: member.name ?? "")
             switch member.scope {
             case .admin:  scope.text = "Admin"
             case .moderator: scope.text = "Moderator"

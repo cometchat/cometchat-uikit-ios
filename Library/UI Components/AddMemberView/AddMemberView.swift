@@ -13,10 +13,16 @@ import CometChatPro
 
 class AddMemberView: UITableViewCell {
 
+    @IBOutlet weak var addIcon: UIImageView!
     // MARK: - Initialization of required Methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+        if #available(iOS 13.0, *) {
+        }else{
+           addIcon.image = #imageLiteral(resourceName: "addIcon")
+        }
         // Initialization code
     }
 

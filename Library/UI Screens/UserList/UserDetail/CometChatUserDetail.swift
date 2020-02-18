@@ -25,12 +25,9 @@ class CometChatUserDetail: UIViewController {
     var currentGroup: Group?
     
     static let USER_INFO_CELL = 0
-    static let NOTIFICATION_CELL = 1
-    static let SEND_MESSAGE_CELL = 2
-    static let ADD_TO_CONTACTS_CELL = 3
-    static let CLEAR_CHAT_CELL = 4
-    static let BLOCK_USER_CELL = 5
-    static let REPORT_CELL = 6
+    static let SEND_MESSAGE_CELL = 1
+    static let ADD_TO_CONTACTS_CELL = 2
+    static let BLOCK_USER_CELL = 3
     
     // MARK: - View controller lifecycle methods
     
@@ -104,9 +101,13 @@ class CometChatUserDetail: UIViewController {
      - Copyright:  ©  2019 CometChat Inc.
      */
     private func setupItems(){
-        settingItems = [CometChatUserDetail.USER_INFO_CELL, CometChatUserDetail.NOTIFICATION_CELL]
-        actionsItems = [CometChatUserDetail.SEND_MESSAGE_CELL, CometChatUserDetail.ADD_TO_CONTACTS_CELL]
-        supportItems = [CometChatUserDetail.CLEAR_CHAT_CELL, CometChatUserDetail.BLOCK_USER_CELL, CometChatUserDetail.REPORT_CELL]
+        settingItems = [CometChatUserDetail.USER_INFO_CELL]
+        if currentGroup != nil {
+            actionsItems = [CometChatUserDetail.SEND_MESSAGE_CELL, CometChatUserDetail.ADD_TO_CONTACTS_CELL]
+        }else{
+            actionsItems = [CometChatUserDetail.SEND_MESSAGE_CELL]
+        }
+        supportItems = [ CometChatUserDetail.BLOCK_USER_CELL]
     }
     
     /**
@@ -146,7 +147,7 @@ class CometChatUserDetail: UIViewController {
         let SupportView  = UINib.init(nibName: "SupportView", bundle: nil)
         self.tableView.register(SupportView, forCellReuseIdentifier: "supportView")
     }
-
+    
     
     /**
      This method setup navigationBar for CometChatUserDetail viewController.
@@ -167,15 +168,14 @@ class CometChatUserDetail: UIViewController {
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 setLargeTitleDisplayMode(.never)
                 self.navigationController?.navigationBar.isTranslucent = true
-                
-                let closeButton = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(closeButtonPressed))
-                self.navigationItem.rightBarButtonItem = closeButton
             }
+            let closeButton = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(closeButtonPressed))
+            self.navigationItem.rightBarButtonItem = closeButton
         }
     }
     
     @objc func closeButtonPressed(){
-           self.dismiss(animated: true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }  
 }
 
@@ -261,10 +261,10 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         let cell:UITableViewCell = UITableViewCell()
         switch indexPath.section {
         case 0:
-            switch settingItems[indexPath.row] {
+            switch settingItems[safe:indexPath.row] {
             case CometChatUserDetail.USER_INFO_CELL:
                 let userInfoCell = tableView.dequeueReusableCell(withIdentifier: "groupView", for: indexPath) as! CometChatGroupView
-                userInfoCell.groupAvatar.set(image: currentUser?.avatar ?? "")
+                userInfoCell.groupAvatar.set(image: currentUser?.avatar ?? "", with: currentUser?.name ?? "")
                 userInfoCell.groupName.text = currentUser?.name?.capitalized ?? ""
                 userInfoCell.groupDetails.isHidden = false
                 switch currentUser!.status {
@@ -274,16 +274,12 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                 }
                 userInfoCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return userInfoCell
-            case CometChatUserDetail.NOTIFICATION_CELL:
-                let notificationsCell = tableView.dequeueReusableCell(withIdentifier: "notificationsView", for: indexPath) as! NotificationsView
-                notificationsCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-                return notificationsCell
             default:break
             }
             
         case 1:
             
-            switch actionsItems[indexPath.row] {
+            switch actionsItems[safe:indexPath.row] {
             case CometChatUserDetail.SEND_MESSAGE_CELL:
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
                 supportCell.textLabel?.text = "Send Message"
@@ -306,13 +302,7 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
             }
             
         case 2:
-            switch supportItems[indexPath.row] {
-            case CometChatUserDetail.CLEAR_CHAT_CELL:
-                let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
-                supportCell.textLabel?.text = "Clear Chat"
-                supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-                return supportCell
-                
+            switch supportItems[safe:indexPath.row] {
             case CometChatUserDetail.BLOCK_USER_CELL:
                 
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
@@ -325,11 +315,6 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return supportCell
                 
-            case CometChatUserDetail.REPORT_CELL:
-                let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
-                supportCell.textLabel?.text = "Report"
-                supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-                return supportCell
             default:break
             }
         default: break
@@ -346,13 +331,12 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         
         switch indexPath.section {
         case 0:
-            switch settingItems[indexPath.row] {
+            switch settingItems[safe:indexPath.row] {
             case CometChatUserDetail.USER_INFO_CELL: break
-            case CometChatUserDetail.NOTIFICATION_CELL: break
             default:break}
             
         case 1:
-            switch actionsItems[indexPath.row] {
+            switch actionsItems[safe:indexPath.row] {
             case CometChatUserDetail.SEND_MESSAGE_CELL:
                 
                 if isPresentedFromMessageList == true {
@@ -376,12 +360,16 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                         
                     }
                 }) { (error) in
+                    DispatchQueue.main.async {
+                        if let errorMessage = error?.errorDescription {
+                            self.view.makeToast(errorMessage)
+                        }
+                    }
                     print("Error while adding in group: \(String(describing: error?.errorDescription))")
                 }
             default: break}
         case 2:
-            switch supportItems[indexPath.row] {
-            case CometChatUserDetail.CLEAR_CHAT_CELL:break
+            switch supportItems[safe:indexPath.row] {
             case CometChatUserDetail.BLOCK_USER_CELL:
                 
                 switch  currentUser!.blockedByMe  {
@@ -395,6 +383,11 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                             }
                         }
                     }) { (error) in
+                        DispatchQueue.main.async {
+                            if let errorMessage = error?.errorDescription {
+                                self.view.makeToast(errorMessage)
+                            }
+                        }
                         print("Error while blocking the user: \(String(describing: error?.errorDescription))")
                     }
                     
@@ -409,11 +402,15 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                             }
                         }
                     }) { (error) in
+                        DispatchQueue.main.async {
+                            if let errorMessage = error?.errorDescription {
+                                self.view.makeToast(errorMessage)
+                            }
+                        }
                         print("Error while blocking the user: \(String(describing: error?.errorDescription))")
                     }
                 }
                 
-            case CometChatUserDetail.REPORT_CELL:break
             default:break}
         default: break}
     }

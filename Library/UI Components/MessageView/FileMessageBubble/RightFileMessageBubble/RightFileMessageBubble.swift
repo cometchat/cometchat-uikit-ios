@@ -9,7 +9,6 @@
 import UIKit
 import CometChatPro
 
-
 /*  ----------------------------------------------------------------------------------------- */
 
 class RightFileMessageBubble: UITableViewCell {
@@ -21,7 +20,6 @@ class RightFileMessageBubble: UITableViewCell {
     @IBOutlet weak var size: UILabel!
     @IBOutlet weak var icon: UIImageView!
     @IBOutlet weak var timeStamp: UILabel!
-    @IBOutlet weak var heightConstraint: NSLayoutConstraint!
     @IBOutlet weak var receipt: UIImageView!
     @IBOutlet weak var receiptStack: UIStackView!
     
@@ -29,8 +27,7 @@ class RightFileMessageBubble: UITableViewCell {
     var fileMessage: MediaMessage! {
         didSet {
                    self.selectionStyle = .none
-                   timeStamp.isHidden = true
-                   heightConstraint.constant = 0
+                   receiptStack.isHidden = true
                    if fileMessage.sentAt == 0 {
                        timeStamp.text = "Sending..."
                        name.text = "---"

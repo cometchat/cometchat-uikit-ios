@@ -157,6 +157,11 @@ public class CometChatUserList: UIViewController {
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
+            DispatchQueue.main.async {
+                if let errorMessage = error?.errorDescription {
+                    self.view.makeToast(errorMessage)
+                }
+            }
             print("fetchUsers error:\(String(describing: error?.errorDescription))")
         }
     }
@@ -172,7 +177,9 @@ public class CometChatUserList: UIViewController {
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
             activityIndicator = UIActivityIndicatorView(style: .medium)
-        } else {}
+        } else {
+            activityIndicator = UIActivityIndicatorView(style: .gray)
+        }
         tableView = UITableView()
         self.view.addSubview(self.tableView)
         self.tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -345,19 +352,20 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
         if isSearching() {
-            let user = filteredUsers[indexPath.row]
+             let user = filteredUsers[indexPath.row]
             if sectionsArray[indexPath.section] == user.name?.first?.uppercased(){
                 return 60
             }else{
                 return 0
             }
         }else{
-            let user = users[indexPath.row]
+             let user = users[indexPath.row]
             if sectionsArray[indexPath.section] == user.name?.first?.uppercased(){
                 return 60
             }else{
                 return 0
             }
+           
         }
     }
     
@@ -371,9 +379,9 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
         let cell:UITableViewCell = UITableViewCell()
         var user: User?
         if isSearching() {
-            user = filteredUsers[indexPath.row]
+            user = filteredUsers[safe:indexPath.row]
         } else {
-            user = users[indexPath.row]
+            user = users[safe:indexPath.row]
         }
         print("user : \(String(describing: user?.stringValue()))")
         if sectionsArray[indexPath.section] == user?.name?.first?.uppercased(){

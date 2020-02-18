@@ -179,6 +179,11 @@ class CometChatPrivacyAndSecurity: UIViewController {
                 DispatchQueue.main.async { self.tableView.reloadData() }
             }
         }, onError: { (error) in
+            DispatchQueue.main.async {
+                if let errorMessage = error?.errorDescription {
+                    self.view.makeToast(errorMessage)
+                }
+            }
             print("error while fetchBlockedUsersCount: \(String(describing: error?.errorDescription))")
         })
     }
@@ -238,7 +243,7 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
         case 0: return 1
-        case 1: return privacy.count
+        case 1: return 0
         default: return 0 }
     }
     
@@ -263,7 +268,7 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
             blockedUserCell.adminCount.text =  blockUsersCount
             return blockedUserCell
         }else{
-            switch privacy[indexPath.row] {
+            switch privacy[safe:indexPath.row] {
             case CometChatPrivacyAndSecurity.GROUP_CELL:
                 let groupsCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
                 groupsCell.title.text = "Groups"
@@ -292,7 +297,7 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
             let blockedUsers = CometChatBlockedUsers()
             self.navigationController?.pushViewController(blockedUsers, animated: true)
         }else{
-            switch privacy[indexPath.row] {
+            switch privacy[safe:indexPath.row] {
             case CometChatPrivacyAndSecurity.GROUP_CELL: break
             case CometChatPrivacyAndSecurity.CALLS_CELL: break
             default: break

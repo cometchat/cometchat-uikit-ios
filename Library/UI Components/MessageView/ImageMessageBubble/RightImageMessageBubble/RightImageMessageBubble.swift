@@ -16,18 +16,18 @@ class RightImageMessageBubble: UITableViewCell {
      // MARK: - Declaration of IBInspectable
     
     @IBOutlet weak var timeStamp: UILabel!
-    @IBOutlet weak var heightConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageMessage: UIImageView!
     @IBOutlet weak var activityIndicator: CCActivityIndicator!
     @IBOutlet weak var receipt: UIImageView!
+    @IBOutlet weak var receiptStack: UIStackView!
+    
     
     // MARK: - Declaration of Variables
     
     var mediaMessage: MediaMessage! {
         didSet {
             self.selectionStyle = .none
-            timeStamp.isHidden = true
-            heightConstraint.constant = 0
+            receiptStack.isHidden = true
             if mediaMessage.sentAt == 0 {
                 timeStamp.text = "Sending..."
                 activityIndicator.isHidden = false

@@ -86,10 +86,9 @@ class CometChatCreateGroup: UIViewController {
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
-                
-                let closeButton = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(closeButtonPressed))
-                self.navigationItem.rightBarButtonItem = closeButton
             }
+            let closeButton = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(closeButtonPressed))
+            self.navigationItem.rightBarButtonItem = closeButton
         }
     }
     
@@ -190,9 +189,11 @@ class CometChatCreateGroup: UIViewController {
                 self.dismiss(animated: true, completion: nil)
             }
         }) { (error) in
-                DispatchQueue.main.async {
-                    print("error while creating group: \(String(describing: error?.errorDescription))")
-                    self.view.makeToast(error?.errorDescription)
+            DispatchQueue.main.async {
+                if let errorMessage = error?.errorDescription {
+                    self.view.makeToast(errorMessage)
+                }
+                print("error while creating group: \(String(describing: error?.errorDescription))")
             }
         }
     }

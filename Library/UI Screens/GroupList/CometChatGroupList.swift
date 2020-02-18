@@ -110,7 +110,6 @@ public class CometChatGroupList: UIViewController {
         activityIndicator?.startAnimating()
         activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
         tableView.tableFooterView = activityIndicator
-        tableView.tableFooterView = activityIndicator
         tableView.tableFooterView?.isHidden = false
         groupRequest.fetchNext(onSuccess: { (groups) in
             print("fetchGroups onSuccess: \(groups)")
@@ -127,6 +126,11 @@ public class CometChatGroupList: UIViewController {
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
+            DispatchQueue.main.async {
+                if let errorMessage = error?.errorDescription {
+                    self.view.makeToast(errorMessage)
+                }
+            }
             print("fetchGroups error:\(String(describing: error?.errorDescription))")
         }
     }
@@ -224,7 +228,9 @@ public class CometChatGroupList: UIViewController {
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
             activityIndicator = UIActivityIndicatorView(style: .medium)
-        } else {}
+        } else {
+            activityIndicator = UIActivityIndicatorView(style: .gray)
+        }
         tableView = UITableView()
         self.view.addSubview(self.tableView)
         self.tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -268,8 +274,8 @@ public class CometChatGroupList: UIViewController {
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
-                self.addCreateGroup(true)
             }
+            self.addCreateGroup(true)
         }
     }
     
@@ -435,6 +441,11 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
                 }
                 
             }) { (error) in
+                DispatchQueue.main.async {
+                    if let errorMessage = error?.errorDescription {
+                        self.view.makeToast(errorMessage)
+                    }
+                }
                 print("joinGroup error:\(String(describing: error?.errorDescription))")
             }
         }else{
@@ -469,9 +480,9 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
         
         if  groups.count != 0 {
             if isSearching() {
-                group = filteredGroups[indexPath.row]
+                group = filteredGroups[safe:indexPath.row]
             }else{
-                group = groups[indexPath.row]
+                group = groups[safe:indexPath.row]
             }
             cell.group = group
         }
@@ -495,7 +506,7 @@ extension CometChatGroupList : UISearchBarDelegate, UISearchResultsUpdating {
     [CometChatGroupList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-2-comet-chat-group-list)
     */
     public func updateSearchResults(for searchController: UISearchController) {
-        groupRequest  = GroupsRequest.GroupsRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").build()
+        groupRequest  = GroupsRequest.GroupsRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").set(joinedOnly: true).build()
         groupRequest.fetchNext(onSuccess: { (groups) in
             print("fetchGroups onSuccess: \(groups)")
             if groups.count != 0{

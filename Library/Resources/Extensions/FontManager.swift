@@ -24,12 +24,8 @@ public extension UIFont {
                 guard let dataProvider = CGDataProvider(data: fontData) else { return }
                 guard let fontRef = CGFont(dataProvider) ?? nil else { return }
                 var errorRef: Unmanaged<CFError>? = nil
-               if (CTFontManagerRegisterGraphicsFont(fontRef, &errorRef) == false) {
-                              print("Failed to register font - register graphics font failed - this font may have already been registered in the main bundle.")
-                          }
+               if (CTFontManagerRegisterGraphicsFont(fontRef, &errorRef) == false) {}
             }
-            
-          
         }
         else {
             print("Failed to register font - bundle identifier invalid.")

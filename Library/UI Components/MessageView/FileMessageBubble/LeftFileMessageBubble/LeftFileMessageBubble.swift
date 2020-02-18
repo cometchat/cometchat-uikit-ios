@@ -15,33 +15,45 @@ class LeftFileMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
-    @IBOutlet weak var name: UILabel!
+    @IBOutlet weak var fileName: UILabel!
     @IBOutlet weak var type: UILabel!
     @IBOutlet weak var size: UILabel!
     @IBOutlet weak var icon: UIImageView!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var avatar: Avatar!
-    @IBOutlet weak var heightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var receiptStack: UIStackView!
+    @IBOutlet weak var name: UILabel!
+    @IBOutlet weak var nameView: UIView!
     
     // MARK: - Declaration of Variables
     
     var fileMessage: MediaMessage! {
         didSet {
             self.selectionStyle = .none
-            timeStamp.isHidden = true
-            heightConstraint.constant = 0
+            receiptStack.isHidden = true
+            if fileMessage.receiverType == .group {
+              nameView.isHidden = false
+            }else {
+                nameView.isHidden = true
+            }
+            if let userName = fileMessage.sender?.name {
+                name.text = userName + ":"
+            }
+            
             timeStamp.text = String().setMessageTime(time: Int(fileMessage?.sentAt ?? 0))
-            name.text = fileMessage.attachment?.fileName.capitalized
+            fileName.text = fileMessage.attachment?.fileName.capitalized
             type.text = fileMessage.attachment?.fileExtension.uppercased()
             if let fileSize = fileMessage.attachment?.fileSize {
                 print(Units(bytes: Int64(fileSize)).getReadableUnit())
                 size.text = Units(bytes: Int64(fileSize)).getReadableUnit()
             }
-            avatar.kf.setImage(with: URL(string: fileMessage.sender?.avatar ?? ""))
+            if let avatarURL = fileMessage.sender?.avatar  {
+                avatar.set(image: avatarURL, with: fileMessage.sender?.name ?? "")
+            }
         }
     }
     
-     // MARK: - Initialization of required Methods
+    // MARK: - Initialization of required Methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -53,7 +65,7 @@ class LeftFileMessageBubble: UITableViewCell {
         
         // Configure the view for the selected state
     }
-
+    
 }
 
 /*  ----------------------------------------------------------------------------------------- */

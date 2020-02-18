@@ -121,7 +121,9 @@ public class CometChatAddMembers: UIViewController {
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
             activityIndicator = UIActivityIndicatorView(style: .medium)
-        } else {}
+        } else {
+            activityIndicator = UIActivityIndicatorView(style: .gray)
+        }
         tableView = UITableView()
         self.view.addSubview(self.tableView)
         self.tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -236,6 +238,11 @@ public class CometChatAddMembers: UIViewController {
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
+            DispatchQueue.main.async {
+                if let errorMessage = error?.errorDescription {
+                    self.view.makeToast(errorMessage)
+                }
+            }
             print("fetchUsers error:\(String(describing: error?.errorDescription))")
         }
     }
@@ -252,6 +259,11 @@ public class CometChatAddMembers: UIViewController {
             self.members = groupMember
             DispatchQueue.main.async {self.tableView.reloadData() }
         }, onError: { (error) in
+            DispatchQueue.main.async {
+                if let errorMessage = error?.errorDescription {
+                    self.view.makeToast(errorMessage)
+                }
+            }
             print("Group Member list fetching failed with exception:" + error!.errorDescription);
         })
     }
@@ -342,15 +354,15 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
         if isSearching() {
-            let user = filteredUsers[indexPath.row]
-            if sectionsArray[indexPath.section] == user.name?.first?.uppercased(){
+            let user = filteredUsers[safe:indexPath.row]
+            if sectionsArray[indexPath.section] == user?.name?.first?.uppercased(){
                 return 60
             }else{
                 return 0
             }
         }else{
-            let user = users[indexPath.row]
-            if sectionsArray[indexPath.section] == user.name?.first?.uppercased(){
+            let user = users[safe:indexPath.row]
+            if sectionsArray[indexPath.section] == user?.name?.first?.uppercased(){
                 return 60
             }else{
                 return 0
@@ -369,9 +381,9 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
         var user: User?
         
         if isSearching() {
-            user = filteredUsers[indexPath.row]
+            user = filteredUsers[safe:indexPath.row]
         } else {
-            user = users[indexPath.row]
+            user = users[safe:indexPath.row]
         }
             if sectionsArray[indexPath.section] == user?.name?.first?.uppercased(){
                 let userCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserView

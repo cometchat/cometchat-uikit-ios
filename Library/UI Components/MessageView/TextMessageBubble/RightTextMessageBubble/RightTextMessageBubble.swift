@@ -17,11 +17,10 @@ class RightTextMessageBubble: UITableViewCell {
     // MARK: - Declaration of IBInspectable
     
     
-    @IBOutlet weak var message: ChattingBubble!
+    @IBOutlet weak var message: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receipt: UIImageView!
     @IBOutlet weak var receiptStack: UIStackView!
-    @IBOutlet weak var heightConstraint: NSLayoutConstraint!
     
      // MARK: - Declaration of Variables
     
@@ -42,8 +41,9 @@ class RightTextMessageBubble: UITableViewCell {
                receipt.image = #imageLiteral(resourceName: "wait")
                timeStamp.text = "Sending..."
             }
-            message.textColor = .white
-            message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+           receipt.contentMode = .scaleAspectFit
+           message.textColor = .white
+           message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
         }
     }
     
@@ -62,8 +62,6 @@ class RightTextMessageBubble: UITableViewCell {
          @unknown default: break }
             message.textColor = .darkGray
             message.font = UIFont (name: "SFProDisplay-RegularItalic", size: 17)
-            timeStamp.isHidden = true
-            heightConstraint.constant = 0
             timeStamp.text = String().setMessageTime(time: Int(deletedMessage?.sentAt ?? 0))
         }
     }

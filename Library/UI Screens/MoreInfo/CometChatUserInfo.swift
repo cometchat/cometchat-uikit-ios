@@ -22,10 +22,7 @@ public class CometChatUserInfo: UIViewController {
     
     static let VIEW_PROFILE_CELL = 0
     static let PRIVACY_AND_SECURITY_CELL = 1
-    static let NOTIFICATION_CELL = 2
-    static let CHAT_CELL = 3
-    static let HELP_CELL = 4
-    static let REPORT_CELL = 5
+
     
       // MARK: - View controller lifecycle methods
     
@@ -76,10 +73,7 @@ public class CometChatUserInfo: UIViewController {
          - Copyright:  ©  2019 CometChat Inc.
          */
     private func setupItems(){
-        
-        preferances = [CometChatUserInfo.NOTIFICATION_CELL, CometChatUserInfo.PRIVACY_AND_SECURITY_CELL,CometChatUserInfo.CHAT_CELL]
-        others = [CometChatUserInfo.HELP_CELL,CometChatUserInfo.REPORT_CELL]
-        
+         preferances = [ CometChatUserInfo.PRIVACY_AND_SECURITY_CELL]
     }
     
     /**
@@ -176,7 +170,7 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         }else if section == 1{
             sectionTitle.text =  "PREFERENCES"
         }else if section == 2{
-            sectionTitle.text =  "OTHERS"
+            sectionTitle.text =  ""
         }
         sectionTitle.font = UIFont(name: "SFProDisplay-Medium", size: 13)
         if #available(iOS 13.0, *) {
@@ -244,20 +238,11 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
             
             let settingsCell = tableView.dequeueReusableCell(withIdentifier: "cometChatSettingsView", for: indexPath) as! CometChatSettingsView
             
-            switch preferances[indexPath.row] {
-            case CometChatUserInfo.NOTIFICATION_CELL:
-                settingsCell.settingsName.text = "Notifications"
-                settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀋚")
-                return settingsCell
-                
+            switch preferances[safe:indexPath.row] {
+            
             case CometChatUserInfo.PRIVACY_AND_SECURITY_CELL:
                 settingsCell.settingsName.text = "Privacy & Security"
                 settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀉼")
-                return settingsCell
-            case CometChatUserInfo.CHAT_CELL:
-                settingsCell.settingsName.text = "Chats"
-                settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀌧")
-                
                 return settingsCell
             default:
                 break
@@ -265,15 +250,7 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         }else if indexPath.section == 2{
             
             let settingsCell = tableView.dequeueReusableCell(withIdentifier: "cometChatSettingsView", for: indexPath) as! CometChatSettingsView
-            switch others[indexPath.row] {
-            case CometChatUserInfo.HELP_CELL:
-                settingsCell.settingsName.text = "Help"
-                settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀁝")
-                return settingsCell
-            case CometChatUserInfo.REPORT_CELL:
-                settingsCell.settingsName.text = "Report a Problem"
-                settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀇿")
-                return settingsCell
+            switch others[safe:indexPath.row] {
             default:
                 break
             }
@@ -289,22 +266,15 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         
         if indexPath.section == 1{
-            switch preferances[indexPath.row] {
-            case CometChatUserInfo.NOTIFICATION_CELL:
-                print("didPressed: Notifications")
+            switch preferances[safe:indexPath.row] {
+          
             case CometChatUserInfo.PRIVACY_AND_SECURITY_CELL:
                 let privacyAndSeciruty = CometChatPrivacyAndSecurity()
                 navigationController?.pushViewController(privacyAndSeciruty, animated: true)
-            case CometChatUserInfo.CHAT_CELL:
-                print("didPressed: Chats")
+            
             default: break }
         }else if indexPath.section == 2{
-            switch others[indexPath.row] {
-            case CometChatUserInfo.HELP_CELL:
-                print("didPressed: Help")
-            case CometChatUserInfo.REPORT_CELL:
-                print("didPressed: Report a Problem")
-            default:break }
+            
         }
         
     }

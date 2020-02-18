@@ -59,7 +59,7 @@ import CometChatPro
         more.viewControllers = [userInfo]
         
         // Setting title and icons for Tabbar
-        if #available(iOS 13.0, *) {
+        if #available(iOS 11.0, *) {
             conversations.tabBarItem.image = #imageLiteral(resourceName: "chats")
             conversations.tabBarItem.title = "Chats"
             
@@ -71,7 +71,7 @@ import CometChatPro
             
             more.tabBarItem.image = #imageLiteral(resourceName: "more")
             more.tabBarItem.title = "More"
-        } else {}
+        } 
         
         // Setting title and  LargeTitleDisplayMode for view controllers.
         conversationList.set(title: "Chats", mode: .automatic)

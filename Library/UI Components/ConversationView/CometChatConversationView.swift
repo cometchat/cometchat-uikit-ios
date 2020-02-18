@@ -6,7 +6,7 @@
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-CometChatConversationView: This component will be the class of UITableViewCell with components such as avtar(Avtar), name(UILabel), message(UILabel).
+CometChatConversationView: This component will be the class of UITableViewCell with components such as avatar(Avatar), name(UILabel), message(UILabel).
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
 
@@ -47,7 +47,7 @@ class CometChatConversationView: UITableViewCell {
                         return
                     }
                     name.attributedText = addBoldText(fullString: user.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont)
-                    avatar.set(image: user.avatar ?? "")
+                    avatar.set(image: user.avatar ?? "", with: user.name ?? "")
                     status.isHidden = false
                     status.set(status: user.status)
                 case .group:
@@ -55,8 +55,7 @@ class CometChatConversationView: UITableViewCell {
                         return
                     }
                     name.attributedText = addBoldText(fullString: group.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont)
-                    
-                    avatar.set(image: group.icon ?? "")
+                    avatar.set(image: group.icon ?? "", with: group.name ?? "")
                     status.isHidden = true
                 case .none:
                     break

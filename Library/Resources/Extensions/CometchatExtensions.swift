@@ -11,6 +11,77 @@ import Foundation
 import CometChatPro
 
 
+extension UIViewController{
+func isModal() -> Bool {
+
+    if let navigationController = self.navigationController{
+        if navigationController.viewControllers.first != self{
+            return false
+        }
+    }
+
+    if self.presentingViewController != nil {
+        return true
+    }
+
+    if self.navigationController?.presentingViewController?.presentedViewController == self.navigationController  {
+        return true
+    }
+
+    if self.tabBarController?.presentingViewController is UITabBarController {
+        return true
+    }
+
+    return false
+   }
+}
+
+extension Array {
+    subscript (safe index: Int) -> Element? {
+        return indices ~= index ? self[index] : nil
+    }
+}
+
+extension UITableView {
+    func scrollToBottomRow() {
+        DispatchQueue.main.async {
+            guard self.numberOfSections > 0 else { return }
+
+            // Make an attempt to use the bottom-most section with at least one row
+            var section = max(self.numberOfSections - 1, 0)
+            var row = max(self.numberOfRows(inSection: section) - 1, 0)
+            var indexPath = IndexPath(row: row, section: section)
+
+            // Ensure the index path is valid, otherwise use the section above (sections can
+            // contain 0 rows which leads to an invalid index path)
+            while !self.indexPathIsValid(indexPath) {
+                section = max(section - 1, 0)
+                row = max(self.numberOfRows(inSection: section) - 1, 0)
+                indexPath = IndexPath(row: row, section: section)
+
+                // If we're down to the last section, attempt to use the first row
+                if indexPath.section == 0 {
+                    indexPath = IndexPath(row: 0, section: 0)
+                    break
+                }
+            }
+
+            // In the case that [0, 0] is valid (perhaps no data source?), ensure we don't encounter an
+            // exception here
+            guard self.indexPathIsValid(indexPath) else { return }
+
+            self.scrollToRow(at: indexPath, at: .bottom, animated: true)
+        }
+    }
+
+    func indexPathIsValid(_ indexPath: IndexPath) -> Bool {
+        let section = indexPath.section
+        let row = indexPath.row
+        return section < self.numberOfSections && row < self.numberOfRows(inSection: section)
+    }
+}
+
+
 /// Toast Start
 
 
@@ -560,7 +631,7 @@ public struct ToastStyle {
     /**
      The background color. Default is `.black` at 80% opacity.
      */
-    public var backgroundColor: UIColor = UIColor.black.withAlphaComponent(0.8)
+    public var backgroundColor: UIColor = UIColor.black.withAlphaComponent(0.5)
     
     /**
      The title color. Default is `UIColor.whiteColor()`.
@@ -666,7 +737,7 @@ public struct ToastStyle {
     /**
      The shadow radius. Default is 6.0.
      */
-    public var shadowRadius: CGFloat = 6.0
+    public var shadowRadius: CGFloat = 15.0
     
     /**
      The shadow offset. The default is 4 x 4.
@@ -1020,7 +1091,7 @@ extension UITableView {
 
 extension UILabel {
     
-    func roundCorners(_ corners: CACornerMask, radius: CGFloat){
+     func roundLabelCorners(_ corners: CACornerMask, radius: CGFloat){
         if #available(iOS 11.0, *) {
             self.layer.maskedCorners = corners
         } else {
@@ -1101,6 +1172,36 @@ public struct Units {
             return "\(String(format: "%.2f", gigabytes)) GB"
         default:
             return "\(bytes) bytes"
+        }
+    }
+}
+
+extension UIView {
+    
+    func roundViewCorners(_ corners: CACornerMask, radius: CGFloat) {
+        if #available(iOS 11.0, *) {
+            self.layer.maskedCorners = corners
+        } else {
+            // Fallback on earlier versions
+        }
+        self.layer.cornerRadius = radius
+    }
+}
+
+
+extension UISegmentedControl {
+    /// Tint color doesn't have any effect on iOS 13.
+    func ensureiOS12Style() {
+        if #available(iOS 13, *) {
+            
+        }else {
+            self.backgroundColor = UIColor.white
+            self.tintColor = #colorLiteral(red: 0.2, green: 0.6, blue: 1, alpha: 1)
+            self.layer.borderColor = #colorLiteral(red: 0.2, green: 0.6, blue: 1, alpha: 1)
+            self.layer.borderWidth = 1
+            self.layer.cornerRadius = 8
+            self.clipsToBounds = true
+            
         }
     }
 }

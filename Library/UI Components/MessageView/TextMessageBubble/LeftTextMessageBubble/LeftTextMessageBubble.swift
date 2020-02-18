@@ -15,32 +15,48 @@ class LeftTextMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var name: UILabel!
     @IBOutlet weak var avatar: Avatar!
-    @IBOutlet weak var message: ChattingBubble!
+    @IBOutlet weak var message: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
-    @IBOutlet weak var heightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var receiptStack: UIStackView!
+    @IBOutlet weak var nameView: UIView!
     
     // MARK: - Declaration of Variables
     
     var textMessage: TextMessage! {
         didSet {
             self.selectionStyle = .none
+            if let userName = textMessage.sender?.name {
+                name.text = userName + ":"
+            }
             message.text = textMessage.text
-            timeStamp.isHidden = true
-            heightConstraint.constant = 0
+            receiptStack.isHidden = true
+            if textMessage.receiverType == .group {
+              nameView.isHidden = false
+            }else {
+                nameView.isHidden = true
+            }
             if let avatarURL = textMessage.sender?.avatar  {
-                avatar.set(image: avatarURL)
+                avatar.set(image: avatarURL, with: textMessage.sender?.name ?? "")
             }
             timeStamp.text = String().setMessageTime(time: textMessage.sentAt)
             message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
-            message.textColor = .black
+            if #available(iOS 13.0, *) {
+                message.textColor = .label
+            } else {
+                message.textColor = .black
+            }
         }
     }
     
     var deletedMessage: BaseMessage! {
            didSet {
-               self.selectionStyle = .none
-            if let user = deletedMessage.sender?.name {
+            self.selectionStyle = .none
+            if let userName = deletedMessage.sender?.name {
+                name.text = userName + ":"
+            }
+            if (deletedMessage.sender?.name) != nil {
             switch deletedMessage.messageType {
             case .text:  message.text = "⚠️ This message is deleted"
             case .image: message.text = "⚠️ This image is deleted"
@@ -50,10 +66,14 @@ class LeftTextMessageBubble: UITableViewCell {
             case .custom: message.text = "⚠️ This custom message is deleted"
             case .groupMember: break
             @unknown default: break }}
-               timeStamp.isHidden = true
-               heightConstraint.constant = 0
+               receiptStack.isHidden = true
+            if deletedMessage.receiverType == .group {
+              nameView.isHidden = false
+            }else {
+                nameView.isHidden = true
+            }
                if let avatarURL = deletedMessage.sender?.avatar  {
-                   avatar.set(image: avatarURL)
+                   avatar.set(image: avatarURL, with: deletedMessage.sender?.name ?? "")
                }
             timeStamp.text = String().setMessageTime(time: Int(deletedMessage.sentAt))
             message.textColor = .darkGray

@@ -6,7 +6,7 @@
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-CometChatGroupView: This component will be the class of UITableViewCell with components such as groupAvtar(Avtar), groupName(UILabel), groupDetails(UILabel).
+CometChatGroupView: This component will be the class of UITableViewCell with components such as groupAvatar(Avatar), groupName(UILabel), groupDetails(UILabel).
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
 
@@ -41,7 +41,8 @@ class CometChatGroupView: UITableViewCell {
             @unknown default:
                 break
             }
-            groupAvatar.set(image: group.icon ?? "")
+//            groupAvatar.setImage(string: group.name)
+            groupAvatar.set(image: group.icon ?? "", with: group.name ?? "")
         }
     }
     

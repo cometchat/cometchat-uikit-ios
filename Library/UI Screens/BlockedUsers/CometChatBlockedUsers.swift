@@ -102,7 +102,9 @@ class CometChatBlockedUsers: UIViewController {
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
             activityIndicator = UIActivityIndicatorView(style: .medium)
-        } else {}
+        } else {
+            activityIndicator = UIActivityIndicatorView(style: .gray)
+        }
         tableView = UITableView()
         self.view.addSubview(self.tableView)
         self.tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -174,6 +176,9 @@ class CometChatBlockedUsers: UIViewController {
         }, onError: { (error) in
             print("error while fetchBlockedUsers: \(String(describing: error?.errorDescription))")
             DispatchQueue.main.async {
+                    if let errorMessage = error?.errorDescription {
+                        self.view.makeToast(errorMessage)
+                    }
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true
             }
@@ -213,7 +218,7 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView.
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let user = blockedUsers[indexPath.row]
+        let user = blockedUsers[safe:indexPath.row]
         let blockedUserCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserView
         blockedUserCell.user = user
         return blockedUserCell
@@ -275,8 +280,12 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
                         
                     }
                 }) { (error) in
+                    DispatchQueue.main.async {
+                        if let errorMessage = error?.errorDescription {
+                            self.view.makeToast(errorMessage)
+                        }
+                    }
                     print("error while unblockUsers: \(String(describing: error?.errorDescription))")
-                    self.view.makeToast(error?.errorDescription)
                 }
             }
         }

@@ -6,7 +6,7 @@
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-CometChatUserView: This component will be the class of UITableViewCell with components such as userAvtar(Avtar), userName(UILabel).
+CometChatUserView: This component will be the class of UITableViewCell with components such as userAvatar(Avatar), userName(UILabel).
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
 
@@ -33,7 +33,7 @@ class CometChatUserView: UITableViewCell {
     var user: User! {
         didSet {
             userName.text = user?.name
-            userAvatar.set(image: user?.avatar ?? "")
+            userAvatar.set(image: user?.avatar ?? "", with: user?.name ?? "")
             
             if  user.status != nil {
                 switch user.status {

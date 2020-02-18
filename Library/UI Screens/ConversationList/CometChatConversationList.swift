@@ -135,6 +135,11 @@ public class CometChatConversationList: UIViewController {
                 self.tableView.reloadData()
             }
         }) { (error) in
+            DispatchQueue.main.async {
+                if let errorMessage = error?.errorDescription {
+                    self.view.makeToast(errorMessage)
+                }
+            }
             print("refreshConversations error:\(String(describing: error?.errorDescription))")
         }
     }
@@ -163,7 +168,9 @@ public class CometChatConversationList: UIViewController {
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
             activityIndicator = UIActivityIndicatorView(style: .medium)
-        } else {}
+        } else {
+            activityIndicator = UIActivityIndicatorView(style: .gray)
+        }
         tableView = UITableView()
         self.view.addSubview(self.tableView)
         self.tableView.tableFooterView = UIView(frame: .zero)
@@ -324,12 +331,11 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
         var conversation: Conversation?
         cell.searchedText = searchedText
         if isSearching() {
-            conversation = filteredConversations[indexPath.row]
+            conversation = filteredConversations[safe:indexPath.row]
             
         } else {
-            conversation = conversations[indexPath.row]
+            conversation = conversations[safe:indexPath.row]
         }
-        print(" con user: \(String(describing: (conversation?.conversationWith as? User)?.stringValue()))")
         cell.conversation = conversation
         return cell
     }
@@ -432,10 +438,19 @@ extension CometChatConversationList : CometChatMessageDelegate {
         if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == typingDetails.sender?.uid && $0.conversationType.rawValue == typingDetails.receiverType.rawValue }) {
             let indexPath = IndexPath(row: row, section: 0)
             DispatchQueue.main.async {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView {
-                    if cell.message.isHidden == false{
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView,  (cell.conversation.conversationWith as? User)?.uid == typingDetails.sender?.uid {
+                    if cell.message.isHidden == false {
                         cell.typing.isHidden = false
                         cell.message.isHidden = true
+                    }
+                    cell.reloadInputViews()
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView,  (cell.conversation.conversationWith as? User)?.uid == typingDetails.sender?.uid {
+                    if cell.typing.isHidden == false {
+                        cell.typing.isHidden = true
+                        cell.message.isHidden = false
                     }
                     cell.reloadInputViews()
                 }
@@ -444,12 +459,23 @@ extension CometChatConversationList : CometChatMessageDelegate {
         if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == typingDetails.receiverID && $0.conversationType.rawValue == typingDetails.receiverType.rawValue}) {
             let indexPath = IndexPath(row: row, section: 0)
             DispatchQueue.main.async {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
                     cell.typing.text = user! + " is typing..."
                     if cell.message.isHidden == false{
                         cell.typing.isHidden = false
                         cell.message.isHidden = true
+                    }
+                    cell.reloadInputViews()
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation.conversationWith as? Group)?.guid == typingDetails.receiverID {
+                    let user = typingDetails.sender?.name
+                    cell.typing.text = user! + " is typing..."
+                    if cell.typing.isHidden == false{
+                        cell.typing.isHidden = true
+                        cell.message.isHidden = false
                     }
                     cell.reloadInputViews()
                 }
@@ -476,7 +502,6 @@ extension CometChatConversationList : CometChatMessageDelegate {
                     }
                     cell.reloadInputViews()
                 }
-                
             }
         }
         if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == typingDetails.receiverID && $0.conversationType.rawValue == typingDetails.receiverType.rawValue}) {
@@ -488,7 +513,8 @@ extension CometChatConversationList : CometChatMessageDelegate {
                         cell.typing.isHidden = true
                     }
                     cell.reloadInputViews()
-                }}
+                }
+            }
         }
     }
 }

@@ -72,6 +72,19 @@ import  CometChatPro
     }
     
     /**
+     This method used to set the backgroundColor for Avatar class
+     - Parameter borderColor: This specifies a `UIColor` for border of the Avatar.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     - See Also:
+     [Avatar Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-1-avatar)
+     */
+    @objc public func set(backgroundColor : UIColor) -> Avatar {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+    
+    /**
      This method used to set the borderWidth for Avatar class
      - Parameter borderWidth: This specifies a `CGFloat` for border width of the Avatar.
      - Author: CometChat Team
@@ -96,7 +109,16 @@ import  CometChatPro
     @objc public func set(image: String) {
         
         let url = URL(string: image)
-        self.kf.setImage(with: url, placeholder: #imageLiteral(resourceName: "defaultAvtar.jpg"))
+        self.kf.setImage(with: url, placeholder: #imageLiteral(resourceName: "defaultAvatar.jpg"))
+    }
+    
+    
+    @objc public func set(image: String, with name: String) {
+
+        let url = URL(string: image)
+        let imageView  = UIImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+        imageView.setImage(string: name.uppercased())
+        self.kf.setImage(with: url, placeholder: imageView.image)
     }
 }
 

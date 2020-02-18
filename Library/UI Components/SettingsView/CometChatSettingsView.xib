@@ -33,7 +33,7 @@
                             </label>
                         </subviews>
                     </stackView>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvtar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="qg6-2M-6C7">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvatar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="qg6-2M-6C7">
                         <rect key="frame" x="12" y="31.5" width="28" height="28"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -68,6 +68,6 @@
     </objects>
     <resources>
         <image name="arrow.png" width="10.5" height="17"/>
-        <image name="defaultAvtar.jpg" width="240" height="240"/>
+        <image name="defaultAvatar.jpg" width="240" height="240"/>
     </resources>
 </document>
