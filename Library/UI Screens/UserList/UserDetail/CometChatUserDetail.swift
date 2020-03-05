@@ -309,8 +309,10 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                 
                 if currentUser?.blockedByMe == true {
                     supportCell.textLabel?.text = "Unblock User"
+                    supportCell.textLabel?.textColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
                 }else {
                     supportCell.textLabel?.text = "Block User"
+                    supportCell.textLabel?.textColor = .red
                 }
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return supportCell
@@ -355,14 +357,17 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                         
                         let data:[String: String] = ["guid": self.currentGroup?.guid ?? ""]
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
-                        
+                        let message = (self.currentUser?.name ?? "") + " added successfully."
+                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                        snackbar.show()
                         self.dismiss(animated: true) {}
                         
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
                         if let errorMessage = error?.errorDescription {
-                            self.view.makeToast(errorMessage)
+                          let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                            snackbar.show()
                         }
                     }
                     print("Error while adding in group: \(String(describing: error?.errorDescription))")
@@ -379,13 +384,15 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                         if let user = self.currentUser, let name = user.name {
                             self.set(user: user)
                             DispatchQueue.main.async {
-                                self.view.makeToast("\(name) unblocked successfully.")
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) unblocked successfully.", duration: .short)
+                                snackbar.show()
                             }
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
                             if let errorMessage = error?.errorDescription {
-                                self.view.makeToast(errorMessage)
+                               let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                snackbar.show()
                             }
                         }
                         print("Error while blocking the user: \(String(describing: error?.errorDescription))")
@@ -398,13 +405,15 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                                 self.set(user: user)
                                 let data:[String: String] = ["name": name]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: data)
-                                self.view.makeToast("\(name) blocked successfully.")
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) blocked successfully.", duration: .short)
+                                snackbar.show()
                             }
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
                             if let errorMessage = error?.errorDescription {
-                                self.view.makeToast(errorMessage)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                snackbar.show()
                             }
                         }
                         print("Error while blocking the user: \(String(describing: error?.errorDescription))")

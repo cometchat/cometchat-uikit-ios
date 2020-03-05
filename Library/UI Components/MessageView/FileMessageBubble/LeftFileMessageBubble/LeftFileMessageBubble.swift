@@ -15,6 +15,7 @@ class LeftFileMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var fileName: UILabel!
     @IBOutlet weak var type: UILabel!
     @IBOutlet weak var size: UILabel!
@@ -26,10 +27,19 @@ class LeftFileMessageBubble: UITableViewCell {
     @IBOutlet weak var nameView: UIView!
     
     // MARK: - Declaration of Variables
+    var selectionColor: UIColor {
+        set {
+            let view = UIView()
+            view.backgroundColor = newValue
+            self.selectedBackgroundView = view
+        }
+        get {
+            return self.selectedBackgroundView?.backgroundColor ?? UIColor.clear
+        }
+    }
     
     var fileMessage: MediaMessage! {
         didSet {
-            self.selectionStyle = .none
             receiptStack.isHidden = true
             if fileMessage.receiverType == .group {
               nameView.isHidden = false
@@ -57,14 +67,21 @@ class LeftFileMessageBubble: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        
+        selectionColor = .white
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
-    }
+     override func setSelected(_ selected: Bool, animated: Bool) {
+           super.setSelected(selected, animated: animated)
+           switch isEditing {
+           case true:
+               switch selected {
+               case true: self.tintedView.isHidden = false
+               case false: self.tintedView.isHidden = true
+               }
+           case false: break
+           }
+       }
     
 }
 

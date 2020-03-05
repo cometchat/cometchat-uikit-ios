@@ -30,13 +30,12 @@ class CometChatUserView: UITableViewCell {
     
     // MARK: - Declaration of Variables
     
-    var user: User! {
+    var user: User? {
         didSet {
             userName.text = user?.name
             userAvatar.set(image: user?.avatar ?? "", with: user?.name ?? "")
-            
-            if  user.status != nil {
-                switch user.status {
+            if  user?.status != nil {
+                switch user?.status {
                 case .online:
                     userStatus.text = "Online"
                 case .offline:
@@ -57,8 +56,6 @@ class CometChatUserView: UITableViewCell {
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
     }
 }
 

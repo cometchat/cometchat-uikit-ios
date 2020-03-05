@@ -15,6 +15,7 @@ class LeftTextMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var message: UILabel!
@@ -23,10 +24,20 @@ class LeftTextMessageBubble: UITableViewCell {
     @IBOutlet weak var nameView: UIView!
     
     // MARK: - Declaration of Variables
+    var selectionColor: UIColor {
+        set {
+            let view = UIView()
+            view.backgroundColor = newValue
+            self.selectedBackgroundView = view
+        }
+        get {
+            return self.selectedBackgroundView?.backgroundColor ?? UIColor.clear
+        }
+    }
+    
     
     var textMessage: TextMessage! {
         didSet {
-            self.selectionStyle = .none
             if let userName = textMessage.sender?.name {
                 name.text = userName + ":"
             }
@@ -52,7 +63,7 @@ class LeftTextMessageBubble: UITableViewCell {
     
     var deletedMessage: BaseMessage! {
            didSet {
-            self.selectionStyle = .none
+           // self.selectionStyle = .none
             if let userName = deletedMessage.sender?.name {
                 name.text = userName + ":"
             }
@@ -86,14 +97,20 @@ class LeftTextMessageBubble: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        // Initialization code
+        selectionColor = .white
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
-    }
+     override func setSelected(_ selected: Bool, animated: Bool) {
+           super.setSelected(selected, animated: animated)
+           switch isEditing {
+           case true:
+               switch selected {
+               case true: self.tintedView.isHidden = false
+               case false: self.tintedView.isHidden = true
+               }
+           case false: break
+           }
+       }
     
      /**
         This method used to set the image for LeftTextMessageBubble class
@@ -103,7 +120,7 @@ class LeftTextMessageBubble: UITableViewCell {
         */
     public func set(Image: UIImageView, forURL url: String) {
         let url = URL(string: url)
-        Image.kf.setImage(with: url)
+        Image.cf.setImage(with: url)
         }
     }
     

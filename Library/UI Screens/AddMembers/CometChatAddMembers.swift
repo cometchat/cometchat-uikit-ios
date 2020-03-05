@@ -240,7 +240,8 @@ public class CometChatAddMembers: UIViewController {
         }) { (error) in
             DispatchQueue.main.async {
                 if let errorMessage = error?.errorDescription {
-                    self.view.makeToast(errorMessage)
+                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                    snackbar.show()
                 }
             }
             print("fetchUsers error:\(String(describing: error?.errorDescription))")
@@ -261,7 +262,8 @@ public class CometChatAddMembers: UIViewController {
         }, onError: { (error) in
             DispatchQueue.main.async {
                 if let errorMessage = error?.errorDescription {
-                    self.view.makeToast(errorMessage)
+                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                    snackbar.show()
                 }
             }
             print("Group Member list fetching failed with exception:" + error!.errorDescription);
@@ -444,10 +446,12 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
         guard let selectedUser = tableView.cellForRow(at: indexPath) as? CometChatUserView else{
             return
         }
-        let userDetail = CometChatUserDetail()
-        userDetail.set(user: selectedUser.user)
-        userDetail.currentGroup = currentGroup
-        self.navigationController?.pushViewController(userDetail, animated: true)
+        if let user = selectedUser.user {
+            let userDetail = CometChatUserDetail()
+            userDetail.set(user: user)
+            userDetail.currentGroup = currentGroup
+            self.navigationController?.pushViewController(userDetail, animated: true)
+        }
     }
 }
 

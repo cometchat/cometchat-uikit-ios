@@ -47,6 +47,7 @@ public class CometChatConversationList: UIViewController {
     var storedVariable: String?
     var activityIndicator:UIActivityIndicatorView?
     var searchedText: String = ""
+    var refreshControl = UIRefreshControl()
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
     
     
@@ -62,7 +63,7 @@ public class CometChatConversationList: UIViewController {
         self.refreshConversations()
         self.setupNavigationBar()
         self.setupSearchBar()
-        print(#function)
+       
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -137,7 +138,8 @@ public class CometChatConversationList: UIViewController {
         }) { (error) in
             DispatchQueue.main.async {
                 if let errorMessage = error?.errorDescription {
-                    self.view.makeToast(errorMessage)
+                   let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                   snackbar.show()
                 }
             }
             print("refreshConversations error:\(String(describing: error?.errorDescription))")
@@ -182,6 +184,21 @@ public class CometChatConversationList: UIViewController {
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.registerCells()
+        
+        if #available(iOS 10.0, *) {
+          let refreshControl = UIRefreshControl()
+          let title = NSLocalizedString("Refreshing...", comment: "Refreshing")
+          refreshControl.attributedTitle = NSAttributedString(string: title)
+          refreshControl.addTarget(self,
+                                   action: #selector(refreshConversations(sender:)),
+                                   for: .valueChanged)
+          tableView.refreshControl = refreshControl
+        }
+    }
+    
+    @objc private func refreshConversations(sender: UIRefreshControl) {
+      self.refreshConversations()
+      sender.endRefreshing()
     }
     
     /**
@@ -214,7 +231,8 @@ public class CometChatConversationList: UIViewController {
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
-            }}
+            }
+        }
     }
     
     /**

@@ -26,25 +26,25 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="wId-l8-b8U">
-                        <rect key="frame" x="85" y="23" width="180" height="45.5"/>
+                        <rect key="frame" x="85" y="8" width="215" height="75"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Group Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gys-GO-h7D">
-                                <rect key="frame" x="0.0" y="0.0" width="180" height="20.5"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gys-GO-h7D">
+                                <rect key="frame" x="0.0" y="0.0" width="215" height="50"/>
                                 <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WWN-6W-X9K">
-                                <rect key="frame" x="0.0" y="25.5" width="180" height="20"/>
+                                <rect key="frame" x="0.0" y="55" width="215" height="20"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Group Details" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gw2-WC-nQA">
-                                        <rect key="frame" x="0.0" y="0.0" width="180" height="20"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gw2-WC-nQA">
+                                        <rect key="frame" x="0.0" y="0.0" width="215" height="20"/>
                                         <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="15"/>
                                         <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color key="highlightedColor" red="0.26274509800000001" green="0.26274509800000001" blue="0.26274509800000001" alpha="1" colorSpace="calibratedRGB"/>
                                     </label>
                                     <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="typing..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HMa-IT-6QP">
-                                        <rect key="frame" x="0.0" y="0.0" width="180" height="20"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="215" height="20"/>
                                         <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="15"/>
                                         <color key="textColor" red="0.60392156860000001" green="0.80392156859999997" blue="0.1960784314" alpha="1" colorSpace="calibratedRGB"/>
                                         <color key="highlightedColor" red="0.26274509800000001" green="0.26274509800000001" blue="0.26274509800000001" alpha="1" colorSpace="calibratedRGB"/>
@@ -92,6 +92,7 @@
                     <constraint firstItem="wId-l8-b8U" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="ALY-sg-aGk"/>
                     <constraint firstItem="qg6-2M-6C7" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="BEK-jJ-Rpd"/>
                     <constraint firstItem="qg6-2M-6C7" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="OkK-s4-Kpo"/>
+                    <constraint firstAttribute="trailing" secondItem="wId-l8-b8U" secondAttribute="trailing" constant="20" id="XDY-Zz-GkU"/>
                     <constraint firstItem="wId-l8-b8U" firstAttribute="leading" secondItem="qg6-2M-6C7" secondAttribute="trailing" constant="15" id="k3E-mR-iFk"/>
                 </constraints>
             </tableViewCellContentView>

@@ -24,12 +24,22 @@ class LeftImageMessageBubble: UITableViewCell {
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var receiptStack: UIStackView!
+    @IBOutlet weak var tintedView: UIView!
     
     // MARK: - Declaration of Variables
+    var selectionColor: UIColor {
+        set {
+            let view = UIView()
+            view.backgroundColor = newValue
+            self.selectedBackgroundView = view
+        }
+        get {
+            return self.selectedBackgroundView?.backgroundColor ?? UIColor.clear
+        }
+    }
     
     var mediaMessage: MediaMessage!{
         didSet {
-            self.selectionStyle = .none
             if let userName = mediaMessage.sender?.name {
                 name.text = userName + ":"
             }
@@ -40,7 +50,7 @@ class LeftImageMessageBubble: UITableViewCell {
             }
             self.receiptStack.isHidden = true
             timeStamp.text = String().setMessageTime(time: mediaMessage.sentAt)
-            imageMessage.kf.setImage(with: URL(string: mediaMessage.attachment?.fileUrl ?? ""))
+            imageMessage.cf.setImage(with: URL(string: mediaMessage.attachment?.fileUrl ?? ""))
             if let avatarURL = mediaMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: mediaMessage.sender?.name ?? "")
             }
@@ -52,14 +62,22 @@ class LeftImageMessageBubble: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        // Initialization code
+        selectionColor = .white
+        
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
-    }
+    
+     override func setSelected(_ selected: Bool, animated: Bool) {
+           super.setSelected(selected, animated: animated)
+           switch isEditing {
+           case true:
+               switch selected {
+               case true: self.tintedView.isHidden = false
+               case false: self.tintedView.isHidden = true
+               }
+           case false: break
+           }
+       }
     
     
     /**
@@ -71,7 +89,7 @@ class LeftImageMessageBubble: UITableViewCell {
     
     public func set(Image: UIImageView, forURL url: String) {
         let url = URL(string: url)
-        Image.kf.setImage(with: url)
+        Image.cf.setImage(with: url)
     }
     
 }

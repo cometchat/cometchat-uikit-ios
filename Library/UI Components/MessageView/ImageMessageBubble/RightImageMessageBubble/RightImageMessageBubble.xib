@@ -17,10 +17,10 @@
                 <rect key="frame" x="0.0" y="0.0" width="591" height="211"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="chB-ix-hEc">
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="chB-ix-hEc">
                         <rect key="frame" x="326" y="0.0" width="250" height="180"/>
                         <subviews>
-                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="q6r-Il-FVP">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q6r-Il-FVP">
                                 <rect key="frame" x="0.0" y="0.0" width="250" height="180"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="xEA-H6-jk8">
@@ -55,13 +55,26 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </view>
+                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Te9-hu-qrJ">
+                                        <rect key="frame" x="0.0" y="0.0" width="250" height="180"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="15"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                    </view>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="c0Q-td-X1s" secondAttribute="trailing" constant="20" id="EHa-G3-MSY"/>
                                     <constraint firstItem="xEA-H6-jk8" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" id="KvZ-gv-Jd6"/>
                                     <constraint firstItem="xEA-H6-jk8" firstAttribute="leading" secondItem="q6r-Il-FVP" secondAttribute="leading" id="ZHg-Gg-f1r"/>
+                                    <constraint firstAttribute="trailing" secondItem="Te9-hu-qrJ" secondAttribute="trailing" id="bYc-Tk-cLE"/>
                                     <constraint firstAttribute="bottom" secondItem="xEA-H6-jk8" secondAttribute="bottom" id="kGV-1T-dbo"/>
+                                    <constraint firstItem="Te9-hu-qrJ" firstAttribute="leading" secondItem="q6r-Il-FVP" secondAttribute="leading" id="l0g-a9-iLH"/>
+                                    <constraint firstItem="Te9-hu-qrJ" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" id="pF8-1Q-JeV"/>
+                                    <constraint firstAttribute="bottom" secondItem="Te9-hu-qrJ" secondAttribute="bottom" id="tw7-zr-kyt"/>
                                     <constraint firstItem="c0Q-td-X1s" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" constant="20" id="wvD-Nh-Xlz"/>
                                     <constraint firstAttribute="trailing" secondItem="xEA-H6-jk8" secondAttribute="trailing" id="wyN-mA-ioJ"/>
                                 </constraints>
@@ -94,7 +107,9 @@
                             </stackView>
                         </subviews>
                         <constraints>
+                            <constraint firstItem="QFW-D7-Jho" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="bottom" id="8w8-7k-Eu8"/>
                             <constraint firstAttribute="width" constant="250" id="CIQ-ya-pC2"/>
+                            <constraint firstAttribute="height" constant="180" id="uSm-H4-M2Z"/>
                         </constraints>
                     </stackView>
                 </subviews>
@@ -111,6 +126,7 @@
                 <outlet property="receipt" destination="g59-Wr-ft0" id="dgs-TX-UrW"/>
                 <outlet property="receiptStack" destination="QFW-D7-Jho" id="FAS-xc-d1O"/>
                 <outlet property="timeStamp" destination="cDA-gL-hf8" id="d5J-tj-3S9"/>
+                <outlet property="tintedView" destination="Te9-hu-qrJ" id="tO1-S3-fVo"/>
             </connections>
             <point key="canvasLocation" x="-28.260869565217394" y="86.049107142857139"/>
         </tableViewCell>

@@ -64,6 +64,7 @@ public class CometChatGroupList: UIViewController {
     
     public override func viewWillAppear(_ animated: Bool) {
         CometChat.messagedelegate = self
+        refreshGroups()
     }
     
     // MARK: - Public instance methods
@@ -128,7 +129,8 @@ public class CometChatGroupList: UIViewController {
         }) { (error) in
             DispatchQueue.main.async {
                 if let errorMessage = error?.errorDescription {
-                    self.view.makeToast(errorMessage)
+                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                    snackbar.show()
                 }
             }
             print("fetchGroups error:\(String(describing: error?.errorDescription))")
@@ -153,8 +155,7 @@ public class CometChatGroupList: UIViewController {
         groupRequest.fetchNext(onSuccess: { (groups) in
             print("fetchGroups onSuccess: \(groups)")
             if groups.count != 0{
-                let joinedGroups = groups.filter({$0.hasJoined == true})
-                self.groups.append(contentsOf: joinedGroups)
+                self.groups.append(contentsOf: groups)
                 DispatchQueue.main.async {
                     self.activityIndicator?.stopAnimating()
                     self.tableView.tableFooterView?.isHidden = true
@@ -165,7 +166,13 @@ public class CometChatGroupList: UIViewController {
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
-            print("fetchGroups error:\(String(describing: error?.errorDescription))")
+           DispatchQueue.main.async {
+                if let errorMessage = error?.errorDescription {
+                  let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                    snackbar.show()
+                }
+            }
+            print("refreshGroups error:\(String(describing: error?.errorDescription))")
         }
     }
     
@@ -433,6 +440,9 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
         if selectedGroup.group.hasJoined == false{
             CometChat.joinGroup(GUID: selectedGroup.group.guid, groupType: selectedGroup.group.groupType, password: "", onSuccess: { (group) in
                 DispatchQueue.main.async {
+                    let message = "You joined " +  (selectedGroup.group.name ?? "") + "."
+                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                    snackbar.show()
                     self.tableView.deselectRow(at: indexPath, animated: true)
                     let messageList = CometChatMessageList()
                     messageList.set(conversationWith: group, type: .group)
@@ -443,7 +453,8 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
             }) { (error) in
                 DispatchQueue.main.async {
                     if let errorMessage = error?.errorDescription {
-                        self.view.makeToast(errorMessage)
+                       let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                        snackbar.show()
                     }
                 }
                 print("joinGroup error:\(String(describing: error?.errorDescription))")
@@ -506,7 +517,7 @@ extension CometChatGroupList : UISearchBarDelegate, UISearchResultsUpdating {
     [CometChatGroupList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-2-comet-chat-group-list)
     */
     public func updateSearchResults(for searchController: UISearchController) {
-        groupRequest  = GroupsRequest.GroupsRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").set(joinedOnly: true).build()
+        groupRequest  = GroupsRequest.GroupsRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").build()
         groupRequest.fetchNext(onSuccess: { (groups) in
             print("fetchGroups onSuccess: \(groups)")
             if groups.count != 0{

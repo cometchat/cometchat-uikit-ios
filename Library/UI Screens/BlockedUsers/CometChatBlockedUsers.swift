@@ -177,7 +177,8 @@ class CometChatBlockedUsers: UIViewController {
             print("error while fetchBlockedUsers: \(String(describing: error?.errorDescription))")
             DispatchQueue.main.async {
                     if let errorMessage = error?.errorDescription {
-                        self.view.makeToast(errorMessage)
+                       let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                        snackbar.show()
                     }
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true
@@ -267,14 +268,15 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
         
         if editingStyle == .delete {
             if  let selectedCell = tableView.cellForRow(at: indexPath) as? CometChatUserView {
-                CometChat.unblockUsers([(selectedCell.user.uid ?? "")], onSuccess: { (success) in
+                CometChat.unblockUsers([(selectedCell.user?.uid ?? "")], onSuccess: { (success) in
                     
                     DispatchQueue.main.async {
                         self.blockedUsers.remove(at: indexPath.row)
                         tableView.deleteRows(at: [indexPath], with: .fade)
                         
-                        if let name = selectedCell.user.name {
-                            self.view.makeToast("\(name) unblocked sucessfully.")
+                        if let name = selectedCell.user?.name {
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) unblocked sucessfully.", duration: .short)
+                            snackbar.show()
                         }
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: ["count": "\(self.blockedUsers.count)"])
                         
@@ -282,7 +284,8 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
                 }) { (error) in
                     DispatchQueue.main.async {
                         if let errorMessage = error?.errorDescription {
-                            self.view.makeToast(errorMessage)
+                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                             snackbar.show()
                         }
                     }
                     print("error while unblockUsers: \(String(describing: error?.errorDescription))")

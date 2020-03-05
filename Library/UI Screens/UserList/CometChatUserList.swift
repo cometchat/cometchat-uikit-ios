@@ -47,7 +47,7 @@ public class CometChatUserList: UIViewController {
     var activityIndicator:UIActivityIndicatorView?
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
     var sectionTitle : UILabel?
-    var sectionsArray = [String]()
+    var sections = [String]()
     
     
     // MARK: - View controller lifecycle methods
@@ -61,6 +61,10 @@ public class CometChatUserList: UIViewController {
         self.setupSearchBar()
         self.setupNavigationBar()
         self.fetchUsers()
+    }
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        refreshUsers()
     }
     
     // MARK: - Public Instance methods
@@ -159,7 +163,56 @@ public class CometChatUserList: UIViewController {
         }) { (error) in
             DispatchQueue.main.async {
                 if let errorMessage = error?.errorDescription {
-                    self.view.makeToast(errorMessage)
+                  let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                    snackbar.show()
+                }
+            }
+            print("fetchUsers error:\(String(describing: error?.errorDescription))")
+        }
+    }
+    
+    // MARK: - Private instance methods.
+    
+    /**
+     This method fetches the list of users from  Server using **UserRequest** Class.
+     - Author: CometChat Team
+     - Copyright:  ©  2019 CometChat Inc.
+     - See Also:
+     [CometChatUserList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-1-comet-chat-user-list)
+     */
+    private func refreshUsers(){
+        self.sections.removeAll()
+        self.users.removeAll()
+        activityIndicator?.startAnimating()
+        activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
+        tableView.tableFooterView = activityIndicator
+        tableView.tableFooterView = activityIndicator
+        tableView.tableFooterView?.isHidden = false
+        userRequest = UsersRequest.UsersRequestBuilder(limit: 20).build()
+        userRequest.fetchNext(onSuccess: { (users) in
+            print("fetchUsers onSuccess: \(users)")
+            if users.count != 0 {
+                self.users = self.users.sorted(by: { (Obj1, Obj2) -> Bool in
+                    let Obj1_Name = Obj1.name ?? ""
+                    let Obj2_Name = Obj2.name ?? ""
+                    return (Obj1_Name.localizedCaseInsensitiveCompare(Obj2_Name) == .orderedAscending)
+                })
+                
+                self.users.append(contentsOf: users)
+                DispatchQueue.main.async {
+                    self.activityIndicator?.stopAnimating()
+                    self.tableView.tableFooterView?.isHidden = true
+                    self.tableView.reloadData()
+                }
+            }
+            DispatchQueue.main.async {
+                self.activityIndicator?.stopAnimating()
+                self.tableView.tableFooterView?.isHidden = true}
+        }) { (error) in
+            DispatchQueue.main.async {
+                if let errorMessage = error?.errorDescription {
+                  let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                    snackbar.show()
                 }
             }
             print("fetchUsers error:\(String(describing: error?.errorDescription))")
@@ -299,21 +352,21 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
         if isSearching() {
             if filteredUsers.count != 0 {
                 for user in filteredUsers {
-                    if !sectionsArray.contains((user.name?.first?.uppercased())!){
-                        sectionsArray.append(String((user.name?.first?.uppercased())!))
+                    if !sections.contains((user.name?.first?.uppercased())!){
+                        sections.append(String((user.name?.first?.uppercased())!))
                     }
                 }
             }
-            return sectionsArray.count
+            return sections.count
         }else{
             if users.count != 0 {
                 for user in users {
-                    if !sectionsArray.contains((user.name?.first?.uppercased())!){
-                        sectionsArray.append(String((user.name?.first?.uppercased())!))
+                    if !sections.contains((user.name?.first?.uppercased())!){
+                        sections.append(String((user.name?.first?.uppercased())!))
                     }
                 }
             }
-            return sectionsArray.count
+            return sections.count
         }
     }
     
@@ -352,15 +405,15 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
         if isSearching() {
-             let user = filteredUsers[indexPath.row]
-            if sectionsArray[indexPath.section] == user.name?.first?.uppercased(){
+            let user = filteredUsers[safe: indexPath.row]
+            if sections[safe: indexPath.section] == user?.name?.first?.uppercased(){
                 return 60
             }else{
                 return 0
             }
         }else{
-             let user = users[indexPath.row]
-            if sectionsArray[indexPath.section] == user.name?.first?.uppercased(){
+             let user = users[safe:indexPath.row]
+            if sections[safe: indexPath.section] == user?.name?.first?.uppercased(){
                 return 60
             }else{
                 return 0
@@ -384,7 +437,7 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
             user = users[safe:indexPath.row]
         }
         print("user : \(String(describing: user?.stringValue()))")
-        if sectionsArray[indexPath.section] == user?.name?.first?.uppercased(){
+        if sections[safe: indexPath.section] == user?.name?.first?.uppercased(){
             let userCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserView
             userCell.user = user
             return userCell
@@ -402,7 +455,7 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 25))
         sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: view.frame.size.width, height: 25))
-        sectionTitle?.text = self.sectionsArray[section]
+        sectionTitle?.text = self.sections[safe: section]
         if #available(iOS 13.0, *) {
             sectionTitle?.textColor = .lightGray
             returnedView.backgroundColor = .systemBackground

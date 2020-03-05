@@ -181,7 +181,8 @@ class CometChatPrivacyAndSecurity: UIViewController {
         }, onError: { (error) in
             DispatchQueue.main.async {
                 if let errorMessage = error?.errorDescription {
-                    self.view.makeToast(errorMessage)
+                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                     snackbar.show()
                 }
             }
             print("error while fetchBlockedUsersCount: \(String(describing: error?.errorDescription))")

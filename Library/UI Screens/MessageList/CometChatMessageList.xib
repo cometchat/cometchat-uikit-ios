@@ -34,6 +34,7 @@
                 <outlet property="editViewName" destination="leD-fD-Z9y" id="oNt-nf-U6E"/>
                 <outlet property="forwardButton" destination="Jjv-cd-qUF" id="iUB-v5-B6p"/>
                 <outlet property="messageActionView" destination="xu2-ON-Z9i" id="qgK-1k-YQd"/>
+                <outlet property="shareButton" destination="h34-vz-mFt" id="kd6-z1-uPR"/>
                 <outlet property="smartRepliesView" destination="3MV-1s-aPu" id="EaJ-Wa-97S"/>
                 <outlet property="tableView" destination="lFr-Q7-eoy" id="3VA-PD-dIX"/>
                 <outlet property="tableViewBottomConstraint" destination="OxV-M4-IX8" id="2we-SB-vWL"/>
@@ -184,7 +185,7 @@
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jjv-cd-qUF">
-                                    <rect key="frame" x="159.5" y="0.0" width="75" height="40"/>
+                                    <rect key="frame" x="106.5" y="0.0" width="75" height="40"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="40" id="3dn-Cj-x0t"/>
                                         <constraint firstAttribute="width" constant="75" id="mHP-pZ-CKR"/>
@@ -193,6 +194,18 @@
                                     <state key="normal" title="Forward"/>
                                     <connections>
                                         <action selector="didForwardMessageButtonPressed:" destination="-1" eventType="touchUpInside" id="5dL-8h-1Ss"/>
+                                    </connections>
+                                </button>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="h34-vz-mFt">
+                                    <rect key="frame" x="212.5" y="0.0" width="75" height="40"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="75" id="Y5B-RP-GNK"/>
+                                        <constraint firstAttribute="height" constant="40" id="r29-p7-CHi"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
+                                    <state key="normal" title="Share"/>
+                                    <connections>
+                                        <action selector="didShareButtonPressed:" destination="-1" eventType="touchUpInside" id="F3u-OM-AHJ"/>
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tuc-FM-R83">
@@ -325,13 +338,13 @@
                         </label>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="beb-2q-s54">
                             <rect key="frame" x="20" y="95" width="374" height="55"/>
-                            <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529999999" green="0.47058823529999999" blue="0.50196078430000002" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="backgroundColor" red="0.0" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="55" id="ZaA-7u-zjG"/>
                             </constraints>
                             <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="18"/>
                             <state key="normal" title="Unblock">
-                                <color key="titleColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                             <userDefinedRuntimeAttributes>
                                 <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">

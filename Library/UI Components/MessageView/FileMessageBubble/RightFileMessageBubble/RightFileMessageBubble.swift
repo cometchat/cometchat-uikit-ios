@@ -15,6 +15,7 @@ class RightFileMessageBubble: UITableViewCell {
 
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var type: UILabel!
     @IBOutlet weak var size: UILabel!
@@ -24,9 +25,19 @@ class RightFileMessageBubble: UITableViewCell {
     @IBOutlet weak var receiptStack: UIStackView!
     
      // MARK: - Declaration of Variables
+    var selectionColor: UIColor {
+        set {
+            let view = UIView()
+            view.backgroundColor = newValue
+            self.selectedBackgroundView = view
+        }
+        get {
+            return self.selectedBackgroundView?.backgroundColor ?? UIColor.clear
+        }
+    }
+    
     var fileMessage: MediaMessage! {
         didSet {
-                   self.selectionStyle = .none
                    receiptStack.isHidden = true
                    if fileMessage.sentAt == 0 {
                        timeStamp.text = "Sending..."
@@ -63,14 +74,20 @@ class RightFileMessageBubble: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        selectionColor = .white
     }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
+     override func setSelected(_ selected: Bool, animated: Bool) {
+           super.setSelected(selected, animated: animated)
+           switch isEditing {
+           case true:
+               switch selected {
+               case true: self.tintedView.isHidden = false
+               case false: self.tintedView.isHidden = true
+               }
+           case false: break
+           }
+       }
     
 }
 

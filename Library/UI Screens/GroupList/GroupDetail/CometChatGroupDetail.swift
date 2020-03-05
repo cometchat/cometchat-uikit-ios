@@ -195,7 +195,8 @@ class CometChatGroupDetail: UIViewController {
         }) { (error) in
             DispatchQueue.main.async {
                 if let errorMessage = error?.errorDescription {
-                    self.view.makeToast(errorMessage)
+                   let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                    snackbar.show()
                 }
             }
             print("error in fetching group info: \(String(describing: error?.errorDescription))")
@@ -218,7 +219,8 @@ class CometChatGroupDetail: UIViewController {
         }, onError: { (error) in
             DispatchQueue.main.async {
                 if let errorMessage = error?.errorDescription {
-                    self.view.makeToast(errorMessage)
+                   let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                    snackbar.show()
                 }
             }
             print("Group Member list fetching failed with exception:" + error!.errorDescription);
@@ -248,7 +250,8 @@ class CometChatGroupDetail: UIViewController {
             }, onError: { (error) in
                 DispatchQueue.main.async {
                     if let errorMessage = error?.errorDescription {
-                        self.view.makeToast(errorMessage)
+                       let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                        snackbar.show()
                     }
                 }
                 print("Group Member list fetching failed with exception:" + error!.errorDescription);
@@ -474,12 +477,15 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                 let data:[String: String] = ["guid": group.guid]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                             }
-                            self.view.makeToast(success)
+                            let message = (selectedCell.member.name ?? "") + "removed successfully."
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                            snackbar.show()
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
                             if let errorMessage = error?.errorDescription {
-                                self.view.makeToast(errorMessage)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                snackbar.show()
                             }
                         }
                     }
@@ -506,16 +512,18 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                             self.dismiss(animated: true) {
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
                             }
-                            self.view.makeToast(success)
+                            let message = (self.currentGroup?.name ?? "") + " deleted successfully."
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                            snackbar.show()
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
                             if let errorMessage = error?.errorDescription {
-                                self.view.makeToast(errorMessage)
+                                  let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                  snackbar.show()
                             }
                         }
                         print("error while deleting the group:\(String(describing: error?.errorDescription))")
-                        DispatchQueue.main.async {self.view.makeToast(error?.errorDescription)}
                     }
                 }
                 
@@ -528,17 +536,20 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                         DispatchQueue.main.async {
                             self.dismiss(animated: true) {
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
+                                let message =  "You left from " +  (self.currentGroup?.name ?? "") + "."
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                                 snackbar.show()
                             }
-                            self.view.makeToast(success)
+                           
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
                             if let errorMessage = error?.errorDescription {
-                                self.view.makeToast(errorMessage)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                snackbar.show()
                             }
                         }
                         print("error while leaving the group:\(String(describing: error?.errorDescription))")
-                        DispatchQueue.main.async {self.view.makeToast(error?.errorDescription)}
                     }
                 }
             default:break }
@@ -564,18 +575,20 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                 let data:[String: String] = ["guid": group.guid ]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                             }
-                            
-                            self.view.makeToast(success)
+                            let message = (selectedCell.member.name ?? "") + " removed successfully."
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                            snackbar.show()
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
                             if let errorMessage = error?.errorDescription {
-                                self.view.makeToast(errorMessage)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                snackbar.show()
                             }
                         }
                     }
-                    
                 }
+                
                 let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member.name ?? ""
                 let groupName = self.currentGroup?.name ?? ""
                 

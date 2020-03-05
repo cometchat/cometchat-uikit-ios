@@ -251,7 +251,8 @@ public class CometChatAddAdministrators: UIViewController {
         }, onError: { (error) in
             DispatchQueue.main.async {
                 if let errorMessage = error?.errorDescription {
-                    self.view.makeToast(errorMessage)
+                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                      snackbar.show()
                 }
             }
             print("fetchAdmins error:\(String(describing: error?.errorDescription))")
@@ -372,6 +373,9 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: ["guid":self.currentGroup?.guid ?? ""])
                                     
                                     DispatchQueue.main.async {
+                                        let message =  (member.name ?? "") + "is removed from admin privilege."
+                                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                                        snackbar.show()
                                         if let group = self.currentGroup {
                                             self.fetchAdmins(for: group)
                                         }
@@ -379,7 +383,8 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                 }) { (error) in
                                     DispatchQueue.main.async {
                                         if let errorMessage = error?.errorDescription {
-                                            self.view.makeToast(errorMessage)
+                                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                             snackbar.show()
                                         }
                                     }
                                     print("updateGroupMemberScope error: \(String(describing: error?.errorDescription))")
@@ -408,6 +413,9 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: ["guid":self.currentGroup?.guid ?? ""])
                                 
                                 DispatchQueue.main.async {
+                                    let message =  (member.name ?? "") + " is now Admin."
+                                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                                    snackbar.show()
                                     if let group = self.currentGroup {
                                         self.fetchAdmins(for: group)
                                     }
@@ -415,7 +423,8 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                             }) { (error) in
                                DispatchQueue.main.async {
                                     if let errorMessage = error?.errorDescription {
-                                        self.view.makeToast(errorMessage)
+                                         let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                         snackbar.show()
                                     }
                                 }
                                 print("updateGroupMemberScope error: \(String(describing: error?.errorDescription))")
@@ -457,7 +466,9 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
                             
                             CometChat.updateGroupMemberScope(UID: member.uid ?? "", GUID: self.currentGroup?.guid ?? "", scope: .participant, onSuccess: { (success) in
-                                
+                                let message =  (member.name ?? "") + " is removed from admin privilege."
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                                snackbar.show()
                                 DispatchQueue.main.async {
                                     if let group = self.currentGroup {
                                         self.fetchAdmins(for: group)
@@ -466,7 +477,8 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                             }) { (error) in
                                 DispatchQueue.main.async {
                                     if let errorMessage = error?.errorDescription {
-                                        self.view.makeToast(errorMessage)
+                                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                        snackbar.show()
                                     }
                                 }
                                 print("updateGroupMemberScope error: \(String(describing: error?.errorDescription))")
@@ -494,14 +506,17 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                 DispatchQueue.main.async {
                                     self.navigationController?.popViewController(animated: true)
                                     self.mode = .fetchGroupMembers
-                                    
+                                    let message =  (member.name ?? "") + " is now Admin."
+                                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                                    snackbar.show()
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: nil)
                                     
                                 }
                             }) { (error) in
                                 DispatchQueue.main.async {
                                     if let errorMessage = error?.errorDescription {
-                                        self.view.makeToast(errorMessage)
+                                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                        snackbar.show()
                                     }
                                 }
                                 print("updateGroupMemberScope error: \(String(describing: error?.errorDescription))")

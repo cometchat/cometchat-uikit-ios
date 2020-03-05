@@ -30,6 +30,11 @@ import CometChatPro
             layer.backgroundColor = setBackgroundColor?.cgColor
         }
     }
+    var getCount: Int {
+        get {
+            return Int(self.text ?? "0") ?? 0
+        }
+    }
     
     // MARK: - Initialization of required Methods
     
@@ -130,6 +135,21 @@ import CometChatPro
         }
         
         return self
+    }
+    
+    
+    /**
+        This method used to increment the count for BadgeCount class
+        - Parameter count: This specifies a Int value  which sets count .
+        - Author: CometChat Team
+        - Copyright:  ©  2019 CometChat Inc.
+        - See Also:
+        [BadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
+        */
+    @objc public func incrementCount() {
+        let currentCount = self.getCount
+        self.set(count: currentCount + 1)
+        self.isHidden = false
     }
 }
 

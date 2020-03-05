@@ -17,16 +17,26 @@ class RightTextMessageBubble: UITableViewCell {
     // MARK: - Declaration of IBInspectable
     
     
+    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var message: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receipt: UIImageView!
     @IBOutlet weak var receiptStack: UIStackView!
     
      // MARK: - Declaration of Variables
+    var selectionColor: UIColor {
+        set {
+            let view = UIView()
+            view.backgroundColor = newValue
+            self.selectedBackgroundView = view
+        }
+        get {
+            return self.selectedBackgroundView?.backgroundColor ?? UIColor.clear
+        }
+    }
     
     var textMessage: TextMessage! {
         didSet {
-            self.selectionStyle = .none
             message.text = textMessage.text
             if textMessage.readAt > 0 {
             receipt.image = #imageLiteral(resourceName: "read")
@@ -47,11 +57,9 @@ class RightTextMessageBubble: UITableViewCell {
         }
     }
     
-    var deletedMessage: BaseMessage! {
+    var deletedMessage: BaseMessage? {
         didSet {
-            self.selectionStyle = .none
-            
-         switch deletedMessage.messageType {
+            switch deletedMessage?.messageType {
          case .text:  message.text = "⚠️ You deleted this Message"
          case .image: message.text = "⚠️ You deleted this Image"
          case .video: message.text = "⚠️ You deleted this Video"
@@ -69,14 +77,21 @@ class RightTextMessageBubble: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-        // Initialization code
+        selectionColor = .white
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
+            switch isEditing {
+            case true:
+                switch selected {
+                case true:
+                    self.tintedView.isHidden = false
+                case false:
+                    self.tintedView.isHidden = true
+                }
+            case false: break
+            }
     }
     
 }

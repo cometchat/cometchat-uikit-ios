@@ -26,16 +26,16 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="wId-l8-b8U">
-                        <rect key="frame" x="72" y="35" width="86.5" height="21.5"/>
+                        <rect key="frame" x="72" y="35" width="228" height="21.5"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gys-GO-h7D">
-                                <rect key="frame" x="0.0" y="0.0" width="86.5" height="21.5"/>
+                                <rect key="frame" x="0.0" y="0.0" width="228" height="21.5"/>
                                 <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="18"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Online" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EF7-gC-Zys">
-                                <rect key="frame" x="0.0" y="21.5" width="86.5" height="0.0"/>
+                                <rect key="frame" x="0.0" y="21.5" width="228" height="0.0"/>
                                 <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="15"/>
                                 <color key="textColor" red="0.0" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -69,6 +69,7 @@
                     <constraint firstItem="wId-l8-b8U" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="ALY-sg-aGk"/>
                     <constraint firstItem="qg6-2M-6C7" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="BEK-jJ-Rpd"/>
                     <constraint firstItem="qg6-2M-6C7" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="12" id="OkK-s4-Kpo"/>
+                    <constraint firstAttribute="trailing" secondItem="wId-l8-b8U" secondAttribute="trailing" constant="20" id="UmA-DK-SAk"/>
                     <constraint firstItem="wId-l8-b8U" firstAttribute="leading" secondItem="qg6-2M-6C7" secondAttribute="trailing" constant="15" id="k3E-mR-iFk"/>
                 </constraints>
             </tableViewCellContentView>
@@ -85,6 +86,6 @@
         </tableViewCell>
     </objects>
     <resources>
-        <image name="defaultAvatar.jpg" width="16" height="16"/>
+        <image name="defaultAvatar.jpg" width="240" height="240"/>
     </resources>
 </document>

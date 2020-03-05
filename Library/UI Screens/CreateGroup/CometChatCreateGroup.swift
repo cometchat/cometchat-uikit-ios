@@ -177,10 +177,11 @@ class CometChatCreateGroup: UIViewController {
     */
     @IBAction func didCreateGroupPressed(_ sender: Any) {
         guard let name = name.text else {
-            self.view.makeToast("Kindly, enter group name.")
+            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Kindly, enter group name.", duration: .short)
+            snackbar.show()
             return
         }
-        let group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name , groupType: .public, password: nil, icon: "http://support.universum.com/bitbucket-old/atlassian-bitbucket/static/bitbucket/internal/images/avatar/group-avatar-256.png", description: ".")
+        let group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .public, password: nil)
         CometChat.createGroup(group: group, onSuccess: { (group) in
             print("createGroup: \(group.stringValue())")
             DispatchQueue.main.async {
@@ -191,7 +192,8 @@ class CometChatCreateGroup: UIViewController {
         }) { (error) in
             DispatchQueue.main.async {
                 if let errorMessage = error?.errorDescription {
-                    self.view.makeToast(errorMessage)
+                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                    snackbar.show()
                 }
                 print("error while creating group: \(String(describing: error?.errorDescription))")
             }

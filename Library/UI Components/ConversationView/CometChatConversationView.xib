@@ -117,7 +117,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vkX-fA-Z7K">
                                 <rect key="frame" x="0.0" y="25" width="73.5" height="20"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="31" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z9k-XE-qnp" customClass="BadgeCount" customModule="ios_chat_uikit_app" customModuleProvider="target">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z9k-XE-qnp" customClass="BadgeCount" customModule="ios_chat_uikit_app" customModuleProvider="target">
                                         <rect key="frame" x="50.5" y="-1.5" width="23" height="23"/>
                                         <color key="backgroundColor" red="0.0" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
@@ -201,7 +201,7 @@
                 <outlet property="typing" destination="Cbr-f2-Tyn" id="cwz-q8-u2f"/>
                 <outlet property="unreadBadgeCount" destination="Z9k-XE-qnp" id="G33-81-iSh"/>
             </connections>
-            <point key="canvasLocation" x="128.98550724637681" y="138.95089285714286"/>
+            <point key="canvasLocation" x="104" y="139"/>
         </tableViewCell>
     </objects>
     <resources>

@@ -26,14 +26,24 @@ class RightLinkPreviewBubble: UITableViewCell {
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var playbutton: UIButton!
     @IBOutlet weak var iconView: UIView!
+    @IBOutlet weak var tintedView: UIView!
     
     // MARK: - Declaration of Variables
+    var selectionColor: UIColor {
+        set {
+            let view = UIView()
+            view.backgroundColor = newValue
+            self.selectedBackgroundView = view
+        }
+        get {
+            return self.selectedBackgroundView?.backgroundColor ?? UIColor.clear
+        }
+    }
+    
     var url:String?
     var linkPreviewDelegate: LinkPreviewDelegate?
     var linkPreviewMessage: TextMessage! {
         didSet{
-            
-            self.selectionStyle = .none
             receiptStack.isHidden = true
             parseLinkPreviewForMessage(message: linkPreviewMessage)
             if let url = url {
@@ -96,7 +106,7 @@ class RightLinkPreviewBubble: UITableViewCell {
             
             if let thumbnail = linkPreview["image"] as? String {
                 let url = URL(string: thumbnail)
-                icon.kf.setImage(with: url, placeholder: #imageLiteral(resourceName: "default-image.png"))
+                icon.cf.setImage(with: url, placeholder: #imageLiteral(resourceName: "default-image.png"))
             }
             
             if let linkURL = linkPreview["url"] as? String {
@@ -133,15 +143,21 @@ class RightLinkPreviewBubble: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
-        
+       
+        selectionColor = .white
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
-    }
+     override func setSelected(_ selected: Bool, animated: Bool) {
+           super.setSelected(selected, animated: animated)
+           switch isEditing {
+           case true:
+               switch selected {
+               case true: self.tintedView.isHidden = false
+               case false: self.tintedView.isHidden = true
+               }
+           case false: break
+           }
+       }
     
     
 }

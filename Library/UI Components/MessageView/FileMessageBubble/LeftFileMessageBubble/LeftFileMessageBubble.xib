@@ -66,6 +66,15 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="alw-MY-xmy">
                                 <rect key="frame" x="0.0" y="0.0" width="250" height="60"/>
                                 <subviews>
+                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="peC-bv-LTE">
+                                        <rect key="frame" x="0.0" y="0.0" width="250" height="60"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="15"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                    </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8W2-5h-IYH">
                                         <rect key="frame" x="197" y="7.5" width="45" height="45"/>
                                         <subviews>
@@ -127,10 +136,14 @@
                                     <constraint firstItem="hvo-a8-rqI" firstAttribute="leading" secondItem="alw-MY-xmy" secondAttribute="leading" constant="8" id="3aE-uZ-JbF"/>
                                     <constraint firstAttribute="width" constant="250" id="Azw-Zb-uHI"/>
                                     <constraint firstAttribute="trailing" secondItem="8W2-5h-IYH" secondAttribute="trailing" constant="8" id="ITa-CW-71U"/>
+                                    <constraint firstItem="peC-bv-LTE" firstAttribute="leading" secondItem="alw-MY-xmy" secondAttribute="leading" id="Ki4-SS-hPI"/>
+                                    <constraint firstAttribute="bottom" secondItem="peC-bv-LTE" secondAttribute="bottom" id="M9K-dH-WYt"/>
                                     <constraint firstItem="8W2-5h-IYH" firstAttribute="centerY" secondItem="alw-MY-xmy" secondAttribute="centerY" id="TwT-B7-zc4"/>
+                                    <constraint firstAttribute="trailing" secondItem="peC-bv-LTE" secondAttribute="trailing" id="czT-9O-Ofq"/>
                                     <constraint firstAttribute="height" constant="60" id="dhh-2C-Ar0"/>
                                     <constraint firstItem="hvo-a8-rqI" firstAttribute="centerY" secondItem="alw-MY-xmy" secondAttribute="centerY" id="mxn-ce-UkM"/>
                                     <constraint firstItem="8W2-5h-IYH" firstAttribute="leading" secondItem="hvo-a8-rqI" secondAttribute="trailing" constant="8" id="o9X-AT-Qe2"/>
+                                    <constraint firstItem="peC-bv-LTE" firstAttribute="top" secondItem="alw-MY-xmy" secondAttribute="top" id="rG2-qn-vbt"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -173,6 +186,7 @@
                 <outlet property="receiptStack" destination="my9-lq-kIb" id="HrI-xf-ypq"/>
                 <outlet property="size" destination="QiW-xb-O4J" id="VOk-Nw-pMT"/>
                 <outlet property="timeStamp" destination="Wah-8E-4Bd" id="YOg-ED-bSB"/>
+                <outlet property="tintedView" destination="peC-bv-LTE" id="vtr-60-BSZ"/>
                 <outlet property="type" destination="cSS-Es-tXg" id="IYC-Qi-giK"/>
             </connections>
             <point key="canvasLocation" x="128.98550724637681" y="113.83928571428571"/>
