@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="SF-Pro-Display-Bold.otf">
+            <string>SFProDisplay-Bold</string>
+        </array>
+        <array key="SF-Pro-Display-Regular.otf">
+            <string>SFProDisplay-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" restorationIdentifier="detailView" selectionStyle="default" indentationWidth="10" reuseIdentifier="detailView" rowHeight="91" id="KGk-i7-Jjw" customClass="CometChatDetailView" customModule="ios_chat_uikit_app" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="380" height="91"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="380" height="91"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="wId-l8-b8U">
+                        <rect key="frame" x="85" y="8" width="215" height="75"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gys-GO-h7D">
+                                <rect key="frame" x="0.0" y="0.0" width="215" height="50"/>
+                                <fontDescription key="fontDescription" name="SFProDisplay-Bold" family="SF Pro Display" pointSize="22"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WWN-6W-X9K">
+                                <rect key="frame" x="0.0" y="55" width="215" height="20"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gw2-WC-nQA">
+                                        <rect key="frame" x="0.0" y="0.0" width="215" height="20"/>
+                                        <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="15"/>
+                                        <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="highlightedColor" red="0.26274509800000001" green="0.26274509800000001" blue="0.26274509800000001" alpha="1" colorSpace="calibratedRGB"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="Gw2-WC-nQA" secondAttribute="trailing" id="3mt-xg-v0t"/>
+                                    <constraint firstAttribute="height" constant="20" id="9nE-MM-3V3"/>
+                                    <constraint firstItem="Gw2-WC-nQA" firstAttribute="top" secondItem="WWN-6W-X9K" secondAttribute="top" id="WsS-uh-8L4"/>
+                                    <constraint firstAttribute="bottom" secondItem="Gw2-WC-nQA" secondAttribute="bottom" id="b5Z-it-sue"/>
+                                    <constraint firstItem="Gw2-WC-nQA" firstAttribute="leading" secondItem="WWN-6W-X9K" secondAttribute="leading" id="piW-CT-BZj"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                    </stackView>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvatar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="qg6-2M-6C7" customClass="Avatar" customModule="ios_chat_uikit_app" customModuleProvider="target">
+                        <rect key="frame" x="15" y="18" width="55" height="55"/>
+                        <color key="backgroundColor" red="0.62745098039215685" green="0.76078431372549016" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="55" id="Z8U-wt-Ota"/>
+                            <constraint firstAttribute="width" constant="55" id="gEj-ND-IEA"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <real key="value" value="27.5"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                <real key="value" value="27.5"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                <real key="value" value="0.0"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </imageView>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zff-YE-6DK">
+                        <rect key="frame" x="320" y="25.5" width="40" height="40"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="40" id="hmj-JO-jmc"/>
+                            <constraint firstAttribute="height" constant="40" id="wa9-8a-YtN"/>
+                        </constraints>
+                        <state key="normal" image="calling.png"/>
+                        <connections>
+                            <action selector="didCallPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="UVS-vx-wLV"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="zff-YE-6DK" secondAttribute="trailing" constant="20" id="1Ag-Y6-zdh"/>
+                    <constraint firstItem="wId-l8-b8U" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="ALY-sg-aGk"/>
+                    <constraint firstItem="qg6-2M-6C7" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="BEK-jJ-Rpd"/>
+                    <constraint firstItem="qg6-2M-6C7" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="OkK-s4-Kpo"/>
+                    <constraint firstAttribute="trailing" secondItem="wId-l8-b8U" secondAttribute="trailing" constant="80" id="XDY-Zz-GkU"/>
+                    <constraint firstItem="zff-YE-6DK" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="bET-o4-wKn"/>
+                    <constraint firstItem="wId-l8-b8U" firstAttribute="leading" secondItem="qg6-2M-6C7" secondAttribute="trailing" constant="15" id="k3E-mR-iFk"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <inset key="separatorInset" minX="70" minY="0.0" maxX="18" maxY="0.0"/>
+            <connections>
+                <outlet property="call" destination="zff-YE-6DK" id="j9O-8C-qdC"/>
+                <outlet property="detail" destination="Gw2-WC-nQA" id="THt-oI-C2n"/>
+                <outlet property="icon" destination="qg6-2M-6C7" id="Pm5-0n-hcY"/>
+                <outlet property="name" destination="gys-GO-h7D" id="Qub-ak-Qyd"/>
+            </connections>
+            <point key="canvasLocation" x="169.56521739130437" y="138.95089285714286"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="calling.png" width="61" height="61"/>
+        <image name="defaultAvatar.jpg" width="240" height="240"/>
+    </resources>
+</document>

@@ -1,8 +1,8 @@
 
 //  CometChatUnified.swift
 //  CometChatUIKit
-//  Created by Pushpsen Airekar on 20/09/19.
-//  Copyright ©  2019 CometChat Inc. All rights reserved.
+//  Created by CometChat Inc. on 20/09/19.
+//  Copyright ©  2020 CometChat Inc. All rights reserved.
 
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -25,17 +25,19 @@ import CometChatPro
     // MARK: - Declaration of Variables
     
     // Declaration of UINavigationController's  to Embed CometChatConversationList, CometChatUserList, CometChatGroupList, CometChatUserInfo.
-    public let conversations = UINavigationController()  
+    public let conversations = UINavigationController()
+    public let calls = UINavigationController()
     public let users = UINavigationController()
     public let groups = UINavigationController()
     public let more = UINavigationController()
     
     //  Initialization of variables for UIScreens such as CometChatConversationList, CometChatUserList, CometChatGroupList, CometChatUserInfo.
     var conversationList:CometChatConversationList = CometChatConversationList()
+    var callsList: CometChatCallsList = CometChatCallsList()
     var userList:CometChatUserList =  CometChatUserList()
     var groupList:CometChatGroupList = CometChatGroupList()
     var userInfo: CometChatUserInfo = CometChatUserInfo()
-    
+
     
     // MARK: - Public Methods
     
@@ -43,7 +45,7 @@ import CometChatPro
      This methods sets the UI Screens tabs for the view controllers which user wants to display in Tabbar.
      - Parameter controllers: This takes the array of UIScreens view controllers.
      - Author: CometChat Team
-     - Copyright:  ©  2019 CometChat Inc.
+     - Copyright:  ©  2020 CometChat Inc.
      - See Also:
      [UI Unified Documentation](https://prodocs.cometchat.com/docs/ios-ui-unified)
      */
@@ -54,6 +56,7 @@ import CometChatPro
         
         // Adding Navigation controllers for view controllers.
         conversations.viewControllers = [conversationList]
+        calls.viewControllers = [callsList]
         users.viewControllers = [userList]
         groups.viewControllers = [groupList]
         more.viewControllers = [userInfo]
@@ -61,23 +64,28 @@ import CometChatPro
         // Setting title and icons for Tabbar
         if #available(iOS 11.0, *) {
             conversations.tabBarItem.image = #imageLiteral(resourceName: "chats")
-            conversations.tabBarItem.title = "Chats"
+            conversations.tabBarItem.title = NSLocalizedString("CHATS", comment: "")
+            
+            calls.tabBarItem.image = #imageLiteral(resourceName: "calls")
+            calls.tabBarItem.title = NSLocalizedString("CALLS", comment: "")
+
             
             users.tabBarItem.image = #imageLiteral(resourceName: "contacts")
-            users.tabBarItem.title = "Contacts"
+            users.tabBarItem.title = NSLocalizedString("CONTACTS", comment: "")
             
             groups.tabBarItem.image = #imageLiteral(resourceName: "groups")
-            groups.tabBarItem.title = "Groups"
+            groups.tabBarItem.title = NSLocalizedString("GROUPS", comment: "")
             
             more.tabBarItem.image = #imageLiteral(resourceName: "more")
-            more.tabBarItem.title = "More"
+            more.tabBarItem.title = NSLocalizedString("MORE", comment: "")
         } 
         
         // Setting title and  LargeTitleDisplayMode for view controllers.
-        conversationList.set(title: "Chats", mode: .automatic)
-        userList.set(title: "Contacts", mode: .automatic)
-        groupList.set(title: "Groups", mode: .automatic)
-        userInfo.set(title: "More", mode: .automatic)
+        conversationList.set(title: NSLocalizedString("CHATS", comment: ""), mode: .automatic)
+        callsList.set(title: NSLocalizedString("CALLS", comment: ""), mode: .automatic)
+        userList.set(title: NSLocalizedString("CONTACTS", comment: ""), mode: .automatic)
+        groupList.set(title: NSLocalizedString("GROUPS", comment: ""), mode: .automatic)
+        userInfo.set(title: NSLocalizedString("MORE", comment: ""), mode: .automatic)
         
         // Adding view controllers in Tabbar
         self.viewControllers = controllers
@@ -88,16 +96,14 @@ import CometChatPro
      This methods provides the modalPresentationStyle to display UI Unified such as `.fullSreen` or `.popover`.
      -  Parameter withStyle: Specifies the  modalPresentationStyle to display UI Unified such as `.fullSreen` or `.popover`
      - Author: CometChat Team
-     - Copyright:  ©  2019 CometChat Inc.
+     - Copyright:  ©  2020 CometChat Inc.
      - See Also:
      [UI Unified Documentation](https://prodocs.cometchat.com/docs/ios-ui-unified)
      */
     @objc public func setup(withStyle: UIModalPresentationStyle){
         self.modalPresentationStyle = withStyle
-        set(controllers: [conversations,users,groups, more])
+        set(controllers: [conversations,calls,users,groups, more])
     }
 }
  
 /*  ----------------------------------------------------------------------------------------- */
-
-

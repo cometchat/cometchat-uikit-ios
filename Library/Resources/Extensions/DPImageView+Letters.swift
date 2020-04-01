@@ -2,8 +2,8 @@
 //  DPImageView+Letters.swift
 //  CometChatPro-CachingExtension-SampleApp
 //
-//  Created by Pushpsen Airekar on 09/07/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
+//  Created by CometChat Inc. on 09/07/19.
+//  Copyright © 2020 CometChat Inc. All rights reserved.
 //
 
 import Foundation

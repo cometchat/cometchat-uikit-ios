@@ -12,7 +12,6 @@
 
 </br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
 
-
 # What is UI Kit
 
 The **UI Kit** library is collection of custom **UI Components** and **UI Screens** design to build chat application within few minutes. **UI kit** is designed to avoid boilerplate code for building UI,it has three different ways to build a chat application with fully customizable UI.It will help developers to build a chat application within using various **UI Components**.
@@ -26,7 +25,7 @@ Follow the below metioned steps for easy setup and seamless integration with **U
 <a href="https://app.cometchat.io/" traget="_blank">Signup for CometChat</a> and then:
 
 * Create a new app
-* Head over to the API Keys section and note the `API_Key`,`App_ID` and `REGION`.
+* Head over to the API Keys section and note the `API_Key`, `App_ID` and `REGION`.
 ---
 
 ### Add the CometChat Dependency
@@ -126,7 +125,7 @@ let apiKey = "YOUR_API_KEY"
 
 CometChat.login(UID: uid, apiKey: apiKey, onSuccess: { (user) in
 
-  print("Login successful : " + user.stringValue())
+  print("Login successful: " + user.stringValue())
 
 }) { (error) in
 
@@ -164,7 +163,7 @@ ___
 
 **UI Unified** is a way to launch a fully working chat application using the **CometChat Kitchen Sink**.In UI Unified all the UI Screens and UI Components working together to give the full experience of a chat application with minimal coding effort. 
 
-To use Unified UI one has to launch `CometChatUnified` class.  `CometChatUnified` is a subclass of  `UITabbarController`.
+To use Unified UI user has to launch `CometChatUnified` class.  `CometChatUnified` is a subclass of  `UITabbarController`.
 
 ```swift
 
@@ -185,12 +184,27 @@ self.present(unifiedUI, animated: true, completion: nil)
 
 ---
 
+To receive real time call events, user has to register for them in `App Delegate` class. 
+
+```swift
+
+CometChatCallManager().registerForCalls(application: self)
+
+```
+
+
 # Run the sample App
 
-Visit our [UI Kit sample app](https://github.com/cometchat-pro-samples/ios-chat-uikit-app) repo to run the sample app.
+## Swift: 
+Visit our [Swift sample app](https://github.com/cometchat-pro-samples/ios-swift-chat-app) repo to run the swift sample app.
+
+## Objective C: 
+Visit our [Objective-C sample app](https://github.com/cometchat-pro-samples/ios-objective-c-chat-app) repo to run the objective-c sample app.
 
 **Note :** </br>
 * To run the sample app kindly follow the instructions provided in `Readme.md` file.
+
+*  If you're running Objective - C sample app then please run it on physical device. 
 
 ---
 

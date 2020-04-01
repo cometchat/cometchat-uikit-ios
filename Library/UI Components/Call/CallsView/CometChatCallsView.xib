@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="SF-Pro-Display-Medium.otf">
+            <string>SFProDisplay-Medium</string>
+        </array>
+        <array key="SF-Pro-Display-Regular.otf">
+            <string>SFProDisplay-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" restorationIdentifier="CometChatCallsView" selectionStyle="default" accessoryType="detailButton" indentationWidth="10" reuseIdentifier="callsView" rowHeight="107" id="KGk-i7-Jjw" customClass="CometChatCallsView" customModule="ios_chat_uikit_app" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="393" height="107"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="349" height="107"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvatar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="Rbg-8J-TD7" customClass="Avatar" customModule="ios_chat_uikit_app" customModuleProvider="target">
+                        <rect key="frame" x="15" y="31" width="45" height="45"/>
+                        <color key="backgroundColor" red="0.62740999460000002" green="0.76244419809999997" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="45" id="VZz-oO-W5K"/>
+                            <constraint firstAttribute="height" constant="45" id="asN-Ot-T5Y"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <real key="value" value="27.5"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                <real key="value" value="22.5"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                <real key="value" value="0.0"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="6:53 PM" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iG2-Ht-qsN">
+                        <rect key="frame" x="330" y="44" width="100" height="19.5"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="100" id="SUj-bI-VnM"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="16"/>
+                        <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="zRp-U9-b7z">
+                        <rect key="frame" x="75" y="32" width="250" height="43"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="feS-kA-SrA">
+                                <rect key="frame" x="0.0" y="0.0" width="250" height="20"/>
+                                <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="8v7-LP-MXF">
+                                <rect key="frame" x="0.0" y="23" width="250" height="20"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WE5-WB-mqn">
+                                        <rect key="frame" x="0.0" y="0.0" width="25" height="20"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="25" id="CiQ-ls-hIQ"/>
+                                            <constraint firstAttribute="height" constant="20" id="LLp-Rb-w1R"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xng-z4-mtc">
+                                        <rect key="frame" x="28" y="0.0" width="222" height="20"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Call Status" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u6q-aw-ntt">
+                                                <rect key="frame" x="0.0" y="0.0" width="222" height="20"/>
+                                                <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="15"/>
+                                                <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <color key="highlightedColor" red="0.26274509800000001" green="0.26274509800000001" blue="0.26274509800000001" alpha="1" colorSpace="calibratedRGB"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstItem="u6q-aw-ntt" firstAttribute="leading" secondItem="xng-z4-mtc" secondAttribute="leading" id="H5f-e7-T6M"/>
+                                            <constraint firstAttribute="height" constant="20" id="fPY-UX-S4J"/>
+                                            <constraint firstItem="u6q-aw-ntt" firstAttribute="top" secondItem="xng-z4-mtc" secondAttribute="top" id="fye-Ux-Y3L"/>
+                                            <constraint firstAttribute="bottom" secondItem="u6q-aw-ntt" secondAttribute="bottom" id="rDt-1i-Bth"/>
+                                            <constraint firstAttribute="trailing" secondItem="u6q-aw-ntt" secondAttribute="trailing" id="zWn-oI-hRD"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="250" id="2bd-ky-YKJ"/>
+                        </constraints>
+                    </stackView>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="phone.down.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Pak-nc-rID">
+                        <rect key="frame" x="75" y="62.5" width="22" height="7.5"/>
+                        <color key="tintColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="22" id="HHt-n8-PwB"/>
+                            <constraint firstAttribute="height" constant="18" id="PaQ-Za-8gb"/>
+                        </constraints>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="Rbg-8J-TD7" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="02l-EF-eOB"/>
+                    <constraint firstItem="iG2-Ht-qsN" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="1Nu-wD-S1I"/>
+                    <constraint firstItem="zRp-U9-b7z" firstAttribute="leading" secondItem="Rbg-8J-TD7" secondAttribute="trailing" constant="15" id="4c5-D0-XGf"/>
+                    <constraint firstAttribute="trailing" secondItem="iG2-Ht-qsN" secondAttribute="trailing" constant="10" id="5uk-ce-qR5"/>
+                    <constraint firstItem="zRp-U9-b7z" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="E41-3V-dxw"/>
+                    <constraint firstItem="Pak-nc-rID" firstAttribute="bottom" secondItem="WE5-WB-mqn" secondAttribute="bottom" id="HmD-8W-yOI"/>
+                    <constraint firstItem="Rbg-8J-TD7" firstAttribute="centerY" secondItem="zRp-U9-b7z" secondAttribute="centerY" id="OfG-3D-n8p"/>
+                    <constraint firstItem="Pak-nc-rID" firstAttribute="leading" secondItem="WE5-WB-mqn" secondAttribute="leading" id="SvE-1F-zCy"/>
+                    <constraint firstItem="iG2-Ht-qsN" firstAttribute="leading" secondItem="zRp-U9-b7z" secondAttribute="trailing" constant="5" id="eFM-b3-W5i"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <inset key="separatorInset" minX="75" minY="0.0" maxX="20" maxY="0.0"/>
+            <connections>
+                <outlet property="avatar" destination="Rbg-8J-TD7" id="KUF-wv-WGz"/>
+                <outlet property="callStatus" destination="u6q-aw-ntt" id="74Y-eX-IBm"/>
+                <outlet property="callStatusIcon" destination="Pak-nc-rID" id="Kx9-pf-OiN"/>
+                <outlet property="name" destination="feS-kA-SrA" id="zcW-MC-P2Y"/>
+                <outlet property="time" destination="iG2-Ht-qsN" id="ezr-V3-geq"/>
+            </connections>
+            <point key="canvasLocation" x="194.92753623188406" y="126.89732142857142"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="defaultAvatar.jpg" width="240" height="240"/>
+        <image name="phone.down.fill" catalog="system" width="64" height="26"/>
+    </resources>
+</document>

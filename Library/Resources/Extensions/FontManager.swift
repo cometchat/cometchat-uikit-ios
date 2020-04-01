@@ -2,8 +2,8 @@
 //  FontManager.swift
 //  Demo
 //
-//  Created by Pushpsen Airekar on 16/12/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
+//  Created by CometChat Inc. on 16/12/19.
+//  Copyright © 2020 CometChat Inc. All rights reserved.
 //
 import UIKit
 

@@ -3,7 +3,7 @@
 //  ios13-large-title-glitch
 //
 //  Created by thomas on 14/10/19.
-//  Copyright © 2019 thomas. All rights reserved.
+//  Copyright © 2020 thomas. All rights reserved.
 //
 
 import UIKit

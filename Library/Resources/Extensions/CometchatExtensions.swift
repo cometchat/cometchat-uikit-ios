@@ -2,8 +2,8 @@
 //  CCExtensions.swift
 //  CometChatUIKit
 //
-//  Created by Pushpsen Airekar on 16/10/19.
-//  Copyright © 2019 Pushpsen Airekar. All rights reserved.
+//  Created by CometChat Inc. on 16/10/19.
+//  Copyright © 2020 CometChat Inc. All rights reserved.
 //
 
 import UIKit
@@ -11,42 +11,44 @@ import Foundation
 import CometChatPro
 
 extension UIView {
-
+    
     func dropShadow() {
-        self.layer.masksToBounds = false
-        self.layer.shadowColor = UIColor.gray.cgColor
-        self.layer.shadowOpacity = 0.3
-        self.layer.shadowOffset = CGSize.zero
-        self.layer.shadowRadius = 5
-        self.layer.shouldRasterize = true
-        self.layer.rasterizationScale = UIScreen.main.scale
+        DispatchQueue.main.async {
+              self.layer.masksToBounds = false
+                  self.layer.shadowColor = UIColor.gray.cgColor
+                  self.layer.shadowOpacity = 0.3
+                  self.layer.shadowOffset = CGSize.zero
+                  self.layer.shadowRadius = 5
+                  self.layer.shouldRasterize = true
+                  self.layer.rasterizationScale = UIScreen.main.scale
+        }
     }
 }
 
 
 extension UIViewController{
-func isModal() -> Bool {
-
-    if let navigationController = self.navigationController{
-        if navigationController.viewControllers.first != self{
-            return false
+    func isModal() -> Bool {
+        
+        if let navigationController = self.navigationController{
+            if navigationController.viewControllers.first != self{
+                return false
+            }
         }
+        
+        if self.presentingViewController != nil {
+            return true
+        }
+        
+        if self.navigationController?.presentingViewController?.presentedViewController == self.navigationController  {
+            return true
+        }
+        
+        if self.tabBarController?.presentingViewController is UITabBarController {
+            return true
+        }
+        
+        return false
     }
-
-    if self.presentingViewController != nil {
-        return true
-    }
-
-    if self.navigationController?.presentingViewController?.presentedViewController == self.navigationController  {
-        return true
-    }
-
-    if self.tabBarController?.presentingViewController is UITabBarController {
-        return true
-    }
-
-    return false
-   }
 }
 
 extension Array {
@@ -59,34 +61,34 @@ extension UITableView {
     func scrollToBottomRow() {
         DispatchQueue.main.async {
             guard self.numberOfSections > 0 else { return }
-
+            
             // Make an attempt to use the bottom-most section with at least one row
             var section = max(self.numberOfSections - 1, 0)
             var row = max(self.numberOfRows(inSection: section) - 1, 0)
             var indexPath = IndexPath(row: row, section: section)
-
+            
             // Ensure the index path is valid, otherwise use the section above (sections can
             // contain 0 rows which leads to an invalid index path)
             while !self.indexPathIsValid(indexPath) {
                 section = max(section - 1, 0)
                 row = max(self.numberOfRows(inSection: section) - 1, 0)
                 indexPath = IndexPath(row: row, section: section)
-
+                
                 // If we're down to the last section, attempt to use the first row
                 if indexPath.section == 0 {
                     indexPath = IndexPath(row: 0, section: 0)
                     break
                 }
             }
-
+            
             // In the case that [0, 0] is valid (perhaps no data source?), ensure we don't encounter an
             // exception here
             guard self.indexPathIsValid(indexPath) else { return }
-
+            
             self.scrollToRow(at: indexPath, at: .bottom, animated: true)
         }
     }
-
+    
     func indexPathIsValid(_ indexPath: IndexPath) -> Bool {
         let section = indexPath.section
         let row = indexPath.row
@@ -225,7 +227,6 @@ extension Date {
 
 
 extension String {
-    
     func setMessageDateHeader(time: Int) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(time))
         let str = fetchMessageDateHeader(for: date)
@@ -248,12 +249,12 @@ extension String {
         
         if secondsAgo < oneDay  {
             
-            return "Today"
+            return NSLocalizedString("TODAY", comment: "")
             
         } else if secondsAgo < twoDays {
             let day = secondsAgo/day
             if day == 1 {
-                return "Yesterday"
+                return NSLocalizedString("YESTERDAY", comment: "")
             }else{
                 let formatter = DateFormatter()
                 formatter.dateFormat = "EEE"
@@ -270,6 +271,33 @@ extension String {
         }
     }
     
+    
+    func setCallsTime(time: Int) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(time))
+        let str = fetchCallsPastTime(for: date)
+        return str
+    }
+    
+    func fetchCallsPastTime(for date : Date) -> String {
+        let minute = 60
+        var secondsAgo = Int(Date().timeIntervalSince(date))
+        if secondsAgo < 0 {
+            secondsAgo = secondsAgo * (-1)
+        }
+        if secondsAgo < minute  {
+            if secondsAgo < 2{
+                return "Just Now"
+            }else{
+                return "\(secondsAgo) secs"
+            }
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "hh:mm a"
+            formatter.locale = Locale(identifier: "en_US")
+            let strDate: String = formatter.string(from: date)
+            return strDate
+        }
+    }
     
     
     
@@ -340,17 +368,17 @@ extension String {
     }
     
     func fetchMessagePastTime(for date : Date) -> String {
-
+        
         var secondsAgo = Int(Date().timeIntervalSince(date))
         if secondsAgo < 0 {
             secondsAgo = secondsAgo * (-1)
         }
-
+        
         let minute = 60
         let hour = 60 * minute
         let day = 24 * hour
         let twoDays = 2 * day
-
+        
         if secondsAgo < minute  {
             if secondsAgo < 2{
                 return "Just Now"
@@ -398,11 +426,11 @@ extension String {
             return strDate
         }
     }
-
-        func separate(every stride: Int = 4, with separator: Character = " ") -> String {
-            return String(enumerated().map { $0 > 0 && $0 % stride == 0 ? [separator, $1] : [$1]}.joined())
-        }
-
+    
+    func separate(every stride: Int = 4, with separator: Character = " ") -> String {
+        return String(enumerated().map { $0 > 0 && $0 % stride == 0 ? [separator, $1] : [$1]}.joined())
+    }
+    
 }
 
 
@@ -419,7 +447,7 @@ extension UITableView {
 
 extension UILabel {
     
-     func roundLabelCorners(_ corners: CACornerMask, radius: CGFloat){
+    func roundLabelCorners(_ corners: CACornerMask, radius: CGFloat){
         if #available(iOS 11.0, *) {
             self.layer.maskedCorners = corners
         } else {
@@ -551,5 +579,49 @@ extension Dictionary {
             // If a key is already present it will be overritten
             self[k] = v
         }
+    }
+}
+
+extension UICollectionView {
+    
+    func setEmptyMessage(_ message: String) {
+        let messageLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
+        messageLabel.text = message
+        if #available(iOS 13.0, *) {
+            messageLabel.textColor = .systemGray
+        } else {
+            messageLabel.textColor = .gray
+        }
+        messageLabel.numberOfLines = 0;
+        messageLabel.textAlignment = .center
+        messageLabel.font = UIFont(name: "SFProDisplay-Bold", size: 30)
+        messageLabel.sizeToFit()
+        self.backgroundView = messageLabel
+    }
+    
+    func restore() {
+        self.backgroundView = nil
+    }
+}
+
+extension UITableView {
+    
+    func setEmptyMessage(_ message: String) {
+        let messageLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: (self.bounds.size.height/2)))
+        messageLabel.text = message
+        if #available(iOS 13.0, *) {
+            messageLabel.textColor = .systemGray
+        } else {
+            messageLabel.textColor = .gray
+        }
+        messageLabel.numberOfLines = 0;
+        messageLabel.textAlignment = .center
+        messageLabel.font = UIFont(name: "SFProDisplay-Bold", size: 35)
+        messageLabel.sizeToFit()
+        self.backgroundView = messageLabel
+    }
+    
+    func restore() {
+        self.backgroundView = nil
     }
 }

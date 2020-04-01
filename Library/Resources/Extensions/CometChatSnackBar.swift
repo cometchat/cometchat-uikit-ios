@@ -126,7 +126,7 @@ open class CometChatSnackbar: UIView {
     @objc open dynamic var duration: CometChatSnackbarDuration = CometChatSnackbarDuration.short
     
     /// Snackbar animation type. Default is SlideFromBottomBackToBottom.
-    @objc open dynamic var animationType: CometChatSnackbarAnimationType = CometChatSnackbarAnimationType.slideFromBottomBackToBottom
+    @objc open dynamic var animationType: CometChatSnackbarAnimationType = CometChatSnackbarAnimationType.slideFromBottomToTop
     
     /// Show and hide animation duration. Default is 0.3
     @objc open dynamic var animationDuration: TimeInterval = 0.3

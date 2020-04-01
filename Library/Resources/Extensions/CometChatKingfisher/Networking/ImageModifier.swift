@@ -1,10 +1,14 @@
 //
 //  ImageModifier.swift
+
 //  CometChatKingfisher
+//  CometChatUIKit
+//  Created by CometChat Inc. on 16/10/19.
+//  Copyright © 2020 CometChat Inc. All rights reserved.
 //
 //  Created by Ethan Gill on 2017/11/28.
 //
-//  Copyright (c) 2019 Ethan Gill <ethan.gill@me.com>
+//  Copyright (c) 2020 Ethan Gill <ethan.gill@me.com>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
