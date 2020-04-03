@@ -151,9 +151,9 @@ To integrate CometChat UIKit inside your app. Kindly follow the below steps:
 
 3. Make sure you've selected `✅ Copy items if needed`  as well as `🔘 Create groups` options while adding Library inside your project. 
 
-4. If the Library is added sucessfully, it will look like mentioned in the below image. 
 
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/LibraryStructure.png)
+4. If the Library is added sucessfully,  all added folders  will be in Yellow color. 
+
 
 ___
 
