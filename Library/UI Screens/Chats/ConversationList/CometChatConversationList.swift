@@ -487,7 +487,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
             DispatchQueue.main.async {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
-                    cell.typing.text = user! + NSLocalizedString("is typing...", comment: "")
+                    cell.typing.text = user! + " " + NSLocalizedString("IS_TYPING", comment: "")
                     if cell.message.isHidden == false{
                         cell.typing.isHidden = false
                         cell.message.isHidden = true
@@ -498,7 +498,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
-                    cell.typing.text = user! + NSLocalizedString("is typing...", comment: "")
+                    cell.typing.text = user! + " " + NSLocalizedString("IS_TYPING", comment: "")
                     if cell.typing.isHidden == false{
                         cell.typing.isHidden = true
                         cell.message.isHidden = false

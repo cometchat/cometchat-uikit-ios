@@ -36,7 +36,7 @@ We recommend using CocoaPods, as they are the most advanced way of managing iOS 
 **Note:**
 </br>
 * CometChatPro SDK supports installation through Cocoapods only and it will support up to two latest releases of    
-  Xcode. Currently, we are supporting Xcode 11.2.1 or  Higher.
+Xcode. Currently, we are supporting Xcode 11.3 and 11.4.
   
 * CometChatPro SDK includes video calling components. We suggest you run on physical devices to avoid errors.
 
@@ -50,17 +50,29 @@ Add the following lines to the Podfile.
 ```bash
 ________________________________________________________________
 
-For Xcode 11.2.1(or Higher):
+For Xcode 11.3:
 
 platform :ios, '10.0'
 use_frameworks!
 
 target 'MyApp' do
-    pod 'CometChatPro', '~> 2.0.7'
+     pod 'CometChatPro', '2.0.8-Xcode11.3'
+end
+________________________________________________________________
+
+
+For Xcode 11.4:
+
+platform :ios, '10.0'
+use_frameworks!
+
+target 'MyApp' do
+     pod 'CometChatPro', '2.0.8'
 end
 ________________________________________________________________
 ```
 And then install the `CometChatPro` framework through CocoaPods.
+
 ```bash
 pod install
 ```
