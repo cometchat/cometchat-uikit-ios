@@ -23,7 +23,6 @@ class CometChatCallDetailLogView: UITableViewCell {
     // MARK: - Declaration of Variables
        
 
-    
     var call: BaseMessage! {
         didSet {
             

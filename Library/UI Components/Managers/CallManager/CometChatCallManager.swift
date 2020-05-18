@@ -46,11 +46,9 @@ import CometChatPro
                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Kindly, unblock the user to make a call.", duration: .short)
                     snackbar.show()
             }else{
-                let outgoingCall = CometChatOutgoingCall()
-                outgoingCall.makeCall(call: call, to: user)
-                outgoingCall.modalPresentationStyle = .fullScreen
                 DispatchQueue.main.async {
                     let outgoingCall = CometChatOutgoingCall()
+                    outgoingCall.makeCall(call: call, to: user)
                     outgoingCall.modalPresentationStyle = .fullScreen
                     if let window = UIApplication.shared.windows.first , let rootViewController = window.rootViewController {
                         var currentController = rootViewController
@@ -63,11 +61,9 @@ import CometChatPro
             }
         }
         if let group = to as? Group {
-            let outgoingCall = CometChatOutgoingCall()
-            outgoingCall.makeCall(call: call, to: group)
-            outgoingCall.modalPresentationStyle = .fullScreen
             DispatchQueue.main.async {
                 let outgoingCall = CometChatOutgoingCall()
+                outgoingCall.makeCall(call: call, to: group)
                 outgoingCall.modalPresentationStyle = .fullScreen
                 if let window = UIApplication.shared.windows.first , let rootViewController = window.rootViewController {
                     var currentController = rootViewController
@@ -79,7 +75,6 @@ import CometChatPro
             }
         }
     }
-    
 }
 
 /*  ----------------------------------------------------------------------------------------- */

@@ -14,7 +14,7 @@ import CometChatPro
 // MARK: - Declaration of Protocol
 
  protocol ChatViewInternalDelegate {
-    func didMicrophoneButtonPressed()
+    func didMicrophoneButtonPressed(with: UILongPressGestureRecognizer)
     func didSendButtonPressed()
     func didAttachmentButtonPressed()
     func didStickerButtonPressed()
@@ -33,9 +33,8 @@ import CometChatPro
     
      // MARK: - Declaration of IBOutlet
     @IBOutlet weak var attachment: UIView!
-    @IBOutlet weak var send: UIView!
-    @IBOutlet weak var microphone: UIView!
-    @IBOutlet weak var heightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var send: UIButton!
+    @IBOutlet weak var microphone: UIButton!
     @IBOutlet weak var textView: UITextView!
     @IBOutlet weak var sticker: UIButton!
     
@@ -43,12 +42,13 @@ import CometChatPro
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-
     }
     
+   
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-
+     
+        
     }
     func loadViewFromNib() {
         let bundle = Bundle(for: type(of: self))
@@ -63,7 +63,7 @@ import CometChatPro
     /// This method triggers when microphone button pressed
     /// - Parameter sender: This specifies the sender Object
     @IBAction func microphoneButtonPressed(_ sender: Any) {
-        internalDelegate?.didMicrophoneButtonPressed()
+        
         
     }
     
