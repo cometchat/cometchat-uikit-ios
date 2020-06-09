@@ -48,9 +48,10 @@ final class ImageProgressiveProvider: DataReceivingSideEffect {
     
     func onDataReceived(_ session: URLSession, task: SessionDataTask, data: Data) {
 
-        DispatchQueue.main.async {
-            guard self.onShouldApply() else { return }
-            self.update(data: task.mutableData, with: task.callbacks)
+        DispatchQueue.main.async { [weak self] in
+        guard let this = self else { return }
+            guard this.onShouldApply() else { return }
+            this.update(data: task.mutableData, with: task.callbacks)
         }
     }
 

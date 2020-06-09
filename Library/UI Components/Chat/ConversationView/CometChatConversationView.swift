@@ -5,10 +5,10 @@
 //  Copyright ©  2020 CometChat Inc. All rights reserved
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-CometChatConversationView: This component will be the class of UITableViewCell with components such as avatar(Avatar), name(UILabel), message(UILabel).
-
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
+ 
+ CometChatConversationView: This component will be the class of UITableViewCell with components such as avatar(Avatar), name(UILabel), message(UILabel).
+ 
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
 
 
 // MARK: - Importing Frameworks.
@@ -20,7 +20,7 @@ import CometChatPro
 
 class CometChatConversationView: UITableViewCell {
     
-     // MARK: - Declaration of IBOutlets
+    // MARK: - Declaration of IBOutlets
     
     @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var status: StatusIndicator!
@@ -33,17 +33,17 @@ class CometChatConversationView: UITableViewCell {
     
     // MARK: - Declaration of Variables
     
-    var searchedText: String = ""
+    lazy var searchedText: String = ""
     let normalTitlefont = UIFont(name: "SFProDisplay-Medium", size: 17)
     let boldTitlefont = UIFont(name: "SFProDisplay-Bold", size: 17)
     let normalSubtitlefont = UIFont(name: "SFProDisplay-Regular", size: 15)
     let boldSubtitlefont = UIFont(name: "SFProDisplay-Bold", size: 15)
-    var conversation: Conversation! {
+    weak var conversation: Conversation? {
         didSet {
-            if conversation.lastMessage != nil {
-                switch conversation.conversationType {
+            if let currentConversation = conversation {
+                switch currentConversation.conversationType {
                 case .user:
-                    guard let user =  conversation.conversationWith as? User else {
+                    guard let user =  currentConversation.conversationWith as? User else {
                         return
                     }
                     name.attributedText = addBoldText(fullString: user.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont)
@@ -51,7 +51,7 @@ class CometChatConversationView: UITableViewCell {
                     status.isHidden = false
                     status.set(status: user.status)
                 case .group:
-                    guard let group =  conversation.conversationWith as? Group else {
+                    guard let group =  currentConversation.conversationWith as? Group else {
                         return
                     }
                     name.attributedText = addBoldText(fullString: group.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont)
@@ -63,41 +63,41 @@ class CometChatConversationView: UITableViewCell {
                     break
                 }
                 
-                let senderName = conversation.lastMessage?.sender?.name
-                switch conversation.lastMessage!.messageCategory {
+                let senderName = currentConversation.lastMessage?.sender?.name
+                switch currentConversation.lastMessage!.messageCategory {
                 case .message:
-                    switch conversation.lastMessage?.messageType {
-                    case .text where conversation.conversationType == .user:
+                    switch currentConversation.lastMessage?.messageType {
+                    case .text where currentConversation.conversationType == .user:
                         
-                        if  let text = (conversation.lastMessage as? TextMessage)?.text as NSString? {
+                        if  let text = (currentConversation.lastMessage as? TextMessage)?.text as NSString? {
                             message.attributedText =  addBoldText(fullString: text, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
                         }
                         
-                    case .text where conversation.conversationType == .group:
-
-                        if  let text = senderName! + ":  " + (conversation.lastMessage as? TextMessage)!.text as NSString? {
+                    case .text where currentConversation.conversationType == .group:
+                        
+                        if  let text = senderName! + ":  " + (currentConversation.lastMessage as? TextMessage)!.text as NSString? {
                             message.attributedText =  addBoldText(fullString: text, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
                         }
                         
-                    case .image where conversation.conversationType == .user:
+                    case .image where currentConversation.conversationType == .user:
                         message.text = NSLocalizedString("HAS_SENT_AN_IMAGE", comment: "")
-                    case .image where conversation.conversationType == .group:
+                    case .image where currentConversation.conversationType == .group:
                         message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_AN_IMAGE", comment: "")
-                    case .video  where conversation.conversationType == .user:
+                    case .video  where currentConversation.conversationType == .user:
                         message.text = NSLocalizedString("HAS_SENT_A_VIDEO", comment: "")
-                    case .video  where conversation.conversationType == .group:
+                    case .video  where currentConversation.conversationType == .group:
                         message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_VIDEO", comment: "")
-                    case .audio  where conversation.conversationType == .user:
+                    case .audio  where currentConversation.conversationType == .user:
                         message.text = NSLocalizedString("HAS_SENT_A_AUDIO", comment: "")
-                    case .audio  where conversation.conversationType == .group:
+                    case .audio  where currentConversation.conversationType == .group:
                         message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_AUDIO", comment: "")
-                    case .file  where conversation.conversationType == .user:
+                    case .file  where currentConversation.conversationType == .user:
                         message.text = NSLocalizedString("HAS_SENT_A_FILE", comment: "")
-                    case .file  where conversation.conversationType == .group:
+                    case .file  where currentConversation.conversationType == .group:
                         message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_FILE", comment: "")
-                    case .custom where conversation.conversationType == .user:
+                    case .custom where currentConversation.conversationType == .user:
                         message.text = NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE", comment: "")
-                    case .custom where conversation.conversationType == .group:
+                    case .custom where currentConversation.conversationType == .group:
                         message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE", comment: "")
                         
                     case .groupMember:break
@@ -105,13 +105,13 @@ class CometChatConversationView: UITableViewCell {
                     case .some(_):break
                     }
                 case .action:
-                    if conversation.conversationType == .user {
-                        if  let text = (conversation.lastMessage as? ActionMessage)?.message as NSString? {
+                    if currentConversation.conversationType == .user {
+                        if  let text = (currentConversation.lastMessage as? ActionMessage)?.message as NSString? {
                             message.attributedText =  addBoldText(fullString: text, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
                         }
                     }
-                    if conversation.conversationType == .group {
-                        if  let text = ((conversation.lastMessage as? ActionMessage)?.message ?? "") as NSString? {
+                    if currentConversation.conversationType == .group {
+                        if  let text = ((currentConversation.lastMessage as? ActionMessage)?.message ?? "") as NSString? {
                             message.attributedText =  addBoldText(fullString: text, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
                         }
                     }
@@ -122,15 +122,20 @@ class CometChatConversationView: UITableViewCell {
                 @unknown default:
                     break
                 }
-                timeStamp.text = String().setConversationsTime(time: Int(conversation.updatedAt))
-                if let readAt = conversation.lastMessage?.readAt, readAt > 0.0  {
+                timeStamp.text = String().setConversationsTime(time: Int(currentConversation.updatedAt))
+                if let readAt = currentConversation.lastMessage?.readAt, readAt > 0.0  {
                     read.isHidden = false
                 }else{
                     read.isHidden = true
                 }
-                unreadBadgeCount.set(count: conversation.unreadMessageCount)
+                unreadBadgeCount.set(count: currentConversation.unreadMessageCount)
             }
         }
+    }
+    
+    override func prepareForReuse() {
+        conversation = nil
+        searchedText = ""
     }
     
     // MARK: - Initialization of required Methods
@@ -145,7 +150,7 @@ class CometChatConversationView: UITableViewCell {
         // Configure the view for the selected state
     }
     
-     // MARK: - Private Instance Methods
+    // MARK: - Private Instance Methods
     
     /// This method bold the text which is added in Search bar.
     /// - Parameters:

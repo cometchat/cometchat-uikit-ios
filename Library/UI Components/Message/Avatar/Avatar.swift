@@ -114,11 +114,11 @@ import  CometChatPro
     
     
     @objc public func set(image: String, with name: String) {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
             let url = URL(string: image)
             let imageView  = UIImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
             imageView.setImage(string: name.uppercased())
-            self.cf.setImage(with: url, placeholder: imageView.image)
+            self?.cf.setImage(with: url, placeholder: imageView.image)
         }
     }
     

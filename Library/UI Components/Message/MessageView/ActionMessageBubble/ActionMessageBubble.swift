@@ -33,14 +33,14 @@ class ActionMessageBubble: UITableViewCell {
                 
                 message.font =  UIFont(name: "SFProDisplay-Bold", size: 15)
                    switch call.callStatus  {
-                   case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                   case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                        message.text = "Outgoing Audio Call"
                        if #available(iOS 13.0, *) {
                            message.textColor = .label
                        } else {
                            message.textColor = .black
                        }
-                   case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                   case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                        
                        message.text = "Incoming Audio Call"
                        
@@ -50,7 +50,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .black
                        }
                        
-                   case .initiated where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                   case .initiated where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
 
                        message.text = "Incoming Audio Call"
                        
@@ -60,7 +60,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .black
                        }
                        
-                   case .initiated where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                   case .initiated where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     
                        message.text = "Outgoing Audio Call"
                        
@@ -70,7 +70,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .black
                        }
             
-                   case .initiated where call.callType == .video && call.receiverType == .user  && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                   case .initiated where call.callType == .video && call.receiverType == .user  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
 
                        message.text = "Outgoing Video Call"
                        
@@ -80,7 +80,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .black
                        }
                        
-                   case .initiated where call.callType == .video && call.receiverType == .user && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                   case .initiated where call.callType == .video && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
 
                        message.text = "Incoming Video Call"
                        
@@ -90,7 +90,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .black
                        }
                        
-                   case .initiated where call.callType == .video && call.receiverType == .group  && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                   case .initiated where call.callType == .video && call.receiverType == .group  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     
                        message.text = "Outgoing Video Call"
                        
@@ -100,7 +100,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .black
                        }
                        
-                   case .initiated where call.callType == .video && call.receiverType == .group && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                   case .initiated where call.callType == .video && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
 
                        message.text = "Incoming Video Call"
                       
@@ -110,7 +110,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .black
                        }
                        
-                   case .unanswered where call.callType == .audio && call.receiverType == .user  && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                   case .unanswered where call.callType == .audio && call.receiverType == .user  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
 
                        message.text = "Unanswered Audio Call"
                        
@@ -120,7 +120,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .red
                        }
                        
-                   case .unanswered where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                   case .unanswered where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                 
                        message.text = "Missed Audio Call"
                        
@@ -130,7 +130,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .red
                        }
                        
-                   case .unanswered where call.callType == .audio && call.receiverType == .group  && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                   case .unanswered where call.callType == .audio && call.receiverType == .group  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                       
                        message.text = "Unanswered Audio Call"
                      
@@ -140,7 +140,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .red
                        }
                        
-                   case .unanswered where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                   case .unanswered where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                       
                        message.text = "Missed Audio Call"
                      
@@ -150,7 +150,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .red
                        }
                        
-                   case .unanswered where call.callType == .video && call.receiverType == .user  && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                   case .unanswered where call.callType == .video && call.receiverType == .user  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                       
                        message.text = "Unanswered Video Call"
                        
@@ -160,7 +160,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .red
                        }
                        
-                   case .unanswered where call.callType == .video && call.receiverType == .user && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                   case .unanswered where call.callType == .video && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                      
                        message.text = "Missed Video Call"
                        
@@ -170,7 +170,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .red
                        }
                        
-                   case .unanswered where call.callType == .video && call.receiverType == .group  && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                   case .unanswered where call.callType == .video && call.receiverType == .group  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                        
                        message.text = "Unanswered Video Call"
                        
@@ -180,7 +180,7 @@ class ActionMessageBubble: UITableViewCell {
                            message.textColor = .red
                        }
                        
-                   case .unanswered where call.callType == .video && call.receiverType == .group && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                   case .unanswered where call.callType == .video && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                      
                        message.text = "Missed Video Call"
                        
@@ -193,6 +193,9 @@ class ActionMessageBubble: UITableViewCell {
                    case .busy: break
                    case .cancelled: break
                    case .ended: break
+                   case .initiated: break
+                   case .ongoing: break
+                   case .unanswered: break
                    @unknown default: break
                    }
                }

@@ -306,5 +306,4 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
         }
     }
 }
-
 /*  ----------------------------------------------------------------------------------------- */

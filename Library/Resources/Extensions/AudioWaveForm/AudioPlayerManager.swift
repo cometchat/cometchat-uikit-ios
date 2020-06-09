@@ -184,8 +184,9 @@ extension UIViewController {
             alertController.dismiss(animated: true, completion: nil)
         })
         
-        DispatchQueue.main.async {
-            self.present(alertController, animated: true, completion: nil)
+        DispatchQueue.main.async { [weak self] in
+        guard let this = self else { return }
+            this.present(alertController, animated: true, completion: nil)
         }
     }
 }

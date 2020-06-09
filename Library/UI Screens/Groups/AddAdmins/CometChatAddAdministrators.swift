@@ -62,10 +62,6 @@ public class CometChatAddAdministrators: UIViewController {
      - Copyright:  ©  2020 CometChat Inc.
      */
     public func set(group: Group){
-        
-        guard group != nil else {
-            return
-        }
         self.currentGroup = group
     }
     
@@ -391,12 +387,12 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                 }
                                 
                             }
-                            let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member.name ?? ""
+                            let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member?.name ?? ""
                             let groupName = self.currentGroup?.name ?? ""
                             
-                            if self.currentGroup?.owner == CometChat.getLoggedInUser()?.uid {
+                            if self.currentGroup?.owner == LoggedInUser.uid {
                                 
-                                if member.uid != CometChat.getLoggedInUser()?.uid {
+                                if member.uid != LoggedInUser.uid {
                                     return UIMenu(title: NSLocalizedString("REMOVE", comment: "") + "\(memberName)" + NSLocalizedString("AS_ADMIN_FROM", comment: "") + "\(groupName)" + NSLocalizedString("GROUP?" , comment: ""), children: [removeAdmin])
                                 }
                             }
@@ -430,7 +426,7 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                 print("updateGroupMemberScope error: \(String(describing: error?.errorDescription))")
                             }
                         }
-                        let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member.name ?? ""
+                        let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member?.name ?? ""
                         let groupName = self.currentGroup?.name ?? ""
                         return UIMenu(title: NSLocalizedString("ADD" , comment: "") + "\(memberName)" + NSLocalizedString(" as admin in ", comment: "") + "\(groupName)" + NSLocalizedString("GROUP?", comment: "") , children: [removeAdmin])
                     }

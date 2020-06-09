@@ -22,22 +22,31 @@ class MembersView: UITableViewCell {
     
     // MARK: - Declaration of Variables
     
-    var member: GroupMember! {
+    weak var member: GroupMember? {
         didSet {
-            
-            if member.uid == CometChat.getLoggedInUser()?.uid {
-                name.text = NSLocalizedString("YOU", comment: "")
-                self.selectionStyle = .none
-            }else{
-                name.text = member.name
+            if let currentMember = member {
+                if currentMember.uid == LoggedInUser.uid {
+                    name.text = NSLocalizedString("YOU", comment: "")
+                    self.selectionStyle = .none
+                }else{
+                    name.text = currentMember.name
+                }
+                avatar.set(image: currentMember.avatar ?? "", with: currentMember.name ?? "")
+                switch currentMember.scope {
+                case .admin:  scope.text = NSLocalizedString("ADMIN", comment: "")
+                case .moderator: scope.text = NSLocalizedString("MODERATOR", comment: "")
+                case .participant: scope.text = NSLocalizedString("PARTICIPANT", comment: "")
+                @unknown default: break }
             }
-            avatar.set(image: member.avatar ?? "", with: member.name ?? "")
-            switch member.scope {
-            case .admin:  scope.text = NSLocalizedString("ADMIN", comment: "")
-            case .moderator: scope.text = NSLocalizedString("MODERATOR", comment: "")
-            case .participant: scope.text = NSLocalizedString("PARTICIPANT", comment: "")
-            @unknown default: break }
          }
+    }
+    
+    deinit {
+        print("MembersView deallocated")
+    }
+    
+    override func prepareForReuse() {
+        member = nil
     }
     
      // MARK: - Initialization of required Methods

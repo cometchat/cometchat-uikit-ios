@@ -54,16 +54,12 @@ class CometChatCallDetail: UIViewController {
      - Copyright:  ©  2020 CometChat Inc.
      */
     public func set(user: User){
-       
-        guard  user != nil else {
-            return
-        }
         currentUser = user
         CometChat.getUser(UID: user.uid ?? "", onSuccess: { (updatedUser) in
             self.currentUser = updatedUser
-            DispatchQueue.main.async {
-                if self.tableView != nil {
-                    self.tableView.reloadData()
+            DispatchQueue.main.async { [weak self] in
+                if self?.tableView != nil {
+                    self?.tableView.reloadData()
                 }
             }
         }) { (error) in
@@ -85,9 +81,9 @@ class CometChatCallDetail: UIViewController {
         currentGroup = group
         CometChat.getGroup(GUID: group.guid , onSuccess: { (updatedGroup) in
             self.currentGroup = updatedGroup
-            DispatchQueue.main.async {
-                if self.tableView != nil {
-                    self.tableView.reloadData()
+            DispatchQueue.main.async { [weak self] in
+                if self?.tableView != nil {
+                    self?.tableView.reloadData()
                 }
             }
         }) { (error) in
@@ -111,9 +107,9 @@ class CometChatCallDetail: UIViewController {
         }
         callsRequest?.fetchPrevious(onSuccess: { (fetchedCalls) in
             if fetchedCalls?.count == 0 {
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
                     let indexPath = IndexPath(row: 0, section: 1)
-                    if let progressIndicator = self.tableView.cellForRow(at: indexPath) as? ProgressIndicatorView {
+                    if let progressIndicator = self?.tableView.cellForRow(at: indexPath) as? ProgressIndicatorView {
                         progressIndicator.activityIndicator.isHidden = true
                         progressIndicator.LoadingLabel.isHidden = false
                         progressIndicator.LoadingLabel.text = "No History Found."
@@ -125,8 +121,8 @@ class CometChatCallDetail: UIViewController {
                         ($0 as? Call != nil && ($0 as? Call)?.callStatus == .unanswered)
                 }) else { return }
                 self.calls = (filteredCalls as? [Call])?.reversed() ?? []
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
+                DispatchQueue.main.async { [weak self] in
+                    self?.tableView.reloadData()
                 }
             }
         }, onError: { (error) in

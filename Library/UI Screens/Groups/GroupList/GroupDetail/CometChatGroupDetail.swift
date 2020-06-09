@@ -64,7 +64,6 @@ class CometChatGroupDetail: UIViewController {
      - Copyright:  ©  2020 CometChat Inc.
      */
     public func set(group: Group, with members: [GroupMember]){
-        guard  group != nil else { return }
         currentGroup = group
         self.getGroup(group: group)
         self.members = members
@@ -126,7 +125,7 @@ class CometChatGroupDetail: UIViewController {
         settingsItems.removeAll()
         supportItems.removeAll()
         
-        if currentGroup?.scope == .admin || currentGroup?.owner == CometChat.getLoggedInUser()?.uid {
+        if currentGroup?.scope == .admin || currentGroup?.owner == LoggedInUser.uid {
             settingsItems = [CometChatGroupDetail.GROUP_INFO_CELL, CometChatGroupDetail.ADMINISTRATOR_CELL]
             supportItems = [CometChatGroupDetail.DELETE_AND_EXIT_CELL,CometChatGroupDetail.EXIT_CELL ]
         }else{
@@ -373,7 +372,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if  indexPath.section == 0 && indexPath.row == 0 {
             return 100
-        }else if currentGroup?.owner == CometChat.getLoggedInUser()?.uid && indexPath.section == 1 {
+        }else if currentGroup?.owner == LoggedInUser.uid && indexPath.section == 1 {
             return 60
         }else if currentGroup?.scope != .admin && indexPath.section == 1 {
             return 0
@@ -485,17 +484,17 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             
         }else{
             if  let selectedCell = tableView.cellForRow(at: indexPath) as? MembersView  {
-                let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member.name ?? ""
+                let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member?.name ?? ""
                 let groupName = self.currentGroup?.name ?? ""
                 let alert = UIAlertController(title: NSLocalizedString("REMOVE", comment: ""), message:  NSLocalizedString("REMOVE", comment: "") + memberName +  NSLocalizedString("FROM", comment: "") + groupName +  NSLocalizedString("GROUP?", comment: ""), preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
-                    CometChat.kickGroupMember(UID: selectedCell.member.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
+                    CometChat.kickGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
                         DispatchQueue.main.async {
                             if let group = self.currentGroup {
                                 let data:[String: String] = ["guid": group.guid]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                             }
-                            let message = (selectedCell.member.name ?? "") + NSLocalizedString("REMOVED_SUCCESSFULLY", comment: "")
+                            let message = (selectedCell.member?.name ?? "") + NSLocalizedString("REMOVED_SUCCESSFULLY", comment: "")
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                             snackbar.show()
                         }
@@ -510,10 +509,10 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                 }))
                 alert.addAction(UIAlertAction(title: NSLocalizedString("CANCEL", comment: ""), style: .cancel, handler: { action in
                 }))
-                if CometChat.getLoggedInUser()?.uid == self.currentGroup?.owner || self.currentGroup?.scope == .admin {
-                    if selectedCell.member.scope == .participant {
+                if LoggedInUser.uid == self.currentGroup?.owner || self.currentGroup?.scope == .admin {
+                    if selectedCell.member?.scope == .participant {
                         self.present(alert, animated: true)
-                    }else if CometChat.getLoggedInUser()?.uid == self.currentGroup?.owner && selectedCell.member.scope == .admin && selectedCell.member.uid != CometChat.getLoggedInUser()?.uid{
+                    }else if LoggedInUser.uid == self.currentGroup?.owner && selectedCell.member?.scope == .admin && selectedCell.member?.uid != LoggedInUser.uid {
                         self.present(alert, animated: true)
                     }
                 }
@@ -604,13 +603,13 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             if  let selectedCell = tableView.cellForRow(at: indexPath) as? MembersView  {
                 let removeMember = UIAction(title: NSLocalizedString("REMOVE_MEMBER", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { action in
                     
-                    CometChat.kickGroupMember(UID: selectedCell.member.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
+                    CometChat.kickGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
                         DispatchQueue.main.async {
                             if let group = self.currentGroup {
                                 let data:[String: String] = ["guid": group.guid ]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                             }
-                            let message = (selectedCell.member.name ?? "") + NSLocalizedString("REMOVED_SUCCESSFULLY", comment: "")
+                            let message = (selectedCell.member?.name ?? "") + NSLocalizedString("REMOVED_SUCCESSFULLY", comment: "")
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                             snackbar.show()
                         }
@@ -624,14 +623,13 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                     }
                 }
                 
-                let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member.name ?? ""
+                let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member?.name ?? ""
                 let groupName = self.currentGroup?.name ?? ""
                 
-                if CometChat.getLoggedInUser()?.uid == self.currentGroup?.owner || self.currentGroup?.scope == .admin {
-                    
-                    if selectedCell.member.scope == .participant {
+                if LoggedInUser.uid == self.currentGroup?.owner || self.currentGroup?.scope == .admin {
+                    if selectedCell.member?.scope == .participant {
                         return UIMenu(title: NSLocalizedString("REMOVE", comment: "") + memberName +  NSLocalizedString("from", comment: "") + groupName +  NSLocalizedString("GROUP?", comment: "") , children: [removeMember])
-                    }else if CometChat.getLoggedInUser()?.uid == self.currentGroup?.owner && selectedCell.member.scope == .admin && selectedCell.member.uid != CometChat.getLoggedInUser()?.uid{
+                    }else if LoggedInUser.uid == self.currentGroup?.owner && selectedCell.member?.scope == .admin && selectedCell.member?.uid != LoggedInUser.uid {
                         return UIMenu(title:  NSLocalizedString("REMOVE", comment: "") + memberName +  NSLocalizedString("from", comment: "") + groupName +  NSLocalizedString("GROUP?", comment: "") , children: [removeMember])
                     }
                 }

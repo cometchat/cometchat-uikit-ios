@@ -28,21 +28,24 @@ class CometChatGroupView: UITableViewCell {
     
     // MARK: - Declaration of Variables
     
-    var group: Group! {
+    weak var group: Group? {
         didSet {
-            groupName.text = group.name
-            switch group.groupType {
-            case .public:
-                 groupDetails.text = NSLocalizedString("PUBLIC", comment: "")
-            case .private:
-                groupDetails.text = NSLocalizedString("PRIVATE", comment: "")
-            case .password:
-                groupDetails.text = NSLocalizedString("PASSWORD_PROTECTED", comment: "")
-            @unknown default:
-                break
+            
+            if let currentGroup = group {
+                groupName.text = currentGroup.name
+                switch currentGroup.groupType {
+                case .public:
+                    groupDetails.text = NSLocalizedString("PUBLIC", comment: "")
+                case .private:
+                    groupDetails.text = NSLocalizedString("PRIVATE", comment: "")
+                case .password:
+                    groupDetails.text = NSLocalizedString("PASSWORD_PROTECTED", comment: "")
+                @unknown default:
+                    break
+                }
+                groupAvatar.set(image: currentGroup.icon ?? "", with: currentGroup.name ?? "")
             }
-//            groupAvatar.setImage(string: group.name)
-            groupAvatar.set(image: group.icon ?? "", with: group.name ?? "")
+            
         }
     }
     
@@ -51,6 +54,10 @@ class CometChatGroupView: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
       
+    }
+    
+    override func prepareForReuse() {
+        group = nil
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

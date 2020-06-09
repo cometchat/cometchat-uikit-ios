@@ -80,11 +80,11 @@ class SharedMediaView: UITableViewCell {
      */
     func refreshMediaMessages(for entity: AppEntity, type: CometChat.ReceiverType) {
         self.entity = entity
-        DispatchQueue.main.async {
-            self.activityIndicator?.startAnimating()
-            self.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self.collectionView.bounds.width, height: CGFloat(44))
-            self.collectionView.backgroundView = self.activityIndicator
-            self.collectionView.backgroundView?.isHidden = false
+        DispatchQueue.main.async { [weak self] in
+            self?.activityIndicator?.startAnimating()
+            self?.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self?.collectionView.bounds.width ?? 0, height: CGFloat(44))
+            self?.collectionView.backgroundView = self?.activityIndicator
+            self?.collectionView.backgroundView?.isHidden = false
         }
         switch type {
         case .user:
@@ -103,26 +103,26 @@ class SharedMediaView: UITableViewCell {
                         (($0 as? MediaMessage)?.attachment != nil)}) else {
                             return }
                     if let messages = fetchedMessages as? [MediaMessage] {
-                        DispatchQueue.main.async {
-                            switch self.mediaSelection.selectedSegmentIndex {
-                            case 0: self.photos = messages
-                            case 1: self.videos = messages
-                            case 2: self.docs = messages
+                        DispatchQueue.main.async { [weak self] in
+                            switch self?.mediaSelection.selectedSegmentIndex {
+                            case 0: self?.photos = messages
+                            case 1: self?.videos = messages
+                            case 2: self?.docs = messages
                             default: break
                             }
-                            self.activityIndicator?.stopAnimating()
-                            self.collectionView.backgroundView?.isHidden = true
-                            self.collectionView.reloadData()
+                            self?.activityIndicator?.stopAnimating()
+                            self?.collectionView.backgroundView?.isHidden = true
+                            self?.collectionView.reloadData()
                         }
                     }
                 }, onError: { (error) in
-                    DispatchQueue.main.async {
+                    DispatchQueue.main.async { [weak self] in
                         if let errorMessage = error?.errorDescription {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
                             snackbar.show()
-                            self.activityIndicator?.stopAnimating()
-                            self.collectionView.backgroundView?.isHidden = true
-                            self.collectionView.reloadData()
+                            self?.activityIndicator?.stopAnimating()
+                            self?.collectionView.backgroundView?.isHidden = true
+                            self?.collectionView.reloadData()
                         }
                     }
                 })
@@ -143,26 +143,26 @@ class SharedMediaView: UITableViewCell {
                         (($0 as? MediaMessage)?.attachment != nil)}) else {
                             return }
                     if let messages = fetchedMessages as? [MediaMessage] {
-                        DispatchQueue.main.async {
-                            switch self.mediaSelection.selectedSegmentIndex {
-                            case 0: self.photos = messages
-                            case 1: self.videos = messages
-                            case 2: self.docs = messages
+                        DispatchQueue.main.async {  [weak self] in
+                            switch self?.mediaSelection.selectedSegmentIndex {
+                            case 0: self?.photos = messages
+                            case 1: self?.videos = messages
+                            case 2: self?.docs = messages
                             default: break
                             }
-                            self.activityIndicator?.stopAnimating()
-                            self.collectionView.backgroundView?.isHidden = true
-                            self.collectionView.reloadData()
+                            self?.activityIndicator?.stopAnimating()
+                            self?.collectionView.backgroundView?.isHidden = true
+                            self?.collectionView.reloadData()
                         }
                     }
                 }, onError: { (error) in
-                    DispatchQueue.main.async {
+                    DispatchQueue.main.async {  [weak self] in
                         if let errorMessage = error?.errorDescription {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
                             snackbar.show()
-                            self.activityIndicator?.stopAnimating()
-                            self.collectionView.backgroundView?.isHidden = true
-                            self.collectionView.reloadData()
+                            self?.activityIndicator?.stopAnimating()
+                            self?.collectionView.backgroundView?.isHidden = true
+                            self?.collectionView.reloadData()
                         }
                     }
                 })
@@ -181,11 +181,11 @@ class SharedMediaView: UITableViewCell {
      - Copyright:  ©  2019 CometChat Inc.
      */
     func fetchMediaMessages(for entity: AppEntity, type: CometChat.ReceiverType) {
-        DispatchQueue.main.async {
-            self.activityIndicator?.startAnimating()
-            self.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self.collectionView.bounds.width, height: CGFloat(44))
-            self.collectionView.backgroundView = self.activityIndicator
-            self.collectionView.backgroundView?.isHidden = false
+        DispatchQueue.main.async { [weak self] in
+            self?.activityIndicator?.startAnimating()
+            self?.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self?.collectionView.bounds.width ?? 0, height: CGFloat(44))
+            self?.collectionView.backgroundView = self?.activityIndicator
+            self?.collectionView.backgroundView?.isHidden = false
         }
         switch type {
         case .user:
@@ -194,27 +194,27 @@ class SharedMediaView: UITableViewCell {
                     (($0 as? MediaMessage)?.attachment != nil)}) else {
                         return }
                 if let messages = fetchedMessages as? [MediaMessage] {
-                    DispatchQueue.main.async {
-                        switch self.mediaSelection.selectedSegmentIndex {
-                        case 0: self.photos.append(contentsOf: messages)
-                        case 1: self.videos.append(contentsOf: messages)
-                        case 2: self.docs.append(contentsOf: messages)
+                    DispatchQueue.main.async { [weak self] in
+                        switch self?.mediaSelection.selectedSegmentIndex {
+                        case 0: self?.photos.append(contentsOf: messages)
+                        case 1: self?.videos.append(contentsOf: messages)
+                        case 2: self?.docs.append(contentsOf: messages)
                         default: break
                         }
-                        self.activityIndicator?.stopAnimating()
-                        self.collectionView.backgroundView?.isHidden = true
-                        self.collectionView.reloadData()
+                        self?.activityIndicator?.stopAnimating()
+                        self?.collectionView.backgroundView?.isHidden = true
+                        self?.collectionView.reloadData()
                     }
                 }
                 print("mediaMessageRequest fetched: \(String(describing: mediaMessages))")
             }, onError: { (error) in
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
                     if let errorMessage = error?.errorDescription {
                         let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
                         snackbar.show()
-                        self.activityIndicator?.stopAnimating()
-                        self.collectionView.backgroundView?.isHidden = true
-                        self.collectionView.reloadData()
+                        self?.activityIndicator?.stopAnimating()
+                        self?.collectionView.backgroundView?.isHidden = true
+                        self?.collectionView.reloadData()
                     }
                 }
             })
@@ -224,26 +224,26 @@ class SharedMediaView: UITableViewCell {
                     (($0 as? MediaMessage)?.attachment != nil)}) else {
                         return }
                 if let messages = fetchedMessages as? [MediaMessage] {
-                    DispatchQueue.main.async {
-                        switch self.mediaSelection.selectedSegmentIndex {
-                        case 0: self.photos.append(contentsOf: messages)
-                        case 1: self.videos.append(contentsOf: messages)
-                        case 2: self.docs.append(contentsOf: messages)
+                    DispatchQueue.main.async { [weak self] in
+                        switch self?.mediaSelection.selectedSegmentIndex {
+                        case 0: self?.photos.append(contentsOf: messages)
+                        case 1: self?.videos.append(contentsOf: messages)
+                        case 2: self?.docs.append(contentsOf: messages)
                         default: break
                         }
-                        self.activityIndicator?.stopAnimating()
-                        self.collectionView.backgroundView?.isHidden = true
-                        self.collectionView.reloadData()
+                        self?.activityIndicator?.stopAnimating()
+                        self?.collectionView.backgroundView?.isHidden = true
+                        self?.collectionView.reloadData()
                     }
                 }
             }, onError: { (error) in
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
                     if let errorMessage = error?.errorDescription {
                         let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
                         snackbar.show()
-                        self.activityIndicator?.stopAnimating()
-                        self.collectionView.backgroundView?.isHidden = true
-                        self.collectionView.reloadData()
+                        self?.activityIndicator?.stopAnimating()
+                        self?.collectionView.backgroundView?.isHidden = true
+                        self?.collectionView.reloadData()
                     }
                 }
             })

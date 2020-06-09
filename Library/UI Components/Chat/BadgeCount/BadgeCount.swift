@@ -151,6 +151,10 @@ import CometChatPro
         self.set(count: currentCount + 1)
         self.isHidden = false
     }
+    
+    deinit {
+        print("BadgeCount deallocated")
+    }
 }
 
 /*  ----------------------------------------------------------------------------------------- */

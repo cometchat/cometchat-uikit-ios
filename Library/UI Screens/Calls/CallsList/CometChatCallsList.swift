@@ -19,7 +19,7 @@ import CometChatPro
 // MARK: - Declaring Protocol.
 
 
-public protocol CallsListDelegate {
+public protocol CallsListDelegate: AnyObject {
     /**
      This method triggers when user taps perticular conversation in CometChatCallsList
      - Parameters:
@@ -43,7 +43,7 @@ public class CometChatCallsList: UIViewController {
     var safeArea: UILayoutGuide!
     var calls: [BaseMessage] = [BaseMessage]()
     var missedCalls: [BaseMessage] = [BaseMessage]()
-    var delegate : CallsListDelegate?
+    weak var delegate : CallsListDelegate?
     var activityIndicator:UIActivityIndicatorView?
     var segmentControl = UISegmentedControl()
     
@@ -65,6 +65,9 @@ public class CometChatCallsList: UIViewController {
         refreshCalls()
     }
     
+    deinit {
+        print("CometChatCallsList deallocated")
+    }
     
     // MARK: - Public instance methods
     
@@ -465,7 +468,7 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
         }
         switch selectedCall.call.receiverType {
         case .user:
-            if ((selectedCall.call as? Call)?.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid {
+            if ((selectedCall.call as? Call)?.callInitiator as? User)?.uid == LoggedInUser.uid {
                 if let user = ((selectedCall.call as? Call)?.callReceiver as? User) {
                     let callDetail = CometChatCallDetail()
                     callDetail.set(title: "", mode: .never)

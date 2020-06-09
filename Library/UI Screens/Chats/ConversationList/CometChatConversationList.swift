@@ -18,7 +18,7 @@ import CometChatPro
 
 // MARK: - Declaring Protocol.
 
-public protocol ConversationListDelegate {
+public protocol ConversationListDelegate : AnyObject{
     /**
      This method triggers when user taps perticular conversation in CometChatConversationList
      - Parameters:
@@ -43,7 +43,7 @@ public class CometChatConversationList: UIViewController {
     var safeArea: UILayoutGuide!
     var conversations: [Conversation] = [Conversation]()
     var filteredConversations: [Conversation] = [Conversation]()
-    var delegate : ConversationListDelegate?
+    weak var delegate : ConversationListDelegate?
     var storedVariable: String?
     var activityIndicator:UIActivityIndicatorView?
     var searchedText: String = ""
@@ -69,6 +69,10 @@ public class CometChatConversationList: UIViewController {
     public override func viewWillAppear(_ animated: Bool) {
         self.setupDelegates()
         refreshConversations()
+    }
+    
+    deinit {
+        print("CometChatConversationList deallocated")
     }
     
     
@@ -127,7 +131,7 @@ public class CometChatConversationList: UIViewController {
             print("fetchedConversations onSuccess: \(fetchedConversations)")
             var newConversations: [Conversation] =  [Conversation]()
             for conversation in fetchedConversations {
-                if conversation.lastMessage == nil { }else{
+                if conversation.lastMessage == nil { } else {
                     newConversations.append(conversation) }
             }
             self.conversations = newConversations
@@ -373,19 +377,20 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
         guard let selectedConversation = tableView.cellForRow(at: indexPath) as? CometChatConversationView else{
             return
         }
-        switch selectedConversation.conversation.conversationType {
+        switch selectedConversation.conversation?.conversationType {
         case .user:
             let convo1: CometChatMessageList = CometChatMessageList()
-            convo1.set(conversationWith: ((selectedConversation.conversation.conversationWith as? User)!), type: .user)
+            convo1.set(conversationWith: ((selectedConversation.conversation?.conversationWith as? User)!), type: .user)
             convo1.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(convo1, animated: true)
         case .group:
             let convo1: CometChatMessageList = CometChatMessageList()
-            convo1.set(conversationWith: ((selectedConversation.conversation.conversationWith as? Group)!), type: .group)
+            convo1.set(conversationWith: ((selectedConversation.conversation?.conversationWith as? Group)!), type: .group)
             convo1.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(convo1, animated: true)
             
         case .none: break
+        case .some(.none): break 
         @unknown default: break
         }
         delegate?.didSelectConversationAtIndexPath(conversation: selectedConversation.conversation!, indexPath: indexPath)
@@ -464,7 +469,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
         if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == typingDetails.sender?.uid && $0.conversationType.rawValue == typingDetails.receiverType.rawValue }) {
             let indexPath = IndexPath(row: row, section: 0)
             DispatchQueue.main.async {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView,  (cell.conversation.conversationWith as? User)?.uid == typingDetails.sender?.uid {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView,  (cell.conversation?.conversationWith as? User)?.uid == typingDetails.sender?.uid {
                     if cell.message.isHidden == false {
                         cell.typing.isHidden = false
                         cell.message.isHidden = true
@@ -473,7 +478,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
                 }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView,  (cell.conversation.conversationWith as? User)?.uid == typingDetails.sender?.uid {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView,  (cell.conversation?.conversationWith as? User)?.uid == typingDetails.sender?.uid {
                     if cell.typing.isHidden == false {
                         cell.typing.isHidden = true
                         cell.message.isHidden = false
@@ -485,7 +490,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
         if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == typingDetails.receiverID && $0.conversationType.rawValue == typingDetails.receiverType.rawValue}) {
             let indexPath = IndexPath(row: row, section: 0)
             DispatchQueue.main.async {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation.conversationWith as? Group)?.guid == typingDetails.receiverID {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
                     cell.typing.text = user! + " " + NSLocalizedString("IS_TYPING", comment: "")
                     if cell.message.isHidden == false{
@@ -496,7 +501,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
                 }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation.conversationWith as? Group)?.guid == typingDetails.receiverID {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
                     cell.typing.text = user! + " " + NSLocalizedString("IS_TYPING", comment: "")
                     if cell.typing.isHidden == false{

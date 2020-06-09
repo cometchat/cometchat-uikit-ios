@@ -13,14 +13,15 @@ import CometChatPro
 extension UIView {
     
     func dropShadow() {
-        DispatchQueue.main.async {
-              self.layer.masksToBounds = false
-                  self.layer.shadowColor = UIColor.gray.cgColor
-                  self.layer.shadowOpacity = 0.3
-                  self.layer.shadowOffset = CGSize.zero
-                  self.layer.shadowRadius = 5
-                  self.layer.shouldRasterize = true
-                  self.layer.rasterizationScale = UIScreen.main.scale
+        DispatchQueue.main.async {  [weak self] in
+               guard let this = self else { return }
+              this.layer.masksToBounds = false
+                  this.layer.shadowColor = UIColor.gray.cgColor
+                  this.layer.shadowOpacity = 0.3
+                  this.layer.shadowOffset = CGSize.zero
+                  this.layer.shadowRadius = 5
+                  this.layer.shouldRasterize = true
+                  this.layer.rasterizationScale = UIScreen.main.scale
         }
     }
 }
@@ -59,19 +60,20 @@ extension Array {
 
 extension UITableView {
     func scrollToBottomRow() {
-        DispatchQueue.main.async {
-            guard self.numberOfSections > 0 else { return }
+        DispatchQueue.main.async { [weak self] in
+        guard let this = self else { return }
+            guard this.numberOfSections > 0 else { return }
             
             // Make an attempt to use the bottom-most section with at least one row
-            var section = max(self.numberOfSections - 1, 0)
-            var row = max(self.numberOfRows(inSection: section) - 1, 0)
+            var section = max(this.numberOfSections - 1, 0)
+            var row = max(this.numberOfRows(inSection: section) - 1, 0)
             var indexPath = IndexPath(row: row, section: section)
             
             // Ensure the index path is valid, otherwise use the section above (sections can
             // contain 0 rows which leads to an invalid index path)
-            while !self.indexPathIsValid(indexPath) {
+            while !this.indexPathIsValid(indexPath) {
                 section = max(section - 1, 0)
-                row = max(self.numberOfRows(inSection: section) - 1, 0)
+                row = max(this.numberOfRows(inSection: section) - 1, 0)
                 indexPath = IndexPath(row: row, section: section)
                 
                 // If we're down to the last section, attempt to use the first row
@@ -83,9 +85,8 @@ extension UITableView {
             
             // In the case that [0, 0] is valid (perhaps no data source?), ensure we don't encounter an
             // exception here
-            guard self.indexPathIsValid(indexPath) else { return }
-            
-            self.scrollToRow(at: indexPath, at: .bottom, animated: true)
+            guard this.indexPathIsValid(indexPath) else { return }
+            this.scrollToRow(at: indexPath, at: .bottom, animated: true)
         }
     }
     
@@ -123,8 +124,9 @@ extension UIViewController {
                                                 UserDefaults.standard.synchronize()
             }))
         }
-        DispatchQueue.main.async {
-            self.present(ac, animated: true, completion: nil)
+        DispatchQueue.main.async { [weak self] in
+        guard let this = self else { return }
+            this.present(ac, animated: true, completion: nil)
         }
     }
 }

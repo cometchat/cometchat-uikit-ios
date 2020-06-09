@@ -18,7 +18,7 @@ import CometChatPro
 
 // MARK: - Declaring Protocol.
 
-public protocol ForwardMessageListDelegate {
+public protocol ForwardMessageListDelegate : AnyObject{
     /**
      This method triggers when user taps perticular conversation in CometChatForwardMessageList
      - Parameters:
@@ -43,7 +43,7 @@ public class CometChatForwardMessageList: UIViewController {
     var safeArea: UILayoutGuide!
     var conversations: [Conversation] = [Conversation]()
     var filteredConversations: [Conversation] = [Conversation]()
-    var delegate : ForwardMessageListDelegate?
+    weak var delegate : ForwardMessageListDelegate?
     var message: BaseMessage?
     var activityIndicator:UIActivityIndicatorView?
     var selectedConversations:[Conversation] = [Conversation]()
@@ -424,9 +424,13 @@ extension CometChatForwardMessageList: UITableViewDelegate , UITableViewDataSour
         guard let selectedConversation = tableView.cellForRow(at: indexPath) as? CometChatConversationView else{
             return
         }
+        guard let conversation = selectedConversation.conversation else{
+            return
+        }
+        
         if tableView.isEditing == true{
-            if !selectedConversations.contains(selectedConversation.conversation) {
-                       selectedConversations.append(selectedConversation.conversation)
+            if !selectedConversations.contains(conversation) {
+                       selectedConversations.append(conversation)
             
         }
     }
@@ -438,8 +442,11 @@ extension CometChatForwardMessageList: UITableViewDelegate , UITableViewDataSour
         guard let selectedConversation = tableView.cellForRow(at: indexPath) as? CometChatConversationView else{
             return
         }
-        if selectedConversations.contains(selectedConversation.conversation) {
-            if let index = selectedConversations.firstIndex(where: { $0.conversationId == selectedConversation.conversation.conversationId }) {
+        guard let conversation = selectedConversation.conversation else{
+                   return
+               }
+        if selectedConversations.contains(conversation) {
+            if let index = selectedConversations.firstIndex(where: { $0.conversationId == conversation.conversationId }) {
                 selectedConversations.remove(at: index)
             }
         }
@@ -491,7 +498,7 @@ extension CometChatForwardMessageList : CometChatMessageDelegate {
         if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == typingDetails.sender?.uid && $0.conversationType.rawValue == typingDetails.receiverType.rawValue }) {
             let indexPath = IndexPath(row: row, section: 0)
             DispatchQueue.main.async {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView,  (cell.conversation.conversationWith as? User)?.uid == typingDetails.sender?.uid {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView,  (cell.conversation?.conversationWith as? User)?.uid == typingDetails.sender?.uid {
                     if cell.message.isHidden == false {
                         cell.typing.isHidden = false
                         cell.message.isHidden = true
@@ -500,7 +507,7 @@ extension CometChatForwardMessageList : CometChatMessageDelegate {
                 }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView,  (cell.conversation.conversationWith as? User)?.uid == typingDetails.sender?.uid {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView,  (cell.conversation?.conversationWith as? User)?.uid == typingDetails.sender?.uid {
                     if cell.typing.isHidden == false {
                         cell.typing.isHidden = true
                         cell.message.isHidden = false
@@ -512,7 +519,7 @@ extension CometChatForwardMessageList : CometChatMessageDelegate {
         if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == typingDetails.receiverID && $0.conversationType.rawValue == typingDetails.receiverType.rawValue}) {
             let indexPath = IndexPath(row: row, section: 0)
             DispatchQueue.main.async {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation.conversationWith as? Group)?.guid == typingDetails.receiverID {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
                     cell.typing.text = user! + NSLocalizedString("IS_TYPING", comment: "")
                     if cell.message.isHidden == false{
@@ -523,7 +530,7 @@ extension CometChatForwardMessageList : CometChatMessageDelegate {
                 }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation.conversationWith as? Group)?.guid == typingDetails.receiverID {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
                     cell.typing.text = user! + NSLocalizedString("IS_TYPING", comment: "")
                     if cell.typing.isHidden == false{

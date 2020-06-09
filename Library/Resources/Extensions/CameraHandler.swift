@@ -62,9 +62,9 @@ extension CameraHandler: UIImagePickerControllerDelegate, UINavigationController
         currentVC.dismiss(animated: true, completion: nil)
     }
     
-
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-switch picker.sourceType {
+        switch picker.sourceType {
         case .photoLibrary:
             
             if let  videoURL = info[UIImagePickerController.InfoKey.mediaURL] as? NSURL {
@@ -77,12 +77,12 @@ switch picker.sourceType {
         case .camera:
             print("image is: \(String(describing: info[.originalImage] as? UIImage))")
             guard let image = info[.originalImage] as? UIImage else {
-                          print("No image found")
-                          return
-                      }
+                print("No image found")
+                return
+            }
             saveImage(imageName: "image_\(Int(Date().timeIntervalSince1970 * 100)).png", image: image)
         case .savedPhotosAlbum:
-             self.imagePickedBlock?("\(String(describing: info[UIImagePickerController.InfoKey.imageURL]!))")
+            self.imagePickedBlock?("\(String(describing: info[UIImagePickerController.InfoKey.imageURL]!))")
         @unknown default:
             break
         }
@@ -94,7 +94,7 @@ switch picker.sourceType {
         let fileName = imageName
         let fileURL = documentsDirectory.appendingPathComponent(fileName)
         guard let data = image.jpegData(compressionQuality: 1) else { return }
-
+        
         //Checks if file exists, removes it if so.
         if FileManager.default.fileExists(atPath: fileURL.path) {
             do {
@@ -114,17 +114,17 @@ switch picker.sourceType {
             print("error saving file with error", error)
         }
     }
-
     
-     func getImagePathFromDiskWith(fileName: String) -> URL? {
-         let documentDirectory = FileManager.SearchPathDirectory.documentDirectory
-         let userDomainMask = FileManager.SearchPathDomainMask.userDomainMask
-         let paths = NSSearchPathForDirectoriesInDomains(documentDirectory, userDomainMask, true)
-         if let dirPath = paths.first {
-             let imageUrl = URL(fileURLWithPath: dirPath).appendingPathComponent(fileName)
-             return imageUrl
-         }
-         return nil
-     }
-
+    
+    func getImagePathFromDiskWith(fileName: String) -> URL? {
+        let documentDirectory = FileManager.SearchPathDirectory.documentDirectory
+        let userDomainMask = FileManager.SearchPathDomainMask.userDomainMask
+        let paths = NSSearchPathForDirectoriesInDomains(documentDirectory, userDomainMask, true)
+        if let dirPath = paths.first {
+            let imageUrl = URL(fileURLWithPath: dirPath).appendingPathComponent(fileName)
+            return imageUrl
+        }
+        return nil
+    }
+    
 }

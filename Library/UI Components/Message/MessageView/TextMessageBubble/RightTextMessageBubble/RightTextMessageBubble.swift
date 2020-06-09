@@ -16,7 +16,6 @@ class RightTextMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBInspectable
     
-    
     @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var message: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
@@ -24,7 +23,7 @@ class RightTextMessageBubble: UITableViewCell {
     @IBOutlet weak var receiptStack: UIStackView!
     
      // MARK: - Declaration of Variables
-    var selectionColor: UIColor {
+    weak var selectionColor: UIColor? {
         set {
             let view = UIView()
             view.backgroundColor = newValue
@@ -35,29 +34,32 @@ class RightTextMessageBubble: UITableViewCell {
         }
     }
     
-    var textMessage: TextMessage! {
+    weak var textMessage: TextMessage? {
         didSet {
-            message.text = textMessage.text
-            if textMessage.readAt > 0 {
-            receipt.image = #imageLiteral(resourceName: "read")
-            timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
-            }else if textMessage.deliveredAt > 0 {
-            receipt.image = #imageLiteral(resourceName: "delivered")
-            timeStamp.text = String().setMessageTime(time: Int(textMessage?.deliveredAt ?? 0))
-            }else if textMessage.sentAt > 0 {
-            receipt.image = #imageLiteral(resourceName: "sent")
-            timeStamp.text = String().setMessageTime(time: Int(textMessage?.sentAt ?? 0))
-            }else if textMessage.sentAt == 0 {
-               receipt.image = #imageLiteral(resourceName: "wait")
-               timeStamp.text = NSLocalizedString("SENDING", comment: "")
+            if let textmessage  = textMessage {
+                message.text = textmessage.text
+                if textmessage.readAt > 0 {
+                    receipt.image = #imageLiteral(resourceName: "read")
+                    timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
+                }else if textmessage.deliveredAt > 0 {
+                    receipt.image = #imageLiteral(resourceName: "delivered")
+                    timeStamp.text = String().setMessageTime(time: Int(textMessage?.deliveredAt ?? 0))
+                }else if textmessage.sentAt > 0 {
+                    receipt.image = #imageLiteral(resourceName: "sent")
+                    timeStamp.text = String().setMessageTime(time: Int(textMessage?.sentAt ?? 0))
+                }else if textmessage.sentAt == 0 {
+                    receipt.image = #imageLiteral(resourceName: "wait")
+                    timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                }
             }
+            
            receipt.contentMode = .scaleAspectFit
            message.textColor = .white
            message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
         }
     }
     
-    var deletedMessage: BaseMessage? {
+    weak var deletedMessage: BaseMessage? {
        didSet {
          switch deletedMessage?.messageType {
          case .text:  message.text = NSLocalizedString("YOU_DELETED_THIS_MESSAGE", comment: "")
@@ -83,6 +85,7 @@ class RightTextMessageBubble: UITableViewCell {
             selectionColor = .white
         }
     }
+
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)

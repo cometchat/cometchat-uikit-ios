@@ -11,6 +11,7 @@
 </div>
 
 
+
 </br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
 
 # What is UI Kit
@@ -57,7 +58,7 @@ platform :ios, '10.0'
 use_frameworks!
 
 target 'MyApp' do
-     pod 'CometChatPro', '2.0.8-Xcode11.3'
+     pod 'CometChatPro', '2.0.9-Xcode11.3'
 end
 ________________________________________________________________
 
@@ -68,7 +69,7 @@ platform :ios, '10.0'
 use_frameworks!
 
 target 'MyApp' do
-     pod 'CometChatPro', '2.0.8'
+     pod 'CometChatPro', '2.0.9-Xcode11.4'
 end
 ________________________________________________________________
 ```

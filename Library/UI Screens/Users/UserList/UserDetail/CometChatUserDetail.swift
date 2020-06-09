@@ -55,9 +55,6 @@ class CometChatUserDetail: UIViewController {
      - Copyright:  ©  2020 CometChat Inc.
      */
     public func set(user: User){
-        guard  user != nil else {
-            return
-        }
         currentUser = user
         CometChat.getUser(UID: user.uid ?? "", onSuccess: { (updatedUser) in
             self.currentUser = updatedUser

@@ -17,7 +17,7 @@ import CometChatPro
 
 // MARK: - Declaration of Protocol.
 
-public protocol GroupListDelegate {
+public protocol GroupListDelegate: AnyObject {
     /**
      This method triggers when user taps perticular group in CometChatGroupList
      - Parameters:
@@ -42,7 +42,7 @@ public class CometChatGroupList: UIViewController {
     var safeArea: UILayoutGuide!
     var groups: [Group] = [Group]()
     var filteredGroups: [Group] = [Group]()
-    var delegate: GroupListDelegate?
+    weak var delegate: GroupListDelegate?
     var storedVariable: String?
     var activityIndicator:UIActivityIndicatorView?
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
@@ -432,15 +432,15 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
      ///   - indexPath: specifies current index for TableViewCell.
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        guard let selectedGroup = tableView.cellForRow(at: indexPath) as? CometChatGroupView else{
+        guard let selectedGroup = (tableView.cellForRow(at: indexPath) as? CometChatGroupView)?.group else{
             return
         }
-        delegate?.didSelectGroupAtIndexPath(group: selectedGroup.group!, indexPath: indexPath)
+        delegate?.didSelectGroupAtIndexPath(group: selectedGroup, indexPath: indexPath)
         
-        if selectedGroup.group.hasJoined == false{
-            CometChat.joinGroup(GUID: selectedGroup.group.guid, groupType: selectedGroup.group.groupType, password: "", onSuccess: { (group) in
+        if selectedGroup.hasJoined == false{
+            CometChat.joinGroup(GUID: selectedGroup.guid, groupType: selectedGroup.groupType, password: "", onSuccess: { (group) in
                 DispatchQueue.main.async {
-                    let message = NSLocalizedString("YOU_JOINED", comment: "") +  (selectedGroup.group.name ?? "") + "."
+                    let message = NSLocalizedString("YOU_JOINED", comment: "") +  (selectedGroup.name ?? "") + "."
                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                     snackbar.show()
                     self.tableView.deselectRow(at: indexPath, animated: true)
@@ -462,7 +462,7 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
         }else{
             tableView.deselectRow(at: indexPath, animated: true)
             let messageList = CometChatMessageList()
-            messageList.set(conversationWith: selectedGroup.group, type: .group)
+            messageList.set(conversationWith: selectedGroup, type: .group)
             messageList.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(messageList, animated: true)
         }

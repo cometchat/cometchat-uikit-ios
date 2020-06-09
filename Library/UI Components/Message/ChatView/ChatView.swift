@@ -13,23 +13,22 @@ import CometChatPro
 
 // MARK: - Declaration of Protocol
 
- protocol ChatViewInternalDelegate {
+ public protocol ChatViewInternalDelegate: AnyObject {
     func didMicrophoneButtonPressed(with: UILongPressGestureRecognizer)
     func didSendButtonPressed()
     func didAttachmentButtonPressed()
     func didStickerButtonPressed()
 }
 
-
 /*  ----------------------------------------------------------------------------------------- */
 
-@IBDesignable class ChatView:UIView
+@IBDesignable open class ChatView:UIView
 {
     
       // MARK: - Declaration of Variables
     
     var view:UIView!
-    var internalDelegate : ChatViewInternalDelegate?
+    open weak var internalDelegate: ChatViewInternalDelegate?
     
      // MARK: - Declaration of IBOutlet
     @IBOutlet weak var attachment: UIView!
@@ -45,7 +44,7 @@ import CometChatPro
     }
     
    
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
      
         
@@ -271,3 +270,7 @@ open class GrowingTextView: UITextView {
 }
 
 /*  ----------------------------------------------------------------------------------------- */
+
+extension ChatView {
+    
+}

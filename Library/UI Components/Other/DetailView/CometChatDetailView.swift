@@ -15,7 +15,7 @@ CometChatGroupView: This component will be the class of UITableViewCell with com
 import UIKit
 import CometChatPro
 
-protocol  DetailViewDelegate : class  {
+protocol  DetailViewDelegate : AnyObject  {
     
     func didCallButtonPressed(for: AppEntity)
 }
@@ -34,45 +34,57 @@ class CometChatDetailView: UITableViewCell {
     
     // MARK: - Declaration of Variables
     weak var detailViewDelegate: DetailViewDelegate?
-    var user: User! {
+    weak var user: User? {
        didSet {
-        name.text = user.name
-        switch user.status {
-        case .online:
-            detail.text = NSLocalizedString("ONLINE", comment: "")
-        case .offline:
-             detail.text = NSLocalizedString("OFFLINE", comment: "")
-        @unknown default:
-            detail.text = NSLocalizedString("OFFLINE", comment: "")
+        if let currentUser = user {
+            name.text = currentUser.name
+                switch currentUser.status {
+                case .online:
+                    detail.text = NSLocalizedString("ONLINE", comment: "")
+                case .offline:
+                     detail.text = NSLocalizedString("OFFLINE", comment: "")
+                @unknown default:
+                    detail.text = NSLocalizedString("OFFLINE", comment: "")
+                }
+                 icon.set(image: currentUser.avatar ?? "", with: currentUser.name ?? "")
         }
-         icon.set(image: user.avatar ?? "", with: user.name ?? "")
     }
     }
     
-    var group: Group! {
+    weak var group: Group? {
         didSet {
-            name.text = group.name
-            switch group.groupType {
-            case .public:
-                detail.text = NSLocalizedString("PUBLIC", comment: "")
-            case .private:
-                detail.text = NSLocalizedString("PRIVATE", comment: "")
-            case .password:
-                detail.text = NSLocalizedString("PASSWORD_PROTECTED", comment: "")
-            @unknown default:
-                break
+            if let currentGroup = group {
+                name.text = currentGroup.name
+                switch currentGroup.groupType {
+                case .public:
+                    detail.text = NSLocalizedString("PUBLIC", comment: "")
+                case .private:
+                    detail.text = NSLocalizedString("PRIVATE", comment: "")
+                case .password:
+                    detail.text = NSLocalizedString("PASSWORD_PROTECTED", comment: "")
+                @unknown default:
+                    break
+                }
+                icon.set(image: currentGroup.icon ?? "", with: currentGroup.name ?? "")
             }
-            icon.set(image: group.icon ?? "", with: group.name ?? "")
+           
         }
     }
     
     @IBAction func didCallPressed(_ sender: Any) {
-        if user != nil {
-            detailViewDelegate?.didCallButtonPressed(for: user)
+        
+        if let currentUser = user {
+             detailViewDelegate?.didCallButtonPressed(for: currentUser)
         }
-        if group != nil {
-            detailViewDelegate?.didCallButtonPressed(for: group)
+        
+        if let currentGroup = group {
+            detailViewDelegate?.didCallButtonPressed(for: currentGroup)
         }
+    }
+    
+    override func prepareForReuse() {
+        group = nil
+        user = nil
     }
 
     

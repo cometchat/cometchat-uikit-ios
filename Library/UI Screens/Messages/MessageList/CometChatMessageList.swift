@@ -38,6 +38,10 @@ enum CometChatExtension {
     case none
 }
 
+struct LoggedInUser {
+    static let uid = CometChat.getLoggedInUser()?.uid ?? ""
+}
+
 /*  ----------------------------------------------------------------------------------------- */
 
 public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
@@ -176,6 +180,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         setupDelegates()
         hideSystemBackButton(bool: true)
     }
+
+    
+    deinit {
+        print("CometChatMessageList deallocated ")
+        NotificationCenter.default.removeObserver(self)
+    }
     
     // MARK: - Public instance methods
     
@@ -241,9 +251,10 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     private func addNewGroupedMessage(messages: [BaseMessage]){
-        DispatchQueue.main.async {
-            if messages.isEmpty { self.tableView?.setEmptyMessage("No Messages Found.")
-            }else{ self.tableView?.restore() }
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            if messages.isEmpty { strongSelf.tableView?.setEmptyMessage("No Messages Found.")
+            }else{ strongSelf.tableView?.restore() }
         }
         let groupedMessages = Dictionary(grouping: messages) { (element) -> Date in
             let date = Date(timeIntervalSince1970: TimeInterval(element.sentAt))
@@ -255,15 +266,16 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         sortedKeys.forEach { (key) in
             let values = groupedMessages[key]
             self.chatMessages.append(values ?? [])
-            DispatchQueue.main.async {
-                self.tableView?.beginUpdates()
-                self.hide(view: .smartRepliesView, true)
-                self.tableView?.insertSections([0], with: .top)
-                let lastSection = self.tableView?.numberOfSections
-                self.tableView?.insertRows(at: [IndexPath.init(row: self.chatMessages[lastSection ?? 0].count - 1, section: lastSection ?? 0)], with: .automatic)
-                self.tableView?.endUpdates()
-                self.tableView?.scrollToBottomRow()
-                self.chatView.textView.text = ""
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.tableView?.beginUpdates()
+                strongSelf.hide(view: .smartRepliesView, true)
+                strongSelf.tableView?.insertSections([0], with: .top)
+                let lastSection = strongSelf.tableView?.numberOfSections
+                strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection ?? 0].count - 1, section: lastSection ?? 0)], with: .automatic)
+                strongSelf.tableView?.endUpdates()
+                strongSelf.tableView?.scrollToBottomRow()
+                strongSelf.chatView.textView.text = ""
             }
         }
     }
@@ -278,9 +290,10 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     private func groupMessages(messages: [BaseMessage]){
-        DispatchQueue.main.async {
-            if messages.isEmpty { self.tableView?.setEmptyMessage("No Messages Found.")
-            }else{ self.tableView?.restore() }
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
+            if messages.isEmpty { strongSelf.tableView?.setEmptyMessage("No Messages Found.")
+            }else{ strongSelf.tableView?.restore() }
         }
         let groupedMessages = Dictionary(grouping: messages) { (element) -> Date in
             let date = Date(timeIntervalSince1970: TimeInterval(element.sentAt))
@@ -292,9 +305,10 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         sortedKeys.forEach { (key) in
             let values = groupedMessages[key]
             self.chatMessages.append(values ?? [])
-            DispatchQueue.main.async{
-                self.tableView?.reloadData()
-                self.refreshControl.endRefreshing()
+            DispatchQueue.main.async{  [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.tableView?.reloadData()
+                strongSelf.refreshControl.endRefreshing()
             }
         }
     }
@@ -320,9 +334,10 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         sortedKeys.forEach { (key) in
             let values = groupedMessages[key]
             self.chatMessages.insert(values ?? [], at: 0)
-            DispatchQueue.main.async{
-                self.tableView?.reloadData()
-                self.refreshControl.endRefreshing()
+            DispatchQueue.main.async{ [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.tableView?.reloadData()
+                strongSelf.refreshControl.endRefreshing()
             }
         }
     }
@@ -336,10 +351,11 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     private func fetchPreviousMessages(messageReq:MessagesRequest){
-        messageReq.fetchPrevious(onSuccess: { (fetchedMessages) in
+        messageReq.fetchPrevious(onSuccess: {  [weak self] (fetchedMessages) in
+            guard let strongSelf = self else { return }
             if fetchedMessages?.count == 0 {
-                DispatchQueue.main.async{
-                    self.refreshControl.endRefreshing()
+                DispatchQueue.main.async {
+                    strongSelf.refreshControl.endRefreshing()
                 }
             }
             guard let messages = fetchedMessages?.filter({
@@ -353,10 +369,10 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     ($0 as? ActionMessage != nil && (($0 as? ActionMessage)?.message != "Message is deleted." && ($0 as? ActionMessage)?.message != "Message is edited."))
             }) else { return }
             guard let lastMessage = messages.last else { return }
-            if self.isGroupIs == true {
-                CometChat.markAsRead(messageId: lastMessage.id, receiverId: self.currentGroup?.guid ?? "", receiverType: .group)
+            if strongSelf.isGroupIs == true {
+                CometChat.markAsRead(messageId: lastMessage.id, receiverId: strongSelf.currentGroup?.guid ?? "", receiverType: .group)
             }else{
-                CometChat.markAsRead(messageId: lastMessage.id, receiverId: self.currentUser?.uid ?? "", receiverType: .user)
+                CometChat.markAsRead(messageId: lastMessage.id, receiverId: strongSelf.currentUser?.uid ?? "", receiverType: .user)
             }
             var oldMessages = [BaseMessage]()
             for msg in messages{ oldMessages.append(msg) }
@@ -364,7 +380,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             oldMessageArray.sort { (obj1, obj2) -> Bool in
                 return (obj1.sentAt) < (obj2.sentAt)
             }
-            self.groupPreviousMessages(messages: oldMessageArray)
+            strongSelf.groupPreviousMessages(messages: oldMessageArray)
             
         }) { (error) in
             DispatchQueue.main.async {
@@ -395,7 +411,8 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         switch type {
         case .user:
             messageRequest = MessagesRequest.MessageRequestBuilder().set(uid: forID).set(limit: 30).build()
-            messageRequest?.fetchPrevious(onSuccess: { (fetchedMessages) in
+            messageRequest?.fetchPrevious(onSuccess: { [weak self] (fetchedMessages) in
+                guard let strongSelf = self else { return }
                 guard let messages = fetchedMessages?.filter({
                     ($0 as? TextMessage  != nil && $0.messageType == .text)  ||
                         ($0 as? MediaMessage != nil && $0.messageType == .image) ||
@@ -406,41 +423,42 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         ($0 as? Call != nil && ($0 as? Call)?.callStatus == .unanswered) ||
                         ($0 as? ActionMessage != nil && (($0 as? ActionMessage)?.message != "Message is deleted." && ($0 as? ActionMessage)?.message != "Message is edited."))
                 }) else { return }
-                self.groupMessages(messages: messages)
+                strongSelf.groupMessages(messages: messages)
                 guard let lastMessage = messages.last else {
                     return
                 }
                 CometChat.markAsRead(messageId: lastMessage.id, receiverId: forID, receiverType: .user)
-                self.messages.append(contentsOf: messages)
-                self.filteredMessages = messages.filter {$0.sender?.uid == CometChat.getLoggedInUser()?.uid}
+                strongSelf.messages.append(contentsOf: messages)
+                strongSelf.filteredMessages = messages.filter {$0.sender?.uid == LoggedInUser.uid}
                 DispatchQueue.main.async {
-                    if lastMessage.sender?.uid != CometChat.getLoggedInUser()?.uid {
+                    if lastMessage.sender?.uid != LoggedInUser.uid {
                         if let lastMessage = lastMessage as? TextMessage {
-                            let titles = self.parseSmartRepliesMessages(message: lastMessage)
-                            self.smartRepliesView.set(titles: titles)
-                            self.hide(view: .smartRepliesView, false)
+                            let titles = strongSelf.parseSmartRepliesMessages(message: lastMessage)
+                            strongSelf.smartRepliesView.set(titles: titles)
+                            strongSelf.hide(view: .smartRepliesView, false)
                         }
                     }else{
-                        self.hide(view: .smartRepliesView, true)
+                        strongSelf.hide(view: .smartRepliesView, true)
                     }
-                    self.tableView?.reloadData()
+                    strongSelf.tableView?.reloadData()
                     if scrollToBottom == true{
-                        self.tableView?.scrollToBottomRow()
+                        strongSelf.tableView?.scrollToBottomRow()
                     }
                 }
-            }, onError: { (error) in
-                DispatchQueue.main.async {
-                    if let errorMessage = error?.errorDescription {
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                        snackbar.show()
+                }, onError: { (error) in
+                    DispatchQueue.main.async {
+                        if let errorMessage = error?.errorDescription {
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                            snackbar.show()
+                        }
                     }
-                }
-                print("error while fetching messages for user: \(String(describing: error?.errorDescription))")
+                    print("error while fetching messages for user: \(String(describing: error?.errorDescription))")
             })
             typingIndicator = TypingIndicator(receiverID: forID, receiverType: .user)
         case .group:
             messageRequest = MessagesRequest.MessageRequestBuilder().set(guid: forID).set(limit: 30).build()
-            messageRequest?.fetchPrevious(onSuccess: { (fetchedMessages) in
+            messageRequest?.fetchPrevious(onSuccess: {[weak self] (fetchedMessages) in
+                guard let strongSelf = self else { return }
                 guard let messages = fetchedMessages?.filter({
                     ($0 as? TextMessage  != nil && $0.messageType == .text)  ||
                         ($0 as? MediaMessage != nil && $0.messageType == .image) ||
@@ -451,36 +469,36 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         ($0 as? Call != nil && ($0 as? Call)?.callStatus == .unanswered) ||
                         ($0 as? ActionMessage != nil && (($0 as? ActionMessage)?.message != "Message is deleted." && ($0 as? ActionMessage)?.message != "Message is edited."))
                 }) else { return }
-                self.groupMessages(messages: messages)
+                strongSelf.groupMessages(messages: messages)
                 guard let lastMessage = messages.last else {
                     return
                 }
                 CometChat.markAsRead(messageId: lastMessage.id, receiverId: forID, receiverType: .group)
-                self.messages.append(contentsOf: messages)
-                self.filteredMessages = messages.filter {$0.sender?.uid == CometChat.getLoggedInUser()?.uid}
+                strongSelf.messages.append(contentsOf: messages)
+                strongSelf.filteredMessages = messages.filter {$0.sender?.uid == LoggedInUser.uid }
                 DispatchQueue.main.async {
-                    if lastMessage.sender?.uid != CometChat.getLoggedInUser()?.uid {
+                    if lastMessage.sender?.uid != LoggedInUser.uid {
                         if let lastMessage = lastMessage as? TextMessage {
-                            let titles = self.parseSmartRepliesMessages(message: lastMessage)
-                            self.smartRepliesView.set(titles: titles)
-                            self.hide(view: .smartRepliesView, false)
+                            let titles = strongSelf.parseSmartRepliesMessages(message: lastMessage)
+                            strongSelf.smartRepliesView.set(titles: titles)
+                            strongSelf.hide(view: .smartRepliesView, false)
                         }
                     }else{
-                        self.hide(view: .smartRepliesView, true)
+                        strongSelf.hide(view: .smartRepliesView, true)
                     }
-                    self.tableView?.reloadData()
+                    strongSelf.tableView?.reloadData()
                     if scrollToBottom == true{
-                        self.tableView?.scrollToBottomRow()
+                        strongSelf.tableView?.scrollToBottomRow()
                     }
                 }
-            }, onError: { (error) in
-                DispatchQueue.main.async {
-                    if let errorMessage = error?.errorDescription {
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                        snackbar.show()
+                }, onError: { (error) in
+                    DispatchQueue.main.async {
+                        if let errorMessage = error?.errorDescription {
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                            snackbar.show()
+                        }
                     }
-                }
-                print("error while fetching messages for group: \(String(describing: error?.errorDescription))")
+                    print("error while fetching messages for group: \(String(describing: error?.errorDescription))")
             })
             typingIndicator = TypingIndicator(receiverID: forID, receiverType: .group)
         @unknown default:
@@ -497,12 +515,13 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     private func fetchUserInfo(user: User){
-        CometChat.getUser(UID: user.uid ?? "", onSuccess: { (user) in
+        CometChat.getUser(UID: user.uid ?? "", onSuccess: { [weak self] (user) in
+            guard let strongSelf = self else { return }
             if  user?.blockedByMe == true {
-                if let name = self.currentUser?.name {
+                if let name = strongSelf.currentUser?.name {
                     DispatchQueue.main.async {
-                        self.hide(view: .blockedView, false)
-                        self.blockedMessage.text = NSLocalizedString("YOU'VE_BLOCKED", comment: "") + " \(String(describing: name.capitalized))"
+                        strongSelf.hide(view: .blockedView, false)
+                        strongSelf.blockedMessage.text = NSLocalizedString("YOU'VE_BLOCKED", comment: "") + " \(String(describing: name.capitalized))"
                     }
                 }
             }
@@ -523,18 +542,19 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      */
     private func fetchGroupMembers(group: Group){
         memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: group.guid).set(limit: 100).build()
-        memberRequest?.fetchNext(onSuccess: { (groupMember) in
-            self.groupMembers = groupMember
+        memberRequest?.fetchNext(onSuccess: { [weak self] (groupMember) in
+            guard let strongSelf = self else { return }
+            strongSelf.groupMembers = groupMember
             if groupMember.count < 100 {
-                self.setupNavigationBar(withTitle: group.name?.capitalized ?? "")
-                self.setupNavigationBar(withSubtitle: "\(groupMember.count)" + NSLocalizedString("MEMBERS", comment: "")) 
-                self.membersCount = "\(groupMember.count) " + NSLocalizedString("MEMBERS", comment: "")
+                strongSelf.setupNavigationBar(withTitle: group.name?.capitalized ?? "")
+                strongSelf.setupNavigationBar(withSubtitle: "\(groupMember.count)" + NSLocalizedString("MEMBERS", comment: ""))
+                strongSelf.membersCount = "\(groupMember.count) " + NSLocalizedString("MEMBERS", comment: "")
             }else{
-                self.setupNavigationBar(withSubtitle: "100+ " + NSLocalizedString("MEMBERS", comment: ""))
-                self.membersCount = "100+ " + NSLocalizedString("MEMBERS", comment: "")
+                strongSelf.setupNavigationBar(withSubtitle: "100+ " + NSLocalizedString("MEMBERS", comment: ""))
+                strongSelf.membersCount = "100+ " + NSLocalizedString("MEMBERS", comment: "")
             }
-        }, onError: { (error) in
-            print("Group Member list fetching failed with exception:" + error!.errorDescription);
+            }, onError: { (error) in
+                print("Group Member list fetching failed with exception:" + error!.errorDescription);
         })
     }
     
@@ -548,15 +568,16 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      */
     private func refreshGroupMembers(guid: String){
         memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: guid).set(limit: 100).build()
-        memberRequest?.fetchNext(onSuccess: { (groupMember) in
-            self.groupMembers = groupMember
+        memberRequest?.fetchNext(onSuccess: { [weak self] (groupMember) in
+            guard let strongSelf = self else { return }
+            strongSelf.groupMembers = groupMember
             if groupMember.count < 100 {
-                self.setupNavigationBar(withSubtitle: "\(groupMember.count) " + NSLocalizedString("MEMBERS", comment: ""))
+                strongSelf.setupNavigationBar(withSubtitle: "\(groupMember.count) " + NSLocalizedString("MEMBERS", comment: ""))
             }else{
-                self.setupNavigationBar(withSubtitle: "100+ " +  NSLocalizedString("MEMBERS", comment: ""))
+                strongSelf.setupNavigationBar(withSubtitle: "100+ " +  NSLocalizedString("MEMBERS", comment: ""))
             }
-        }, onError: { (error) in
-            print("Group Member list fetching failed with exception:" + error!.errorDescription);
+            }, onError: { (error) in
+                print("Group Member list fetching failed with exception:" + error!.errorDescription);
         })
     }
     
@@ -619,7 +640,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     private func setupSuperview() {
-//        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+        //        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
         let bundle = Bundle(for: type(of: self))
         let nib = UINib(nibName: "CometChatMessageList", bundle: bundle)
         let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
@@ -642,19 +663,20 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         smartRepliesView.smartRepliesDelegate = self
         quickLook.dataSource = self
     }
-
+    
     
     func setupRecorder(){
         self.viewModel.askAudioRecordingPermission()
         self.viewModel.audioMeteringLevelUpdate = { [weak self] meteringLevel in
-            guard let self = self, self.audioVisualizationView.audioVisualizationMode == .write else {
+            guard let strongSelf = self, strongSelf.audioVisualizationView.audioVisualizationMode == .write else {
                 return
             }
-            self.audioVisualizationView.add(meteringLevel: meteringLevel)
+            strongSelf.audioVisualizationView.add(meteringLevel: meteringLevel)
         }
         self.viewModel.audioDidFinish = { [weak self] in
-            self?.currentState = .recorded
-            self?.audioVisualizationView.stop()
+            guard let strongSelf = self else { return }
+            strongSelf.currentState = .recorded
+            strongSelf.audioVisualizationView.stop()
         }
     }
     
@@ -671,6 +693,15 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         NotificationCenter.default.addObserver(self, selector:#selector(self.didUserBlocked(_:)), name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil)
         NotificationCenter.default.addObserver(self, selector:#selector(self.didUserUnblocked(_:)), name: NSNotification.Name(rawValue: "didUserUnblocked"), object: nil)
         NotificationCenter.default.addObserver(self, selector:#selector(self.didGroupDeleted(_:)), name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil)
+    }
+    
+    private func removeObservers() {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "didUserUnblocked"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     /**
@@ -694,8 +725,9 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     @objc func didUserUnblocked(_ notification: NSNotification) {
-        DispatchQueue.main.async {
-            self.hide(view: .blockedView, true)
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.hide(view: .blockedView, true)
         }
     }
     
@@ -755,17 +787,18 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     private func setupNavigationBar(withTitle title: String){
-        DispatchQueue.main.async {
-            if self.navigationController != nil {
-                self.addBackButton(bool: true)
-                self.navigationItem.largeTitleDisplayMode = .never
-                self.titleView = UIView(frame: CGRect(x: 0, y: 0, width: (self.navigationController?.navigationBar.bounds.size.width)! - 200, height: 50))
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
+            if strongSelf.navigationController != nil {
+                strongSelf.addBackButton(bool: true)
+                strongSelf.navigationItem.largeTitleDisplayMode = .never
+                strongSelf.titleView = UIView(frame: CGRect(x: 0, y: 0, width: (strongSelf.navigationController?.navigationBar.bounds.size.width)! - 200, height: 50))
                 let buddyName = UILabel(frame: CGRect(x:0,y: 3,width: 200 ,height: 21))
-                self.buddyStatus = UILabel(frame: CGRect(x:0,y: (self.titleView?.frame.origin.y ?? 0.0) + 22,width: 200,height: 21))
-                self.buddyStatus?.textColor = #colorLiteral(red: 0.2, green: 0.6, blue: 1, alpha: 1)
-                self.buddyStatus?.font = UIFont (name: "SFProDisplay-Regular", size: 15)
-                self.buddyStatus?.textAlignment = NSTextAlignment.center
-                self.navigationItem.titleView = self.titleView
+                strongSelf.buddyStatus = UILabel(frame: CGRect(x:0,y: (strongSelf.titleView?.frame.origin.y ?? 0.0) + 22,width: 200,height: 21))
+                strongSelf.buddyStatus?.textColor = #colorLiteral(red: 0.2, green: 0.6, blue: 1, alpha: 1)
+                strongSelf.buddyStatus?.font = UIFont (name: "SFProDisplay-Regular", size: 15)
+                strongSelf.buddyStatus?.textAlignment = NSTextAlignment.center
+                strongSelf.navigationItem.titleView = strongSelf.titleView
                 if #available(iOS 13.0, *) {
                     buddyName.textColor = .label
                     buddyName.font = UIFont (name: "SFProDisplay-Medium", size: 17)
@@ -777,12 +810,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     buddyName.textAlignment = NSTextAlignment.center
                     buddyName.text = title
                 }
-                self.titleView?.addSubview(buddyName)
-                self.titleView?.addSubview(self.buddyStatus!)
-                self.titleView?.center = CGPoint(x: 0, y: 0)
-                let tapOnTitleView = UITapGestureRecognizer(target: self, action: #selector(self.didPresentDetailView(tapGestureRecognizer:)))
-                self.titleView?.isUserInteractionEnabled = true
-                self.titleView?.addGestureRecognizer(tapOnTitleView)
+                strongSelf.titleView?.addSubview(buddyName)
+                strongSelf.titleView?.addSubview(strongSelf.buddyStatus!)
+                strongSelf.titleView?.center = CGPoint(x: 0, y: 0)
+                let tapOnTitleView = UITapGestureRecognizer(target: strongSelf, action: #selector(strongSelf.didPresentDetailView(tapGestureRecognizer:)))
+                strongSelf.titleView?.isUserInteractionEnabled = true
+                strongSelf.titleView?.addGestureRecognizer(tapOnTitleView)
             }
         }
     }
@@ -832,6 +865,8 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                 self.showAlert(with: error)
             }
         }
+        tableView = nil
+        tableView?.removeFromSuperview()
         switch self.isModal() {
         case true:
             self.dismiss(animated: true, completion: nil)
@@ -854,7 +889,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     }
     
     @IBAction func didAudioNoteDeletePressed(_ sender: UIButton) {
-         if currentState == .playing {
+        if currentState == .playing {
             do {
                 try self.viewModel.pausePlaying()
                 self.currentState = .paused
@@ -870,7 +905,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         } catch {
             self.showAlert(with: error)
         }
-       
+        
         UIView.transition(with: view, duration: 0.5, options: .transitionCrossDissolve, animations: {
             AudioServicesPlayAlertSound(SystemSoundID(1519))
             self.audioNoteView.isHidden = true
@@ -1264,17 +1299,17 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         self.totalSecond = 0
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(countdown), userInfo: nil, repeats: true)
     }
-
+    
     @objc func countdown() {
         var hours: Int
         var minutes: Int
         var seconds: Int
-         hours = totalSecond / 3600
-         minutes = totalSecond / 60
-         seconds = totalSecond % 60
+        hours = totalSecond / 3600
+        minutes = totalSecond / 60
+        seconds = totalSecond % 60
         totalSecond = totalSecond + 1
         if currentState == .recording{
-           audioNoteTimer.text = "\(hours):\(minutes):\(seconds)"
+            audioNoteTimer.text = "\(hours):\(minutes):\(seconds)"
         }
     }
     /**
@@ -1394,7 +1429,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             switch view {
             case .blockedView:
                 self.blockedView.isHidden = false
-                self.tableViewBottomConstraint.constant = 144
+                self.tableViewBottomConstraint.constant = 110
             case .smartRepliesView:
                 if !smartRepliesView.buttontitles.isEmpty {
                     self.smartRepliesView.isHidden = false
@@ -1457,9 +1492,6 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         tableView?.addGestureRecognizer(tapGesture)
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
     
     
     /**
@@ -1697,8 +1729,8 @@ extension CometChatMessageList: UIDocumentPickerDelegate {
             case true:
                 mediaMessage = MediaMessage(receiverUid: currentGroup?.guid ?? "", fileurl: urls[0].absoluteString,messageType: .file, receiverType: .group)
                 mediaMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-                mediaMessage?.sender?.uid = CometChat.getLoggedInUser()?.uid
-                mediaMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+                mediaMessage?.sender?.uid = LoggedInUser.uid
+                mediaMessage?.senderUid = LoggedInUser.uid
                 if let message = mediaMessage {
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [mediaMessage!])
@@ -1706,18 +1738,21 @@ extension CometChatMessageList: UIDocumentPickerDelegate {
                     }else{
                         self.chatMessages[lastSection].append(message)
                         self.filteredMessages.append(message)
-                        DispatchQueue.main.async {
-                            self.tableView?.beginUpdates()
-                            self.tableView?.insertRows(at: [IndexPath.init(row: self.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                            self.tableView?.endUpdates()
-                            self.tableView?.scrollToBottomRow()
+                        DispatchQueue.main.async { [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.tableView?.beginUpdates()
+                            strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
+                            strongSelf.tableView?.endUpdates()
+                            strongSelf.tableView?.scrollToBottomRow()
                         }
                     }
                     CometChat.sendMediaMessage(message: message, onSuccess: { (message) in
                         if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
                             self.chatMessages[lastSection][row] = message
                         }
-                        DispatchQueue.main.async{ self.tableView?.reloadData()}
+                        DispatchQueue.main.async{ [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.tableView?.reloadData()}
                     }) { (error) in
                         
                         DispatchQueue.main.async {
@@ -1732,8 +1767,8 @@ extension CometChatMessageList: UIDocumentPickerDelegate {
             case false:
                 mediaMessage = MediaMessage(receiverUid: currentUser?.uid ?? "", fileurl: urls[0].absoluteString, messageType: .file, receiverType: .user)
                 mediaMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-                mediaMessage?.sender?.uid = CometChat.getLoggedInUser()?.uid
-                mediaMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+                mediaMessage?.sender?.uid = LoggedInUser.uid
+                mediaMessage?.senderUid = LoggedInUser.uid
                 if let message = mediaMessage {
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [mediaMessage!])
@@ -1741,18 +1776,21 @@ extension CometChatMessageList: UIDocumentPickerDelegate {
                     }else{
                         self.chatMessages[lastSection].append(message)
                         self.filteredMessages.append(message)
-                        DispatchQueue.main.async {
-                            self.tableView?.beginUpdates()
-                            self.tableView?.insertRows(at: [IndexPath.init(row: self.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                            self.tableView?.endUpdates()
-                            self.tableView?.scrollToBottomRow()
+                        DispatchQueue.main.async { [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.tableView?.beginUpdates()
+                            strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
+                            strongSelf.tableView?.endUpdates()
+                            strongSelf.tableView?.scrollToBottomRow()
                         }
                     }
                     CometChat.sendMediaMessage(message: message, onSuccess: { (message) in
                         if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
                             self.chatMessages[lastSection][row] = message
                         }
-                        DispatchQueue.main.async{ self.tableView?.reloadData()}
+                        DispatchQueue.main.async{ [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.tableView?.reloadData()}
                     }) { (error) in
                         DispatchQueue.main.async {
                             if let errorMessage = error?.errorDescription {
@@ -1840,188 +1878,187 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
     /// - Parameters:
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView.
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell:UITableViewCell = UITableViewCell()
-        if let message = chatMessages[indexPath.section][safe: indexPath.row] {
-            if message.messageCategory == .message {
-                if message.deletedAt > 0.0 && message.senderUid != CometChat.getLoggedInUser()?.uid {
-                    let  deletedCell = tableView.dequeueReusableCell(withIdentifier: "leftTextMessageBubble", for: indexPath) as! LeftTextMessageBubble
-                    deletedCell.deletedMessage = message
-                    return deletedCell
-                    
-                }else if message.deletedAt > 0.0 && message.senderUid == CometChat.getLoggedInUser()?.uid {
-                    
-                    let deletedCell = tableView.dequeueReusableCell(withIdentifier: "rightTextMessageBubble", for: indexPath) as! RightTextMessageBubble
-                    deletedCell.deletedMessage = message
-                    if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
-                        deletedCell.receiptStack.isHidden = false
-                    }else{
-                        deletedCell.receiptStack.isHidden = true
-                    }
-                    return deletedCell
-                }else{
-                    switch message.messageType {
-                    case .text where message.senderUid != CometChat.getLoggedInUser()?.uid:
-                        if let textMessage = message as? TextMessage {
-                            let isContainsExtension = didExtensionDetected(message: textMessage)
-                            switch isContainsExtension {
-                            case .linkPreview:
-                                let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftLinkPreviewBubble", for: indexPath) as! LeftLinkPreviewBubble
-                                let linkPreviewMessage = message as? TextMessage
-                                receiverCell.linkPreviewMessage = linkPreviewMessage
-                                receiverCell.linkPreviewDelegate = self
-                                return receiverCell
-                            case .smartReply:
-                                let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftTextMessageBubble", for: indexPath) as! LeftTextMessageBubble
-                                receiverCell.textMessage = textMessage
-                                return receiverCell
-                            case .none:
-                                let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftTextMessageBubble", for: indexPath) as! LeftTextMessageBubble
-                                receiverCell.textMessage = textMessage
-                                return receiverCell
-                            }
-                        }
-                    case .text where message.senderUid == CometChat.getLoggedInUser()?.uid:
-                        if let textMessage = message as? TextMessage {
-                            let isContainsExtension = didExtensionDetected(message: textMessage)
-                            switch isContainsExtension {
-                            case .linkPreview:
-                                let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightLinkPreviewBubble", for: indexPath) as! RightLinkPreviewBubble
-                                let linkPreviewMessage = message as? TextMessage
-                                senderCell.linkPreviewMessage = linkPreviewMessage
-                                senderCell.linkPreviewDelegate = self
-                                if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
-                                    senderCell.receiptStack.isHidden = false
-                                }else{
-                                    senderCell.receiptStack.isHidden = true
-                                }
-                                return senderCell
-                            case .smartReply:
-                                let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightTextMessageBubble", for: indexPath) as! RightTextMessageBubble
-                                senderCell.textMessage = textMessage
-                                if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
-                                    senderCell.receiptStack.isHidden = false
-                                }else{
-                                    senderCell.receiptStack.isHidden = true
-                                }
-                                return senderCell
-                            case .none:
-                                let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightTextMessageBubble", for: indexPath) as! RightTextMessageBubble
-                                senderCell.textMessage = textMessage
-                                if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
-                                    senderCell.receiptStack.isHidden = false
-                                }else{
-                                    senderCell.receiptStack.isHidden = true
-                                }
-                                return senderCell
-                            }
-                        }
-                    case .image where message.senderUid != CometChat.getLoggedInUser()?.uid:
-                        
-                        if let imageMessage = message as? MediaMessage {
-                            let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftImageMessageBubble", for: indexPath) as! LeftImageMessageBubble
-                            receiverCell.mediaMessage = imageMessage
-                            return receiverCell
-                        }
-                        
-                    case .image where message.senderUid == CometChat.getLoggedInUser()?.uid:
-                        
-                        if let imageMessage = message as? MediaMessage {
-                            let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightImageMessageBubble", for: indexPath) as! RightImageMessageBubble
-                            senderCell.mediaMessage = imageMessage
-                            if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
-                                senderCell.receiptStack.isHidden = false
-                            }else{
-                                senderCell.receiptStack.isHidden = true
-                            }
-                            return senderCell
-                        }
-                        
-                    case .video where message.senderUid != CometChat.getLoggedInUser()?.uid:
-                        
-                        if let videoMessage = message as? MediaMessage {
-                            let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftVideoMessageBubble", for: indexPath) as! LeftVideoMessageBubble
-                            receiverCell.mediaMessage = videoMessage
-                            return receiverCell
-                        }
-                        
-                    case .video where message.senderUid == CometChat.getLoggedInUser()?.uid:
-                        if let videoMessage = message as? MediaMessage {
-                            let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightVideoMessageBubble", for: indexPath) as! RightVideoMessageBubble
-                            senderCell.mediaMessage = videoMessage
-                            if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
-                                senderCell.receiptStack.isHidden = false
-                            }else{
-                                senderCell.receiptStack.isHidden = true
-                            }
-                            return senderCell
-                        }
-                    case .audio where message.senderUid != CometChat.getLoggedInUser()?.uid:
-                        
-                        if let audioMessage = message as? MediaMessage {
-                            let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftAudioMessageBubble", for: indexPath) as! LeftAudioMessageBubble
-                            receiverCell.audioMessage = audioMessage
-                            return receiverCell
-                        }
-                    case .audio where message.senderUid == CometChat.getLoggedInUser()?.uid:
-                        if let audioMessage = message as? MediaMessage {
-                            let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightAudioMessageBubble", for: indexPath) as! RightAudioMessageBubble
-                            senderCell.audioMessage = audioMessage
-                            if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
-                                senderCell.receiptStack.isHidden = false
-                            }else{
-                                senderCell.receiptStack.isHidden = true
-                            }
-                            return senderCell
-                        }
-                    case .file where message.senderUid != CometChat.getLoggedInUser()?.uid:
-                        
-                        if let fileMessage = message as? MediaMessage {
-                            let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftFileMessageBubble", for: indexPath) as! LeftFileMessageBubble
-                            receiverCell.fileMessage = fileMessage
-                            return receiverCell
-                        }
-                    case .file where message.senderUid == CometChat.getLoggedInUser()?.uid:
-                        if let fileMessage = message as? MediaMessage {
-                            let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightFileMessageBubble", for: indexPath) as! RightFileMessageBubble
-                            senderCell.fileMessage = fileMessage
-                            if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
-                                senderCell.receiptStack.isHidden = false
-                            }else{
-                                senderCell.receiptStack.isHidden = true
-                            }
-                            return senderCell
-                        }
-                    case .custom: break
-                    case .groupMember:  break
-                    case .image: break
-                    case .text: break
-                    case .file: break
-                    @unknown default: break
-                    }
-                }
-            }else if message.messageCategory == .action {
-                //  ActionMessage Cell
-                let  actionMessageCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
-                let actionMessage = message as? ActionMessage
-                actionMessageCell.message.text = actionMessage?.message
-                return actionMessageCell
-            }else if message.messageCategory == .call {
-                //  CallMessage Cell
-                let  actionMessageCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
-                actionMessageCell.call = message
-                return actionMessageCell
-            }else if message.messageCategory == .custom {
-                
-                //  CustomMessage Cell
-                let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
-                let customMessage = message as? CustomMessage
-                receiverCell.message.text = NSLocalizedString("CUSTOM_MESSAGE", comment: "") +  "\(String(describing: customMessage?.customData))"
-                return receiverCell
-            }
-        }
-        return cell
-    }
+       public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+         let cell:UITableViewCell = UITableViewCell()
+         if let message = chatMessages[indexPath.section][safe: indexPath.row] {
+             if message.messageCategory == .message {
+                if message.deletedAt > 0.0 && message.senderUid != LoggedInUser.uid {
+                     let  deletedCell = tableView.dequeueReusableCell(withIdentifier: "leftTextMessageBubble", for: indexPath) as! LeftTextMessageBubble
+                     deletedCell.deletedMessage = message
+                     return deletedCell
+                     
+                 }else if message.deletedAt > 0.0 && message.senderUid == LoggedInUser.uid {
+                     
+                     let deletedCell = tableView.dequeueReusableCell(withIdentifier: "rightTextMessageBubble", for: indexPath) as! RightTextMessageBubble
+                     deletedCell.deletedMessage = message
+                     if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
+                         deletedCell.receiptStack.isHidden = false
+                     }else{
+                         deletedCell.receiptStack.isHidden = true
+                     }
+                     return deletedCell
+                 }else{
+                     switch message.messageType {
+                     case .text where message.senderUid != LoggedInUser.uid:
+                         if let textMessage = message as? TextMessage {
+                             let isContainsExtension = didExtensionDetected(message: textMessage)
+                             switch isContainsExtension {
+                             case .linkPreview:
+                                 let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftLinkPreviewBubble", for: indexPath) as! LeftLinkPreviewBubble
+                                 let linkPreviewMessage = message as? TextMessage
+                                 receiverCell.linkPreviewMessage = linkPreviewMessage
+                                 receiverCell.linkPreviewDelegate = self
+                                 return receiverCell
+                             case .smartReply:
+                                 let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftTextMessageBubble", for: indexPath) as! LeftTextMessageBubble
+                                 receiverCell.textMessage = textMessage
+                                 return receiverCell
+                             case .none:
+                                 let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftTextMessageBubble", for: indexPath) as! LeftTextMessageBubble
+                                 receiverCell.textMessage = textMessage
+                                 return receiverCell
+                             }
+                         }
+                     case .text where message.senderUid == LoggedInUser.uid:
+                         if let textMessage = message as? TextMessage {
+                             let isContainsExtension = didExtensionDetected(message: textMessage)
+                             switch isContainsExtension {
+                             case .linkPreview:
+                                 let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightLinkPreviewBubble", for: indexPath) as! RightLinkPreviewBubble
+                                 let linkPreviewMessage = message as? TextMessage
+                                 senderCell.linkPreviewMessage = linkPreviewMessage
+                                 senderCell.linkPreviewDelegate = self
+                                 if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
+                                     senderCell.receiptStack.isHidden = false
+                                 }else{
+                                     senderCell.receiptStack.isHidden = true
+                                 }
+                                 return senderCell
+                             case .smartReply:
+                                 let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightTextMessageBubble", for: indexPath) as! RightTextMessageBubble
+                                 senderCell.textMessage = textMessage
+                                 if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
+                                     senderCell.receiptStack.isHidden = false
+                                 }else{
+                                     senderCell.receiptStack.isHidden = true
+                                 }
+                                 return senderCell
+                             case .none:
+                                 let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightTextMessageBubble", for: indexPath) as! RightTextMessageBubble
+                                 senderCell.textMessage = textMessage
+                                 if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
+                                     senderCell.receiptStack.isHidden = false
+                                 }else{
+                                     senderCell.receiptStack.isHidden = true
+                                 }
+                                 return senderCell
+                             }
+                         }
+                     case .image where message.senderUid != LoggedInUser.uid:
+                         
+                         if let imageMessage = message as? MediaMessage {
+                             let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftImageMessageBubble", for: indexPath) as! LeftImageMessageBubble
+                             receiverCell.mediaMessage = imageMessage
+                             return receiverCell
+                         }
+                         
+                     case .image where message.senderUid == LoggedInUser.uid:
+                         
+                         if let imageMessage = message as? MediaMessage {
+                             let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightImageMessageBubble", for: indexPath) as! RightImageMessageBubble
+                             senderCell.mediaMessage = imageMessage
+                             if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
+                                 senderCell.receiptStack.isHidden = false
+                             }else{
+                                 senderCell.receiptStack.isHidden = true
+                             }
+                             return senderCell
+                         }
+                         
+                     case .video where message.senderUid != LoggedInUser.uid:
+                         
+                         if let videoMessage = message as? MediaMessage {
+                             let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftVideoMessageBubble", for: indexPath) as! LeftVideoMessageBubble
+                             receiverCell.mediaMessage = videoMessage
+                             return receiverCell
+                         }
+                         
+                     case .video where message.senderUid == LoggedInUser.uid:
+                         if let videoMessage = message as? MediaMessage {
+                             let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightVideoMessageBubble", for: indexPath) as! RightVideoMessageBubble
+                             senderCell.mediaMessage = videoMessage
+                             if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
+                                 senderCell.receiptStack.isHidden = false
+                             }else{
+                                 senderCell.receiptStack.isHidden = true
+                             }
+                             return senderCell
+                         }
+                     case .audio where message.senderUid != LoggedInUser.uid:
+                         
+                         if let audioMessage = message as? MediaMessage {
+                             let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftAudioMessageBubble", for: indexPath) as! LeftAudioMessageBubble
+                             receiverCell.audioMessage = audioMessage
+                             return receiverCell
+                         }
+                     case .audio where message.senderUid == LoggedInUser.uid:
+                         if let audioMessage = message as? MediaMessage {
+                             let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightAudioMessageBubble", for: indexPath) as! RightAudioMessageBubble
+                             senderCell.audioMessage = audioMessage
+                             if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
+                                 senderCell.receiptStack.isHidden = false
+                             }else{
+                                 senderCell.receiptStack.isHidden = true
+                             }
+                             return senderCell
+                         }
+                     case .file where message.senderUid != LoggedInUser.uid:
+                         if let fileMessage = message as? MediaMessage {
+                             let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftFileMessageBubble", for: indexPath) as! LeftFileMessageBubble
+                             receiverCell.fileMessage = fileMessage
+                             return receiverCell
+                         }
+                     case .file where message.senderUid == LoggedInUser.uid:
+                         if let fileMessage = message as? MediaMessage {
+                             let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightFileMessageBubble", for: indexPath) as! RightFileMessageBubble
+                             senderCell.fileMessage = fileMessage
+                             if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
+                                 senderCell.receiptStack.isHidden = false
+                             }else{
+                                 senderCell.receiptStack.isHidden = true
+                             }
+                             return senderCell
+                         }
+                     case .custom: break
+                     case .groupMember:  break
+                     case .image: break
+                     case .text: break
+                     case .file: break
+                     @unknown default: break
+                     }
+                 }
+             }else if message.messageCategory == .action {
+                 //  ActionMessage Cell
+                 let  actionMessageCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
+                 let actionMessage = message as? ActionMessage
+                 actionMessageCell.message.text = actionMessage?.message
+                 return actionMessageCell
+             }else if message.messageCategory == .call {
+                 //  CallMessage Cell
+                 let  actionMessageCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
+                 actionMessageCell.call = message
+                 return actionMessageCell
+             }else if message.messageCategory == .custom {
+                 
+                 //  CustomMessage Cell
+                 let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
+                 let customMessage = message as? CustomMessage
+                 receiverCell.message.text = NSLocalizedString("CUSTOM_MESSAGE", comment: "") +  "\(String(describing: customMessage?.customData))"
+                 return receiverCell
+             }
+         }
+         return cell
+     }
     
     
     /// This method triggers when particular cell is clicked by the user .
@@ -2034,19 +2071,19 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
         
         UIView.animate(withDuration: 1, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: [], animations: {
             
-            if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightTextMessageBubble {
+            if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightTextMessageBubble, let message =  selectedCell.textMessage {
                 selectedCell.receiptStack.isHidden = false
                 if tableView.isEditing == true && selectedCell.textMessage != nil {
-                    if !self.selectedMessages.contains(selectedCell.textMessage) {
-                        self.selectedMessages.append(selectedCell.textMessage)
+                    if !self.selectedMessages.contains(message) {
+                        self.selectedMessages.append(message)
                     }
                 }
             }
-            if  let selectedCell = tableView.cellForRow(at: indexPath) as? LeftTextMessageBubble {
+            if  let selectedCell = tableView.cellForRow(at: indexPath) as? LeftTextMessageBubble, let message = selectedCell.textMessage {
                 selectedCell.receiptStack.isHidden = false
                 if tableView.isEditing == true && selectedCell.textMessage != nil {
-                    if !self.selectedMessages.contains(selectedCell.textMessage) {
-                        self.selectedMessages.append(selectedCell.textMessage)
+                    if !self.selectedMessages.contains(message) {
+                        self.selectedMessages.append(message)
                     }
                 }
             }
@@ -2083,10 +2120,10 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                                 let url = URL(string: videoURL.absoluteString) {
                                 player = AVPlayer(url: url)
                             }
-                            DispatchQueue.main.async{
+                            DispatchQueue.main.async{[weak self] in
                                 let playerViewController = AVPlayerViewController()
                                 playerViewController.player = player
-                                self.present(playerViewController, animated: true) {
+                                self?.present(playerViewController, animated: true) {
                                     playerViewController.player!.play()
                                 }
                             }
@@ -2127,10 +2164,10 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                                 let url = URL(string: videoURL.absoluteString) {
                                 player = AVPlayer(url: url)
                             }
-                            DispatchQueue.main.async{
+                            DispatchQueue.main.async{ [weak self] in
                                 let playerViewController = AVPlayerViewController()
                                 playerViewController.player = player
-                                self.present(playerViewController, animated: true) {
+                                self?.present(playerViewController, animated: true) {
                                     playerViewController.player!.play()
                                 }
                             }
@@ -2271,23 +2308,22 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                             
                         }
                         
-                        if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightTextMessageBubble {
+                        if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightTextMessageBubble, let message =  selectedCell.textMessage {
                             selectedCell.receiptStack.isHidden = true
-                            if selectedCell.textMessage != nil && self.selectedMessages.contains(selectedCell.textMessage) {
-                                if let index = self.selectedMessages.firstIndex(where: { $0.id == selectedCell.textMessage.id }) {
+                            if selectedCell.textMessage != nil && self.selectedMessages.contains(message) {
+                                if let index = self.selectedMessages.firstIndex(where: { $0.id == message.id }) {
                                     self.selectedMessages.remove(at: index)
                                 }
                             }
                             
                         }
-                        if  let selectedCell = tableView.cellForRow(at: indexPath) as? LeftTextMessageBubble {
+                        if  let selectedCell = tableView.cellForRow(at: indexPath) as? LeftTextMessageBubble, let message =  selectedCell.textMessage {
                             selectedCell.receiptStack.isHidden = true
-                            if selectedCell.textMessage != nil && self.selectedMessages.contains(selectedCell.textMessage) {
-                                if let index = self.selectedMessages.firstIndex(where: { $0.id == selectedCell.textMessage.id }) {
+                            if selectedCell.textMessage != nil && self.selectedMessages.contains(message) {
+                                if let index = self.selectedMessages.firstIndex(where: { $0.id == message.id }) {
                                     self.selectedMessages.remove(at: index)
                                 }
                             }
-                            
                         }
                         
                         if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightImageMessageBubble {
@@ -2428,12 +2464,12 @@ extension CometChatMessageList:QLPreviewControllerDataSource, QLPreviewControlle
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     private func presentQuickLook(){
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
             let previewController = QLPreviewController()
             previewController.modalPresentationStyle = .popover
             previewController.dataSource = self
             previewController.navigationController?.title = ""
-            self.present(previewController, animated: true, completion: nil)
+            self?.present(previewController, animated: true, completion: nil)
         }
     }
     
@@ -2494,7 +2530,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
     
     
     
-    func didMicrophoneButtonPressed(with: UILongPressGestureRecognizer) {
+    public func didMicrophoneButtonPressed(with: UILongPressGestureRecognizer) {
         
     }
     
@@ -2505,7 +2541,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
      - See Also:
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    func didAttachmentButtonPressed() {
+    public func didAttachmentButtonPressed() {
         let actionSheetController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let cameraAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("Take a Photo", comment: ""), style: .default) { action -> Void in
@@ -2561,36 +2597,38 @@ extension CometChatMessageList : ChatViewInternalDelegate {
         case true:
             mediaMessage = MediaMessage(receiverUid: self.currentGroup?.guid ?? "", fileurl: withURL, messageType: type, receiverType: .group)
             mediaMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-            mediaMessage?.sender?.uid = CometChat.getLoggedInUser()?.uid
-            mediaMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+            mediaMessage?.sender?.uid = LoggedInUser.uid
+            mediaMessage?.senderUid = LoggedInUser.uid
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [mediaMessage!])
                 self.filteredMessages.append(mediaMessage!)
             }else{
                 self.chatMessages[lastSection].append(mediaMessage!)
                 self.filteredMessages.append(mediaMessage!)
-                DispatchQueue.main.async {
-                    self.tableView?.beginUpdates()
-                    self.tableView?.insertRows(at: [IndexPath.init(row: self.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                    self.tableView?.endUpdates()
-                    self.tableView?.scrollToBottomRow()
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.tableView?.beginUpdates()
+                    strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
+                    strongSelf.tableView?.endUpdates()
+                    strongSelf.tableView?.scrollToBottomRow()
                 }
             }
             CometChat.sendMediaMessage(message: mediaMessage!, onSuccess: { (message) in
                 if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
                     self.chatMessages[lastSection][row] = message
                 }
-                DispatchQueue.main.async{
+                DispatchQueue.main.async{ [weak self] in
+                    guard let strongSelf = self else { return }
                     if message.messageType == .audio || message.messageType == .file {
                         do {
-                            try self.viewModel.resetRecording()
-                            self.audioVisualizationView.reset()
-                            self.currentState = .ready
+                            try strongSelf.viewModel.resetRecording()
+                            strongSelf.audioVisualizationView.reset()
+                            strongSelf.currentState = .ready
                         } catch {
-                            self.showAlert(with: error)
+                            strongSelf.showAlert(with: error)
                         }
                     }
-                    self.tableView?.reloadData()}
+                    strongSelf.tableView?.reloadData()}
             }) { (error) in
                 DispatchQueue.main.async {
                     if let errorMessage = error?.errorDescription {
@@ -2603,36 +2641,38 @@ extension CometChatMessageList : ChatViewInternalDelegate {
         case false:
             mediaMessage = MediaMessage(receiverUid: self.currentUser?.uid ?? "", fileurl: withURL, messageType: type, receiverType: .user)
             mediaMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-            mediaMessage?.sender?.uid = CometChat.getLoggedInUser()?.uid
-            mediaMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+            mediaMessage?.sender?.uid = LoggedInUser.uid
+            mediaMessage?.senderUid = LoggedInUser.uid
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [mediaMessage!])
                 self.filteredMessages.append(mediaMessage!)
             }else{
                 self.chatMessages[lastSection].append(mediaMessage!)
                 self.filteredMessages.append(mediaMessage!)
-                DispatchQueue.main.async {
-                    self.tableView?.beginUpdates()
-                    self.tableView?.insertRows(at: [IndexPath.init(row: self.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                    self.tableView?.endUpdates()
-                    self.tableView?.scrollToBottomRow()
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.tableView?.beginUpdates()
+                    strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
+                    strongSelf.tableView?.endUpdates()
+                    strongSelf.tableView?.scrollToBottomRow()
                 }
             }
             CometChat.sendMediaMessage(message: mediaMessage!, onSuccess: { (message) in
                 if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
                     self.chatMessages[lastSection][row] = message
                 }
-                DispatchQueue.main.async{
+                DispatchQueue.main.async{  [weak self] in
+                    guard let strongSelf = self else { return }
                     if message.messageType == .audio || message.messageType == .file {
                         do {
-                            try self.viewModel.resetRecording()
-                            self.audioVisualizationView.reset()
-                            self.currentState = .ready
+                            try strongSelf.viewModel.resetRecording()
+                            strongSelf.audioVisualizationView.reset()
+                            strongSelf.currentState = .ready
                         } catch {
-                            self.showAlert(with: error)
+                            strongSelf.showAlert(with: error)
                         }
                     }
-                    self.tableView?.reloadData()}
+                    strongSelf.tableView?.reloadData()}
             }) { (error) in
                 DispatchQueue.main.async {
                     if let errorMessage = error?.errorDescription {
@@ -2653,7 +2693,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
      - See Also:
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    func didStickerButtonPressed() {
+    public func didStickerButtonPressed() {
         
         
     }
@@ -2667,7 +2707,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
      - See Also:
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    func didSendButtonPressed() {
+    public func didSendButtonPressed() {
         var lastSection = 0
         if chatMessages.count == 0 {
             lastSection = (self.tableView?.numberOfSections ?? 0)
@@ -2675,7 +2715,6 @@ extension CometChatMessageList : ChatViewInternalDelegate {
             lastSection = (self.tableView?.numberOfSections ?? 0) - 1
         }
         if messageMode == .edit {
-            
             guard let textMessage = selectedMessage as? TextMessage else { return }
             guard let indexPath = selectedIndexPath else { return }
             CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
@@ -2685,21 +2724,23 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                     if let row = self.chatMessages[indexPath.section].firstIndex(where: {$0.id == editedMessage.id}) {
                         self.chatMessages[indexPath.section][row] = editedMessage
                     }
-                    DispatchQueue.main.async{
-                        self.tableView?.reloadRows(at: [indexPath], with: .automatic)
-                        self.hide(view: .editMessageView, true)
-                        self.hide(view: .smartRepliesView, true)
-                        self.didPreformCancel()
-                        self.messageMode = .send
-                        self.textView.text = ""
+                    DispatchQueue.main.async{  [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.tableView?.reloadRows(at: [indexPath], with: .automatic)
+                        strongSelf.hide(view: .editMessageView, true)
+                        strongSelf.hide(view: .smartRepliesView, true)
+                        strongSelf.didPreformCancel()
+                        strongSelf.messageMode = .send
+                        strongSelf.textView.text = ""
                     }
                 }) { (error) in
-                    DispatchQueue.main.async{
-                        self.hide(view: .editMessageView, true)
-                        self.hide(view: .smartRepliesView, true)
-                        self.didPreformCancel()
-                        self.messageMode = .send
-                        self.textView.text = ""
+                    DispatchQueue.main.async{ [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.hide(view: .editMessageView, true)
+                        strongSelf.hide(view: .smartRepliesView, true)
+                        strongSelf.didPreformCancel()
+                        strongSelf.messageMode = .send
+                        strongSelf.textView.text = ""
                     }
                     print("unable to edit Message: \(error.errorDescription)")
                 }
@@ -2715,8 +2756,8 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                 case true:
                     textMessage = TextMessage(receiverUid: currentGroup?.guid ?? "", text: message, receiverType: .group)
                     textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-                    textMessage?.sender?.uid = CometChat.getLoggedInUser()?.uid
-                    textMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+                    textMessage?.sender?.uid = LoggedInUser.uid
+                    textMessage?.senderUid = LoggedInUser.uid
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [textMessage!])
                         self.filteredMessages.append(textMessage!)
@@ -2731,23 +2772,26 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                             return
                         }
                         CometChat.endTyping(indicator: indicator)
-                        DispatchQueue.main.async {
-                            self.hide(view: .smartRepliesView, true)
-                            self.tableView?.beginUpdates()
-                            self.tableView?.insertRows(at: [IndexPath.init(row: self.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                            self.tableView?.endUpdates()
-                            self.tableView?.scrollToBottomRow()
-                            self.chatView.textView.text = ""
+                        DispatchQueue.main.async {[weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.hide(view: .smartRepliesView, true)
+                            strongSelf.tableView?.beginUpdates()
+                            strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
+                            strongSelf.tableView?.endUpdates()
+                            strongSelf.tableView?.scrollToBottomRow()
+                            strongSelf.chatView.textView.text = ""
                         }
                     }
                     CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
                         if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
                             self.chatMessages[lastSection][row] = message
+                            DispatchQueue.main.async{ [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.tableView?.reloadData()
+                                textMessage = nil
+                            }
                         }
-                        let metadata : [String : Any]? = textMessage?.metaData
-                        print("sendTextMessage onSuccess: \(String(describing: metadata))")
-                        DispatchQueue.main.async{ self.tableView?.reloadData()
-                        }
+                        textMessage = nil
                     }) { (error) in
                         DispatchQueue.main.async {
                             if let errorMessage = error?.errorDescription {
@@ -2760,8 +2804,8 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                 case false:
                     textMessage = TextMessage(receiverUid: currentUser?.uid ?? "", text: message, receiverType: .user)
                     textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-                    textMessage?.sender?.uid = CometChat.getLoggedInUser()?.uid
-                    textMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+                    textMessage?.sender?.uid = LoggedInUser.uid
+                    textMessage?.senderUid = LoggedInUser.uid
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [textMessage!])
                         guard let indicator = typingIndicator else {
@@ -2775,22 +2819,25 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                             return
                         }
                         CometChat.endTyping(indicator: indicator)
-                        DispatchQueue.main.async {
-                            self.hide(view: .smartRepliesView, true)
-                            self.tableView?.beginUpdates()
-                            self.tableView?.insertRows(at: [IndexPath.init(row: self.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                            self.tableView?.endUpdates()
-                            self.tableView?.scrollToBottomRow()
-                            self.chatView.textView.text = ""
+                        DispatchQueue.main.async {  [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.hide(view: .smartRepliesView, true)
+                            strongSelf.tableView?.beginUpdates()
+                            strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
+                            strongSelf.tableView?.endUpdates()
+                            strongSelf.tableView?.scrollToBottomRow()
+                            strongSelf.chatView.textView.text = ""
                         }
                     }
                     CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
                         if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
                             self.chatMessages[lastSection][row] = message
+                            DispatchQueue.main.async{ [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.tableView?.reloadData()
+                                textMessage = nil
+                            }
                         }
-                        let metadata = message.metaData ?? [:]
-                        print("sendTextMessage onSuccess: \(String(describing: metadata))")
-                        DispatchQueue.main.async{ self.tableView?.reloadData() }
                     }) { (error) in
                         DispatchQueue.main.async {
                             if let errorMessage = error?.errorDescription {
@@ -2828,11 +2875,12 @@ extension CometChatMessageList : CometChatMessageDelegate {
             if chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [message])
             }else{
-                DispatchQueue.main.async{
-                    let lastSection = (self.tableView?.numberOfSections ?? 0) - 1
-                    self.chatMessages[lastSection].append(message)
-                    self.tableView?.reloadData()
-                    self.tableView?.scrollToBottomRow()
+                DispatchQueue.main.async{ [weak self] in
+                    if let strongSelf = self, let lastSection = strongSelf.tableView?.numberOfSections {
+                        strongSelf.chatMessages[lastSection - 1].append(message)
+                        strongSelf.tableView?.reloadData()
+                        strongSelf.tableView?.scrollToBottomRow()
+                    }
                 }
             }
             
@@ -2841,11 +2889,12 @@ extension CometChatMessageList : CometChatMessageDelegate {
             if chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [message])
             }else{
-                DispatchQueue.main.async{
-                    let lastSection = (self.tableView?.numberOfSections ?? 0) - 1
-                    self.chatMessages[lastSection].append(message)
-                    self.tableView?.reloadData()
-                    self.tableView?.scrollToBottomRow()
+                DispatchQueue.main.async{ [weak self] in
+                    if let strongSelf = self, let lastSection = strongSelf.tableView?.numberOfSections {
+                        strongSelf.chatMessages[lastSection - 1].append(message)
+                        strongSelf.tableView?.reloadData()
+                        strongSelf.tableView?.scrollToBottomRow()
+                    }
                 }
             }
         @unknown default: break
@@ -2861,40 +2910,41 @@ extension CometChatMessageList : CometChatMessageDelegate {
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     public func onTextMessageReceived(textMessage: TextMessage) {
-        DispatchQueue.main.async{
+        DispatchQueue.main.async{ [weak self] in
+            guard let strongSelf = self else { return }
             //Appending Real time text messages for User.
-            if let sender = textMessage.sender?.uid, let currentUser = self.currentUser?.uid {
+            if let sender = textMessage.sender?.uid, let currentUser = strongSelf.currentUser?.uid {
                 if sender == currentUser && textMessage.receiverType == .user {
-                    self.appendNewMessage(message: textMessage)
-                    let titles = self.parseSmartRepliesMessages(message: textMessage)
-                    self.smartRepliesView.set(titles: titles)
-                    self.hide(view: .smartRepliesView, false)
+                    strongSelf.appendNewMessage(message: textMessage)
+                    let titles = strongSelf.parseSmartRepliesMessages(message: textMessage)
+                    strongSelf.smartRepliesView.set(titles: titles)
+                    strongSelf.hide(view: .smartRepliesView, false)
                     
-                }else if sender == CometChat.getLoggedInUser()?.uid && textMessage.receiverType == .user {
-                    self.appendNewMessage(message: textMessage)
-                    let titles = self.parseSmartRepliesMessages(message: textMessage)
-                    self.smartRepliesView.set(titles: titles)
-                    self.hide(view: .smartRepliesView, true)
+                }else if sender == LoggedInUser.uid && textMessage.receiverType == .user {
+                    strongSelf.appendNewMessage(message: textMessage)
+                    let titles = strongSelf.parseSmartRepliesMessages(message: textMessage)
+                    strongSelf.smartRepliesView.set(titles: titles)
+                    strongSelf.hide(view: .smartRepliesView, true)
                 }
             }else{
                 CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true)
             }
             
             //Appending Real time text messages for Group.
-            if let currentGroup = self.currentGroup?.guid {
+            if let currentGroup = strongSelf.currentGroup?.guid {
                 let sender = textMessage.senderUid
                 let group = textMessage.receiverUid
                 // Receiving real time messages for the group this window is opened for.
-                if group == currentGroup && textMessage.receiverType == .group && sender != CometChat.getLoggedInUser()?.uid {
-                    self.appendNewMessage(message: textMessage)
-                    let titles = self.parseSmartRepliesMessages(message: textMessage)
-                    self.smartRepliesView.set(titles: titles)
-                    self.hide(view: .smartRepliesView, false)
-                }else if sender == CometChat.getLoggedInUser()?.uid && textMessage.receiverType == .group && group == currentGroup {
-                    self.appendNewMessage(message: textMessage)
-                    let titles = self.parseSmartRepliesMessages(message: textMessage)
-                    self.smartRepliesView.set(titles: titles)
-                    self.hide(view: .smartRepliesView, true)
+                if group == currentGroup && textMessage.receiverType == .group && sender != LoggedInUser.uid {
+                    strongSelf.appendNewMessage(message: textMessage)
+                    let titles = strongSelf.parseSmartRepliesMessages(message: textMessage)
+                    strongSelf.smartRepliesView.set(titles: titles)
+                    strongSelf.hide(view: .smartRepliesView, false)
+                }else if sender == LoggedInUser.uid && textMessage.receiverType == .group && group == currentGroup {
+                    strongSelf.appendNewMessage(message: textMessage)
+                    let titles = strongSelf.parseSmartRepliesMessages(message: textMessage)
+                    strongSelf.smartRepliesView.set(titles: titles)
+                    strongSelf.hide(view: .smartRepliesView, true)
                 }
             }else{
                 CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true)
@@ -2911,28 +2961,29 @@ extension CometChatMessageList : CometChatMessageDelegate {
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     public func onMediaMessageReceived(mediaMessage: MediaMessage) {
-        DispatchQueue.main.async{
+        DispatchQueue.main.async{ [weak self] in
+            guard let strongSelf = self else { return }
             //Appending Real time text messages for User.
-            if let sender = mediaMessage.sender?.uid, let currentUser = self.currentUser?.uid {
+            if let sender = mediaMessage.sender?.uid, let currentUser = strongSelf.currentUser?.uid {
                 if sender == currentUser && mediaMessage.receiverType == .user {
-                    self.appendNewMessage(message: mediaMessage)
-                    self.hide(view: .smartRepliesView, true)
+                    strongSelf.appendNewMessage(message: mediaMessage)
+                    strongSelf.hide(view: .smartRepliesView, true)
                     
-                }else if sender == CometChat.getLoggedInUser()?.uid && mediaMessage.receiverType == .user {
-                    self.appendNewMessage(message: mediaMessage)
-                    self.hide(view: .smartRepliesView, true)
+                }else if sender == LoggedInUser.uid && mediaMessage.receiverType == .user {
+                    strongSelf.appendNewMessage(message: mediaMessage)
+                    strongSelf.hide(view: .smartRepliesView, true)
                 }
             }
             
             //Appending Real time text messages for Group.
-            if let currentGroup = self.currentGroup?.guid {
+            if let currentGroup = strongSelf.currentGroup?.guid {
                 let sender = mediaMessage.receiverUid
                 // Receiving real time messages for the group this window is opened for.
                 if sender == currentGroup && mediaMessage.receiverType == .group {
-                    self.appendNewMessage(message: mediaMessage)
-                    self.hide(view: .smartRepliesView, true)
-                }else if sender == CometChat.getLoggedInUser()?.uid && mediaMessage.receiverType == .group {
-                    self.hide(view: .smartRepliesView, true)
+                    strongSelf.appendNewMessage(message: mediaMessage)
+                    strongSelf.hide(view: .smartRepliesView, true)
+                }else if sender == LoggedInUser.uid && mediaMessage.receiverType == .group {
+                    strongSelf.hide(view: .smartRepliesView, true)
                 }
             }
         }
@@ -2947,21 +2998,22 @@ extension CometChatMessageList : CometChatMessageDelegate {
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     public func onMessagesRead(receipt: MessageReceipt) {
-        DispatchQueue.main.async{
-            if receipt.sender?.uid == self.currentUser?.uid && receipt.receiverType == .user{
-                for messages in self.chatMessages {
+        DispatchQueue.main.async{ [weak self] in
+            guard let strongSelf = self else { return }
+            if receipt.sender?.uid == strongSelf.currentUser?.uid && receipt.receiverType == .user{
+                for messages in strongSelf.chatMessages {
                     for message in messages where message.readAt == 0 {
                         message.readAt = Double(receipt.timeStamp)
                     }
                 }
-                DispatchQueue.main.async {self.tableView?.reloadData()}
-            }else if receipt.receiverId == self.currentGroup?.guid && receipt.receiverType == .group{
-                for messages in self.chatMessages {
+                DispatchQueue.main.async {strongSelf.tableView?.reloadData()}
+            }else if receipt.receiverId == strongSelf.currentGroup?.guid && receipt.receiverType == .group{
+                for messages in strongSelf.chatMessages {
                     for message in messages where message.readAt == 0 {
                         message.readAt = Double(receipt.timeStamp)
                     }
                 }
-                DispatchQueue.main.async {self.tableView?.reloadData()}
+                DispatchQueue.main.async {strongSelf.tableView?.reloadData()}
             }
         }
     }
@@ -2975,21 +3027,22 @@ extension CometChatMessageList : CometChatMessageDelegate {
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     public func onMessagesDelivered(receipt: MessageReceipt) {
-        DispatchQueue.main.async{
-            if receipt.sender?.uid == self.currentUser?.uid && receipt.receiverType == .user{
-                for messages in self.chatMessages {
+        DispatchQueue.main.async{ [weak self] in
+            guard let strongSelf = self else { return }
+            if receipt.sender?.uid == strongSelf.currentUser?.uid && receipt.receiverType == .user{
+                for messages in strongSelf.chatMessages {
                     for message in messages where message.deliveredAt == 0 {
                         message.deliveredAt = Double(receipt.timeStamp)
                     }
                 }
-                DispatchQueue.main.async {self.tableView?.reloadData()}
-            }else if receipt.receiverId == self.currentGroup?.guid && receipt.receiverType == .group{
-                for messages in self.chatMessages {
+                DispatchQueue.main.async {strongSelf.tableView?.reloadData()}
+            }else if receipt.receiverId == strongSelf.currentGroup?.guid && receipt.receiverType == .group{
+                for messages in strongSelf.chatMessages {
                     for message in messages where message.deliveredAt == 0 {
                         message.deliveredAt = Double(receipt.timeStamp)
                     }
                 }
-                DispatchQueue.main.async {self.tableView?.reloadData()}
+                DispatchQueue.main.async {strongSelf.tableView?.reloadData()}
             }
         }
     }
@@ -3003,16 +3056,14 @@ extension CometChatMessageList : CometChatMessageDelegate {
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     public func onTypingStarted(_ typingDetails: TypingIndicator) {
-        DispatchQueue.main.async{
-            if typingDetails.sender?.uid == self.currentUser?.uid && typingDetails.receiverType == .user{
-                DispatchQueue.main.async {
-                    self.setupNavigationBar(withSubtitle: NSLocalizedString("TYPING", comment: ""))
-                }
-            }else if typingDetails.receiverType == .group  && typingDetails.receiverID == self.currentGroup?.guid {
+        DispatchQueue.main.async{ [weak self] in
+            guard let strongSelf = self else { return }
+            if typingDetails.sender?.uid == strongSelf.currentUser?.uid && typingDetails.receiverType == .user{
+                strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("TYPING", comment: ""))
+                
+            }else if typingDetails.receiverType == .group  && typingDetails.receiverID == strongSelf.currentGroup?.guid {
                 if let user = typingDetails.sender?.name {
-                    DispatchQueue.main.async {
-                        self.setupNavigationBar(withSubtitle: "\(String(describing: user)) " + NSLocalizedString("IS_TYPING", comment: ""))
-                    }
+                    strongSelf.setupNavigationBar(withSubtitle: "\(String(describing: user)) " + NSLocalizedString("IS_TYPING", comment: ""))
                 }
                 
             }
@@ -3028,36 +3079,38 @@ extension CometChatMessageList : CometChatMessageDelegate {
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     public func onTypingEnded(_ typingDetails: TypingIndicator) {
-        DispatchQueue.main.async{
-            if typingDetails.sender?.uid == self.currentUser?.uid && typingDetails.receiverType == .user{
-                DispatchQueue.main.async {
-                    self.setupNavigationBar(withSubtitle: NSLocalizedString("ONLINE", comment: ""))
-                }
-            }else if typingDetails.receiverType == .group  && typingDetails.receiverID == self.currentGroup?.guid {
-                self.setupNavigationBar(withSubtitle: self.membersCount ?? "")
+        DispatchQueue.main.async{ [weak self] in
+            guard let strongSelf = self else { return }
+            if typingDetails.sender?.uid == strongSelf.currentUser?.uid && typingDetails.receiverType == .user{
+                strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("ONLINE", comment: ""))
+                
+            }else if typingDetails.receiverType == .group  && typingDetails.receiverID == strongSelf.currentGroup?.guid {
+                strongSelf.setupNavigationBar(withSubtitle: strongSelf.membersCount ?? "")
             }
         }
     }
     
     public func onMessageEdited(message: BaseMessage) {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
             switch message.receiverType {
             case .user:
-                self.refreshMessageList(forID: self.currentUser?.uid ?? "" , type: .user, scrollToBottom: false)
+                strongSelf.refreshMessageList(forID: strongSelf.currentUser?.uid ?? "" , type: .user, scrollToBottom: false)
             case .group:
-                self.refreshMessageList(forID: self.currentGroup?.guid ?? "" , type: .group, scrollToBottom: false)
+                strongSelf.refreshMessageList(forID: strongSelf.currentGroup?.guid ?? "" , type: .group, scrollToBottom: false)
             @unknown default: break
             }
         }
     }
     
     public func onMessageDeleted(message: BaseMessage) {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
             switch message.receiverType {
             case .user:
-                self.refreshMessageList(forID: self.currentUser?.uid ?? "" , type: .user, scrollToBottom: false)
+                strongSelf.refreshMessageList(forID: strongSelf.currentUser?.uid ?? "" , type: .user, scrollToBottom: false)
             case .group:
-                self.refreshMessageList(forID: self.currentGroup?.guid ?? "" , type: .group, scrollToBottom: false)
+                strongSelf.refreshMessageList(forID: strongSelf.currentGroup?.guid ?? "" , type: .group, scrollToBottom: false)
             @unknown default: break
             }
         }
@@ -3081,8 +3134,9 @@ extension CometChatMessageList : CometChatUserDelegate {
     public func onUserOnline(user: User) {
         if user.uid == currentUser?.uid{
             if user.status == .online {
-                DispatchQueue.main.async {
-                    self.setupNavigationBar(withSubtitle: NSLocalizedString("ONLINE", comment: ""))
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("ONLINE", comment: ""))
                 }
             }
         }
@@ -3099,8 +3153,9 @@ extension CometChatMessageList : CometChatUserDelegate {
     public func onUserOffline(user: User) {
         if user.uid == currentUser?.uid {
             if user.status == .offline {
-                DispatchQueue.main.async {
-                    self.setupNavigationBar(withSubtitle: NSLocalizedString("OFFLINE", comment: ""))
+                DispatchQueue.main.async {  [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("OFFLINE", comment: ""))
                 }
             }
         }
@@ -3274,8 +3329,8 @@ extension CometChatMessageList : SmartRepliesViewDelegate {
         case true:
             textMessage = TextMessage(receiverUid: currentGroup?.guid ?? "", text: title, receiverType: .group)
             textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-            textMessage?.sender?.uid = CometChat.getLoggedInUser()?.uid
-            textMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+            textMessage?.sender?.uid = LoggedInUser.uid
+            textMessage?.senderUid = LoggedInUser.uid
             self.chatMessages[lastSection].append(textMessage!)
             self.filteredMessages.append(textMessage!)
             self.hide(view: .smartRepliesView, true)
@@ -3283,12 +3338,13 @@ extension CometChatMessageList : SmartRepliesViewDelegate {
                 return
             }
             CometChat.endTyping(indicator: indicator)
-            DispatchQueue.main.async {
-                self.tableView?.beginUpdates()
-                self.tableView?.insertRows(at: [IndexPath.init(row: self.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                self.tableView?.endUpdates()
-                self.tableView?.scrollToBottomRow()
-                self.chatView.textView.text = ""
+            DispatchQueue.main.async {  [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.tableView?.beginUpdates()
+                strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
+                strongSelf.tableView?.endUpdates()
+                strongSelf.tableView?.scrollToBottomRow()
+                strongSelf.chatView.textView.text = ""
             }
             
             CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
@@ -3298,7 +3354,9 @@ extension CometChatMessageList : SmartRepliesViewDelegate {
                 }
                 let metadata : [String : Any]? = textMessage?.metaData
                 print("sendTextMessage onSuccess: \(String(describing: metadata))")
-                DispatchQueue.main.async{ self.tableView?.reloadData()
+                DispatchQueue.main.async{  [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.tableView?.reloadData()
                 }
             }) { (error) in
                 DispatchQueue.main.async {
@@ -3312,8 +3370,8 @@ extension CometChatMessageList : SmartRepliesViewDelegate {
         case false:
             textMessage = TextMessage(receiverUid: currentUser?.uid ?? "", text: title, receiverType: .user)
             textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-            textMessage?.sender?.uid = CometChat.getLoggedInUser()?.uid
-            textMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+            textMessage?.sender?.uid = LoggedInUser.uid
+            textMessage?.senderUid = LoggedInUser.uid
             self.chatMessages[lastSection].append(textMessage!)
             self.filteredMessages.append(textMessage!)
             self.hide(view: .smartRepliesView, true)
@@ -3321,12 +3379,13 @@ extension CometChatMessageList : SmartRepliesViewDelegate {
                 return
             }
             CometChat.endTyping(indicator: indicator)
-            DispatchQueue.main.async {
-                self.tableView?.beginUpdates()
-                self.tableView?.insertRows(at: [IndexPath.init(row: self.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                self.tableView?.endUpdates()
-                self.tableView?.scrollToBottomRow()
-                self.chatView.textView.text = ""
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.tableView?.beginUpdates()
+                strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
+                strongSelf.tableView?.endUpdates()
+                strongSelf.tableView?.scrollToBottomRow()
+                strongSelf.chatView.textView.text = ""
             }
             CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
                 CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
@@ -3335,7 +3394,9 @@ extension CometChatMessageList : SmartRepliesViewDelegate {
                 }
                 let metadata : [String : Any]? = textMessage?.metaData
                 print("sendTextMessage onSuccess: \(String(describing: metadata))")
-                DispatchQueue.main.async{ self.tableView?.reloadData() }
+                DispatchQueue.main.async{ [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.tableView?.reloadData() }
             }) { (error) in
                 DispatchQueue.main.async {
                     if let errorMessage = error?.errorDescription {

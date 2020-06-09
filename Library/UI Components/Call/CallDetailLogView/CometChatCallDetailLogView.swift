@@ -30,45 +30,45 @@ class CometChatCallDetailLogView: UITableViewCell {
                 time.text =  String().setMessageDateHeader(time: Int(call.initiatedAt))
                 duration.text = String().setCallsTime(time: Int(call.initiatedAt))
                 switch call.callStatus  {
-                case .initiated where call.callType == .audio && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                case .initiated where call.callType == .audio && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     self.callStatus.text = "Outgoing Audio Call"
                     self.callStatusIcon.image = #imageLiteral(resourceName: "outgoingAudio")
                     
-                case .initiated where call.callType == .audio && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                case .initiated where call.callType == .audio && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                     
                     self.callStatus.text = "Incoming Audio Call"
                     self.callStatusIcon.image = #imageLiteral(resourceName: "incomingAudio")
                     
                     
-                case .initiated where call.callType == .video  && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                case .initiated where call.callType == .video  && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                     
                     self.callStatus.text = "Incoming Video Call"
                     self.callStatusIcon.image = #imageLiteral(resourceName: "incomingVideo")
                     
                     
-                case .initiated where call.callType == .video && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                case .initiated where call.callType == .video && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     
                     // This case satisfies the condition where loggedIn user sends  audio call in a group.
                     self.callStatus.text = "Outgoing Video Call"
                     self.callStatusIcon.image = #imageLiteral(resourceName: "outgoingVideo")
                     
                     
-                case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     
                     self.callStatus.text = "Unanswered Audio Call"
                     self.callStatusIcon.image = #imageLiteral(resourceName: "missedAudio")
                     
-                case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                     
                     self.callStatus.text = "Missed Audio Call"
                     self.callStatusIcon.image = #imageLiteral(resourceName: "missedAudio")
                     
-                case .unanswered where call.callType == .video   && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+                case .unanswered where call.callType == .video   && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     
                     self.callStatus.text = "Unanswered Video Call"
                     self.callStatusIcon.image = #imageLiteral(resourceName: "missedVideo")
                     
-                case .unanswered where call.callType == .video  && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+                case .unanswered where call.callType == .video  && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
     
                     self.callStatus.text = "Missed Video Call"
                     self.callStatusIcon.image = #imageLiteral(resourceName: "missedVideo")
@@ -76,6 +76,9 @@ class CometChatCallDetailLogView: UITableViewCell {
                 case .busy: break
                 case .cancelled: break
                 case .ended: break
+                case .initiated: break
+                case .ongoing: break
+                case .unanswered: break
                 @unknown default: break
                 }
                 callStatusIcon.contentMode = .scaleAspectFit

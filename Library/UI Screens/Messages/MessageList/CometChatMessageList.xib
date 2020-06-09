@@ -254,57 +254,6 @@
                         <constraint firstItem="cUu-Rj-z5S" firstAttribute="leading" secondItem="Gpg-Uj-8Hy" secondAttribute="leading" constant="9" id="fnE-8f-yF6"/>
                     </constraints>
                 </view>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="82h-CC-EVS">
-                    <rect key="frame" x="353" y="746" width="55" height="110"/>
-                    <subviews>
-                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="LWY-0a-4xc">
-                            <rect key="frame" x="12.5" y="10" width="30" height="90"/>
-                            <subviews>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BMi-Ce-Y1m">
-                                    <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
-                                    <constraints>
-                                        <constraint firstAttribute="width" constant="30" id="9kw-LO-04w"/>
-                                        <constraint firstAttribute="height" constant="30" id="XBA-qo-C52"/>
-                                    </constraints>
-                                    <color key="tintColor" red="0.20000000000000001" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <state key="normal" image="send.png"/>
-                                    <connections>
-                                        <action selector="didAudioNoteSendPressed:" destination="-1" eventType="touchUpInside" id="mE5-Ro-fmN"/>
-                                    </connections>
-                                </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KQJ-4h-7qH">
-                                    <rect key="frame" x="0.0" y="60" width="30" height="30"/>
-                                    <constraints>
-                                        <constraint firstAttribute="height" constant="30" id="jeM-Ao-lKd"/>
-                                        <constraint firstAttribute="width" constant="30" id="wKD-Zr-WBe"/>
-                                    </constraints>
-                                    <color key="tintColor" red="0.20000000000000001" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <state key="normal" image="pause.fill" catalog="system">
-                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="30"/>
-                                    </state>
-                                    <connections>
-                                        <action selector="didAudioNotePausePressed:" destination="-1" eventType="touchUpInside" id="kFP-F0-5Ev"/>
-                                    </connections>
-                                </button>
-                            </subviews>
-                        </stackView>
-                    </subviews>
-                    <color key="backgroundColor" systemColor="systemGray6Color" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    <constraints>
-                        <constraint firstItem="LWY-0a-4xc" firstAttribute="centerX" secondItem="82h-CC-EVS" secondAttribute="centerX" id="2Nj-zI-Dlk"/>
-                        <constraint firstItem="LWY-0a-4xc" firstAttribute="leading" secondItem="82h-CC-EVS" secondAttribute="leading" constant="12.5" id="96T-3S-7Dq"/>
-                        <constraint firstAttribute="bottom" secondItem="LWY-0a-4xc" secondAttribute="bottom" constant="10" id="Eg1-pv-oKP"/>
-                        <constraint firstItem="LWY-0a-4xc" firstAttribute="centerY" secondItem="82h-CC-EVS" secondAttribute="centerY" id="QLN-Ck-rn6"/>
-                        <constraint firstAttribute="width" constant="55" id="Qjk-1H-mpz"/>
-                        <constraint firstAttribute="trailing" secondItem="LWY-0a-4xc" secondAttribute="trailing" constant="12.5" id="fis-I3-Xnn"/>
-                        <constraint firstItem="LWY-0a-4xc" firstAttribute="top" secondItem="82h-CC-EVS" secondAttribute="top" constant="10" id="mzF-mh-6zA"/>
-                    </constraints>
-                    <userDefinedRuntimeAttributes>
-                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                            <real key="value" value="27.5"/>
-                        </userDefinedRuntimeAttribute>
-                    </userDefinedRuntimeAttributes>
-                </view>
                 <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xu2-ON-Z9i">
                     <rect key="frame" x="0.0" y="806" width="414" height="56"/>
                     <subviews>
@@ -455,6 +404,57 @@
                     <connections>
                         <outlet property="collectionView" destination="Rvy-xG-6fj" id="4At-DM-0oj"/>
                     </connections>
+                </view>
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="82h-CC-EVS">
+                    <rect key="frame" x="353" y="746" width="55" height="110"/>
+                    <subviews>
+                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="LWY-0a-4xc">
+                            <rect key="frame" x="12.5" y="10" width="30" height="90"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BMi-Ce-Y1m">
+                                    <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="30" id="9kw-LO-04w"/>
+                                        <constraint firstAttribute="height" constant="30" id="XBA-qo-C52"/>
+                                    </constraints>
+                                    <color key="tintColor" red="0.20000000000000001" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <state key="normal" image="send.png"/>
+                                    <connections>
+                                        <action selector="didAudioNoteSendPressed:" destination="-1" eventType="touchUpInside" id="mE5-Ro-fmN"/>
+                                    </connections>
+                                </button>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KQJ-4h-7qH">
+                                    <rect key="frame" x="0.0" y="60" width="30" height="30"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="30" id="jeM-Ao-lKd"/>
+                                        <constraint firstAttribute="width" constant="30" id="wKD-Zr-WBe"/>
+                                    </constraints>
+                                    <color key="tintColor" red="0.20000000000000001" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <state key="normal" image="pause.fill" catalog="system">
+                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="30"/>
+                                    </state>
+                                    <connections>
+                                        <action selector="didAudioNotePausePressed:" destination="-1" eventType="touchUpInside" id="kFP-F0-5Ev"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                        </stackView>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemGray6Color" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstItem="LWY-0a-4xc" firstAttribute="centerX" secondItem="82h-CC-EVS" secondAttribute="centerX" id="2Nj-zI-Dlk"/>
+                        <constraint firstItem="LWY-0a-4xc" firstAttribute="leading" secondItem="82h-CC-EVS" secondAttribute="leading" constant="12.5" id="96T-3S-7Dq"/>
+                        <constraint firstAttribute="bottom" secondItem="LWY-0a-4xc" secondAttribute="bottom" constant="10" id="Eg1-pv-oKP"/>
+                        <constraint firstItem="LWY-0a-4xc" firstAttribute="centerY" secondItem="82h-CC-EVS" secondAttribute="centerY" id="QLN-Ck-rn6"/>
+                        <constraint firstAttribute="width" constant="55" id="Qjk-1H-mpz"/>
+                        <constraint firstAttribute="trailing" secondItem="LWY-0a-4xc" secondAttribute="trailing" constant="12.5" id="fis-I3-Xnn"/>
+                        <constraint firstItem="LWY-0a-4xc" firstAttribute="top" secondItem="82h-CC-EVS" secondAttribute="top" constant="10" id="mzF-mh-6zA"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                            <real key="value" value="27.5"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
                 </view>
                 <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1A5-8b-n5h">
                     <rect key="frame" x="0.0" y="696" width="414" height="200"/>

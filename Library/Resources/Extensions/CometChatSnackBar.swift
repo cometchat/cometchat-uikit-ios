@@ -723,7 +723,7 @@ public extension CometChatSnackbar {
     @objc func dismiss() {
         // On main thread
         DispatchQueue.main.async {
-            () -> Void in
+            () -> Void  in
             self.dismissAnimated(true)
         }
     }

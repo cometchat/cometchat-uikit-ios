@@ -17,6 +17,11 @@ import UIKit
 import CometChatPro
 
 /*  ----------------------------------------------------------------------------------------- */
+protocol CometChatUserViewDelegate: NSObject {
+    
+    func didEditInfoPressed()
+}
+
 
 class CometChatUserView: UITableViewCell {
     
@@ -27,9 +32,11 @@ class CometChatUserView: UITableViewCell {
     @IBOutlet weak var userStatus: UILabel!
     @IBOutlet weak var avatarHeight: NSLayoutConstraint!
     @IBOutlet weak var avatarWidth: NSLayoutConstraint!
-
+    @IBOutlet weak var editInfo: UIButton!
     
     // MARK: - Declaration of Variables
+    
+    weak var delegate: CometChatUserViewDelegate?
     
     var user: User? {
         didSet {
@@ -41,6 +48,7 @@ class CometChatUserView: UITableViewCell {
                     userStatus.text = NSLocalizedString("ONLINE", comment: "")
                 case .offline:
                     userStatus.text = NSLocalizedString("OFFLINE", comment: "")
+                case .none: break
                 @unknown default:
                     userStatus.text = NSLocalizedString("OFFLINE", comment: "")
                 }
@@ -58,6 +66,11 @@ class CometChatUserView: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
     }
+    
+    @IBAction func editInfoPressed(_ sender: Any) {
+        delegate?.didEditInfoPressed()
+    }
+    
 }
 
 

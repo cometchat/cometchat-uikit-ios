@@ -18,7 +18,7 @@ import CometChatPro
 
 // MARK: - Declaring Protocol.
 
-public protocol NewCallListDelegate {
+public protocol NewCallListDelegate: AnyObject {
     /**
      This method triggers when user taps perticular user in CometChatNewCallList
      - Parameters:
@@ -42,7 +42,7 @@ public class CometChatNewCallList: UIViewController {
     var safeArea: UILayoutGuide!
     var users: [User] = [User]()
     var filteredUsers: [User] = [User]()
-    var delegate : UserListDelegate?
+    weak var delegate : NewCallListDelegate?
     var activityIndicator:UIActivityIndicatorView?
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
     var sectionTitle : UILabel?
