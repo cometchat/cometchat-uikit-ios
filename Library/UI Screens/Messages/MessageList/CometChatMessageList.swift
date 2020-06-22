@@ -122,7 +122,6 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     var currentEntity: CometChat.ReceiverType?
     var messageRequest:MessagesRequest?
     var memberRequest: GroupMembersRequest?
-    var groupMembers: [GroupMember]?
     var messages: [BaseMessage] = [BaseMessage]()
     var chatMessages: [[BaseMessage]] = [[BaseMessage]]()
     var filteredMessages:[BaseMessage] = [BaseMessage]()
@@ -229,8 +228,13 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             currentGroup = group
             currentEntity = .group
             setupNavigationBar(withTitle: group.name?.capitalized ?? "")
+            if group.membersCount == 1 {
+                setupNavigationBar(withSubtitle: "1 Member")
+            }else {
+                setupNavigationBar(withSubtitle: "\(group.membersCount) Members")
+            }
             setupNavigationBar(withImage: group.icon ?? "", name: group.name ?? "", bool: true)
-            fetchGroupMembers(group: group)
+            fetchGroup(group: group.guid)
             self.refreshMessageList(forID: group.guid , type: .group, scrollToBottom: true)
             
         @unknown default:
@@ -540,45 +544,21 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      - See Also:
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    private func fetchGroupMembers(group: Group){
-        memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: group.guid).set(limit: 100).build()
-        memberRequest?.fetchNext(onSuccess: { [weak self] (groupMember) in
+    private func fetchGroup(group: String){
+        CometChat.getGroup(GUID: group, onSuccess: { [weak self] (group) in
             guard let strongSelf = self else { return }
-            strongSelf.groupMembers = groupMember
-            if groupMember.count < 100 {
+              if  group.membersCount == 1 {
                 strongSelf.setupNavigationBar(withTitle: group.name?.capitalized ?? "")
-                strongSelf.setupNavigationBar(withSubtitle: "\(groupMember.count)" + NSLocalizedString("MEMBERS", comment: ""))
-                strongSelf.membersCount = "\(groupMember.count) " + NSLocalizedString("MEMBERS", comment: "")
-            }else{
-                strongSelf.setupNavigationBar(withSubtitle: "100+ " + NSLocalizedString("MEMBERS", comment: ""))
-                strongSelf.membersCount = "100+ " + NSLocalizedString("MEMBERS", comment: "")
-            }
-            }, onError: { (error) in
-                print("Group Member list fetching failed with exception:" + error!.errorDescription);
-        })
-    }
-    
-    /**
-     This method refreshes list of   group members  for particular guid.
-     - Parameter guid: This specifies a  `Group` Object.
-     - Author: CometChat Team
-     - Copyright:  ©  2020 CometChat Inc.
-     - See Also:
-     [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
-     */
-    private func refreshGroupMembers(guid: String){
-        memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: guid).set(limit: 100).build()
-        memberRequest?.fetchNext(onSuccess: { [weak self] (groupMember) in
-            guard let strongSelf = self else { return }
-            strongSelf.groupMembers = groupMember
-            if groupMember.count < 100 {
-                strongSelf.setupNavigationBar(withSubtitle: "\(groupMember.count) " + NSLocalizedString("MEMBERS", comment: ""))
-            }else{
-                strongSelf.setupNavigationBar(withSubtitle: "100+ " +  NSLocalizedString("MEMBERS", comment: ""))
-            }
-            }, onError: { (error) in
-                print("Group Member list fetching failed with exception:" + error!.errorDescription);
-        })
+                strongSelf.setupNavigationBar(withSubtitle: "1 Member")
+                strongSelf.membersCount = "1 Member"
+              }else {
+                  strongSelf.setupNavigationBar(withTitle: group.name?.capitalized ?? "")
+                  strongSelf.setupNavigationBar(withSubtitle: "\(group.membersCount)" + NSLocalizedString("MEMBERS", comment: ""))
+                  strongSelf.membersCount = "\(group.membersCount) " + NSLocalizedString("MEMBERS", comment: "")
+             }
+        }) { (error) in
+            print("Group Member list fetching failed with exception:" + error!.errorDescription)
+        }
     }
     
     /**
@@ -758,7 +738,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     @objc func didRefreshGroupDetails(_ notification: NSNotification) {
         if let guid = notification.userInfo?["guid"] as? String {
             self.refreshMessageList(forID: guid, type: .group, scrollToBottom: false)
-            self.refreshGroupMembers(guid: guid)
+            self.fetchGroup(group: guid)
         }
     }
     
@@ -1106,8 +1086,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             guard let group = currentGroup else { return }
             let groupDetailView = CometChatGroupDetail()
             let navigationController = UINavigationController(rootViewController: groupDetailView)
-            groupDetailView.set(group: group, with: groupMembers ?? [])
-            
+            groupDetailView.set(group: group)
             self.present(navigationController, animated: true, completion: nil)
         @unknown default:break
         }
@@ -1174,50 +1153,97 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                 }
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? LeftTextMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-                    self.selectedMessage = selectedCell.textMessage
-                    editButton.isHidden = true
-                    deleteButton.isHidden = true
-                    forwardButton.isHidden = false
-                    messageActionView.isHidden = false
+                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
+                        self.selectedMessage = selectedCell.textMessage
+                        editButton.isHidden = false
+                        deleteButton.isHidden = false
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }else{
+                        self.selectedMessage = selectedCell.textMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = true
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }
                 }
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? LeftImageMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-                    self.selectedMessage = selectedCell.mediaMessage
-                    editButton.isHidden = true
-                    deleteButton.isHidden = true
-                    forwardButton.isHidden = false
-                    messageActionView.isHidden = false
+                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
+                        self.selectedMessage = selectedCell.mediaMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = false
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }else{
+                        self.selectedMessage = selectedCell.mediaMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = true
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }
                 }
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? LeftLinkPreviewBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-                    self.selectedMessage = selectedCell.linkPreviewMessage
-                    editButton.isHidden = true
-                    deleteButton.isHidden = true
-                    forwardButton.isHidden = false
-                    messageActionView.isHidden = false
+                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
+                         self.selectedMessage = selectedCell.linkPreviewMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = false
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }else{
+                         self.selectedMessage = selectedCell.linkPreviewMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = true
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }
                 }
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? LeftFileMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-                    self.selectedMessage = selectedCell.fileMessage
-                    editButton.isHidden = true
-                    deleteButton.isHidden = true
-                    forwardButton.isHidden = false
-                    messageActionView.isHidden = false
+                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
+                        self.selectedMessage = selectedCell.fileMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = false
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }else{
+                        self.selectedMessage = selectedCell.fileMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = true
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }
                 }
                 
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? LeftAudioMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-                    self.selectedMessage = selectedCell.audioMessage
-                    editButton.isHidden = true
-                    deleteButton.isHidden = true
-                    forwardButton.isHidden = false
-                    messageActionView.isHidden = false
+                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
+                        self.selectedMessage = selectedCell.audioMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = false
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }else{
+                        self.selectedMessage = selectedCell.audioMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = true
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }
                 }
                 if  (tableView?.cellForRow(at: indexPath) as? ActionMessageBubble) != nil {
-                    editButton.isHidden = true
-                    deleteButton.isHidden = true
-                    forwardButton.isHidden = true
-                    messageActionView.isHidden = true
+                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
+                        editButton.isHidden = true
+                        deleteButton.isHidden = false
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }else{
+                        editButton.isHidden = true
+                        deleteButton.isHidden = true
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }
                 }
             }
         }
@@ -1588,7 +1614,6 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     snackbar.show()
                     self.didPreformCancel()
                 }
-                self.selectedIndexPath = nil
                 print("unable to delete message: \(error.errorDescription)")
             }
         }
@@ -2034,8 +2059,10 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                      case .image: break
                      case .text: break
                      case .file: break
-                     @unknown default: break
-                     }
+                     case .video: break
+                     case .audio: break
+                     @unknown default: fatalError()
+                    }
                  }
              }else if message.messageCategory == .action {
                  //  ActionMessage Cell
@@ -3091,7 +3118,21 @@ extension CometChatMessageList : CometChatMessageDelegate {
     }
     
     public func onMessageEdited(message: BaseMessage) {
+        print("onMessageEdited called")
         DispatchQueue.main.async {  [weak self] in
+                   guard let strongSelf = self else { return }
+                   switch message.receiverType {
+                   case .user:
+                       strongSelf.refreshMessageList(forID: strongSelf.currentUser?.uid ?? "" , type: .user, scrollToBottom: false)
+                   case .group:
+                       strongSelf.refreshMessageList(forID: strongSelf.currentGroup?.guid ?? "" , type: .group, scrollToBottom: false)
+                   @unknown default: break
+                   }
+               }
+    }
+    
+    public func onMessageDeleted(message: BaseMessage) {
+       DispatchQueue.main.async {  [weak self] in
             guard let strongSelf = self else { return }
             switch message.receiverType {
             case .user:
@@ -3103,20 +3144,7 @@ extension CometChatMessageList : CometChatMessageDelegate {
         }
     }
     
-    public func onMessageDeleted(message: BaseMessage) {
-        DispatchQueue.main.async {  [weak self] in
-            guard let strongSelf = self else { return }
-            switch message.receiverType {
-            case .user:
-                strongSelf.refreshMessageList(forID: strongSelf.currentUser?.uid ?? "" , type: .user, scrollToBottom: false)
-            case .group:
-                strongSelf.refreshMessageList(forID: strongSelf.currentGroup?.guid ?? "" , type: .group, scrollToBottom: false)
-            @unknown default: break
-            }
-        }
-    }
 }
-
 /*  ----------------------------------------------------------------------------------------- */
 
 // MARK: - CometChatUserDelegate Delegate
@@ -3182,7 +3210,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
      */
     public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
-            self.fetchGroupMembers(group: joinedGroup)
+            self.fetchGroup(group: joinedGroup.guid)
             CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group)
             self.refreshMessageList(forID: joinedGroup.guid, type: .group, scrollToBottom: true)
         }
@@ -3201,7 +3229,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
      */
     public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
-            self.fetchGroupMembers(group: leftGroup)
+            self.fetchGroup(group: leftGroup.guid)
             CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group)
             self.appendNewMessage(message: action)
         }
@@ -3221,7 +3249,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
      */
     public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
-            self.fetchGroupMembers(group: kickedFrom)
+            self.fetchGroup(group: kickedFrom.guid)
             CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group)
             self.appendNewMessage(message: action)
         }
@@ -3300,7 +3328,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
      */
     public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
-            self.fetchGroupMembers(group: addedTo)
+            self.fetchGroup(group: addedTo.guid)
             CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group)
             self.appendNewMessage(message: action)
         }

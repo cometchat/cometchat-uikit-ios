@@ -23,8 +23,8 @@ class CometChatGroupView: UITableViewCell {
     
     @IBOutlet weak var groupAvatar: Avatar!
     @IBOutlet weak var groupName: UILabel!
-    @IBOutlet weak var groupDetails: UILabel!
-    @IBOutlet weak var typing: UILabel!
+    @IBOutlet weak var groupMember: UILabel!
+    @IBOutlet weak var groupType: UIImageView!
     
     // MARK: - Declaration of Variables
     
@@ -32,16 +32,34 @@ class CometChatGroupView: UITableViewCell {
         didSet {
             
             if let currentGroup = group {
-                groupName.text = currentGroup.name
+                groupName.text = currentGroup.name?.capitalized
+                
                 switch currentGroup.groupType {
                 case .public:
-                    groupDetails.text = NSLocalizedString("PUBLIC", comment: "")
-                case .private:
-                    groupDetails.text = NSLocalizedString("PRIVATE", comment: "")
-                case .password:
-                    groupDetails.text = NSLocalizedString("PASSWORD_PROTECTED", comment: "")
+                    groupType.image = UIImage(color: .clear)
+                case .private: if #available(iOS 13.0, *) {
+                    groupType.image =  UIImage.init(systemName: "shield.lefthalf.fill")
+                } else { }
+                case .password: if #available(iOS 13.0, *) {
+                    groupType.image =  UIImage.init(systemName: "lock.fill")
+                } else {
+                    if #available(iOS 13.0, *) {
+                        groupType.image =  UIImage.init(systemName: "lock.fill")
+                    } else {
+                        // Fallback on earlier versions
+                    }
+                    }
                 @unknown default:
                     break
+                }
+                
+                if let memberCount = group?.membersCount {
+                    if  memberCount == 1 {
+                        groupMember.text = "1 Member"
+                    }else {
+                        groupMember.text = "\(memberCount) Members"
+                    }
+                    
                 }
                 groupAvatar.set(image: currentGroup.icon ?? "", with: currentGroup.name ?? "")
             }

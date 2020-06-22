@@ -63,7 +63,6 @@ public class CometChatGroupList: UIViewController {
     }
     
     public override func viewWillAppear(_ animated: Bool) {
-        CometChat.messagedelegate = self
         refreshGroups()
     }
     
@@ -184,7 +183,6 @@ public class CometChatGroupList: UIViewController {
      [CometChatGroupList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-2-comet-chat-group-list)
      */
     private func addObservers(){
-        CometChat.messagedelegate = self
         NotificationCenter.default.addObserver(self, selector:#selector(self.didGroupDeleted(_:)), name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil)
         NotificationCenter.default.addObserver(self, selector:#selector(self.didGroupCreated(_:)), name: NSNotification.Name(rawValue: "didGroupCreated"), object: nil)
     }
@@ -435,32 +433,42 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
         guard let selectedGroup = (tableView.cellForRow(at: indexPath) as? CometChatGroupView)?.group else{
             return
         }
+        tableView.deselectRow(at: indexPath, animated: true)
         delegate?.didSelectGroupAtIndexPath(group: selectedGroup, indexPath: indexPath)
         
         if selectedGroup.hasJoined == false{
-            CometChat.joinGroup(GUID: selectedGroup.guid, groupType: selectedGroup.groupType, password: "", onSuccess: { (group) in
-                DispatchQueue.main.async {
-                    let message = NSLocalizedString("YOU_JOINED", comment: "") +  (selectedGroup.name ?? "") + "."
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                    snackbar.show()
-                    self.tableView.deselectRow(at: indexPath, animated: true)
-                    let messageList = CometChatMessageList()
-                    messageList.set(conversationWith: group, type: .group)
-                    messageList.hidesBottomBarWhenPushed = true
-                    self.navigationController?.pushViewController(messageList, animated: true)
-                }
+            
+            if selectedGroup.groupType == .private || selectedGroup.groupType == .public {
+
+                self.joinGroup(withGuid: selectedGroup.guid, name: selectedGroup.name ?? "", groupType: selectedGroup.groupType, password: "", indexPath: indexPath)
                 
-            }) { (error) in
-                DispatchQueue.main.async {
-                    if let errorMessage = error?.errorDescription {
-                       let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                        snackbar.show()
+            }else{
+
+                let alert = UIAlertController(title: "Enter Group Password", message: "Kindly, enter correct password to join the group.", preferredStyle: .alert)
+                let save = UIAlertAction(title: "Join", style: .default) { (alertAction) in
+                    let textField = alert.textFields![0] as UITextField
+                    
+                    if textField.text != "" {
+                        if let password = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
+                                   self.joinGroup(withGuid: selectedGroup.guid, name: selectedGroup.name ?? "", groupType: selectedGroup.groupType, password: password, indexPath: indexPath)
+                        }
+                    } else {
+                        self.showAlert(title: "Warning!", msg: "Password cannot be empty.")
                     }
                 }
-                print("joinGroup error:\(String(describing: error?.errorDescription))")
+                alert.addTextField { (textField) in
+                    textField.placeholder = "Enter your name"
+                    textField.isSecureTextEntry = true
+                }
+                let cancel = UIAlertAction(title: "Cancel", style: .default) { (alertAction) in }
+                alert.addAction(save)
+                alert.addAction(cancel)
+                self.present(alert, animated:true, completion: nil)
             }
+            
+           
         }else{
-            tableView.deselectRow(at: indexPath, animated: true)
+           
             let messageList = CometChatMessageList()
             messageList.set(conversationWith: selectedGroup, type: .group)
             messageList.hidesBottomBarWhenPushed = true
@@ -468,6 +476,30 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
+    
+    private func joinGroup(withGuid: String, name: String, groupType: CometChat.groupType, password: String, indexPath: IndexPath) {
+        CometChat.joinGroup(GUID: withGuid, groupType: groupType, password: password, onSuccess: { (group) in
+            DispatchQueue.main.async {
+                let message = NSLocalizedString("YOU_JOINED", comment: "") +  (name) + "."
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                snackbar.show()
+                self.tableView.deselectRow(at: indexPath, animated: true)
+                let messageList = CometChatMessageList()
+                messageList.set(conversationWith: group, type: .group)
+                messageList.hidesBottomBarWhenPushed = true
+                self.navigationController?.pushViewController(messageList, animated: true)
+            }
+            
+        }) { (error) in
+            DispatchQueue.main.async {
+                if let errorMessage = error?.errorDescription {
+                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                    snackbar.show()
+                }
+            }
+            print("joinGroup error:\(String(describing: error?.errorDescription))")
+        }
+    }
     
     /// This method loads the upcoming groups coming inside the tableview
     /// - Parameters:
@@ -535,57 +567,3 @@ extension CometChatGroupList : UISearchBarDelegate, UISearchResultsUpdating {
 /*  ----------------------------------------------------------------------------------------- */
 
 
-// MARK: - CometChatMessageDelegate Delegate
-
-extension CometChatGroupList : CometChatMessageDelegate {
-    
-    /**
-        This method triggers when real time event for  start typing received from  CometChat Pro SDK
-        - Parameter typingDetails: This specifies TypingIndicator Object.
-        - Author: CometChat Team
-        - Copyright:  ©  2020 CometChat Inc.
-        - See Also:
-        [CometChatGroupList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-2-comet-chat-group-list)
-        */
-    public func onTypingStarted(_ typingDetails: TypingIndicator) {
-          if let row = self.groups.firstIndex(where: {$0.guid == typingDetails.receiverID}) {
-              let indexPath = IndexPath(row: row, section: 0)
-              DispatchQueue.main.async {
-                  let cell = self.tableView.cellForRow(at: indexPath) as! CometChatGroupView
-                  self.storedVariable = cell.groupDetails.text
-                  let user = typingDetails.sender?.name
-                  cell.typing.text = user! + NSLocalizedString("IS_TYPING", comment: "")
-                  if cell.groupDetails.isHidden == false{
-                      cell.typing.isHidden = false
-                      cell.groupDetails.isHidden = true
-                  }
-                  cell.reloadInputViews()
-              }
-          }
-      }
-      
-    /**
-    This method triggers when real time event for  stop typing received from  CometChat Pro SDK
-    - Parameter typingDetails: This specifies TypingIndicator Object.
-    - Author: CometChat Team
-    - Copyright:  ©  2020 CometChat Inc.
-    - See Also:
-    [CometChatGroupList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-2-comet-chat-group-list)
-           */
-    public func onTypingEnded(_ typingDetails: TypingIndicator) {
-          if let row = self.groups.firstIndex(where: {$0.guid == typingDetails.receiverID}) {
-              let indexPath = IndexPath(row: row, section: 0)
-              DispatchQueue.main.async {
-                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatGroupView {
-                    if cell.typing.isHidden == false{
-                        cell.groupDetails.isHidden = false
-                        cell.typing.isHidden = true
-                    }
-                     cell.reloadInputViews()
-                }
-              }
-          }
-      }
-}
-
-/*  ----------------------------------------------------------------------------------------- */

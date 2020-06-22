@@ -20,11 +20,17 @@ class CometChatCreateGroup: UIViewController {
     @IBOutlet weak var createGroup: UIButton!
     @IBOutlet var backgroundView: UIView!
     @IBOutlet weak var createGroupBtnBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var passwordView: UIView!
+    @IBOutlet weak var password: UITextField!
+    @IBOutlet weak var typeView: UIView!
+    @IBOutlet weak var selectedGroupType: UILabel!
     
     
     // MARK: - Declaration of Variables
     
     let modelName = UIDevice.modelName
+    var group : Group?
+    var groupType : CometChat.groupType = .public
     var documentsUrl: URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }
@@ -33,11 +39,8 @@ class CometChatCreateGroup: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        if #available(iOS 13.0, *) {
-            view.backgroundColor = .systemBackground
-        } else {
-            view.backgroundColor = .white
-        }
+        
+        self.setupSuperView()
         self.setupNavigationBar()
         self.addObservers()
     }
@@ -73,6 +76,19 @@ class CometChatCreateGroup: UIViewController {
     
     
     // MARK: - Private Instance methods
+    
+    private func setupSuperView(){
+        if #available(iOS 13.0, *) {
+            view.backgroundColor = .systemBackground
+            typeView.layer.borderColor = UIColor.systemFill.cgColor
+        } else {
+            view.backgroundColor = .white
+            typeView.layer.borderColor = UIColor.lightGray.cgColor
+        }
+        typeView.layer.borderWidth = 1
+        typeView.clipsToBounds = true
+    }
+    
     
     /**
         This method setup navigationBar for createGroup viewController.
@@ -166,6 +182,7 @@ class CometChatCreateGroup: UIViewController {
     */
     @objc  func dismissKeyboard() {
         name.resignFirstResponder()
+        password.resignFirstResponder()
         if self.createGroup.frame.origin.y != 0 {
             createGroupBtnBottomConstraint.constant = 40
             UIView.animate(withDuration: 0.25) {
@@ -175,32 +192,96 @@ class CometChatCreateGroup: UIViewController {
     }
     
     
+    @IBAction func didSelectGroupPressed(_ sender: Any) {
+        let actionSheetController: UIAlertController = UIAlertController(title: nil, message: "Choose one of the group type to create group.", preferredStyle: .actionSheet)
+        
+        let publicGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PUBLIC", comment: "")  + " Group", style: .default) { action -> Void in
+            self.groupType = .public
+            self.selectedGroupType.text = NSLocalizedString("PUBLIC", comment: "")  + " Group"
+            self.passwordView.isHidden = true
+            self.password.text = ""
+        }
+        
+        let passwordProtectedGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PASSWORD_PROTECTED", comment: "")  + " Group", style: .default) { action -> Void in
+            self.groupType = .password
+            self.selectedGroupType.text = NSLocalizedString("PASSWORD_PROTECTED", comment: "")  + " Group"
+            self.passwordView.isHidden = false
+        }
+        
+        let privateGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PRIVATE", comment: "") + " Group", style: .default) { action -> Void in
+            self.groupType = .private
+            self.selectedGroupType.text = NSLocalizedString("PRIVATE", comment: "") + " Group"
+            self.passwordView.isHidden = true
+            self.password.text = ""
+        }
+        
+        let cancelAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("CANCEL", comment: ""), style: .cancel) { action -> Void in
+        }
+        cancelAction.setValue(UIColor.red, forKey: "titleTextColor")
+        actionSheetController.addAction(publicGroup)
+        actionSheetController.addAction(passwordProtectedGroup)
+        actionSheetController.addAction(privateGroup)
+        actionSheetController.addAction(cancelAction)
+        
+        // Added ActionSheet support for iPad
+        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad ){
+            if let currentPopoverpresentioncontroller =
+                actionSheetController.popoverPresentationController{
+                currentPopoverpresentioncontroller.sourceView = self.view
+                self.present(actionSheetController, animated: true, completion: nil)
+            }
+        }else{
+            self.present(actionSheetController, animated: true, completion: nil)
+        }
+    }
+    
+    
+    
     /**
     This method triggeres when  create group button pressed.
     - Author: CometChat Team
     - Copyright:  ©  2020 CometChat Inc.
     */
     @IBAction func didCreateGroupPressed(_ sender: Any) {
-        guard let name = name.text else {
-            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("ENTER_GROUP_NAME", comment: ""), duration: .short)
-            snackbar.show()
-            return
-        }
-        let group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .public, password: nil)
-        CometChat.createGroup(group: group, onSuccess: { (group) in
-            print("createGroup: \(group.stringValue())")
-            DispatchQueue.main.async {
-                let data:[String: Group] = ["group": group]
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupCreated"), object: nil, userInfo: data)
-                self.dismiss(animated: true, completion: nil)
+        
+        if selectedGroupType.text == "Select Group Type" {
+            self.showAlert(title: "Warning!", msg: "Select group type first to create a group.")
+       
+        }else if groupType == .password && password.text?.count == 0 {
+            self.showAlert(title: "Warning!", msg: "Group password cannot be empty.")
+        }else{
+            
+            guard let name = name.text else {
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("ENTER_GROUP_NAME", comment: ""), duration: .short)
+                snackbar.show()
+                return
             }
-        }) { (error) in
-            DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+            
+            if groupType == .public {
+                group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .public, password: nil)
+            }else if groupType == .password {
+                group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .password, password: password.text)
+            }else if groupType == .private {
+                group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .private, password: nil)
+            }
+            
+            if let group = group {
+                CometChat.createGroup(group: group, onSuccess: { (group) in
+                    print("createGroup: \(group.stringValue())")
+                    DispatchQueue.main.async {
+                        let data:[String: Group] = ["group": group]
+                        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupCreated"), object: nil, userInfo: data)
+                        self.dismiss(animated: true, completion: nil)
+                    }
+                }) { (error) in
+                    DispatchQueue.main.async {
+                        if let errorMessage = error?.errorDescription {
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                            snackbar.show()
+                        }
+                        print("error while creating group: \(String(describing: error?.errorDescription))")
+                    }
                 }
-                print("error while creating group: \(String(describing: error?.errorDescription))")
             }
         }
     }

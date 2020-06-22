@@ -1,4 +1,4 @@
-//  CometChatGroupList.swift
+//  CometChatBannedMembers.swift
 //  CometChatUIKit
 //  Created by CometChat Inc. on 20/09/19.
 //  Copyright ©  2020 CometChat Inc. All rights reserved.
@@ -9,28 +9,22 @@
 import UIKit
 import CometChatPro
 
-// MARK: - Declaration of Enums.
-enum Mode {
-    case fetchGroupMembers
-    case fetchAdministrators
-}
 
 /*  ----------------------------------------------------------------------------------------- */
 
-public class CometChatAddAdministrators: UIViewController {
+public class CometChatBannedMembers: UIViewController {
     
     // MARK: - Declaration of Variables
     
-    var groupMembers:[GroupMember] = [GroupMember]()
-    var administrators:[GroupMember] = [GroupMember]()
-    var memberRequest: GroupMembersRequest?
+    var bannedMembers:[GroupMember] = [GroupMember]()
+    var bannedMemberRequest: BannedGroupMembersRequest?
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
     var activityIndicator:UIActivityIndicatorView?
     var sectionTitle : UILabel?
     var sectionsArray = [String]()
     var currentGroup: Group?
-    var mode: Mode?
+    var mode: ModeratorMode?
     
     // MARK: - View controller lifecycle methods
     
@@ -42,8 +36,9 @@ public class CometChatAddAdministrators: UIViewController {
         self.setupTableView()
         self.addObservers()
         self.setupNavigationBar()
+        self.set(title: "Banned Members", mode: .always)
         if let group = currentGroup {
-            fetchAdmins(for: group)
+            fetchBannedMembers(for: group)
         }
         
     }
@@ -66,9 +61,9 @@ public class CometChatAddAdministrators: UIViewController {
     }
     
     /**
-     This method specifies the navigation bar title for CometChatAddAdministrators.
+     This method specifies the navigation bar title for CometChatAddModerators.
      - Parameters:
-     - title: This takes the String to set title for CometChatAddAdministrators.
+     - title: This takes the String to set title for CometChatAddModerators.
      - mode: This specifies the TitleMode such as :
      * .automatic : Automatically use the large out-of-line title based on the state of the previous item in the navigation bar.
      *  .never: Never use a larger title when this item is topmost.
@@ -91,7 +86,7 @@ public class CometChatAddAdministrators: UIViewController {
         }}
     
     /**
-     This method specifies the navigation bar color for CometChatAddAdministrators.
+     This method specifies the navigation bar color for CometChatAddModerators.
      - Parameters:
      - barColor: This specifes navigation bar color.
      - color:  This specifes navigation bar title color.
@@ -119,7 +114,7 @@ public class CometChatAddAdministrators: UIViewController {
     // MARK: - Private instance methods
     
     /**
-     This method observes for perticular events such as `didRefreshMembers` in CometChatAddAdministrators.
+     This method observes for perticular events such as `didRefreshMembers` in CometChatAddModerators.
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
@@ -136,12 +131,12 @@ public class CometChatAddAdministrators: UIViewController {
      */
     @objc func didRefreshMembers(_ notification: NSNotification) {
         if let group = currentGroup {
-            self.fetchAdmins(for: group)
+            self.fetchBannedMembers(for: group)
         }
     }
     
     /**
-     This method setup the tableview to load CometChatAddAdministrators.
+     This method setup the tableview to load CometChatAddModerators.
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      
@@ -167,7 +162,7 @@ public class CometChatAddAdministrators: UIViewController {
     }
     
     /**
-     This method register the cells for CometChatAddAdministrators.
+     This method register the cells for CometChatAddModerators.
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
@@ -203,8 +198,8 @@ public class CometChatAddAdministrators: UIViewController {
             self.navigationItem.rightBarButtonItem = closeButton
             
             switch mode {
-            case .fetchGroupMembers: self.set(title: NSLocalizedString("MAKE_GROUP_ADMIN", comment: ""), mode: .automatic)
-            case .fetchAdministrators: self.set(title: NSLocalizedString("ADMINISTRATORS", comment: ""), mode: .automatic)
+            case .fetchGroupMembers: self.set(title: NSLocalizedString("MAKE_GROUP_MODERATOR", comment: ""), mode: .automatic)
+            case .fetchModerators: self.set(title: NSLocalizedString("Moderators", comment: ""), mode: .automatic)
             case .none: break
             }
             self.setLargeTitleDisplayMode(.always)
@@ -226,7 +221,7 @@ public class CometChatAddAdministrators: UIViewController {
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
-    private func fetchAdmins(for group: Group){
+    private func fetchBannedMembers(for group: Group){
         DispatchQueue.main.async {
             self.activityIndicator?.startAnimating()
             self.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self.tableView.bounds.width, height: CGFloat(44))
@@ -234,11 +229,9 @@ public class CometChatAddAdministrators: UIViewController {
             self.tableView.tableFooterView = self.activityIndicator
             self.tableView.tableFooterView?.isHidden = false
         }
-        memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: currentGroup?.guid ?? "").set(limit: 100).build()
-        memberRequest?.fetchNext(onSuccess: { (groupMembers) in
-            
-            self.groupMembers = groupMembers.filter {$0.scope == .participant || $0.scope == .moderator}
-            self.administrators = groupMembers.filter {$0.scope == .admin}
+        bannedMemberRequest = BannedGroupMembersRequest.BannedGroupMembersRequestBuilder(guid: currentGroup?.guid ?? "").set(limit: 100).build()
+        bannedMemberRequest?.fetchNext(onSuccess: { (groupMembers) in
+            self.bannedMembers = groupMembers
             DispatchQueue.main.async {
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true
@@ -251,7 +244,7 @@ public class CometChatAddAdministrators: UIViewController {
                                       snackbar.show()
                 }
             }
-            print("fetchAdmins error:\(String(describing: error?.errorDescription))")
+            print("fetchBannedMembers error:\(String(describing: error?.errorDescription))")
         })
     }
 }
@@ -260,39 +253,23 @@ public class CometChatAddAdministrators: UIViewController {
 
 // MARK: - Table view Methods
 
-extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSource {
+extension CometChatBannedMembers: UITableViewDelegate , UITableViewDataSource {
     
     /// This method specifies the number of sections to display list of admins.
     /// - Parameter tableView: An object representing the table view requesting this information.
     public func numberOfSections(in tableView: UITableView) -> Int {
-        switch  mode {
-        case .fetchGroupMembers:
-            return 1
-        case .fetchAdministrators:
-            return 2
-        case .none: break
-        }
-        return 0
+        return 1
     }
     
-    /// This method specifies number of rows in CometChatAddAdministrators
+    /// This method specifies number of rows in CometChatAddModerators
     /// - Parameters:
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        if mode == .fetchAdministrators {
-            if section == 0 {
-                return 1
-            } else{
-                return administrators.count
-            }
-        }else if mode == .fetchGroupMembers {
-            return groupMembers.count
-        }else { return 0 }
+        return bannedMembers.count
     }
     
-    /// This method specifies the height for row in CometChatAddAdministrators
+    /// This method specifies the height for row in CometChatAddModerators
     /// - Parameters:
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
@@ -300,44 +277,25 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
         return 60
     }
     
-    /// This method specifies height for section in CometChatAddAdministrators
+    /// This method specifies height for section in CometChatAddModerators
     /// - Parameters:
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if section == 0 { return 20 } else { return 0 }
+         return 0
     }
     
     
-    /// This method specifies the view for admin  in CometChatAddAdministrators
+    /// This method specifies the view for admin  in CometChatAddModerators
     /// - Parameters:
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView.
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = UITableViewCell()
-        if mode == .fetchAdministrators {
-            if indexPath.section == 0 {
-                let addAdminCell = tableView.dequeueReusableCell(withIdentifier: "addMemberView", for: indexPath) as! AddMemberView
-                addAdminCell.textLabel?.text = NSLocalizedString("ADD_ADMIN", comment: "")
-                return addAdminCell
-            }else{
-                let  admin = administrators[safe:indexPath.row]
-                let membersCell = tableView.dequeueReusableCell(withIdentifier: "membersView", for: indexPath) as! MembersView
-                membersCell.member = admin
-                if admin?.uid == currentGroup?.owner {
-                    membersCell.scope.text = NSLocalizedString("OWNER", comment: "")
-                }
-                return membersCell
-            }
-            
-        }else if mode == .fetchGroupMembers {
-            let  member =  groupMembers[safe:indexPath.row]
-            let membersCell = tableView.dequeueReusableCell(withIdentifier: "membersView", for: indexPath) as! MembersView
-            membersCell.member = member
-            return membersCell
-        }
-        return cell
+        let  member =  bannedMembers[safe:indexPath.row]
+        let membersCell = tableView.dequeueReusableCell(withIdentifier: "membersView", for: indexPath) as! MembersView
+        membersCell.member = member
+        return membersCell
     }
     
     
@@ -351,98 +309,31 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
             
-            if self.mode == .fetchAdministrators {
-                if indexPath.section == 0 &&  indexPath.row == 0 {
-                    let addAdmins = CometChatAddAdministrators()
-                    addAdmins.mode = .fetchGroupMembers
-                    if let group = self.currentGroup {
-                        addAdmins.set(group: group)
-                    }
-                    self.navigationController?.pushViewController(addAdmins, animated: true)
-                }else{
-                    if  let selectedCell = tableView.cellForRow(at: indexPath) as? MembersView {
-                        if let member = selectedCell.member{
-                            let removeAdmin = UIAction(title: NSLocalizedString("DISMISS_AS_ADMIN", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { action in
-                                
-                                CometChat.updateGroupMemberScope(UID: member.uid ?? "", GUID: self.currentGroup?.guid ?? "", scope: .participant, onSuccess: { (success) in
-                                    
-                                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: ["guid":self.currentGroup?.guid ?? ""])
-                                    
-                                    DispatchQueue.main.async {
-                                        let message =  (member.name ?? "") + NSLocalizedString("is removed from admin privilege.", comment: "")
-                                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                                        snackbar.show()
-                                        if let group = self.currentGroup {
-                                            self.fetchAdmins(for: group)
-                                        }
-                                    }
-                                }) { (error) in
-                                    DispatchQueue.main.async {
-                                        if let errorMessage = error?.errorDescription {
-                                            if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
-                                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "You don't have privilege to make \(member.name!) as participant.", duration: .short)
-                                                snackbar.show()
-                                            }else{
-                                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                                snackbar.show()
-                                            }
-                                        }
-                                    }
-                                    print("updateGroupMemberScope error: \(String(describing: error?.errorDescription))")
-                                }
-                                
-                            }
-                            let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member?.name ?? ""
-                            let groupName = self.currentGroup?.name ?? ""
-                            
-                            if self.currentGroup?.owner == LoggedInUser.uid {
-                                
-                                if member.uid != LoggedInUser.uid {
-                                    return UIMenu(title: NSLocalizedString("REMOVE", comment: "") + "\(memberName)" + NSLocalizedString("AS_ADMIN_FROM", comment: "") + "\(groupName)" + NSLocalizedString("GROUP?" , comment: ""), children: [removeAdmin])
-                                }
-                            }
-                        }
-                    }
-                }
-            }else{
+            let unbanMember = UIAction(title: NSLocalizedString("UNBAN_MEMBER", comment: ""), image: UIImage(systemName: "person.crop.circle"), attributes: .destructive) { action in
                 if  let selectedCell = tableView.cellForRow(at: indexPath) as? MembersView {
-                    if let member = selectedCell.member {
-                        let removeAdmin = UIAction(title: NSLocalizedString("ASSIGN_AS_ADMIN", comment: ""), image: UIImage(systemName: "add"), attributes: .destructive) { action in
+                    if let member = selectedCell.member, let uid = member.uid, let guid = self.currentGroup?.guid {
+                        
+                        CometChat.unbanGroupMember(UID: uid, GUID: guid, onSuccess: { (sucess) in
+                            DispatchQueue.main.async {
+                            self.fetchBannedMembers(for: self.currentGroup!)
+                            let message =  (member.name ?? "") + NSLocalizedString("UNBANNED_SUCCESSFULLY", comment: "") 
+                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                            snackbar.show()
+                            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: nil)
+                            }
+                        }) { (error) in
+                            DispatchQueue.main.async {
+                                if let errorMessage = error?.errorDescription {
                             
-                            CometChat.updateGroupMemberScope(UID: member.uid ?? "", GUID: self.currentGroup?.guid ?? "", scope: .admin, onSuccess: { (success) in
-                                
-                                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: ["guid":self.currentGroup?.guid ?? ""])
-                                
-                                DispatchQueue.main.async {
-                                    let message =  (member.name ?? "") + NSLocalizedString("IS_NOW_ADMIN", comment: "")
-                                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                                    snackbar.show()
-                                    if let group = self.currentGroup {
-                                        self.fetchAdmins(for: group)
-                                    }
+                                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                        snackbar.show()
                                 }
-                            }) { (error) in
-                               DispatchQueue.main.async {
-                                   if let errorMessage = error?.errorDescription {
-                                       if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
-                                           let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "You don't have privilege to make \(member.name!) as admin.", duration: .short)
-                                           snackbar.show()
-                                       }else{
-                                           let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                           snackbar.show()
-                                       }
-                                   }
-                               }
-                                print("updateGroupMemberScope error: \(String(describing: error?.errorDescription))")
                             }
                         }
-                        let memberName = (tableView.cellForRow(at: indexPath) as? MembersView)?.member?.name ?? ""
-                        let groupName = self.currentGroup?.name ?? ""
-                        return UIMenu(title: NSLocalizedString("ADD" , comment: "") + "\(memberName)" + NSLocalizedString(" as admin in ", comment: "") + "\(groupName)" + NSLocalizedString("GROUP?", comment: "") , children: [removeAdmin])
                     }
                 }
             }
-            return UIMenu(title: "")
+            return UIMenu(title:"Are you sure want to unban member?", children: [unbanMember])
         })
     }
     
@@ -452,99 +343,39 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
     ///   - indexPath: specifies current index for TableViewCell.
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
-        if mode == .fetchAdministrators {
-            if indexPath.section == 0 &&  indexPath.row == 0 {
-                let addAdmins = CometChatAddAdministrators()
-                addAdmins.mode = .fetchGroupMembers
-                guard let group = currentGroup else { return }
-                addAdmins.set(group: group)
-                self.navigationController?.pushViewController(addAdmins, animated: true)
-            }else{
-            }
-            if #available(iOS 13.0, *) {
-            }else{
+
                 
                 if  let selectedCell = tableView.cellForRow(at: indexPath) as? MembersView {
-                    if let member = selectedCell.member {
-                        let alert = UIAlertController(title: NSLocalizedString("REMOVE", comment: ""), message: "Remove \(String(describing: member.name!.capitalized))" + NSLocalizedString(
-                        "AS_A_ADMIN", comment: ""), preferredStyle: .alert)
+                    if let member = selectedCell.member, let uid = member.uid, let guid = self.currentGroup?.guid {
+                        let alert = UIAlertController(title: "Unban Member", message: "Are you sure want to unban member?", preferredStyle: .alert)
                         
                         alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: { action in
                             
-                            CometChat.updateGroupMemberScope(UID: member.uid ?? "", GUID: self.currentGroup?.guid ?? "", scope: .participant, onSuccess: { (success) in
-                                let message =  (member.name ?? "") + NSLocalizedString("REMOVE_FROM_ADMIN_PREVILEDGE", comment: "")
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
+                            CometChat.unbanGroupMember(UID: uid, GUID: guid, onSuccess: { (sucess) in
+                                DispatchQueue.main.async {
+                                self.fetchBannedMembers(for: self.currentGroup!)
+                                let message =  (member.name ?? "") + NSLocalizedString("UNBANNED_SUCCESSFULLY", comment: "")
+                                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                                 snackbar.show()
-                                DispatchQueue.main.async {
-                                    if let group = self.currentGroup {
-                                        self.fetchAdmins(for: group)
-                                    }
-                                }
-                             }) { (error) in
-                                DispatchQueue.main.async {
-                                    if let errorMessage = error?.errorDescription {
-                                        if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
-                                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "You don't have privilege to make \(member.name!) as participant.", duration: .short)
-                                            snackbar.show()
-                                        }else{
-                                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                            snackbar.show()
-                                        }
-                                    }
-                                }
-                                print("updateGroupMemberScope error: \(String(describing: error?.errorDescription))")
-                            }
-                        }))
-                        alert.addAction(UIAlertAction(title: NSLocalizedString("CANCEL", comment: ""), style: .cancel, handler: { action in
-                        }))
-                        self.present(alert, animated: true)
-                    }
-                }
-            }
-        }else{
-            
-            if #available(iOS 13.0, *) {
-            }else{
-                if  let selectedCell = tableView.cellForRow(at: indexPath) as? MembersView {
-                    
-                    if let member = selectedCell.member {
-                        let alert = UIAlertController(title: NSLocalizedString("ADD" , comment: ""), message: "Add \(String(describing: member.name!.capitalized))" + NSLocalizedString(
-                        "AS_A_ADMIN", comment: ""), preferredStyle: .alert)
-                        
-                        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: { action in
-                            
-                            CometChat.updateGroupMemberScope(UID: member.uid ?? "", GUID: self.currentGroup?.guid ?? "", scope: .admin, onSuccess: { (success) in
-                                
-                                DispatchQueue.main.async {
-                                    self.navigationController?.popViewController(animated: true)
-                                    self.mode = .fetchGroupMembers
-                                    let message =  (member.name ?? "") + NSLocalizedString("IS_NOW_ADMIN", comment: "")
-                                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                                    snackbar.show()
-                                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: nil)
+                                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: nil)
                                 }
                             }) { (error) in
                                 DispatchQueue.main.async {
                                     if let errorMessage = error?.errorDescription {
-                                        if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
-                                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "You don't have privilege to make \(member.name!) as admin.", duration: .short)
-                                            snackbar.show()
-                                        }else{
+                                
                                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
                                             snackbar.show()
-                                        }
                                     }
                                 }
-                                print("updateGroupMemberScope error: \(String(describing: error?.errorDescription))")
                             }
+                
                         }))
                         alert.addAction(UIAlertAction(title: NSLocalizedString("CANCEL", comment: ""), style: .cancel, handler: { action in
                         }))
                         self.present(alert, animated: true)
                     }
                 }
-            }}
+            
     }
 }
 
@@ -552,7 +383,7 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
 
 // MARK: - CometChatGroupDelegate Delegate
 
-extension CometChatAddAdministrators: CometChatGroupDelegate {
+extension CometChatBannedMembers: CometChatGroupDelegate {
     
     /**
      This method triggers when someone joins group.
@@ -566,7 +397,7 @@ extension CometChatAddAdministrators: CometChatGroupDelegate {
     public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
         if let group = currentGroup {
             if group == joinedGroup {
-                fetchAdmins(for: group)
+                self.fetchBannedMembers(for: joinedGroup)
             }
         }
     }
@@ -584,7 +415,7 @@ extension CometChatAddAdministrators: CometChatGroupDelegate {
     public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
         if let group = currentGroup {
             if group == leftGroup {
-                fetchAdmins(for: group)
+                fetchBannedMembers(for: group)
             }
         }
     }
@@ -603,7 +434,7 @@ extension CometChatAddAdministrators: CometChatGroupDelegate {
     public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
         if let group = currentGroup {
             if group == kickedFrom {
-                fetchAdmins(for: group)
+                fetchBannedMembers(for: group)
             }
         }
     }
@@ -621,7 +452,7 @@ extension CometChatAddAdministrators: CometChatGroupDelegate {
     public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
         if let group = currentGroup {
             if group == bannedFrom {
-                fetchAdmins(for: group)
+                fetchBannedMembers(for: group)
             }
         }
     }
@@ -639,7 +470,7 @@ extension CometChatAddAdministrators: CometChatGroupDelegate {
     public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
         if let group = currentGroup {
             if group == unbannedFrom {
-                fetchAdmins(for: group)
+                fetchBannedMembers(for: group)
             }
         }
     }
@@ -659,7 +490,7 @@ extension CometChatAddAdministrators: CometChatGroupDelegate {
     public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
         if let group = currentGroup {
             if group == group {
-                fetchAdmins(for: group)
+                fetchBannedMembers(for: group)
             }
         }
     }
@@ -677,7 +508,7 @@ extension CometChatAddAdministrators: CometChatGroupDelegate {
     public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
         if let group = currentGroup {
             if group == group {
-                fetchAdmins(for: group)
+                fetchBannedMembers(for: group)
             }
         }
     }
