@@ -3306,7 +3306,7 @@ extension CometChatMessageList : CometChatMessageDelegate {
             }
             
         case .group:
-            CometChat.markAsRead(messageId: message.id, receiverId: message.receiverUid, receiverType: .user)
+            CometChat.markAsRead(messageId: message.id, receiverId: message.receiverUid, receiverType: .group)
             if chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [message])
             }else{
