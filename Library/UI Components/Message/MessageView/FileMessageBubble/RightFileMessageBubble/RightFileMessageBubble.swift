@@ -49,7 +49,6 @@ class RightFileMessageBubble: UITableViewCell {
                     name.text = fileMessage.attachment?.fileName.capitalized
                     type.text = fileMessage.attachment?.fileExtension.uppercased()
                     if let fileSize = fileMessage.attachment?.fileSize {
-                        print(Units(bytes: Int64(fileSize)).getReadableUnit())
                         size.text = Units(bytes: Int64(fileSize)).getReadableUnit()
                     }
                    }

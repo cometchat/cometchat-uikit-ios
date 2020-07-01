@@ -9,6 +9,12 @@
 import UIKit
 import CometChatPro
 
+protocol LeftTextMessageBubbleDelegate: AnyObject {
+    func didTapOnSentimentAnalysisViewForLeftBubble(indexPath: IndexPath)
+}
+
+
+
 /*  ----------------------------------------------------------------------------------------- */
 
 class LeftTextMessageBubble: UITableViewCell {
@@ -21,9 +27,15 @@ class LeftTextMessageBubble: UITableViewCell {
     @IBOutlet weak var message: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receiptStack: UIStackView!
+    @IBOutlet weak var messageStack: UIStackView!
     @IBOutlet weak var nameView: UIView!
+    @IBOutlet weak var topConstraint: NSLayoutConstraint!
+    @IBOutlet weak var sentimentAnalysisView: UIView!
     
     // MARK: - Declaration of Variables
+    var indexPath: IndexPath?
+    weak var delegate: LeftTextMessageBubbleDelegate?
+    let systemLanguage = Locale.preferredLanguages.first
     unowned var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -35,14 +47,15 @@ class LeftTextMessageBubble: UITableViewCell {
         }
     }
     
+    
     weak var textMessage: TextMessage? {
         didSet {
-            
             if let currentMessage = textMessage {
                 if let userName = currentMessage.sender?.name {
                     name.text = userName + ":"
                 }
-                message.text = currentMessage.text
+                self.parseProfanityFilter(forMessage: currentMessage)
+                self.parseSentimentAnalysis(forMessage: currentMessage)
                 receiptStack.isHidden = true
                 if currentMessage.receiverType == .group {
                     nameView.isHidden = false
@@ -54,11 +67,7 @@ class LeftTextMessageBubble: UITableViewCell {
                 }
                 timeStamp.text = String().setMessageTime(time: currentMessage.sentAt)
                 message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
-                if #available(iOS 13.0, *) {
-                    message.textColor = .label
-                } else {
-                    message.textColor = .black
-                }
+               
             }
         }
     }
@@ -106,6 +115,9 @@ class LeftTextMessageBubble: UITableViewCell {
         } else {
             selectionColor = .white
         }
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(self.didTapOnSentimentAnalysis(_:)))
+        sentimentAnalysisView.addGestureRecognizer(tap)
     }
     
     override func prepareForReuse() {
@@ -113,6 +125,13 @@ class LeftTextMessageBubble: UITableViewCell {
         textMessage = nil
         deletedMessage = nil
     }
+    
+    @objc func didTapOnSentimentAnalysis(_ sender: UITapGestureRecognizer? = nil) {
+        if let indexPAth = indexPath {
+            delegate?.didTapOnSentimentAnalysisViewForLeftBubble(indexPath: indexPAth)
+        }
+    }
+
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
@@ -135,6 +154,50 @@ class LeftTextMessageBubble: UITableViewCell {
     public func set(Image: UIImageView, forURL url: String) {
         let url = URL(string: url)
         Image.cf.setImage(with: url)
+    }
+    
+     func parseProfanityFilter(forMessage: TextMessage){
+        if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let profanityFilterDictionary = cometChatExtension["profanity-filter"] as? [String : Any] {
+            
+            if let profanity = profanityFilterDictionary["profanity"] as? String, let filteredMessage = profanityFilterDictionary["message_clean"] as? String {
+                
+                if profanity == "yes" {
+                    message.text = filteredMessage
+                }else{
+                    message.text = forMessage.text
+                }
+            }
+        }else{
+            self.message.text = forMessage.text
+        }
+    }
+    
+    private func parseSentimentAnalysis(forMessage: TextMessage){
+        if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let sentimentAnalysisDictionary = cometChatExtension["sentiment-analysis"] as? [String : Any] {
+            
+            if let sentiment = sentimentAnalysisDictionary["sentiment"] as? String {
+                if sentiment == "negative" {
+                    sentimentAnalysisView.isHidden = false
+                    message.textColor = UIColor.white
+                    message.text = "This message might contains negative sentiments."
+                    
+                }else{
+                    if #available(iOS 13.0, *) {
+                        message.textColor = .label
+                    } else {
+                        message.textColor = .black
+                    }
+                    sentimentAnalysisView.isHidden = true
+                }
+            }
+        }else{
+            if #available(iOS 13.0, *) {
+                message.textColor = .label
+            } else {
+                message.textColor = .black
+            }
+            sentimentAnalysisView.isHidden = true
+        }
     }
 }
 

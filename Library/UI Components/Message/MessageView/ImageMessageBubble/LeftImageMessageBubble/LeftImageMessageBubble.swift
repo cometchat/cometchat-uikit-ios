@@ -24,6 +24,8 @@ class LeftImageMessageBubble: UITableViewCell {
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var tintedView: UIView!
+    @IBOutlet weak var imageModerationView: UIView!
+    @IBOutlet weak var unsafeContentView: UIImageView!
     
     // MARK: - Declaration of Variables
     var selectionColor: UIColor {
@@ -49,10 +51,26 @@ class LeftImageMessageBubble: UITableViewCell {
             }
             self.receiptStack.isHidden = true
             timeStamp.text = String().setMessageTime(time: mediaMessage.sentAt)
-            imageMessage.cf.setImage(with: URL(string: mediaMessage.attachment?.fileUrl ?? ""))
             if let avatarURL = mediaMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: mediaMessage.sender?.name ?? "")
             }
+            if let mediaURL = mediaMessage.metaData, let imageUrl = mediaURL["fileURL"] as? String {
+                  let url = URL(string: imageUrl)
+                  if (url?.checkFileExist())! {
+                      do {
+                          let imageData = try Data(contentsOf: url!)
+                          let image = UIImage(data: imageData as Data)
+                          imageMessage.image = image
+                      } catch {
+                          print("Error loading image : \(error)")
+                      }
+                  }else{
+                      parseThumbnailForImage(forMessage: mediaMessage)
+                  }
+              }else{
+                  parseThumbnailForImage(forMessage: mediaMessage)
+              }
+              parseImageForModeration(forMessage: mediaMessage)
         }
     }
     
@@ -92,6 +110,36 @@ class LeftImageMessageBubble: UITableViewCell {
         let url = URL(string: url)
         Image.cf.setImage(with: url)
     }
+    
+    private func parseThumbnailForImage(forMessage: MediaMessage?) {
+         imageMessage.image = nil
+         if let metaData = forMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let thumbnailGenerationDictionary = cometChatExtension["thumbnail-generation"] as? [String : Any] {
+             if let url = URL(string: thumbnailGenerationDictionary["url_medium"] as? String ?? "") {
+                 imageMessage.cf.setImage(with: url)
+             }
+         }else{
+             if let url = URL(string: mediaMessage.attachment?.fileUrl ?? "") {
+                 imageMessage.cf.setImage(with: url)
+             }
+         }
+     }
+     
+     private func parseImageForModeration(forMessage: MediaMessage?) {
+         if let metaData = forMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let imageModerationDictionary = cometChatExtension["image-moderation"] as? [String : Any] {
+             if let unsafeContent = imageModerationDictionary["unsafe"] as? String {
+                 if unsafeContent == "yes" {
+                     imageModerationView.addBlur()
+                     imageModerationView.roundViewCorners([.layerMaxXMaxYCorner,.layerMaxXMinYCorner,.layerMinXMaxYCorner,.layerMinXMinYCorner], radius: 15)
+                     imageModerationView.isHidden = false
+                     unsafeContentView.isHidden = false
+                 }else{
+                     imageModerationView.isHidden = true
+                     unsafeContentView.isHidden = true
+                 }
+                
+             }
+         }
+     }
     
 }
 

@@ -124,7 +124,6 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
                 self.url = linkURL
             }
         }
-        
     }
     
     /**

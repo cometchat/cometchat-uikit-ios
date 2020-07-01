@@ -53,6 +53,7 @@ class LeftVideoMessageBubble: UITableViewCell {
             if let avatarURL = mediaMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: mediaMessage.sender?.name ?? "")
             }
+            parseThumbnailForVideo(forMessage: mediaMessage)
         }
     }
     
@@ -95,4 +96,14 @@ class LeftVideoMessageBubble: UITableViewCell {
         Image.cf.setImage(with: url)
     }
     
+    private func parseThumbnailForVideo(forMessage: MediaMessage?) {
+        imageMessage.image = nil
+        if let metaData = forMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let thumbnailGenerationDictionary = cometChatExtension["thumbnail-generation"] as? [String : Any] {
+            if let url = URL(string: thumbnailGenerationDictionary["url_medium"] as? String ?? "") {
+             self.imageMessage.cf.setImage(with: url)
+            }
+        }else{
+         imageMessage.image = UIImage(color: #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1))
+        }
+    }
 }

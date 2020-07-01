@@ -640,3 +640,48 @@ public extension UIImage {
         self.init(cgImage: cgImage)
     }
 }
+
+//Blur the Image:
+protocol Bluring {
+    func addBlur(_ alpha: CGFloat)
+}
+
+extension Bluring where Self: UIView {
+    func addBlur(_ alpha: CGFloat = 1) {
+        // create effect
+        if #available(iOS 13.0, *) {
+            let effect = UIBlurEffect(style: .systemThinMaterialDark)
+            let effectView = UIVisualEffectView(effect: effect)
+            
+            // set boundry and alpha
+            effectView.frame = self.bounds
+            effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            effectView.alpha = alpha
+            self.addSubview(effectView)
+        } else {
+            let effect = UIBlurEffect(style: .dark)
+            let effectView = UIVisualEffectView(effect: effect)
+            
+            // set boundry and alpha
+            effectView.frame = self.bounds
+            effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            effectView.alpha = alpha
+            self.addSubview(effectView)
+        }
+        
+    }
+}
+
+// Conformance
+extension UIView: Bluring {}
+
+extension URL    {
+    func checkFileExist() -> Bool {
+        let path = self.path
+        if (FileManager.default.fileExists(atPath: path))   {
+            return true
+        }else{
+            return false;
+        }
+    }
+}
