@@ -17,7 +17,7 @@ import CometChatPro
     func didMicrophoneButtonPressed(with: UILongPressGestureRecognizer)
     func didSendButtonPressed()
     func didAttachmentButtonPressed()
-    func didStickerButtonPressed()
+    func didReactionButtonPressed()
 }
 
 /*  ----------------------------------------------------------------------------------------- */
@@ -35,7 +35,7 @@ import CometChatPro
     @IBOutlet weak var send: UIButton!
     @IBOutlet weak var microphone: UIButton!
     @IBOutlet weak var textView: UITextView!
-    @IBOutlet weak var sticker: UIButton!
+    @IBOutlet weak var reaction: UIButton!
     
     // MARK: - Initialization of required Methods
     
@@ -74,8 +74,8 @@ import CometChatPro
     
     /// This method triggers when sticker button pressed
     /// - Parameter sender: This specifies the sender Object
-    @IBAction func stickerButtonPressed(_ sender: Any) {
-        internalDelegate?.didStickerButtonPressed()
+    @IBAction func reactionButtonPressed(_ sender: Any) {
+        internalDelegate?.didReactionButtonPressed()
     }
     
     /// This method triggers when attchment button pressed

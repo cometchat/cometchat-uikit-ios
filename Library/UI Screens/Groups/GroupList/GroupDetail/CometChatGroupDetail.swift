@@ -442,21 +442,18 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                 let administratorCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
                 administratorCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 administratorCell.title.text = "Administrators"
-                administratorCell.adminCount.text = "\(administrators.count)"
                 return administratorCell
                 
             case CometChatGroupDetail.MODERATORS_CELL:
                 let administratorCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
                 administratorCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 administratorCell.title.text = "Moderators"
-                administratorCell.adminCount.text = "\(moderators.count)"
                 return administratorCell
                 
             case CometChatGroupDetail.BANNED_MEMBER_CELL:
                 let administratorCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
                 administratorCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 administratorCell.title.text = "Banned Members"
-                administratorCell.adminCount.text = "\(bannedMembers.count)"
                 return administratorCell
             default:break
             }

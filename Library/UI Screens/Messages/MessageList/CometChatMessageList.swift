@@ -26,6 +26,10 @@ enum MessageMode {
     case reply
 }
 
+public enum Reaction {
+    case heart
+    case thumbsup
+}
 
 enum HideView {
     case blockedView
@@ -90,6 +94,8 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     
     // MARK: - Declaration of Outlets
     
+    @IBOutlet weak var reactionView: LiveReaction!
+    @IBOutlet weak var reaction: UIButton!
     @IBOutlet weak var microhone: UIButton!
     @IBOutlet weak var audioNotePauseButton: UIButton!
     @IBOutlet weak var audioNoteSendButton: UIButton!
@@ -126,6 +132,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     
     var currentUser: User?
     var currentGroup: Group?
+    var currentReaction: Reaction = .thumbsup
     var currentEntity: CometChat.ReceiverType?
     var messageRequest:MessagesRequest?
     var memberRequest: GroupMembersRequest?
@@ -186,7 +193,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         setupDelegates()
         hideSystemBackButton(bool: true)
     }
-
+    
     
     deinit {
         print("CometChatMessageList deallocated ")
@@ -248,7 +255,20 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             break
         }
     }
-  
+    
+    public func set(liveReaction: Reaction) {
+        switch liveReaction {
+        case .heart:
+            self.currentReaction = liveReaction
+            reaction.setImage(#imageLiteral(resourceName: "heart"), for: .normal)
+            reactionView.image1 = #imageLiteral(resourceName: "heart")
+        case .thumbsup:
+            self.currentReaction = liveReaction
+            reaction.setImage(#imageLiteral(resourceName: "thumbsup"), for: .normal)
+            reactionView.image1 = #imageLiteral(resourceName: "thumbsup")
+        }
+    }
+    
     
     // MARK: - CometChatPro Instance Methods
     
@@ -582,7 +602,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         
         if let metaData = message.metaData , let type = metaData["type"] as? String {
             if type == "reply" {
-               detectedExtension = .reply
+                detectedExtension = .reply
             }else{
                 detectedExtension = .none
             }
@@ -1158,6 +1178,16 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     forwardButton.isHidden = false
                     messageActionView.isHidden = false
                 }
+                
+                if  let selectedCell = tableView?.cellForRow(at: indexPath) as? RightReplyMessageBubble {
+                    AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+                    self.selectedMessage = selectedCell.textMessage
+                    editButton.isHidden = false
+                    deleteButton.isHidden = false
+                    forwardButton.isHidden = false
+                    messageActionView.isHidden = false
+                }
+                
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? RightFileMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
                     self.selectedMessage = selectedCell.fileMessage
@@ -1196,7 +1226,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
                         self.selectedMessage = selectedCell.textMessage
-                        editButton.isHidden = false
+                        editButton.isHidden = true
                         deleteButton.isHidden = false
                         forwardButton.isHidden = false
                         messageActionView.isHidden = false
@@ -1208,6 +1238,24 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         messageActionView.isHidden = false
                     }
                 }
+                
+                if  let selectedCell = tableView?.cellForRow(at: indexPath) as? LeftReplyMessageBubble {
+                    AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
+                        self.selectedMessage = selectedCell.textMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = false
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }else{
+                        self.selectedMessage = selectedCell.textMessage
+                        editButton.isHidden = true
+                        deleteButton.isHidden = true
+                        forwardButton.isHidden = false
+                        messageActionView.isHidden = false
+                    }
+                }
+                
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? LeftImageMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
@@ -1470,12 +1518,9 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      */
     private func setupChatView(){
         chatView.internalDelegate = self
-        if #available(iOS 12.0, *) {
-            if traitCollection.userInterfaceStyle == .dark {
-                chatView.sticker.imageView?.image = #imageLiteral(resourceName: "stickerDark")
-            }} else { }
         chatView.textView.delegate = self
         textView.delegate = self
+        textView.allowsEditingTextAttributes = true
     }
     
     /**
@@ -1753,9 +1798,9 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             self.messageActionView.isHidden = true
             self.hide(view: .editMessageView, false)
             guard let message = selectedMessages.first else { return }
-            if let name = message.sender?.name {
-                editViewName.text = name.capitalized
-            }
+            
+            editViewName.text = "Edit Message"
+            
             if let message = (message as? TextMessage)?.text {
                 editViewMessage.text = message
                 textView.text = message
@@ -2141,8 +2186,10 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                                 receiverCell.linkPreviewDelegate = self
                                 self.addSwipeGestureForMessage(cell: receiverCell, message: message)
                                 return receiverCell
-                             case .reply:
+                            case .reply:
                                 let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftReplyMessageBubble", for: indexPath) as! LeftReplyMessageBubble
+                                receiverCell.indexPath = indexPath
+                                receiverCell.delegate = self
                                 receiverCell.textMessage = textMessage
                                 self.addSwipeGestureForMessage(cell: receiverCell, message: message)
                                 return receiverCell
@@ -2152,11 +2199,11 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                                 receiverCell.delegate = self
                                 receiverCell.textMessage = textMessage
                                 self.addSwipeGestureForMessage(cell: receiverCell, message: message)
-                               
+                                
                                 return receiverCell
                                 
                             case .thumbnailGeneration, .imageModeration: break
-                           
+                                
                             }
                         }
                     case .text where message.senderUid == LoggedInUser.uid:
@@ -2178,6 +2225,7 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                             case .reply:
                                 let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightReplyMessageBubble", for: indexPath) as! RightReplyMessageBubble
                                 senderCell.textMessage = textMessage
+                                senderCell.indexPath = indexPath
                                 self.addSwipeGestureForMessage(cell: senderCell, message: message)
                                 
                                 if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
@@ -2191,7 +2239,6 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                                 let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightTextMessageBubble", for: indexPath) as! RightTextMessageBubble
                                 senderCell.textMessage = textMessage
                                 senderCell.indexPath = indexPath
-                                senderCell.delegate = self
                                 self.addSwipeGestureForMessage(cell: senderCell, message: message)
                             
                                 if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
@@ -2722,6 +2769,7 @@ extension CometChatMessageList : UITextViewDelegate {
             }
             CometChat.endTyping(indicator: indicator)
             chatView.microphone.isHidden = false
+            chatView.reaction.isHidden = false
             chatView.send.isHidden = true
         }
     }
@@ -2735,10 +2783,12 @@ extension CometChatMessageList : UITextViewDelegate {
         if textView.text?.count == 0 {
             CometChat.startTyping(indicator: indicator)
             chatView.microphone.isHidden = false
+            chatView.reaction.isHidden = false
             chatView.send.isHidden = true
         }else{
             CometChat.endTyping(indicator: indicator)
             chatView.microphone.isHidden = true
+            chatView.reaction.isHidden = true
             chatView.send.isHidden = false
         }
         CometChat.startTyping(indicator: indicator)
@@ -2825,6 +2875,35 @@ extension CometChatMessageList:QLPreviewControllerDataSource, QLPreviewControlle
 extension CometChatMessageList : ChatViewInternalDelegate {
     
     
+    public func didReactionButtonPressed() {
+        if let user = currentUser {
+            let reactionIndicator = TypingIndicator(receiverID: user.uid ?? "", receiverType: .user)
+            if currentReaction == .heart {
+                reactionIndicator.metadata = ["type":"live_reaction", "reaction": "heart"]
+            }else{
+                reactionIndicator.metadata = ["type":"live_reaction", "reaction": "thumbsup"]
+            }
+            CometChat.startTyping(indicator: reactionIndicator)
+            reactionView.startAnimation()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                CometChat.endTyping(indicator: reactionIndicator)
+                self.reactionView.stopAnimation()
+            })
+        }else if let group = currentGroup {
+            let reactionIndicator = TypingIndicator(receiverID: group.guid , receiverType: .group)
+            if currentReaction == .heart {
+                reactionIndicator.metadata = ["type":"live_reaction", "reaction":"heart"]
+            }else{
+                reactionIndicator.metadata = ["type":"live_reaction", "reaction":"thumbsup"]
+            }
+            CometChat.startTyping(indicator: reactionIndicator)
+            reactionView.startAnimation()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                CometChat.endTyping(indicator: reactionIndicator)
+                self.reactionView.stopAnimation()
+            })
+        }
+    }
     
     public func didMicrophoneButtonPressed(with: UILongPressGestureRecognizer) {
         
@@ -3057,7 +3136,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                     textMessage?.sender?.uid = LoggedInUser.uid
                     textMessage?.senderUid = LoggedInUser.uid
                     textMessage?.metaData = ["type": "reply","message":editViewMessage.text as Any]
-                   
+                    
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [textMessage!])
                         self.filteredMessages.append(textMessage!)
@@ -3113,7 +3192,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                     textMessage?.senderUid = LoggedInUser.uid
                     textMessage?.metaData = ["google":"google"]
                     textMessage?.metaData = ["type": "reply","message":editViewMessage.text as Any]
-                  
+                    
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [textMessage!])
                         guard let indicator = typingIndicator else {
@@ -3175,7 +3254,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                     textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
                     textMessage?.sender?.uid = LoggedInUser.uid
                     textMessage?.senderUid = LoggedInUser.uid
-    
+                    
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [textMessage!])
                         self.filteredMessages.append(textMessage!)
@@ -3201,7 +3280,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                         }
                     }
                     CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
-                         print("sendTextMessage onSuccess: \(String(describing: message.stringValue()))")
+                        print("sendTextMessage onSuccess: \(String(describing: message.stringValue()))")
                         if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
                             self.chatMessages[lastSection][row] = message
                             DispatchQueue.main.async{ [weak self] in
@@ -3225,7 +3304,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                     textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
                     textMessage?.sender?.uid = LoggedInUser.uid
                     textMessage?.senderUid = LoggedInUser.uid
-                  
+                    
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [textMessage!])
                         guard let indicator = typingIndicator else {
@@ -3250,7 +3329,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                         }
                     }
                     CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
-                         print("sendTextMessage onSuccess: \(String(describing: message.stringValue()))")
+                        print("sendTextMessage onSuccess: \(String(describing: message.stringValue()))")
                         if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
                             self.chatMessages[lastSection][row] = message
                             DispatchQueue.main.async{ [weak self] in
@@ -3306,7 +3385,7 @@ extension CometChatMessageList : CometChatMessageDelegate {
             }
             
         case .group:
-            CometChat.markAsRead(messageId: message.id, receiverId: message.receiverUid, receiverType: .group)
+            CometChat.markAsRead(messageId: message.id, receiverId: message.receiverUid, receiverType: .user)
             if chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [message])
             }else{
@@ -3480,13 +3559,37 @@ extension CometChatMessageList : CometChatMessageDelegate {
         DispatchQueue.main.async{ [weak self] in
             guard let strongSelf = self else { return }
             if typingDetails.sender?.uid == strongSelf.currentUser?.uid && typingDetails.receiverType == .user{
-                strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("TYPING", comment: ""))
                 
-            }else if typingDetails.receiverType == .group  && typingDetails.receiverID == strongSelf.currentGroup?.guid {
-                if let user = typingDetails.sender?.name {
-                    strongSelf.setupNavigationBar(withSubtitle: "\(String(describing: user)) " + NSLocalizedString("IS_TYPING", comment: ""))
+                if let typingMetaData = typingDetails.metadata, let type = typingMetaData["type"] as? String ,let reaction = typingMetaData["reaction"] as? String {
+                    if type == "live_reaction" {
+                        if reaction == "heart" || reaction == "thumbsup" {
+                            strongSelf.reactionView.startAnimation()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                                strongSelf.reactionView.stopAnimation()
+                            })
+                        }
+                    }
+                }else{
+                    strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("TYPING", comment: ""))
                 }
                 
+            }else if typingDetails.receiverType == .group  && typingDetails.receiverID == strongSelf.currentGroup?.guid {
+                
+                if let typingMetaData = typingDetails.metadata, let type = typingMetaData["type"] as? String ,let reaction = typingMetaData["reaction"] as? String {
+                    if type == "live_reaction" {
+                        if reaction == "heart" || reaction == "thumbsup" {
+                            strongSelf.reactionView.startAnimation()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                                strongSelf.reactionView.stopAnimation()
+                            })
+                        }
+                    }
+                }else{
+                    if let user = typingDetails.sender?.name {
+                        strongSelf.setupNavigationBar(withSubtitle: "\(String(describing: user)) " + NSLocalizedString("IS_TYPING", comment: ""))
+                    }
+                    
+                }
             }
         }
     }
@@ -3502,17 +3605,46 @@ extension CometChatMessageList : CometChatMessageDelegate {
     public func onTypingEnded(_ typingDetails: TypingIndicator) {
         DispatchQueue.main.async{ [weak self] in
             guard let strongSelf = self else { return }
+            
             if typingDetails.sender?.uid == strongSelf.currentUser?.uid && typingDetails.receiverType == .user{
-                strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("ONLINE", comment: ""))
                 
-            }else if typingDetails.receiverType == .group  && typingDetails.receiverID == strongSelf.currentGroup?.guid {
-                strongSelf.setupNavigationBar(withSubtitle: strongSelf.membersCount ?? "")
+                if let typingMetaData = typingDetails.metadata, let type = typingMetaData["type"] as? String ,let reaction = typingMetaData["reaction"] as? String {
+                    if type == "live_reaction" {
+                        if type == "live_reaction" {
+                            if reaction == "heart" || reaction == "thumbsup" {
+                                strongSelf.reactionView.stopAnimation()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                                    strongSelf.reactionView.stopAnimation()
+                                })
+                            }
+                        }
+                    }else{
+                        strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("ONLINE", comment: ""))
+                    }
+                    
+                }else if typingDetails.receiverType == .group  && typingDetails.receiverID == strongSelf.currentGroup?.guid {
+                    
+                    if let typingMetaData = typingDetails.metadata, let type = typingMetaData["type"] as? String ,let reaction = typingMetaData["reaction"] as? String {
+                        if type == "live_reaction" {
+                            if type == "live_reaction" {
+                                if reaction == "heart" || reaction == "thumbsup" {
+                                    strongSelf.reactionView.stopAnimation()
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                                        strongSelf.reactionView.stopAnimation()
+                                    })
+                                }
+                            }
+                        }else{
+                            strongSelf.setupNavigationBar(withSubtitle: strongSelf.membersCount ?? "")
+                        }
+                    }
+                }
             }
         }
     }
     
     public func onMessageEdited(message: BaseMessage) {
-
+        
         DispatchQueue.main.async {  [weak self] in
             guard let strongSelf = self else { return }
             switch message.receiverType {
@@ -3753,7 +3885,7 @@ extension CometChatMessageList : SmartRepliesViewDelegate {
             textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
             textMessage?.sender?.uid = LoggedInUser.uid
             textMessage?.senderUid = LoggedInUser.uid
-          
+            
             self.chatMessages[lastSection].append(textMessage!)
             self.filteredMessages.append(textMessage!)
             self.hide(view: .smartRepliesView, true)
@@ -3794,7 +3926,7 @@ extension CometChatMessageList : SmartRepliesViewDelegate {
             textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
             textMessage?.sender?.uid = LoggedInUser.uid
             textMessage?.senderUid = LoggedInUser.uid
-           
+            
             self.chatMessages[lastSection].append(textMessage!)
             self.filteredMessages.append(textMessage!)
             self.hide(view: .smartRepliesView, true)
@@ -3873,52 +4005,65 @@ extension CometChatMessageList: LinkPreviewDelegate {
 
 
 extension CometChatMessageList: LeftTextMessageBubbleDelegate {
-   
+    
     
     func didTapOnSentimentAnalysisViewForLeftBubble(indexPath: IndexPath) {
-        
+        if let cell = self.tableView?.cellForRow(at: indexPath) as? LeftTextMessageBubble {
         let alert = UIAlertController(title: "Warning!", message: "Are you sure want to view this message?", preferredStyle: .alert)
-
         alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
-            if let cell = self.tableView?.cellForRow(at: indexPath) as? LeftTextMessageBubble {
-                  cell.sentimentAnalysisView.isHidden = true
-                  if let message = cell.textMessage {
-                      cell.parseProfanityFilter(forMessage: message)
-                      if #available(iOS 13.0, *) {
-                          cell.message.textColor = .label
-                      } else {
-                          cell.message.textColor = .black
-                      }
-                  }
-              }
-          }))
+                self.tableView?.beginUpdates()
+                cell.message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+                cell.sentimentAnalysisView.isHidden = true
+                cell.spaceConstraint.constant = 0
+                cell.widthconstraint.constant = 0
+                if let message = cell.textMessage {
+                    cell.parseProfanityFilter(forMessage: message)
+                    if #available(iOS 13.0, *) {
+                        cell.message.textColor = .label
+                    } else {
+                        cell.message.textColor = .black
+                    }
+                }
+             self.tableView?.endUpdates()
+        }))
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
-          }))
+        }))
         present(alert, animated: true, completion: nil)
+    }
     }
 }
 
 /*  ----------------------------------------------------------------------------------------- */
 
 
-extension CometChatMessageList: RightTextMessageBubbleDelegate {
-   
-    
-    func didTapOnSentimentAnalysisViewForRightBubble(indexPath: IndexPath) {
-        
-        let alert = UIAlertController(title: "Warning!", message: "Are you sure want to view this message?", preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
-            if let cell = self.tableView?.cellForRow(at: indexPath) as? RightTextMessageBubble {
-                  cell.sentimentAnalysisView.isHidden = true
-                  if let message = cell.textMessage {
-                      cell.parseProfanityFilter(forMessage: message)
-                          cell.message.textColor = .white
-                  }
-              }
-          }))
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
-          }))
-        present(alert, animated: true, completion: nil)
+extension CometChatMessageList: LeftReplyMessageBubbleDelegate {
+    
+    
+    func didTapOnSentimentAnalysisViewForLeftReplyBubble(indexPath: IndexPath) {
+            if let cell = self.tableView?.cellForRow(at: indexPath) as? LeftReplyMessageBubble {
+            let alert = UIAlertController(title: "Warning!", message: "Are you sure want to view this message?", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
+                    self.tableView?.beginUpdates()
+                    cell.message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+                    cell.sentimentAnalysisView.isHidden = true
+                    cell.spaceConstraint.constant = 0
+                    cell.widthconstraint.constant = 0
+                    if let message = cell.textMessage {
+                        cell.parseProfanityFilter(forMessage: message)
+                        if #available(iOS 13.0, *) {
+                            cell.message.textColor = .label
+                        } else {
+                            cell.message.textColor = .black
+                        }
+                    }
+                 self.tableView?.endUpdates()
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+            }))
+            present(alert, animated: true, completion: nil)
+        }
     }
+    
 }
+

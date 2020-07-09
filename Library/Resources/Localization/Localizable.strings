@@ -127,3 +127,4 @@
 "HISTORY" =  "HISTORY";
 "VIDEO_CALL" =  "Video Call";
 "AUDIO_CALL" =  "Audio Call";
+"MAY_CONTAIN_NEGATIVE_SENTIMENT" = "This message may contain sensitive content.";

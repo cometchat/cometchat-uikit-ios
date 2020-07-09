@@ -41,7 +41,9 @@
                 <outlet property="editViewName" destination="leD-fD-Z9y" id="oNt-nf-U6E"/>
                 <outlet property="forwardButton" destination="Jjv-cd-qUF" id="iUB-v5-B6p"/>
                 <outlet property="messageActionView" destination="xu2-ON-Z9i" id="qgK-1k-YQd"/>
-                <outlet property="microhone" destination="Rfd-xt-wbC" id="za2-NC-Awl"/>
+                <outlet property="microhone" destination="m6S-gX-4oV" id="Ql5-GQ-vJd"/>
+                <outlet property="reaction" destination="Rfd-xt-wbC" id="0AZ-wi-ExC"/>
+                <outlet property="reactionView" destination="5ab-fB-Q9Q" id="Mwj-jf-ilg"/>
                 <outlet property="shareButton" destination="h34-vz-mFt" id="kd6-z1-uPR"/>
                 <outlet property="smartRepliesView" destination="3MV-1s-aPu" id="EaJ-Wa-97S"/>
                 <outlet property="tableView" destination="lFr-Q7-eoy" id="3VA-PD-dIX"/>
@@ -87,21 +89,21 @@
                                         </userDefinedRuntimeAttribute>
                                     </userDefinedRuntimeAttributes>
                                 </textView>
-                                <button hidden="YES" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="m6S-gX-4oV">
+                                <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="m6S-gX-4oV">
                                     <rect key="frame" x="279" y="5" width="30" height="30"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="30" id="EXy-be-Sl8"/>
                                         <constraint firstAttribute="width" constant="30" id="J97-xU-oZy"/>
                                     </constraints>
-                                    <state key="normal" image="sticker.png"/>
+                                    <state key="normal" image="microphone.png"/>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                             <integer key="value" value="15"/>
                                         </userDefinedRuntimeAttribute>
                                     </userDefinedRuntimeAttributes>
                                     <connections>
-                                        <action selector="stickerButtonPressed:" destination="zhP-kp-dK8" eventType="touchUpInside" id="o1v-ud-Nkd"/>
+                                        <action selector="microphoneButtonPressed:" destination="zhP-kp-dK8" eventType="touchUpInside" id="EsX-5z-Qnd"/>
                                     </connections>
                                 </button>
                             </subviews>
@@ -139,15 +141,13 @@
                         <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rfd-xt-wbC">
                             <rect key="frame" x="374" y="13" width="30" height="30"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <state key="normal" image="microphone.png"/>
-                            <userDefinedRuntimeAttributes>
-                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                    <integer key="value" value="15"/>
-                                </userDefinedRuntimeAttribute>
-                            </userDefinedRuntimeAttributes>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="30" id="ECX-7Y-uBy"/>
+                                <constraint firstAttribute="height" constant="30" id="uHe-Hr-ac4"/>
+                            </constraints>
+                            <state key="normal" image="heart.png"/>
                             <connections>
-                                <action selector="microphoneButtonPressed:" destination="zhP-kp-dK8" eventType="touchUpInside" id="hJO-9V-Cq8"/>
-                                <action selector="sendButtonPressed:" destination="zhP-kp-dK8" eventType="touchUpInside" id="G1n-6j-3Ob"/>
+                                <action selector="reactionButtonPressed:" destination="zhP-kp-dK8" eventType="touchUpInside" id="sWE-Ss-g6E"/>
                             </connections>
                         </button>
                         <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cvL-3A-I0M">
@@ -170,7 +170,6 @@
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                     <constraints>
-                        <constraint firstItem="Rfd-xt-wbC" firstAttribute="height" secondItem="SC4-HH-0UW" secondAttribute="height" id="3H4-yX-048"/>
                         <constraint firstAttribute="bottom" secondItem="MEN-6h-Cq0" secondAttribute="bottom" constant="8" id="836-dB-Vi8"/>
                         <constraint firstItem="Rfd-xt-wbC" firstAttribute="leading" secondItem="SC4-HH-0UW" secondAttribute="leading" id="9Yl-kZ-cuH"/>
                         <constraint firstItem="m6S-gX-4oV" firstAttribute="bottom" secondItem="SC4-HH-0UW" secondAttribute="bottom" id="FXb-AI-s51"/>
@@ -185,18 +184,17 @@
                         <constraint firstItem="SC4-HH-0UW" firstAttribute="firstBaseline" secondItem="cvL-3A-I0M" secondAttribute="firstBaseline" id="ds7-XN-NpR"/>
                         <constraint firstAttribute="trailing" secondItem="SC4-HH-0UW" secondAttribute="trailing" constant="10" id="iiE-aP-ZPo"/>
                         <constraint firstItem="m6S-gX-4oV" firstAttribute="bottom" secondItem="cvL-3A-I0M" secondAttribute="bottom" id="nrh-ZO-zD1"/>
-                        <constraint firstItem="Rfd-xt-wbC" firstAttribute="width" secondItem="SC4-HH-0UW" secondAttribute="width" id="rSZ-nO-z1H"/>
                         <constraint firstItem="SC4-HH-0UW" firstAttribute="bottom" secondItem="MEN-6h-Cq0" secondAttribute="bottom" constant="-5" id="xKf-yW-fNb"/>
                     </constraints>
                     <connections>
                         <outlet property="attachment" destination="cvL-3A-I0M" id="s5a-x0-xhi"/>
-                        <outlet property="microphone" destination="Rfd-xt-wbC" id="2Da-hE-dyP"/>
+                        <outlet property="microphone" destination="m6S-gX-4oV" id="DmW-uG-ukJ"/>
+                        <outlet property="reaction" destination="Rfd-xt-wbC" id="fSD-QP-3dM"/>
                         <outlet property="send" destination="SC4-HH-0UW" id="h5Y-VO-X7U"/>
-                        <outlet property="sticker" destination="m6S-gX-4oV" id="80n-Bq-cxj"/>
                         <outlet property="textView" destination="l7M-Im-dI4" id="sfV-4F-pXI"/>
                     </connections>
                 </view>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gpg-Uj-8Hy">
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gpg-Uj-8Hy" userLabel="AudioRecorderView">
                     <rect key="frame" x="0.0" y="806" width="414" height="56"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="W5V-wh-fyS">
@@ -254,7 +252,7 @@
                         <constraint firstItem="cUu-Rj-z5S" firstAttribute="leading" secondItem="Gpg-Uj-8Hy" secondAttribute="leading" constant="9" id="fnE-8f-yF6"/>
                     </constraints>
                 </view>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xu2-ON-Z9i">
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xu2-ON-Z9i" userLabel="MessageActionView">
                     <rect key="frame" x="0.0" y="806" width="414" height="56"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" translatesAutoresizingMaskIntoConstraints="NO" id="UKN-0w-yJu">
@@ -333,7 +331,79 @@
                         <constraint firstAttribute="height" constant="56" id="cgu-Gn-fl4"/>
                     </constraints>
                 </view>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5ax-Gc-8Fl">
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3MV-1s-aPu" customClass="SmartRepliesView" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="741" width="414" height="65"/>
+                    <subviews>
+                        <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Rvy-xG-6fj">
+                            <rect key="frame" x="5" y="5" width="404" height="55"/>
+                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="55" id="PD2-hp-5ww"/>
+                            </constraints>
+                            <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="lKc-Fz-acx">
+                                <size key="itemSize" width="50" height="50"/>
+                                <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                            </collectionViewFlowLayout>
+                        </collectionView>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstItem="Rvy-xG-6fj" firstAttribute="centerY" secondItem="3MV-1s-aPu" secondAttribute="centerY" id="44p-8f-Z6u"/>
+                        <constraint firstAttribute="trailing" secondItem="Rvy-xG-6fj" secondAttribute="trailing" constant="5" id="KsR-mo-PPb"/>
+                        <constraint firstItem="Rvy-xG-6fj" firstAttribute="leading" secondItem="3MV-1s-aPu" secondAttribute="leading" constant="5" id="R1W-3D-mMG"/>
+                    </constraints>
+                    <connections>
+                        <outlet property="collectionView" destination="Rvy-xG-6fj" id="4At-DM-0oj"/>
+                    </connections>
+                </view>
+                <view multipleTouchEnabled="YES" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="5ab-fB-Q9Q" customClass="LiveReaction" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                    <rect key="frame" x="344" y="548" width="70" height="248"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="70" id="0EG-fk-yaQ"/>
+                        <constraint firstAttribute="height" constant="248" id="cHR-5r-Ea8"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="removeAtEnd" value="YES"/>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="FloatingUp" value="YES"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="alphaAtStart">
+                            <real key="value" value="1"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="alphaAtEnd">
+                            <real key="value" value="0.0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="rotationSpeed">
+                            <real key="value" value="3"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="density">
+                            <real key="value" value="7"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="delayedStart">
+                            <real key="value" value="0.0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="speedY">
+                            <real key="value" value="8"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="speedX">
+                            <real key="value" value="50"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="floatieWidth">
+                            <real key="value" value="30"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="floatieHeight">
+                            <real key="value" value="30"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                            <real key="value" value="0.0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                            <real key="value" value="25"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="image" keyPath="floaterImage1" value="heart.png"/>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5ax-Gc-8Fl" userLabel="EditActionView">
                     <rect key="frame" x="0.0" y="741" width="414" height="65"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6kP-dn-UAm">
@@ -351,7 +421,7 @@
                             </constraints>
                             <state key="normal" image="close.png"/>
                             <connections>
-                                <action selector="didEditCloseButtonPressed:" destination="-1" eventType="touchUpInside" id="eJd-fo-zDP"/>
+                                <action selector="didEditCloseButtonPressed:" destination="-1" eventType="touchUpInside" id="pBk-av-l50"/>
                             </connections>
                         </button>
                         <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xSq-tj-73p">
@@ -400,34 +470,7 @@
                         <constraint firstItem="xSq-tj-73p" firstAttribute="leading" secondItem="5ax-Gc-8Fl" secondAttribute="leading" constant="20" id="wud-80-32L"/>
                     </constraints>
                 </view>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3MV-1s-aPu" customClass="SmartRepliesView" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="741" width="414" height="65"/>
-                    <subviews>
-                        <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Rvy-xG-6fj">
-                            <rect key="frame" x="5" y="5" width="404" height="55"/>
-                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="55" id="PD2-hp-5ww"/>
-                            </constraints>
-                            <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="lKc-Fz-acx">
-                                <size key="itemSize" width="50" height="50"/>
-                                <size key="headerReferenceSize" width="0.0" height="0.0"/>
-                                <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                                <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                            </collectionViewFlowLayout>
-                        </collectionView>
-                    </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                    <constraints>
-                        <constraint firstItem="Rvy-xG-6fj" firstAttribute="centerY" secondItem="3MV-1s-aPu" secondAttribute="centerY" id="44p-8f-Z6u"/>
-                        <constraint firstAttribute="trailing" secondItem="Rvy-xG-6fj" secondAttribute="trailing" constant="5" id="KsR-mo-PPb"/>
-                        <constraint firstItem="Rvy-xG-6fj" firstAttribute="leading" secondItem="3MV-1s-aPu" secondAttribute="leading" constant="5" id="R1W-3D-mMG"/>
-                    </constraints>
-                    <connections>
-                        <outlet property="collectionView" destination="Rvy-xG-6fj" id="4At-DM-0oj"/>
-                    </connections>
-                </view>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="82h-CC-EVS">
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="82h-CC-EVS" userLabel="AudioNoteActionsView">
                     <rect key="frame" x="353" y="746" width="55" height="110"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="LWY-0a-4xc">
@@ -478,7 +521,7 @@
                         </userDefinedRuntimeAttribute>
                     </userDefinedRuntimeAttributes>
                 </view>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1A5-8b-n5h">
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1A5-8b-n5h" userLabel="BlockedView">
                     <rect key="frame" x="0.0" y="696" width="414" height="200"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You've blocked Mangesh " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="73X-Jn-qcs">
@@ -534,6 +577,7 @@
                 <constraint firstItem="5ax-Gc-8Fl" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="0rM-Ps-hGM"/>
                 <constraint firstItem="xu2-ON-Z9i" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="6qF-d6-gRC"/>
                 <constraint firstAttribute="trailing" secondItem="zhP-kp-dK8" secondAttribute="trailing" id="7C0-wf-2QQ"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="5ab-fB-Q9Q" secondAttribute="trailing" id="7Le-UC-DZF"/>
                 <constraint firstItem="zhP-kp-dK8" firstAttribute="top" secondItem="5ax-Gc-8Fl" secondAttribute="bottom" id="9Fz-mO-gU9"/>
                 <constraint firstItem="lFr-Q7-eoy" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="B5f-Mk-SJC"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="3MV-1s-aPu" secondAttribute="trailing" id="BbC-5N-WCB"/>
@@ -542,6 +586,7 @@
                 <constraint firstItem="Gpg-Uj-8Hy" firstAttribute="height" secondItem="zhP-kp-dK8" secondAttribute="height" id="Gtn-0o-IUC"/>
                 <constraint firstItem="cUu-Rj-z5S" firstAttribute="bottom" secondItem="cvL-3A-I0M" secondAttribute="bottom" id="Hpi-zR-HZX"/>
                 <constraint firstItem="xu2-ON-Z9i" firstAttribute="top" secondItem="zhP-kp-dK8" secondAttribute="top" id="JNK-46-HHN"/>
+                <constraint firstItem="zhP-kp-dK8" firstAttribute="top" secondItem="5ab-fB-Q9Q" secondAttribute="bottom" constant="10" id="M9T-Nh-61u"/>
                 <constraint firstItem="lFr-Q7-eoy" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Mml-8L-738"/>
                 <constraint firstItem="82h-CC-EVS" firstAttribute="bottom" secondItem="SC4-HH-0UW" secondAttribute="bottom" constant="7" id="NIE-DR-FjG"/>
                 <constraint firstItem="zhP-kp-dK8" firstAttribute="top" secondItem="lFr-Q7-eoy" secondAttribute="bottom" id="OxV-M4-IX8"/>
@@ -569,10 +614,10 @@
     <resources>
         <image name="add.png" width="29" height="30"/>
         <image name="close.png" width="16" height="16"/>
+        <image name="heart.png" width="30" height="25"/>
         <image name="microphone.png" width="29" height="30"/>
         <image name="pause.fill" catalog="system" width="116" height="128"/>
         <image name="send.png" width="30" height="31"/>
-        <image name="sticker.png" width="24" height="24"/>
         <image name="trash.circle.fill" catalog="system" width="128" height="121"/>
     </resources>
 </document>

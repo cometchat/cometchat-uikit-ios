@@ -29,7 +29,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="474" height="243"/>
                                 <subviews>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VSy-A2-bff">
-                                        <rect key="frame" x="0.0" y="0.0" width="400" height="243"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="374" height="243"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
@@ -38,10 +38,10 @@
                                         </userDefinedRuntimeAttributes>
                                     </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PdT-GO-hBk">
-                                        <rect key="frame" x="400" y="0.0" width="74" height="243"/>
+                                        <rect key="frame" x="374" y="0.0" width="100" height="243"/>
                                         <subviews>
                                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bf0-ti-3Xj">
-                                                <rect key="frame" x="0.0" y="0.0" width="74" height="243"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="100" height="243"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <userDefinedRuntimeAttributes>
                                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -49,17 +49,8 @@
                                                     </userDefinedRuntimeAttribute>
                                                 </userDefinedRuntimeAttributes>
                                             </view>
-                                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="S4g-OA-4zg">
-                                                <rect key="frame" x="0.0" y="0.0" width="74" height="243"/>
-                                                <color key="backgroundColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <userDefinedRuntimeAttributes>
-                                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                        <integer key="value" value="20"/>
-                                                    </userDefinedRuntimeAttribute>
-                                                </userDefinedRuntimeAttributes>
-                                            </view>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pBo-rq-21v">
-                                                <rect key="frame" x="15" y="10" width="44" height="223"/>
+                                                <rect key="frame" x="15" y="10" width="70" height="223"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="19"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -69,15 +60,11 @@
                                         <color key="backgroundColor" red="0.20000000000000001" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstItem="pBo-rq-21v" firstAttribute="top" secondItem="PdT-GO-hBk" secondAttribute="top" constant="10" id="4MN-sc-zXi"/>
-                                            <constraint firstAttribute="trailing" secondItem="S4g-OA-4zg" secondAttribute="trailing" id="5O6-nl-jaQ"/>
-                                            <constraint firstItem="S4g-OA-4zg" firstAttribute="top" secondItem="PdT-GO-hBk" secondAttribute="top" id="BbI-D9-C5g"/>
+                                            <constraint firstAttribute="trailing" secondItem="pBo-rq-21v" secondAttribute="trailing" constant="15" id="BTD-Qe-2E2"/>
                                             <constraint firstAttribute="bottom" secondItem="bf0-ti-3Xj" secondAttribute="bottom" id="FTR-eP-Q1L"/>
-                                            <constraint firstItem="S4g-OA-4zg" firstAttribute="leading" secondItem="PdT-GO-hBk" secondAttribute="leading" id="Fzc-WS-tGD"/>
                                             <constraint firstItem="bf0-ti-3Xj" firstAttribute="top" secondItem="PdT-GO-hBk" secondAttribute="top" id="ISO-g4-MrY"/>
-                                            <constraint firstAttribute="trailing" secondItem="pBo-rq-21v" secondAttribute="trailing" constant="15" id="Lxj-71-TvF"/>
                                             <constraint firstAttribute="trailing" secondItem="bf0-ti-3Xj" secondAttribute="trailing" id="U5r-Kc-qnU"/>
                                             <constraint firstItem="bf0-ti-3Xj" firstAttribute="leading" secondItem="PdT-GO-hBk" secondAttribute="leading" id="UZ3-eD-9fF"/>
-                                            <constraint firstAttribute="bottom" secondItem="S4g-OA-4zg" secondAttribute="bottom" id="sMN-Ti-y1y"/>
                                             <constraint firstAttribute="bottom" secondItem="pBo-rq-21v" secondAttribute="bottom" constant="10" id="vGl-fO-YeH"/>
                                             <constraint firstItem="pBo-rq-21v" firstAttribute="leading" secondItem="PdT-GO-hBk" secondAttribute="leading" constant="15" id="wbJ-ja-1zM"/>
                                             <constraint firstAttribute="width" relation="lessThanOrEqual" constant="250" id="xh1-4x-Bfg"/>
@@ -126,7 +113,6 @@
                 <outlet property="message" destination="pBo-rq-21v" id="DWH-0A-crE"/>
                 <outlet property="receipt" destination="i59-gP-tkb" id="j6X-sg-CcM"/>
                 <outlet property="receiptStack" destination="es9-Lo-daU" id="W3O-01-oSL"/>
-                <outlet property="sentimentAnalysisView" destination="S4g-OA-4zg" id="TOy-Yn-VUA"/>
                 <outlet property="timeStamp" destination="Psd-Ru-shd" id="hgt-yj-MG8"/>
                 <outlet property="tintedView" destination="bf0-ti-3Xj" id="s2z-Mc-UD4"/>
                 <outlet property="topConstraint" destination="2Ce-Sm-5id" id="Hv1-EF-Xj5"/>

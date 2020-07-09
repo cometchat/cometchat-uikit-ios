@@ -137,7 +137,6 @@ open class CometChatSnackbar: UIView {
             if cornerRadius < 0 {
                 cornerRadius = 0
             }
-            
             layer.cornerRadius = cornerRadius
             layer.masksToBounds = true
         }

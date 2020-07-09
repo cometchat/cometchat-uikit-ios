@@ -12,6 +12,7 @@ import CometChatPro
 
 /*  ----------------------------------------------------------------------------------------- */
 
+
 class RightReplyMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBInspectable
@@ -21,13 +22,12 @@ class RightReplyMessageBubble: UITableViewCell {
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receipt: UIImageView!
     @IBOutlet weak var receiptStack: UIStackView!
-    @IBOutlet weak var sentimentAnalysisView: UIView!
-    @IBOutlet weak var sentimentStatus: UILabel!
     @IBOutlet weak var topConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var replyMessage: UILabel!
     
     // MARK: - Declaration of Variables
+    var indexPath: IndexPath?
     let systemLanguage = Locale.preferredLanguages.first
     weak var selectionColor: UIColor? {
         set {
@@ -43,9 +43,7 @@ class RightReplyMessageBubble: UITableViewCell {
     weak var textMessage: TextMessage? {
         didSet {
             if let textmessage  = textMessage {
-                sentimentAnalysisView.dropShadow()
                 self.parseProfanityFilter(forMessage: textmessage)
-                self.parseSentimentAnalysis(forMessage: textmessage)
                 
                 if let metaData = textmessage.metaData, let message = metaData["message"] as? String {
                     self.replyMessage.text = message
@@ -67,7 +65,6 @@ class RightReplyMessageBubble: UITableViewCell {
             
             receipt.contentMode = .scaleAspectFit
             message.textColor = .white
-            message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
         }
     }
     
@@ -87,49 +84,25 @@ class RightReplyMessageBubble: UITableViewCell {
             timeStamp.text = String().setMessageTime(time: Int(deletedMessage?.sentAt ?? 0))
         }
     }
-
     
-    private func parseProfanityFilter(forMessage: TextMessage){
-          if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let profanityFilterDictionary = cometChatExtension["profanity-filter"] as? [String : Any] {
+    
+     func parseProfanityFilter(forMessage: TextMessage){
+        if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let profanityFilterDictionary = cometChatExtension["profanity-filter"] as? [String : Any] {
             
             if let profanity = profanityFilterDictionary["profanity"] as? String, let filteredMessage = profanityFilterDictionary["message_clean"] as? String {
                 
                 if profanity == "yes" {
                     message.text = filteredMessage
                 }else{
-                     message.text = forMessage.text
-                }
-            }
-          }else{
-              self.message.text = forMessage.text
-          }
-      }
-    
-    private func parseSentimentAnalysis(forMessage: TextMessage){
-        if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let sentimentAnalysisDictionary = cometChatExtension["sentiment-analysis"] as? [String : Any] {
-            
-            if let sentiment = sentimentAnalysisDictionary["sentiment"] as? String {
-                sentimentAnalysisView.isHidden = false
-                topConstraint.constant = 10
-                if sentiment == "positive" {
-                    sentimentStatus.text = "😄"
-                }else if sentiment == "negative" {
-                    sentimentStatus.text = "☹️"
-                }else if sentiment == "neutral"{
-                    sentimentStatus.text = ""
-                    sentimentAnalysisView.isHidden = true
-                    topConstraint.constant = 2
-                }else{
-                    sentimentAnalysisView.isHidden = true
-                    topConstraint.constant = 2
+                    message.text = forMessage.text
                 }
             }
         }else{
-            sentimentAnalysisView.isHidden = true
-            topConstraint.constant = 2
+            self.message.text = forMessage.text
         }
     }
-
+    
+  
     
     // MARK: - Initialization of required Methods
     
@@ -141,6 +114,8 @@ class RightReplyMessageBubble: UITableViewCell {
             selectionColor = .white
         }
     }
+    
+    
     
     
     override func setSelected(_ selected: Bool, animated: Bool) {

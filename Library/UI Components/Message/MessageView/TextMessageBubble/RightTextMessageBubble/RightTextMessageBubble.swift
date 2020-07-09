@@ -11,10 +11,6 @@ import UIKit
 import CometChatPro
 
 
-protocol RightTextMessageBubbleDelegate: AnyObject {
-    func didTapOnSentimentAnalysisViewForRightBubble(indexPath: IndexPath)
-}
-
 
 /*  ----------------------------------------------------------------------------------------- */
 
@@ -22,13 +18,13 @@ class RightTextMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBInspectable
     
-    @IBOutlet weak var sentimentAnalysisView: UIView!
     @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var message: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receipt: UIImageView!
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var topConstraint: NSLayoutConstraint!
+   
     
     // MARK: - Declaration of Variables
     let systemLanguage = Locale.preferredLanguages.first
@@ -39,16 +35,14 @@ class RightTextMessageBubble: UITableViewCell {
             self.selectedBackgroundView = view
         }
         get {
-            return self.selectedBackgroundView?.backgroundColor ?? UIColor.clear
+            return self.selectedBackgroundView?.backgroundColor ?? UIColor.white
         }
     }
     var indexPath: IndexPath?
-      weak var delegate: RightTextMessageBubbleDelegate?
     weak var textMessage: TextMessage? {
         didSet {
             if let textmessage  = textMessage {
                 self.parseProfanityFilter(forMessage: textmessage)
-                self.parseSentimentAnalysis(forMessage: textmessage)
                 if textmessage.readAt > 0 {
                     receipt.image = #imageLiteral(resourceName: "read")
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
@@ -63,15 +57,14 @@ class RightTextMessageBubble: UITableViewCell {
                     timeStamp.text = NSLocalizedString("SENDING", comment: "")
                 }
             }
-            
             receipt.contentMode = .scaleAspectFit
             message.textColor = .white
-            message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
         }
     }
     
     weak var deletedMessage: BaseMessage? {
         didSet {
+           
             switch deletedMessage?.messageType {
             case .text:  message.text = NSLocalizedString("YOU_DELETED_THIS_MESSAGE", comment: "")
             case .image: message.text = NSLocalizedString("YOU_DELETED_THIS_IMAGE", comment: "")
@@ -86,12 +79,6 @@ class RightTextMessageBubble: UITableViewCell {
             timeStamp.text = String().setMessageTime(time: Int(deletedMessage?.sentAt ?? 0))
         }
     }
-    
-    @objc func didTapOnSentimentAnalysis(_ sender: UITapGestureRecognizer? = nil) {
-           if let indexPAth = indexPath {
-               delegate?.didTapOnSentimentAnalysisViewForRightBubble(indexPath: indexPAth)
-           }
-       }
     
     
      func parseProfanityFilter(forMessage: TextMessage){
@@ -109,34 +96,6 @@ class RightTextMessageBubble: UITableViewCell {
             self.message.text = forMessage.text
         }
     }
-    
-    private func parseSentimentAnalysis(forMessage: TextMessage){
-        if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let sentimentAnalysisDictionary = cometChatExtension["sentiment-analysis"] as? [String : Any] {
-            
-            if let sentiment = sentimentAnalysisDictionary["sentiment"] as? String {
-                if sentiment == "negative" {
-                    sentimentAnalysisView.isHidden = false
-                    message.textColor = UIColor.white
-                    message.text = "This message might contains negative sentiments."
-                    
-                }else{
-                    if #available(iOS 13.0, *) {
-                        message.textColor = .label
-                    } else {
-                        message.textColor = .black
-                    }
-                    sentimentAnalysisView.isHidden = true
-                }
-            }
-        }else{
-            if #available(iOS 13.0, *) {
-                message.textColor = .label
-            } else {
-                message.textColor = .black
-            }
-            sentimentAnalysisView.isHidden = true
-        }
-    }
 
     
     // MARK: - Initialization of required Methods
@@ -148,8 +107,6 @@ class RightTextMessageBubble: UITableViewCell {
         } else {
             selectionColor = .white
         }
-        let tap = UITapGestureRecognizer(target: self, action: #selector(self.didTapOnSentimentAnalysis(_:)))
-               sentimentAnalysisView.addGestureRecognizer(tap)
     }
     
     

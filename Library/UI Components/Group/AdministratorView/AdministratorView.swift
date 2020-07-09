@@ -14,7 +14,6 @@ class AdministratorView: UITableViewCell {
     // MARK: - Declaration of IBOutlet
     
     @IBOutlet weak var title: UILabel!
-    @IBOutlet weak var adminCount: UILabel!
     
     // MARK: - Initialization of required Methods
     

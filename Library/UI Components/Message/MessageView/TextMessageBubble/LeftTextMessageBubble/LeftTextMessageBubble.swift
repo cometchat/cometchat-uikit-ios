@@ -31,6 +31,9 @@ class LeftTextMessageBubble: UITableViewCell {
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var topConstraint: NSLayoutConstraint!
     @IBOutlet weak var sentimentAnalysisView: UIView!
+    @IBOutlet weak var spaceConstraint: NSLayoutConstraint!
+    @IBOutlet weak var widthconstraint: NSLayoutConstraint!
+    
     
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
@@ -43,7 +46,7 @@ class LeftTextMessageBubble: UITableViewCell {
             self.selectedBackgroundView = view
         }
         get {
-            return self.selectedBackgroundView?.backgroundColor ?? UIColor.clear
+            return self.selectedBackgroundView?.backgroundColor ?? UIColor.white
         }
     }
     
@@ -66,8 +69,6 @@ class LeftTextMessageBubble: UITableViewCell {
                     avatar.set(image: avatarURL, with: currentMessage.sender?.name ?? "")
                 }
                 timeStamp.text = String().setMessageTime(time: currentMessage.sentAt)
-                message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
-               
             }
         }
     }
@@ -75,6 +76,9 @@ class LeftTextMessageBubble: UITableViewCell {
     weak var deletedMessage: BaseMessage? {
         didSet {
             // self.selectionStyle = .none
+            sentimentAnalysisView.isHidden = true
+            spaceConstraint.constant = 0
+            widthconstraint.constant = 0
             if let currentMessage = deletedMessage {
                 if let userName = currentMessage.sender?.name {
                     name.text = userName + ":"
@@ -115,9 +119,6 @@ class LeftTextMessageBubble: UITableViewCell {
         } else {
             selectionColor = .white
         }
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(self.didTapOnSentimentAnalysis(_:)))
-        sentimentAnalysisView.addGestureRecognizer(tap)
     }
     
     override func prepareForReuse() {
@@ -126,12 +127,12 @@ class LeftTextMessageBubble: UITableViewCell {
         deletedMessage = nil
     }
     
-    @objc func didTapOnSentimentAnalysis(_ sender: UITapGestureRecognizer? = nil) {
+    @IBAction func didViewButtonPressed(_ sender: Any) {
         if let indexPAth = indexPath {
             delegate?.didTapOnSentimentAnalysisViewForLeftBubble(indexPath: indexPAth)
         }
-    }
 
+    }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
@@ -173,32 +174,40 @@ class LeftTextMessageBubble: UITableViewCell {
     }
     
     private func parseSentimentAnalysis(forMessage: TextMessage){
-        if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let sentimentAnalysisDictionary = cometChatExtension["sentiment-analysis"] as? [String : Any] {
-            
-            if let sentiment = sentimentAnalysisDictionary["sentiment"] as? String {
-                if sentiment == "negative" {
-                    sentimentAnalysisView.isHidden = false
-                    message.textColor = UIColor.white
-                    message.text = "This message might contains negative sentiments."
-                    
-                }else{
-                    if #available(iOS 13.0, *) {
-                        message.textColor = .label
-                    } else {
-                        message.textColor = .black
+            if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let sentimentAnalysisDictionary = cometChatExtension["sentiment-analysis"] as? [String : Any] {
+                if let sentiment = sentimentAnalysisDictionary["sentiment"] as? String {
+                    if sentiment == "negative" {
+                        sentimentAnalysisView.isHidden = false
+                        message.textColor = UIColor.white
+                        message.font = UIFont (name: "SFProDisplay-Regular", size: 15)
+                        message.text = NSLocalizedString("MAY_CONTAIN_NEGATIVE_SENTIMENT", comment: "")
+                        spaceConstraint.constant = 10
+                        widthconstraint.constant = 45
+                    }else{
+                        if #available(iOS 13.0, *) {
+                            message.textColor = .label
+                        } else {
+                            message.textColor = .black
+                        }
+                        message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+                        sentimentAnalysisView.isHidden = true
+                        spaceConstraint.constant = 0
+                        widthconstraint.constant = 0
                     }
-                    sentimentAnalysisView.isHidden = true
                 }
+            }else{
+                if #available(iOS 13.0, *) {
+                    message.textColor = .label
+                } else {
+                    message.textColor = .black
+                }
+                message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+                sentimentAnalysisView.isHidden = true
+                spaceConstraint.constant = 0
+                widthconstraint.constant = 0
             }
-        }else{
-            if #available(iOS 13.0, *) {
-                message.textColor = .label
-            } else {
-                message.textColor = .black
-            }
-            sentimentAnalysisView.isHidden = true
         }
-    }
+  
 }
 
 
