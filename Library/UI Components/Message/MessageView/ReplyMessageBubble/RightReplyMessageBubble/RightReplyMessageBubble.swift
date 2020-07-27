@@ -17,6 +17,7 @@ class RightReplyMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBInspectable
     
+    @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var message: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
@@ -65,9 +66,23 @@ class RightReplyMessageBubble: UITableViewCell {
             
             receipt.contentMode = .scaleAspectFit
             message.textColor = .white
+            
+            if textMessage?.replyCount != 0 {
+                replybutton.isHidden = false
+                if textMessage?.replyCount == 1 {
+                    replybutton.setTitle("1 reply", for: .normal)
+                }else{
+                    if let replies = textMessage?.replyCount {
+                        replybutton.setTitle("\(replies) replies", for: .normal)
+                    }
+                }
+            }else{
+                replybutton.isHidden = true
+            }
         }
     }
     
+  
     weak var deletedMessage: BaseMessage? {
         didSet {
             switch deletedMessage?.messageType {
@@ -98,6 +113,20 @@ class RightReplyMessageBubble: UITableViewCell {
                 }
             }
         }else{
+            if forMessage.text.containsOnlyEmojis() {
+                if forMessage.text.count == 1 {
+                    message.font = UIFont (name: "SFProDisplay-Regular", size: 51)
+                }else if forMessage.text.count == 2 {
+                    message.font = UIFont (name: "SFProDisplay-Regular", size: 34)
+                }else if forMessage.text.count == 3{
+                    message.font = UIFont (name: "SFProDisplay-Regular", size: 25)
+                }else{
+                    message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+                }
+                print("contains only emoji: \(forMessage.text.count)")
+            }else{
+                message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+            }
             self.message.text = forMessage.text
         }
     }
@@ -105,6 +134,12 @@ class RightReplyMessageBubble: UITableViewCell {
   
     
     // MARK: - Initialization of required Methods
+    @IBAction func didReplyButtonPressed(_ sender: Any) {
+             if let message = textMessage, let indexpath = indexPath {
+                 CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+             }
+
+         }
     
     override func awakeFromNib() {
         super.awakeFromNib()

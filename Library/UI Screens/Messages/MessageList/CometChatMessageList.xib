@@ -34,17 +34,12 @@
                 <outlet property="closeButton" destination="yJ5-zP-vyJ" id="zA7-8I-rz5"/>
                 <outlet property="collectionLayout" destination="lKc-Fz-acx" id="abU-jt-zJu"/>
                 <outlet property="collectionView" destination="Rvy-xG-6fj" id="Is2-fx-abC"/>
-                <outlet property="deleteButton" destination="KJX-11-7iY" id="chU-OI-41V"/>
-                <outlet property="editButton" destination="tuc-FM-R83" id="tVp-bt-GOB"/>
                 <outlet property="editView" destination="5ax-Gc-8Fl" id="h3n-AQ-nRu"/>
                 <outlet property="editViewMessage" destination="fR6-0i-tgi" id="B9e-y7-76y"/>
                 <outlet property="editViewName" destination="leD-fD-Z9y" id="oNt-nf-U6E"/>
-                <outlet property="forwardButton" destination="Jjv-cd-qUF" id="iUB-v5-B6p"/>
-                <outlet property="messageActionView" destination="xu2-ON-Z9i" id="qgK-1k-YQd"/>
                 <outlet property="microhone" destination="m6S-gX-4oV" id="Ql5-GQ-vJd"/>
                 <outlet property="reaction" destination="Rfd-xt-wbC" id="0AZ-wi-ExC"/>
                 <outlet property="reactionView" destination="5ab-fB-Q9Q" id="Mwj-jf-ilg"/>
-                <outlet property="shareButton" destination="h34-vz-mFt" id="kd6-z1-uPR"/>
                 <outlet property="smartRepliesView" destination="3MV-1s-aPu" id="EaJ-Wa-97S"/>
                 <outlet property="tableView" destination="lFr-Q7-eoy" id="3VA-PD-dIX"/>
                 <outlet property="tableViewBottomConstraint" destination="OxV-M4-IX8" id="2we-SB-vWL"/>
@@ -252,85 +247,6 @@
                         <constraint firstItem="cUu-Rj-z5S" firstAttribute="leading" secondItem="Gpg-Uj-8Hy" secondAttribute="leading" constant="9" id="fnE-8f-yF6"/>
                     </constraints>
                 </view>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xu2-ON-Z9i" userLabel="MessageActionView">
-                    <rect key="frame" x="0.0" y="806" width="414" height="56"/>
-                    <subviews>
-                        <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" translatesAutoresizingMaskIntoConstraints="NO" id="UKN-0w-yJu">
-                            <rect key="frame" x="10" y="8" width="394" height="40"/>
-                            <subviews>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KJX-11-7iY">
-                                    <rect key="frame" x="0.0" y="0.0" width="75" height="40"/>
-                                    <constraints>
-                                        <constraint firstAttribute="height" constant="40" id="65B-th-Yoi"/>
-                                        <constraint firstAttribute="width" constant="75" id="H2c-tP-iCl"/>
-                                    </constraints>
-                                    <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
-                                    <state key="normal" title="Delete">
-                                        <color key="titleColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </state>
-                                    <connections>
-                                        <action selector="didDeleteMessageButtonPressed:" destination="-1" eventType="touchUpInside" id="bSq-7l-TVs"/>
-                                    </connections>
-                                </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jjv-cd-qUF">
-                                    <rect key="frame" x="80" y="0.0" width="75" height="40"/>
-                                    <constraints>
-                                        <constraint firstAttribute="height" constant="40" id="3dn-Cj-x0t"/>
-                                        <constraint firstAttribute="width" constant="75" id="mHP-pZ-CKR"/>
-                                    </constraints>
-                                    <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
-                                    <state key="normal" title="Forward"/>
-                                    <connections>
-                                        <action selector="didForwardMessageButtonPressed:" destination="-1" eventType="touchUpInside" id="5dL-8h-1Ss"/>
-                                    </connections>
-                                </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="h34-vz-mFt">
-                                    <rect key="frame" x="159.5" y="0.0" width="75" height="40"/>
-                                    <constraints>
-                                        <constraint firstAttribute="width" constant="75" id="Y5B-RP-GNK"/>
-                                        <constraint firstAttribute="height" constant="40" id="r29-p7-CHi"/>
-                                    </constraints>
-                                    <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
-                                    <state key="normal" title="Share"/>
-                                    <connections>
-                                        <action selector="didShareButtonPressed:" destination="-1" eventType="touchUpInside" id="F3u-OM-AHJ"/>
-                                    </connections>
-                                </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tuc-FM-R83">
-                                    <rect key="frame" x="239.5" y="0.0" width="75" height="40"/>
-                                    <constraints>
-                                        <constraint firstAttribute="width" constant="75" id="fhw-cc-1lu"/>
-                                        <constraint firstAttribute="height" constant="40" id="qfC-tS-rrC"/>
-                                    </constraints>
-                                    <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
-                                    <state key="normal" title="Edit"/>
-                                    <connections>
-                                        <action selector="didEditMessageButtonPressed:" destination="-1" eventType="touchUpInside" id="pRl-5b-oQy"/>
-                                    </connections>
-                                </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="C3b-CB-bhV">
-                                    <rect key="frame" x="319" y="0.0" width="75" height="40"/>
-                                    <constraints>
-                                        <constraint firstAttribute="width" constant="75" id="RzP-Ee-3kt"/>
-                                        <constraint firstAttribute="height" constant="40" id="q2F-vh-4JV"/>
-                                    </constraints>
-                                    <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
-                                    <state key="normal" title="Reply"/>
-                                    <connections>
-                                        <action selector="didReplyButtonPressed:" destination="-1" eventType="touchUpInside" id="JY6-8U-iEU"/>
-                                    </connections>
-                                </button>
-                            </subviews>
-                        </stackView>
-                    </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                    <constraints>
-                        <constraint firstItem="UKN-0w-yJu" firstAttribute="leading" secondItem="xu2-ON-Z9i" secondAttribute="leading" constant="10" id="AQy-4z-cel"/>
-                        <constraint firstItem="UKN-0w-yJu" firstAttribute="centerY" secondItem="xu2-ON-Z9i" secondAttribute="centerY" id="Ut1-MX-lSA"/>
-                        <constraint firstAttribute="trailing" secondItem="UKN-0w-yJu" secondAttribute="trailing" constant="10" id="ZIC-in-e0K"/>
-                        <constraint firstAttribute="height" constant="56" id="cgu-Gn-fl4"/>
-                    </constraints>
-                </view>
                 <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3MV-1s-aPu" customClass="SmartRepliesView" customModule="CometChat_KitchenSink" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="741" width="414" height="65"/>
                     <subviews>
@@ -358,7 +274,7 @@
                         <outlet property="collectionView" destination="Rvy-xG-6fj" id="4At-DM-0oj"/>
                     </connections>
                 </view>
-                <view multipleTouchEnabled="YES" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="5ab-fB-Q9Q" customClass="LiveReaction" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                <view hidden="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="5ab-fB-Q9Q" customClass="LiveReaction" customModule="CometChat_KitchenSink" customModuleProvider="target">
                     <rect key="frame" x="344" y="548" width="70" height="248"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="70" id="0EG-fk-yaQ"/>
@@ -437,15 +353,15 @@
                             </userDefinedRuntimeAttributes>
                         </view>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="jo5-fN-kCq">
-                            <rect key="frame" x="34" y="8.5" width="333" height="48"/>
+                            <rect key="frame" x="34" y="8" width="333" height="49"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="leD-fD-Z9y">
-                                    <rect key="frame" x="0.0" y="0.0" width="333" height="20"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="333" height="20.5"/>
                                     <fontDescription key="fontDescription" name="SFProDisplay-Semibold" family="SF Pro Display" pointSize="17"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Message" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fR6-0i-tgi">
-                                    <rect key="frame" x="0.0" y="28" width="333" height="20"/>
+                                    <rect key="frame" x="0.0" y="28.5" width="333" height="20.5"/>
                                     <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="16"/>
                                     <color key="textColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <nil key="highlightedColor"/>
@@ -525,7 +441,7 @@
                     <rect key="frame" x="0.0" y="696" width="414" height="200"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You've blocked Mangesh " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="73X-Jn-qcs">
-                            <rect key="frame" x="109" y="20" width="196" height="20"/>
+                            <rect key="frame" x="114" y="19.5" width="186" height="20.5"/>
                             <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
                             <nil key="highlightedColor"/>
                         </label>
@@ -575,7 +491,6 @@
             <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
             <constraints>
                 <constraint firstItem="5ax-Gc-8Fl" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="0rM-Ps-hGM"/>
-                <constraint firstItem="xu2-ON-Z9i" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="6qF-d6-gRC"/>
                 <constraint firstAttribute="trailing" secondItem="zhP-kp-dK8" secondAttribute="trailing" id="7C0-wf-2QQ"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="5ab-fB-Q9Q" secondAttribute="trailing" id="7Le-UC-DZF"/>
                 <constraint firstItem="zhP-kp-dK8" firstAttribute="top" secondItem="5ax-Gc-8Fl" secondAttribute="bottom" id="9Fz-mO-gU9"/>
@@ -585,7 +500,6 @@
                 <constraint firstItem="Gpg-Uj-8Hy" firstAttribute="trailing" secondItem="zhP-kp-dK8" secondAttribute="trailing" id="Cbr-3f-McR"/>
                 <constraint firstItem="Gpg-Uj-8Hy" firstAttribute="height" secondItem="zhP-kp-dK8" secondAttribute="height" id="Gtn-0o-IUC"/>
                 <constraint firstItem="cUu-Rj-z5S" firstAttribute="bottom" secondItem="cvL-3A-I0M" secondAttribute="bottom" id="Hpi-zR-HZX"/>
-                <constraint firstItem="xu2-ON-Z9i" firstAttribute="top" secondItem="zhP-kp-dK8" secondAttribute="top" id="JNK-46-HHN"/>
                 <constraint firstItem="zhP-kp-dK8" firstAttribute="top" secondItem="5ab-fB-Q9Q" secondAttribute="bottom" constant="10" id="M9T-Nh-61u"/>
                 <constraint firstItem="lFr-Q7-eoy" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Mml-8L-738"/>
                 <constraint firstItem="82h-CC-EVS" firstAttribute="bottom" secondItem="SC4-HH-0UW" secondAttribute="bottom" constant="7" id="NIE-DR-FjG"/>
@@ -595,7 +509,6 @@
                 <constraint firstItem="3MV-1s-aPu" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="R5O-Cr-OM7"/>
                 <constraint firstItem="5ax-Gc-8Fl" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="UBU-6h-Uh6"/>
                 <constraint firstItem="1A5-8b-n5h" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="ULk-OF-xuY"/>
-                <constraint firstItem="xu2-ON-Z9i" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Ykf-ZM-pdU"/>
                 <constraint firstItem="W5V-wh-fyS" firstAttribute="bottom" secondItem="MEN-6h-Cq0" secondAttribute="bottom" id="cgt-oM-oq1"/>
                 <constraint firstItem="3MV-1s-aPu" firstAttribute="bottom" secondItem="5ax-Gc-8Fl" secondAttribute="bottom" id="d9D-1U-qHx"/>
                 <constraint firstAttribute="bottom" secondItem="1A5-8b-n5h" secondAttribute="bottom" id="fND-cl-4wS"/>

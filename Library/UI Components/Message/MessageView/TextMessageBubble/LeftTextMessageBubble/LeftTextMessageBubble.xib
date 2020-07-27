@@ -29,7 +29,7 @@
                         <rect key="frame" x="38" y="2" width="458" height="451"/>
                         <subviews>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NLZ-D3-64x">
-                                <rect key="frame" x="0.0" y="-19" width="240" height="19"/>
+                                <rect key="frame" x="0.0" y="-19" width="458" height="19"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GbU-8s-cMb">
                                         <rect key="frame" x="0.0" y="2" width="31" height="15"/>
@@ -49,7 +49,7 @@
                                 </constraints>
                             </view>
                             <stackView opaque="NO" contentMode="top" translatesAutoresizingMaskIntoConstraints="NO" id="CbI-Rb-km6">
-                                <rect key="frame" x="0.0" y="0.0" width="273" height="433"/>
+                                <rect key="frame" x="0.0" y="0.0" width="458" height="433"/>
                                 <subviews>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jix-DQ-9tZ">
                                         <rect key="frame" x="0.0" y="0.0" width="129" height="433"/>
@@ -119,7 +119,7 @@
                                         </userDefinedRuntimeAttributes>
                                     </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LEN-Kr-vvP">
-                                        <rect key="frame" x="129" y="0.0" width="144" height="433"/>
+                                        <rect key="frame" x="129" y="0.0" width="329" height="433"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
@@ -129,11 +129,11 @@
                                     </view>
                                 </subviews>
                             </stackView>
-                            <stackView opaque="NO" contentMode="top" translatesAutoresizingMaskIntoConstraints="NO" id="Mom-W2-IN7">
+                            <stackView opaque="NO" contentMode="top" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="Mom-W2-IN7">
                                 <rect key="frame" x="0.0" y="433" width="30" height="18"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="right" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10:43" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XUr-Lq-dSS">
-                                        <rect key="frame" x="0.0" y="0.0" width="30" height="18"/>
+                                        <rect key="frame" x="0.0" y="2.5" width="30" height="13.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                         <color key="textColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
@@ -164,6 +164,17 @@
                             </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
                     </imageView>
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pNK-91-8wg">
+                        <rect key="frame" x="172" y="414" width="35" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="21" id="pTb-T1-V6b"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="14"/>
+                        <state key="normal" title="Reply"/>
+                        <connections>
+                            <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="LRd-1l-KUg"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
@@ -172,6 +183,8 @@
                     <constraint firstItem="PyW-mZ-4Vq" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="KtJ-IY-Usc"/>
                     <constraint firstAttribute="trailing" secondItem="WP2-G6-8Ii" secondAttribute="trailing" id="hgx-lT-zGi"/>
                     <constraint firstItem="WP2-G6-8Ii" firstAttribute="leading" secondItem="PyW-mZ-4Vq" secondAttribute="trailing" constant="3" id="oDr-Fw-mxj"/>
+                    <constraint firstItem="pNK-91-8wg" firstAttribute="leading" secondItem="LZ7-CC-FUa" secondAttribute="trailing" constant="5" id="t5z-LW-Eeh"/>
+                    <constraint firstItem="pNK-91-8wg" firstAttribute="bottom" secondItem="jix-DQ-9tZ" secondAttribute="bottom" id="ux1-aE-lHP"/>
                     <constraint firstItem="WP2-G6-8Ii" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="2" id="wwN-IF-yut"/>
                 </constraints>
             </tableViewCellContentView>
@@ -185,6 +198,7 @@
                 <outlet property="name" destination="GbU-8s-cMb" id="O1z-sj-4s3"/>
                 <outlet property="nameView" destination="NLZ-D3-64x" id="M9X-dn-1Xn"/>
                 <outlet property="receiptStack" destination="Mom-W2-IN7" id="NYM-2e-hks"/>
+                <outlet property="replybutton" destination="pNK-91-8wg" id="adJ-5p-fiz"/>
                 <outlet property="sentimentAnalysisView" destination="LZ7-CC-FUa" id="m1X-4t-0b7"/>
                 <outlet property="spaceConstraint" destination="eLc-hJ-i5M" id="CnD-d8-Ye0"/>
                 <outlet property="timeStamp" destination="XUr-Lq-dSS" id="ZLn-PJ-p9v"/>

@@ -37,9 +37,10 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var tintedView: UIView!
-    
+    @IBOutlet weak var replyButton: UIButton!
     
     // MARK: - Declaration of Variables
+    var indexPath: IndexPath?
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -89,11 +90,67 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
             icon.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
             iconView.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
             visitButton.roundViewCorners([.layerMinXMaxYCorner,.layerMaxXMaxYCorner], radius: 15)
+            
+            if linkPreviewMessage?.replyCount != 0 {
+                replyButton.isHidden = false
+                if linkPreviewMessage?.replyCount == 1 {
+                    replyButton.setTitle("1 reply", for: .normal)
+                }else{
+                    if let replies = linkPreviewMessage?.replyCount {
+                        replyButton.setTitle("\(replies) replies", for: .normal)
+                    }
+                }
+            }else{
+                replyButton.isHidden = true
+            }
         }
     }
     
-     // MARK: - Private Instance Methods
+    var linkPreviewMessageInThread: TextMessage! {
+          didSet{
+              receiptStack.isHidden = true
+              parseLinkPreviewForMessage(message: linkPreviewMessageInThread)
+              if let url = url {
+                  if url.contains("youtube")  ||  url.contains("youtu.be") {
+                      visitButton.setTitle(NSLocalizedString("VIEW_ON_YOUTUBE", comment: ""), for: .normal)
+                      playbutton.isHidden = false
+                  }else{
+                      visitButton.setTitle(NSLocalizedString("Visit", comment: ""), for: .normal)
+                      playbutton.isHidden = true
+                  }
+              }
+              if message.text?.count == 0 {
+                  messageStack.isHidden = true
+              }else{
+                  messageStack.isHidden = false
+              }
+              message.text = linkPreviewMessageInThread.text
+              
+              icon.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
+              iconView.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
+              visitButton.roundViewCorners([.layerMinXMaxYCorner,.layerMaxXMaxYCorner], radius: 15)
+              if linkPreviewMessageInThread.readAt > 0 {
+                  timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessageInThread?.readAt ?? 0))
+              }else if linkPreviewMessageInThread.deliveredAt > 0 {
+                  timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessageInThread?.deliveredAt ?? 0))
+              }else if linkPreviewMessageInThread.sentAt > 0 {
+                  timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessageInThread?.sentAt ?? 0))
+              }else if linkPreviewMessageInThread.sentAt == 0 {
+                  timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                  name.text = LoggedInUser.name.capitalized + ":"
+              }
+               nameView.isHidden = false
+              replyButton.isHidden = true
+          }
+      }
     
+     // MARK: - Private Instance Methods
+    @IBAction func didReplyButtonPressed(_ sender: Any) {
+             if let message = linkPreviewMessage, let indexpath = indexPath {
+                 CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+             }
+
+         }
     /**
     This method used to parse the linkPreview data from TextMessage Object
      - Parameter message: This specifies `TextMessage` Object.

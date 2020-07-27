@@ -17,6 +17,7 @@ class RightVideoMessageBubble: UITableViewCell {
     
      // MARK: - Declaration of IBInspectable
     
+    @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var imageMessage: UIImageView!
     @IBOutlet weak var activityIndicator: CCActivityIndicator!
@@ -26,6 +27,7 @@ class RightVideoMessageBubble: UITableViewCell {
     
     
     // MARK: - Declaration of Variables
+    var indexPath: IndexPath?
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -63,10 +65,29 @@ class RightVideoMessageBubble: UITableViewCell {
                timeStamp.text = NSLocalizedString("SENDING", comment: "")
             }
             parseThumbnailForVideo(forMessage: mediaMessage)
+            
+            if mediaMessage?.replyCount != 0 {
+                  replybutton.isHidden = false
+                if mediaMessage?.replyCount == 1 {
+                    replybutton.setTitle("1 reply", for: .normal)
+                }else{
+                    if let replies = mediaMessage?.replyCount {
+                        replybutton.setTitle("\(replies) replies", for: .normal)
+                    }
+                }
+            }else{
+                replybutton.isHidden = true
+            }
         }
     }
     
      // MARK: - Initialization of required Methods
+    @IBAction func didReplyButtonPressed(_ sender: Any) {
+        if let message = mediaMessage, let indexpath = indexPath {
+            CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+        }
+
+    }
     
     override func awakeFromNib() {
         super.awakeFromNib()

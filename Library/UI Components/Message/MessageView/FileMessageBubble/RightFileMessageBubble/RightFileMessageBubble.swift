@@ -15,6 +15,7 @@ class RightFileMessageBubble: UITableViewCell {
 
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var type: UILabel!
@@ -25,6 +26,7 @@ class RightFileMessageBubble: UITableViewCell {
     @IBOutlet weak var receiptStack: UIStackView!
     
      // MARK: - Declaration of Variables
+    var indexPath: IndexPath?
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -38,38 +40,59 @@ class RightFileMessageBubble: UITableViewCell {
     
     var fileMessage: MediaMessage! {
         didSet {
-                   receiptStack.isHidden = true
-                   if fileMessage.sentAt == 0 {
-                       timeStamp.text = NSLocalizedString("SENDING", comment: "")
-                       name.text = NSLocalizedString("---", comment: "")
-                       type.text = NSLocalizedString("---", comment: "")
-                       size.text = NSLocalizedString("---", comment: "")
-                   }else{
-                       timeStamp.text = String().setMessageTime(time: fileMessage.sentAt)
-                    name.text = fileMessage.attachment?.fileName.capitalized
-                    type.text = fileMessage.attachment?.fileExtension.uppercased()
-                    if let fileSize = fileMessage.attachment?.fileSize {
-                        size.text = Units(bytes: Int64(fileSize)).getReadableUnit()
+            receiptStack.isHidden = true
+            if fileMessage.sentAt == 0 {
+                timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                name.text = NSLocalizedString("---", comment: "")
+                type.text = NSLocalizedString("---", comment: "")
+                size.text = NSLocalizedString("---", comment: "")
+            }else{
+                timeStamp.text = String().setMessageTime(time: fileMessage.sentAt)
+                name.text = fileMessage.attachment?.fileName.capitalized
+                type.text = fileMessage.attachment?.fileExtension.uppercased()
+                if let fileSize = fileMessage.attachment?.fileSize {
+                    size.text = Units(bytes: Int64(fileSize)).getReadableUnit()
+                }
+            }
+            
+            if fileMessage.readAt > 0 {
+                receipt.image = #imageLiteral(resourceName: "read")
+                timeStamp.text = String().setMessageTime(time: Int(fileMessage?.readAt ?? 0))
+            }else if fileMessage.deliveredAt > 0 {
+                receipt.image = #imageLiteral(resourceName: "delivered")
+                timeStamp.text = String().setMessageTime(time: Int(fileMessage?.deliveredAt ?? 0))
+            }else if fileMessage.sentAt > 0 {
+                receipt.image = #imageLiteral(resourceName: "sent")
+                timeStamp.text = String().setMessageTime(time: Int(fileMessage?.sentAt ?? 0))
+            }else if fileMessage.sentAt == 0 {
+                receipt.image = #imageLiteral(resourceName: "wait")
+                timeStamp.text = NSLocalizedString("SENDING", comment: "")
+            }
+            if fileMessage?.replyCount != 0 {
+                replybutton.isHidden = false
+                if fileMessage?.replyCount == 1 {
+                    replybutton.setTitle("1 reply", for: .normal)
+                }else{
+                    if let replies = fileMessage?.replyCount {
+                        replybutton.setTitle("\(replies) replies", for: .normal)
                     }
-                   }
-    
-                  if fileMessage.readAt > 0 {
-                       receipt.image = #imageLiteral(resourceName: "read")
-                       timeStamp.text = String().setMessageTime(time: Int(fileMessage?.readAt ?? 0))
-                       }else if fileMessage.deliveredAt > 0 {
-                       receipt.image = #imageLiteral(resourceName: "delivered")
-                       timeStamp.text = String().setMessageTime(time: Int(fileMessage?.deliveredAt ?? 0))
-                       }else if fileMessage.sentAt > 0 {
-                       receipt.image = #imageLiteral(resourceName: "sent")
-                       timeStamp.text = String().setMessageTime(time: Int(fileMessage?.sentAt ?? 0))
-                       }else if fileMessage.sentAt == 0 {
-                          receipt.image = #imageLiteral(resourceName: "wait")
-                          timeStamp.text = NSLocalizedString("SENDING", comment: "")
-                       }
-               }
+                }
+            }else{
+                replybutton.isHidden = true
+            }
+        }
     }
     
+    
+    
+    
     // MARK: - Initialization of required Methods
+    @IBAction func didReplyButtonPressed(_ sender: Any) {
+        if let message = fileMessage, let indexpath = indexPath {
+            CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+        }
+
+    }
     
     override func awakeFromNib() {
         super.awakeFromNib()

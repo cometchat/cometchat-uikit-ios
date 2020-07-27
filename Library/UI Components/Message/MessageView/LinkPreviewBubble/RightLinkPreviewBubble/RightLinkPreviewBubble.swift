@@ -27,8 +27,10 @@ class RightLinkPreviewBubble: UITableViewCell {
     @IBOutlet weak var playbutton: UIButton!
     @IBOutlet weak var iconView: UIView!
     @IBOutlet weak var tintedView: UIView!
+    @IBOutlet weak var replybutton: UIButton!
     
     // MARK: - Declaration of Variables
+    var indexPath: IndexPath?
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -77,6 +79,19 @@ class RightLinkPreviewBubble: UITableViewCell {
             }else if linkPreviewMessage.sentAt == 0 {
                 receipt.image = #imageLiteral(resourceName: "wait")
                 timeStamp.text = NSLocalizedString("SENDING", comment: "")
+            }
+            
+            if linkPreviewMessage?.replyCount != 0 {
+                replybutton.isHidden = false
+                if linkPreviewMessage?.replyCount == 1 {
+                    replybutton.setTitle("1 reply", for: .normal)
+                }else{
+                    if let replies = linkPreviewMessage?.replyCount {
+                        replybutton.setTitle("\(replies) replies", for: .normal)
+                    }
+                }
+            }else{
+                replybutton.isHidden = true
             }
         }
     }
@@ -140,6 +155,12 @@ class RightLinkPreviewBubble: UITableViewCell {
     }
     
     // MARK: - Initialization of required Methods
+    @IBAction func didReplyButtonPressed(_ sender: Any) {
+             if let message = linkPreviewMessage, let indexpath = indexPath {
+                 CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+             }
+
+         }
     
     override func awakeFromNib() {
         super.awakeFromNib()

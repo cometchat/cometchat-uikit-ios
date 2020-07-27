@@ -17,6 +17,7 @@ class LeftImageMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBInspectable
     
+    @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var imageMessage: UIImageView!
     @IBOutlet weak var timeStamp: UILabel!
@@ -28,6 +29,7 @@ class LeftImageMessageBubble: UITableViewCell {
     @IBOutlet weak var unsafeContentView: UIImageView!
     
     // MARK: - Declaration of Variables
+    var indexPath: IndexPath?
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -71,10 +73,69 @@ class LeftImageMessageBubble: UITableViewCell {
                   parseThumbnailForImage(forMessage: mediaMessage)
               }
               parseImageForModeration(forMessage: mediaMessage)
+           replybutton.isHidden = true
+        }
+    }
+    
+    var mediaMessageInThread: MediaMessage! {
+        didSet {
+            receiptStack.isHidden = true
+            if mediaMessageInThread.sentAt == 0 {
+                timeStamp.text = NSLocalizedString("SENDING", comment: "")
+            }else{
+                timeStamp.text = String().setMessageTime(time: mediaMessageInThread.sentAt)
+            }
+             nameView.isHidden = false
+            if let mediaURL = mediaMessageInThread.metaData, let imageUrl = mediaURL["fileURL"] as? String {
+                let url = URL(string: imageUrl)
+                if (url?.checkFileExist())! {
+                    do {
+                        let imageData = try Data(contentsOf: url!)
+                        let image = UIImage(data: imageData as Data)
+                        imageMessage.image = image
+                    } catch {
+                        print("Error loading image : \(error)")
+                    }
+                }else{
+                    parseThumbnailForImage(forMessage: mediaMessageInThread)
+                }
+            }else{
+                parseThumbnailForImage(forMessage: mediaMessageInThread)
+            }
+            parseImageForModeration(forMessage: mediaMessageInThread)
+            if mediaMessageInThread.readAt > 0 {
+            timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.readAt ?? 0))
+            }else if mediaMessageInThread.deliveredAt > 0 {
+            timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.deliveredAt ?? 0))
+            }else if mediaMessageInThread.sentAt > 0 {
+            timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.sentAt ?? 0))
+            }else if mediaMessageInThread.sentAt == 0 {
+               timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                 name.text = LoggedInUser.name.capitalized + ":"
+            }
+            if mediaMessageInThread?.replyCount != 0 {
+                replybutton.isHidden = false
+                if mediaMessageInThread?.replyCount == 1 {
+                    replybutton.setTitle("1 reply", for: .normal)
+                }else{
+                    if let replies = mediaMessageInThread?.replyCount {
+                        replybutton.setTitle("\(replies) replies", for: .normal)
+                    }
+                }
+            }else{
+                replybutton.isHidden = true
+            }
         }
     }
     
     // MARK: - Initialization of required Methods
+    @IBAction func didReplyButtonPressed(_ sender: Any) {
+             if let message = mediaMessage, let indexpath = indexPath {
+                 CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+             }
+
+    }
+    
     
     override func awakeFromNib() {
         super.awakeFromNib()

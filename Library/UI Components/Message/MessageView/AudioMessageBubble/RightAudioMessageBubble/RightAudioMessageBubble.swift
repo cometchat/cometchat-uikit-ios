@@ -15,6 +15,7 @@ class RightAudioMessageBubble: UITableViewCell {
 
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var size: UILabel!
@@ -24,6 +25,7 @@ class RightAudioMessageBubble: UITableViewCell {
     @IBOutlet weak var receiptStack: UIStackView!
     
      // MARK: - Declaration of Variables
+    var indexPath: IndexPath?
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -64,7 +66,28 @@ class RightAudioMessageBubble: UITableViewCell {
                           receipt.image = #imageLiteral(resourceName: "wait")
                           timeStamp.text = NSLocalizedString("SENDING", comment: "")
                        }
-               }
+            
+            if audioMessage?.replyCount != 0 {
+                replybutton.isHidden = false
+                if audioMessage?.replyCount == 1 {
+                    replybutton.setTitle("1 reply", for: .normal)
+                }else{
+                    if let replies = audioMessage?.replyCount {
+                        replybutton.setTitle("\(replies) replies", for: .normal)
+                    }
+                }
+            }else{
+                replybutton.isHidden = true
+            }
+            
+        }
+    }
+    
+    @IBAction func didReplyButtonPressed(_ sender: Any) {
+        if let message = audioMessage, let indexpath = indexPath {
+            CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+        }
+
     }
     
     // MARK: - Initialization of required Methods

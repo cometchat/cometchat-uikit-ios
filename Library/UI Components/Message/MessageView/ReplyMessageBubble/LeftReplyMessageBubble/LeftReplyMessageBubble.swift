@@ -18,6 +18,7 @@ class LeftReplyMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var avatar: Avatar!
@@ -60,23 +61,47 @@ class LeftReplyMessageBubble: UITableViewCell {
                 self.parseProfanityFilter(forMessage: currentMessage)
                 self.parseSentimentAnalysis(forMessage: currentMessage)
                 receiptStack.isHidden = true
-                if currentMessage.receiverType == .group {
-                    nameView.isHidden = false
-                }else {
-                    nameView.isHidden = true
-                }
+                nameView.isHidden = false
                 if let avatarURL = currentMessage.sender?.avatar  {
                     avatar.set(image: avatarURL, with: currentMessage.sender?.name ?? "")
                 }
                 timeStamp.text = String().setMessageTime(time: currentMessage.sentAt)
+                replybutton.isHidden = true
             }
         }
     }
+    
+    weak var textMessageInThread: TextMessage? {
+             didSet {
+                 if let textmessage  = textMessageInThread {
+                      self.parseProfanityFilter(forMessage: textmessage)
+                      self.parseSentimentAnalysis(forMessage: textmessage)
+                     
+                     if let metaData = textmessage.metaData, let message = metaData["message"] as? String {
+                         self.replyMessage.text = message
+                     }
+                     if textmessage.readAt > 0 {
+                         timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
+                     }else if textmessage.deliveredAt > 0 {
+                         timeStamp.text = String().setMessageTime(time: Int(textMessage?.deliveredAt ?? 0))
+                     }else if textmessage.sentAt > 0 {
+                         timeStamp.text = String().setMessageTime(time: Int(textMessage?.sentAt ?? 0))
+                     }else if textmessage.sentAt == 0 {
+                         timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                         name.text = LoggedInUser.name.capitalized + ":"
+                     }
+                 }
+                 message.textColor = .white
+                 replybutton.isHidden = true
+               
+             }
+         }
     
     weak var deletedMessage: BaseMessage? {
         didSet {
             // self.selectionStyle = .none
             if let currentMessage = deletedMessage {
+                self.replybutton.isHidden = true
                 if let userName = currentMessage.sender?.name {
                     name.text = userName + ":"
                 }
@@ -105,6 +130,13 @@ class LeftReplyMessageBubble: UITableViewCell {
             }
         }
     }
+    
+    @IBAction func didReplyButtonPressed(_ sender: Any) {
+             if let message = textMessage, let indexpath = indexPath {
+                 CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+             }
+
+         }
     
     // MARK: - Initialization of required Methods
     
@@ -167,6 +199,20 @@ class LeftReplyMessageBubble: UITableViewCell {
                 }
             }
         }else{
+            if forMessage.text.containsOnlyEmojis() {
+                if forMessage.text.count == 1 {
+                    message.font = UIFont (name: "SFProDisplay-Regular", size: 51)
+                }else if forMessage.text.count == 2 {
+                    message.font = UIFont (name: "SFProDisplay-Regular", size: 34)
+                }else if forMessage.text.count == 3{
+                    message.font = UIFont (name: "SFProDisplay-Regular", size: 25)
+                }else{
+                    message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+                }
+                print("contains only emoji: \(forMessage.text.count)")
+            }else{
+                message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+            }
             self.message.text = forMessage.text
         }
     }

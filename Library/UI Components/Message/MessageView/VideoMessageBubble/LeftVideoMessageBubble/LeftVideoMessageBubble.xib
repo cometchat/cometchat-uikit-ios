@@ -39,7 +39,7 @@
                         </userDefinedRuntimeAttributes>
                     </imageView>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="dqz-0h-F2f">
-                        <rect key="frame" x="38" y="0.0" width="250" height="196.5"/>
+                        <rect key="frame" x="38" y="0.0" width="250" height="199"/>
                         <subviews>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y4Z-7A-O2m">
                                 <rect key="frame" x="0.0" y="-15" width="240" height="15"/>
@@ -74,11 +74,11 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </imageView>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="aEX-q6-p6s">
-                                <rect key="frame" x="0.0" y="183" width="30" height="13.5"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="aEX-q6-p6s">
+                                <rect key="frame" x="0.0" y="183" width="30" height="16"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10:43" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="klY-Bu-y4G">
-                                        <rect key="frame" x="0.0" y="0.0" width="30" height="13.5"/>
+                                        <rect key="frame" x="0.0" y="2" width="30" height="12"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="12" id="jIh-1f-sDt"/>
                                         </constraints>
@@ -97,6 +97,17 @@
                             <constraint firstAttribute="width" constant="60" id="xh3-m9-0ZB"/>
                         </constraints>
                     </imageView>
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="B6C-V2-6pM">
+                        <rect key="frame" x="293" y="159" width="32" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="21" id="qhk-30-mRA"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="13"/>
+                        <state key="normal" title="Reply"/>
+                        <connections>
+                            <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="JGG-Xq-nwI"/>
+                        </connections>
+                    </button>
                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lRG-kq-aOv">
                         <rect key="frame" x="38" y="0.0" width="250" height="180"/>
                         <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -114,10 +125,12 @@
                     <constraint firstItem="lRG-kq-aOv" firstAttribute="top" secondItem="44x-Mi-r94" secondAttribute="top" id="ZN5-CJ-LQo"/>
                     <constraint firstItem="lRG-kq-aOv" firstAttribute="trailing" secondItem="44x-Mi-r94" secondAttribute="trailing" id="aOF-Rz-85g"/>
                     <constraint firstItem="dqz-0h-F2f" firstAttribute="leading" secondItem="nh5-Fy-nN1" secondAttribute="trailing" constant="3" id="cSR-AP-6Pp"/>
+                    <constraint firstItem="B6C-V2-6pM" firstAttribute="bottom" secondItem="44x-Mi-r94" secondAttribute="bottom" id="fAR-aj-ylc"/>
                     <constraint firstItem="nh5-Fy-nN1" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="jnS-5w-aIh"/>
                     <constraint firstItem="QIb-1N-dmp" firstAttribute="centerX" secondItem="lRG-kq-aOv" secondAttribute="centerX" id="mhg-n2-dLL"/>
                     <constraint firstItem="dqz-0h-F2f" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="s2C-Da-hiY"/>
                     <constraint firstItem="lRG-kq-aOv" firstAttribute="bottom" secondItem="44x-Mi-r94" secondAttribute="bottom" id="sIQ-wV-Lfh"/>
+                    <constraint firstItem="B6C-V2-6pM" firstAttribute="leading" secondItem="44x-Mi-r94" secondAttribute="trailing" constant="5" id="tYM-jS-cIu"/>
                     <constraint firstItem="nh5-Fy-nN1" firstAttribute="bottom" secondItem="44x-Mi-r94" secondAttribute="bottom" id="uSk-yN-KvX"/>
                 </constraints>
             </tableViewCellContentView>
@@ -129,6 +142,7 @@
                 <outlet property="name" destination="CnF-KW-ZEF" id="mPU-5q-xI2"/>
                 <outlet property="nameView" destination="Y4Z-7A-O2m" id="2jN-KJ-ljf"/>
                 <outlet property="receiptStack" destination="aEX-q6-p6s" id="YbZ-dq-TMl"/>
+                <outlet property="replybutton" destination="B6C-V2-6pM" id="VDm-SE-Fxg"/>
                 <outlet property="timeStamp" destination="klY-Bu-y4G" id="tTe-Zj-CEX"/>
                 <outlet property="tintedView" destination="lRG-kq-aOv" id="aL7-EN-snt"/>
             </connections>

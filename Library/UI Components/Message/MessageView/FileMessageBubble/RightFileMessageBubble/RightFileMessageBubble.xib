@@ -7,18 +7,23 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="SF-Pro-Display-Medium.otf">
+            <string>SFProDisplay-Medium</string>
+        </array>
+    </customFonts>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <tableViewCell contentMode="scaleToFill" restorationIdentifier="rightFileMessageBubble" selectionStyle="default" indentationWidth="10" reuseIdentifier="rightFileMessageBubble" rowHeight="90" id="KGk-i7-Jjw" customClass="RightFileMessageBubble" customModule="CometChat_KitchenSink" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="90"/>
+            <rect key="frame" x="0.0" y="0.0" width="445" height="90"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="90"/>
+                <rect key="frame" x="0.0" y="0.0" width="445" height="90"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="bottom" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="MYd-dn-X0o">
-                        <rect key="frame" x="55" y="0.0" width="250" height="81.5"/>
+                        <rect key="frame" x="180" y="0.0" width="250" height="81.5"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7jV-5h-COK">
                                 <rect key="frame" x="0.0" y="0.0" width="250" height="60.5"/>
@@ -135,9 +140,22 @@
                             </stackView>
                         </subviews>
                     </stackView>
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r0e-sS-erw">
+                        <rect key="frame" x="143" y="39.5" width="32" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="21" id="tCF-NJ-hbA"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="13"/>
+                        <state key="normal" title="Reply"/>
+                        <connections>
+                            <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="Gdf-yv-ykx"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="MYd-dn-X0o" firstAttribute="leading" secondItem="r0e-sS-erw" secondAttribute="trailing" constant="5" id="1U1-W9-H9G"/>
                     <constraint firstAttribute="trailing" secondItem="MYd-dn-X0o" secondAttribute="trailing" constant="15" id="57V-xk-Za1"/>
+                    <constraint firstItem="r0e-sS-erw" firstAttribute="bottom" secondItem="UGi-bp-7zq" secondAttribute="bottom" id="Fqm-eT-bWS"/>
                     <constraint firstAttribute="bottom" secondItem="MYd-dn-X0o" secondAttribute="bottom" constant="3" id="OZu-Q7-tsF"/>
                     <constraint firstItem="MYd-dn-X0o" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="Ow4-RN-eJE"/>
                 </constraints>
@@ -148,12 +166,13 @@
                 <outlet property="name" destination="XqD-TT-l18" id="ozz-qg-f8b"/>
                 <outlet property="receipt" destination="xHq-m3-ps4" id="K2x-KZ-cM0"/>
                 <outlet property="receiptStack" destination="wor-Yr-5Ct" id="hXl-HK-mYE"/>
+                <outlet property="replybutton" destination="r0e-sS-erw" id="IOD-2k-ZgG"/>
                 <outlet property="size" destination="80F-B7-Lmy" id="eYZ-UO-OTI"/>
                 <outlet property="timeStamp" destination="pi2-fj-7vX" id="OdW-o2-Jqz"/>
                 <outlet property="tintedView" destination="UGi-bp-7zq" id="Vfm-te-et5"/>
                 <outlet property="type" destination="UQC-hL-N1u" id="ykx-DM-7xg"/>
             </connections>
-            <point key="canvasLocation" x="131.8840579710145" y="127.23214285714285"/>
+            <point key="canvasLocation" x="41.304347826086961" y="127.23214285714285"/>
         </tableViewCell>
     </objects>
     <resources>

@@ -15,6 +15,7 @@ class LeftFileMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var fileName: UILabel!
     @IBOutlet weak var type: UILabel!
@@ -27,6 +28,7 @@ class LeftFileMessageBubble: UITableViewCell {
     @IBOutlet weak var nameView: UIView!
     
     // MARK: - Declaration of Variables
+    var indexPath: IndexPath?
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -59,10 +61,61 @@ class LeftFileMessageBubble: UITableViewCell {
             if let avatarURL = fileMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: fileMessage.sender?.name ?? "")
             }
+            
+            if fileMessage?.replyCount != 0 {
+                replybutton.isHidden = false
+                if fileMessage?.replyCount == 1 {
+                    replybutton.setTitle("1 reply", for: .normal)
+                }else{
+                    if let replies = fileMessage?.replyCount {
+                        replybutton.setTitle("\(replies) replies", for: .normal)
+                    }
+                }
+            }else{
+                replybutton.isHidden = true
+            }
         }
     }
     
+    var fileMessageInThread: MediaMessage! {
+        didSet {
+            receiptStack.isHidden = true
+            if fileMessageInThread.sentAt == 0 {
+                timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                name.text = NSLocalizedString("---", comment: "")
+                type.text = NSLocalizedString("---", comment: "")
+                size.text = NSLocalizedString("---", comment: "")
+            }else{
+                timeStamp.text = String().setMessageTime(time: fileMessageInThread.sentAt)
+                name.text = fileMessageInThread.attachment?.fileName.capitalized
+                type.text = fileMessageInThread.attachment?.fileExtension.uppercased()
+                if let fileSize = fileMessageInThread.attachment?.fileSize {
+                    size.text = Units(bytes: Int64(fileSize)).getReadableUnit()
+                }
+            }
+             nameView.isHidden = false
+            if fileMessageInThread.readAt > 0 {
+                timeStamp.text = String().setMessageTime(time: Int(fileMessageInThread?.readAt ?? 0))
+            }else if fileMessageInThread.deliveredAt > 0 {
+                timeStamp.text = String().setMessageTime(time: Int(fileMessageInThread?.deliveredAt ?? 0))
+            }else if fileMessageInThread.sentAt > 0 {
+                timeStamp.text = String().setMessageTime(time: Int(fileMessageInThread?.sentAt ?? 0))
+            }else if fileMessageInThread.sentAt == 0 {
+                timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                 name.text = LoggedInUser.name.capitalized + ":"
+            }
+            replybutton.isHidden = true
+        }
+    }
+
+    
     // MARK: - Initialization of required Methods
+    @IBAction func didReplyButtonPressed(_ sender: Any) {
+        if let message = fileMessage, let indexpath = indexPath {
+            CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+        }
+
+    }
     
     override func awakeFromNib() {
         super.awakeFromNib()

@@ -18,6 +18,7 @@ class LeftVideoMessageBubble: UITableViewCell {
     // MARK: - Declaration of IBInspectable
     
     
+    @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var imageMessage: UIImageView!
     @IBOutlet weak var timeStamp: UILabel!
@@ -27,6 +28,7 @@ class LeftVideoMessageBubble: UITableViewCell {
     @IBOutlet weak var tintedView: UIView!
     
     // MARK: - Declaration of Variables
+    var indexPath: IndexPath?
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -54,10 +56,55 @@ class LeftVideoMessageBubble: UITableViewCell {
                 avatar.set(image: avatarURL, with: mediaMessage.sender?.name ?? "")
             }
             parseThumbnailForVideo(forMessage: mediaMessage)
+            if mediaMessage?.replyCount != 0 {
+                replybutton.isHidden = false
+                if mediaMessage?.replyCount == 1 {
+                    replybutton.setTitle("1 reply", for: .normal)
+                }else{
+                    if let replies = mediaMessage?.replyCount {
+                        replybutton.setTitle("\(replies) replies", for: .normal)
+                    }
+                }
+            }else{
+                replybutton.isHidden = true
+            }
         }
     }
     
+    var mediaMessageInThread: MediaMessage! {
+          didSet {
+              receiptStack.isHidden = true
+              if mediaMessageInThread.sentAt == 0 {
+                  timeStamp.text = NSLocalizedString("SENDING", comment: "")
+              }else{
+               
+                  timeStamp.text = String().setMessageTime(time: mediaMessageInThread.sentAt)
+              }
+              if mediaMessageInThread.readAt > 0 {
+              timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.readAt ?? 0))
+              }else if mediaMessageInThread.deliveredAt > 0 {
+              timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.deliveredAt ?? 0))
+              }else if mediaMessageInThread.sentAt > 0 {
+              timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.sentAt ?? 0))
+              }else if mediaMessageInThread.sentAt == 0 {
+                 timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                 name.text = LoggedInUser.name.capitalized + ":"
+              }
+              parseThumbnailForVideo(forMessage: mediaMessageInThread)
+              
+             replybutton.isHidden = true
+             nameView.isHidden = false
+          }
+      }
+    
     // MARK: - Initialization of required Methods
+    @IBAction func didReplyButtonPressed(_ sender: Any) {
+           if let message = mediaMessage, let indexpath = indexPath {
+               CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+           }
+
+       }
+     
     
     override func awakeFromNib() {
         super.awakeFromNib()
