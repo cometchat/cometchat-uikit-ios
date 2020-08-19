@@ -94,7 +94,7 @@ class LeftFileMessageBubble: UITableViewCell {
                 }
             }
              nameView.isHidden = false
-            if fileMessageInThread.readAt > 0 {
+            if fileMessageInThread.readAt > 0 && fileMessageInThread.receiverType == .user {
                 timeStamp.text = String().setMessageTime(time: Int(fileMessageInThread?.readAt ?? 0))
             }else if fileMessageInThread.deliveredAt > 0 {
                 timeStamp.text = String().setMessageTime(time: Int(fileMessageInThread?.deliveredAt ?? 0))

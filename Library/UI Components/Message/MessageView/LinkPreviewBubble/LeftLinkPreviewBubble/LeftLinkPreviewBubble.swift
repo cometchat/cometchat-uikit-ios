@@ -129,7 +129,7 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
               icon.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
               iconView.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
               visitButton.roundViewCorners([.layerMinXMaxYCorner,.layerMaxXMaxYCorner], radius: 15)
-              if linkPreviewMessageInThread.readAt > 0 {
+            if linkPreviewMessageInThread.readAt > 0 && linkPreviewMessageInThread.receiverType == .user {
                   timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessageInThread?.readAt ?? 0))
               }else if linkPreviewMessageInThread.deliveredAt > 0 {
                   timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessageInThread?.deliveredAt ?? 0))

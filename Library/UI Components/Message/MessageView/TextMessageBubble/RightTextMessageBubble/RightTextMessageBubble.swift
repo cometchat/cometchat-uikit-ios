@@ -46,7 +46,7 @@ class RightTextMessageBubble: UITableViewCell {
             if let textmessage  = textMessage {
                 self.receiptStack.isHidden = true
                 self.parseProfanityFilter(forMessage: textmessage)
-                if textmessage.readAt > 0 {
+                if textmessage.readAt > 0 && textmessage.receiverType == .user {
                     receipt.image = #imageLiteral(resourceName: "read")
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
                 }else if textmessage.deliveredAt > 0 {
@@ -108,6 +108,8 @@ class RightTextMessageBubble: UITableViewCell {
                 }else{
                     message.text = forMessage.text
                 }
+            }else{
+                message.text = forMessage.text
             }
         }else{
             

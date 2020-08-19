@@ -55,7 +55,7 @@ class RightFileMessageBubble: UITableViewCell {
                 }
             }
             
-            if fileMessage.readAt > 0 {
+            if fileMessage.readAt > 0 && fileMessage.receiverType == .user{
                 receipt.image = #imageLiteral(resourceName: "read")
                 timeStamp.text = String().setMessageTime(time: Int(fileMessage?.readAt ?? 0))
             }else if fileMessage.deliveredAt > 0 {

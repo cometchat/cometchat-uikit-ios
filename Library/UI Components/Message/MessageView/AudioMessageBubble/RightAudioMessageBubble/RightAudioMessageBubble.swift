@@ -53,7 +53,7 @@ class RightAudioMessageBubble: UITableViewCell {
                     }
                    }
     
-                  if audioMessage.readAt > 0 {
+                       if audioMessage.readAt > 0 && audioMessage.receiverType == .user {
                        receipt.image = #imageLiteral(resourceName: "read")
                        timeStamp.text = String().setMessageTime(time: Int(audioMessage?.readAt ?? 0))
                        }else if audioMessage.deliveredAt > 0 {

@@ -176,10 +176,10 @@ extension AppDelegate: CometChatCallDelegate {
     }
 }
 
-/*  ----------------------------------------------------------------------------------------- */
+  //-----------------------------------------------------------------------------------------
 
-// //  MARK: - CometChatCallDelegate Methods (For Objective C Project)
-//
+ //  MARK: - CometChatCallDelegate Methods (For Objective C Project)
+
 //extension CometChatUnified : CometChatCallDelegate {
 //
 //    /**
@@ -250,6 +250,6 @@ extension AppDelegate: CometChatCallDelegate {
 //        }
 //    }
 //}
-//
-//
-///*  ----------------------------------------------------------------------------------------- */
+
+
+/*  ----------------------------------------------------------------------------------------- */

@@ -80,7 +80,7 @@ class LeftReplyMessageBubble: UITableViewCell {
                      if let metaData = textmessage.metaData, let message = metaData["message"] as? String {
                          self.replyMessage.text = message
                      }
-                     if textmessage.readAt > 0 {
+                    if textmessage.readAt > 0 && textmessage.receiverType == .user {
                          timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
                      }else if textmessage.deliveredAt > 0 {
                          timeStamp.text = String().setMessageTime(time: Int(textMessage?.deliveredAt ?? 0))
@@ -197,6 +197,8 @@ class LeftReplyMessageBubble: UITableViewCell {
                 }else{
                     message.text = forMessage.text
                 }
+            }else{
+                message.text = forMessage.text
             }
         }else{
             if forMessage.text.containsOnlyEmojis() {

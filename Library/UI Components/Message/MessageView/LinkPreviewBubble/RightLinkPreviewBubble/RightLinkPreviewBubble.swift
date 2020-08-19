@@ -67,7 +67,7 @@ class RightLinkPreviewBubble: UITableViewCell {
             icon.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
             iconView.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
             visitButton.roundViewCorners([.layerMinXMaxYCorner,.layerMaxXMaxYCorner], radius: 15)
-            if linkPreviewMessage.readAt > 0 {
+            if linkPreviewMessage.readAt > 0 && linkPreviewMessage.receiverType == .user {
                 receipt.image = #imageLiteral(resourceName: "read")
                 timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessage?.readAt ?? 0))
             }else if linkPreviewMessage.deliveredAt > 0 {

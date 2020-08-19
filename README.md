@@ -54,52 +54,22 @@ Add the following lines to the Podfile.
 ```bash
 ________________________________________________________________
 
-For Xcode 11.3:
+For Xcode 11.4 or Higher:
 
 platform :ios, '10.0'
 use_frameworks!
 
 target 'MyApp' do
-     pod 'CometChatPro', '2.0.12-Xcode11.3'
+     pod 'CometChatPro', '2.1.0'
 end
 ________________________________________________________________
 
-
-For Xcode 11.4:
-
-platform :ios, '10.0'
-use_frameworks!
-
-target 'MyApp' do
-     pod 'CometChatPro', '2.0.12-Xcode11.4'
-end
-________________________________________________________________
 ```
 And then install the `CometChatPro` framework through CocoaPods.
 
 ```bash
 pod install
 ```
-___
-### Setup Bitcode
-
-Set the Enable Bitcode to NO.
-
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/bitcodeEnabled.png) 
-___
-
-### Swift Standard Libraries
-
-`CometChatPro` framework build on Swift, you have to ensure the required libraries are embedded. This can be done by setting the “Always Embed Swift Standard Libraries” checkbox in your target’s build settings to “Yes”:
-
-
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/AlwaysEmbedLibraries.png) 
-___
-### Set Header Search Path
-
-Set the `Header Search Paths` to `$SDKROOT/usr/include/libxml2`.
-
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/headerSearchPath.png) 
 ___
 # Initialize CometChat
 

@@ -95,7 +95,7 @@ class LeftAudioMessageBubble: UITableViewCell {
                 avatar.set(image: avatarURL, with: audioMessageinThread.sender?.name ?? "")
             }
             
-            if audioMessageinThread.readAt > 0 {
+            if audioMessageinThread.readAt > 0 && audioMessageinThread.receiverType == .user {
                 timeStamp.text = String().setMessageTime(time: Int(audioMessageinThread?.readAt ?? 0))
             }else if audioMessageinThread.deliveredAt > 0 {
                 timeStamp.text = String().setMessageTime(time: Int(audioMessageinThread?.deliveredAt ?? 0))

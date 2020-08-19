@@ -103,7 +103,7 @@ class LeftImageMessageBubble: UITableViewCell {
                 parseThumbnailForImage(forMessage: mediaMessageInThread)
             }
             parseImageForModeration(forMessage: mediaMessageInThread)
-            if mediaMessageInThread.readAt > 0 {
+            if mediaMessageInThread.readAt > 0  && mediaMessageInThread.receiverType == .user {
             timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.readAt ?? 0))
             }else if mediaMessageInThread.deliveredAt > 0 {
             timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.deliveredAt ?? 0))

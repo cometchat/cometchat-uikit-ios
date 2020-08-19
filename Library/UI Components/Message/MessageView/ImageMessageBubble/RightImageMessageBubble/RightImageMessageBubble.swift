@@ -68,7 +68,7 @@ class RightImageMessageBubble: UITableViewCell {
                 parseThumbnailForImage(forMessage: mediaMessage)
             }
             parseImageForModeration(forMessage: mediaMessage)
-            if mediaMessage.readAt > 0 {
+            if mediaMessage.readAt > 0 && mediaMessage.receiverType == .user {
             receipt.image = #imageLiteral(resourceName: "read")
             timeStamp.text = String().setMessageTime(time: Int(mediaMessage?.readAt ?? 0))
             }else if mediaMessage.deliveredAt > 0 {
