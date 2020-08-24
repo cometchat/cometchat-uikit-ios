@@ -177,6 +177,10 @@ class LeftImageMessageBubble: UITableViewCell {
          if let metaData = forMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let thumbnailGenerationDictionary = cometChatExtension["thumbnail-generation"] as? [String : Any] {
              if let url = URL(string: thumbnailGenerationDictionary["url_medium"] as? String ?? "") {
                  imageMessage.cf.setImage(with: url)
+             }else{
+                if let url = URL(string: mediaMessage.attachment?.fileUrl ?? "") {
+                    imageMessage.cf.setImage(with: url)
+                }
              }
          }else{
              if let url = URL(string: mediaMessage.attachment?.fileUrl ?? "") {
