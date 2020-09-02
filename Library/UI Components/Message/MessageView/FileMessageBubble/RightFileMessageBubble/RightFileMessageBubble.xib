@@ -28,16 +28,6 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7jV-5h-COK">
                                 <rect key="frame" x="0.0" y="0.0" width="250" height="60.5"/>
                                 <subviews>
-                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UGi-bp-7zq">
-                                        <rect key="frame" x="0.0" y="0.0" width="250" height="60.5"/>
-                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <color key="tintColor" red="0.20000000000000001" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="15"/>
-                                            </userDefinedRuntimeAttribute>
-                                        </userDefinedRuntimeAttributes>
-                                    </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oAn-uL-nNr">
                                         <rect key="frame" x="197" y="8" width="45" height="45"/>
                                         <subviews>
@@ -98,15 +88,11 @@
                                 </subviews>
                                 <color key="backgroundColor" red="0.20000000000000001" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
-                                    <constraint firstItem="UGi-bp-7zq" firstAttribute="top" secondItem="7jV-5h-COK" secondAttribute="top" id="DIg-vw-YhA"/>
                                     <constraint firstItem="LHY-Un-bLV" firstAttribute="leading" secondItem="7jV-5h-COK" secondAttribute="leading" constant="8" id="Gs0-1Y-asm"/>
-                                    <constraint firstItem="UGi-bp-7zq" firstAttribute="leading" secondItem="7jV-5h-COK" secondAttribute="leading" id="NTT-VN-9GB"/>
                                     <constraint firstItem="LHY-Un-bLV" firstAttribute="top" secondItem="7jV-5h-COK" secondAttribute="top" constant="10.5" id="NTn-hk-X6J"/>
                                     <constraint firstItem="oAn-uL-nNr" firstAttribute="centerY" secondItem="7jV-5h-COK" secondAttribute="centerY" id="SXj-Mi-iNZ"/>
-                                    <constraint firstAttribute="bottom" secondItem="UGi-bp-7zq" secondAttribute="bottom" id="aD7-Vy-P2r"/>
                                     <constraint firstItem="LHY-Un-bLV" firstAttribute="centerY" secondItem="7jV-5h-COK" secondAttribute="centerY" id="dHI-mN-P5B"/>
                                     <constraint firstAttribute="height" constant="60" id="dXp-HP-tgN"/>
-                                    <constraint firstAttribute="trailing" secondItem="UGi-bp-7zq" secondAttribute="trailing" id="ez3-Qw-qfq"/>
                                     <constraint firstAttribute="width" constant="250" id="g0g-7T-ez3"/>
                                     <constraint firstItem="oAn-uL-nNr" firstAttribute="leading" secondItem="LHY-Un-bLV" secondAttribute="trailing" constant="8" id="mkB-H6-Bad"/>
                                     <constraint firstAttribute="trailing" secondItem="oAn-uL-nNr" secondAttribute="trailing" constant="8" id="rwz-pR-oOh"/>
@@ -155,21 +141,21 @@
                 <constraints>
                     <constraint firstItem="MYd-dn-X0o" firstAttribute="leading" secondItem="r0e-sS-erw" secondAttribute="trailing" constant="5" id="1U1-W9-H9G"/>
                     <constraint firstAttribute="trailing" secondItem="MYd-dn-X0o" secondAttribute="trailing" constant="15" id="57V-xk-Za1"/>
-                    <constraint firstItem="r0e-sS-erw" firstAttribute="bottom" secondItem="UGi-bp-7zq" secondAttribute="bottom" id="Fqm-eT-bWS"/>
                     <constraint firstAttribute="bottom" secondItem="MYd-dn-X0o" secondAttribute="bottom" constant="3" id="OZu-Q7-tsF"/>
                     <constraint firstItem="MYd-dn-X0o" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="Ow4-RN-eJE"/>
+                    <constraint firstItem="r0e-sS-erw" firstAttribute="bottom" secondItem="7jV-5h-COK" secondAttribute="bottom" id="lyo-hN-tXa"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="icon" destination="i5H-qL-vHJ" id="j5w-mw-pTb"/>
+                <outlet property="messageView" destination="7jV-5h-COK" id="aLg-TW-bbi"/>
                 <outlet property="name" destination="XqD-TT-l18" id="ozz-qg-f8b"/>
                 <outlet property="receipt" destination="xHq-m3-ps4" id="K2x-KZ-cM0"/>
                 <outlet property="receiptStack" destination="wor-Yr-5Ct" id="hXl-HK-mYE"/>
                 <outlet property="replybutton" destination="r0e-sS-erw" id="IOD-2k-ZgG"/>
                 <outlet property="size" destination="80F-B7-Lmy" id="eYZ-UO-OTI"/>
                 <outlet property="timeStamp" destination="pi2-fj-7vX" id="OdW-o2-Jqz"/>
-                <outlet property="tintedView" destination="UGi-bp-7zq" id="Vfm-te-et5"/>
                 <outlet property="type" destination="UQC-hL-N1u" id="ykx-DM-7xg"/>
             </connections>
             <point key="canvasLocation" x="41.304347826086961" y="127.23214285714285"/>

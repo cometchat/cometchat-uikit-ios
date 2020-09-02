@@ -83,15 +83,6 @@
                                     <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="unsafeContent.png" translatesAutoresizingMaskIntoConstraints="NO" id="W0Y-uH-50r">
                                         <rect key="frame" x="77" y="54.5" width="96" height="71"/>
                                     </imageView>
-                                    <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Te9-hu-qrJ">
-                                        <rect key="frame" x="0.0" y="0.0" width="250" height="180"/>
-                                        <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="15"/>
-                                            </userDefinedRuntimeAttribute>
-                                        </userDefinedRuntimeAttributes>
-                                    </view>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                 <constraints>
@@ -103,12 +94,8 @@
                                     <constraint firstItem="xEA-H6-jk8" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" id="KvZ-gv-Jd6"/>
                                     <constraint firstItem="xEA-H6-jk8" firstAttribute="leading" secondItem="q6r-Il-FVP" secondAttribute="leading" id="ZHg-Gg-f1r"/>
                                     <constraint firstItem="n2j-Z1-wha" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" id="atO-G0-rDm"/>
-                                    <constraint firstAttribute="trailing" secondItem="Te9-hu-qrJ" secondAttribute="trailing" id="bYc-Tk-cLE"/>
                                     <constraint firstItem="n2j-Z1-wha" firstAttribute="leading" secondItem="q6r-Il-FVP" secondAttribute="leading" id="egL-Ds-ZoS"/>
                                     <constraint firstAttribute="bottom" secondItem="xEA-H6-jk8" secondAttribute="bottom" id="kGV-1T-dbo"/>
-                                    <constraint firstItem="Te9-hu-qrJ" firstAttribute="leading" secondItem="q6r-Il-FVP" secondAttribute="leading" id="l0g-a9-iLH"/>
-                                    <constraint firstItem="Te9-hu-qrJ" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" id="pF8-1Q-JeV"/>
-                                    <constraint firstAttribute="bottom" secondItem="Te9-hu-qrJ" secondAttribute="bottom" id="tw7-zr-kyt"/>
                                     <constraint firstItem="c0Q-td-X1s" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" constant="20" id="wvD-Nh-Xlz"/>
                                     <constraint firstAttribute="trailing" secondItem="xEA-H6-jk8" secondAttribute="trailing" id="wyN-mA-ioJ"/>
                                 </constraints>
@@ -150,8 +137,8 @@
                 <constraints>
                     <constraint firstItem="chB-ix-hEc" firstAttribute="leading" secondItem="ngZ-4g-SAC" secondAttribute="trailing" constant="5" id="D3k-4e-jNM"/>
                     <constraint firstAttribute="bottom" secondItem="chB-ix-hEc" secondAttribute="bottom" constant="3" id="Dun-tA-jA8"/>
+                    <constraint firstItem="ngZ-4g-SAC" firstAttribute="bottom" secondItem="n2j-Z1-wha" secondAttribute="bottom" id="ek9-12-W2Y"/>
                     <constraint firstAttribute="trailing" secondItem="chB-ix-hEc" secondAttribute="trailing" constant="15" id="fjZ-gh-qiM"/>
-                    <constraint firstItem="ngZ-4g-SAC" firstAttribute="bottom" secondItem="Te9-hu-qrJ" secondAttribute="bottom" id="phF-xH-Bqj"/>
                     <constraint firstItem="chB-ix-hEc" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="ydR-5G-iQA"/>
                 </constraints>
             </tableViewCellContentView>
@@ -164,7 +151,6 @@
                 <outlet property="receiptStack" destination="QFW-D7-Jho" id="FAS-xc-d1O"/>
                 <outlet property="replybutton" destination="ngZ-4g-SAC" id="5Bj-KX-hIo"/>
                 <outlet property="timeStamp" destination="cDA-gL-hf8" id="d5J-tj-3S9"/>
-                <outlet property="tintedView" destination="Te9-hu-qrJ" id="tO1-S3-fVo"/>
                 <outlet property="unsafeContentView" destination="W0Y-uH-50r" id="TGw-24-73G"/>
             </connections>
             <point key="canvasLocation" x="-28.260869565217394" y="86.049107142857139"/>

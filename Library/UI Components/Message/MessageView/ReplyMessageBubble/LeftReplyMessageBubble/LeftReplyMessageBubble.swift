@@ -18,8 +18,8 @@ class LeftReplyMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
-    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var message: UILabel!
@@ -140,6 +140,7 @@ class LeftReplyMessageBubble: UITableViewCell {
     
     // MARK: - Initialization of required Methods
     
+     
     override func awakeFromNib() {
         super.awakeFromNib()
         
@@ -147,6 +148,25 @@ class LeftReplyMessageBubble: UITableViewCell {
             selectionColor = .systemBackground
         } else {
             selectionColor = .white
+        }
+    }
+    
+    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+        super.setHighlighted(highlighted, animated: animated)
+        if #available(iOS 13.0, *) {
+            
+        } else {
+            messageView.backgroundColor =  .lightGray
+        }
+        
+    }
+    
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+        if #available(iOS 13.0, *) {
+            
+        } else {
+            messageView.backgroundColor =  .lightGray
         }
     }
     
@@ -163,17 +183,6 @@ class LeftReplyMessageBubble: UITableViewCell {
         deletedMessage = nil
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        switch isEditing {
-        case true:
-            switch selected {
-            case true: self.tintedView.isHidden = false
-            case false: self.tintedView.isHidden = true
-            }
-        case false: break
-        }
-    }
     
     /**
      This method used to set the image for LeftTextMessageBubble class
@@ -240,6 +249,8 @@ class LeftReplyMessageBubble: UITableViewCell {
                         spaceConstraint.constant = 0
                         widthconstraint.constant = 0
                     }
+                }else{
+                    self.parseProfanityFilter(forMessage: forMessage)
                 }
             }else{
                 if #available(iOS 13.0, *) {
@@ -251,6 +262,7 @@ class LeftReplyMessageBubble: UITableViewCell {
                 sentimentAnalysisView.isHidden = true
                 spaceConstraint.constant = 0
                 widthconstraint.constant = 0
+                self.parseProfanityFilter(forMessage: forMessage)
             }
         }
 

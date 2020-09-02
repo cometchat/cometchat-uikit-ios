@@ -24,7 +24,6 @@ class LeftImageMessageBubble: UITableViewCell {
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var receiptStack: UIStackView!
-    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var imageModerationView: UIView!
     @IBOutlet weak var unsafeContentView: UIImageView!
     
@@ -151,14 +150,7 @@ class LeftImageMessageBubble: UITableViewCell {
     
      override func setSelected(_ selected: Bool, animated: Bool) {
            super.setSelected(selected, animated: animated)
-           switch isEditing {
-           case true:
-               switch selected {
-               case true: self.tintedView.isHidden = false
-               case false: self.tintedView.isHidden = true
-               }
-           case false: break
-           }
+           
        }
     
     /**

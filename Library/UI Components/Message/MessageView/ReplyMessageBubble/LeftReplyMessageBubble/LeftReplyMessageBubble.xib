@@ -54,15 +54,6 @@
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jix-DQ-9tZ">
                                         <rect key="frame" x="0.0" y="0.0" width="131.5" height="425"/>
                                         <subviews>
-                                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="l9W-sP-UG9">
-                                                <rect key="frame" x="0.0" y="0.0" width="131.5" height="425"/>
-                                                <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <userDefinedRuntimeAttributes>
-                                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                        <integer key="value" value="20"/>
-                                                    </userDefinedRuntimeAttribute>
-                                                </userDefinedRuntimeAttributes>
-                                            </view>
                                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KZv-MO-iOx">
                                                 <rect key="frame" x="0.0" y="0.0" width="131.5" height="425"/>
                                                 <color key="backgroundColor" systemColor="systemRedColor" red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -132,21 +123,17 @@
                                             <constraint firstItem="KZv-MO-iOx" firstAttribute="top" secondItem="jix-DQ-9tZ" secondAttribute="top" id="8RJ-Rq-7Jz"/>
                                             <constraint firstItem="ber-sq-W8I" firstAttribute="centerY" secondItem="HFj-Lw-T6B" secondAttribute="centerY" id="CoK-El-9qP"/>
                                             <constraint firstItem="ber-sq-W8I" firstAttribute="leading" secondItem="HFj-Lw-T6B" secondAttribute="trailing" constant="10" id="Dei-4x-Eqq"/>
-                                            <constraint firstAttribute="bottom" secondItem="l9W-sP-UG9" secondAttribute="bottom" id="HX8-Fa-Xfm"/>
                                             <constraint firstAttribute="bottom" secondItem="KZv-MO-iOx" secondAttribute="bottom" id="KTG-Rh-pMH"/>
                                             <constraint firstAttribute="trailing" secondItem="KZv-MO-iOx" secondAttribute="trailing" id="Le6-6P-uHe"/>
                                             <constraint firstItem="HFj-Lw-T6B" firstAttribute="leading" secondItem="jix-DQ-9tZ" secondAttribute="leading" constant="15" id="PxC-rU-Ii4"/>
                                             <constraint firstAttribute="bottom" secondItem="HFj-Lw-T6B" secondAttribute="bottom" constant="10" id="Weo-DC-AwE"/>
                                             <constraint firstAttribute="trailing" secondItem="iFK-zG-jk1" secondAttribute="trailing" constant="15" id="dfl-8g-b0t"/>
-                                            <constraint firstAttribute="trailing" secondItem="l9W-sP-UG9" secondAttribute="trailing" id="gBp-5h-Yhe"/>
                                             <constraint firstAttribute="width" relation="lessThanOrEqual" constant="250" id="iaO-XC-fH3"/>
-                                            <constraint firstItem="l9W-sP-UG9" firstAttribute="top" secondItem="jix-DQ-9tZ" secondAttribute="top" id="m7k-07-9HV"/>
                                             <constraint firstItem="iFK-zG-jk1" firstAttribute="top" secondItem="jix-DQ-9tZ" secondAttribute="top" constant="10" id="rXU-lm-MSM"/>
                                             <constraint firstItem="KZv-MO-iOx" firstAttribute="leading" secondItem="jix-DQ-9tZ" secondAttribute="leading" id="v3g-qf-F4A"/>
                                             <constraint firstAttribute="trailing" secondItem="ber-sq-W8I" secondAttribute="trailing" constant="15" id="vqc-Dy-pCt"/>
                                             <constraint firstItem="HFj-Lw-T6B" firstAttribute="top" secondItem="iFK-zG-jk1" secondAttribute="bottom" constant="8" id="x2P-C1-ixz"/>
                                             <constraint firstItem="iFK-zG-jk1" firstAttribute="leading" secondItem="jix-DQ-9tZ" secondAttribute="leading" constant="15" id="xub-lS-5Bc"/>
-                                            <constraint firstItem="l9W-sP-UG9" firstAttribute="leading" secondItem="jix-DQ-9tZ" secondAttribute="leading" id="ybj-7P-j51"/>
                                         </constraints>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
@@ -230,6 +217,7 @@
                 <outlet property="Avatar" destination="PyW-mZ-4Vq" id="EsR-XA-dDx"/>
                 <outlet property="avatar" destination="PyW-mZ-4Vq" id="Szm-BT-WKp"/>
                 <outlet property="message" destination="HFj-Lw-T6B" id="bew-b0-kCW"/>
+                <outlet property="messageView" destination="jix-DQ-9tZ" id="6f0-gD-HsR"/>
                 <outlet property="name" destination="GbU-8s-cMb" id="O1z-sj-4s3"/>
                 <outlet property="nameView" destination="NLZ-D3-64x" id="M9X-dn-1Xn"/>
                 <outlet property="receiptStack" destination="Mom-W2-IN7" id="NYM-2e-hks"/>
@@ -238,7 +226,6 @@
                 <outlet property="sentimentAnalysisView" destination="KZv-MO-iOx" id="omS-Le-S3X"/>
                 <outlet property="spaceConstraint" destination="Dei-4x-Eqq" id="cY5-Dm-UI9"/>
                 <outlet property="timeStamp" destination="XUr-Lq-dSS" id="ZLn-PJ-p9v"/>
-                <outlet property="tintedView" destination="l9W-sP-UG9" id="hVQ-2e-xU6"/>
                 <outlet property="topConstraint" destination="wwN-IF-yut" id="iVG-hT-7lU"/>
                 <outlet property="widthconstraint" destination="ofq-s4-Ms7" id="MQ8-6A-cFU"/>
             </connections>

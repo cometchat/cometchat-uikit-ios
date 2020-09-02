@@ -183,15 +183,6 @@
                             </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
                     </stackView>
-                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SXh-Cv-DiD">
-                        <rect key="frame" x="38" y="0.0" width="250" height="356"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                <integer key="value" value="15"/>
-                            </userDefinedRuntimeAttribute>
-                        </userDefinedRuntimeAttributes>
-                    </view>
                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hdc-hO-IOJ">
                         <rect key="frame" x="293" y="335" width="32" height="21"/>
                         <constraints>
@@ -221,19 +212,15 @@
                     </imageView>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="hdc-hO-IOJ" firstAttribute="bottom" secondItem="SXh-Cv-DiD" secondAttribute="bottom" id="8Bo-nF-eDK"/>
+                    <constraint firstItem="hdc-hO-IOJ" firstAttribute="bottom" secondItem="EsP-jS-fcA" secondAttribute="bottom" id="6zU-1R-IrF"/>
                     <constraint firstItem="iei-4O-P7X" firstAttribute="leading" secondItem="YID-80-9Vj" secondAttribute="trailing" constant="3" id="DOr-mE-ghC"/>
                     <constraint firstItem="iei-4O-P7X" firstAttribute="top" secondItem="xC6-bS-4y0" secondAttribute="bottom" constant="3" id="JGi-sc-GnN"/>
                     <constraint firstItem="xC6-bS-4y0" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="Msf-W8-mrF"/>
                     <constraint firstItem="iei-4O-P7X" firstAttribute="leading" secondItem="xC6-bS-4y0" secondAttribute="leading" id="OMj-8h-JnX"/>
-                    <constraint firstItem="SXh-Cv-DiD" firstAttribute="top" secondItem="gbg-af-rxP" secondAttribute="top" id="SjX-Df-4rw"/>
-                    <constraint firstItem="SXh-Cv-DiD" firstAttribute="trailing" secondItem="xC6-bS-4y0" secondAttribute="trailing" id="dnj-hR-rkP"/>
-                    <constraint firstItem="SXh-Cv-DiD" firstAttribute="bottom" secondItem="xC6-bS-4y0" secondAttribute="bottom" id="gN5-gz-9Qb"/>
                     <constraint firstAttribute="bottom" secondItem="iei-4O-P7X" secondAttribute="bottom" constant="2" id="n35-tI-Kad"/>
                     <constraint firstItem="hdc-hO-IOJ" firstAttribute="leading" secondItem="xC6-bS-4y0" secondAttribute="trailing" constant="5" id="nsN-6X-ZTZ"/>
                     <constraint firstItem="YID-80-9Vj" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="rRu-9r-lZG"/>
                     <constraint firstItem="YID-80-9Vj" firstAttribute="bottom" secondItem="EsP-jS-fcA" secondAttribute="bottom" id="u4z-b1-gfw"/>
-                    <constraint firstItem="SXh-Cv-DiD" firstAttribute="leading" secondItem="iei-4O-P7X" secondAttribute="leading" id="uDe-kJ-UAR"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
@@ -250,7 +237,6 @@
                 <outlet property="receiptStack" destination="iei-4O-P7X" id="vMa-fy-Ri4"/>
                 <outlet property="replyButton" destination="hdc-hO-IOJ" id="mAe-Xz-n1J"/>
                 <outlet property="timeStamp" destination="gRn-h2-mzD" id="Cq3-B9-LWB"/>
-                <outlet property="tintedView" destination="SXh-Cv-DiD" id="GDI-cl-d6U"/>
                 <outlet property="title" destination="lQO-17-383" id="eJE-fv-r6H"/>
                 <outlet property="visitButton" destination="EsP-jS-fcA" id="pxE-jC-tdU"/>
             </connections>

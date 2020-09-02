@@ -78,15 +78,6 @@
                                             <constraint firstAttribute="height" constant="60" id="o1e-pU-KWF"/>
                                         </constraints>
                                     </imageView>
-                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Te9-hu-qrJ">
-                                        <rect key="frame" x="0.0" y="0.0" width="250" height="180"/>
-                                        <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="15"/>
-                                            </userDefinedRuntimeAttribute>
-                                        </userDefinedRuntimeAttributes>
-                                    </view>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                 <constraints>
@@ -94,12 +85,8 @@
                                     <constraint firstItem="xEA-H6-jk8" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" id="KvZ-gv-Jd6"/>
                                     <constraint firstItem="X0F-8m-dRX" firstAttribute="centerX" secondItem="q6r-Il-FVP" secondAttribute="centerX" id="X9a-vL-Ka2"/>
                                     <constraint firstItem="xEA-H6-jk8" firstAttribute="leading" secondItem="q6r-Il-FVP" secondAttribute="leading" id="ZHg-Gg-f1r"/>
-                                    <constraint firstAttribute="trailing" secondItem="Te9-hu-qrJ" secondAttribute="trailing" id="bYc-Tk-cLE"/>
                                     <constraint firstAttribute="bottom" secondItem="xEA-H6-jk8" secondAttribute="bottom" id="kGV-1T-dbo"/>
-                                    <constraint firstItem="Te9-hu-qrJ" firstAttribute="leading" secondItem="q6r-Il-FVP" secondAttribute="leading" id="l0g-a9-iLH"/>
                                     <constraint firstItem="X0F-8m-dRX" firstAttribute="centerY" secondItem="q6r-Il-FVP" secondAttribute="centerY" id="ooc-T5-MSI"/>
-                                    <constraint firstItem="Te9-hu-qrJ" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" id="pF8-1Q-JeV"/>
-                                    <constraint firstAttribute="bottom" secondItem="Te9-hu-qrJ" secondAttribute="bottom" id="tw7-zr-kyt"/>
                                     <constraint firstItem="c0Q-td-X1s" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" constant="20" id="wvD-Nh-Xlz"/>
                                     <constraint firstAttribute="trailing" secondItem="xEA-H6-jk8" secondAttribute="trailing" id="wyN-mA-ioJ"/>
                                 </constraints>
@@ -145,9 +132,10 @@
                     </stackView>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="Mbq-Sj-A2c" firstAttribute="bottom" secondItem="xEA-H6-jk8" secondAttribute="bottom" id="2cW-kv-nkT"/>
                     <constraint firstAttribute="bottom" secondItem="chB-ix-hEc" secondAttribute="bottom" constant="3" id="Dun-tA-jA8"/>
+                    <constraint firstItem="chB-ix-hEc" firstAttribute="leading" secondItem="Mbq-Sj-A2c" secondAttribute="trailing" constant="5" id="Go6-XD-BWR"/>
                     <constraint firstAttribute="trailing" secondItem="chB-ix-hEc" secondAttribute="trailing" constant="15" id="fjZ-gh-qiM"/>
-                    <constraint firstItem="Te9-hu-qrJ" firstAttribute="leading" secondItem="Mbq-Sj-A2c" secondAttribute="trailing" constant="5" id="uVW-Aj-rnm"/>
                     <constraint firstItem="Mbq-Sj-A2c" firstAttribute="bottom" secondItem="q6r-Il-FVP" secondAttribute="bottom" id="wEy-eC-Wlt"/>
                     <constraint firstItem="chB-ix-hEc" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="ydR-5G-iQA"/>
                 </constraints>
@@ -160,7 +148,6 @@
                 <outlet property="receiptStack" destination="QFW-D7-Jho" id="FAS-xc-d1O"/>
                 <outlet property="replybutton" destination="Mbq-Sj-A2c" id="3u7-Zd-4Fe"/>
                 <outlet property="timeStamp" destination="cDA-gL-hf8" id="d5J-tj-3S9"/>
-                <outlet property="tintedView" destination="Te9-hu-qrJ" id="tO1-S3-fVo"/>
             </connections>
             <point key="canvasLocation" x="-28.260869565217394" y="86.049107142857139"/>
         </tableViewCell>

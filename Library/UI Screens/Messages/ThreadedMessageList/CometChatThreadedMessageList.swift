@@ -1203,19 +1203,19 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                       
                         let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.textMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share, .edit,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share, .edit,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share, .delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share, .delete])
                             presentPanModal(group.rowVC)
                         }
                     }else{
                         let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.textMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share, .edit,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share, .edit,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                             presentPanModal(group.rowVC)
                         }
                     }
@@ -1231,16 +1231,16 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                             (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share, .edit,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share, .delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share, .delete])
                             presentPanModal(group.rowVC)
                         }
                     }else{
                         let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.textMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share, .edit,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share, .edit,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                             presentPanModal(group.rowVC)
                         }
                     }
@@ -1252,19 +1252,19 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
                         let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.mediaMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                             presentPanModal(group.rowVC)
                         }
                     }else{
                          let group: RowPresentable = MessageActionsGroup()
                        if selectedCell.mediaMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                             presentPanModal(group.rowVC)
                         }
                     }
@@ -1276,19 +1276,19 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                      if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
                          let group: RowPresentable = MessageActionsGroup()
                          if selectedCell.mediaMessageInThread?.sender?.uid == LoggedInUser.uid {
-                             (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share,.delete])
+                             (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share,.delete])
                              presentPanModal(group.rowVC)
                          }else{
-                             (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                             (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                              presentPanModal(group.rowVC)
                          }
                      }else{
                           let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.mediaMessageInThread?.sender?.uid == LoggedInUser.uid {
-                             (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share,.delete])
+                             (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share,.delete])
                              presentPanModal(group.rowVC)
                          }else{
-                             (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                             (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                              presentPanModal(group.rowVC)
                          }
                      }
@@ -1300,19 +1300,19 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
                         let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.linkPreviewMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                             presentPanModal(group.rowVC)
                         }
                     }else{
                          let group: RowPresentable = MessageActionsGroup()
                        if selectedCell.linkPreviewMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                             presentPanModal(group.rowVC)
                         }
                     }
@@ -1323,19 +1323,19 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
                         let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.fileMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                             presentPanModal(group.rowVC)
                         }
                     }else{
                          let group: RowPresentable = MessageActionsGroup()
                        if selectedCell.fileMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                             presentPanModal(group.rowVC)
                         }
                     }
@@ -1347,19 +1347,19 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
                         let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.audioMessageinThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                             presentPanModal(group.rowVC)
                         }
                     }else{
                          let group: RowPresentable = MessageActionsGroup()
                        if selectedCell.audioMessageinThread?.sender?.uid == LoggedInUser.uid {
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share,.delete])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share,.delete])
                             presentPanModal(group.rowVC)
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.share])
+                            (group.rowVC as? MessageActions)?.set(actions: [.reply,.forward,.copy,.share])
                             presentPanModal(group.rowVC)
                         }
                     }
@@ -2559,46 +2559,9 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
      [CometChatThreadedMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     public func didAttachmentButtonPressed() {
-        let actionSheetController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        
-        let cameraAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("Take a Photo", comment: ""), style: .default) { action -> Void in
-            CameraHandler.shared.presentCamera(for: self)
-            CameraHandler.shared.imagePickedBlock = {(photoURL) in
-                self.sendMedia(withURL: photoURL, type: .image)
-            }
-        }
-        let photoLibraryAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("PHOTO_&_VIDEO_LIBRARY", comment: ""), style: .default) { action -> Void in
-            CameraHandler.shared.presentPhotoLibrary(for: self)
-            CameraHandler.shared.imagePickedBlock = {(photoURL) in
-                self.sendMedia(withURL: photoURL, type: .image)
-            }
-            CameraHandler.shared.videoPickedBlock = {(videoURL) in
-                self.sendMedia(withURL: videoURL, type: .video)
-            }
-        }
-        let documentAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("DOCUMENT", comment: ""), style: .default) { action -> Void in
-            self.documentPicker.modalPresentationStyle = UIModalPresentationStyle.fullScreen
-            self.present(self.documentPicker, animated: true, completion: nil)
-        }
-        let cancelAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("CANCEL", comment: ""), style: .cancel) { action -> Void in
-        }
-        cancelAction.setValue(UIColor.red, forKey: "titleTextColor")
-        actionSheetController.addAction(cameraAction)
-        actionSheetController.addAction(photoLibraryAction)
-        actionSheetController.addAction(documentAction)
-        actionSheetController.addAction(cancelAction)
-        
-        // Added ActionSheet support for iPad
-        if self.chatView.frame.origin.y != 0 { dismissKeyboard() }
-        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad ){
-            if let currentPopoverpresentioncontroller =
-                actionSheetController.popoverPresentationController{
-                currentPopoverpresentioncontroller.sourceView = self.chatView.attachment
-                self.present(actionSheetController, animated: true, completion: nil)
-            }
-        }else{
-            self.present(actionSheetController, animated: true, completion: nil)
-        }
+        let group: RowPresentable = MessageActionsGroup()
+        (group.rowVC as? MessageActions)?.set(actions: [.takeAPhoto, .photoAndVideoLibrary, .document])
+        presentPanModal(group.rowVC)
     }
     
    private func sendMedia(withURL: String, type: CometChat.MessageType){
@@ -3503,8 +3466,65 @@ extension CometChatThreadedMessageList {
 
 extension CometChatThreadedMessageList : MessageActionsDelegate {
     
+    func didMessageInfoPressed() {
+        if let message = selectedMessage {
+            let messageInformation = MessageInformation()
+            messageInformation.set(message: message)
+            messageInformation.title = "Message Information"
+            self.navigationController?.pushViewController(messageInformation, animated: true)
+        }
+    }
+    
     func didStartThreadPressed() {
 
+    }
+    
+    func takeAPhotoPressed() {
+        CameraHandler.shared.presentCamera(for: self)
+        CameraHandler.shared.imagePickedBlock = {(photoURL) in
+            self.sendMedia(withURL: photoURL, type: .image)
+        }
+    }
+    
+    func photoAndVideoLibraryPressed() {
+        CameraHandler.shared.presentPhotoLibrary(for: self)
+        CameraHandler.shared.imagePickedBlock = {(photoURL) in
+            self.sendMedia(withURL: photoURL, type: .image)
+        }
+        CameraHandler.shared.videoPickedBlock = {(videoURL) in
+            self.sendMedia(withURL: videoURL, type: .video)
+        }
+    }
+    
+    func shareLocationPressed() {
+        
+    }
+    
+    func documentPressed() {
+        self.documentPicker.modalPresentationStyle = UIModalPresentationStyle.fullScreen
+        self.present(self.documentPicker, animated: true, completion: nil)
+    }
+    
+    func copyPressed() {
+        if let message = selectedMessage {
+            var messageText = ""
+            switch message.messageType {
+            case .text: messageText = (message as? TextMessage)?.text ?? ""
+            case .image: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
+            case .video: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
+            case .file: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
+            case .custom: messageText = NSLocalizedString("CUSTOM_MESSAGE", comment: "")
+            case .audio: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
+            case .groupMember: break
+            @unknown default:break
+            }
+            UIPasteboard.general.string = messageText
+            DispatchQueue.main.async {
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("TEXT_COPIED", comment: ""), duration: .short)
+                snackbar.show()
+                self.didPreformCancel()
+            }
+        }
     }
     
     /**

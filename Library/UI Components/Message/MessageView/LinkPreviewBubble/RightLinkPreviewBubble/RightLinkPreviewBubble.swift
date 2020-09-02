@@ -26,7 +26,6 @@ class RightLinkPreviewBubble: UITableViewCell {
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var playbutton: UIButton!
     @IBOutlet weak var iconView: UIView!
-    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var replybutton: UIButton!
     
     // MARK: - Declaration of Variables
@@ -175,14 +174,6 @@ class RightLinkPreviewBubble: UITableViewCell {
     
      override func setSelected(_ selected: Bool, animated: Bool) {
            super.setSelected(selected, animated: animated)
-           switch isEditing {
-           case true:
-               switch selected {
-               case true: self.tintedView.isHidden = false
-               case false: self.tintedView.isHidden = true
-               }
-           case false: break
-           }
        }
     
     

@@ -25,7 +25,6 @@ class LeftVideoMessageBubble: UITableViewCell {
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var receiptStack: UIStackView!
-    @IBOutlet weak var tintedView: UIView!
     
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
@@ -120,14 +119,7 @@ class LeftVideoMessageBubble: UITableViewCell {
     
      override func setSelected(_ selected: Bool, animated: Bool) {
            super.setSelected(selected, animated: animated)
-           switch isEditing {
-           case true:
-               switch selected {
-               case true: self.tintedView.isHidden = false
-               case false: self.tintedView.isHidden = true
-               }
-           case false: break
-           }
+         
        }
     
     

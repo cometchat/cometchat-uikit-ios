@@ -43,15 +43,6 @@
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PdT-GO-hBk">
                                         <rect key="frame" x="389" y="0.0" width="85" height="217"/>
                                         <subviews>
-                                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bf0-ti-3Xj">
-                                                <rect key="frame" x="0.0" y="0.0" width="85" height="217"/>
-                                                <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <userDefinedRuntimeAttributes>
-                                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                        <integer key="value" value="20"/>
-                                                    </userDefinedRuntimeAttribute>
-                                                </userDefinedRuntimeAttributes>
-                                            </view>
                                             <stackView opaque="NO" contentMode="scaleToFill" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="6Cd-3g-M4t">
                                                 <rect key="frame" x="15" y="10" width="55" height="16"/>
                                                 <subviews>
@@ -90,11 +81,7 @@
                                         <color key="backgroundColor" red="0.20000000000000001" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstItem="6Cd-3g-M4t" firstAttribute="top" secondItem="PdT-GO-hBk" secondAttribute="top" constant="10" id="6og-2J-Cvp"/>
-                                            <constraint firstAttribute="bottom" secondItem="bf0-ti-3Xj" secondAttribute="bottom" id="FTR-eP-Q1L"/>
-                                            <constraint firstItem="bf0-ti-3Xj" firstAttribute="top" secondItem="PdT-GO-hBk" secondAttribute="top" id="ISO-g4-MrY"/>
                                             <constraint firstItem="6Cd-3g-M4t" firstAttribute="leading" secondItem="PdT-GO-hBk" secondAttribute="leading" constant="15" id="Rbl-FL-Veb"/>
-                                            <constraint firstAttribute="trailing" secondItem="bf0-ti-3Xj" secondAttribute="trailing" id="U5r-Kc-qnU"/>
-                                            <constraint firstItem="bf0-ti-3Xj" firstAttribute="leading" secondItem="PdT-GO-hBk" secondAttribute="leading" id="UZ3-eD-9fF"/>
                                             <constraint firstItem="pBo-rq-21v" firstAttribute="top" secondItem="6Cd-3g-M4t" secondAttribute="bottom" constant="8" id="sNi-X8-vL1"/>
                                             <constraint firstAttribute="trailing" secondItem="pBo-rq-21v" secondAttribute="trailing" constant="15" id="vD7-G6-lnC"/>
                                             <constraint firstAttribute="bottom" secondItem="pBo-rq-21v" secondAttribute="bottom" constant="10" id="vGl-fO-YeH"/>
@@ -133,7 +120,7 @@
                             </stackView>
                         </subviews>
                     </stackView>
-                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NTV-oZ-oHf">
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NTV-oZ-oHf">
                         <rect key="frame" x="352" y="206" width="32" height="21"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="21" id="8qz-7t-jRM"/>
@@ -151,18 +138,17 @@
                     <constraint firstItem="kb0-u7-zHa" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="5eT-c1-e2m"/>
                     <constraint firstItem="PdT-GO-hBk" firstAttribute="leading" secondItem="NTV-oZ-oHf" secondAttribute="trailing" constant="5" id="brO-hM-YRx"/>
                     <constraint firstAttribute="trailing" secondItem="kb0-u7-zHa" secondAttribute="trailing" constant="15" id="mUz-3O-MJZ"/>
-                    <constraint firstItem="NTV-oZ-oHf" firstAttribute="bottom" secondItem="bf0-ti-3Xj" secondAttribute="bottom" id="vOP-Bw-skc"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="message" destination="pBo-rq-21v" id="DWH-0A-crE"/>
+                <outlet property="messageView" destination="PdT-GO-hBk" id="N6R-ZK-Y0C"/>
                 <outlet property="receipt" destination="i59-gP-tkb" id="j6X-sg-CcM"/>
                 <outlet property="receiptStack" destination="es9-Lo-daU" id="W3O-01-oSL"/>
                 <outlet property="replyMessage" destination="FFG-Rj-NcW" id="Csx-Oi-p2o"/>
                 <outlet property="replybutton" destination="NTV-oZ-oHf" id="we5-bQ-ggi"/>
                 <outlet property="timeStamp" destination="Psd-Ru-shd" id="hgt-yj-MG8"/>
-                <outlet property="tintedView" destination="bf0-ti-3Xj" id="s2z-Mc-UD4"/>
                 <outlet property="topConstraint" destination="2Ce-Sm-5id" id="Hv1-EF-Xj5"/>
             </connections>
             <point key="canvasLocation" x="268.84057971014494" y="113.50446428571428"/>

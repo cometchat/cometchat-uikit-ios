@@ -21,8 +21,8 @@ class LeftTextMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
-    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var message: UILabel!
@@ -59,8 +59,8 @@ class LeftTextMessageBubble: UITableViewCell {
                 if let userName = currentMessage.sender?.name {
                     name.text = userName + ":"
                 }
-                self.parseSentimentAnalysis(forMessage: currentMessage)
                 self.parseProfanityFilter(forMessage: currentMessage)
+                self.parseSentimentAnalysis(forMessage: currentMessage)
                 if textMessage?.replyCount != 0 {
                     replybutton.isHidden = false
                     if textMessage?.replyCount == 1 {
@@ -91,8 +91,8 @@ class LeftTextMessageBubble: UITableViewCell {
         didSet {
             if let textmessage  = textMessageInThread {
                 self.receiptStack.isHidden = true
-                self.parseSentimentAnalysis(forMessage: textmessage)
                 self.parseProfanityFilter(forMessage: textmessage)
+                self.parseSentimentAnalysis(forMessage: textmessage)
                 if textmessage.readAt > 0 && textmessage.receiverType == .user{
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
                 }else if textmessage.deliveredAt > 0 {
@@ -170,6 +170,25 @@ class LeftTextMessageBubble: UITableViewCell {
         }
     }
     
+    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+                  super.setHighlighted(highlighted, animated: animated)
+                  if #available(iOS 13.0, *) {
+                      
+                  } else {
+                   messageView.backgroundColor =  .lightGray
+                  }
+                  
+              }
+
+              override func setSelected(_ selected: Bool, animated: Bool) {
+                  super.setSelected(selected, animated: animated)
+                  if #available(iOS 13.0, *) {
+                      
+                  } else {
+                     messageView.backgroundColor =  .lightGray
+                  }
+              }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         textMessage = nil
@@ -189,13 +208,6 @@ class LeftTextMessageBubble: UITableViewCell {
         }
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        switch selected {
-        case true: self.tintedView.isHidden = false
-        case false: self.tintedView.isHidden = true
-        }
-    }
     
     /**
      This method used to set the image for LeftTextMessageBubble class
@@ -262,6 +274,8 @@ class LeftTextMessageBubble: UITableViewCell {
                     spaceConstraint.constant = 0
                     widthconstraint.constant = 0
                 }
+            }else{
+                self.parseProfanityFilter(forMessage: forMessage)
             }
         }else{
             if #available(iOS 13.0, *) {
@@ -273,6 +287,7 @@ class LeftTextMessageBubble: UITableViewCell {
             sentimentAnalysisView.isHidden = true
             spaceConstraint.constant = 0
             widthconstraint.constant = 0
+            self.parseProfanityFilter(forMessage: forMessage)
         }
     }
     

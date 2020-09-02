@@ -20,7 +20,6 @@ class RightTextMessageBubble: UITableViewCell {
     
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
-    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var message: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receipt: UIImageView!
@@ -46,7 +45,8 @@ class RightTextMessageBubble: UITableViewCell {
             if let textmessage  = textMessage {
                 self.receiptStack.isHidden = true
                 self.parseProfanityFilter(forMessage: textmessage)
-                if textmessage.readAt > 0 && textmessage.receiverType == .user {
+                
+                if textmessage.readAt > 0 {
                     receipt.image = #imageLiteral(resourceName: "read")
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
                 }else if textmessage.deliveredAt > 0 {
@@ -136,6 +136,7 @@ class RightTextMessageBubble: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
         if #available(iOS 13.0, *) {
             selectionColor = .systemBackground
         } else {
@@ -143,13 +144,24 @@ class RightTextMessageBubble: UITableViewCell {
         }
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        if isEditing == true {
-            switch selected {
-            case true:  self.tintedView.isHidden = false
-            case false: self.tintedView.isHidden = true
-            }
+    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+        super.setHighlighted(highlighted, animated: animated)
+        if #available(iOS 13.0, *) {
+            
+        } else {
+            messageView.backgroundColor =  #colorLiteral(red: 0.2, green: 0.6, blue: 1, alpha: 1)
         }
+        
+    }
+    
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+        if #available(iOS 13.0, *) {
+            
+        } else {
+            messageView.backgroundColor =  #colorLiteral(red: 0.2, green: 0.6, blue: 1, alpha: 1)
+        }
+        
     }
     
     @IBAction func didReplyButtonPressed(_ sender: Any) {

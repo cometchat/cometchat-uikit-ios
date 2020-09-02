@@ -66,15 +66,6 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="alw-MY-xmy">
                                 <rect key="frame" x="0.0" y="0.0" width="250" height="60"/>
                                 <subviews>
-                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="peC-bv-LTE">
-                                        <rect key="frame" x="0.0" y="0.0" width="250" height="60"/>
-                                        <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="15"/>
-                                            </userDefinedRuntimeAttribute>
-                                        </userDefinedRuntimeAttributes>
-                                    </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8W2-5h-IYH">
                                         <rect key="frame" x="197" y="7.5" width="45" height="45"/>
                                         <subviews>
@@ -130,14 +121,10 @@
                                     <constraint firstItem="hvo-a8-rqI" firstAttribute="leading" secondItem="alw-MY-xmy" secondAttribute="leading" constant="8" id="3aE-uZ-JbF"/>
                                     <constraint firstAttribute="width" constant="250" id="Azw-Zb-uHI"/>
                                     <constraint firstAttribute="trailing" secondItem="8W2-5h-IYH" secondAttribute="trailing" constant="8" id="ITa-CW-71U"/>
-                                    <constraint firstItem="peC-bv-LTE" firstAttribute="leading" secondItem="alw-MY-xmy" secondAttribute="leading" id="Ki4-SS-hPI"/>
-                                    <constraint firstAttribute="bottom" secondItem="peC-bv-LTE" secondAttribute="bottom" id="M9K-dH-WYt"/>
                                     <constraint firstItem="8W2-5h-IYH" firstAttribute="centerY" secondItem="alw-MY-xmy" secondAttribute="centerY" id="TwT-B7-zc4"/>
-                                    <constraint firstAttribute="trailing" secondItem="peC-bv-LTE" secondAttribute="trailing" id="czT-9O-Ofq"/>
                                     <constraint firstAttribute="height" constant="60" id="dhh-2C-Ar0"/>
                                     <constraint firstItem="hvo-a8-rqI" firstAttribute="centerY" secondItem="alw-MY-xmy" secondAttribute="centerY" id="mxn-ce-UkM"/>
                                     <constraint firstItem="8W2-5h-IYH" firstAttribute="leading" secondItem="hvo-a8-rqI" secondAttribute="trailing" constant="8" id="o9X-AT-Qe2"/>
-                                    <constraint firstItem="peC-bv-LTE" firstAttribute="top" secondItem="alw-MY-xmy" secondAttribute="top" id="rG2-qn-vbt"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -174,11 +161,11 @@
                     </button>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="NQq-dg-iQ9" firstAttribute="bottom" secondItem="peC-bv-LTE" secondAttribute="bottom" id="H2s-E2-UL6"/>
                     <constraint firstItem="xr8-WX-XFr" firstAttribute="leading" secondItem="HpJ-Zw-5Ia" secondAttribute="trailing" constant="3" id="PjD-Lc-a4E"/>
                     <constraint firstItem="HpJ-Zw-5Ia" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="TL6-cF-IeY"/>
                     <constraint firstItem="NQq-dg-iQ9" firstAttribute="leading" secondItem="xr8-WX-XFr" secondAttribute="trailing" constant="5" id="VwC-m6-hv2"/>
                     <constraint firstItem="HpJ-Zw-5Ia" firstAttribute="bottom" secondItem="alw-MY-xmy" secondAttribute="bottom" id="hYX-t7-d5H"/>
+                    <constraint firstItem="NQq-dg-iQ9" firstAttribute="bottom" secondItem="alw-MY-xmy" secondAttribute="bottom" id="hjw-T3-fAg"/>
                     <constraint firstItem="xr8-WX-XFr" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="qtH-Dd-swF"/>
                     <constraint firstAttribute="bottom" secondItem="xr8-WX-XFr" secondAttribute="bottom" constant="3" id="tnM-8o-fsC"/>
                 </constraints>
@@ -188,13 +175,13 @@
                 <outlet property="avatar" destination="HpJ-Zw-5Ia" id="Emq-iT-UBg"/>
                 <outlet property="fileName" destination="CQU-tj-KLP" id="xXu-EB-nUt"/>
                 <outlet property="icon" destination="Urt-0t-CMY" id="fMh-y2-YYz"/>
+                <outlet property="messageView" destination="alw-MY-xmy" id="wMi-C8-FZr"/>
                 <outlet property="name" destination="7xJ-40-Hrv" id="i38-fL-KaY"/>
                 <outlet property="nameView" destination="37s-1Q-vOQ" id="g25-Mw-fz4"/>
                 <outlet property="receiptStack" destination="my9-lq-kIb" id="HrI-xf-ypq"/>
                 <outlet property="replybutton" destination="NQq-dg-iQ9" id="SKD-nG-Phf"/>
                 <outlet property="size" destination="QiW-xb-O4J" id="VOk-Nw-pMT"/>
                 <outlet property="timeStamp" destination="Wah-8E-4Bd" id="YOg-ED-bSB"/>
-                <outlet property="tintedView" destination="peC-bv-LTE" id="vtr-60-BSZ"/>
             </connections>
             <point key="canvasLocation" x="199.27536231884059" y="113.83928571428571"/>
         </tableViewCell>

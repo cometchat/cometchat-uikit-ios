@@ -186,29 +186,13 @@
                             <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="ycA-oQ-TVC"/>
                         </connections>
                     </button>
-                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pZ2-XJ-wE2">
-                        <rect key="frame" x="162" y="0.0" width="250" height="382"/>
-                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
-                        <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                <integer key="value" value="15"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                <integer key="value" value="15"/>
-                            </userDefinedRuntimeAttribute>
-                        </userDefinedRuntimeAttributes>
-                    </view>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="pZ2-XJ-wE2" firstAttribute="leading" secondItem="arD-MQ-EdS" secondAttribute="leading" id="4Sh-Ok-kU0"/>
-                    <constraint firstItem="pZ2-XJ-wE2" firstAttribute="bottom" secondItem="arD-MQ-EdS" secondAttribute="bottom" id="BBn-qP-847"/>
                     <constraint firstAttribute="bottom" secondItem="arD-MQ-EdS" secondAttribute="bottom" constant="5" id="Nnc-DJ-XXL"/>
                     <constraint firstItem="qam-P0-6Xf" firstAttribute="bottom" secondItem="Y3e-UV-yc2" secondAttribute="bottom" id="Zg6-Si-7Zw"/>
                     <constraint firstItem="arD-MQ-EdS" firstAttribute="leading" secondItem="qam-P0-6Xf" secondAttribute="trailing" constant="5" id="p7L-8K-dKi"/>
                     <constraint firstItem="arD-MQ-EdS" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="r6T-nc-wj7"/>
-                    <constraint firstItem="pZ2-XJ-wE2" firstAttribute="top" secondItem="arD-MQ-EdS" secondAttribute="top" id="teZ-z5-EwR"/>
                     <constraint firstAttribute="trailing" secondItem="arD-MQ-EdS" secondAttribute="trailing" constant="15" id="tlV-dg-9UO"/>
-                    <constraint firstItem="pZ2-XJ-wE2" firstAttribute="trailing" secondItem="arD-MQ-EdS" secondAttribute="trailing" id="yfA-qR-1Bi"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
@@ -223,7 +207,6 @@
                 <outlet property="receiptStack" destination="NGA-RF-0Cq" id="F7J-im-ocH"/>
                 <outlet property="replybutton" destination="qam-P0-6Xf" id="skC-by-QwL"/>
                 <outlet property="timeStamp" destination="XbT-Nn-EOI" id="85A-8w-azB"/>
-                <outlet property="tintedView" destination="pZ2-XJ-wE2" id="83w-Nd-3Pc"/>
                 <outlet property="title" destination="oeN-PW-Ctc" id="aaP-PP-a0M"/>
                 <outlet property="visitButton" destination="Y3e-UV-yc2" id="gLc-cq-PC7"/>
             </connections>

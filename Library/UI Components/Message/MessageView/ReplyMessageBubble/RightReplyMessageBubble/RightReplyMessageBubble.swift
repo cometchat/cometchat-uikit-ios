@@ -17,8 +17,8 @@ class RightReplyMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBInspectable
     
+    @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
-    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var message: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receipt: UIImageView!
@@ -143,31 +143,35 @@ class RightReplyMessageBubble: UITableViewCell {
 
          }
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        if #available(iOS 13.0, *) {
-            selectionColor = .systemBackground
-        } else {
-            selectionColor = .white
-        }
-    }
-    
-    
-    
-    
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        switch isEditing {
-        case true:
-            switch selected {
-            case true:
-                self.tintedView.isHidden = false
-            case false:
-                self.tintedView.isHidden = true
-            }
-        case false: break
-        }
-    }
+     
+       override func awakeFromNib() {
+           super.awakeFromNib()
+           
+           if #available(iOS 13.0, *) {
+               selectionColor = .systemBackground
+           } else {
+               selectionColor = .white
+           }
+       }
+       
+       override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+           super.setHighlighted(highlighted, animated: animated)
+           if #available(iOS 13.0, *) {
+               
+           } else {
+               messageView.backgroundColor =  #colorLiteral(red: 0.2, green: 0.6, blue: 1, alpha: 1)
+           }
+           
+       }
+       
+       override func setSelected(_ selected: Bool, animated: Bool) {
+           super.setSelected(selected, animated: animated)
+           if #available(iOS 13.0, *) {
+               
+           } else {
+               messageView.backgroundColor =  #colorLiteral(red: 0.2, green: 0.6, blue: 1, alpha: 1)
+           }
+       }
     
 }
 

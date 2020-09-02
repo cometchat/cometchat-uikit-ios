@@ -15,8 +15,8 @@ class LeftAudioMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
-    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var fileName: UILabel!
     @IBOutlet weak var size: UILabel!
     @IBOutlet weak var icon: UIImageView!
@@ -125,27 +125,24 @@ class LeftAudioMessageBubble: UITableViewCell {
     
     // MARK: - Initialization of required Methods
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        
-        if #available(iOS 13.0, *) {
-            selectionColor = .systemBackground
-        } else {
-            selectionColor = .white
-        }
-    }
-    
-     override func setSelected(_ selected: Bool, animated: Bool) {
-           super.setSelected(selected, animated: animated)
-           switch isEditing {
-           case true:
-               switch selected {
-               case true: self.tintedView.isHidden = false
-               case false: self.tintedView.isHidden = true
-               }
-           case false: break
-           }
-       }
+     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+             super.setHighlighted(highlighted, animated: animated)
+             if #available(iOS 13.0, *) {
+                 
+             } else {
+                messageView.backgroundColor =  .lightGray
+             }
+             
+         }
+
+         override func setSelected(_ selected: Bool, animated: Bool) {
+             super.setSelected(selected, animated: animated)
+             if #available(iOS 13.0, *) {
+                 
+             } else {
+                messageView.backgroundColor =  .lightGray
+             }
+         }
     
 }
 
