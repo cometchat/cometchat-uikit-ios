@@ -121,6 +121,12 @@ public class CometChatGroupList: UIViewController {
                     self.tableView.tableFooterView?.isHidden = true
                     self.tableView.reloadData()
                 }
+            }else{
+                DispatchQueue.main.async {
+                    self.activityIndicator?.stopAnimating()
+                    self.tableView.tableFooterView?.isHidden = true
+                    self.tableView.reloadData()
+                }
             }
             DispatchQueue.main.async {
                 self.activityIndicator?.stopAnimating()

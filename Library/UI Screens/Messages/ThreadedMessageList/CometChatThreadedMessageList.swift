@@ -3500,6 +3500,10 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
         
     }
     
+    func createAPollPressed() {
+        
+    }
+    
     func documentPressed() {
         self.documentPicker.modalPresentationStyle = UIModalPresentationStyle.fullScreen
         self.present(self.documentPicker, animated: true, completion: nil)

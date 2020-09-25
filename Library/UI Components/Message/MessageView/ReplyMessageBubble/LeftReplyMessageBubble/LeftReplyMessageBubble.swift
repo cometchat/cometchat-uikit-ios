@@ -265,8 +265,6 @@ class LeftReplyMessageBubble: UITableViewCell {
                 self.parseProfanityFilter(forMessage: forMessage)
             }
         }
-
-
 }
 
 

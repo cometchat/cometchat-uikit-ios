@@ -117,8 +117,29 @@ class CometChatConversationView: UITableViewCell {
                     }
                 case .call:
                     message.text = NSLocalizedString("HAS_SENT_A_CALL", comment: "")
-                case .custom:
-                    message.text = NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE", comment: "")
+                case .custom where currentConversation.conversationType == .user:
+                    
+                    if let customMessage = currentConversation.lastMessage as? CustomMessage {
+                        if customMessage.type == "location" {
+                            message.text = "📍 has shared location"
+                        }else if customMessage.type == "extension_poll" {
+                            message.text = "📊 has added new poll"
+                        }
+                    }else{
+                        message.text = NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE", comment: "")
+                    }
+                    
+                case .custom where currentConversation.conversationType == .group:
+                    if let customMessage = currentConversation.lastMessage as? CustomMessage {
+                        if customMessage.type == "location" {
+                            message.text = senderName! + ":  " + "📍 has shared location"
+                        }else if customMessage.type == "extension_poll" {
+                            message.text = senderName! + ":  " + "📊 has added new poll"
+                        }
+                    }else{
+                        message.text = senderName! +  ":  " +  NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE", comment: "")
+                    }
+
                 @unknown default:
                     break
                 }

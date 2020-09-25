@@ -81,6 +81,7 @@ class RightTextMessageBubble: UITableViewCell {
     
     weak var deletedMessage: BaseMessage? {
         didSet {
+            receipt.isHidden = true
             self.replybutton.isHidden = true
             switch deletedMessage?.messageType {
             case .text:  message.text = NSLocalizedString("YOU_DELETED_THIS_MESSAGE", comment: "")

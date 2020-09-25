@@ -124,6 +124,7 @@ class LeftTextMessageBubble: UITableViewCell {
     weak var deletedMessage: BaseMessage? {
         didSet {
             // self.selectionStyle = .none
+  
             self.replybutton.isHidden = true
             sentimentAnalysisView.isHidden = true
             spaceConstraint.constant = 0

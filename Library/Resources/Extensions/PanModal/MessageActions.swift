@@ -14,6 +14,7 @@
     case photoAndVideoLibrary
     case document
     case shareLocation
+    case createAPoll
     case messageInfo
     case copy
     case reply
@@ -35,6 +36,7 @@
     func photoAndVideoLibraryPressed()
     func documentPressed()
     func shareLocationPressed()
+    func createAPollPressed()
     func didMessageInfoPressed()
     func didStartThreadPressed()
     func didEditPressed()
@@ -100,36 +102,22 @@
             switch currentActions[indexPath.row] {
             case .takeAPhoto:
                 cell.name.text = "Take a Photo"
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "camera")
-                } else {
-                    
-                }
+                cell.icon.image = UIImage(named: "􀌞.png")?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             case .photoAndVideoLibrary:
                 cell.name.text = "Photo & Video Library"
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "photo")
-                } else {
-                    
-                }
+                cell.icon.image = UIImage(named: "􀣵.png")?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             case .document:
                 cell.name.text = "Document"
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "folder")
-                } else {
-                }
+                cell.icon.image = UIImage(named: "􀈕.png")?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             case .shareLocation:
                 cell.name.text = "Share Location"
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "location")
-                } else {
-                }
+                cell.icon.image = UIImage(named: "􀋑.png")?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             case .edit:
@@ -139,11 +127,7 @@
                 }else{
                     cell.name.textColor = .black
                 }
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "square.and.pencil")
-                } else {
-                    cell.icon.image = #imageLiteral(resourceName: "edit")
-                }
+                cell.icon.image = UIImage(named: "􀈎.png")?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             case .delete:
@@ -153,13 +137,7 @@
                 }else{
                     cell.name.textColor = .black
                 }
-                if #available(iOS 13.0, *) {
-                    let image = UIImage(systemName: "trash")
-                    image?.withTintColor(.red, renderingMode: .alwaysTemplate)
-                    cell.icon.image = image
-                } else {
-                     cell.icon.image = #imageLiteral(resourceName: "delete")
-                }
+                cell.icon.image = UIImage(named: "􀈑.png")?.withRenderingMode(.alwaysTemplate)
                 cell.icon.tintColor = #colorLiteral(red: 0.9254902005, green: 0.2352941185, blue: 0.1019607857, alpha: 1)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
@@ -170,11 +148,7 @@
                 }else{
                     cell.name.textColor = .black
                 }
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "arrowshape.turn.up.left")
-                } else {
-                    cell.icon.image = #imageLiteral(resourceName: "reply")
-                }
+                cell.icon.image = UIImage(named: "􀉌.png")?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             case .forward:
@@ -184,20 +158,12 @@
                 }else{
                     cell.name.textColor = .black
                 }
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "arrowshape.turn.up.right")
-                } else {
-                    cell.icon.image = #imageLiteral(resourceName: "reply")
-                }
+                cell.icon.image = UIImage(named: "􀉐.png")?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             case .thread:
                 cell.name.text = "Start Thread"
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "message")
-                } else {
-                    cell.icon.image = #imageLiteral(resourceName: "thread")
-                }
+                cell.icon.image = UIImage(named: "􀌤.png")?.withRenderingMode(.alwaysTemplate)
                 if #available(iOS 13.0, *) {
                     cell.name.textColor = .label
                 }else{
@@ -207,11 +173,7 @@
                 cell.badgeCountSwitch.isHidden = true
                 
             case .share:
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "square.and.arrow.up")
-                } else {
-                    cell.icon.image = #imageLiteral(resourceName: "share")
-                }
+                cell.icon.image = UIImage(named: "􀈂.png")?.withRenderingMode(.alwaysTemplate)
                 cell.name.text = "Share Message"
                 if #available(iOS 13.0, *) {
                     cell.name.textColor = .label
@@ -221,11 +183,7 @@
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             case .messageInfo:
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "info.circle")
-                } else {
-                    
-                }
+                cell.icon.image = UIImage(named: "􀅴.png")?.withRenderingMode(.alwaysTemplate)
                 cell.name.text = "Message Information"
                 if #available(iOS 13.0, *) {
                     cell.name.textColor = .label
@@ -236,10 +194,12 @@
                 cell.badgeCountSwitch.isHidden = true
             case .copy:
                 cell.name.text = "Copy Message"
-                if #available(iOS 13.0, *) {
-                    cell.icon.image = UIImage(systemName: "doc.on.doc")
-                } else {
-                }
+                cell.icon.image = UIImage(named: "􀉁.png")?.withRenderingMode(.alwaysTemplate)
+                cell.fullScreenSwitch.isHidden = true
+                cell.badgeCountSwitch.isHidden = true
+            case .createAPoll:
+                cell.name.text = "Create a Poll"
+                cell.icon.image = UIImage(named: "􀌶.png")?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             }
@@ -308,6 +268,10 @@
                     MessageActions.actionsDelegate?.copyPressed()
                 }
 
+            case .createAPoll:
+                self.dismiss(animated: true) {
+                    MessageActions.actionsDelegate?.createAPollPressed()
+                }
             }
         }
     }

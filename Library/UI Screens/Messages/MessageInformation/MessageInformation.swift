@@ -415,26 +415,38 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                                 if let locationMessage = message as? CustomMessage {
                                     let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftLocationMessageBubble", for: indexPath) as! LeftLocationMessageBubble
                                     receiverCell.locationMessage = locationMessage
-                                    receiverCell.locationDelegate = self
+                            
                                     return receiverCell
                                 }
                             }else{
                                 if let locationMessage = message as? CustomMessage {
                                     let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightLocationMessageBubble", for: indexPath) as! RightLocationMessageBubble
                                     senderCell.locationMessage = locationMessage
-                                    senderCell.locationDelegate = self
                                     return senderCell
                                 }
                             }
+                        }else if type == "extension_poll" {
+                            if message.senderUid != LoggedInUser.uid {
+                                if let pollMesage = message as? CustomMessage {
+                                let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftPollMessageBubble", for: indexPath) as! LeftPollMessageBubble
+                                receiverCell.pollMessage = pollMesage
+    
+                                return receiverCell
+                                }
+                            }else{
+                                if let pollMesage = message as? CustomMessage {
+                                    let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightPollMessageBubble", for: indexPath) as! RightPollMessageBubble
+                                    senderCell.pollMessage = pollMesage
+                                    return senderCell
+                                }
+                            }
+                        }else{
+                            let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
+                            let customMessage = message as? CustomMessage
+                            receiverCell.message.text = NSLocalizedString("CUSTOM_MESSAGE", comment: "") +  "\(String(describing: customMessage?.customData))"
+                            return receiverCell
                         }
-                    }else{
-                        //  CustomMessage Cell
-                        let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
-                        let customMessage = message as? CustomMessage
-                        receiverCell.message.text = NSLocalizedString("CUSTOM_MESSAGE", comment: "") +  "\(String(describing: customMessage?.customData))"
-                        return receiverCell
                     }
-                    
                 }
             }
         }else{

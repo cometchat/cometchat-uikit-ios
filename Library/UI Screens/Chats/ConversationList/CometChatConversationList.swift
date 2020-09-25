@@ -38,7 +38,7 @@ public class CometChatConversationList: UIViewController {
     
     // MARK: - Declaration of Variables
     
-    var conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 100).setConversationType(conversationType: .none).build()
+    var conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 15).setConversationType(conversationType: .none).build()
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
     var conversations: [Conversation] = [Conversation]()
@@ -126,7 +126,7 @@ public class CometChatConversationList: UIViewController {
             self.tableView.tableFooterView = self.activityIndicator
             self.tableView.tableFooterView?.isHidden = false
         }
-        conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 30).setConversationType(conversationType: .none).build()
+        conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 15).setConversationType(conversationType: .none).build()
         conversationRequest.fetchNext(onSuccess: { (fetchedConversations) in
             print("fetchedConversations onSuccess: \(fetchedConversations)")
             var newConversations: [Conversation] =  [Conversation]()
@@ -150,6 +150,43 @@ public class CometChatConversationList: UIViewController {
             print("refreshConversations error:\(String(describing: error?.errorDescription))")
         }
     }
+    
+    
+    /**
+       This method fetches the list of groups from  Server using **GroupRequest** Class.
+       - Author: CometChat Team
+       - Copyright:  ©  2020 CometChat Inc.
+       - See Also:
+      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
+     */
+       private func fetchConversations(){
+           activityIndicator?.startAnimating()
+           activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
+           tableView.tableFooterView = activityIndicator
+           tableView.tableFooterView?.isHidden = false
+           conversationRequest.fetchNext(onSuccess: { (conversations) in
+               print("fetchConversations onSuccess: \(conversations)")
+               if conversations.count != 0{
+                  self.conversations.append(contentsOf: conversations)
+                   DispatchQueue.main.async {
+                       self.activityIndicator?.stopAnimating()
+                       self.tableView.tableFooterView?.isHidden = true
+                       self.tableView.reloadData()
+                   }
+               }
+               DispatchQueue.main.async {
+                   self.activityIndicator?.stopAnimating()
+                   self.tableView.tableFooterView?.isHidden = true}
+           }) { (error) in
+               DispatchQueue.main.async {
+                   if let errorMessage = error?.errorDescription {
+                       let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                       snackbar.show()
+                   }
+               }
+               print("fetchConversations error:\(String(describing: error?.errorDescription))")
+           }
+       }
     
     /**
      This method register the delegate for real time events from CometChatPro SDK.
@@ -355,17 +392,33 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView.
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "conversationView", for: indexPath) as! CometChatConversationView
-        var conversation: Conversation?
-        cell.searchedText = searchedText
-        if isSearching() {
-            conversation = filteredConversations[safe:indexPath.row]
-            
-        } else {
-            conversation = conversations[safe:indexPath.row]
+        
+        let cell = UITableViewCell()
+        if let cell = tableView.dequeueReusableCell(withIdentifier: "conversationView", for: indexPath) as? CometChatConversationView {
+            var conversation: Conversation?
+            cell.searchedText = searchedText
+            if isSearching() {
+                conversation = filteredConversations[safe:indexPath.row]
+                
+            } else {
+                conversation = conversations[safe:indexPath.row]
+            }
+            cell.conversation = conversation
+            return cell
         }
-        cell.conversation = conversation
         return cell
+    }
+    
+    /// This method loads the upcoming groups coming inside the tableview
+    /// - Parameters:
+    ///   - tableView: The table-view object requesting this information.
+    ///   - indexPath: specifies current index for TableViewCell.
+    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let lastSectionIndex = tableView.numberOfSections - 1
+        let lastRowIndex = tableView.numberOfRows(inSection: lastSectionIndex) - 1
+        if indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex {
+            self.fetchConversations()
+        }
     }
     
     /// This method triggers when particulatr cell is clicked by the user .
