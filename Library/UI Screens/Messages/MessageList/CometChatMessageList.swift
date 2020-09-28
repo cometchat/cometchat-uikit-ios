@@ -407,7 +407,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     ($0 as? ActionMessage != nil && (($0 as? ActionMessage)?.action != .messageDeleted && ($0 as? ActionMessage)?.action != .messageEdited)) ||
                     (($0 as? CustomMessage != nil  && (($0 as? CustomMessage)?.type == "location") || ($0 as? CustomMessage)?.type == "extension_poll"))
             }) else { return }
-            if messages.isEmpty {
+            if fetchedMessages?.count != 0 && messages.count == 0 {
                 if let request = strongSelf.messageRequest {
                     self?.fetchPreviousMessages(messageReq: request)
                 }
@@ -468,7 +468,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         ($0 as? ActionMessage != nil && (($0 as? ActionMessage)?.action != .messageDeleted && ($0 as? ActionMessage)?.action != .messageEdited)) ||
                         (($0 as? CustomMessage != nil  && (($0 as? CustomMessage)?.type == "location") || ($0 as? CustomMessage)?.type == "extension_poll"))
                 }) else { return }
-                if messages.isEmpty {
+                if fetchedMessages?.count != 0 && messages.count == 0 {
                     if let request = strongSelf.messageRequest {
                         self?.fetchPreviousMessages(messageReq: request)
                     }
@@ -521,7 +521,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         ($0 as? ActionMessage != nil && (($0 as? ActionMessage)?.action != .messageDeleted && ($0 as? ActionMessage)?.action != .messageEdited)) ||
                         (($0 as? CustomMessage != nil  && (($0 as? CustomMessage)?.type == "location") || ($0 as? CustomMessage)?.type == "extension_poll"))
                 }) else { return }
-                if messages.isEmpty {
+                if fetchedMessages?.count != 0 && messages.count == 0 {
                     if let request = strongSelf.messageRequest {
                         self?.fetchPreviousMessages(messageReq: request)
                     }
