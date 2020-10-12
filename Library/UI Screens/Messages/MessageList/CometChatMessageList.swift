@@ -99,7 +99,8 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     }
     
     // MARK: - Declaration of Outlets
-    
+    @IBOutlet weak var chatView: ChatView!
+    @IBOutlet weak var send: UIButton!
     @IBOutlet weak var reactionView: LiveReaction!
     @IBOutlet weak var reaction: UIButton!
     @IBOutlet weak var microhone: UIButton!
@@ -111,9 +112,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     @IBOutlet weak var audioNoteView: UIView!
     @IBOutlet private var audioVisualizationView: AudioVisualizationView!
     @IBOutlet weak var tableView: UITableView?
-    @IBOutlet weak var chatView: ChatView!
-    @IBOutlet weak var textView: UITextView!
-    @IBOutlet weak var textViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var textView: GrowingTextView!
     @IBOutlet weak var blockedView: UIView!
     @IBOutlet weak var editView: UIView!
     @IBOutlet weak var editViewName: UILabel!
@@ -123,6 +122,10 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var smartRepliesView: SmartRepliesView!
     @IBOutlet weak var tableViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var inputBarBottomSpace: NSLayoutConstraint!
+    @IBOutlet weak var inputBarHeight: NSLayoutConstraint!
+    @IBOutlet weak var reactionButtonSpace: NSLayoutConstraint!
+    @IBOutlet weak var reactionButtonWidth: NSLayoutConstraint!
     @IBOutlet weak var collectionLayout: UICollectionViewFlowLayout! {
         didSet{
             collectionLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
@@ -186,7 +189,6 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         setupDelegates()
         setupTableView()
         registerCells()
-        setupChatView()
         setupKeyboard()
         setupRecorder()
         self.addObsevers()
@@ -313,7 +315,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                 strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection ?? 0].count - 1, section: lastSection ?? 0)], with: .automatic)
                 strongSelf.tableView?.endUpdates()
                 strongSelf.tableView?.scrollToBottomRow()
-                strongSelf.chatView.textView.text = ""
+                strongSelf.textView.text = ""
             }
         }
     }
@@ -809,8 +811,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     @objc func didUserBlocked(_ notification: NSNotification) {
         if let name = notification.userInfo?["name"] as? String {
             self.hide(view: .blockedView, false)
-            blockedMessage.text =
-                NSLocalizedString("YOU'VE_BLOCKED", comment: "") + "\(String(describing: name.capitalized))"
+        blockedMessage.text = NSLocalizedString("YOU'VE_BLOCKED", comment: "") + "\(String(describing: name.capitalized))"
         }
     }
     
@@ -1135,7 +1136,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         switch entity{
         case .user:
             guard let user = currentUser else { return }
-            if self.chatView.frame.origin.y != 0 { dismissKeyboard() }
+            //if self.chatView.frame.origin.y != 0 { dismissKeyboard() }
             let userDetailView = CometChatUserDetail()
             let navigationController = UINavigationController(rootViewController: userDetailView)
             userDetailView.set(user: user)
@@ -1620,12 +1621,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      - See Also:
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    private func setupChatView(){
-        chatView.internalDelegate = self
-        chatView.textView.delegate = self
-        textView.delegate = self
-        textView.allowsEditingTextAttributes = true
-    }
+
     
     /**
      This method will hide or unhide views such as blockedView, smartRepliesView and editMessageView as per user actions
@@ -1710,13 +1706,23 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     private func setupKeyboard(){
-        chatView.textView.layer.cornerRadius = 4.0
+        configureGrowingTextView()
+        textView.layer.cornerRadius = 4.0
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChangeFrame), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         tableView?.addGestureRecognizer(tapGesture)
     }
     
+    fileprivate func configureGrowingTextView() {
+        textView.layer.cornerRadius = 20
+        textView.font = UIFont.systemFont(ofSize: 17)
+        textView.placeholder = NSAttributedString(string: "Type a Message...", attributes: [.foregroundColor: UIColor.lightGray, .font:  UIFont.systemFont(ofSize: 17) as Any])
+        textView.maxNumberOfLines = 5
+        textView.delegate = self
+        send.isHidden = true
+        chatView.internalDelegate = self
+    }
     
     
     /**
@@ -1735,7 +1741,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     keyboardHeight = keyboardHeight - view.safeAreaInsets.bottom
                 }
             }
-            textViewBottomConstraint.constant = keyboardHeight + 8
+            inputBarBottomSpace.constant = keyboardHeight
             view.layoutIfNeeded()
         }
     }
@@ -2698,9 +2704,9 @@ extension CometChatMessageList : UITextViewDelegate {
                 return
             }
             CometChat.endTyping(indicator: indicator)
-            chatView.microphone.isHidden = false
-            chatView.reaction.isHidden = false
-            chatView.send.isHidden = true
+            microhone.isHidden = false
+            reaction.isHidden = false
+            send.isHidden = true
         }
     }
     
@@ -2712,14 +2718,14 @@ extension CometChatMessageList : UITextViewDelegate {
         }
         if textView.text?.count == 0 {
             CometChat.startTyping(indicator: indicator)
-            chatView.microphone.isHidden = false
-            chatView.reaction.isHidden = false
-            chatView.send.isHidden = true
+            microhone.isHidden = false
+            reaction.isHidden = false
+            send.isHidden = true
         }else{
             CometChat.endTyping(indicator: indicator)
-            chatView.microphone.isHidden = true
-            chatView.reaction.isHidden = true
-            chatView.send.isHidden = false
+            microhone.isHidden = true
+            reaction.isHidden = true
+            send.isHidden = false
         }
         CometChat.startTyping(indicator: indicator)
     }  
@@ -2990,7 +2996,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
             guard let textMessage = selectedMessage as? TextMessage else { return }
             guard let indexPath = selectedIndexPath else { return }
             CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
-            if let message:String = chatView?.textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
+            if let message:String = textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
                 textMessage.text = message
                 CometChat.edit(message: textMessage, onSuccess: { (editedMessage) in
                     if let row = self.chatMessages[indexPath.section].firstIndex(where: {$0.id == editedMessage.id}) {
@@ -3019,7 +3025,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
             }
         }else if messageMode == .reply {
             var textMessage: TextMessage?
-            let message:String = chatView?.textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let message:String = textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             if(message.count == 0){
                 
             }else{
@@ -3054,7 +3060,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                             strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                             strongSelf.tableView?.endUpdates()
                             strongSelf.tableView?.scrollToBottomRow()
-                            strongSelf.chatView.textView.text = ""
+                            strongSelf.textView.text = ""
                         }
                     }
                     CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
@@ -3108,7 +3114,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                             strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                             strongSelf.tableView?.endUpdates()
                             strongSelf.tableView?.scrollToBottomRow()
-                            strongSelf.chatView.textView.text = ""
+                            strongSelf.textView.text = ""
                         }
                     }
                     CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
@@ -3137,7 +3143,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
             }
         }else{
             var textMessage: TextMessage?
-            let message:String = chatView?.textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let message:String = textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             if(message.count == 0){
                 
             }else{
@@ -3170,7 +3176,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                             strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                             strongSelf.tableView?.endUpdates()
                             strongSelf.tableView?.scrollToBottomRow()
-                            strongSelf.chatView.textView.text = ""
+                            strongSelf.textView.text = ""
                         }
                     }
                     CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
@@ -3219,7 +3225,7 @@ extension CometChatMessageList : ChatViewInternalDelegate {
                             strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                             strongSelf.tableView?.endUpdates()
                             strongSelf.tableView?.scrollToBottomRow()
-                            strongSelf.chatView.textView.text = ""
+                            strongSelf.textView.text = ""
                         }
                     }
                     CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
@@ -3820,7 +3826,7 @@ extension CometChatMessageList : SmartRepliesViewDelegate {
                 strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                 strongSelf.tableView?.endUpdates()
                 strongSelf.tableView?.scrollToBottomRow()
-                strongSelf.chatView.textView.text = ""
+                strongSelf.textView.text = ""
             }
             
             CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
@@ -3861,7 +3867,7 @@ extension CometChatMessageList : SmartRepliesViewDelegate {
                 strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                 strongSelf.tableView?.endUpdates()
                 strongSelf.tableView?.scrollToBottomRow()
-                strongSelf.chatView.textView.text = ""
+                strongSelf.textView.text = ""
             }
             CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
                 print("sendTextMessage onSuccess: \(String(describing: message.stringValue()))")
@@ -4563,5 +4569,55 @@ extension CometChatMessageList: PollExtensionDelegate {
             
         }
         
+    }
+}
+
+extension CometChatMessageList: GrowingTextViewDelegate {
+    public func growingTextView(_ growingTextView: GrowingTextView, willChangeHeight height: CGFloat, difference: CGFloat) {
+        print("Height Will Change To: \(height)  Diff: \(difference)")
+        inputBarHeight.constant = height
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+    }
+    
+    public func growingTextView(_ growingTextView: GrowingTextView, didChangeHeight height: CGFloat, difference: CGFloat) {
+        print("Height Did Change!")
+    }
+    
+    
+    public func growingTextViewDidChange(_ growingTextView: GrowingTextView) {
+        guard let indicator = typingIndicator else {
+            return
+        }
+        if growingTextView.text?.count == 0 {
+            CometChat.startTyping(indicator: indicator)
+            reactionButtonSpace.constant = 15
+            reactionButtonWidth.constant = 30
+            microhone.isHidden = false
+            send.isHidden = true
+            self.view.layoutIfNeeded()
+            
+        }else{
+            microhone.isHidden = true
+            send.isHidden = false
+            reactionButtonSpace.constant = 0
+            reactionButtonWidth.constant = 0         
+            self.view.layoutIfNeeded()
+        }
+        CometChat.startTyping(indicator: indicator)
+    }
+    
+    public func growingTextViewDidBeginEditing(_ growingTextView: GrowingTextView) {
+    }
+    
+    public func growingTextViewDidEndEditing(_ growingTextView: GrowingTextView) {
+        guard let indicator = typingIndicator else {
+            return
+        }
+        CometChat.endTyping(indicator: indicator)
+        microhone.isHidden = false
+        send.isHidden = true
+        reactionButtonSpace.constant = 15
+        reactionButtonWidth.constant = 30
     }
 }

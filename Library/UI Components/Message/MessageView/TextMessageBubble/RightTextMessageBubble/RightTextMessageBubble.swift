@@ -42,6 +42,7 @@ class RightTextMessageBubble: UITableViewCell {
     var indexPath: IndexPath?
     weak var textMessage: TextMessage? {
         didSet {
+            receipt.isHidden = false
             if let textmessage  = textMessage {
                 self.receiptStack.isHidden = true
                 self.parseProfanityFilter(forMessage: textmessage)

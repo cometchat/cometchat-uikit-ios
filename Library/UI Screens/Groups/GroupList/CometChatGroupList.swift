@@ -514,8 +514,8 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastSectionIndex = tableView.numberOfSections - 1
         let lastRowIndex = tableView.numberOfRows(inSection: lastSectionIndex) - 1
-        if indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex {
-            self.fetchGroups()
+        if (indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex) && groups.count > 10 {
+           self.fetchGroups()
         }
     }
     

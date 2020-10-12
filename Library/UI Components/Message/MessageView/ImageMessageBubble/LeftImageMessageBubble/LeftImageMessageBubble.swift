@@ -78,6 +78,9 @@ class LeftImageMessageBubble: UITableViewCell {
     
     var mediaMessageInThread: MediaMessage! {
         didSet {
+            if let userName = mediaMessageInThread.sender?.name {
+                name.text = userName + ":"
+            }
             receiptStack.isHidden = true
             if mediaMessageInThread.sentAt == 0 {
                 timeStamp.text = NSLocalizedString("SENDING", comment: "")
@@ -170,12 +173,12 @@ class LeftImageMessageBubble: UITableViewCell {
              if let url = URL(string: thumbnailGenerationDictionary["url_medium"] as? String ?? "") {
                  imageMessage.cf.setImage(with: url)
              }else{
-                if let url = URL(string: mediaMessage.attachment?.fileUrl ?? "") {
+                if let url = URL(string: forMessage?.attachment?.fileUrl ?? "") {
                     imageMessage.cf.setImage(with: url)
                 }
              }
          }else{
-             if let url = URL(string: mediaMessage.attachment?.fileUrl ?? "") {
+            if let url = URL(string: forMessage?.attachment?.fileUrl ?? "") {
                  imageMessage.cf.setImage(with: url)
              }
          }

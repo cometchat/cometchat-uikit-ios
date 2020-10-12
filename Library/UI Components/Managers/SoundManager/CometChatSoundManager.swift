@@ -21,7 +21,7 @@ public enum Sound {
 // MARK: - Declaration of Public variable
 
 public var audioPlayer: AVAudioPlayer?
-
+var otherAudioPlaying = AVAudioSession.sharedInstance().isOtherAudioPlaying
 /*  ----------------------------------------------------------------------------------------- */
 
 public final class CometChatSoundManager: NSObject {
@@ -38,6 +38,8 @@ public final class CometChatSoundManager: NSObject {
        if bool == true {
        switch sound {
         case .incomingCall:
+            if UIKitSettings.enableSoundForCalls == .enabled {
+            if otherAudioPlaying == false {
             guard let soundURL = Bundle.main.url(forResource: "IncomingCall", withExtension: "wav") else { return }
             do {
                 try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
@@ -47,7 +49,13 @@ public final class CometChatSoundManager: NSObject {
                 audioPlayer?.prepareToPlay()
                 audioPlayer?.play()
             } catch { }
+            }else{
+                AudioServicesPlayAlertSound(SystemSoundID(1519))
+            }
+            }
         case .incomingMessage:
+            if UIKitSettings.enableSoundForMessages == .enabled {
+            if otherAudioPlaying == false {
             guard let soundURL = Bundle.main.url(forResource: "IncomingMessage", withExtension: "wav") else { return }
             do {
                 try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
@@ -56,7 +64,13 @@ public final class CometChatSoundManager: NSObject {
                 audioPlayer?.prepareToPlay()
                 audioPlayer?.play()
             } catch { }
+            }else{
+                AudioServicesPlayAlertSound(SystemSoundID(1519))
+            }
+            }
         case .outgoingCall:
+            if UIKitSettings.enableSoundForCalls == .enabled {
+            if otherAudioPlaying == false {
             guard let soundURL = Bundle.main.url(forResource: "OutgoingCall", withExtension: "wav") else { return }
             do {
                 try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
@@ -66,7 +80,13 @@ public final class CometChatSoundManager: NSObject {
                 audioPlayer?.prepareToPlay()
                 audioPlayer?.play()
             } catch { }
+            }else{
+                AudioServicesPlayAlertSound(SystemSoundID(1519))
+            }
+            }
         case .outgoingMessage:
+            if UIKitSettings.enableSoundForMessages == .enabled {
+            if otherAudioPlaying == false {
             guard let soundURL = Bundle.main.url(forResource: "OutgoingMessege", withExtension: "wav") else { return }
             do {
                 try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
@@ -75,7 +95,13 @@ public final class CometChatSoundManager: NSObject {
                 audioPlayer?.prepareToPlay()
                 audioPlayer?.play()
             } catch { }
+            }else{
+                AudioServicesPlayAlertSound(SystemSoundID(1519))
+            }
+            }
         case .incomingMessageForOther:
+            if UIKitSettings.enableSoundForMessages == .enabled {
+            if otherAudioPlaying == false {
             guard let soundURL = Bundle.main.url(forResource: "IncomingMessageOther", withExtension: "wav") else { return }
             do {
                 try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
@@ -84,7 +110,11 @@ public final class CometChatSoundManager: NSObject {
                 audioPlayer?.prepareToPlay()
                 audioPlayer?.play()
             } catch { }
+            }else{
+                AudioServicesPlayAlertSound(SystemSoundID(1519))
+            }
         }
+       }
         }else{
         if audioPlayer?.isPlaying == true {
             audioPlayer?.pause()

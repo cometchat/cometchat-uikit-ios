@@ -73,15 +73,14 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
     }
     
     // MARK: - Declaration of Outlets
-    
+
     @IBOutlet weak var replyCountView: UIView!
     @IBOutlet weak var threadedMessageFileType: UILabel!
     @IBOutlet weak var threadedMessageFileName: UILabel!
-    @IBOutlet weak var threadedImageMessageView: UIImageView!
+
     @IBOutlet weak var threadedFileMessageView: UIView!
     @IBOutlet weak var threadedTextMessageView: UIView!
     @IBOutlet weak var threadedReplyCount: UILabel!
-    @IBOutlet weak var threadedMessageImage: UIImageView!
     @IBOutlet weak var threadedMessageText: UILabel!
     @IBOutlet weak var threadedMessageTime: UILabel!
     @IBOutlet weak var threadedMessageUserName: UILabel!
@@ -100,23 +99,21 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
     @IBOutlet private var audioVisualizationView: AudioVisualizationView!
     @IBOutlet weak var tableView: UITableView?
     @IBOutlet weak var chatView: ChatView!
-    @IBOutlet weak var messageActionView: UIView!
-    @IBOutlet weak var textView: UITextView!
+    @IBOutlet weak var textView: GrowingTextView!
     @IBOutlet weak var textViewBottomConstraint: NSLayoutConstraint!
     @IBOutlet weak var blockedView: UIView!
     @IBOutlet weak var editView: UIView!
     @IBOutlet weak var editViewName: UILabel!
     @IBOutlet weak var editViewMessage: UILabel!
     @IBOutlet weak var blockedMessage: UILabel!
-    @IBOutlet weak var threadButton: UIButton!
-    @IBOutlet weak var deleteButton: UIButton!
-    @IBOutlet weak var forwardButton: UIButton!
-    @IBOutlet weak var shareButton: UIButton!
-    @IBOutlet weak var editButton: UIButton!
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var smartRepliesView: SmartRepliesView!
     @IBOutlet weak var tableViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var reactionButtonSpace: NSLayoutConstraint!
+    @IBOutlet weak var reactionButtonWidth: NSLayoutConstraint!
+    @IBOutlet weak var inputBarBottomSpace: NSLayoutConstraint!
+    @IBOutlet weak var inputBarHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionLayout: UICollectionViewFlowLayout! {
         didSet{
             collectionLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
@@ -182,7 +179,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         setupDelegates()
         setupTableView()
         registerCells()
-        setupChatView()
+        configureGrowingTextView()
         setupKeyboard()
         setupRecorder()
         self.addObsevers()
@@ -381,7 +378,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                   
                    strongSelf.tableView?.endUpdates()
                    strongSelf.tableView?.scrollToBottomRow()
-                   strongSelf.chatView.textView.text = ""
+                   strongSelf.textView.text = ""
                }
            }
        }
@@ -956,7 +953,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
      [CometChatThreadedMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     @IBAction func didBackButtonPressed(_ sender: UIButton) {
-        chatView.textView.resignFirstResponder()
+        textView.resignFirstResponder()
         if currentState == .playing {
             do {
                 try self.viewModel.pausePlaying()
@@ -1092,7 +1089,6 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         self.selectedIndexPath = nil
         self.tableView?.isEditing = false
         self.tableView?.reloadData()
-        self.messageActionView.isHidden = true
         addBackButton(bool: true)
     }
     
@@ -1364,19 +1360,6 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                         }
                     }
                 }
-                if  (tableView?.cellForRow(at: indexPath) as? ActionMessageBubble) != nil {
-                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
-                        editButton.isHidden = true
-                        deleteButton.isHidden = false
-                        forwardButton.isHidden = false
-                        messageActionView.isHidden = false
-                    }else{
-                        editButton.isHidden = true
-                        deleteButton.isHidden = true
-                        forwardButton.isHidden = false
-                        messageActionView.isHidden = false
-                    }
-                }
             }
         }
     }
@@ -1557,14 +1540,21 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
      - See Also:
      [CometChatThreadedMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    private func setupChatView(){
-        chatView.internalDelegate = self
-        chatView.textView.delegate = self
+    
+    fileprivate func configureGrowingTextView() {
+        textView.layer.cornerRadius = 20
+        textView.font = UIFont.systemFont(ofSize: 17)
+        textView.placeholder = NSAttributedString(string: "Type a Message...", attributes: [.foregroundColor: UIColor.lightGray, .font:  UIFont.systemFont(ofSize: 17) as Any])
+        textView.maxNumberOfLines = 5
         textView.delegate = self
-        textView.allowsEditingTextAttributes = true
+        send.isHidden = true
+        chatView.internalDelegate = self
         reaction.isHidden = true
         reactionView.isHidden = true
         chatView.send.isHidden = false
+        reactionButtonSpace.constant = 0
+        reactionButtonWidth.constant = 0
+        send.isHidden = true
     }
     
     /**
@@ -1650,7 +1640,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
      [CometChatThreadedMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     private func setupKeyboard(){
-        chatView.textView.layer.cornerRadius = 4.0
+        textView.layer.cornerRadius = 4.0
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChangeFrame), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
@@ -2257,14 +2247,7 @@ extension CometChatThreadedMessageList: UITableViewDelegate , UITableViewDataSou
                 }
             }
         },completion: nil)
-        
-        if tableView.isEditing == true {
-            if selectedMessages.count <= 1 {
-                messageActionView.isHidden = false
-            }else{
-                messageActionView.isHidden = true
-            }
-        }
+    
         
         tableView.endUpdates()
         
@@ -2390,13 +2373,6 @@ extension CometChatThreadedMessageList: UITableViewDelegate , UITableViewDataSou
                         }
         },completion: nil)
         
-        if tableView.isEditing == true {
-            if selectedMessages.count <= 1 {
-                messageActionView.isHidden = false
-            }else{
-                messageActionView.isHidden = true
-            }
-        }
         tableView.endUpdates()
     }
 }
@@ -2705,7 +2681,7 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
                 guard let textMessage = selectedMessage as? TextMessage else { return }
                 guard let indexPath = selectedIndexPath else { return }
                 CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
-                if let message:String = chatView?.textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
+                if let message:String = textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) {
                     textMessage.text = message
                     CometChat.edit(message: textMessage, onSuccess: { (editedMessage) in
                         if let row = self.chatMessages[indexPath.section].firstIndex(where: {$0.id == editedMessage.id}) {
@@ -2734,7 +2710,7 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
                 }
             }else if messageMode == .reply {
                 var textMessage: TextMessage?
-                let message:String = chatView?.textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                let message:String = textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                 if(message.count == 0){
                     
                 }else{
@@ -2770,7 +2746,7 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
                                 strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                                 strongSelf.tableView?.endUpdates()
                                 strongSelf.tableView?.scrollToBottomRow()
-                                strongSelf.chatView.textView.text = ""
+                                strongSelf.textView.text = ""
                                 strongSelf.incrementCount()
                             }
                         }
@@ -2825,7 +2801,7 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
                                 strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                                 strongSelf.tableView?.endUpdates()
                                 strongSelf.tableView?.scrollToBottomRow()
-                                strongSelf.chatView.textView.text = ""
+                                strongSelf.textView.text = ""
                                  strongSelf.incrementCount()
                             }
                         }
@@ -2855,7 +2831,7 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
                 }
             }else{
                 var textMessage: TextMessage?
-                let message:String = chatView?.textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                let message:String = textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                 if(message.count == 0){
                     
                 }else{
@@ -2888,7 +2864,7 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
                                 strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                                 strongSelf.tableView?.endUpdates()
                                 strongSelf.tableView?.scrollToBottomRow()
-                                strongSelf.chatView.textView.text = ""
+                                strongSelf.textView.text = ""
                                  strongSelf.incrementCount()
                             }
                         }
@@ -2938,7 +2914,7 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
                                 strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                                 strongSelf.tableView?.endUpdates()
                                 strongSelf.tableView?.scrollToBottomRow()
-                                strongSelf.chatView.textView.text = ""
+                                strongSelf.textView.text = ""
                                  strongSelf.incrementCount()
                             }
                         }
@@ -3290,7 +3266,7 @@ extension CometChatThreadedMessageList : SmartRepliesViewDelegate {
                     strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                     strongSelf.tableView?.endUpdates()
                     strongSelf.tableView?.scrollToBottomRow()
-                    strongSelf.chatView.textView.text = ""
+                    strongSelf.textView.text = ""
                     strongSelf.incrementCount()
                 }
                 
@@ -3332,7 +3308,7 @@ extension CometChatThreadedMessageList : SmartRepliesViewDelegate {
                     strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                     strongSelf.tableView?.endUpdates()
                     strongSelf.tableView?.scrollToBottomRow()
-                    strongSelf.chatView.textView.text = ""
+                    strongSelf.textView.text = ""
                     strongSelf.incrementCount()
                 }
                 CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
@@ -3541,7 +3517,6 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     */
     func didEditPressed() {
         self.messageMode = .edit
-        self.messageActionView.isHidden = true
         self.hide(view: .editMessageView, false)
         guard let message = selectedMessage else { return }
         editViewName.text = "Edit Message"
@@ -3604,7 +3579,6 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     
     func didReplyPressed() {
         self.messageMode = .reply
-        self.messageActionView.isHidden = true
         self.hide(view: .editMessageView, false)
         guard let message = selectedMessage else { return }
         if let name = message.sender?.name {
@@ -3624,7 +3598,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     func didSharePressed() {
         if let message = selectedMessage {
             var textToShare = ""
-            messageActionView.isHidden = true
+          
             if message.messageType == .text {
                 if message.receiverType == .user{
                     textToShare = (message as? TextMessage)?.text ?? ""
@@ -3670,4 +3644,54 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     }
     
     
+}
+
+extension CometChatThreadedMessageList: GrowingTextViewDelegate {
+    public func growingTextView(_ growingTextView: GrowingTextView, willChangeHeight height: CGFloat, difference: CGFloat) {
+        print("Height Will Change To: \(height)  Diff: \(difference)")
+        inputBarHeight.constant = height
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+    }
+    
+    public func growingTextView(_ growingTextView: GrowingTextView, didChangeHeight height: CGFloat, difference: CGFloat) {
+        print("Height Did Change!")
+    }
+    
+    
+    public func growingTextViewDidChange(_ growingTextView: GrowingTextView) {
+        guard let indicator = typingIndicator else {
+            return
+        }
+        if growingTextView.text?.count == 0 {
+            CometChat.startTyping(indicator: indicator)
+            reactionButtonSpace.constant = 0
+            reactionButtonWidth.constant = 0
+            microhone.isHidden = false
+            send.isHidden = true
+            self.view.layoutIfNeeded()
+            
+        }else{
+            microhone.isHidden = true
+            send.isHidden = false
+            reactionButtonSpace.constant = 0
+            reactionButtonWidth.constant = 0
+            self.view.layoutIfNeeded()
+        }
+        CometChat.startTyping(indicator: indicator)
+    }
+    
+    public func growingTextViewDidBeginEditing(_ growingTextView: GrowingTextView) {
+    }
+    
+    public func growingTextViewDidEndEditing(_ growingTextView: GrowingTextView) {
+        guard let indicator = typingIndicator else {
+            return
+        }
+        CometChat.endTyping(indicator: indicator)
+        microhone.isHidden = false
+        send.isHidden = true
+        reactionButtonSpace.constant = 0
+        reactionButtonWidth.constant = 0
+    }
 }
