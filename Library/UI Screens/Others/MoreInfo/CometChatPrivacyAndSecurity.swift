@@ -27,7 +27,7 @@ class CometChatPrivacyAndSecurity: UIViewController {
     
     override public func loadView() {
         super.loadView()
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+       
         view.backgroundColor = .white
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
@@ -35,7 +35,7 @@ class CometChatPrivacyAndSecurity: UIViewController {
         self.setupItems()
         self.fetchBlockedUsersCount()
         self.addObservers()
-        self.set(title: NSLocalizedString("PRIVACY_AND_SECURITY", comment: ""), mode: .automatic)
+        self.set(title: NSLocalizedString("PRIVACY_AND_SECURITY", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
     }
     
     
@@ -59,7 +59,7 @@ class CometChatPrivacyAndSecurity: UIViewController {
     */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
            if navigationController != nil{
-               navigationItem.title = NSLocalizedString(title, comment: "")
+               navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
                navigationItem.largeTitleDisplayMode = mode
                switch mode {
                case .automatic:
@@ -133,7 +133,7 @@ class CometChatPrivacyAndSecurity: UIViewController {
     - Copyright:  ©  2020 CometChat Inc.
     */
     private func registerCells(){
-        let AdministratorView  = UINib.init(nibName: "AdministratorView", bundle: nil)
+        let AdministratorView  = UINib.init(nibName: "AdministratorView", bundle: UIKitSettings.bundle)
         self.tableView.register(AdministratorView, forCellReuseIdentifier: "administratorView")
     }
     
@@ -149,8 +149,8 @@ class CometChatPrivacyAndSecurity: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
@@ -170,11 +170,11 @@ class CometChatPrivacyAndSecurity: UIViewController {
         blockedUserRequest?.fetchNext(onSuccess: { (blockedUsers) in
             if let count =  blockedUsers?.count {
                 if  count == 0 {
-                    self.blockUsersCount =  NSLocalizedString("0_USERS", comment: "")
+                    self.blockUsersCount =  NSLocalizedString("0_USERS", bundle: UIKitSettings.bundle, comment: "")
                 }else if count > 0 && count < 100 {
-                    self.blockUsersCount = "\(count) " + NSLocalizedString("USERS", comment: "")
+                    self.blockUsersCount = "\(count) " + NSLocalizedString("USERS", bundle: UIKitSettings.bundle, comment: "")
                 }else{
-                    self.blockUsersCount = "100+ " + NSLocalizedString("USERS", comment: "")
+                    self.blockUsersCount = "100+ " + NSLocalizedString("USERS", bundle: UIKitSettings.bundle, comment: "")
                 }
                 DispatchQueue.main.async { self.tableView.reloadData() }
             }
@@ -185,7 +185,6 @@ class CometChatPrivacyAndSecurity: UIViewController {
                      snackbar.show()
                 }
             }
-            print("error while fetchBlockedUsersCount: \(String(describing: error?.errorDescription))")
         })
     }
 }
@@ -226,9 +225,9 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
-            sectionTitle.text =  NSLocalizedString("PRIVACY", comment: "")
+            sectionTitle.text =  NSLocalizedString("PRIVACY", bundle: UIKitSettings.bundle, comment: "")
         }
-        sectionTitle.font = UIFont(name: "SFProDisplay-Medium", size: 13)
+        sectionTitle.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         if #available(iOS 13.0, *) {
             sectionTitle.textColor = .lightGray
             returnedView.backgroundColor = .systemBackground
@@ -243,7 +242,12 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
-        case 0: return 1
+        case 0:
+            if UIKitSettings.blockUser == .disabled {
+                 return 0
+            }else{
+                 return 1
+            }
         case 1: return 0
         default: return 0 }
     }
@@ -265,18 +269,18 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
         let cell = UITableViewCell()
         if indexPath.section == 0 && indexPath.row == 0 {
             let blockedUserCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
-            blockedUserCell.title.text = NSLocalizedString("BLOCKED_USERS", comment: "")
+            blockedUserCell.title.text = NSLocalizedString("BLOCKED_USERS", bundle: UIKitSettings.bundle, comment: "")
             return blockedUserCell
         }else{
             switch privacy[safe:indexPath.row] {
             case CometChatPrivacyAndSecurity.GROUP_CELL:
                 let groupsCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
-                groupsCell.title.text = NSLocalizedString("Groups", comment: "")
+                groupsCell.title.text = NSLocalizedString("Groups", bundle: UIKitSettings.bundle, comment: "")
                 return groupsCell
                 
             case CometChatPrivacyAndSecurity.CALLS_CELL:
                 let callsCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
-                callsCell.title.text = NSLocalizedString("CALLS", comment: "")
+                callsCell.title.text = NSLocalizedString("CALLS", bundle: UIKitSettings.bundle, comment: "")
                 return callsCell
             default: break
             }

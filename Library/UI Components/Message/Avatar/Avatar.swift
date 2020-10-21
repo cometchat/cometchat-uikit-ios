@@ -20,7 +20,7 @@ import  CometChatPro
 /*  ----------------------------------------------------------------------------------------- */
 
 @IBDesignable
-@objc public class Avatar: UIImageView {
+@objc class Avatar: UIImageView {
     
     // MARK: - Declaration of IBInspectable
     
@@ -34,15 +34,16 @@ import  CometChatPro
     override init(frame: CGRect) { super.init(frame: frame) }
     required init?(coder aDecoder: NSCoder) { super.init(coder: aDecoder) }
     
-    override public func layoutSubviews() {
+    override func layoutSubviews() {
         super.layoutSubviews()
         self.layer.cornerRadius = cornerRadius
         self.layer.borderColor = borderColor.cgColor
         self.layer.borderWidth = borderWidth
+        self.backgroundColor = UIKitSettings.primaryColor.withAlphaComponent(0.5)
         self.clipsToBounds = true
     }
     
-    // MARK: - Public instance methods
+    // MARK: - instance methods
     
     /**
      This method used to set the cornerRadius for Avatar class
@@ -52,7 +53,7 @@ import  CometChatPro
      - See Also:
      [Avatar Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-1-avatar)
      */
-    @objc public func set(cornerRadius : CGFloat) -> Avatar {
+    @objc func set(cornerRadius : CGFloat) -> Avatar {
         self.layer.cornerRadius = cornerRadius
         self.clipsToBounds = true
         return self
@@ -66,7 +67,7 @@ import  CometChatPro
      - See Also:
      [Avatar Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-1-avatar)
      */
-    @objc public func set(borderColor : UIColor) -> Avatar {
+    @objc func set(borderColor : UIColor) -> Avatar {
         self.layer.borderColor = borderColor.cgColor
         return self
     }
@@ -79,7 +80,7 @@ import  CometChatPro
      - See Also:
      [Avatar Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-1-avatar)
      */
-    @objc public func set(backgroundColor : UIColor) -> Avatar {
+    @objc func set(backgroundColor : UIColor) -> Avatar {
         self.backgroundColor = backgroundColor
         return self
     }
@@ -92,7 +93,7 @@ import  CometChatPro
      - See Also:
      [Avatar Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-1-avatar)
      */
-    @objc public func set(borderWidth : CGFloat) -> Avatar {
+    @objc func set(borderWidth : CGFloat) -> Avatar {
         self.layer.borderWidth = borderWidth
         return self
     }
@@ -106,14 +107,14 @@ import  CometChatPro
      - See Also:
      [Avatar Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-1-avatar)
      */
-    @objc public func set(image: String) {
+    @objc func set(image: String) {
         
         let url = URL(string: image)
-        self.cf.setImage(with: url, placeholder: #imageLiteral(resourceName: "defaultAvatar.jpg"))
+        self.cf.setImage(with: url, placeholder: UIImage(named: "defaultAvatar.jpg", in: UIKitSettings.bundle, compatibleWith: nil))
     }
     
     
-    @objc public func set(image: String, with name: String) {
+    @objc func set(image: String, with name: String) {
         DispatchQueue.main.async { [weak self] in
             let url = URL(string: image)
             let imageView  = UIImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
@@ -123,7 +124,7 @@ import  CometChatPro
     }
     
     
-    @objc public func set(entity: AppEntity) {
+    @objc func set(entity: AppEntity) {
         
         if let user = entity as? User {
             let url = URL(string: user.avatar ?? "")

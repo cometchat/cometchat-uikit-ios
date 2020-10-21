@@ -65,18 +65,18 @@ class RightLocationMessageBubble: UITableViewCell {
                 messageView.clipsToBounds = true
                 
                 if locationMessage.readAt > 0 {
-                 receipt.image = #imageLiteral(resourceName: "read.png")
-                 timeStamp.text = String().setMessageTime(time: Int(locationMessage?.readAt ?? 0))
-                 }else if locationMessage.deliveredAt > 0 {
-                receipt.image = #imageLiteral(resourceName: "delivered.png")
-                 timeStamp.text = String().setMessageTime(time: Int(locationMessage?.deliveredAt ?? 0))
-                 }else if locationMessage.sentAt > 0 {
-                 receipt.image = #imageLiteral(resourceName: "sent.png")
-                 timeStamp.text = String().setMessageTime(time: Int(locationMessage?.sentAt ?? 0))
-                 }else if locationMessage.sentAt == 0 {
-                    receipt.image = #imageLiteral(resourceName: "wait.png")
-                    timeStamp.text = NSLocalizedString("SENDING", comment: "")
-                 }
+                    receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
+                    timeStamp.text = String().setMessageTime(time: Int(locationMessage?.readAt ?? 0))
+                }else if locationMessage.deliveredAt > 0 {
+                    receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
+                    timeStamp.text = String().setMessageTime(time: Int(locationMessage?.deliveredAt ?? 0))
+                }else if locationMessage.sentAt > 0 {
+                    receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)
+                    timeStamp.text = String().setMessageTime(time: Int(locationMessage?.sentAt ?? 0))
+                }else if locationMessage.sentAt == 0 {
+                    receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
+                    timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                }
                 receipt.contentMode = .scaleAspectFit
         }
     }

@@ -65,7 +65,7 @@ class SharedMediaView: UITableViewCell {
         collectionView.showsVerticalScrollIndicator = false
         collectionView.dataSource = self
         collectionView.delegate = self
-        let SharedMediaCell = UINib(nibName: "SharedMediaCell", bundle: nil)
+        let SharedMediaCell = UINib(nibName: "SharedMediaCell", bundle: UIKitSettings.bundle)
         collectionView.register(SharedMediaCell, forCellWithReuseIdentifier: "sharedMediaCell")
     }
     
@@ -91,11 +91,11 @@ class SharedMediaView: UITableViewCell {
             if let user = entity as? User {
                 switch mediaSelection.selectedSegmentIndex {
                 case 0:
-                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(uid: user.uid ?? "").set(limit:  20).setCategory(category: "message").setType(type: "image").build()
+                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(uid: user.uid ?? "").set(limit:  20).set(categories: ["message"]).set(types: ["image"]).build()
                 case 1:
-                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(uid: user.uid ?? "").set(limit:  20).setCategory(category: "message").setType(type: "video").build()
+                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(uid: user.uid ?? "").set(limit:  20).set(categories: ["message"]).set(types: ["video"]).build()
                 case 2:
-                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(uid: user.uid ?? "").set(limit:  20).setCategory(category: "message").setType(type: "file").build()
+                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(uid: user.uid ?? "").set(limit:  20).set(categories: ["message"]).set(types: ["file"]).build()
                 default: break
                 }
                 mediaMessageRequest?.fetchPrevious(onSuccess: { (mediaMessages) in
@@ -131,11 +131,11 @@ class SharedMediaView: UITableViewCell {
             if let group = entity as? Group {
                 switch mediaSelection.selectedSegmentIndex {
                 case 0:
-                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(guid: group.guid ).set(limit: 20).setCategory(category: "message").setType(type: "image").build()
+                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(guid: group.guid ).set(limit: 20).set(categories: ["message"]).set(types: ["image"]).build()
                 case 1:
-                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(guid: group.guid ).set(limit:  20).setCategory(category: "message").setType(type: "video").build()
+                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(guid: group.guid ).set(limit:  20).set(categories: ["message"]).set(types: ["video"]).build()
                 case 2:
-                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(guid: group.guid ).set(limit:  20).setCategory(category: "message").setType(type: "file").build()
+                    mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(guid: group.guid ).set(limit:  20).set(categories: ["message"]).set(types: ["file"]).build()
                 default: break
                 }
                 mediaMessageRequest?.fetchPrevious(onSuccess: { (mediaMessages) in
@@ -206,7 +206,7 @@ class SharedMediaView: UITableViewCell {
                         self?.collectionView.reloadData()
                     }
                 }
-                print("mediaMessageRequest fetched: \(String(describing: mediaMessages))")
+             
             }, onError: { (error) in
                 DispatchQueue.main.async { [weak self] in
                     if let errorMessage = error?.errorDescription {
@@ -292,21 +292,21 @@ extension SharedMediaView : UICollectionViewDelegate , UICollectionViewDataSourc
         switch self.mediaSelection.selectedSegmentIndex {
         case 0:
             if photos.isEmpty  {
-                self.collectionView.setEmptyMessage(NSLocalizedString("NO_PHOTOS", comment: ""))
+                self.collectionView.setEmptyMessage(NSLocalizedString("NO_PHOTOS", bundle: UIKitSettings.bundle, comment: ""))
             } else{
                 self.collectionView.restore()
             }
             return photos.count
         case 1:
             if videos.isEmpty  {
-                self.collectionView.setEmptyMessage(NSLocalizedString("NO_VIDEOS", comment: ""))
+                self.collectionView.setEmptyMessage(NSLocalizedString("NO_VIDEOS", bundle: UIKitSettings.bundle, comment: ""))
             } else{
                 self.collectionView.restore()
             }
             return videos.count
         case 2:
             if docs.isEmpty  {
-                self.collectionView.setEmptyMessage(NSLocalizedString("NO_DOCUMENTS", comment: ""))
+                self.collectionView.setEmptyMessage(NSLocalizedString("NO_DOCUMENTS", bundle: UIKitSettings.bundle, comment: ""))
             } else{
                 self.collectionView.restore()
             }

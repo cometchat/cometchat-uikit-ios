@@ -51,7 +51,6 @@ public class CometChatCallsList: UIViewController {
     
     override public func loadView() {
         super.loadView()
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
         view.backgroundColor = .white
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
@@ -66,7 +65,7 @@ public class CometChatCallsList: UIViewController {
     }
     
     deinit {
-        print("CometChatCallsList deallocated")
+      
     }
     
     // MARK: - Public instance methods
@@ -85,7 +84,7 @@ public class CometChatCallsList: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
+            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -109,14 +108,14 @@ public class CometChatCallsList: UIViewController {
      */
     private func refreshCalls(){
         DispatchQueue.main.async {
-            self.tableView.setEmptyMessage(NSLocalizedString("", comment: ""))
+            self.tableView.setEmptyMessage(NSLocalizedString("", bundle: UIKitSettings.bundle, comment: ""))
             self.activityIndicator?.startAnimating()
             self.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self.tableView.bounds.width, height: CGFloat(44))
             self.tableView.tableFooterView = self.activityIndicator
             self.tableView.tableFooterView = self.activityIndicator
             self.tableView.tableFooterView?.isHidden = false
         }
-        callsRequest = MessagesRequest.MessageRequestBuilder().set(limit: 20).hideMessagesFromBlockedUsers(true).setCategory(category: "call").build()
+        callsRequest = MessagesRequest.MessageRequestBuilder().set(limit: 20).hideMessagesFromBlockedUsers(true).set(categories: ["call"]).build()
         
         callsRequest?.fetchPrevious(onSuccess: { (fetchedCalls) in
             guard let filteredCalls = fetchedCalls?.filter({
@@ -139,7 +138,7 @@ public class CometChatCallsList: UIViewController {
                     snackbar.show()
                 }
             }
-            print("refreshConversations error:\(String(describing: error?.errorDescription))")
+            
         })
     }
     
@@ -189,7 +188,7 @@ public class CometChatCallsList: UIViewController {
                     snackbar.show()
                 }
             }
-            print("refreshConversations error:\(String(describing: error?.errorDescription))")
+           
         })
     }
     
@@ -240,7 +239,7 @@ public class CometChatCallsList: UIViewController {
      [CometChatUserList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-1-comet-chat-user-list)
      */
     private func registerCells(){
-        let CometChatCallsView  = UINib.init(nibName: "CometChatCallsView", bundle: nil)
+        let CometChatCallsView  = UINib.init(nibName: "CometChatCallsView", bundle: UIKitSettings.bundle)
         self.tableView.register(CometChatCallsView, forCellReuseIdentifier: "callsView")
     }
     
@@ -255,8 +254,8 @@ public class CometChatCallsList: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
@@ -277,7 +276,7 @@ public class CometChatCallsList: UIViewController {
      private func addSegmentControl(bool: Bool) {
         let titles = ["All", "Missed"]
         segmentControl = UISegmentedControl(items: titles)
-        segmentControl.setTitleTextAttributes([.font: UIFont (name: "SFProDisplay-Medium", size: 14) as Any], for: .normal)
+        segmentControl.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 14, weight: .medium) as Any], for: .normal)
         segmentControl.setWidth(70, forSegmentAt: 0)
         segmentControl.setWidth(70, forSegmentAt: 1)
         segmentControl.selectedSegmentIndex = 0
@@ -306,10 +305,12 @@ public class CometChatCallsList: UIViewController {
     private func addEditButton(bool: Bool){
         if bool == true {
             let edit = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(didEditButtonPressed))
+            edit.tintColor = UIKitSettings.primaryColor
             self.navigationItem.leftBarButtonItem  = edit
         }else{
             let done = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(didDoneButtonPressed))
             self.navigationItem.leftBarButtonItem  = done
+            done.tintColor = UIKitSettings.primaryColor
         }
     }
     
@@ -322,7 +323,8 @@ public class CometChatCallsList: UIViewController {
     private func addNewCallButton(bool: Bool){
         if bool == true {
             var newCall = UIBarButtonItem()
-            newCall =  UIBarButtonItem(image: #imageLiteral(resourceName: "newCall"), style: .done, target: self, action: #selector(didNewCallPressed))
+            newCall =  UIBarButtonItem(image: UIImage(named: "newCall", in: UIKitSettings.bundle, compatibleWith: nil), style: .done, target: self, action: #selector(didNewCallPressed))
+            newCall.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem  = newCall
         }
     }
@@ -413,7 +415,7 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if calls.isEmpty  {
-            self.tableView.setEmptyMessage(NSLocalizedString("No History Found.", comment: ""))
+            self.tableView.setEmptyMessage(NSLocalizedString("No History Found.", bundle: UIKitSettings.bundle, comment: ""))
         } else{
             self.tableView.restore()
         }
@@ -494,38 +496,7 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
         }
         delegate?.didSelectCallsAtIndexPath(call: selectedCall.call!, indexPath: indexPath)
     }
-    
-    /// This method triggers when user holds on detailCell in CometChatCallList
-       /// - Parameters:
-       ///   - tableView: A view that presents data using rows arranged in a single column.
-       ///   - indexPath: A list of indexes that together represent the path to a specific location in a tree of nested arrays.
-       ///   - point: A structure that contains a point in a two-dimensional coordinate system.
-    @available(iOS 13.0, *)
-    public func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-           return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
-               if  let selectedCell = (tableView.cellForRow(at: indexPath) as? CometChatCallsView){
-                   let audioCall = UIAction(title: NSLocalizedString("AUDIO_CALL", comment: ""), image: #imageLiteral(resourceName: "audioCall")) { action in
-                    if let user = selectedCell.currentUser {
-                           CometChatCallManager().makeCall(call: .audio, to: user)
-                       }
-                       if let group = selectedCell.currentGroup {
-                           CometChatCallManager().makeCall(call: .audio, to: group)
-                       }
-                   }
-                   
-                   let videoCall = UIAction(title: NSLocalizedString("VIDEO_CALL", comment: ""), image: #imageLiteral(resourceName: "videoCall")) { action in
-                       if let user = selectedCell.currentUser {
-                           CometChatCallManager().makeCall(call: .video, to: user)
-                       }
-                       if let group = selectedCell.currentGroup {
-                           CometChatCallManager().makeCall(call: .video, to: group)
-                       }
-                   }
-                   return UIMenu(title: "", children: [audioCall,videoCall])
-               }
-               return UIMenu(title: "")
-           })
-       }
+
     
     
     /// Asks the data source to verify that the given row is editable.

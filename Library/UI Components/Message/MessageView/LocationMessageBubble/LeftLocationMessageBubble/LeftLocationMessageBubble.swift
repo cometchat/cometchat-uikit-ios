@@ -16,7 +16,6 @@ class LeftLocationMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
-   
     @IBOutlet weak var map: UIImageView!
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var timeStamp: UILabel!

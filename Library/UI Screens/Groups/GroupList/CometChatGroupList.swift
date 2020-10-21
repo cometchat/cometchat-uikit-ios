@@ -52,7 +52,6 @@ public class CometChatGroupList: UIViewController {
     
     override public func loadView() {
         super.loadView()
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
         view.backgroundColor = .white
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
@@ -83,7 +82,7 @@ public class CometChatGroupList: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
+            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -112,16 +111,9 @@ public class CometChatGroupList: UIViewController {
         tableView.tableFooterView = activityIndicator
         tableView.tableFooterView?.isHidden = false
         groupRequest.fetchNext(onSuccess: { (groups) in
-            print("fetchGroups onSuccess: \(groups)")
             if groups.count != 0{
                 let joinedGroups = groups.filter({$0.hasJoined == true})
                 self.groups.append(contentsOf: joinedGroups)
-                DispatchQueue.main.async {
-                    self.activityIndicator?.stopAnimating()
-                    self.tableView.tableFooterView?.isHidden = true
-                    self.tableView.reloadData()
-                }
-            }else{
                 DispatchQueue.main.async {
                     self.activityIndicator?.stopAnimating()
                     self.tableView.tableFooterView?.isHidden = true
@@ -138,7 +130,6 @@ public class CometChatGroupList: UIViewController {
                     snackbar.show()
                 }
             }
-            print("fetchGroups error:\(String(describing: error?.errorDescription))")
         }
     }
     
@@ -158,9 +149,14 @@ public class CometChatGroupList: UIViewController {
         tableView.tableFooterView?.isHidden = false
         groupRequest = GroupsRequest.GroupsRequestBuilder(limit: 20).build()
         groupRequest.fetchNext(onSuccess: { (groups) in
-            print("fetchGroups onSuccess: \(groups)")
-            if groups.count != 0{
+            if groups.count != 0 {
                 self.groups.append(contentsOf: groups)
+                DispatchQueue.main.async {
+                    self.activityIndicator?.stopAnimating()
+                    self.tableView.tableFooterView?.isHidden = true
+                    self.tableView.reloadData()
+                }
+            }else{
                 DispatchQueue.main.async {
                     self.activityIndicator?.stopAnimating()
                     self.tableView.tableFooterView?.isHidden = true
@@ -177,7 +173,6 @@ public class CometChatGroupList: UIViewController {
                     snackbar.show()
                 }
             }
-            print("refreshGroups error:\(String(describing: error?.errorDescription))")
         }
     }
     
@@ -263,7 +258,7 @@ public class CometChatGroupList: UIViewController {
     [CometChatGroupList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-2-comet-chat-group-list)
     */
     private func registerCells(){
-        let CometChatGroupView  = UINib.init(nibName: "CometChatGroupView", bundle: nil)
+        let CometChatGroupView  = UINib.init(nibName: "CometChatGroupView", bundle: UIKitSettings.bundle)
         self.tableView.register(CometChatGroupView, forCellReuseIdentifier: "groupView")
     }
     
@@ -279,14 +274,17 @@ public class CometChatGroupList: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font:UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
-            self.addCreateGroup(true)
+            
+            if UIKitSettings.groupCreation == .enabled {
+                self.addCreateGroup(true)
+            }
         }
     }
     
@@ -300,8 +298,9 @@ public class CometChatGroupList: UIViewController {
      */
     private func addCreateGroup(_ inNavigationBar: Bool){
         if inNavigationBar == true {
-            let createGroupImage = #imageLiteral(resourceName: "createGroup")
+            let createGroupImage = UIImage(named: "createGroup", in: UIKitSettings.bundle, compatibleWith: nil)
             let createGroupButton = UIBarButtonItem(image: createGroupImage, style: .plain, target: self, action: #selector(didCreateGroupPressed))
+            createGroupButton.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem = createGroupButton
         }
     }
@@ -317,7 +316,7 @@ public class CometChatGroupList: UIViewController {
     @objc func didCreateGroupPressed(){
         let createGroup = CometChatCreateGroup()
         let navigationController: UINavigationController = UINavigationController(rootViewController: createGroup)
-        createGroup.set(title: NSLocalizedString("CREATE_GROUP", comment: ""), mode: .automatic)
+        createGroup.set(title: NSLocalizedString("CREATE_GROUP", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
         self.present(navigationController, animated: true, completion: nil)
         
     }
@@ -396,13 +395,16 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
+        if groups.isEmpty {
+            self.tableView.setEmptyMessage("No Groups Found.")
+        } else{
+            self.tableView.restore()
+        }
         if isSearching(){
             return filteredGroups.count
         }else{
             return groups.count
         }
-        
     }
     
     /// This method specifies height for section in CometChatGroupList
@@ -469,6 +471,7 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
                 let cancel = UIAlertAction(title: "Cancel", style: .default) { (alertAction) in }
                 alert.addAction(save)
                 alert.addAction(cancel)
+                alert.view.tintColor = UIKitSettings.primaryColor
                 self.present(alert, animated:true, completion: nil)
             }
             
@@ -486,7 +489,7 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
     private func joinGroup(withGuid: String, name: String, groupType: CometChat.groupType, password: String, indexPath: IndexPath) {
         CometChat.joinGroup(GUID: withGuid, groupType: groupType, password: password, onSuccess: { (group) in
             DispatchQueue.main.async {
-                let message = NSLocalizedString("YOU_JOINED", comment: "") +  (name) + "."
+                let message = NSLocalizedString("YOU_JOINED", bundle: UIKitSettings.bundle, comment: "") +  (name) + "."
                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                 snackbar.show()
                 self.tableView.deselectRow(at: indexPath, animated: true)
@@ -503,7 +506,6 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
                     snackbar.show()
                 }
             }
-            print("joinGroup error:\(String(describing: error?.errorDescription))")
         }
     }
     
@@ -514,8 +516,8 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastSectionIndex = tableView.numberOfSections - 1
         let lastRowIndex = tableView.numberOfRows(inSection: lastSectionIndex) - 1
-        if (indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex) && groups.count > 10 {
-           self.fetchGroups()
+        if indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex && groups.count > 10 {
+            self.fetchGroups()
         }
     }
     
@@ -557,13 +559,11 @@ extension CometChatGroupList : UISearchBarDelegate, UISearchResultsUpdating {
     public func updateSearchResults(for searchController: UISearchController) {
         groupRequest  = GroupsRequest.GroupsRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").build()
         groupRequest.fetchNext(onSuccess: { (groups) in
-            print("fetchGroups onSuccess: \(groups)")
             if groups.count != 0{
                 self.filteredGroups = groups
                 DispatchQueue.main.async {self.tableView.reloadData()}
             }
         }) { (error) in
-            print("fetchGroups error:\(String(describing: error?.errorDescription))")
         }
         
     }

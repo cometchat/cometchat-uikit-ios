@@ -12,7 +12,7 @@ import  AVFoundation
 
 /*  ----------------------------------------------------------------------------------------- */
 
-public class CometChatOutgoingCall: UIViewController {
+@objc  public class CometChatOutgoingCall: UIViewController {
     
       // MARK: - Declaration of Outlets
     @IBOutlet weak var avatar: Avatar!
@@ -29,6 +29,14 @@ public class CometChatOutgoingCall: UIViewController {
         super.viewDidLoad()
         CometChatSoundManager().play(sound: .outgoingCall, bool: true)
          
+    }
+    
+    public override func loadView() {
+        let bundle = Bundle(for: type(of: self))
+        let nib = UINib(nibName: "CometChatOutgoingCall", bundle: bundle)
+        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.view  = view
     }
     
     override public func viewWillAppear(_ animated: Bool) {
@@ -55,7 +63,7 @@ public class CometChatOutgoingCall: UIViewController {
             let call = Call(receiverId: user.uid ?? "", callType: call, receiverType: .user)
             CometChat.initiateCall(call: call, onSuccess: { (ongoingCall) in
                 self.currentCall = ongoingCall
-                print("call is: \(String(describing: ongoingCall?.stringValue()))")
+                
                 DispatchQueue.main.async {
                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Calling \(name)", duration: .short)
                     snackbar.show()

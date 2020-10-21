@@ -18,7 +18,7 @@ import CometChatPro
 
 /*  ----------------------------------------------------------------------------------------- */
 
-@objc @IBDesignable public class BadgeCount: UILabel {
+@objc @IBDesignable  class BadgeCount: UILabel {
     
     // MARK: - Declaration of IBInspectable
     
@@ -48,7 +48,7 @@ import CometChatPro
         self.setup()
     }
     
-    public override func drawText(in rect: CGRect) {
+     override func drawText(in rect: CGRect) {
         super.drawText(in: rect)
         self.setup()
     }
@@ -61,7 +61,7 @@ import CometChatPro
         self.clipsToBounds = true
     }
     
-    // MARK: - Public instance methods
+    // MARK: -  instance methods
     
     /**
      This method used to set the borderColor for BadgeCount class
@@ -71,7 +71,7 @@ import CometChatPro
      - See Also:
      [BadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
-    @objc public func set(borderColor : UIColor) -> BadgeCount {
+    @objc  func set(borderColor : UIColor) -> BadgeCount {
         self.borderColor = borderColor
         return self
     }
@@ -84,7 +84,7 @@ import CometChatPro
      - See Also:
      [BadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
-    @objc public func set(borderWidth : CGFloat) -> BadgeCount {
+    @objc  func set(borderWidth : CGFloat) -> BadgeCount {
         self.borderWidth = borderWidth
         return self
     }
@@ -97,7 +97,7 @@ import CometChatPro
      - See Also:
      [BadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
-    @objc public func set(backgroundColor : UIColor) -> BadgeCount {
+    @objc  func set(backgroundColor : UIColor) -> BadgeCount {
         self.setBackgroundColor  = backgroundColor
         return self
     }
@@ -110,7 +110,7 @@ import CometChatPro
      - See Also:
      [BadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
-    @objc public func set(cornerRadius : CGFloat) -> BadgeCount {
+    @objc  func set(cornerRadius : CGFloat) -> BadgeCount {
         self.radius = cornerRadius
         return self
     }
@@ -123,7 +123,7 @@ import CometChatPro
      - See Also:
      [BadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
-    @objc public func set(count : Int) -> BadgeCount {
+    @objc  func set(count : Int) -> BadgeCount {
         if count >=  1 && count < 999 {
             self.isHidden = false
             self.text = "\(count)"
@@ -146,14 +146,14 @@ import CometChatPro
         - See Also:
         [BadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
         */
-    @objc public func incrementCount() {
+    @objc  func incrementCount() {
         let currentCount = self.getCount
         self.set(count: currentCount + 1)
         self.isHidden = false
     }
     
     deinit {
-        print("BadgeCount deallocated")
+       
     }
 }
 

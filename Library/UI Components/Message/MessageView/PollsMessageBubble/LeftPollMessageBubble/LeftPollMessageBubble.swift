@@ -167,8 +167,7 @@ class LeftPollMessageBubble: UITableViewCell {
             if let currentQuestion = pollsDictionary["question"] as? String {
                 self.question.text = currentQuestion
             }
-            
-            print("poll is: \(pollsDictionary)")
+    
             if let results = pollsDictionary["results"] as? [String:Any], let options = results["options"] as? [String:Any], let total = results["total"] as? Int {
                 
                

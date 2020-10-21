@@ -34,6 +34,13 @@ class CometChatCreatePoll: UIViewController {
     }
     
     // MARK: - View controller lifecycle methods
+    override func loadView() {
+        let bundle = Bundle(for: type(of: self))
+        let nib = UINib(nibName: "CometChatCreatePoll", bundle: bundle)
+        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.view  = view
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,6 +50,7 @@ class CometChatCreatePoll: UIViewController {
         setupItems()
         setupNavigationBar()
         addObservers()
+        hideKeyboardWhenTappedArround()
     }
     
      // MARK: - Public Instance methods
@@ -60,7 +68,7 @@ class CometChatCreatePoll: UIViewController {
     */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
           if navigationController != nil{
-              navigationItem.title = NSLocalizedString(title, comment: "")
+              navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
               navigationItem.largeTitleDisplayMode = mode
               switch mode {
               case .automatic:
@@ -89,13 +97,13 @@ class CometChatCreatePoll: UIViewController {
     
     private func registerCells(){
         
-        let createPollQuestionView  = UINib.init(nibName: "CreatePollQuestionView", bundle: nil)
+        let createPollQuestionView  = UINib.init(nibName: "CreatePollQuestionView", bundle: UIKitSettings.bundle)
         self.tableView?.register(createPollQuestionView, forCellReuseIdentifier: "createPollQuestionView")
         
-        let createPollOptionView  = UINib.init(nibName: "CreatePollOptionView", bundle: nil)
+        let createPollOptionView  = UINib.init(nibName: "CreatePollOptionView", bundle: UIKitSettings.bundle)
         self.tableView?.register(createPollOptionView, forCellReuseIdentifier: "createPollOptionView")
         
-        let addNewOptionView  = UINib.init(nibName: "AddNewOptionView", bundle: nil)
+        let addNewOptionView  = UINib.init(nibName: "AddNewOptionView", bundle: UIKitSettings.bundle)
         self.tableView?.register(addNewOptionView, forCellReuseIdentifier: "addNewOptionView")
         
     }
@@ -116,7 +124,7 @@ class CometChatCreatePoll: UIViewController {
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
-            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE",bundle: UIKitSettings.bundle, comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
             self.navigationItem.rightBarButtonItem = closeButton
         }
     }
@@ -178,6 +186,7 @@ class CometChatCreatePoll: UIViewController {
     */
     private func hideKeyboardWhenTappedArround() {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tap)
         tableView.addGestureRecognizer(tap)
     }
     
@@ -187,14 +196,7 @@ class CometChatCreatePoll: UIViewController {
     - Copyright:  ©  2020 CometChat Inc.
     */
     @objc  func dismissKeyboard() {
-//        name.resignFirstResponder()
-//        password.resignFirstResponder()
-//        if self.createGroup.frame.origin.y != 0 {
-//            createGroupBtnBottomConstraint.constant = 40
-//            UIView.animate(withDuration: 0.25) {
-//                self.view.layoutIfNeeded()
-//            }
-//        }
+        view.endEditing(true)
     }
     
     

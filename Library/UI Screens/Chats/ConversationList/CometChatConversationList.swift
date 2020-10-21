@@ -38,7 +38,7 @@ public class CometChatConversationList: UIViewController {
     
     // MARK: - Declaration of Variables
     
-    var conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 15).setConversationType(conversationType: .none).build()
+    var conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 100).setConversationType(conversationType: .none).build()
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
     var conversations: [Conversation] = [Conversation]()
@@ -55,7 +55,7 @@ public class CometChatConversationList: UIViewController {
     
     override public func loadView() {
         super.loadView()
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+      
         view.backgroundColor = .white
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
@@ -72,7 +72,6 @@ public class CometChatConversationList: UIViewController {
     }
     
     deinit {
-        print("CometChatConversationList deallocated")
     }
     
     
@@ -93,7 +92,7 @@ public class CometChatConversationList: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
+            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -119,7 +118,7 @@ public class CometChatConversationList: UIViewController {
      */
     private func refreshConversations(){
         DispatchQueue.main.async {
-            self.tableView.setEmptyMessage(NSLocalizedString("", comment: ""))
+            self.tableView.setEmptyMessage(NSLocalizedString("", bundle: UIKitSettings.bundle, comment: ""))
             self.activityIndicator?.startAnimating()
             self.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self.tableView.bounds.width, height: CGFloat(44))
             self.tableView.tableFooterView = self.activityIndicator
@@ -128,7 +127,7 @@ public class CometChatConversationList: UIViewController {
         }
         conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 15).setConversationType(conversationType: .none).build()
         conversationRequest.fetchNext(onSuccess: { (fetchedConversations) in
-            print("fetchedConversations onSuccess: \(fetchedConversations)")
+    
             var newConversations: [Conversation] =  [Conversation]()
             for conversation in fetchedConversations {
                 if conversation.lastMessage == nil { } else {
@@ -147,10 +146,9 @@ public class CometChatConversationList: UIViewController {
                    snackbar.show()
                 }
             }
-            print("refreshConversations error:\(String(describing: error?.errorDescription))")
+          
         }
     }
-    
     
     /**
        This method fetches the list of groups from  Server using **GroupRequest** Class.
@@ -229,7 +227,7 @@ public class CometChatConversationList: UIViewController {
         
         if #available(iOS 10.0, *) {
           let refreshControl = UIRefreshControl()
-          let title = NSLocalizedString("REFRESHING", comment: "")
+          let title = NSLocalizedString("REFRESHING", bundle: UIKitSettings.bundle, comment: "")
           refreshControl.attributedTitle = NSAttributedString(string: title)
           refreshControl.addTarget(self,
                                    action: #selector(refreshConversations(sender:)),
@@ -251,7 +249,8 @@ public class CometChatConversationList: UIViewController {
      [CometChatUserList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-1-comet-chat-user-list)
      */
     private func registerCells(){
-        let CometChatConversationView  = UINib.init(nibName: "CometChatConversationView", bundle: nil)
+      
+        let CometChatConversationView  =  UINib(nibName: "CometChatConversationView", bundle: UIKitSettings.bundle)
         self.tableView.register(CometChatConversationView, forCellReuseIdentifier: "conversationView")
     }
     
@@ -267,8 +266,8 @@ public class CometChatConversationList: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
@@ -368,7 +367,7 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if conversations.isEmpty {
-            self.tableView.setEmptyMessage(NSLocalizedString("No Chats Found.", comment: ""))
+            self.tableView.setEmptyMessage(NSLocalizedString("No Chats Found.", bundle: UIKitSettings.bundle, comment: ""))
         } else{
             self.tableView.restore()
         }
@@ -392,22 +391,19 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView.
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = UITableViewCell()
-        if let cell = tableView.dequeueReusableCell(withIdentifier: "conversationView", for: indexPath) as? CometChatConversationView {
-            var conversation: Conversation?
-            cell.searchedText = searchedText
-            if isSearching() {
-                conversation = filteredConversations[safe:indexPath.row]
-                
-            } else {
-                conversation = conversations[safe:indexPath.row]
-            }
-            cell.conversation = conversation
-            return cell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "conversationView", for: indexPath) as! CometChatConversationView
+        var conversation: Conversation?
+        cell.searchedText = searchedText
+        if isSearching() {
+            conversation = filteredConversations[safe:indexPath.row]
+            
+        } else {
+            conversation = conversations[safe:indexPath.row]
         }
+        cell.conversation = conversation
         return cell
     }
+    
     
     /// This method loads the upcoming groups coming inside the tableview
     /// - Parameters:
@@ -545,7 +541,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
             DispatchQueue.main.async {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
-                    cell.typing.text = user! + " " + NSLocalizedString("IS_TYPING", comment: "")
+                    cell.typing.text = user! + " " + NSLocalizedString("IS_TYPING", bundle: UIKitSettings.bundle, comment: "")
                     if cell.message.isHidden == false{
                         cell.typing.isHidden = false
                         cell.message.isHidden = true
@@ -556,7 +552,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
-                    cell.typing.text = user! + " " + NSLocalizedString("IS_TYPING", comment: "")
+                    cell.typing.text = user! + " " + NSLocalizedString("IS_TYPING", bundle: UIKitSettings.bundle, comment: "")
                     if cell.typing.isHidden == false{
                         cell.typing.isHidden = true
                         cell.message.isHidden = false

@@ -21,10 +21,17 @@ class MessageInformation: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+    
         self.setupTableView()
         
+    }
+    
+    override func loadView() {
+        let bundle = Bundle(for: type(of: self))
+        let nib = UINib(nibName: "MessageInformation", bundle: bundle)
+        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.view  = view
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -131,60 +138,66 @@ class MessageInformation: UIViewController {
     
     private func registerCells(){
         
-        let leftTextMessageBubble  = UINib.init(nibName: "LeftTextMessageBubble", bundle: nil)
+        let leftTextMessageBubble  = UINib.init(nibName: "LeftTextMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(leftTextMessageBubble, forCellReuseIdentifier: "leftTextMessageBubble")
         
-        let rightTextMessageBubble  = UINib.init(nibName: "RightTextMessageBubble", bundle: nil)
+        let rightTextMessageBubble  = UINib.init(nibName: "RightTextMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightTextMessageBubble, forCellReuseIdentifier: "rightTextMessageBubble")
         
-        let leftImageMessageBubble  = UINib.init(nibName: "LeftImageMessageBubble", bundle: nil)
+        let leftImageMessageBubble  = UINib.init(nibName: "LeftImageMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(leftImageMessageBubble, forCellReuseIdentifier: "leftImageMessageBubble")
         
-        let rightImageMessageBubble  = UINib.init(nibName: "RightImageMessageBubble", bundle: nil)
+        let rightImageMessageBubble  = UINib.init(nibName: "RightImageMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightImageMessageBubble, forCellReuseIdentifier: "rightImageMessageBubble")
         
-        let leftVideoMessageBubble  = UINib.init(nibName: "LeftVideoMessageBubble", bundle: nil)
+        let leftVideoMessageBubble  = UINib.init(nibName: "LeftVideoMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(leftVideoMessageBubble, forCellReuseIdentifier: "leftVideoMessageBubble")
         
-        let rightVideoMessageBubble  = UINib.init(nibName: "RightVideoMessageBubble", bundle: nil)
+        let rightVideoMessageBubble  = UINib.init(nibName: "RightVideoMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightVideoMessageBubble, forCellReuseIdentifier: "rightVideoMessageBubble")
         
-        let leftFileMessageBubble  = UINib.init(nibName: "LeftFileMessageBubble", bundle: nil)
+        let leftFileMessageBubble  = UINib.init(nibName: "LeftFileMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(leftFileMessageBubble, forCellReuseIdentifier: "leftFileMessageBubble")
         
-        let rightFileMessageBubble  = UINib.init(nibName: "RightFileMessageBubble", bundle: nil)
+        let rightFileMessageBubble  = UINib.init(nibName: "RightFileMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightFileMessageBubble, forCellReuseIdentifier: "rightFileMessageBubble")
         
-        let leftAudioMessageBubble  = UINib.init(nibName: "LeftAudioMessageBubble", bundle: nil)
+        let leftAudioMessageBubble  = UINib.init(nibName: "LeftAudioMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(leftAudioMessageBubble, forCellReuseIdentifier: "leftAudioMessageBubble")
         
-        let rightAudioMessageBubble  = UINib.init(nibName: "RightAudioMessageBubble", bundle: nil)
+        let rightAudioMessageBubble  = UINib.init(nibName: "RightAudioMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightAudioMessageBubble, forCellReuseIdentifier: "rightAudioMessageBubble")
         
-        let actionMessageBubble  = UINib.init(nibName: "ActionMessageBubble", bundle: nil)
+        let actionMessageBubble  = UINib.init(nibName: "ActionMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(actionMessageBubble, forCellReuseIdentifier: "actionMessageBubble")
         
-        let leftLinkPreviewBubble = UINib.init(nibName: "LeftLinkPreviewBubble", bundle: nil)
+        let leftLinkPreviewBubble = UINib.init(nibName: "LeftLinkPreviewBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(leftLinkPreviewBubble, forCellReuseIdentifier: "leftLinkPreviewBubble")
         
-        let rightLinkPreviewBubble = UINib.init(nibName: "RightLinkPreviewBubble", bundle: nil)
+        let rightLinkPreviewBubble = UINib.init(nibName: "RightLinkPreviewBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightLinkPreviewBubble, forCellReuseIdentifier: "rightLinkPreviewBubble")
         
-        let leftReplyMessageBubble = UINib.init(nibName: "LeftReplyMessageBubble", bundle: nil)
+        let leftReplyMessageBubble = UINib.init(nibName: "LeftReplyMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(leftReplyMessageBubble, forCellReuseIdentifier: "leftReplyMessageBubble")
         
         
-        let rightReplyMessageBubble = UINib.init(nibName: "RightReplyMessageBubble", bundle: nil)
+        let rightReplyMessageBubble = UINib.init(nibName: "RightReplyMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightReplyMessageBubble, forCellReuseIdentifier: "rightReplyMessageBubble")
         
-        let messageReceiptBubble = UINib.init(nibName: "MessageReceiptBubble", bundle: nil)
+        let messageReceiptBubble = UINib.init(nibName: "MessageReceiptBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(messageReceiptBubble, forCellReuseIdentifier: "messageReceiptBubble")
         
-        let leftLocationMessageBubble = UINib.init(nibName: "LeftLocationMessageBubble", bundle: nil)
+        let leftLocationMessageBubble = UINib.init(nibName: "LeftLocationMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(leftLocationMessageBubble, forCellReuseIdentifier: "leftLocationMessageBubble")
         
-        let rightLocationMessageBubble = UINib.init(nibName: "RightLocationMessageBubble", bundle: nil)
+        let rightLocationMessageBubble = UINib.init(nibName: "RightLocationMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightLocationMessageBubble, forCellReuseIdentifier: "rightLocationMessageBubble")
+        
+        let leftPollMessageBubble = UINib.init(nibName: "LeftPollMessageBubble", bundle: UIKitSettings.bundle)
+        self.tableView?.register(leftPollMessageBubble, forCellReuseIdentifier: "leftPollMessageBubble")
+        
+        let rightPollMessageBubble = UINib.init(nibName: "RightPollMessageBubble", bundle: UIKitSettings.bundle)
+        self.tableView?.register(rightPollMessageBubble, forCellReuseIdentifier: "rightPollMessageBubble")
     }
 }
 
@@ -404,9 +417,16 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                     return actionMessageCell
                 }else if message.messageCategory == .call {
                     //  CallMessage Cell
-                    let  actionMessageCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
-                    actionMessageCell.call = message
-                    return actionMessageCell
+                    if let call = message as? Call {
+                        let  actionMessageCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
+                        actionMessageCell.call = call
+                        return actionMessageCell
+                    }else{
+                        let  actionMessageCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
+                        actionMessageCell.message.text = "Action Message"
+                        return actionMessageCell
+                    }
+                    
                 }else if message.messageCategory == .custom {
                     
                     if let type = (message as? CustomMessage)?.type {
@@ -443,7 +463,7 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                         }else{
                             let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
                             let customMessage = message as? CustomMessage
-                            receiverCell.message.text = NSLocalizedString("CUSTOM_MESSAGE", comment: "") +  "\(String(describing: customMessage?.customData))"
+                            receiverCell.message.text = NSLocalizedString("CUSTOM_MESSAGE", bundle: UIKitSettings.bundle, comment: "") +  "\(String(describing: customMessage?.customData))"
                             return receiverCell
                         }
                     }

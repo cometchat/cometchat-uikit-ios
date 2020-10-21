@@ -36,7 +36,7 @@ class SharedMediaCell: UICollectionViewCell {
                 self.docsView.isHidden = true
                 self.play.isHidden = true
                 if let url = URL(string: message.attachment?.fileUrl ?? "") {
-                    self.photo.cf.setImage(with: url, placeholder: #imageLiteral(resourceName: "default-image.png"))
+                    self.photo.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
                 }
             case .video:
                 self.photo.image = nil

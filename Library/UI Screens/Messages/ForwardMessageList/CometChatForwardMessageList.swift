@@ -38,7 +38,7 @@ public class CometChatForwardMessageList: UIViewController {
     
     // MARK: - Declaration of Variables
     
-    var conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 100).setConversationType(conversationType: .none).build()
+    var conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 15).setConversationType(conversationType: .none).build()
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
     var conversations: [Conversation] = [Conversation]()
@@ -54,7 +54,6 @@ public class CometChatForwardMessageList: UIViewController {
     
     override public func loadView() {
         super.loadView()
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
         view.backgroundColor = .white
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
@@ -62,7 +61,7 @@ public class CometChatForwardMessageList: UIViewController {
         self.refreshConversations()
         self.setupNavigationBar()
         self.addForwardButton(bool: true)
-        set(title: NSLocalizedString("FORWARD_MESSAGE", comment: ""), mode: .always)
+        set(title: NSLocalizedString("FORWARD_MESSAGE", bundle: UIKitSettings.bundle, comment: ""), mode: .always)
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -88,7 +87,7 @@ public class CometChatForwardMessageList: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
+            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -129,7 +128,6 @@ public class CometChatForwardMessageList: UIViewController {
         }
         conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 30).setConversationType(conversationType: .none).build()
         conversationRequest.fetchNext(onSuccess: { (fetchedConversations) in
-            print("fetchedConversations onSuccess: \(fetchedConversations)")
             var newConversations: [Conversation] =  [Conversation]()
             for conversation in fetchedConversations {
                 if conversation.lastMessage == nil { }else{
@@ -148,7 +146,6 @@ public class CometChatForwardMessageList: UIViewController {
                     snackbar.show()
                 }
             }
-            print("refreshConversations error:\(String(describing: error?.errorDescription))")
         }
     }
     
@@ -203,7 +200,7 @@ public class CometChatForwardMessageList: UIViewController {
      [CometChatUserList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-1-comet-chat-user-list)
      */
     private func registerCells(){
-        let CometChatConversationView  = UINib.init(nibName: "CometChatConversationView", bundle: nil)
+        let CometChatConversationView  = UINib.init(nibName: "CometChatConversationView", bundle: UIKitSettings.bundle)
         self.tableView.register(CometChatConversationView, forCellReuseIdentifier: "conversationView")
     }
     
@@ -219,8 +216,8 @@ public class CometChatForwardMessageList: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
@@ -233,8 +230,10 @@ public class CometChatForwardMessageList: UIViewController {
     private func addForwardButton(bool: Bool){
         if bool == true {
             let forward = UIBarButtonItem(title: NSLocalizedString(
-            "FORWARD", comment: ""), style: .done, target: self, action: #selector(self.didForwardButtonPressed))
+            "FORWARD", bundle: UIKitSettings.bundle, comment: ""), style: .done, target: self, action: #selector(self.didForwardButtonPressed))
+            forward.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem = forward
+            self.navigationController?.navigationBar.tintColor = UIKitSettings.primaryColor
         }
     }
     
@@ -253,15 +252,13 @@ public class CometChatForwardMessageList: UIViewController {
                                     message.receiverUid = (conversation.conversationWith as? User)?.uid ?? ""
                                     message.receiverType = .user
                                     CometChat.sendTextMessage(message: message, onSuccess: { (message) in
-                                        print("message sent successfully.")
                                         DispatchQueue.main.async {
                                             self.navigationController?.popToRootViewController(animated: true)
                                         }
                                     }) { (error) in
-                                        print("unable to forward message:\(String(describing: error?.errorDescription)) ")
                                         DispatchQueue.main.async {
                                             if let name = (conversation.conversationWith as? User)?.name {
-                                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("UNABLE_TO_FORWARD" , comment: "") + name, duration: .short)
+                                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("UNABLE_TO_FORWARD" , bundle: UIKitSettings.bundle, comment: "") + name, duration: .short)
                                                 snackbar.show()
                                             }
                                         }
@@ -273,15 +270,13 @@ public class CometChatForwardMessageList: UIViewController {
                                     let message = MediaMessage(receiverUid: (conversation.conversationWith as? User)?.uid ?? "", fileurl: message.attachment?.fileUrl ?? "", messageType: message.messageType, receiverType: message.receiverType)
                                     message.receiverType = .user
                                     CometChat.sendMediaMessage(message: message, onSuccess: { (message) in
-                                        print("message sent successfully.")
                                         DispatchQueue.main.async {
                                             self.navigationController?.popToRootViewController(animated: true)
                                         }
                                     }) { (error) in
-                                        print("unable to forward message:\(String(describing: error?.errorDescription)) ")
                                         DispatchQueue.main.async {
                                             if let name = (conversation.conversationWith as? User)?.name {
-                                               let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("UNABLE_TO_FORWARD" , comment: "") + name, duration: .short)
+                                               let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("UNABLE_TO_FORWARD" , bundle: UIKitSettings.bundle, comment: "") + name, duration: .short)
                                                snackbar.show()
                                             }
                                         }
@@ -305,15 +300,13 @@ public class CometChatForwardMessageList: UIViewController {
                                     message.receiverUid = (conversation.conversationWith as? Group)?.guid ?? ""
                                     message.receiverType = .group
                                     CometChat.sendTextMessage(message: message, onSuccess: { (message) in
-                                        print("message sent successfully.")
                                         DispatchQueue.main.async {
                                             self.navigationController?.popToRootViewController(animated: true)
                                         }
                                     }) { (error) in
-                                        print("unable to forward message:\(String(describing: error?.errorDescription)) ")
                                         DispatchQueue.main.async {
                                             if let name = (conversation.conversationWith as? Group)?.name {
-                                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("UNABLE_TO_FORWARD" , comment: "") + name, duration: .short)
+                                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("UNABLE_TO_FORWARD" , bundle: UIKitSettings.bundle, comment: "") + name, duration: .short)
                                                 snackbar.show()
                                             }
                                         }
@@ -324,15 +317,13 @@ public class CometChatForwardMessageList: UIViewController {
                                     let message = MediaMessage(receiverUid: (conversation.conversationWith as? Group)?.guid ?? "", fileurl: message.attachment?.fileUrl ?? "", messageType: message.messageType, receiverType: message.receiverType)
                                     message.receiverType = .group
                                     CometChat.sendMediaMessage(message: message, onSuccess: { (message) in
-                                        print("message sent successfully.")
-                                        DispatchQueue.main.async {
+                                      DispatchQueue.main.async {
                                             self.navigationController?.popToRootViewController(animated: true)
                                         }
                                     }) { (error) in
-                                        print("unable to forward message:\(String(describing: error?.errorDescription)) ")
                                         DispatchQueue.main.async {
                                             if let name = (conversation.conversationWith as? Group)?.name {
-                                               let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("UNABLE_TO_FORWARD" , comment: "") + name, duration: .short)
+                                               let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("UNABLE_TO_FORWARD" , bundle: UIKitSettings.bundle, comment: "") + name, duration: .short)
                                                                                              snackbar.show()
                                             }
                                         }
@@ -352,7 +343,7 @@ public class CometChatForwardMessageList: UIViewController {
                 }
             }
         }else{
-            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("FORWARD_TO_5_AT_A_TIME", comment: ""), duration: .short)
+            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("FORWARD_TO_5_AT_A_TIME", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
             snackbar.show()
         }
     }
@@ -450,7 +441,6 @@ extension CometChatForwardMessageList: UITableViewDelegate , UITableViewDataSour
                 selectedConversations.remove(at: index)
             }
         }
-        print("remainng convo: \(selectedConversations)")
     }
 }
 
@@ -521,7 +511,7 @@ extension CometChatForwardMessageList : CometChatMessageDelegate {
             DispatchQueue.main.async {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
-                    cell.typing.text = user! + NSLocalizedString("IS_TYPING", comment: "")
+                    cell.typing.text = user! + NSLocalizedString("IS_TYPING", bundle: UIKitSettings.bundle, comment: "")
                     if cell.message.isHidden == false{
                         cell.typing.isHidden = false
                         cell.message.isHidden = true
@@ -532,7 +522,7 @@ extension CometChatForwardMessageList : CometChatMessageDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
-                    cell.typing.text = user! + NSLocalizedString("IS_TYPING", comment: "")
+                    cell.typing.text = user! + NSLocalizedString("IS_TYPING", bundle: UIKitSettings.bundle, comment: "")
                     if cell.typing.isHidden == false{
                         cell.typing.isHidden = true
                         cell.message.isHidden = false

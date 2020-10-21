@@ -26,7 +26,7 @@ class MessageDateHeader: UILabel {
         textColor = .white
         textAlignment = .center
         translatesAutoresizingMaskIntoConstraints = false // enables auto layout
-        font = UIFont (name: "SFProDisplay-Medium", size: 14)
+        font = UIFont.systemFont(ofSize: 14, weight: .medium)
         
     }
     

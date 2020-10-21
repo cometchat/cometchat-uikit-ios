@@ -27,11 +27,11 @@ class ActionMessageBubble: UITableViewCell {
         }
     }
     
-    var call: BaseMessage! {
+    var call: Call? {
            didSet {
-               if let call = call as? Call {
+            if let call = call {
                 
-                message.font =  UIFont(name: "SFProDisplay-Bold", size: 15)
+                message.font =  UIFont.systemFont(ofSize: 15, weight: .bold)
                    switch call.callStatus  {
                    case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                        message.text = "Outgoing Audio Call"
@@ -189,16 +189,18 @@ class ActionMessageBubble: UITableViewCell {
                        } else {
                            message.textColor = .red
                        }
-                   case .rejected: break
-                   case .busy: break
-                   case .cancelled: break
-                   case .ended: break
-                   case .initiated: break
-                   case .ongoing: break
-                   case .unanswered: break
-                   @unknown default: break
+                   case .rejected: message.text = "Call Rejected"
+                   case .busy: message.text = "Call Busy"
+                   case .cancelled: message.text = "Call Cancelled"
+                   case .ended:  message.text = "Call Ended"
+                   case .initiated: message.text =  "Call Initiated"
+                   case .ongoing: message.text = "Call Ongoing"
+                   case .unanswered:  message.text = "Call Unanswered"
+                   @unknown default: message.text = "Call Cancelled"
                    }
-               }
+               }else{
+                message.text = "Action Message"
+            }
            }
        }
     // MARK: - Initialization of required Methods

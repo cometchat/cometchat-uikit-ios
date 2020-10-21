@@ -13,7 +13,7 @@ import CometChatPro
 
 // MARK: - Declaration of Protocol
 
- public protocol ChatViewInternalDelegate: AnyObject {
+  protocol ChatViewInternalDelegate: AnyObject {
     func didMicrophoneButtonPressed(with: UILongPressGestureRecognizer)
     func didSendButtonPressed()
     func didAttachmentButtonPressed()
@@ -28,7 +28,7 @@ import CometChatPro
       // MARK: - Declaration of Variables
     
     var view:UIView!
-    open weak var internalDelegate: ChatViewInternalDelegate?
+     weak var internalDelegate: ChatViewInternalDelegate?
     
      // MARK: - Declaration of IBOutlet
     @IBOutlet weak var attachment: UIView!
@@ -44,7 +44,7 @@ import CometChatPro
     }
     
    
-    required public init?(coder aDecoder: NSCoder) {
+    required  public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
      
         
@@ -55,7 +55,9 @@ import CometChatPro
         let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
         view.frame = bounds
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+       
         self.addSubview(view);
+        
     }
     
     
@@ -86,4 +88,3 @@ import CometChatPro
     
 }
 
-/*  ----------------------------------------------------------------------------------------- */

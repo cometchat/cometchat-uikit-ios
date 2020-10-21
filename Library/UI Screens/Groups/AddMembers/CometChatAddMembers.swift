@@ -33,14 +33,13 @@ public class CometChatAddMembers: UIViewController {
     
     override public func loadView() {
         super.loadView()
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+       
         view.backgroundColor = .white
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
         self.setupSearchBar()
         self.setupNavigationBar()
         self.fetchUsers()
-        print(#function)
     }
     
     // MARK: - Public instance methods
@@ -73,7 +72,7 @@ public class CometChatAddMembers: UIViewController {
        */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
          if navigationController != nil{
-          navigationItem.title = NSLocalizedString(title, comment: "")
+          navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
           navigationItem.largeTitleDisplayMode = mode
           switch mode {
           case .automatic:
@@ -99,8 +98,8 @@ public class CometChatAddMembers: UIViewController {
                  if #available(iOS 13.0, *) {
                      let navBarAppearance = UINavigationBarAppearance()
                      navBarAppearance.configureWithOpaqueBackground()
-                    navBarAppearance.titleTextAttributes = [ .foregroundColor: color,.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                     navBarAppearance.largeTitleTextAttributes = [.foregroundColor: color, .font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                    navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                    navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                      navBarAppearance.shadowColor = .clear
                      navBarAppearance.backgroundColor = barColor
                      navigationController?.navigationBar.standardAppearance = navBarAppearance
@@ -134,7 +133,7 @@ public class CometChatAddMembers: UIViewController {
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.tableView.tableFooterView = UIView(frame: .zero)
-        let CometChatUserView  = UINib.init(nibName: "CometChatUserView", bundle: nil)
+        let CometChatUserView  = UINib.init(nibName: "CometChatUserView", bundle: UIKitSettings.bundle)
         self.tableView.register(CometChatUserView, forCellReuseIdentifier: "userView")
     }
     
@@ -151,16 +150,17 @@ public class CometChatAddMembers: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-               navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
                   }
-                let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+                let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", bundle: UIKitSettings.bundle, comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+               closeButton.tintColor = UIKitSettings.primaryColor
                 self.navigationItem.rightBarButtonItem = closeButton
-            self.set(title: NSLocalizedString("ADD_MEMBERS", comment: ""), mode: .automatic)
+            self.set(title: NSLocalizedString("ADD_MEMBERS", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
             self.setLargeTitleDisplayMode(.always)
             }
         }
@@ -219,7 +219,6 @@ public class CometChatAddMembers: UIViewController {
         tableView.tableFooterView = activityIndicator
         tableView.tableFooterView?.isHidden = false
         userRequest.fetchNext(onSuccess: { (users) in
-            print("fetchUsers onSuccess: \(users)")
             if users.count != 0 {
                 self.users = self.users.sorted(by: { (Obj1, Obj2) -> Bool in
                     let Obj1_Name = Obj1.name ?? ""
@@ -244,8 +243,7 @@ public class CometChatAddMembers: UIViewController {
                     snackbar.show()
                 }
             }
-            print("fetchUsers error:\(String(describing: error?.errorDescription))")
-        }
+         }
     }
     
     /**
@@ -266,8 +264,7 @@ public class CometChatAddMembers: UIViewController {
                     snackbar.show()
                 }
             }
-            print("Group Member list fetching failed with exception:" + error!.errorDescription);
-        })
+         })
     }
     
     /**
@@ -471,7 +468,6 @@ extension CometChatAddMembers : UISearchBarDelegate, UISearchResultsUpdating {
             DispatchQueue.main.async(execute: {self.tableView.reloadData()})
             }
         }) { (error) in
-            print("error while searching users: \(String(describing: error?.errorDescription))")
         }
     }
 }

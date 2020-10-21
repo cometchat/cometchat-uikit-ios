@@ -45,6 +45,14 @@ class CometChatCreateGroup: UIViewController {
         self.addObservers()
     }
     
+    override func loadView() {
+        let bundle = Bundle(for: type(of: self))
+        let nib = UINib(nibName: "CometChatCreateGroup", bundle: bundle)
+        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.view  = view
+    }
+    
      // MARK: - Public Instance methods
     
     /**
@@ -60,7 +68,7 @@ class CometChatCreateGroup: UIViewController {
     */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
           if navigationController != nil{
-              navigationItem.title = NSLocalizedString(title, comment: "")
+              navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
               navigationItem.largeTitleDisplayMode = mode
               switch mode {
               case .automatic:
@@ -78,6 +86,7 @@ class CometChatCreateGroup: UIViewController {
     // MARK: - Private Instance methods
     
     private func setupSuperView(){
+        
         if #available(iOS 13.0, *) {
             view.backgroundColor = .systemBackground
             typeView.layer.borderColor = UIColor.systemFill.cgColor
@@ -87,6 +96,7 @@ class CometChatCreateGroup: UIViewController {
         }
         typeView.layer.borderWidth = 1
         typeView.clipsToBounds = true
+        createGroup.backgroundColor = UIKitSettings.primaryColor
     }
     
     
@@ -101,14 +111,15 @@ class CometChatCreateGroup: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
-            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", bundle: UIKitSettings.bundle, comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+            closeButton.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem = closeButton
         }
     }
@@ -195,34 +206,44 @@ class CometChatCreateGroup: UIViewController {
     @IBAction func didSelectGroupPressed(_ sender: Any) {
         let actionSheetController: UIAlertController = UIAlertController(title: nil, message: "Choose one of the group type to create group.", preferredStyle: .actionSheet)
         
-        let publicGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PUBLIC", comment: "")  + " Group", style: .default) { action -> Void in
+        let publicGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PUBLIC", bundle: UIKitSettings.bundle, comment: "")  + " Group", style: .default) { action -> Void in
             self.groupType = .public
-            self.selectedGroupType.text = NSLocalizedString("PUBLIC", comment: "")  + " Group"
+            self.selectedGroupType.text = NSLocalizedString("PUBLIC", bundle: UIKitSettings.bundle, comment: "")  + " Group"
             self.passwordView.isHidden = true
             self.password.text = ""
         }
         
-        let passwordProtectedGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PASSWORD_PROTECTED", comment: "")  + " Group", style: .default) { action -> Void in
+        let passwordProtectedGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PASSWORD_PROTECTED", bundle: UIKitSettings.bundle, comment: "")  + " Group", style: .default) { action -> Void in
             self.groupType = .password
-            self.selectedGroupType.text = NSLocalizedString("PASSWORD_PROTECTED", comment: "")  + " Group"
+            self.selectedGroupType.text = NSLocalizedString("PASSWORD_PROTECTED", bundle: UIKitSettings.bundle, comment: "")  + " Group"
             self.passwordView.isHidden = false
         }
         
-        let privateGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PRIVATE", comment: "") + " Group", style: .default) { action -> Void in
+        let privateGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PRIVATE", bundle: UIKitSettings.bundle, comment: "") + " Group", style: .default) { action -> Void in
             self.groupType = .private
-            self.selectedGroupType.text = NSLocalizedString("PRIVATE", comment: "") + " Group"
+            self.selectedGroupType.text = NSLocalizedString("PRIVATE", bundle: UIKitSettings.bundle, comment: "") + " Group"
             self.passwordView.isHidden = true
             self.password.text = ""
         }
         
-        let cancelAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("CANCEL", comment: ""), style: .cancel) { action -> Void in
+        let cancelAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("CANCEL", bundle: UIKitSettings.bundle, comment: ""), style: .cancel) { action -> Void in
         }
         cancelAction.setValue(UIColor.red, forKey: "titleTextColor")
-        actionSheetController.addAction(publicGroup)
-        actionSheetController.addAction(passwordProtectedGroup)
-        actionSheetController.addAction(privateGroup)
-        actionSheetController.addAction(cancelAction)
         
+        switch  UIKitSettings.groupInMode {
+            
+        case .publicGroups:
+            actionSheetController.addAction(publicGroup)
+        case .passwordProtectedGroups:
+            actionSheetController.addAction(passwordProtectedGroup)
+        case .publicAndPasswordProtectedGroups:
+            actionSheetController.addAction(publicGroup)
+            actionSheetController.addAction(passwordProtectedGroup)
+            actionSheetController.addAction(privateGroup)
+        case .none: break
+        }
+        actionSheetController.addAction(cancelAction)
+        actionSheetController.view.tintColor = UIKitSettings.primaryColor
         // Added ActionSheet support for iPad
         if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad ){
             if let currentPopoverpresentioncontroller =
@@ -234,7 +255,6 @@ class CometChatCreateGroup: UIViewController {
             self.present(actionSheetController, animated: true, completion: nil)
         }
     }
-    
     
     
     /**
@@ -252,7 +272,7 @@ class CometChatCreateGroup: UIViewController {
         }else{
             
             guard let name = name.text else {
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("ENTER_GROUP_NAME", comment: ""), duration: .short)
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("ENTER_GROUP_NAME", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
                 snackbar.show()
                 return
             }
@@ -267,7 +287,6 @@ class CometChatCreateGroup: UIViewController {
             
             if let group = group {
                 CometChat.createGroup(group: group, onSuccess: { (group) in
-                    print("createGroup: \(group.stringValue())")
                     DispatchQueue.main.async {
                         let data:[String: Group] = ["group": group]
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupCreated"), object: nil, userInfo: data)
@@ -279,7 +298,6 @@ class CometChatCreateGroup: UIViewController {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
                             snackbar.show()
                         }
-                        print("error while creating group: \(String(describing: error?.errorDescription))")
                     }
                 }
             }
@@ -313,7 +331,7 @@ class CometChatCreateGroup: UIViewController {
             let imageData = try Data(contentsOf: fileURL)
             return UIImage(data: imageData)
         } catch {
-            print("Error loading image : \(error)")
+            
         }
         return nil
     }

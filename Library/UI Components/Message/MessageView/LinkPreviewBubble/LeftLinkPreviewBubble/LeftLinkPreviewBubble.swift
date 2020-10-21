@@ -12,7 +12,7 @@ import CometChatPro
 
 // MARK: - Importing Protocols.
 
-public protocol LinkPreviewDelegate {
+ protocol LinkPreviewDelegate {
     func didVisitButtonPressed(link: String,sender: UIButton)
     func didPlayButtonPressed(link: String,sender: UIButton)
 }
@@ -30,12 +30,13 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
     @IBOutlet weak var visitButton: UIButton!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var messageStack: UIStackView!
-    @IBOutlet weak var message: UILabel!
+    @IBOutlet weak var message: HyperlinkLabel!
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var playbutton: UIButton!
     @IBOutlet weak var iconView: UIView!
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var name: UILabel!
+    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var replyButton: UIButton!
     
     // MARK: - Declaration of Variables
@@ -53,6 +54,7 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
     
     var url:String?
     var linkPreviewDelegate: LinkPreviewDelegate?
+    weak var hyperlinkdelegate: HyperLinkDelegate?
     var linkPreviewMessage: TextMessage! {
         didSet{
             if let avatarURL = linkPreviewMessage.sender?.avatar  {
@@ -71,10 +73,10 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
             parseLinkPreviewForMessage(message: linkPreviewMessage)
             if let url = url {
                 if url.contains("youtube")  ||  url.contains("youtu.be") {
-                    visitButton.setTitle(NSLocalizedString("VIEW_ON_YOUTUBE", comment: ""), for: .normal)
+                    visitButton.setTitle(NSLocalizedString("VIEW_ON_YOUTUBE", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
                     playbutton.isHidden = false
                 }else{
-                    visitButton.setTitle(NSLocalizedString("Visit", comment: ""), for: .normal)
+                    visitButton.setTitle(NSLocalizedString("Visit", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
                     playbutton.isHidden = true
                 }
             }
@@ -90,7 +92,7 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
             iconView.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
             visitButton.roundViewCorners([.layerMinXMaxYCorner,.layerMaxXMaxYCorner], radius: 15)
             
-            if linkPreviewMessage?.replyCount != 0 {
+            if linkPreviewMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
                 replyButton.isHidden = false
                 if linkPreviewMessage?.replyCount == 1 {
                     replyButton.setTitle("1 reply", for: .normal)
@@ -102,19 +104,63 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
             }else{
                 replyButton.isHidden = true
             }
+            replyButton.tintColor = UIKitSettings.primaryColor
+            
+            
+            let phoneParser1 = HyperlinkType.custom(pattern: RegexParser.phonePattern1)
+            let phoneParser2 = HyperlinkType.custom(pattern: RegexParser.phonePattern2)
+            let emailParser = HyperlinkType.custom(pattern: RegexParser.emailPattern)
+            
+            message.enabledTypes.append(phoneParser1)
+            message.enabledTypes.append(phoneParser2)
+            message.enabledTypes.append(emailParser)
+            
+            message.handleURLTap { self.hyperlinkdelegate?.didTapOnURL(url: $0.absoluteString) }
+            
+            message.handleCustomTap(for: .custom(pattern: RegexParser.phonePattern1)) { (number) in
+                self.hyperlinkdelegate?.didTapOnPhoneNumber(number: number)
+            }
+            
+            message.handleCustomTap(for: .custom(pattern: RegexParser.phonePattern2)) { (number) in
+                self.hyperlinkdelegate?.didTapOnPhoneNumber(number: number)
+            }
+            
+            message.handleCustomTap(for: .custom(pattern: RegexParser.emailPattern)) { (emailID) in
+                self.hyperlinkdelegate?.didTapOnEmail(email: emailID)
+            }
+            
+            message.customize { label in
+                label.URLColor = UIKitSettings.URLColor
+                label.URLSelectedColor  = UIKitSettings.URLSelectedColor
+                label.customColor[phoneParser1] = UIKitSettings.PhoneNumberColor
+                label.customSelectedColor[phoneParser1] = UIKitSettings.PhoneNumberSelectedColor
+                label.customColor[phoneParser2] = UIKitSettings.PhoneNumberColor
+                label.customSelectedColor[phoneParser2] = UIKitSettings.PhoneNumberSelectedColor
+                label.customColor[emailParser] = UIKitSettings.EmailIDColor
+                label.customSelectedColor[emailParser] = UIKitSettings.EmailIDColor
+            }
+           
         }
     }
     
     var linkPreviewMessageInThread: TextMessage! {
           didSet{
               receiptStack.isHidden = true
+            
+            if let userName = linkPreviewMessageInThread.sender?.name {
+                name.text = userName + ":"
+            }
+            if let avatarURL = linkPreviewMessageInThread.sender?.avatar  {
+                avatar.set(image: avatarURL, with: linkPreviewMessageInThread.sender?.name ?? "")
+            }
+            
               parseLinkPreviewForMessage(message: linkPreviewMessageInThread)
               if let url = url {
                   if url.contains("youtube")  ||  url.contains("youtu.be") {
-                      visitButton.setTitle(NSLocalizedString("VIEW_ON_YOUTUBE", comment: ""), for: .normal)
+                      visitButton.setTitle(NSLocalizedString("VIEW_ON_YOUTUBE", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
                       playbutton.isHidden = false
                   }else{
-                      visitButton.setTitle(NSLocalizedString("Visit", comment: ""), for: .normal)
+                      visitButton.setTitle(NSLocalizedString("Visit", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
                       playbutton.isHidden = true
                   }
               }
@@ -128,18 +174,52 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
               icon.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
               iconView.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
               visitButton.roundViewCorners([.layerMinXMaxYCorner,.layerMaxXMaxYCorner], radius: 15)
-            if linkPreviewMessageInThread.readAt > 0 && linkPreviewMessageInThread.receiverType == .user {
+              if linkPreviewMessageInThread.readAt > 0 {
                   timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessageInThread?.readAt ?? 0))
               }else if linkPreviewMessageInThread.deliveredAt > 0 {
                   timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessageInThread?.deliveredAt ?? 0))
               }else if linkPreviewMessageInThread.sentAt > 0 {
                   timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessageInThread?.sentAt ?? 0))
               }else if linkPreviewMessageInThread.sentAt == 0 {
-                  timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                  timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
                   name.text = LoggedInUser.name.capitalized + ":"
               }
                nameView.isHidden = false
               replyButton.isHidden = true
+            
+            
+            let phoneParser1 = HyperlinkType.custom(pattern: RegexParser.phonePattern1)
+            let phoneParser2 = HyperlinkType.custom(pattern: RegexParser.phonePattern2)
+            let emailParser = HyperlinkType.custom(pattern: RegexParser.emailPattern)
+            
+            message.enabledTypes.append(phoneParser1)
+            message.enabledTypes.append(phoneParser2)
+            message.enabledTypes.append(emailParser)
+            
+            message.handleURLTap { self.hyperlinkdelegate?.didTapOnURL(url: $0.absoluteString) }
+            
+            message.handleCustomTap(for: .custom(pattern: RegexParser.phonePattern1)) { (number) in
+                self.hyperlinkdelegate?.didTapOnPhoneNumber(number: number)
+            }
+            
+            message.handleCustomTap(for: .custom(pattern: RegexParser.phonePattern2)) { (number) in
+                self.hyperlinkdelegate?.didTapOnPhoneNumber(number: number)
+            }
+            
+            message.handleCustomTap(for: .custom(pattern: RegexParser.emailPattern)) { (emailID) in
+                self.hyperlinkdelegate?.didTapOnEmail(email: emailID)
+            }
+            
+            message.customize { label in
+                label.URLColor = UIKitSettings.URLColor
+                label.URLSelectedColor  = UIKitSettings.URLSelectedColor
+                label.customColor[phoneParser1] = UIKitSettings.PhoneNumberColor
+                label.customSelectedColor[phoneParser1] = UIKitSettings.PhoneNumberSelectedColor
+                label.customColor[phoneParser2] = UIKitSettings.PhoneNumberColor
+                label.customSelectedColor[phoneParser2] = UIKitSettings.PhoneNumberSelectedColor
+                label.customColor[emailParser] = UIKitSettings.EmailIDColor
+                label.customSelectedColor[emailParser] = UIKitSettings.EmailIDColor
+            }
           }
       }
     
@@ -157,7 +237,7 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
     - Copyright:  ©  2020 CometChat Inc.
       */
     private func parseLinkPreviewForMessage(message: TextMessage){
-        if let metaData = linkPreviewMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let linkPreviewDictionary = cometChatExtension["link-preview"] as? [String : Any], let linkArray = linkPreviewDictionary["links"] as? [[String: Any]] {
+        if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let linkPreviewDictionary = cometChatExtension["link-preview"] as? [String : Any], let linkArray = linkPreviewDictionary["links"] as? [[String: Any]] {
             
             guard let linkPreview = linkArray[safe: 0] else {
               return
@@ -173,7 +253,7 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
             
             if let thumbnail = linkPreview["image"] as? String {
                 let url = URL(string: thumbnail)
-                icon.cf.setImage(with: url, placeholder: #imageLiteral(resourceName: "default-image.png"))
+                icon.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
             }
             
             if let linkURL = linkPreview["url"] as? String {
@@ -220,7 +300,14 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
     
      override func setSelected(_ selected: Bool, animated: Bool) {
            super.setSelected(selected, animated: animated)
-          
+           switch isEditing {
+           case true:
+               switch selected {
+               case true: self.tintedView.isHidden = false
+               case false: self.tintedView.isHidden = true
+               }
+           case false: break
+           }
        }
     
 }

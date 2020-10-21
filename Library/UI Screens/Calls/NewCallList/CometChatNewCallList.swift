@@ -53,7 +53,7 @@ public class CometChatNewCallList: UIViewController {
     
     override public func loadView() {
         super.loadView()
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+    
         view.backgroundColor = .white
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
@@ -82,7 +82,7 @@ public class CometChatNewCallList: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
+            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -111,8 +111,8 @@ public class CometChatNewCallList: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [ .foregroundColor: color,.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.foregroundColor: color, .font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [ .foregroundColor: color,.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.foregroundColor: color, .font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navBarAppearance.backgroundColor = barColor
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
@@ -138,7 +138,7 @@ public class CometChatNewCallList: UIViewController {
         tableView.tableFooterView = activityIndicator
         tableView.tableFooterView?.isHidden = false
         userRequest.fetchNext(onSuccess: { (users) in
-            print("fetchUsers onSuccess: \(users)")
+          
             if users.count != 0 {
                 self.users = self.users.sorted(by: { (Obj1, Obj2) -> Bool in
                     let Obj1_Name = Obj1.name ?? ""
@@ -163,7 +163,7 @@ public class CometChatNewCallList: UIViewController {
                     snackbar.show()
                 }
             }
-            print("fetchUsers error:\(String(describing: error?.errorDescription))")
+            
         }
     }
     
@@ -185,7 +185,7 @@ public class CometChatNewCallList: UIViewController {
         tableView.tableFooterView?.isHidden = false
         userRequest = UsersRequest.UsersRequestBuilder(limit: 20).build()
         userRequest.fetchNext(onSuccess: { (users) in
-            print("fetchUsers onSuccess: \(users)")
+           
             if users.count != 0 {
                 self.users = self.users.sorted(by: { (Obj1, Obj2) -> Bool in
                     let Obj1_Name = Obj1.name ?? ""
@@ -210,7 +210,6 @@ public class CometChatNewCallList: UIViewController {
                     snackbar.show()
                 }
             }
-            print("fetchUsers error:\(String(describing: error?.errorDescription))")
         }
     }
     
@@ -247,7 +246,7 @@ public class CometChatNewCallList: UIViewController {
     
      */
     private func registerCells(){
-        let CometChatUserView  = UINib.init(nibName: "CometChatUserView", bundle: nil)
+        let CometChatUserView  = UINib.init(nibName: "CometChatUserView", bundle: UIKitSettings.bundle)
         self.tableView.register(CometChatUserView, forCellReuseIdentifier: "userView")
     }
     
@@ -263,8 +262,8 @@ public class CometChatNewCallList: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
@@ -281,7 +280,8 @@ public class CometChatNewCallList: UIViewController {
         */
     private func addCloseButton(bool: Bool){
         if bool == true {
-            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", comment: ""), style: .plain, target: self, action: #selector(didCloseButtonPressed))
+            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", bundle: UIKitSettings.bundle, comment: ""), style: .plain, target: self, action: #selector(didCloseButtonPressed))
+            closeButton.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem = closeButton
         }
     }
@@ -450,7 +450,7 @@ extension CometChatNewCallList: UITableViewDelegate , UITableViewDataSource {
         } else {
             user = users[safe:indexPath.row]
         }
-        print("user : \(String(describing: user?.stringValue()))")
+    
         if sections[safe: indexPath.section] == user?.name?.first?.uppercased(){
             let userCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserView
             userCell.user = user
@@ -540,7 +540,7 @@ extension CometChatNewCallList : UISearchBarDelegate, UISearchResultsUpdating {
                 DispatchQueue.main.async(execute: {self.tableView.reloadData()})
             }
         }) { (error) in
-            print("error while searching users: \(String(describing: error?.errorDescription))")
+         
         }
     }
 }

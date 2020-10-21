@@ -1,24 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
-    <customFonts key="customFonts">
-        <array key="SF-Pro-Display-Medium.otf">
-            <string>SFProDisplay-Medium</string>
-        </array>
-        <array key="SF-Pro-Display-Regular.otf">
-            <string>SFProDisplay-Regular</string>
-        </array>
-    </customFonts>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell contentMode="scaleToFill" restorationIdentifier="leftLinkPreviewBubble" selectionStyle="default" indentationWidth="10" reuseIdentifier="leftLinkPreviewBubble" rowHeight="379" id="KGk-i7-Jjw" customClass="LeftLinkPreviewBubble" customModule="CometChat_KitchenSink" customModuleProvider="target">
+        <tableViewCell contentMode="scaleToFill" restorationIdentifier="leftLinkPreviewBubble" selectionStyle="default" indentationWidth="10" reuseIdentifier="leftLinkPreviewBubble" rowHeight="379" id="KGk-i7-Jjw" customClass="LeftLinkPreviewBubble" customModule="CometChatProWidget" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="320" height="379"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
@@ -26,12 +19,12 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="iei-4O-P7X">
-                        <rect key="frame" x="38" y="359" width="31" height="18"/>
+                        <rect key="frame" x="38" y="359" width="33" height="18"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10:43" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gRn-h2-mzD">
-                                <rect key="frame" x="0.0" y="0.0" width="31" height="18"/>
-                                <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="12"/>
-                                <color key="textColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <rect key="frame" x="0.0" y="0.0" width="33" height="18"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="12"/>
+                                <color key="textColor" systemColor="systemGrayColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
@@ -46,16 +39,16 @@
                                 <rect key="frame" x="0.0" y="-15" width="250" height="15"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lcf-tP-9QA">
-                                        <rect key="frame" x="0.0" y="0.0" width="37" height="15"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="40.5" height="15"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="15" id="5jP-n0-5BF"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="13"/>
-                                        <color key="textColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
+                                        <color key="textColor" systemColor="systemGrayColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstItem="Lcf-tP-9QA" firstAttribute="top" secondItem="zDa-kD-jyy" secondAttribute="top" id="J17-ri-XKM"/>
                                     <constraint firstAttribute="bottom" secondItem="Lcf-tP-9QA" secondAttribute="bottom" id="axT-rI-fuz"/>
@@ -85,7 +78,7 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstItem="HSw-XH-6hv" firstAttribute="centerY" secondItem="gbg-af-rxP" secondAttribute="centerY" id="1jJ-XU-P8o"/>
                                     <constraint firstItem="z8d-Mo-UfV" firstAttribute="leading" secondItem="gbg-af-rxP" secondAttribute="leading" id="2as-BM-JeG"/>
@@ -108,7 +101,7 @@
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="20" id="xae-39-oq0"/>
                                                 </constraints>
-                                                <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
+                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
@@ -117,8 +110,8 @@
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="54" id="gzI-Rj-4sp"/>
                                                 </constraints>
-                                                <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="15"/>
-                                                <color key="textColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                <color key="textColor" systemColor="systemGrayColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="4kc-3U-4gc">
@@ -126,7 +119,7 @@
                                                 <subviews>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="y91-wA-gjX">
                                                         <rect key="frame" x="0.0" y="0.0" width="2" height="50"/>
-                                                        <color key="backgroundColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <color key="backgroundColor" systemColor="systemGrayColor"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" constant="2" id="6EJ-Ln-SFM"/>
                                                         </constraints>
@@ -136,9 +129,9 @@
                                                             </userDefinedRuntimeAttribute>
                                                         </userDefinedRuntimeAttributes>
                                                     </view>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ViO-6S-fBa">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ViO-6S-fBa" customClass="HyperlinkLabel" customModule="CometChatProWidget" customModuleProvider="target">
                                                         <rect key="frame" x="7" y="0.0" width="227" height="50"/>
-                                                        <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="15"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
@@ -147,7 +140,7 @@
                                         </subviews>
                                     </stackView>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstItem="gtb-fP-zIc" firstAttribute="top" secondItem="ck2-YM-kZE" secondAttribute="top" constant="8" id="IuD-QE-ZIQ"/>
                                     <constraint firstAttribute="bottom" secondItem="gtb-fP-zIc" secondAttribute="bottom" constant="8" id="Mba-Ya-Uel"/>
@@ -157,18 +150,18 @@
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qsx-tN-cfq">
                                 <rect key="frame" x="0.0" y="310" width="250" height="2"/>
-                                <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529999999" green="0.47058823529999999" blue="0.50196078430000002" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" systemColor="systemFillColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="2" id="AQh-oI-zyV"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EsP-jS-fcA">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EsP-jS-fcA">
                                 <rect key="frame" x="0.0" y="312" width="250" height="44"/>
-                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="sfU-Ir-arJ"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                                 <state key="normal" title="Visit">
                                     <color key="titleColor" red="0.20000000000000001" green="0.59999999999999998" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
@@ -183,20 +176,29 @@
                             </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
                     </stackView>
-                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hdc-hO-IOJ">
-                        <rect key="frame" x="293" y="335" width="32" height="21"/>
+                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SXh-Cv-DiD">
+                        <rect key="frame" x="38" y="0.0" width="250" height="356"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                <integer key="value" value="15"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hdc-hO-IOJ">
+                        <rect key="frame" x="293" y="335" width="35" height="21"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="21" id="31k-2a-6j3"/>
                         </constraints>
-                        <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="13"/>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                         <state key="normal" title="Reply"/>
                         <connections>
                             <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="jWY-87-ugl"/>
                         </connections>
                     </button>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvatar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="YID-80-9Vj" customClass="Avatar" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvatar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="YID-80-9Vj" customClass="Avatar" customModule="CometChatProWidget" customModuleProvider="target">
                         <rect key="frame" x="5" y="326" width="30" height="30"/>
-                        <color key="backgroundColor" systemColor="systemFillColor" red="0.47058823529999999" green="0.47058823529999999" blue="0.50196078430000002" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" systemColor="systemFillColor"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="30" id="b7E-WS-7Na"/>
                             <constraint firstAttribute="width" constant="30" id="n8r-KP-vOS"/>
@@ -212,15 +214,19 @@
                     </imageView>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="hdc-hO-IOJ" firstAttribute="bottom" secondItem="EsP-jS-fcA" secondAttribute="bottom" id="6zU-1R-IrF"/>
+                    <constraint firstItem="hdc-hO-IOJ" firstAttribute="bottom" secondItem="SXh-Cv-DiD" secondAttribute="bottom" id="8Bo-nF-eDK"/>
                     <constraint firstItem="iei-4O-P7X" firstAttribute="leading" secondItem="YID-80-9Vj" secondAttribute="trailing" constant="3" id="DOr-mE-ghC"/>
                     <constraint firstItem="iei-4O-P7X" firstAttribute="top" secondItem="xC6-bS-4y0" secondAttribute="bottom" constant="3" id="JGi-sc-GnN"/>
                     <constraint firstItem="xC6-bS-4y0" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="Msf-W8-mrF"/>
                     <constraint firstItem="iei-4O-P7X" firstAttribute="leading" secondItem="xC6-bS-4y0" secondAttribute="leading" id="OMj-8h-JnX"/>
+                    <constraint firstItem="SXh-Cv-DiD" firstAttribute="top" secondItem="gbg-af-rxP" secondAttribute="top" id="SjX-Df-4rw"/>
+                    <constraint firstItem="SXh-Cv-DiD" firstAttribute="trailing" secondItem="xC6-bS-4y0" secondAttribute="trailing" id="dnj-hR-rkP"/>
+                    <constraint firstItem="SXh-Cv-DiD" firstAttribute="bottom" secondItem="xC6-bS-4y0" secondAttribute="bottom" id="gN5-gz-9Qb"/>
                     <constraint firstAttribute="bottom" secondItem="iei-4O-P7X" secondAttribute="bottom" constant="2" id="n35-tI-Kad"/>
                     <constraint firstItem="hdc-hO-IOJ" firstAttribute="leading" secondItem="xC6-bS-4y0" secondAttribute="trailing" constant="5" id="nsN-6X-ZTZ"/>
                     <constraint firstItem="YID-80-9Vj" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="rRu-9r-lZG"/>
                     <constraint firstItem="YID-80-9Vj" firstAttribute="bottom" secondItem="EsP-jS-fcA" secondAttribute="bottom" id="u4z-b1-gfw"/>
+                    <constraint firstItem="SXh-Cv-DiD" firstAttribute="leading" secondItem="iei-4O-P7X" secondAttribute="leading" id="uDe-kJ-UAR"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
@@ -237,15 +243,36 @@
                 <outlet property="receiptStack" destination="iei-4O-P7X" id="vMa-fy-Ri4"/>
                 <outlet property="replyButton" destination="hdc-hO-IOJ" id="mAe-Xz-n1J"/>
                 <outlet property="timeStamp" destination="gRn-h2-mzD" id="Cq3-B9-LWB"/>
+                <outlet property="tintedView" destination="SXh-Cv-DiD" id="GDI-cl-d6U"/>
                 <outlet property="title" destination="lQO-17-383" id="eJE-fv-r6H"/>
                 <outlet property="visitButton" destination="EsP-jS-fcA" id="pxE-jC-tdU"/>
             </connections>
             <point key="canvasLocation" x="168" y="219"/>
         </tableViewCell>
     </objects>
+    <designables>
+        <designable name="ViO-6S-fBa">
+            <size key="intrinsicContentSize" width="37.5" height="18"/>
+        </designable>
+        <designable name="YID-80-9Vj">
+            <size key="intrinsicContentSize" width="240" height="240"/>
+        </designable>
+    </designables>
     <resources>
         <image name="default-image.png" width="720" height="405"/>
         <image name="defaultAvatar.jpg" width="240" height="240"/>
         <image name="play.png" width="56" height="56"/>
+        <systemColor name="secondarySystemBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemFillColor">
+            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemGrayColor">
+            <color red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
     </resources>
 </document>

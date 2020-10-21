@@ -7,16 +7,8 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
-    <customFonts key="customFonts">
-        <array key="SF-Pro-Display-Medium.otf">
-            <string>SFProDisplay-Medium</string>
-        </array>
-        <array key="SF-Pro-Display-Regular.otf">
-            <string>SFProDisplay-Regular</string>
-        </array>
-    </customFonts>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatMessageList" customModule="CometChat_KitchenSink" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatMessageList" customModule="CometChatProWidget" customModuleProvider="target">
             <connections>
                 <outlet property="audioNoteActionView" destination="Lza-5y-AJY" id="P54-3y-9Mv"/>
                 <outlet property="audioNoteDeleteButton" destination="qTh-yh-vWd" id="NKs-o6-dGZ"/>
@@ -25,6 +17,7 @@
                 <outlet property="audioNoteTimer" destination="rkY-zB-Yyw" id="ia2-Td-OtW"/>
                 <outlet property="audioNoteView" destination="aOW-hx-amp" id="ftt-rJ-IBq"/>
                 <outlet property="audioVisualizationView" destination="Gnw-U9-ha3" id="JE6-5U-dKG"/>
+                <outlet property="blockViewButton" destination="ibc-Ex-AuO" id="CmU-20-FC3"/>
                 <outlet property="blockedMessage" destination="HqQ-yr-8Ec" id="BYA-JI-amM"/>
                 <outlet property="blockedView" destination="r85-EN-byq" id="Axs-7Q-CQa"/>
                 <outlet property="chatView" destination="qtD-Ii-Ra0" id="lil-yG-9b0"/>
@@ -36,7 +29,7 @@
                 <outlet property="editViewName" destination="2Dr-LI-rhi" id="Ihz-QL-wsI"/>
                 <outlet property="inputBarBottomSpace" destination="63x-dg-FpM" id="Dsf-T3-DgX"/>
                 <outlet property="inputBarHeight" destination="9ei-U0-qwF" id="5Ob-3L-x6J"/>
-                <outlet property="microhone" destination="nul-d9-z4G" id="7M1-kv-V0A"/>
+                <outlet property="microphone" destination="nul-d9-z4G" id="s7n-bD-WBE"/>
                 <outlet property="reaction" destination="fPp-Hx-BOU" id="2rj-Oe-yZo"/>
                 <outlet property="reactionButtonSpace" destination="6V2-pC-1dA" id="aGH-us-Jsg"/>
                 <outlet property="reactionButtonWidth" destination="zd8-qe-R3L" id="ZJV-be-p6o"/>
@@ -57,7 +50,7 @@
                     <rect key="frame" x="0.0" y="44" width="414" height="778"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                 </tableView>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XBg-nj-c30" customClass="SmartRepliesView" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XBg-nj-c30" customClass="SmartRepliesView" customModule="CometChatProWidget" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="764" width="414" height="58"/>
                     <subviews>
                         <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="CPG-ZL-nDc">
@@ -84,7 +77,7 @@
                         <outlet property="collectionView" destination="CPG-ZL-nDc" id="F83-Oc-Kt1"/>
                     </connections>
                 </view>
-                <view hidden="YES" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="nLo-uN-P4v" customClass="LiveReaction" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                <view hidden="YES" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="nLo-uN-P4v" customClass="LiveReaction" customModule="CometChatProWidget" customModuleProvider="target">
                     <rect key="frame" x="314" y="554" width="90" height="248"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="248" id="Aqt-Wb-yiD"/>
@@ -129,7 +122,7 @@
                         <userDefinedRuntimeAttribute type="image" keyPath="floaterImage1" value="heart.png"/>
                     </userDefinedRuntimeAttributes>
                 </view>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qtD-Ii-Ra0" customClass="ChatView" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qtD-Ii-Ra0" customClass="ChatView" customModule="CometChatProWidget" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="822" width="414" height="40"/>
                     <subviews>
                         <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="caD-IM-i3Y">
@@ -148,7 +141,7 @@
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3kv-Cr-K8Y">
                             <rect key="frame" x="54" y="7" width="306" height="27"/>
                             <subviews>
-                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="685-zy-w75" customClass="GrowingTextView" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="685-zy-w75" customClass="GrowingTextView" customModule="CometChatProWidget" customModuleProvider="target">
                                     <rect key="frame" x="8" y="-7" width="258" height="39"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </view>
@@ -244,7 +237,7 @@
                 <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aOW-hx-amp">
                     <rect key="frame" x="0.0" y="822" width="414" height="40"/>
                     <subviews>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gnw-U9-ha3" customClass="AudioVisualizationView" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gnw-U9-ha3" customClass="AudioVisualizationView" customModule="CometChatProWidget" customModuleProvider="target">
                             <rect key="frame" x="55" y="5" width="304" height="40"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
@@ -256,7 +249,7 @@
                             <constraints>
                                 <constraint firstAttribute="height" constant="12" id="pPX-gW-5d1"/>
                             </constraints>
-                            <fontDescription key="fontDescription" name="SFProDisplay-Regular" family="SF Pro Display" pointSize="10"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="10"/>
                             <color key="textColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
@@ -416,8 +409,8 @@
                     <rect key="frame" x="0.0" y="696" width="414" height="200"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You've blocked Mangesh " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HqQ-yr-8Ec">
-                            <rect key="frame" x="114" y="19.5" width="186" height="20.5"/>
-                            <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="17"/>
+                            <rect key="frame" x="107.5" y="19.5" width="199" height="20.5"/>
+                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You can't message them in this chat, and you won't receive their messages." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cYw-xV-CQb">
@@ -425,7 +418,7 @@
                             <constraints>
                                 <constraint firstAttribute="height" constant="35" id="JX5-aC-xDm"/>
                             </constraints>
-                            <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="11"/>
+                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="11"/>
                             <color key="textColor" systemColor="systemGrayColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
@@ -435,7 +428,7 @@
                             <constraints>
                                 <constraint firstAttribute="height" constant="55" id="hXV-VX-2Jg"/>
                             </constraints>
-                            <fontDescription key="fontDescription" name="SFProDisplay-Medium" family="SF Pro Display" pointSize="18"/>
+                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
                             <state key="normal" title="Unblock">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
@@ -499,7 +492,7 @@
     </objects>
     <resources>
         <image name="add.png" width="29" height="30"/>
-        <image name="close.png" width="48" height="48"/>
+        <image name="close.png" width="16" height="16"/>
         <image name="delete.png" width="24" height="24"/>
         <image name="heart.png" width="30" height="25"/>
         <image name="microphone.png" width="29" height="30"/>

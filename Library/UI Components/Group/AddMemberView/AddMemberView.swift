@@ -18,10 +18,11 @@ class AddMemberView: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
+         addIcon.tintColor = UIKitSettings.primaryColor
         if #available(iOS 13.0, *) {
         }else{
-           addIcon.image = #imageLiteral(resourceName: "addIcon")
+           addIcon.image = UIImage(named: "addIcon", in: UIKitSettings.bundle, compatibleWith: nil)
+           
         }
         // Initialization code
     }

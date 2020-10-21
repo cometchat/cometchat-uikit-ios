@@ -18,9 +18,7 @@ class MessageReceiptBubble: UITableViewCell {
     
     var receipt: MessageReceipt? {
         didSet{
-            
-            print("ReadAt: \(receipt?.readAt) ")
-            print("DeliveredAt: \(receipt?.deliveredAt) ")
+        
             name.text = receipt?.sender?.name ?? ""
             if let avatarURL = receipt?.sender?.avatar  {
                 self.avtar.set(image: avatarURL, with: receipt?.sender?.name ?? "")

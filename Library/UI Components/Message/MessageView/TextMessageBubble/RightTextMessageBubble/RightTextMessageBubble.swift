@@ -20,7 +20,8 @@ class RightTextMessageBubble: UITableViewCell {
     
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
-    @IBOutlet weak var message: UILabel!
+    @IBOutlet weak var tintedView: UIView!
+    @IBOutlet weak var message: HyperlinkLabel!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receipt: UIImageView!
     @IBOutlet weak var receiptStack: UIStackView!
@@ -29,6 +30,7 @@ class RightTextMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of Variables
     let systemLanguage = Locale.preferredLanguages.first
+    weak var hyperlinkdelegate: HyperLinkDelegate?
     weak var selectionColor: UIColor? {
         set {
             let view = UIView()
@@ -42,29 +44,33 @@ class RightTextMessageBubble: UITableViewCell {
     var indexPath: IndexPath?
     weak var textMessage: TextMessage? {
         didSet {
-            receipt.isHidden = false
             if let textmessage  = textMessage {
                 self.receiptStack.isHidden = true
                 self.parseProfanityFilter(forMessage: textmessage)
-                
                 if textmessage.readAt > 0 {
-                    receipt.image = #imageLiteral(resourceName: "read")
+                    receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
                 }else if textmessage.deliveredAt > 0 {
-                    receipt.image = #imageLiteral(resourceName: "delivered")
+                    receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.deliveredAt ?? 0))
                 }else if textmessage.sentAt > 0 {
-                    receipt.image = #imageLiteral(resourceName: "sent")
+                    receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.sentAt ?? 0))
                 }else if textmessage.sentAt == 0 {
-                    receipt.image = #imageLiteral(resourceName: "wait")
-                    timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                    receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
+                    timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
                 }
             }
+            messageView.backgroundColor = UIKitSettings.primaryColor
+            replybutton.tintColor = UIKitSettings.primaryColor
             receipt.contentMode = .scaleAspectFit
             message.textColor = .white
-            
-            if textMessage?.replyCount != 0 {
+            if UIKitSettings.showReadDeliveryReceipts == .disabled {
+                receipt.isHidden = true
+            }else{
+                receipt.isHighlighted = false
+            }
+            if textMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if textMessage?.replyCount == 1 {
                     replybutton.setTitle("1 reply", for: .normal)
@@ -77,25 +83,60 @@ class RightTextMessageBubble: UITableViewCell {
                 replybutton.isHidden = true
             }
             
+             let phoneParser1 = HyperlinkType.custom(pattern: RegexParser.phonePattern1)
+             let phoneParser2 = HyperlinkType.custom(pattern: RegexParser.phonePattern2)
+             let emailParser = HyperlinkType.custom(pattern: RegexParser.emailPattern)
+             
+             message.enabledTypes.append(phoneParser1)
+             message.enabledTypes.append(phoneParser2)
+             message.enabledTypes.append(emailParser)
+             
+             message.handleURLTap { self.hyperlinkdelegate?.didTapOnURL(url: $0.absoluteString) }
+             
+             message.handleCustomTap(for: .custom(pattern: RegexParser.phonePattern1)) { (number) in
+                 self.hyperlinkdelegate?.didTapOnPhoneNumber(number: number)
+             }
+             
+             message.handleCustomTap(for: .custom(pattern: RegexParser.phonePattern2)) { (number) in
+                 self.hyperlinkdelegate?.didTapOnPhoneNumber(number: number)
+             }
+             
+             message.handleCustomTap(for: .custom(pattern: RegexParser.emailPattern)) { (emailID) in
+                 self.hyperlinkdelegate?.didTapOnEmail(email: emailID)
+             }
+             
+            message.customize { label in
+                label.URLColor = UIKitSettings.URLColor
+                label.URLSelectedColor  = UIKitSettings.URLSelectedColor
+                label.customColor[phoneParser1] = UIKitSettings.PhoneNumberColor
+                label.customSelectedColor[phoneParser1] = UIKitSettings.PhoneNumberSelectedColor
+                label.customColor[phoneParser2] = UIKitSettings.PhoneNumberColor
+                label.customSelectedColor[phoneParser2] = UIKitSettings.PhoneNumberSelectedColor
+                label.customColor[emailParser] = UIKitSettings.EmailIDColor
+                label.customSelectedColor[emailParser] = UIKitSettings.EmailIDColor
+            }
         }
     }
     
     weak var deletedMessage: BaseMessage? {
         didSet {
-            receipt.isHidden = true
             self.replybutton.isHidden = true
             switch deletedMessage?.messageType {
-            case .text:  message.text = NSLocalizedString("YOU_DELETED_THIS_MESSAGE", comment: "")
-            case .image: message.text = NSLocalizedString("YOU_DELETED_THIS_IMAGE", comment: "")
-            case .video: message.text = NSLocalizedString("YOU_DELETED_THIS_VIDEO", comment: "")
-            case .audio: message.text =  NSLocalizedString("YOU_DELETED_THIS_AUDIO", comment: "")
-            case .file:  message.text = NSLocalizedString("YOU_DELETED_THIS_FILE", comment: "")
-            case .custom: message.text = NSLocalizedString("YOU_DELETED_THIS_CUSTOM_MESSAGE", comment: "")
+            case .text:  message.text = NSLocalizedString("YOU_DELETED_THIS_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+            case .image: message.text = NSLocalizedString("YOU_DELETED_THIS_IMAGE", bundle: UIKitSettings.bundle, comment: "")
+            case .video: message.text = NSLocalizedString("YOU_DELETED_THIS_VIDEO", bundle: UIKitSettings.bundle, comment: "")
+            case .audio: message.text =  NSLocalizedString("YOU_DELETED_THIS_AUDIO", bundle: UIKitSettings.bundle, comment: "")
+            case .file:  message.text = NSLocalizedString("YOU_DELETED_THIS_FILE", bundle: UIKitSettings.bundle, comment: "")
+            case .custom: message.text = NSLocalizedString("YOU_DELETED_THIS_CUSTOM_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
             case .groupMember: break
             @unknown default: break }
-            message.textColor = .darkGray
-            message.font = UIFont (name: "SFProDisplay-RegularItalic", size: 17)
+            message.textColor = .white
+            UIFont.italicSystemFont(ofSize: 17)
+            message.font = UIFont.italicSystemFont(ofSize: 17)
             timeStamp.text = String().setMessageTime(time: Int(deletedMessage?.sentAt ?? 0))
+            messageView.backgroundColor = UIKitSettings.primaryColor
+            replybutton.tintColor = UIKitSettings.primaryColor
+            receipt.isHidden = true
         }
     }
     
@@ -115,19 +156,18 @@ class RightTextMessageBubble: UITableViewCell {
             }
         }else{
             
-            if forMessage.text.containsOnlyEmojis() {
+            if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
                 if forMessage.text.count == 1 {
-                   message.font = UIFont (name: "SFProDisplay-Regular", size: 51)
+                   message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
                 }else if forMessage.text.count == 2 {
-                   message.font = UIFont (name: "SFProDisplay-Regular", size: 34)
+                   message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
                 }else if forMessage.text.count == 3{
-                   message.font = UIFont (name: "SFProDisplay-Regular", size: 25)
+                   message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
                 }else{
-                   message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+                   message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                 }
-                print("contains only emoji: \(forMessage.text.count)")
             }else{
-               message.font = UIFont (name: "SFProDisplay-Regular", size: 17)
+               message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
             }
             self.message.text = forMessage.text
         }
@@ -138,7 +178,6 @@ class RightTextMessageBubble: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
         if #available(iOS 13.0, *) {
             selectionColor = .systemBackground
         } else {
@@ -146,25 +185,25 @@ class RightTextMessageBubble: UITableViewCell {
         }
     }
     
-    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
-        super.setHighlighted(highlighted, animated: animated)
-        if #available(iOS 13.0, *) {
-            
-        } else {
-            messageView.backgroundColor =  #colorLiteral(red: 0.2, green: 0.6, blue: 1, alpha: 1)
-        }
-        
-    }
-    
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        if #available(iOS 13.0, *) {
-            
-        } else {
-            messageView.backgroundColor =  #colorLiteral(red: 0.2, green: 0.6, blue: 1, alpha: 1)
-        }
-        
-    }
+     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+          super.setHighlighted(highlighted, animated: animated)
+          if #available(iOS 13.0, *) {
+              
+          } else {
+              messageView.backgroundColor =  UIKitSettings.primaryColor
+          }
+          
+      }
+      
+      override func setSelected(_ selected: Bool, animated: Bool) {
+          super.setSelected(selected, animated: animated)
+          if #available(iOS 13.0, *) {
+              
+          } else {
+              messageView.backgroundColor =  UIKitSettings.primaryColor
+          }
+          
+      }
     
     @IBAction func didReplyButtonPressed(_ sender: Any) {
          if let message = textMessage, let indexpath = indexPath {

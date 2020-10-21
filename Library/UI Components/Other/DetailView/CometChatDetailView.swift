@@ -40,13 +40,29 @@ class CometChatDetailView: UITableViewCell {
             name.text = currentUser.name
                 switch currentUser.status {
                 case .online:
-                    detail.text = NSLocalizedString("ONLINE", comment: "")
+                    detail.text = NSLocalizedString("ONLINE", bundle: UIKitSettings.bundle, comment: "")
                 case .offline:
-                     detail.text = NSLocalizedString("OFFLINE", comment: "")
+                     detail.text = NSLocalizedString("OFFLINE", bundle: UIKitSettings.bundle, comment: "")
                 @unknown default:
-                    detail.text = NSLocalizedString("OFFLINE", comment: "")
+                    detail.text = NSLocalizedString("OFFLINE", bundle: UIKitSettings.bundle, comment: "")
                 }
+            if UIKitSettings.showUserPresence == .disabled {
+                detail.isHidden = true
+            }else{
+                detail.isHidden = false
+            }
                  icon.set(image: currentUser.avatar ?? "", with: currentUser.name ?? "")
+            if #available(iOS 13.0, *) {
+                let callingIcon = UIImage(named: "audioCall.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                call.setImage(callingIcon, for: .normal)
+                call.tintColor = UIKitSettings.primaryColor
+            } else {}
+        }
+        
+        if UIKitSettings.userVideoCall == .disabled && UIKitSettings.userAudioCall == .disabled {
+            call.isHidden = true
+        }else{
+            call.isHidden = false
         }
     }
     }
@@ -57,17 +73,27 @@ class CometChatDetailView: UITableViewCell {
                 name.text = currentGroup.name
                 switch currentGroup.groupType {
                 case .public:
-                    detail.text = NSLocalizedString("PUBLIC", comment: "")
+                    detail.text = NSLocalizedString("PUBLIC", bundle: UIKitSettings.bundle, comment: "")
                 case .private:
-                    detail.text = NSLocalizedString("PRIVATE", comment: "")
+                    detail.text = NSLocalizedString("PRIVATE", bundle: UIKitSettings.bundle, comment: "")
                 case .password:
-                    detail.text = NSLocalizedString("PASSWORD_PROTECTED", comment: "")
+                    detail.text = NSLocalizedString("PASSWORD_PROTECTED", bundle: UIKitSettings.bundle, comment: "")
                 @unknown default:
                     break
                 }
                 icon.set(image: currentGroup.icon ?? "", with: currentGroup.name ?? "")
+                if #available(iOS 13.0, *) {
+                    let callingIcon = UIImage(named: "audioCall.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    call.setImage(callingIcon, for: .normal)
+                    call.tintColor = UIKitSettings.primaryColor
+                } else {}
             }
-           
+            
+            if UIKitSettings.groupVideoCall == .disabled && UIKitSettings.groupAudioCall == .disabled {
+                call.isHidden = true
+            }else{
+                call.isHidden = false
+            }
         }
     }
     

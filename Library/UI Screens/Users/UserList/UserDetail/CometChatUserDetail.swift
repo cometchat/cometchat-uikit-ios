@@ -38,7 +38,7 @@ class CometChatUserDetail: UIViewController {
     
     override public func loadView() {
         super.loadView()
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+       
         view.backgroundColor = .white
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
@@ -60,11 +60,10 @@ class CometChatUserDetail: UIViewController {
             self.currentUser = updatedUser
             DispatchQueue.main.async {
                 if self.tableView != nil {
-                   self.tableView.reloadData()
+                    self.tableView.reloadData()
                 }
             }
         }) { (error) in
-            print("unable to fetch user information: \(String(describing: error?.errorDescription))")
         }
     }
     
@@ -81,7 +80,7 @@ class CometChatUserDetail: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
+            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -111,7 +110,12 @@ class CometChatUserDetail: UIViewController {
         }else{
             actionsItems = [CometChatUserDetail.SEND_MESSAGE_CELL]
         }
-        supportItems = [ CometChatUserDetail.BLOCK_USER_CELL]
+        if UIKitSettings.blockUser == .enabled {
+         supportItems = [ CometChatUserDetail.BLOCK_USER_CELL]
+        }else{
+            supportItems = []
+        }
+        
     }
     
     /**
@@ -142,16 +146,16 @@ class CometChatUserDetail: UIViewController {
      - Copyright:  ©  2020 CometChat Inc.
      */
     private func registerCells(){
-         let CometChatDetailView  = UINib.init(nibName: "CometChatDetailView", bundle: nil)
-         self.tableView.register(CometChatDetailView, forCellReuseIdentifier: "detailView")
+        let CometChatDetailView  = UINib.init(nibName: "CometChatDetailView", bundle: UIKitSettings.bundle)
+        self.tableView.register(CometChatDetailView, forCellReuseIdentifier: "detailView")
         
-        let NotificationsView  = UINib.init(nibName: "NotificationsView", bundle: nil)
+        let NotificationsView  = UINib.init(nibName: "NotificationsView", bundle: UIKitSettings.bundle)
         self.tableView.register(NotificationsView, forCellReuseIdentifier: "notificationsView")
         
-        let SupportView  = UINib.init(nibName: "SupportView", bundle: nil)
+        let SupportView  = UINib.init(nibName: "SupportView", bundle: UIKitSettings.bundle)
         self.tableView.register(SupportView, forCellReuseIdentifier: "supportView")
         
-        let SharedMediaView  = UINib.init(nibName: "SharedMediaView", bundle: nil)
+        let SharedMediaView  = UINib.init(nibName: "SharedMediaView", bundle: UIKitSettings.bundle)
         self.tableView.register(SharedMediaView, forCellReuseIdentifier: "sharedMediaView")
     }
     
@@ -168,15 +172,16 @@ class CometChatUserDetail: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 setLargeTitleDisplayMode(.never)
                 self.navigationController?.navigationBar.isTranslucent = true
             }
-            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", bundle: UIKitSettings.bundle, comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+            closeButton.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem = closeButton
         }
     }
@@ -206,7 +211,13 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         if section == 0  {
             return 0
         }else{
-            return 25
+            if UIKitSettings.blockUser == .disabled && section == 2 {
+                return 0
+            }else if UIKitSettings.viewShareMedia == .disabled && section == 3 {
+                return 0
+            }else{
+                return 25
+            }
         }
     }
     
@@ -221,13 +232,13 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
-            sectionTitle.text =  NSLocalizedString("ACTIONS", comment: "")
+            sectionTitle.text =  NSLocalizedString("ACTIONS", bundle: UIKitSettings.bundle, comment: "")
         }else if section == 2{
-            sectionTitle.text =  NSLocalizedString("PRIVACY_&_SUPPORT", comment: "")
+            sectionTitle.text =  NSLocalizedString("PRIVACY_&_SUPPORT", bundle: UIKitSettings.bundle, comment: "")
         }else if section == 3{
-            sectionTitle.text =  NSLocalizedString("SHARED_MEDIA", comment: "")
+            sectionTitle.text =  NSLocalizedString("SHARED_MEDIA", bundle: UIKitSettings.bundle, comment: "")
         }
-        sectionTitle.font = UIFont(name: "SFProDisplay-Medium", size: 13)
+        sectionTitle.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         if #available(iOS 13.0, *) {
             sectionTitle.textColor = .lightGray
             returnedView.backgroundColor = .systemBackground
@@ -258,7 +269,11 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         if  indexPath.section == 0 && indexPath.row == 0 {
             return 100
         }else if indexPath.section == 3{
-            return 320
+            if UIKitSettings.viewShareMedia == .enabled {
+               return 320
+            }else{
+            return 0
+            }
         }else {
             return 60
         }
@@ -286,19 +301,19 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
             switch actionsItems[safe:indexPath.row] {
             case CometChatUserDetail.SEND_MESSAGE_CELL:
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
-                supportCell.textLabel?.text = NSLocalizedString("SEND_MESSAGE", comment: "")
-                supportCell.textLabel?.textColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+                supportCell.textLabel?.text = NSLocalizedString("SEND_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+                supportCell.textLabel?.textColor = UIKitSettings.primaryColor
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return supportCell
             case CometChatUserDetail.ADD_TO_CONTACTS_CELL:
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
                 
                 if let groupName = currentGroup?.name {
-                    supportCell.textLabel?.text = NSLocalizedString("ADD_IN", comment: "") + " \(groupName)"
+                    supportCell.textLabel?.text = NSLocalizedString("ADD_IN", bundle: UIKitSettings.bundle, comment: "") + " \(groupName)"
                 }else{
-                    supportCell.textLabel?.text = NSLocalizedString("ADD_CONTACT", comment: "")
+                    supportCell.textLabel?.text = NSLocalizedString("ADD_CONTACT", bundle: UIKitSettings.bundle, comment: "")
                 }
-                supportCell.textLabel?.textColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+                supportCell.textLabel?.textColor = UIKitSettings.primaryColor
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return supportCell
                 
@@ -312,10 +327,10 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
                 
                 if currentUser?.blockedByMe == true {
-                    supportCell.textLabel?.text = NSLocalizedString("UNBLOCK_USER", comment: "")
+                    supportCell.textLabel?.text = NSLocalizedString("UNBLOCK_USER", bundle: UIKitSettings.bundle, comment: "")
                     supportCell.textLabel?.textColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
                 }else {
-                    supportCell.textLabel?.text = NSLocalizedString("BLOCK_USER", comment: "")
+                    supportCell.textLabel?.text = NSLocalizedString("BLOCK_USER", bundle: UIKitSettings.bundle, comment: "")
                     supportCell.textLabel?.textColor = .red
                 }
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
@@ -326,10 +341,10 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         case 3:
             if let user = currentUser {
                 let sharedMediaCell = tableView.dequeueReusableCell(withIdentifier: "sharedMediaView", for: indexPath) as! SharedMediaView
-                 sharedMediaCell.refreshMediaMessages(for: user, type: .user)
-                 sharedMediaCell.sharedMediaDelegate = self
-                 sharedMediaCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-                 return sharedMediaCell
+                sharedMediaCell.refreshMediaMessages(for: user, type: .user)
+                sharedMediaCell.sharedMediaDelegate = self
+                sharedMediaCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+                return sharedMediaCell
             }
         default: break
         }
@@ -369,7 +384,7 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                         
                         let data:[String: String] = ["guid": self.currentGroup?.guid ?? ""]
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
-                        let message = (self.currentUser?.name ?? "") + NSLocalizedString("ADDED_SUCCESSFULLY", comment: "")
+                        let message = (self.currentUser?.name ?? "") + NSLocalizedString("ADDED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: "")
                         let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                         snackbar.show()
                         self.dismiss(animated: true) {}
@@ -378,11 +393,10 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                 }) { (error) in
                     DispatchQueue.main.async {
                         if let errorMessage = error?.errorDescription {
-                          let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
                             snackbar.show()
                         }
                     }
-                    print("Error while adding in group: \(String(describing: error?.errorDescription))")
                 }
             default: break}
         case 2:
@@ -396,27 +410,7 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                         if let user = self.currentUser, let name = user.name {
                             self.set(user: user)
                             DispatchQueue.main.async {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name + NSLocalizedString("UNBLOCKED_SUCCESSFULLY", comment: ""), duration: .short)
-                                snackbar.show()
-                            }
-                        }
-                    }) { (error) in
-                        DispatchQueue.main.async {
-                            if let errorMessage = error?.errorDescription {
-                               let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                snackbar.show()
-                            }
-                        }
-                        print("Error while blocking the user: \(String(describing: error?.errorDescription))")
-                    }
-                case false:
-                    CometChat.blockUsers([(currentUser?.uid ?? "")], onSuccess: { (success) in
-                        DispatchQueue.main.async {
-                            if let user = self.currentUser, let name = user.name {
-                                self.set(user: user)
-                                let data:[String: String] = ["name": name]
-                                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: data)
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name +  NSLocalizedString("BLOCKED_SUCCESSFULLY", comment: ""), duration: .short)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name + NSLocalizedString("UNBLOCKED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
                                 snackbar.show()
                             }
                         }
@@ -427,7 +421,25 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
                                 snackbar.show()
                             }
                         }
-                        print("Error while blocking the user: \(String(describing: error?.errorDescription))")
+                    }
+                case false:
+                    CometChat.blockUsers([(currentUser?.uid ?? "")], onSuccess: { (success) in
+                        DispatchQueue.main.async {
+                            if let user = self.currentUser, let name = user.name {
+                                self.set(user: user)
+                                let data:[String: String] = ["name": name]
+                                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: data)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name +  NSLocalizedString("BLOCKED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
+                                snackbar.show()
+                            }
+                        }
+                    }) { (error) in
+                        DispatchQueue.main.async {
+                            if let errorMessage = error?.errorDescription {
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
+                                snackbar.show()
+                            }
+                        }
                     }
                 }
                 
@@ -435,26 +447,6 @@ extension CometChatUserDetail: UITableViewDelegate , UITableViewDataSource {
         default: break}
     }
     
-    @available(iOS 13.0, *)
-    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
-            if  let selectedCell = (tableView.cellForRow(at: indexPath) as? CometChatDetailView){
-                let audioCall = UIAction(title: NSLocalizedString("AUDIO_CALL", comment: ""), image: #imageLiteral(resourceName: "audioCall")) { action in
-                    if let user = selectedCell.user {
-                        CometChatCallManager().makeCall(call: .audio, to: user)
-                    }
-                }
-                
-                let videoCall = UIAction(title: NSLocalizedString("VIDEO_CALL", comment: ""), image: #imageLiteral(resourceName: "videoCall")) { action in
-                    if let user = selectedCell.user {
-                        CometChatCallManager().makeCall(call: .video, to: user)
-                    }
-                }
-                return UIMenu(title: "", children: [audioCall,videoCall])
-            }
-            return UIMenu(title: "")
-        })
-    }
 }
 
 
@@ -499,9 +491,9 @@ extension CometChatUserDetail :QLPreviewControllerDataSource, QLPreviewControlle
         if FileManager.default.fileExists(atPath: destinationUrl.path) {
             completion(true, destinationUrl)
         } else {
-             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Downloading...", duration: .forever)
-             snackbar.animationType = .slideFromBottomToTop
-             snackbar.show()
+            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Downloading...", duration: .forever)
+            snackbar.animationType = .slideFromBottomToTop
+            snackbar.show()
             URLSession.shared.downloadTask(with: itemUrl!, completionHandler: { (location, response, error) -> Void in
                 guard let tempLocation = location, error == nil else { return }
                 do {
@@ -510,7 +502,6 @@ extension CometChatUserDetail :QLPreviewControllerDataSource, QLPreviewControlle
                     completion(true, destinationUrl)
                 } catch let error as NSError {
                     snackbar.dismiss()
-                    print(error.localizedDescription)
                     completion(false, nil)
                 }
             }).resume()
@@ -584,36 +575,43 @@ extension CometChatUserDetail: SharedMediaDelegate {
 
 extension CometChatUserDetail: DetailViewDelegate {
     
-       func didCallButtonPressed(for: AppEntity) {
-            let actionSheetController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-            let audioCall: UIAlertAction = UIAlertAction(title: NSLocalizedString("AUDIO_CALL", comment: ""), style: .default) { action -> Void in
-                if let user = self.currentUser {
-                    CometChatCallManager().makeCall(call: .audio, to: user)
-                }
-            }
-            
-            let videoCall: UIAlertAction = UIAlertAction(title: NSLocalizedString("VIDEO_CALL", comment: ""), style: .default) { action -> Void in
-                if let user = self.currentUser {
-                    CometChatCallManager().makeCall(call: .video, to: user)
-                }
-            }
-            
-            let cancelAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("CANCEL", comment: ""), style: .cancel) { action -> Void in
-            }
-            cancelAction.setValue(UIColor.red, forKey: "titleTextColor")
-            actionSheetController.addAction(audioCall)
-            actionSheetController.addAction(videoCall)
-            actionSheetController.addAction(cancelAction)
-            
-            // Added ActionSheet support for iPad
-            if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad ){
-                if let currentPopoverpresentioncontroller =
-                    actionSheetController.popoverPresentationController{
-                    currentPopoverpresentioncontroller.sourceView = self.view
-                    self.present(actionSheetController, animated: true, completion: nil)
-                }
-            }else{
-                self.present(actionSheetController, animated: true, completion: nil)
+    func didCallButtonPressed(for: AppEntity) {
+        let actionSheetController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let audioCall: UIAlertAction = UIAlertAction(title: NSLocalizedString("AUDIO_CALL", bundle: UIKitSettings.bundle, comment: ""), style: .default) { action -> Void in
+            if let user = self.currentUser {
+                CometChatCallManager().makeCall(call: .audio, to: user)
             }
         }
+        
+        let videoCall: UIAlertAction = UIAlertAction(title: NSLocalizedString("VIDEO_CALL", bundle: UIKitSettings.bundle, comment: ""), style: .default) { action -> Void in
+            if let user = self.currentUser {
+                CometChatCallManager().makeCall(call: .video, to: user)
+            }
+        }
+        
+        let cancelAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("CANCEL", bundle: UIKitSettings.bundle, comment: ""), style: .cancel) { action -> Void in
+        }
+        cancelAction.setValue(UIColor.red, forKey: "titleTextColor")
+        
+        if UIKitSettings.userAudioCall == .enabled {
+              actionSheetController.addAction(audioCall)
+        }
+        
+        if  UIKitSettings.userVideoCall == .enabled {
+             actionSheetController.addAction(videoCall)
+        }
+       
+        actionSheetController.addAction(cancelAction)
+        actionSheetController.view.tintColor = UIKitSettings.primaryColor
+        // Added ActionSheet support for iPad
+        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad ){
+            if let currentPopoverpresentioncontroller =
+                actionSheetController.popoverPresentationController{
+                currentPopoverpresentioncontroller.sourceView = self.view
+                self.present(actionSheetController, animated: true, completion: nil)
+            }
+        }else{
+            self.present(actionSheetController, animated: true, completion: nil)
+        }
     }
+}

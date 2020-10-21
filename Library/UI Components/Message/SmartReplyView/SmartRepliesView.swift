@@ -37,7 +37,7 @@ protocol SmartRepliesViewDelegate: class {
     - Author: CometChat Team
     - Copyright:  ©  2020 CometChat Inc.
     */
-    @objc public func set(titles : [String]){
+    @objc  func set(titles : [String]){
         buttontitles = titles
         collectionView.reloadData()
     }
@@ -63,7 +63,7 @@ protocol SmartRepliesViewDelegate: class {
     private func setupCollectionView() {
         collectionView.dataSource = self
         collectionView.delegate = self
-        let SmartReplyCell = UINib(nibName: "SmartReplyCell", bundle: nil)
+        let SmartReplyCell = UINib(nibName: "SmartReplyCell", bundle: UIKitSettings.bundle)
         collectionView.register(SmartReplyCell, forCellWithReuseIdentifier: "smartReplyCell")
     }
 }

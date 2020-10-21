@@ -37,6 +37,14 @@ public class CometChatIncomingCall: UIViewController {
         }
     }
     
+    public override func loadView() {
+        let bundle = Bundle(for: type(of: self))
+        let nib = UINib(nibName: "CometChatIncomingCall", bundle: bundle)
+        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.view  = view
+    }
+    
     override public func viewWillAppear(_ animated: Bool) {
         CometChatCallManager.incomingCallDelegate = self
     }
@@ -69,19 +77,19 @@ public class CometChatIncomingCall: UIViewController {
             switch call.receiverType {
             case .user where call.callType == .audio:
                 if let user = call.callInitiator as? User {
-                    self.set(name: user.name?.capitalized ?? "", avatarURL: user.avatar ?? "", callStatus: "Incoming Audio Call", callStatusIcon: #imageLiteral(resourceName: "incomingAudio"))
+                    self.set(name: user.name?.capitalized ?? "", avatarURL: user.avatar ?? "", callStatus: "Incoming Audio Call", callStatusIcon: UIImage(named: "incomingAudio", in: UIKitSettings.bundle, compatibleWith: nil)!)
                 }
             case .user where call.callType == .video:
                 if let user = call.callInitiator as? User {
-                    self.set(name: user.name?.capitalized ?? "", avatarURL: user.avatar ?? "", callStatus: "Incoming Video Call", callStatusIcon: #imageLiteral(resourceName: "incomingVideo"))
+                    self.set(name: user.name?.capitalized ?? "", avatarURL: user.avatar ?? "", callStatus: "Incoming Video Call", callStatusIcon: UIImage(named: "incomingVideo", in: UIKitSettings.bundle, compatibleWith: nil)!)
                 }
             case .group where call.callType == .audio:
                 if let group = call.callReceiver as? Group {
-                    self.set(name: group.name?.capitalized ?? "", avatarURL: group.icon ?? "", callStatus: "Incoming Audio Call", callStatusIcon: #imageLiteral(resourceName: "incomingAudio"))
+                    self.set(name: group.name?.capitalized ?? "", avatarURL: group.icon ?? "", callStatus: "Incoming Audio Call", callStatusIcon: UIImage(named: "incomingAudio", in: UIKitSettings.bundle, compatibleWith: nil)!)
                 }
             case .group where call.callType == .video:
                 if let group = call.callReceiver as? Group {
-                    self.set(name: group.name?.capitalized ?? "", avatarURL: group.icon ?? "", callStatus: "Incoming Video Call", callStatusIcon: #imageLiteral(resourceName: "incomingVideo"))
+                    self.set(name: group.name?.capitalized ?? "", avatarURL: group.icon ?? "", callStatus: "Incoming Video Call", callStatusIcon: UIImage(named: "incomingVideo", in: UIKitSettings.bundle, compatibleWith: nil)!)
                 }
             case .user:  break
             case .group: break

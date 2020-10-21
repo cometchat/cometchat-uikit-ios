@@ -26,23 +26,23 @@ class MembersView: UITableViewCell {
         didSet {
             if let currentMember = member {
                 if currentMember.uid == LoggedInUser.uid {
-                    name.text = NSLocalizedString("YOU", comment: "")
+                    name.text = NSLocalizedString("YOU", bundle: UIKitSettings.bundle, comment: "")
                     self.selectionStyle = .none
                 }else{
                     name.text = currentMember.name
                 }
                 avatar.set(image: currentMember.avatar ?? "", with: currentMember.name ?? "")
                 switch currentMember.scope {
-                case .admin:  scope.text = NSLocalizedString("ADMIN", comment: "")
-                case .moderator: scope.text = NSLocalizedString("MODERATOR", comment: "")
-                case .participant: scope.text = NSLocalizedString("PARTICIPANT", comment: "")
+                case .admin:  scope.text = NSLocalizedString("ADMIN", bundle: UIKitSettings.bundle, comment: "")
+                case .moderator: scope.text = NSLocalizedString("MODERATOR", bundle: UIKitSettings.bundle, comment: "")
+                case .participant: scope.text = NSLocalizedString("PARTICIPANT", bundle: UIKitSettings.bundle, comment: "")
                 @unknown default: break }
             }
          }
     }
     
     deinit {
-        print("MembersView deallocated")
+     
     }
     
     override func prepareForReuse() {

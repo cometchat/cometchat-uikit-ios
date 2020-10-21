@@ -17,7 +17,7 @@ import CometChatPro
 
 /*  ----------------------------------------------------------------------------------------- */
 
-@objc @IBDesignable public class StatusIndicator: UIView {
+@objc @IBDesignable  class StatusIndicator: UIView {
     
     // MARK: - Declaration of IBInspectable
     
@@ -25,7 +25,7 @@ import CometChatPro
     @IBInspectable var borderColor: UIColor = UIColor.black
     @IBInspectable var borderWidth: CGFloat = 0.5
     private var customBackgroundColor = UIColor.white
-    override public var backgroundColor: UIColor?{
+    override  var backgroundColor: UIColor?{
         didSet {
             customBackgroundColor = backgroundColor!
             super.backgroundColor = UIColor.clear
@@ -46,7 +46,7 @@ import CometChatPro
         super.init(coder: aDecoder)
         self.setup() }
     
-    override public func draw(_ rect: CGRect) {
+    override  func draw(_ rect: CGRect) {
         customBackgroundColor.setFill()
         UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).fill()
         let borderRect = bounds.insetBy(dx: borderWidth/2, dy: borderWidth/2)
@@ -56,7 +56,7 @@ import CometChatPro
         borderPath.stroke()
     }
     
-    // MARK: - Public instance methods
+    // MARK: -  instance methods
     
     /**
      This method used to set the cornerRadius for StatusIndicator class
@@ -66,7 +66,7 @@ import CometChatPro
      - See Also:
      [StatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
      */
-    @objc public func set(cornerRadius: CGFloat) -> StatusIndicator {
+    @objc  func set(cornerRadius: CGFloat) -> StatusIndicator {
         self.cornerRadius = cornerRadius
         return self
     }
@@ -79,7 +79,7 @@ import CometChatPro
      - See Also:
      [StatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
      */
-    @objc public func set(borderColor: UIColor) -> StatusIndicator {
+    @objc  func set(borderColor: UIColor) -> StatusIndicator {
         self.borderColor = borderColor
         return self
     }
@@ -92,7 +92,7 @@ import CometChatPro
      - See Also:
      [StatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
      */
-    @objc public func set(borderWidth: CGFloat) -> StatusIndicator {
+    @objc  func set(borderWidth: CGFloat) -> StatusIndicator {
         self.borderWidth = borderWidth
         return self
     }
@@ -105,7 +105,7 @@ import CometChatPro
      - See Also:
      [StatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
      */
-    @objc public func set(color: UIColor) -> StatusIndicator {
+    @objc  func set(color: UIColor) -> StatusIndicator {
         self.backgroundColor = color
         return self
     }
@@ -119,12 +119,13 @@ import CometChatPro
      - See Also:
      [StatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
      */
-    @objc public func set(status: CometChatPro.CometChat.UserStatus) -> StatusIndicator {
+    @objc  func set(status: CometChatPro.CometChat.UserStatus) -> StatusIndicator {
         switch status {
         case .online:
             self.backgroundColor = #colorLiteral(red: 0.6039215686, green: 0.8039215686, blue: 0.1960784314, alpha: 1)
         case .offline:
             self.backgroundColor = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1)
+        case .available: break
         @unknown default:
             break
         }

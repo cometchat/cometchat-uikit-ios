@@ -24,6 +24,7 @@ class LeftImageMessageBubble: UITableViewCell {
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var receiptStack: UIStackView!
+    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var imageModerationView: UIView!
     @IBOutlet weak var unsafeContentView: UIImageView!
     
@@ -63,7 +64,7 @@ class LeftImageMessageBubble: UITableViewCell {
                           let image = UIImage(data: imageData as Data)
                           imageMessage.image = image
                       } catch {
-                          print("Error loading image : \(error)")
+                        
                       }
                   }else{
                       parseThumbnailForImage(forMessage: mediaMessage)
@@ -72,18 +73,27 @@ class LeftImageMessageBubble: UITableViewCell {
                   parseThumbnailForImage(forMessage: mediaMessage)
               }
               parseImageForModeration(forMessage: mediaMessage)
-           replybutton.isHidden = true
+            if mediaMessageInThread?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
+                replybutton.isHidden = false
+                if mediaMessageInThread?.replyCount == 1 {
+                    replybutton.setTitle("1 reply", for: .normal)
+                }else{
+                    if let replies = mediaMessageInThread?.replyCount {
+                        replybutton.setTitle("\(replies) replies", for: .normal)
+                    }
+                }
+            }else{
+                replybutton.isHidden = true
+            }
+            replybutton.tintColor = UIKitSettings.primaryColor
         }
     }
     
     var mediaMessageInThread: MediaMessage! {
         didSet {
-            if let userName = mediaMessageInThread.sender?.name {
-                name.text = userName + ":"
-            }
             receiptStack.isHidden = true
             if mediaMessageInThread.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", comment: "")
+                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
             }else{
                 timeStamp.text = String().setMessageTime(time: mediaMessageInThread.sentAt)
             }
@@ -96,7 +106,7 @@ class LeftImageMessageBubble: UITableViewCell {
                         let image = UIImage(data: imageData as Data)
                         imageMessage.image = image
                     } catch {
-                        print("Error loading image : \(error)")
+                     
                     }
                 }else{
                     parseThumbnailForImage(forMessage: mediaMessageInThread)
@@ -105,28 +115,17 @@ class LeftImageMessageBubble: UITableViewCell {
                 parseThumbnailForImage(forMessage: mediaMessageInThread)
             }
             parseImageForModeration(forMessage: mediaMessageInThread)
-            if mediaMessageInThread.readAt > 0  && mediaMessageInThread.receiverType == .user {
+            if mediaMessageInThread.readAt > 0 {
             timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.readAt ?? 0))
             }else if mediaMessageInThread.deliveredAt > 0 {
             timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.deliveredAt ?? 0))
             }else if mediaMessageInThread.sentAt > 0 {
             timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.sentAt ?? 0))
             }else if mediaMessageInThread.sentAt == 0 {
-               timeStamp.text = NSLocalizedString("SENDING", comment: "")
+               timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
                  name.text = LoggedInUser.name.capitalized + ":"
             }
-            if mediaMessageInThread?.replyCount != 0 {
-                replybutton.isHidden = false
-                if mediaMessageInThread?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
-                }else{
-                    if let replies = mediaMessageInThread?.replyCount {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
-                    }
-                }
-            }else{
-                replybutton.isHidden = true
-            }
+           replybutton.isHidden = true
         }
     }
     
@@ -153,7 +152,14 @@ class LeftImageMessageBubble: UITableViewCell {
     
      override func setSelected(_ selected: Bool, animated: Bool) {
            super.setSelected(selected, animated: animated)
-           
+           switch isEditing {
+           case true:
+               switch selected {
+               case true: self.tintedView.isHidden = false
+               case false: self.tintedView.isHidden = true
+               }
+           case false: break
+           }
        }
     
     /**
@@ -162,7 +168,7 @@ class LeftImageMessageBubble: UITableViewCell {
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
-    public func set(Image: UIImageView, forURL url: String) {
+     func set(Image: UIImageView, forURL url: String) {
         let url = URL(string: url)
         Image.cf.setImage(with: url)
     }
@@ -172,13 +178,9 @@ class LeftImageMessageBubble: UITableViewCell {
          if let metaData = forMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let thumbnailGenerationDictionary = cometChatExtension["thumbnail-generation"] as? [String : Any] {
              if let url = URL(string: thumbnailGenerationDictionary["url_medium"] as? String ?? "") {
                  imageMessage.cf.setImage(with: url)
-             }else{
-                if let url = URL(string: forMessage?.attachment?.fileUrl ?? "") {
-                    imageMessage.cf.setImage(with: url)
-                }
              }
          }else{
-            if let url = URL(string: forMessage?.attachment?.fileUrl ?? "") {
+             if let url = URL(string: mediaMessage.attachment?.fileUrl ?? "") {
                  imageMessage.cf.setImage(with: url)
              }
          }

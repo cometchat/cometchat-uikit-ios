@@ -45,15 +45,20 @@ class CometChatUserView: UITableViewCell {
             if  user?.status != nil {
                 switch user?.status {
                 case .online:
-                    userStatus.text = NSLocalizedString("ONLINE", comment: "")
+                    userStatus.text = NSLocalizedString("ONLINE", bundle: UIKitSettings.bundle, comment: "")
                 case .offline:
-                    userStatus.text = NSLocalizedString("OFFLINE", comment: "")
+                    userStatus.text = NSLocalizedString("OFFLINE", bundle: UIKitSettings.bundle, comment: "")
                 case .none: break
                 @unknown default:
-                    userStatus.text = NSLocalizedString("OFFLINE", comment: "")
+                    userStatus.text = NSLocalizedString("OFFLINE", bundle: UIKitSettings.bundle, comment: "")
                 }
             }
-            
+            if #available(iOS 13.0, *) {
+                let edit = UIImage(named: "editIcon.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                 editInfo.setImage(edit, for: .normal)
+                editInfo.tintColor = UIKitSettings.primaryColor
+            } else {}
+            userStatus.textColor = UIKitSettings.primaryColor
         }
     }
     

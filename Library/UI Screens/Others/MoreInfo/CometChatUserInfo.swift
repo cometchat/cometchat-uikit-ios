@@ -28,7 +28,7 @@ public class CometChatUserInfo: UIViewController {
     
     override public func loadView() {
         super.loadView()
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+       
         view.backgroundColor = .white
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
@@ -52,7 +52,7 @@ public class CometChatUserInfo: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
+            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -90,7 +90,7 @@ public class CometChatUserInfo: UIViewController {
               self.present(alert, animated: true, completion: nil)
           }
           let user = User(uid: uid, name: name)
-        CometChat.updateUser(user: user, apiKey: Constants.apiKey, onSuccess: { (user) in
+          CometChat.updateUser(user: user, apiKey: "Constants.apiKey", onSuccess: { (user) in
               DispatchQueue.main.async {
                   self.dismiss(animated: true, completion: nil)
                   self.tableView.reloadData()
@@ -145,10 +145,10 @@ public class CometChatUserInfo: UIViewController {
      - Copyright:  ©  2020 CometChat Inc.
      */
     private func registerCells(){
-        let CometChatUserView  = UINib.init(nibName: "CometChatUserView", bundle: nil)
+        let CometChatUserView  = UINib.init(nibName: "CometChatUserView", bundle: UIKitSettings.bundle)
         self.tableView.register(CometChatUserView, forCellReuseIdentifier: "userView")
         
-        let CometChatSettingsView  = UINib.init(nibName: "CometChatSettingsView", bundle: nil)
+        let CometChatSettingsView  = UINib.init(nibName: "CometChatSettingsView", bundle: UIKitSettings.bundle)
         self.tableView.register(CometChatSettingsView, forCellReuseIdentifier: "cometChatSettingsView")
     }
     
@@ -163,8 +163,8 @@ public class CometChatUserInfo: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
@@ -209,11 +209,11 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
-            sectionTitle.text =  NSLocalizedString("PREFERENCES", comment: "")
+            sectionTitle.text =  NSLocalizedString("PREFERENCES", bundle: UIKitSettings.bundle, comment: "")
         }else if section == 2{
             sectionTitle.text =  ""
         }
-        sectionTitle.font = UIFont(name: "SFProDisplay-Medium", size: 13)
+        sectionTitle.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         if #available(iOS 13.0, *) {
             sectionTitle.textColor = .lightGray
             returnedView.backgroundColor = .systemBackground
@@ -269,11 +269,11 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
             userCell.userAvatar.cornerRadius = 40
             userCell.delegate = self
             userCell.editInfo.isHidden = false
-            userCell.userName.font =  UIFont(name: "SFProDisplay-Bold", size: 22)
-            userCell.userStatus.font =  UIFont(name: "SFProDisplay-Regular", size: 15)
+            userCell.userName.font =  UIFont.systemFont(ofSize: 22, weight: .bold)
+            userCell.userStatus.font =  UIFont.systemFont(ofSize: 15, weight: .regular)
             userCell.user = CometChat.getLoggedInUser()
             userCell.userStatus.isHidden = false
-            userCell.userStatus.text = NSLocalizedString("ONLINE", comment: "")
+            userCell.userStatus.text = NSLocalizedString("ONLINE", bundle: UIKitSettings.bundle, comment: "")
             userCell.separatorInset = UIEdgeInsets(top: 0, left: tableView.frame.size.width, bottom: 0, right: 0)
             return userCell
             
@@ -285,8 +285,8 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
                 
             case CometChatUserInfo.PRIVACY_AND_SECURITY_CELL:
                 settingsCell.settingsName.text = NSLocalizedString(
-                    "PRIVACY_&_SECURITY", comment: "")
-                settingsCell.settingsIcon.image = #imageLiteral(resourceName: "􀉼")
+                    "PRIVACY_&_SECURITY", bundle: UIKitSettings.bundle, comment: "")
+                settingsCell.settingsIcon.image = UIImage(named: "􀉼", in: UIKitSettings.bundle, compatibleWith: nil)
                 return settingsCell
             default:
                 break

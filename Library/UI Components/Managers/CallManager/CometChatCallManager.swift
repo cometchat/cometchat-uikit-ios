@@ -16,8 +16,8 @@ import CometChatPro
     
      // MARK: - Declaration of Variables
     
-    @objc public static weak var incomingCallDelegate: IncomingCallDelegate?
-    @objc public static weak var outgoingCallDelegate: OutgoingCallDelegate?
+    @objc static weak var incomingCallDelegate: IncomingCallDelegate?
+    @objc static weak var outgoingCallDelegate: OutgoingCallDelegate?
     
     
     
@@ -81,24 +81,24 @@ import CometChatPro
 
  // MARK: - Declaration of Protocols
 
-@objc public protocol IncomingCallDelegate: AnyObject {
+@objc  protocol IncomingCallDelegate: AnyObject {
     @objc func onIncomingCallReceived(incomingCall: Call, error: CometChatException?)
     @objc func onIncomingCallCancelled(canceledCall: Call, error: CometChatException?)
 }
 
-@objc public protocol OutgoingCallDelegate: AnyObject {
+@objc  protocol OutgoingCallDelegate: AnyObject {
     @objc func onOutgoingCallAccepted(acceptedCall: Call, error: CometChatException?)
     @objc func onOutgoingCallRejected(rejectedCall: Call, error: CometChatException?)
 }
 
 ///*  ----------------------------------------------------------------------------------------- */
 
- // MARK: - CometChatCallDelegate Methods (For Swift Project)
+//  MARK: - CometChatCallDelegate Methods (For Swift Project)
+//
+//  Since, Objective C dosen't extend Appdelegate, kindly register for `CometChatCallDelegate` in AppDelegate and add those methods in AppDelegate.
 
- // Since, Objective C dosen't extend Appdelegate, kindly register for `CometChatCallDelegate` in AppDelegate and add those methods in AppDelegate.
 
-
-extension AppDelegate: CometChatCallDelegate {
+extension AppDelegate : CometChatCallDelegate {
 
     /**
     This method triggers when incoming call received from Server.
@@ -176,10 +176,10 @@ extension AppDelegate: CometChatCallDelegate {
     }
 }
 
-  //-----------------------------------------------------------------------------------------
-
- //  MARK: - CometChatCallDelegate Methods (For Objective C Project)
-
+///*  ----------------------------------------------------------------------------------------- */
+//
+//// //  MARK: - CometChatCallDelegate Methods (For Objective C Project)
+////
 //extension CometChatUnified : CometChatCallDelegate {
 //
 //    /**
@@ -191,7 +191,7 @@ extension AppDelegate: CometChatCallDelegate {
 //    - Copyright:  ©  2020 CometChat Inc.
 //    */
 //    public func onIncomingCallReceived(incomingCall: Call?, error: CometChatException?) {
-//        print(#function)
+//
 //        if let currentCall = incomingCall {
 //            DispatchQueue.main.async {
 //                let call = CometChatIncomingCall()
@@ -214,7 +214,7 @@ extension AppDelegate: CometChatCallDelegate {
 //    - Copyright:  ©  2020 CometChat Inc.
 //    */
 //    public func onOutgoingCallAccepted(acceptedCall: Call?, error: CometChatException?) {
-//        print(#function)
+//
 //        if let call = acceptedCall {
 //            CometChatCallManager.outgoingCallDelegate?.onOutgoingCallAccepted(acceptedCall: call, error: error)
 //        }
@@ -229,7 +229,7 @@ extension AppDelegate: CometChatCallDelegate {
 //    - Copyright:  ©  2020 CometChat Inc.
 //    */
 //    public func onOutgoingCallRejected(rejectedCall: Call?, error: CometChatException?) {
-//        print(#function)
+//
 //        if let call = rejectedCall {
 //            CometChatCallManager.outgoingCallDelegate?.onOutgoingCallRejected(rejectedCall: call, error: error)
 //        }
@@ -244,12 +244,12 @@ extension AppDelegate: CometChatCallDelegate {
 //    - Copyright:  ©  2020 CometChat Inc.
 //    */
 //    public func onIncomingCallCancelled(canceledCall: Call?, error: CometChatException?) {
-//        print(#function)
+//
 //        if let call = canceledCall {
 //            CometChatCallManager.incomingCallDelegate?.onIncomingCallCancelled(canceledCall: call, error: error)
 //        }
 //    }
 //}
-
-
-/*  ----------------------------------------------------------------------------------------- */
+////
+////
+/////*  ----------------------------------------------------------------------------------------- */

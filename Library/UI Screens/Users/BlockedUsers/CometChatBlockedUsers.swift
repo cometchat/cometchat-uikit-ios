@@ -28,13 +28,13 @@ class CometChatBlockedUsers: UIViewController {
     
     override public func loadView() {
         super.loadView()
-        UIFont.loadAllFonts(bundleIdentifierString: Bundle.main.bundleIdentifier ?? "")
+       
         view.backgroundColor = .white
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
         self.setupNavigationBar()
         self.fetchBlockedUsers()
-        self.set(title: NSLocalizedString("BLOCKED_USERS", comment: ""), mode: .automatic)
+        self.set(title: NSLocalizedString("BLOCKED_USERS", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
     }
     
     
@@ -53,7 +53,7 @@ class CometChatBlockedUsers: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, comment: "")
+            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -80,8 +80,8 @@ class CometChatBlockedUsers: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [ .foregroundColor: color,.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.foregroundColor: color, .font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font: UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navBarAppearance.backgroundColor = barColor
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
@@ -116,7 +116,7 @@ class CometChatBlockedUsers: UIViewController {
         self.tableView.dataSource = self
         self.tableView.tableFooterView = UIView(frame: .zero)
         tableView.isEditing = true
-        let UserView  = UINib.init(nibName: "CometChatUserView", bundle: nil)
+        let UserView  = UINib.init(nibName: "CometChatUserView", bundle: UIKitSettings.bundle)
         self.tableView.register(UserView, forCellReuseIdentifier: "userView")
     }
     
@@ -132,8 +132,8 @@ class CometChatBlockedUsers: UIViewController {
             if #available(iOS 13.0, *) {
                 let navBarAppearance = UINavigationBarAppearance()
                 navBarAppearance.configureWithOpaqueBackground()
-                navBarAppearance.titleTextAttributes = [.font: UIFont (name: "SFProDisplay-Regular", size: 20) as Any]
-                navBarAppearance.largeTitleTextAttributes = [.font: UIFont(name: "SFProDisplay-Bold", size: 35) as Any]
+                navBarAppearance.titleTextAttributes = [.font:UIFont.systemFont(ofSize: 20, weight: .regular) as Any]
+                navBarAppearance.largeTitleTextAttributes = [.font: UIFont.systemFont(ofSize: 35, weight: .bold) as Any]
                 navBarAppearance.shadowColor = .clear
                 navigationController?.navigationBar.standardAppearance = navBarAppearance
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
@@ -174,7 +174,6 @@ class CometChatBlockedUsers: UIViewController {
             }
             
         }, onError: { (error) in
-            print("error while fetchBlockedUsers: \(String(describing: error?.errorDescription))")
             DispatchQueue.main.async {
                     if let errorMessage = error?.errorDescription {
                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
@@ -253,7 +252,7 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
     ///   - indexPath: specifies current index for TableViewCell.
     func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String?
     {
-        return NSLocalizedString("UNBLOCK", comment: "")
+        return NSLocalizedString("UNBLOCK", bundle: UIKitSettings.bundle, comment: "")
     }
     
     
@@ -275,7 +274,7 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
                         tableView.deleteRows(at: [indexPath], with: .fade)
                         
                         if let name = selectedCell.user?.name {
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name)" + NSLocalizedString("UNBLOCKED_SUCCESSFULLY", comment: ""), duration: .short)
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name)" + NSLocalizedString("UNBLOCKED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
                             snackbar.show()
                         }
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: ["count": "\(self.blockedUsers.count)"])
@@ -288,7 +287,6 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
                              snackbar.show()
                         }
                     }
-                    print("error while unblockUsers: \(String(describing: error?.errorDescription))")
                 }
             }
         }

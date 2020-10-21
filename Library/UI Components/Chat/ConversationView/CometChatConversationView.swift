@@ -34,10 +34,13 @@ class CometChatConversationView: UITableViewCell {
     // MARK: - Declaration of Variables
     
     lazy var searchedText: String = ""
-    let normalTitlefont = UIFont(name: "SFProDisplay-Medium", size: 17)
-    let boldTitlefont = UIFont(name: "SFProDisplay-Bold", size: 17)
-    let normalSubtitlefont = UIFont(name: "SFProDisplay-Regular", size: 15)
-    let boldSubtitlefont = UIFont(name: "SFProDisplay-Bold", size: 15)
+    
+    let normalTitlefont = UIFont.systemFont(ofSize: 17, weight: .medium)
+    let boldTitlefont = UIFont.systemFont(ofSize: 17, weight: .bold)
+    let normalSubtitlefont = UIFont.systemFont(ofSize: 15, weight: .regular)
+    let boldSubtitlefont = UIFont.systemFont(ofSize: 15, weight: .bold)
+    
+    
     weak var conversation: Conversation? {
         didSet {
             if let currentConversation = conversation {
@@ -50,6 +53,12 @@ class CometChatConversationView: UITableViewCell {
                     avatar.set(image: user.avatar ?? "", with: user.name ?? "")
                     status.isHidden = false
                     status.set(status: user.status)
+                    
+                    if UIKitSettings.showUserPresence == .disabled {
+                        status.isHidden = true
+                    }else{
+                        status.isHidden = false
+                    }
                 case .group:
                     guard let group =  currentConversation.conversationWith as? Group else {
                         return
@@ -80,26 +89,43 @@ class CometChatConversationView: UITableViewCell {
                         }
                         
                     case .image where currentConversation.conversationType == .user:
-                        message.text = NSLocalizedString("HAS_SENT_AN_IMAGE", comment: "")
+                        message.text = NSLocalizedString("HAS_SENT_AN_IMAGE", bundle: UIKitSettings.bundle, comment: "")
                     case .image where currentConversation.conversationType == .group:
-                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_AN_IMAGE", comment: "")
+                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_AN_IMAGE", bundle: UIKitSettings.bundle, comment: "")
                     case .video  where currentConversation.conversationType == .user:
-                        message.text = NSLocalizedString("HAS_SENT_A_VIDEO", comment: "")
+                        message.text = NSLocalizedString("HAS_SENT_A_VIDEO", bundle: UIKitSettings.bundle, comment: "")
                     case .video  where currentConversation.conversationType == .group:
-                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_VIDEO", comment: "")
+                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_VIDEO", bundle: UIKitSettings.bundle, comment: "")
                     case .audio  where currentConversation.conversationType == .user:
-                        message.text = NSLocalizedString("HAS_SENT_A_AUDIO", comment: "")
+                        message.text = NSLocalizedString("HAS_SENT_A_AUDIO", bundle: UIKitSettings.bundle, comment: "")
                     case .audio  where currentConversation.conversationType == .group:
-                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_AUDIO", comment: "")
+                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_AUDIO", bundle: UIKitSettings.bundle, comment: "")
                     case .file  where currentConversation.conversationType == .user:
-                        message.text = NSLocalizedString("HAS_SENT_A_FILE", comment: "")
+                        message.text = NSLocalizedString("HAS_SENT_A_FILE", bundle: UIKitSettings.bundle, comment: "")
                     case .file  where currentConversation.conversationType == .group:
-                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_FILE", comment: "")
+                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_FILE", bundle: UIKitSettings.bundle, comment: "")
                     case .custom where currentConversation.conversationType == .user:
-                        message.text = NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE", comment: "")
-                    case .custom where currentConversation.conversationType == .group:
-                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE", comment: "")
                         
+                        if let customMessage = currentConversation.lastMessage as? CustomMessage {
+                            if customMessage.type == "location" {
+                                message.text = "📍 has shared location"
+                            }else if customMessage.type == "extension_poll" {
+                                 message.text = "📊 has added new poll"
+                            }
+                        }else{
+                            message.text = NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE",  bundle: UIKitSettings.bundle, comment: "")
+                        }
+                       
+                    case .custom where currentConversation.conversationType == .group:
+                        if let customMessage = currentConversation.lastMessage as? CustomMessage {
+                            if customMessage.type == "location" {
+                                message.text = senderName! + ":  " + "📍 has shared location"
+                            }else if customMessage.type == "extension_poll" {
+                                message.text = senderName! + ":  " + "📊 has added new poll"
+                            }
+                        }else{
+                            message.text = senderName! +  ":  " +  NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE",  bundle: UIKitSettings.bundle, comment: "")
+                        }
                     case .groupMember:break
                     case .none:break
                     case .some(_):break
@@ -116,7 +142,7 @@ class CometChatConversationView: UITableViewCell {
                         }
                     }
                 case .call:
-                    message.text = NSLocalizedString("HAS_SENT_A_CALL", comment: "")
+                    message.text = NSLocalizedString("HAS_SENT_A_CALL", bundle: UIKitSettings.bundle, comment: "")
                 case .custom where currentConversation.conversationType == .user:
                     
                     if let customMessage = currentConversation.lastMessage as? CustomMessage {
@@ -125,8 +151,6 @@ class CometChatConversationView: UITableViewCell {
                         }else if customMessage.type == "extension_poll" {
                             message.text = "📊 has added new poll"
                         }
-                    }else{
-                        message.text = NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE", comment: "")
                     }
                     
                 case .custom where currentConversation.conversationType == .group:
@@ -136,10 +160,7 @@ class CometChatConversationView: UITableViewCell {
                         }else if customMessage.type == "extension_poll" {
                             message.text = senderName! + ":  " + "📊 has added new poll"
                         }
-                    }else{
-                        message.text = senderName! +  ":  " +  NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE", comment: "")
                     }
-
                 @unknown default:
                     break
                 }
