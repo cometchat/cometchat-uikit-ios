@@ -26,6 +26,7 @@ public class CometChatIncomingCall: UIViewController {
     // MARK: - Declaration of Variables
     
     var currentCall: Call?
+    var callSetting: CallSettings?
     
     // MARK: - View controller lifecycle methods
     
@@ -138,27 +139,37 @@ public class CometChatIncomingCall: UIViewController {
             CometChatSoundManager().play(sound: .incomingCall, bool: false)
             CometChat.acceptCall(sessionID: call.sessionID ?? "", onSuccess: { (acceptedCall) in
                 if acceptedCall != nil {
+                    
                     DispatchQueue.main.async {
-                        CometChat.startCall(sessionID: call.sessionID ?? "", inView: self.view, userJoined: { (userJoined) in
+                        
+                        if acceptedCall?.receiverType == .user {
+                            
+                            self.callSetting = CallSettings.CallSettingsBuilder(callView: self.view, sessionId: call.sessionID ?? "").setMode(mode: .MODE_SINGLE).build()
+                        }else {
+                            
+                            self.callSetting = CallSettings.CallSettingsBuilder(callView: self.view, sessionId: call.sessionID ?? "").build()
+                        }
+                        
+                        CometChat.startCall(callSettings: self.callSetting!) { (userJoined) in
                             DispatchQueue.main.async {
                                 if let name = userJoined?.name {
                                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) joined.", duration: .short)
                                     snackbar.show()
                                 }
                             }
-                        }, userLeft: { (userLeft) in
+                        } userLeft: { (userLeft) in
                             DispatchQueue.main.async {
                                 if let name = userLeft?.name {
                                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) left.", duration: .short)
                                     snackbar.show()
                                 }
                             }
-                        }, onError: { (error) in
-                            DispatchQueue.main.async {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Unable to start call.", duration: .short)
-                                snackbar.show()
-                            }
-                        }) { (callEnded) in
+                            } onError: { (error) in
+                                DispatchQueue.main.async {
+                                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Unable to start call.", duration: .short)
+                                    snackbar.show()
+                                }
+                        } callEnded: { (callEnded) in
                             DispatchQueue.main.async {
                                 self.dismiss()
                                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Ended.", duration: .short)
