@@ -2766,91 +2766,91 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
 
 // MARK: - UITextView Delegate
 
-extension CometChatMessageList : UITextViewDelegate {
-    
-    
-    /// This method triggers when  user stops typing in textView.
-    /// - Parameter textView: A scrollable, multiline text region.
-    public func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            guard let indicator = typingIndicator else {
-                return
-            }
-            if UIKitSettings.sendTypingIndicator == .enabled {
-                CometChat.endTyping(indicator: indicator)
-            }
-            send.isHidden = true
-            
-            if UIKitSettings.sendVoiceNotes == .enabled {
-                microphone.isHidden = false
-            }else{
-                microphone.isHidden = true
-            }
-            
-            if UIKitSettings.shareLiveReaction == .enabled {
-                reaction.isHidden = false
-            }else{
-                if UIKitSettings.sendMessage == .enabled {
-                    send.isHidden = false
-                }else{
-                    send.isHidden = true
-                }
-                reaction.isHidden = true
-            }
-        }
-    }
-    
-    /// This method triggers when  user starts typing in textView.
-    /// - Parameter textView: A scrollable, multiline text region.
-    public func textViewDidChange(_ textView: UITextView) {
-        guard let indicator = typingIndicator else {
-            return
-        }
-        if textView.text?.count == 0 {
-            if UIKitSettings.sendTypingIndicator == .enabled {
-                CometChat.startTyping(indicator: indicator)
-            }
-            
-            microphone.isHidden = false
-            reaction.isHidden = false
-            send.isHidden = true
-            
-            if UIKitSettings.sendVoiceNotes == .enabled {
-                microphone.isHidden = false
-            }else{
-                microphone.isHidden = true
-            }
-            
-            if UIKitSettings.shareLiveReaction == .enabled {
-                reaction.isHidden = false
-            }else{
-                if UIKitSettings.sendMessage == .enabled {
-                    send.isHidden = false
-                }else{
-                    send.isHidden = true
-                }
-                reaction.isHidden = true
-            }
-        }else{
-            if UIKitSettings.sendTypingIndicator == .enabled {
-                CometChat.endTyping(indicator: indicator)
-            }
-            microphone.isHidden = true
-            reaction.isHidden = true
-            
-            if UIKitSettings.sendMessage == .enabled {
-               send.isHidden = false
-            }else{
-               send.isHidden = true
-            }
-            
-            
-        }
-        if UIKitSettings.sendTypingIndicator == .enabled {
-            CometChat.startTyping(indicator: indicator)
-        }
-    }  
-}
+//extension CometChatMessageList : UITextViewDelegate {
+//
+//
+//    /// This method triggers when  user stops typing in textView.
+//    /// - Parameter textView: A scrollable, multiline text region.
+//    public func textViewDidEndEditing(_ textView: UITextView) {
+//        if textView.text.isEmpty {
+//            guard let indicator = typingIndicator else {
+//                return
+//            }
+//            if UIKitSettings.sendTypingIndicator == .enabled {
+//                CometChat.endTyping(indicator: indicator)
+//            }
+//            send.isHidden = true
+//
+//            if UIKitSettings.sendVoiceNotes == .enabled {
+//                microphone.isHidden = false
+//            }else{
+//                microphone.isHidden = true
+//            }
+//
+//            if UIKitSettings.shareLiveReaction == .enabled {
+//                reaction.isHidden = false
+//            }else{
+//                if UIKitSettings.sendMessage == .enabled {
+//                    send.isHidden = false
+//                }else{
+//                    send.isHidden = true
+//                }
+//                reaction.isHidden = true
+//            }
+//        }
+//    }
+//
+//    /// This method triggers when  user starts typing in textView.
+//    /// - Parameter textView: A scrollable, multiline text region.
+//    public func textViewDidChange(_ textView: UITextView) {
+//        guard let indicator = typingIndicator else {
+//            return
+//        }
+//        if textView.text?.count == 0 {
+//            if UIKitSettings.sendTypingIndicator == .enabled {
+//                CometChat.startTyping(indicator: indicator)
+//            }
+//
+//            microphone.isHidden = false
+//            reaction.isHidden = false
+//            send.isHidden = true
+//
+//            if UIKitSettings.sendVoiceNotes == .enabled {
+//                microphone.isHidden = false
+//            }else{
+//                microphone.isHidden = true
+//            }
+//
+//            if UIKitSettings.shareLiveReaction == .enabled {
+//                reaction.isHidden = false
+//            }else{
+//                if UIKitSettings.sendMessage == .enabled {
+//                    send.isHidden = false
+//                }else{
+//                    send.isHidden = true
+//                }
+//                reaction.isHidden = true
+//            }
+//        }else{
+//            if UIKitSettings.sendTypingIndicator == .enabled {
+//                CometChat.endTyping(indicator: indicator)
+//            }
+//            microphone.isHidden = true
+//            reaction.isHidden = true
+//
+//            if UIKitSettings.sendMessage == .enabled {
+//               send.isHidden = false
+//            }else{
+//               send.isHidden = true
+//            }
+//
+//
+//        }
+//        if UIKitSettings.sendTypingIndicator == .enabled {
+//            CometChat.startTyping(indicator: indicator)
+//        }
+//    }
+//}
 
 extension CometChatMessageList: GrowingTextViewDelegate {
     public func growingTextView(_ growingTextView: GrowingTextView, willChangeHeight height: CGFloat, difference: CGFloat) {
@@ -3741,6 +3741,7 @@ extension CometChatMessageList : CometChatMessageDelegate {
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     public func onTypingEnded(_ typingDetails: TypingIndicator) {
+        
         DispatchQueue.main.async{ [weak self] in
             guard let strongSelf = self else { return }
             
@@ -3757,11 +3758,11 @@ extension CometChatMessageList : CometChatMessageDelegate {
                             }
                         }
                     }else{
-                        if UIKitSettings.sendTypingIndicator == .enabled {
                         strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("ONLINE", bundle: UIKitSettings.bundle, comment: ""))
-                        }
                     }
-                    
+                }else{
+                    strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("ONLINE", bundle: UIKitSettings.bundle, comment: ""))
+                }
                 }else if typingDetails.receiverType == .group  && typingDetails.receiverID == strongSelf.currentGroup?.guid {
                     
                     if let typingMetaData = typingDetails.metadata, let type = typingMetaData["type"] as? String ,let reaction = typingMetaData["reaction"] as? String {
@@ -3775,15 +3776,15 @@ extension CometChatMessageList : CometChatMessageDelegate {
                                 }
                             }
                         }else{
-                            if UIKitSettings.sendTypingIndicator == .enabled {
                             strongSelf.setupNavigationBar(withSubtitle: strongSelf.membersCount ?? "")
-                            }
                         }
+                    }else{
+                        strongSelf.setupNavigationBar(withSubtitle: strongSelf.membersCount ?? "")
                     }
                 }
             }
         }
-    }
+   
     
     public func onMessageEdited(message: BaseMessage) {
         

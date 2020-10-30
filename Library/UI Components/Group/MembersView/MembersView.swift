@@ -19,6 +19,7 @@ class MembersView: UITableViewCell {
     @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var scope: UILabel!
+    @IBOutlet weak var status: StatusIndicator!
     
     // MARK: - Declaration of Variables
     
@@ -31,12 +32,15 @@ class MembersView: UITableViewCell {
                 }else{
                     name.text = currentMember.name
                 }
+                status.set(status: currentMember.status)
                 avatar.set(image: currentMember.avatar ?? "", with: currentMember.name ?? "")
                 switch currentMember.scope {
                 case .admin:  scope.text = NSLocalizedString("ADMIN", bundle: UIKitSettings.bundle, comment: "")
                 case .moderator: scope.text = NSLocalizedString("MODERATOR", bundle: UIKitSettings.bundle, comment: "")
                 case .participant: scope.text = NSLocalizedString("PARTICIPANT", bundle: UIKitSettings.bundle, comment: "")
                 @unknown default: break }
+                
+                
             }
          }
     }
