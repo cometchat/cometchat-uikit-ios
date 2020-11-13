@@ -198,6 +198,12 @@ class MessageInformation: UIViewController {
         
         let rightPollMessageBubble = UINib.init(nibName: "RightPollMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightPollMessageBubble, forCellReuseIdentifier: "rightPollMessageBubble")
+        
+        let leftStickerMessageBubble = UINib.init(nibName: "LeftStickerMessageBubble", bundle: UIKitSettings.bundle)
+        self.tableView?.register(leftStickerMessageBubble, forCellReuseIdentifier: "leftStickerMessageBubble")
+        
+        let rightStickerMessageBubble = UINib.init(nibName: "RightStickerMessageBubble", bundle: UIKitSettings.bundle)
+        self.tableView?.register(rightStickerMessageBubble, forCellReuseIdentifier: "rightStickerMessageBubble")
     }
 }
 
@@ -269,7 +275,7 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                                     receiverCell.receiptStack.isHidden = false
                                     receiverCell.textMessage = textMessage
                                     return receiverCell
-                                case .smartReply,.messageTranslation, .profanityFilter, .sentimentAnalysis, .none:
+                                case .smartReply,.messageTranslation, .profanityFilter, .sentimentAnalysis, .none, .sticker:
                                     let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftTextMessageBubble", for: indexPath) as! LeftTextMessageBubble
                                     receiverCell.indexPath = indexPath
                                     receiverCell.receiptStack.isHidden = false
@@ -307,7 +313,7 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                                     senderCell.indexPath = indexPath
                                     return senderCell
                                     
-                                case .thumbnailGeneration, .imageModeration: break
+                                case .thumbnailGeneration, .imageModeration, .sticker: break
                                     
                                 }
                             }
@@ -316,7 +322,8 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                             if let imageMessage = message as? MediaMessage {
                                 let isContainsExtension = didExtensionDetected(message: imageMessage)
                                 switch isContainsExtension {
-                                case .linkPreview, .smartReply, .messageTranslation, .profanityFilter,.sentimentAnalysis, .reply: break
+                                case .linkPreview, .smartReply, .messageTranslation, .profanityFilter,.sentimentAnalysis, .reply, .sticker: break
+                                    
                                 case .thumbnailGeneration, .imageModeration,.none:
                                     let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftImageMessageBubble", for: indexPath) as! LeftImageMessageBubble
                                     receiverCell.mediaMessage = imageMessage
@@ -332,6 +339,14 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                                 let isContainsExtension = didExtensionDetected(message: imageMessage)
                                 switch isContainsExtension {
                                 case .linkPreview, .smartReply, .messageTranslation, .profanityFilter,.sentimentAnalysis, .reply: break
+                                    
+                                case .sticker:
+                                    let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightStickerMessageBubble", for: indexPath) as! RightImageMessageBubble
+                                    senderCell.mediaMessage = imageMessage
+                                    senderCell.indexPath = indexPath
+                                    senderCell.receiptStack.isHidden = false
+                                    return senderCell
+                                    
                                 case .thumbnailGeneration, .imageModeration,.none:
                                     let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightImageMessageBubble", for: indexPath) as! RightImageMessageBubble
                                     senderCell.mediaMessage = imageMessage
@@ -344,7 +359,7 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                             if let videoMessage = message as? MediaMessage {
                                 let isContainsExtension = didExtensionDetected(message: videoMessage)
                                 switch isContainsExtension {
-                                case .linkPreview, .smartReply, .messageTranslation, .profanityFilter,.sentimentAnalysis, .imageModeration, .reply: break
+                                case .linkPreview, .smartReply, .messageTranslation, .profanityFilter,.sentimentAnalysis, .imageModeration, .reply, .sticker: break
                                 case .thumbnailGeneration,.none:
                                     let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftVideoMessageBubble", for: indexPath) as! LeftVideoMessageBubble
                                     receiverCell.mediaMessage = videoMessage
@@ -357,7 +372,7 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                             if let videoMessage = message as? MediaMessage {
                                 let isContainsExtension = didExtensionDetected(message: videoMessage)
                                 switch isContainsExtension {
-                                case .linkPreview, .smartReply, .messageTranslation, .profanityFilter,.sentimentAnalysis, .imageModeration, .reply: break
+                                case .linkPreview, .smartReply, .messageTranslation, .profanityFilter,.sentimentAnalysis, .imageModeration, .reply, .sticker: break
                                 case .thumbnailGeneration,.none:
                                     let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightVideoMessageBubble", for: indexPath) as! RightVideoMessageBubble
                                     senderCell.mediaMessage = videoMessage
@@ -460,6 +475,21 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                                     return senderCell
                                 }
                             }
+                        }else if type == "extension_sticker" {
+                            if message.senderUid != LoggedInUser.uid {
+                                if let stickerMessage = message as? CustomMessage {
+                                let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftStickerMessageBubble", for: indexPath) as! LeftStickerMessageBubble
+                                receiverCell.stickerMessage = stickerMessage
+    
+                                return receiverCell
+                                }
+                            }else{
+                                if let stickerMessage = message as? CustomMessage {
+                                    let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightStickerMessageBubble", for: indexPath) as! RightStickerMessageBubble
+                                    senderCell.stickerMessage = stickerMessage
+                                    return senderCell
+                                }
+                            }
                         }else{
                             let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
                             let customMessage = message as? CustomMessage
@@ -545,6 +575,14 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
             if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightLinkPreviewBubble {
                 selectedCell.receiptStack.isHidden = false
             }
+            
+            if  let selectedCell = tableView.cellForRow(at: indexPath) as? LeftStickerMessageBubble {
+                selectedCell.receiptStack.isHidden = false
+            }
+            
+            if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightStickerMessageBubble {
+                selectedCell.receiptStack.isHidden = false
+            }
         },completion: nil)
         tableView.endUpdates()
     }
@@ -605,6 +643,14 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
             }
             
             if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightLinkPreviewBubble {
+                selectedCell.receiptStack.isHidden = true
+            }
+            
+            if  let selectedCell = tableView.cellForRow(at: indexPath) as? LeftStickerMessageBubble {
+                selectedCell.receiptStack.isHidden = true
+            }
+            
+            if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightStickerMessageBubble {
                 selectedCell.receiptStack.isHidden = true
             }
         },completion: nil)

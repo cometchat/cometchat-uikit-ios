@@ -121,15 +121,40 @@ class RightTextMessageBubble: UITableViewCell {
     weak var deletedMessage: BaseMessage? {
         didSet {
             self.replybutton.isHidden = true
-            switch deletedMessage?.messageType {
-            case .text:  message.text = NSLocalizedString("YOU_DELETED_THIS_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
-            case .image: message.text = NSLocalizedString("YOU_DELETED_THIS_IMAGE", bundle: UIKitSettings.bundle, comment: "")
-            case .video: message.text = NSLocalizedString("YOU_DELETED_THIS_VIDEO", bundle: UIKitSettings.bundle, comment: "")
-            case .audio: message.text =  NSLocalizedString("YOU_DELETED_THIS_AUDIO", bundle: UIKitSettings.bundle, comment: "")
-            case .file:  message.text = NSLocalizedString("YOU_DELETED_THIS_FILE", bundle: UIKitSettings.bundle, comment: "")
-            case .custom: message.text = NSLocalizedString("YOU_DELETED_THIS_CUSTOM_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
-            case .groupMember: break
-            @unknown default: break }
+            
+            if let deletedMessage = deletedMessage {
+                switch deletedMessage.messageCategory {
+                
+                case .message:
+                    switch deletedMessage.messageType {
+                    case .text:  message.text = NSLocalizedString("YOU_DELETED_THIS_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+                    case .image: message.text = NSLocalizedString("YOU_DELETED_THIS_IMAGE", bundle: UIKitSettings.bundle, comment: "")
+                    case .video: message.text = NSLocalizedString("YOU_DELETED_THIS_VIDEO", bundle: UIKitSettings.bundle, comment: "")
+                    case .audio: message.text =  NSLocalizedString("YOU_DELETED_THIS_AUDIO", bundle: UIKitSettings.bundle, comment: "")
+                    case .file:  message.text = NSLocalizedString("YOU_DELETED_THIS_FILE", bundle: UIKitSettings.bundle, comment: "")
+                    case .custom: message.text = NSLocalizedString("YOU_DELETED_THIS_CUSTOM_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+                    case .groupMember: break
+                    @unknown default: break }
+                case .action: break
+                case .call: break
+                case .custom:
+                if let customMessage = deletedMessage as? CustomMessage {
+                    if customMessage.type == "location" {
+                        message.text = NSLocalizedString("YOU_DELETED_THIS_LOCATION_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+                    }else if customMessage.type == "extension_poll" {
+                        message.text = NSLocalizedString("YOU_DELETED_THIS_POLL_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+                    }else if customMessage.type == "extension_sticker" {
+                        message.text = NSLocalizedString("YOU_DELETED_THIS_STICKER_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+                    }else{
+                        message.text = NSLocalizedString("YOU_DELETED_THIS_CUSTOM_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+                    }
+                }
+                @unknown default:
+                    break
+                }
+            }
+            
+            
             message.textColor = .white
             UIFont.italicSystemFont(ofSize: 17)
             message.font = UIFont.italicSystemFont(ofSize: 17)

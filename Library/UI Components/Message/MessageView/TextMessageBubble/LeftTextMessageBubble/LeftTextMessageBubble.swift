@@ -202,16 +202,36 @@ class LeftTextMessageBubble: UITableViewCell {
                 if let userName = currentMessage.sender?.name {
                     name.text = userName + ":"
                 }
+                
                 if (currentMessage.sender?.name) != nil {
-                    switch currentMessage.messageType {
-                    case .text:  message.text =  NSLocalizedString("THIS_MESSAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .image: message.text = NSLocalizedString("THIS_IMAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .video: message.text = NSLocalizedString("THIS_VIDEO_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .audio: message.text =  NSLocalizedString("THIS_AUDIO_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .file:  message.text = NSLocalizedString("THIS_FILE_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .custom: message.text = NSLocalizedString("THIS_CUSTOM_MESSAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .groupMember: break
-                    @unknown default: break }}
+                    switch currentMessage.messageCategory {
+                    case .message:
+                        switch currentMessage.messageType {
+                        case .text:  message.text =  NSLocalizedString("THIS_MESSAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                        case .image: message.text = NSLocalizedString("THIS_IMAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                        case .video: message.text = NSLocalizedString("THIS_VIDEO_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                        case .audio: message.text =  NSLocalizedString("THIS_AUDIO_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                        case .file:  message.text = NSLocalizedString("THIS_FILE_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                        case .custom: message.text = NSLocalizedString("THIS_CUSTOM_MESSAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                        case .groupMember: break
+                        @unknown default: break }
+                    case .action: break
+                    case .call: break
+                    case .custom:
+                    if let customMessage = currentMessage as? CustomMessage {
+                        if customMessage.type == "location" {
+                            message.text =  NSLocalizedString("THIS_LOCATION_MESSAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                        }else if customMessage.type == "extension_poll" {
+                            message.text =  NSLocalizedString("THIS_POLL_MESSAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                        }else if customMessage.type == "extension_sticker" {
+                            message.text =  NSLocalizedString("THIS_STICKER_MESSAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                        }else{
+                            message.text = NSLocalizedString("THIS_CUSTOM_MESSAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                        }
+                    }
+                    @unknown default: break
+                    }
+                }
                 receiptStack.isHidden = true
                 if currentMessage.receiverType == .group {
                     nameView.isHidden = false

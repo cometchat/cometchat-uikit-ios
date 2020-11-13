@@ -23,6 +23,7 @@
     case delete
     case thread
     case share
+    case sticker
  }
  
  protocol RowPresentable {
@@ -44,6 +45,7 @@
     func didReplyPressed()
     func didSharePressed()
     func didForwardPressed()
+    func didStickerPressed()
  }
 
 
@@ -143,12 +145,14 @@
                 cell.badgeCountSwitch.isHidden = true
             case .reply:
                 cell.name.text = "Reply Message"
+                cell.icon.image = UIImage(named: "reply1.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 if #available(iOS 13.0, *) {
+                    cell.icon.tintColor = .label
                     cell.name.textColor = .label
                 }else{
+                    cell.icon.tintColor = .black
                     cell.name.textColor = .black
                 }
-                cell.icon.image = UIImage(named: "􀉌.png", in: UIKitSettings.bundle, compatibleWith: nil)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             case .forward:
@@ -159,6 +163,13 @@
                     cell.name.textColor = .black
                 }
                 cell.icon.image = UIImage(named: "􀉐.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                if #available(iOS 13.0, *) {
+                    cell.icon.tintColor = .label
+                    cell.name.textColor = .label
+                }else{
+                    cell.icon.tintColor = .black
+                    cell.name.textColor = .black
+                }
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             case .thread:
@@ -200,6 +211,11 @@
             case .createAPoll:
                 cell.name.text = "Create a Poll"
                 cell.icon.image = UIImage(named: "􀌶.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                cell.fullScreenSwitch.isHidden = true
+                cell.badgeCountSwitch.isHidden = true
+            case .sticker:
+                cell.name.text = "Send Sticker"
+                cell.icon.image = UIImage(named: "sticker1.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
             }
@@ -271,6 +287,10 @@
             case .createAPoll:
                 self.dismiss(animated: true) {
                     MessageActions.actionsDelegate?.createAPollPressed()
+                }
+            case .sticker:
+                self.dismiss(animated: true) {
+                    MessageActions.actionsDelegate?.didStickerPressed()
                 }
             }
         }

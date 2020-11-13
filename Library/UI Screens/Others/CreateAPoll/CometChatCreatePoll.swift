@@ -240,6 +240,7 @@ class CometChatCreatePoll: UIViewController {
             
             CometChat.callExtension(slug: "polls", type: .post, endPoint: "v1/create", body: body, onSuccess: { (response) in
                 print("callExtension onSuccess:\(String(describing: response))")
+                
                 DispatchQueue.main.async {
                     self.dismiss(animated: true) {
                         self.dismiss(animated: true, completion: nil)

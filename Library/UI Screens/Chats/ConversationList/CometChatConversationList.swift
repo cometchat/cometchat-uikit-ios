@@ -507,6 +507,19 @@ extension CometChatConversationList : CometChatMessageDelegate {
     }
     
     /**
+     This method triggers when real time media message arrives from CometChat Pro SDK
+     - Parameter mediaMessage: This Specifies MediaMessage Object.
+     - Author: CometChat Team
+     - Copyright:  ©  2020 CometChat Inc.
+     - See Also:
+     [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
+     */
+    public func onCustomMessageReceived(customMessage: CustomMessage) {
+        DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
+        refreshConversations()
+    }
+    
+    /**
      This method triggers when real time event for  start typing received from  CometChat Pro SDK
      - Parameter typingDetails: This specifies TypingIndicator Object.
      - Author: CometChat Team

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="stickerCell" reuseIdentifier="stickerCell" id="gTV-IL-0wX" customClass="StickerCell" customModule="CometChat_KitchenSink" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="248" height="236"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="248" height="236"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="D1v-VS-8Nb">
+                        <rect key="frame" x="5" y="0.0" width="238" height="231"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="10"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </imageView>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="D1v-VS-8Nb" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="KXH-MI-dsY"/>
+                <constraint firstAttribute="bottom" secondItem="D1v-VS-8Nb" secondAttribute="bottom" constant="5" id="Pgl-uf-kom"/>
+                <constraint firstAttribute="trailing" secondItem="D1v-VS-8Nb" secondAttribute="trailing" constant="5" id="T65-MG-KaR"/>
+                <constraint firstItem="D1v-VS-8Nb" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="5" id="W8X-ai-frh"/>
+            </constraints>
+            <size key="customSize" width="248" height="236"/>
+            <connections>
+                <outlet property="stickerIcon" destination="D1v-VS-8Nb" id="2lX-oJ-kGa"/>
+            </connections>
+            <point key="canvasLocation" x="21.739130434782609" y="135.9375"/>
+        </collectionViewCell>
+    </objects>
+</document>

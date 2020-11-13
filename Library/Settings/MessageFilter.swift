@@ -25,6 +25,7 @@ struct MessageType {
     static var custom : String = "custom"
     static var location : String = "location"
     static var poll : String = "extension_poll"
+    static var sticker : String = "extension_sticker"
 }
 
 struct ActionType {
@@ -88,6 +89,9 @@ class MessageFilter {
                                MessageType.file,
                                MessageType.location,
                                MessageType.poll]
+        if UIKitSettings.sendStickers == .enabled {
+            messageTypesForUser.append(MessageType.sticker)
+        }else{}
         return messageTypesForUser
     }
     
@@ -100,8 +104,9 @@ class MessageFilter {
                                 MessageType.file,
                                 MessageType.location,
                                 MessageType.poll]
-        
-        
+        if UIKitSettings.sendStickers == .enabled {
+            messageTypesForGroup.append(MessageType.sticker)
+        }else{}
         if UIKitSettings.enableActionsForGroupNotifications == .enabled {
             messageTypesForGroup.append(ActionType.groupMember)
         }else{}

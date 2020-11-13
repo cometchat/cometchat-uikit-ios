@@ -74,6 +74,7 @@ struct UIKitSettings {
     static var sendFiles: SwitchMode = .enabled
     static var sendVoiceNotes: SwitchMode = .enabled
     static var sendEmojies: SwitchMode = .enabled
+    static var sendStickers: SwitchMode = .enabled
     static var sendEmojiesInLargerSize: SwitchMode = .enabled
     static var sendGifs: SwitchMode = .enabled //not added (feature not available)
     static var sendTypingIndicator: SwitchMode = .enabled
