@@ -21,6 +21,7 @@ class LeftTextMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var name: UILabel!
@@ -62,6 +63,13 @@ class LeftTextMessageBubble: UITableViewCell {
                 }
                  self.parseProfanityFilter(forMessage: currentMessage)
                 self.parseSentimentAnalysis(forMessage: currentMessage)
+                self.reactionView.parseMessageReactionForMessage(message: currentMessage) { (success) in
+                    if success == true {
+                        self.reactionView.isHidden = false
+                    }else{
+                        self.reactionView.isHidden = true
+                    }
+                }
                 if textMessage?.replyCount != 0 && UIKitSettings.threadedChats == .enabled {
                     replybutton.isHidden = false
                     if textMessage?.replyCount == 1 {
@@ -126,6 +134,13 @@ class LeftTextMessageBubble: UITableViewCell {
     weak var textMessageInThread: TextMessage? {
         didSet {
             if let textmessage  = textMessageInThread {
+                self.reactionView.parseMessageReactionForMessage(message: textmessage) { (success) in
+                    if success == true {
+                        self.reactionView.isHidden = false
+                    }else{
+                        self.reactionView.isHidden = true
+                    }
+                }
                 self.receiptStack.isHidden = true
                 self.parseProfanityFilter(forMessage: textmessage)
                 self.parseSentimentAnalysis(forMessage: textmessage)

@@ -15,6 +15,7 @@ class LeftAudioMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var fileName: UILabel!
@@ -43,7 +44,13 @@ class LeftAudioMessageBubble: UITableViewCell {
         didSet {
             
             replybutton.tintColor = UIKitSettings.primaryColor
-            
+            self.reactionView.parseMessageReactionForMessage(message: audioMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             receiptStack.isHidden = true
             if audioMessage.receiverType == .group {
               nameView.isHidden = false
@@ -87,7 +94,13 @@ class LeftAudioMessageBubble: UITableViewCell {
             if let userName = audioMessageinThread.sender?.name {
                 name.text = userName + ":"
             }
-            
+            self.reactionView.parseMessageReactionForMessage(message: audioMessageinThread) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             timeStamp.text = String().setMessageTime(time: Int(audioMessageinThread?.sentAt ?? 0))
             fileName.text = "Audio File"
             if let fileSize = audioMessageinThread.attachment?.fileSize {
@@ -145,6 +158,17 @@ class LeftAudioMessageBubble: UITableViewCell {
         } else {
             messageView.backgroundColor =  .lightGray
         }
+    }
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+       
+        if #available(iOS 13.0, *) {
+           selectionColor = .systemBackground
+        } else {
+            selectionColor = .white
+        }
+        
     }
     
 }

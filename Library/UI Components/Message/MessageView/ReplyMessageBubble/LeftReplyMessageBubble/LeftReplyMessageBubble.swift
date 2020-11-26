@@ -18,6 +18,7 @@ class LeftReplyMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var name: UILabel!
@@ -61,6 +62,13 @@ class LeftReplyMessageBubble: UITableViewCell {
                 }
                  self.parseProfanityFilter(forMessage: currentMessage)
                 self.parseSentimentAnalysis(forMessage: currentMessage)
+                self.reactionView.parseMessageReactionForMessage(message: currentMessage) { (success) in
+                    if success == true {
+                        self.reactionView.isHidden = false
+                    }else{
+                        self.reactionView.isHidden = true
+                    }
+                }
                 receiptStack.isHidden = true
                 nameView.isHidden = false
                 if let avatarURL = currentMessage.sender?.avatar  {
@@ -114,6 +122,13 @@ class LeftReplyMessageBubble: UITableViewCell {
                      if let metaData = textmessage.metaData, let message = metaData["message"] as? String {
                          self.replyMessage.text = message
                      }
+                    self.reactionView.parseMessageReactionForMessage(message: textmessage) { (success) in
+                        if success == true {
+                            self.reactionView.isHidden = false
+                        }else{
+                            self.reactionView.isHidden = true
+                        }
+                    }
                      if textmessage.readAt > 0 {
                          timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
                      }else if textmessage.deliveredAt > 0 {

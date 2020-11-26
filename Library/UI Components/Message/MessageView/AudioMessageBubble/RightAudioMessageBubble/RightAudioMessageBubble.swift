@@ -15,6 +15,7 @@ class RightAudioMessageBubble: UITableViewCell {
 
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var name: UILabel!
@@ -39,6 +40,13 @@ class RightAudioMessageBubble: UITableViewCell {
     
     var audioMessage: MediaMessage! {
         didSet {
+                self.reactionView.parseMessageReactionForMessage(message: audioMessage) { (success) in
+                    if success == true {
+                        self.reactionView.isHidden = false
+                    }else{
+                        self.reactionView.isHidden = true
+                    }
+                }
                    receiptStack.isHidden = true
                    if audioMessage.sentAt == 0 {
                        timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")

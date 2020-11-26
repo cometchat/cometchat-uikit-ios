@@ -22,6 +22,7 @@ class RightLocationMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var locationTitle: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receipt: UIImageView!
@@ -53,7 +54,13 @@ class RightLocationMessageBubble: UITableViewCell {
                     
                     self.locationTitle.text = title
                 }
-                
+                    self.reactionView.parseMessageReactionForMessage(message: locationMessage) { (success) in
+                        if success == true {
+                            self.reactionView.isHidden = false
+                        }else{
+                            self.reactionView.isHidden = true
+                        }
+                    }
                 if let data = locationMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double, let locationURL = URL(string: "https://maps.googleapis.com/maps/api/staticmap?center=\(latitude),\(longitude)&markers=color:red%7Clabel:S%7C\(latitude),\(longitude)&zoom=14&size=230x150&key=AIzaSyAa8HeLH2lQMbPeOiMlM9D1VxZ7pbGQq8o"){
                     map.cf.setImage(with: locationURL)
                 }

@@ -18,6 +18,7 @@ class LeftVideoMessageBubble: UITableViewCell {
     // MARK: - Declaration of IBInspectable
     
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var imageMessage: UIImageView!
@@ -42,6 +43,13 @@ class LeftVideoMessageBubble: UITableViewCell {
     
     var mediaMessage: MediaMessage!{
         didSet {
+            self.reactionView.parseMessageReactionForMessage(message: mediaMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             if let userName = mediaMessage.sender?.name {
                 name.text = userName + ":"
             }
@@ -75,6 +83,13 @@ class LeftVideoMessageBubble: UITableViewCell {
     var mediaMessageInThread: MediaMessage! {
           didSet {
               receiptStack.isHidden = true
+            self.reactionView.parseMessageReactionForMessage(message: mediaMessageInThread) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
               if mediaMessageInThread.sentAt == 0 {
                   timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
               }else{

@@ -15,6 +15,7 @@ class RightLinkPreviewBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var icon: UIImageView!
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var linkDescription: UILabel!
@@ -26,7 +27,6 @@ class RightLinkPreviewBubble: UITableViewCell {
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var playbutton: UIButton!
     @IBOutlet weak var iconView: UIView!
-    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var replybutton: UIButton!
     
     // MARK: - Declaration of Variables
@@ -49,6 +49,13 @@ class RightLinkPreviewBubble: UITableViewCell {
         didSet{
             receiptStack.isHidden = true
             parseLinkPreviewForMessage(message: linkPreviewMessage)
+            self.reactionView.parseMessageReactionForMessage(message: linkPreviewMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             if let url = url {
                 if url.contains("youtube")  ||  url.contains("youtu.be") {
                     visitButton.setTitle(NSLocalizedString("VIEW_ON_YOUTUBE", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
@@ -208,14 +215,6 @@ class RightLinkPreviewBubble: UITableViewCell {
     
      override func setSelected(_ selected: Bool, animated: Bool) {
            super.setSelected(selected, animated: animated)
-           switch isEditing {
-           case true:
-               switch selected {
-               case true: self.tintedView.isHidden = false
-               case false: self.tintedView.isHidden = true
-               }
-           case false: break
-           }
        }
     
     

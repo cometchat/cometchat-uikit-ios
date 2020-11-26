@@ -17,6 +17,7 @@ class LeftImageMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBInspectable
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var imageMessage: UIImageView!
@@ -24,7 +25,6 @@ class LeftImageMessageBubble: UITableViewCell {
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var receiptStack: UIStackView!
-    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var imageModerationView: UIView!
     @IBOutlet weak var unsafeContentView: UIImageView!
     
@@ -43,6 +43,13 @@ class LeftImageMessageBubble: UITableViewCell {
     
     var mediaMessage: MediaMessage!{
         didSet {
+                self.reactionView.parseMessageReactionForMessage(message: mediaMessage) { (success) in
+                    if success == true {
+                        self.reactionView.isHidden = false
+                    }else{
+                        self.reactionView.isHidden = true
+                    }
+                }
             if let userName = mediaMessage.sender?.name {
                 name.text = userName + ":"
             }
@@ -93,6 +100,13 @@ class LeftImageMessageBubble: UITableViewCell {
     var mediaMessageInThread: MediaMessage! {
         didSet {
             receiptStack.isHidden = true
+            self.reactionView.parseMessageReactionForMessage(message: mediaMessageInThread) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             if mediaMessageInThread.sentAt == 0 {
                 timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
             }else{
@@ -153,14 +167,7 @@ class LeftImageMessageBubble: UITableViewCell {
     
      override func setSelected(_ selected: Bool, animated: Bool) {
            super.setSelected(selected, animated: animated)
-           switch isEditing {
-           case true:
-               switch selected {
-               case true: self.tintedView.isHidden = false
-               case false: self.tintedView.isHidden = true
-               }
-           case false: break
-           }
+
        }
     
     /**

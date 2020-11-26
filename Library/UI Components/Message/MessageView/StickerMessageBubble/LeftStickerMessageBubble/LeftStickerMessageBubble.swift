@@ -16,6 +16,7 @@ class LeftStickerMessageBubble: UITableViewCell {
     
     
     // MARK: - Declaration of IBInspectable
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var replyButton: UIButton!
     @IBOutlet weak var avatar: Avatar!
@@ -39,6 +40,7 @@ class LeftStickerMessageBubble: UITableViewCell {
     
     var stickerMessage: CustomMessage!{
         didSet {
+
             if let userName = stickerMessage.sender?.name {
                 name.text = userName + ":"
             }
@@ -70,6 +72,13 @@ class LeftStickerMessageBubble: UITableViewCell {
                 replyButton.isHidden = true
             }
             replyButton.tintColor = UIKitSettings.primaryColor
+            self.reactionView.parseMessageReactionForMessage(message: stickerMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
         }
     }
     

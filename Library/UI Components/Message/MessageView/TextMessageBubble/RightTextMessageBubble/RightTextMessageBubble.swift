@@ -18,6 +18,7 @@ class RightTextMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBInspectable
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var tintedView: UIView!
@@ -47,6 +48,14 @@ class RightTextMessageBubble: UITableViewCell {
             if let textmessage  = textMessage {
                 self.receiptStack.isHidden = true
                 self.parseProfanityFilter(forMessage: textmessage)
+                
+                self.reactionView.parseMessageReactionForMessage(message: textmessage) { (success) in
+                    if success == true {
+                        self.reactionView.isHidden = false
+                    }else{
+                        self.reactionView.isHidden = true
+                    }
+                }
                 if textmessage.readAt > 0 {
                     receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))

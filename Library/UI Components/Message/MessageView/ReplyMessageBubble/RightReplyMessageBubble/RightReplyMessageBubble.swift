@@ -17,6 +17,7 @@ class RightReplyMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBInspectable
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var message: HyperlinkLabel!
     @IBOutlet weak var timeStamp: UILabel!
@@ -46,7 +47,13 @@ class RightReplyMessageBubble: UITableViewCell {
         didSet {
             if let textmessage  = textMessage {
                 self.parseProfanityFilter(forMessage: textmessage)
-                
+                self.reactionView.parseMessageReactionForMessage(message: textmessage) { (success) in
+                    if success == true {
+                        self.reactionView.isHidden = false
+                    }else{
+                        self.reactionView.isHidden = true
+                    }
+                }
                 if let metaData = textmessage.metaData, let message = metaData["message"] as? String {
                     self.replyMessage.text = message
                 }

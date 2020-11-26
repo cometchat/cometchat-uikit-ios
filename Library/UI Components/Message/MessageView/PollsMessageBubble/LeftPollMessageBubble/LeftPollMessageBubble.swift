@@ -15,6 +15,7 @@ protocol PollExtensionDelegate: NSObject {
 
 class LeftPollMessageBubble: UITableViewCell {
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var messgeView: UIView!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var nameView: UIView!
@@ -65,7 +66,13 @@ class LeftPollMessageBubble: UITableViewCell {
     
     var pollMessage: CustomMessage! {
         didSet{
-            
+            self.reactionView.parseMessageReactionForMessage(message: pollMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             receiptStack.isHidden = true
             if pollMessage.receiverType == .group {
               nameView.isHidden = false

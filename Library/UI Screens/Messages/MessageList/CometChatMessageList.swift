@@ -707,6 +707,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         smartRepliesView.smartRepliesDelegate = self
         CometChatThreadedMessageList.threadDelegate = self
         CometChatStickerView.stickerDelegate = self
+        ReactionView.reactionViewDelegate = self
         quickLook.dataSource = self
     }
     
@@ -1158,6 +1159,10 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             
             var actions: [MessageAction] = []
             
+            if UIKitSettings.messageReaction  == .enabled {
+                actions.append(.reaction)
+            }
+            
             if UIKitSettings.threadedChats  == .enabled {
                 actions.append(.thread)
             }
@@ -1251,6 +1256,20 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     (group.rowVC as? MessageActions)?.set(actions: actions)
                     presentPanModal(group.rowVC)
                 }
+                
+                if  let selectedCell = tableView?.cellForRow(at: indexPath) as? RightVideoMessageBubble {
+                    AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+                    self.selectedMessage = selectedCell.mediaMessage
+                    let group: RowPresentable = MessageActionsGroup()
+                
+                    if UIKitSettings.deleteMessage == .enabled {
+                        actions.append(.delete)
+                    }
+                    
+                    (group.rowVC as? MessageActions)?.set(actions: actions)
+                    presentPanModal(group.rowVC)
+                }
+                
                 
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? RightAudioMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
@@ -1351,6 +1370,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         presentPanModal(group.rowVC)
                     }
                 }
+               
                 
                 
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? LeftStickerMessageBubble {
@@ -2870,95 +2890,6 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
     }
 }
 
-/*  ----------------------------------------------------------------------------------------- */
-
-// MARK: - UITextView Delegate
-
-//extension CometChatMessageList : UITextViewDelegate {
-//
-//
-//    /// This method triggers when  user stops typing in textView.
-//    /// - Parameter textView: A scrollable, multiline text region.
-//    public func textViewDidEndEditing(_ textView: UITextView) {
-//        if textView.text.isEmpty {
-//            guard let indicator = typingIndicator else {
-//                return
-//            }
-//            if UIKitSettings.sendTypingIndicator == .enabled {
-//                CometChat.endTyping(indicator: indicator)
-//            }
-//            send.isHidden = true
-//
-//            if UIKitSettings.sendVoiceNotes == .enabled {
-//                microphone.isHidden = false
-//            }else{
-//                microphone.isHidden = true
-//            }
-//
-//            if UIKitSettings.shareLiveReaction == .enabled {
-//                reaction.isHidden = false
-//            }else{
-//                if UIKitSettings.sendMessage == .enabled {
-//                    send.isHidden = false
-//                }else{
-//                    send.isHidden = true
-//                }
-//                reaction.isHidden = true
-//            }
-//        }
-//    }
-//
-//    /// This method triggers when  user starts typing in textView.
-//    /// - Parameter textView: A scrollable, multiline text region.
-//    public func textViewDidChange(_ textView: UITextView) {
-//        guard let indicator = typingIndicator else {
-//            return
-//        }
-//        if textView.text?.count == 0 {
-//            if UIKitSettings.sendTypingIndicator == .enabled {
-//                CometChat.startTyping(indicator: indicator)
-//            }
-//
-//            microphone.isHidden = false
-//            reaction.isHidden = false
-//            send.isHidden = true
-//
-//            if UIKitSettings.sendVoiceNotes == .enabled {
-//                microphone.isHidden = false
-//            }else{
-//                microphone.isHidden = true
-//            }
-//
-//            if UIKitSettings.shareLiveReaction == .enabled {
-//                reaction.isHidden = false
-//            }else{
-//                if UIKitSettings.sendMessage == .enabled {
-//                    send.isHidden = false
-//                }else{
-//                    send.isHidden = true
-//                }
-//                reaction.isHidden = true
-//            }
-//        }else{
-//            if UIKitSettings.sendTypingIndicator == .enabled {
-//                CometChat.endTyping(indicator: indicator)
-//            }
-//            microphone.isHidden = true
-//            reaction.isHidden = true
-//
-//            if UIKitSettings.sendMessage == .enabled {
-//               send.isHidden = false
-//            }else{
-//               send.isHidden = true
-//            }
-//
-//
-//        }
-//        if UIKitSettings.sendTypingIndicator == .enabled {
-//            CometChat.startTyping(indicator: indicator)
-//        }
-//    }
-//}
 
 extension CometChatMessageList: GrowingTextViewDelegate {
     public func growingTextView(_ growingTextView: GrowingTextView, willChangeHeight height: CGFloat, difference: CGFloat) {
@@ -4055,6 +3986,16 @@ extension CometChatMessageList : CometChatMessageDelegate {
     
 }
 
+extension Array where Element : Collection, Element.Index == Int {
+  func indexPath(where predicate: (Element.Iterator.Element) -> Bool) -> IndexPath? {
+    for (i, row) in self.enumerated() {
+      if let j = row.index(where: predicate) {
+        return IndexPath(indexes: [i, j])
+      }
+    }
+    return nil
+  }
+}
 
 /*  ----------------------------------------------------------------------------------------- */
 
@@ -4531,6 +4472,11 @@ extension CometChatMessageList: ThreadDelegate {
 
 
 extension CometChatMessageList : MessageActionsDelegate {
+    
+    func didReactionPressed() {
+        
+    }
+    
     
     func didStickerPressed() {
         
@@ -5052,5 +4998,63 @@ extension CometChatMessageList: StickerViewDelegate {
         print("didStickerSelected: \(String(describing: stickerSet.thumbnail))")
     }
 
+    
+}
+
+
+extension CometChatMessageList: ReactionViewDelegate {
+    
+    func didReactionPressed(reaction: MessageReaction) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: nil, message: "Adding Reaction...", preferredStyle: .alert)
+            let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+            loadingIndicator.hidesWhenStopped = true
+            loadingIndicator.style = UIActivityIndicatorView.Style.gray
+            loadingIndicator.startAnimating()
+            alert.view.addSubview(loadingIndicator)
+            self.present(alert, animated: true, completion: nil)
+        }
+        if reaction.messageId == 0 {
+            if let message = selectedMessage {
+                CometChat.callExtension(slug: "reactions", type: .post, endPoint: "v1/react", body: ["msgId":message.id, "emoji":reaction.title]) { (success) in
+                    DispatchQueue.main.async {
+                        self.dismiss(animated: true, completion: nil)
+                    }
+                } onError: { (error) in
+                    DispatchQueue.main.async {
+                        if let error = error?.errorDescription {
+                            let snackbar = CometChatSnackbar(message: error, duration: .short)
+                            snackbar.show()
+                        }
+                    }
+                }
+            }
+        }else{
+            CometChat.callExtension(slug: "reactions", type: .post, endPoint: "v1/react", body: ["msgId":reaction.messageId, "emoji": reaction.title]) { (success) in
+                DispatchQueue.main.async {
+                    self.dismiss(animated: true, completion: nil)
+                }
+            } onError: { (error) in
+                if let error = error?.errorDescription {
+                    let snackbar = CometChatSnackbar(message: error, duration: .short)
+                    snackbar.show()
+                }
+            }
+        }
+    }
+    
+    func didNewReactionPressed() {
+        
+    }
+    
+    func didlongPressOnReactionView(reactions: [MessageReaction]) {
+        
+       let reactorView = ReactorsView()
+       let navigationController = UINavigationController(rootViewController: reactorView)
+       navigationController.title = "Reactions"
+       reactorView.reactors = reactions
+       self.present(navigationController, animated: true, completion: nil)
+    }
+    
     
 }

@@ -787,6 +787,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         documentPicker.delegate = self
         MessageActions.actionsDelegate = self
         smartRepliesView.smartRepliesDelegate = self
+        ReactionView.reactionViewDelegate = self
         quickLook.dataSource = self
     }
     
@@ -1212,6 +1213,10 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                 self.selectedIndexPath = indexPath
                 self.addBackButton(bool: false)
                 var actions: [MessageAction] = []
+                
+                if UIKitSettings.messageReaction  == .enabled {
+                    actions.append(.reaction)
+                }
                 
                 if UIKitSettings.threadedChats  == .enabled {
                     actions.append(.thread)
@@ -3893,6 +3898,10 @@ extension CometChatThreadedMessageList {
 
 extension CometChatThreadedMessageList : MessageActionsDelegate {
     
+    func didReactionPressed() {
+        
+    }
+    
     func didStickerPressed() {
         
        DispatchQueue.main.async {
@@ -3967,6 +3976,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                         guard let group = strongSelf.currentGroup else { return  }
                         let locationMessage = CustomMessage(receiverUid: group.guid , receiverType: .group, customData: locationData, type: "location")
                         locationMessage.metaData = ["pushNotification": pushtitle]
+                        locationMessage.parentMessageId = strongSelf.currentMessage?.id ?? 0
                         DispatchQueue.main.async {
                             let alert = UIAlertController(title: nil, message: "Sending Location...", preferredStyle: .alert)
                             let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
@@ -4026,6 +4036,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                         guard let user = strongSelf.currentUser else { return  }
                         let locationMessage = CustomMessage(receiverUid: user.uid ?? "", receiverType: .user, customData: locationData, type: "location")
                         locationMessage.metaData = ["pushNotification": pushtitle]
+                        locationMessage.parentMessageId = strongSelf.currentMessage?.id ?? 0
                         DispatchQueue.main.async {
                             let alert = UIAlertController(title: nil, message: "Sending Location...", preferredStyle: .alert)
                             let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
@@ -4465,4 +4476,58 @@ extension CometChatThreadedMessageList: StickerViewDelegate {
     }
 
     
+}
+
+extension CometChatThreadedMessageList: ReactionViewDelegate {
+    
+    func didReactionPressed(reaction: MessageReaction) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: nil, message: "Adding Reaction...", preferredStyle: .alert)
+            let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+            loadingIndicator.hidesWhenStopped = true
+            loadingIndicator.style = UIActivityIndicatorView.Style.gray
+            loadingIndicator.startAnimating()
+            alert.view.addSubview(loadingIndicator)
+            self.present(alert, animated: true, completion: nil)
+        }
+        if reaction.messageId == 0 {
+            if let message = selectedMessage {
+                CometChat.callExtension(slug: "reactions", type: .post, endPoint: "v1/react", body: ["msgId":message.id, "emoji":reaction.title]) { (success) in
+                    DispatchQueue.main.async {
+                        self.dismiss(animated: true, completion: nil)
+                    }
+                } onError: { (error) in
+                    DispatchQueue.main.async {
+                        if let error = error?.errorDescription {
+                            let snackbar = CometChatSnackbar(message: error, duration: .short)
+                            snackbar.show()
+                        }
+                    }
+                }
+            }
+        }else{
+            CometChat.callExtension(slug: "reactions", type: .post, endPoint: "v1/react", body: ["msgId":reaction.messageId, "emoji": reaction.title]) { (success) in
+                DispatchQueue.main.async {
+                    self.dismiss(animated: true, completion: nil)
+                }
+            } onError: { (error) in
+                if let error = error?.errorDescription {
+                    let snackbar = CometChatSnackbar(message: error, duration: .short)
+                    snackbar.show()
+                }
+            }
+        }
+    }
+    
+    func didNewReactionPressed() {
+        
+    }
+    
+    func didlongPressOnReactionView(reactions: [MessageReaction]) {
+       let reactorView = ReactorsView()
+       let navigationController = UINavigationController(rootViewController: reactorView)
+       navigationController.title = "Reactions"
+       reactorView.reactors = reactions
+       self.present(navigationController, animated: true, completion: nil)
+    }
 }

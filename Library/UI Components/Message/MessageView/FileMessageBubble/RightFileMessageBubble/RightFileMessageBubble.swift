@@ -14,7 +14,7 @@ import CometChatPro
 class RightFileMessageBubble: UITableViewCell {
 
     // MARK: - Declaration of IBOutlets
-    
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var type: UILabel!
@@ -54,7 +54,13 @@ class RightFileMessageBubble: UITableViewCell {
                     size.text = Units(bytes: Int64(fileSize)).getReadableUnit()
                 }
             }
-            
+                self.reactionView.parseMessageReactionForMessage(message: fileMessage) { (success) in
+                    if success == true {
+                        self.reactionView.isHidden = false
+                    }else{
+                        self.reactionView.isHidden = true
+                    }
+                }
             if fileMessage.readAt > 0 {
                 receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(fileMessage?.readAt ?? 0))

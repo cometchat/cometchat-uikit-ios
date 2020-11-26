@@ -15,6 +15,7 @@ class LeftFileMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var fileName: UILabel!
@@ -42,6 +43,13 @@ class LeftFileMessageBubble: UITableViewCell {
     
     var fileMessage: MediaMessage! {
         didSet {
+            self.reactionView.parseMessageReactionForMessage(message: fileMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             receiptStack.isHidden = true
             if fileMessage.receiverType == .group {
               nameView.isHidden = false
@@ -82,6 +90,13 @@ class LeftFileMessageBubble: UITableViewCell {
     var fileMessageInThread: MediaMessage! {
         didSet {
             receiptStack.isHidden = true
+            self.reactionView.parseMessageReactionForMessage(message: fileMessageInThread) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             if fileMessageInThread.sentAt == 0 {
                 timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
                 name.text = NSLocalizedString("---", bundle: UIKitSettings.bundle, comment: "")

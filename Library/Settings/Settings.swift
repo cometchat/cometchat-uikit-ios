@@ -110,4 +110,5 @@ struct UIKitSettings {
     static var enableSoundForMessages: SwitchMode = .enabled
     static var enableActionsForCalls: SwitchMode = .enabled
     static var enableActionsForGroupNotifications: SwitchMode = .enabled
+    static var messageReaction: SwitchMode = .enabled
 }

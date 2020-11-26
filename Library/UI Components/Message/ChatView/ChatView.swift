@@ -28,7 +28,7 @@ import CometChatPro
       // MARK: - Declaration of Variables
     
     var view:UIView!
-     weak var internalDelegate: ChatViewInternalDelegate?
+    weak var internalDelegate: ChatViewInternalDelegate?
     
      // MARK: - Declaration of IBOutlet
     @IBOutlet weak var attachment: UIView!

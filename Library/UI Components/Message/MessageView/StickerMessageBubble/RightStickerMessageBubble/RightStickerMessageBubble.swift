@@ -15,6 +15,7 @@ class RightStickerMessageBubble: UITableViewCell {
     
      // MARK: - Declaration of IBInspectable
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var imageMessage: UIImageView!
@@ -41,6 +42,13 @@ class RightStickerMessageBubble: UITableViewCell {
             if let url = URL(string: stickerMessage.customData?["stickerUrl"] as? String ?? "") {
                 imageMessage.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
             }
+                self.reactionView.parseMessageReactionForMessage(message: stickerMessage) { (success) in
+                    if success == true {
+                        self.reactionView.isHidden = false
+                    }else{
+                        self.reactionView.isHidden = true
+                    }
+                }
             if stickerMessage.readAt > 0 {
             receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
             timeStamp.text = String().setMessageTime(time: Int(stickerMessage?.readAt ?? 0))

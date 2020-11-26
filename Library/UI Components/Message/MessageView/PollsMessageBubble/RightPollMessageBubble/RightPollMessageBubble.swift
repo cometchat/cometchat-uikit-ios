@@ -10,6 +10,7 @@ import CometChatPro
 
 class RightPollMessageBubble: UITableViewCell {
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var question: UILabel!
     @IBOutlet weak var option1: UIView!
     @IBOutlet weak var option2: UIView!
@@ -51,6 +52,13 @@ class RightPollMessageBubble: UITableViewCell {
         didSet{
             receiptStack.isHidden = true
             self.parsePollsExtension(forMessage: pollMessage)
+            self.reactionView.parseMessageReactionForMessage(message: pollMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             messageView.backgroundColor = UIKitSettings.primaryColor
             if pollMessage.readAt > 0 && pollMessage.receiverType == .user{
                 receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)

@@ -23,6 +23,7 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var avatar: Avatar!
     @IBOutlet weak var icon: UIImageView!
     @IBOutlet weak var title: UILabel!
@@ -57,6 +58,13 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
     weak var hyperlinkdelegate: HyperLinkDelegate?
     var linkPreviewMessage: TextMessage! {
         didSet{
+            self.reactionView.parseMessageReactionForMessage(message: linkPreviewMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             if let avatarURL = linkPreviewMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: linkPreviewMessage.sender?.name ?? "")
             }
@@ -153,7 +161,13 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
             if let avatarURL = linkPreviewMessageInThread.sender?.avatar  {
                 avatar.set(image: avatarURL, with: linkPreviewMessageInThread.sender?.name ?? "")
             }
-            
+            self.reactionView.parseMessageReactionForMessage(message: linkPreviewMessageInThread) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
               parseLinkPreviewForMessage(message: linkPreviewMessageInThread)
               if let url = url {
                   if url.contains("youtube")  ||  url.contains("youtu.be") {

@@ -15,13 +15,13 @@ class RightImageMessageBubble: UITableViewCell {
     
      // MARK: - Declaration of IBInspectable
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var imageMessage: UIImageView!
     @IBOutlet weak var activityIndicator: CCActivityIndicator!
     @IBOutlet weak var receipt: UIImageView!
     @IBOutlet weak var receiptStack: UIStackView!
-    @IBOutlet weak var tintedView: UIView!
     @IBOutlet weak var imageModerationView: UIView!
     @IBOutlet weak var unsafeContentView: UIImageView!
     
@@ -42,6 +42,13 @@ class RightImageMessageBubble: UITableViewCell {
     var mediaMessage: MediaMessage! {
         didSet {
             receiptStack.isHidden = true
+            self.reactionView.parseMessageReactionForMessage(message: mediaMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             if mediaMessage.sentAt == 0 {
                 timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
                 activityIndicator.isHidden = false
@@ -122,14 +129,6 @@ class RightImageMessageBubble: UITableViewCell {
     
      override func setSelected(_ selected: Bool, animated: Bool) {
            super.setSelected(selected, animated: animated)
-           switch isEditing {
-           case true:
-               switch selected {
-               case true: self.tintedView.isHidden = false
-               case false: self.tintedView.isHidden = true
-               }
-           case false: break
-           }
        }
     
     

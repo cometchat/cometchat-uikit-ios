@@ -16,6 +16,7 @@ class LeftLocationMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of IBOutlets
     
+    @IBOutlet weak var reactionView: ReactionView!
     @IBOutlet weak var map: UIImageView!
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
@@ -39,7 +40,13 @@ class LeftLocationMessageBubble: UITableViewCell {
     weak var locationDelegate: LocationCellDelegate?
     var locationMessage: CustomMessage! {
         didSet{
-            
+            self.reactionView.parseMessageReactionForMessage(message: locationMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
+                }
+            }
             if let data = locationMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double, let locationURL = URL(string: "https://maps.googleapis.com/maps/api/staticmap?center=\(latitude),\(longitude)&markers=color:red%7Clabel:S%7C\(latitude),\(longitude)&zoom=14&size=230x150&key=AIzaSyAa8HeLH2lQMbPeOiMlM9D1VxZ7pbGQq8o"){
                 map.cf.setImage(with: locationURL)
             }
@@ -91,6 +98,17 @@ class LeftLocationMessageBubble: UITableViewCell {
               messageView.backgroundColor =  .lightGray
           }
       }
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+       
+        if #available(iOS 13.0, *) {
+           selectionColor = .systemBackground
+        } else {
+            selectionColor = .white
+        }
+        
+    }
 }
 
 /*  ----------------------------------------------------------------------------------------- */
