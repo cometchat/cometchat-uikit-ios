@@ -2906,13 +2906,6 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
             actions.append(.createAPoll)
         }
         
-        if UIKitSettings.collaborativeWhiteboard == .enabled {
-            actions.append(.whiteboard)
-        }
-        
-        if UIKitSettings.collaborativeWhiteboard == .enabled {
-            actions.append(.writeboard)
-        }
         
         (group.rowVC as? MessageActions)?.set(actions: actions)
         presentPanModal(group.rowVC)
@@ -3935,55 +3928,10 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     
     func didCollaborativeWriteboardPressed() {
         
-        if let uid = currentUser?.uid {
-            CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"]) { (response) in
-                print("writeboard response: \(String(describing: response))")
-            } onError: { (error) in
-                if let error = error?.errorDescription {
-                    let snackbar = CometChatSnackbar(message: error, duration: .short)
-                    snackbar.show()
-                }
-            }
-
-        }
-        
-        if let guid = currentGroup?.guid {
-            CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"]) { (response) in
-                print("writeboard response: \(String(describing: response))")
-            } onError: { (error) in
-                if let error = error?.errorDescription {
-                    let snackbar = CometChatSnackbar(message: error, duration: .short)
-                    snackbar.show()
-                }
-            }
-        }
     }
     
     func didCollaborativeWhiteboardPressed() {
-        if let uid = currentUser?.uid {
-            CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"]) { (response) in
-                print("whiteboard response: \(String(describing: response))")
-            } onError: { (error) in
-                if let error = error?.errorDescription {
-                    let snackbar = CometChatSnackbar(message: error, duration: .short)
-                    snackbar.show()
-                }
-            }
-
-        }
-        
-        
-        
-        if let guid = currentGroup?.guid {
-            CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"]) { (response) in
-                print("whiteboard response: \(String(describing: response))")
-            } onError: { (error) in
-                if let error = error?.errorDescription {
-                    let snackbar = CometChatSnackbar(message: error, duration: .short)
-                    snackbar.show()
-                }
-            }
-        }
+     
     }
     
     
