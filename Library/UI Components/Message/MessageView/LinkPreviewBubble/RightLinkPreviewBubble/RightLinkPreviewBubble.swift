@@ -49,6 +49,7 @@ class RightLinkPreviewBubble: UITableViewCell {
         didSet{
             receiptStack.isHidden = true
             parseLinkPreviewForMessage(message: linkPreviewMessage)
+            parseMaskedData(forMessage: linkPreviewMessage)
             self.reactionView.parseMessageReactionForMessage(message: linkPreviewMessage) { (success) in
                 if success == true {
                     self.reactionView.isHidden = false
@@ -167,6 +168,42 @@ class RightLinkPreviewBubble: UITableViewCell {
             if let linkURL = linkPreview["url"] as? String {
                 self.url = linkURL
             }
+        }
+    }
+    
+    func parseMaskedData(forMessage: TextMessage){
+        if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let dataMaskingDictionary = cometChatExtension["data-masking"] as? [String : Any] {
+            print("forMessage: \(forMessage.stringValue())")
+            if let data = dataMaskingDictionary["data"] as? [String:Any], let sensitiveData = data["sensitive_data"] as? String {
+                
+                if sensitiveData == "yes" {
+                    if let maskedMessage = data["message_masked"] as? String {
+                        message.text = maskedMessage
+                    }else{
+                        message.text = forMessage.text
+                    }
+                }else{
+                    message.text = forMessage.text
+                }
+            }else{
+                message.text = forMessage.text
+            }
+        }else{
+            
+            if forMessage.text.containsOnlyEmojis() {
+                if forMessage.text.count == 1 {
+                    message.font =  UIFont.systemFont(ofSize: 51, weight: .regular)
+                }else if forMessage.text.count == 2 {
+                    message.font =  UIFont.systemFont(ofSize: 34, weight: .regular)
+                }else if forMessage.text.count == 3{
+                    message.font =  UIFont.systemFont(ofSize: 25, weight: .regular)
+                }else{
+                    message.font =  UIFont.systemFont(ofSize: 17, weight: .regular)
+                }
+            }else{
+                message.font =  UIFont.systemFont(ofSize: 17, weight: .regular)
+            }
+            self.message.text = forMessage.text
         }
     }
     

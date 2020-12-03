@@ -25,6 +25,8 @@
     case share
     case sticker
     case reaction
+    case whiteboard
+    case writeboard
  }
  
  protocol RowPresentable {
@@ -48,6 +50,8 @@
     func didForwardPressed()
     func didStickerPressed()
     func didReactionPressed()
+    func didCollaborativeWriteboardPressed()
+    func didCollaborativeWhiteboardPressed()
  }
 
 
@@ -266,6 +270,22 @@
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "addReactionsCell", for: indexPath) as? AddReactionsCell {
                     return cell
                 }
+            case .whiteboard:
+                if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
+                cell.name.text = "Collaborative Whiteboard"
+                cell.icon.image = UIImage(named: "whiteboard.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                cell.fullScreenSwitch.isHidden = true
+                cell.badgeCountSwitch.isHidden = true
+                    return cell
+                }
+            case .writeboard:
+                if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
+                cell.name.text = "Collaborative Writeboard"
+                cell.icon.image = UIImage(named: "writeboard.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                cell.fullScreenSwitch.isHidden = true
+                cell.badgeCountSwitch.isHidden = true
+                    return cell
+                }
             }
         }
         return staticCell
@@ -351,6 +371,14 @@
             case .reaction:
                 self.dismiss(animated: true) {
                     MessageActions.actionsDelegate?.didReactionPressed()
+                }
+            case .whiteboard:
+                self.dismiss(animated: true) {
+                    MessageActions.actionsDelegate?.didCollaborativeWhiteboardPressed()
+                }
+            case .writeboard:
+                self.dismiss(animated: true) {
+                    MessageActions.actionsDelegate?.didCollaborativeWriteboardPressed()
                 }
             }
         }

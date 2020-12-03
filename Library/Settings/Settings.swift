@@ -111,4 +111,6 @@ struct UIKitSettings {
     static var enableActionsForCalls: SwitchMode = .enabled
     static var enableActionsForGroupNotifications: SwitchMode = .enabled
     static var messageReaction: SwitchMode = .enabled
+    static var collaborativeWriteboard: SwitchMode = .enabled
+    static var collaborativeWhiteboard: SwitchMode = .enabled
 }

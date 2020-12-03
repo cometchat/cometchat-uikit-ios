@@ -26,6 +26,8 @@ struct MessageType {
     static var location : String = "location"
     static var poll : String = "extension_poll"
     static var sticker : String = "extension_sticker"
+    static var collaborativeWhiteboard : String = "extension_whiteboard"
+    static var collaborativeDocument : String = "extension_document"
 }
 
 struct ActionType {
@@ -92,6 +94,12 @@ class MessageFilter {
         if UIKitSettings.sendStickers == .enabled {
             messageTypesForUser.append(MessageType.sticker)
         }else{}
+        if UIKitSettings.collaborativeWhiteboard == .enabled {
+            messageTypesForUser.append(MessageType.collaborativeWhiteboard)
+        }else{}
+        if UIKitSettings.collaborativeWriteboard == .enabled {
+            messageTypesForUser.append(MessageType.collaborativeDocument)
+        }else{}
         return messageTypesForUser
     }
     
@@ -106,6 +114,12 @@ class MessageFilter {
                                 MessageType.poll]
         if UIKitSettings.sendStickers == .enabled {
             messageTypesForGroup.append(MessageType.sticker)
+        }else{}
+        if UIKitSettings.collaborativeWhiteboard == .enabled {
+            messageTypesForGroup.append(MessageType.collaborativeWhiteboard)
+        }else{}
+        if UIKitSettings.collaborativeWriteboard == .enabled {
+            messageTypesForGroup.append(MessageType.collaborativeDocument)
         }else{}
         if UIKitSettings.enableActionsForGroupNotifications == .enabled {
             messageTypesForGroup.append(ActionType.groupMember)

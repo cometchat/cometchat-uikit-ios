@@ -204,6 +204,12 @@ class MessageInformation: UIViewController {
         
         let rightStickerMessageBubble = UINib.init(nibName: "RightStickerMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightStickerMessageBubble, forCellReuseIdentifier: "rightStickerMessageBubble")
+        
+        let leftCollaborativeMessageBubble  = UINib.init(nibName: "LeftCollaborativeMessageBubble", bundle: UIKitSettings.bundle)
+        self.tableView?.register(leftCollaborativeMessageBubble, forCellReuseIdentifier: "leftCollaborativeMessageBubble")
+        
+        let rightCollaborativeMessageBubble  = UINib.init(nibName: "RightCollaborativeMessageBubble", bundle: UIKitSettings.bundle)
+        self.tableView?.register(rightCollaborativeMessageBubble, forCellReuseIdentifier: "rightCollaborativeMessageBubble")
     }
 }
 
@@ -490,6 +496,45 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                                     return senderCell
                                 }
                             }
+                        }else if type == "extension_whiteboard" {
+                            
+                            if message.senderUid != LoggedInUser.uid {
+                                if let whiteboardMessage = message as? CustomMessage {
+                                    let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftCollaborativeMessageBubble", for: indexPath) as! LeftCollaborativeMessageBubble
+                                    receiverCell.whiteboardMessage = whiteboardMessage
+                                
+                                    return receiverCell
+                                }
+                            }else{
+                                if let whiteboardMessage = message as? CustomMessage {
+                                    let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightCollaborativeMessageBubble", for: indexPath) as! RightCollaborativeMessageBubble
+                                   
+                                    
+                                    senderCell.whiteboardMessage = whiteboardMessage
+                                   
+                                    return senderCell
+                                }
+                            }
+                        }else if type == "extension_document" {
+                            
+                            if message.senderUid != LoggedInUser.uid {
+                                if let writeboardMessage = message as? CustomMessage {
+                                    let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftCollaborativeMessageBubble", for: indexPath) as! LeftCollaborativeMessageBubble
+                                    receiverCell.indexPath = indexPath
+                                    receiverCell.writeboardMessage = writeboardMessage
+                                   
+                                    return receiverCell
+                                }
+                            }else{
+                                if let writeboardMessage = message as? CustomMessage {
+                                    let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightCollaborativeMessageBubble", for: indexPath) as! RightCollaborativeMessageBubble
+                                  
+                                    senderCell.writeboardMessage = writeboardMessage
+                                   
+                                   
+                                    return senderCell
+                                }
+                            }
                         }else{
                             let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
                             let customMessage = message as? CustomMessage
@@ -583,6 +628,14 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
             if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightStickerMessageBubble {
                 selectedCell.receiptStack.isHidden = false
             }
+            
+            if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightCollaborativeMessageBubble {
+                selectedCell.receiptStack.isHidden = false
+            }
+            
+            if  let selectedCell = tableView.cellForRow(at: indexPath) as? LeftCollaborativeMessageBubble {
+                selectedCell.receiptStack.isHidden = false
+            }
         },completion: nil)
         tableView.endUpdates()
     }
@@ -651,6 +704,14 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
             }
             
             if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightStickerMessageBubble {
+                selectedCell.receiptStack.isHidden = true
+            }
+            
+            if  let selectedCell = tableView.cellForRow(at: indexPath) as? RightCollaborativeMessageBubble {
+                selectedCell.receiptStack.isHidden = true
+            }
+            
+            if  let selectedCell = tableView.cellForRow(at: indexPath) as? LeftCollaborativeMessageBubble {
                 selectedCell.receiptStack.isHidden = true
             }
         },completion: nil)

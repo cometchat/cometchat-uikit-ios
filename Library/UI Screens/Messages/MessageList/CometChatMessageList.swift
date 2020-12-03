@@ -1257,6 +1257,19 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     presentPanModal(group.rowVC)
                 }
                 
+                if  let selectedCell = tableView?.cellForRow(at: indexPath) as? RightCollaborativeMessageBubble {
+                    AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+                    self.selectedMessage = selectedCell.whiteboardMessage
+                    let group: RowPresentable = MessageActionsGroup()
+                
+                    if UIKitSettings.deleteMessage == .enabled {
+                        actions.append(.delete)
+                    }
+                    
+                    (group.rowVC as? MessageActions)?.set(actions: actions)
+                    presentPanModal(group.rowVC)
+                }
+                
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? RightVideoMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
                     self.selectedMessage = selectedCell.mediaMessage
@@ -1439,6 +1452,24 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         presentPanModal(group.rowVC)
                     }else{
                         self.selectedMessage = selectedCell.fileMessage
+                        let group: RowPresentable = MessageActionsGroup()
+                        (group.rowVC as? MessageActions)?.set(actions: actions)
+                        presentPanModal(group.rowVC)
+                    }
+                }
+                
+                if  let selectedCell = tableView?.cellForRow(at: indexPath) as? LeftCollaborativeMessageBubble {
+                    AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator && UIKitSettings.allowModeratorToDeleteMemberMessages == .enabled{
+                        self.selectedMessage = selectedCell.whiteboardMessage
+                        let group: RowPresentable = MessageActionsGroup()
+                        if UIKitSettings.deleteMessage == .enabled {
+                            actions.append(.delete)
+                        }
+                        (group.rowVC as? MessageActions)?.set(actions: actions)
+                        presentPanModal(group.rowVC)
+                    }else{
+                        self.selectedMessage = selectedCell.whiteboardMessage
                         let group: RowPresentable = MessageActionsGroup()
                         (group.rowVC as? MessageActions)?.set(actions: actions)
                         presentPanModal(group.rowVC)
@@ -1689,6 +1720,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         
         let rightStickerMessageBubble  = UINib.init(nibName: "RightStickerMessageBubble", bundle: UIKitSettings.bundle)
         self.tableView?.register(rightStickerMessageBubble, forCellReuseIdentifier: "rightStickerMessageBubble")
+        
+        let leftCollaborativeMessageBubble  = UINib.init(nibName: "LeftCollaborativeMessageBubble", bundle: UIKitSettings.bundle)
+        self.tableView?.register(leftCollaborativeMessageBubble, forCellReuseIdentifier: "leftCollaborativeMessageBubble")
+        
+        let rightCollaborativeMessageBubble  = UINib.init(nibName: "RightCollaborativeMessageBubble", bundle: UIKitSettings.bundle)
+        self.tableView?.register(rightCollaborativeMessageBubble, forCellReuseIdentifier: "rightCollaborativeMessageBubble")
         
     }
     
@@ -2392,6 +2429,54 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                                 let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightStickerMessageBubble", for: indexPath) as! RightStickerMessageBubble
                                 senderCell.stickerMessage = stickerMessage
                                 senderCell.indexPath = indexPath
+                                if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
+                                    senderCell.receiptStack.isHidden = false
+                                }else{
+                                    senderCell.receiptStack.isHidden = true
+                                }
+                                return senderCell
+                            }
+                        }
+                    }else if type == "extension_whiteboard" {
+                        
+                        if message.senderUid != LoggedInUser.uid {
+                            if let whiteboardMessage = message as? CustomMessage {
+                                let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftCollaborativeMessageBubble", for: indexPath) as! LeftCollaborativeMessageBubble
+                                receiverCell.whiteboardMessage = whiteboardMessage
+                                receiverCell.collaborativeDelegate = self
+                                receiverCell.indexPath = indexPath
+                                return receiverCell
+                            }
+                        }else{
+                            if let whiteboardMessage = message as? CustomMessage {
+                                let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightCollaborativeMessageBubble", for: indexPath) as! RightCollaborativeMessageBubble
+                                senderCell.indexPath = indexPath
+                                senderCell.collaborativeDelegate = self
+                                senderCell.whiteboardMessage = whiteboardMessage
+                                if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
+                                    senderCell.receiptStack.isHidden = false
+                                }else{
+                                    senderCell.receiptStack.isHidden = true
+                                }
+                                return senderCell
+                            }
+                        }
+                    }else if type == "extension_document" {
+                        
+                        if message.senderUid != LoggedInUser.uid {
+                            if let writeboardMessage = message as? CustomMessage {
+                                let receiverCell = tableView.dequeueReusableCell(withIdentifier: "leftCollaborativeMessageBubble", for: indexPath) as! LeftCollaborativeMessageBubble
+                                receiverCell.indexPath = indexPath
+                                receiverCell.writeboardMessage = writeboardMessage
+                                receiverCell.collaborativeDelegate = self
+                                return receiverCell
+                            }
+                        }else{
+                            if let writeboardMessage = message as? CustomMessage {
+                                let senderCell = tableView.dequeueReusableCell(withIdentifier: "rightCollaborativeMessageBubble", for: indexPath) as! RightCollaborativeMessageBubble
+                                senderCell.indexPath = indexPath
+                                senderCell.writeboardMessage = writeboardMessage
+                                senderCell.collaborativeDelegate = self
                                 if  chatMessages[indexPath.section][safe: indexPath.row] == filteredMessages.last || tableView.isLast(for: indexPath){
                                     senderCell.receiptStack.isHidden = false
                                 }else{
@@ -3117,6 +3202,15 @@ extension CometChatMessageList : ChatViewInternalDelegate {
         if UIKitSettings.createPoll == .enabled {
             actions.append(.createAPoll)
         }
+        
+        if UIKitSettings.collaborativeWhiteboard == .enabled {
+            actions.append(.whiteboard)
+        }
+        
+        if UIKitSettings.collaborativeWhiteboard == .enabled {
+            actions.append(.writeboard)
+        }
+        
         (group.rowVC as? MessageActions)?.set(actions: actions)
         presentPanModal(group.rowVC)
     }
@@ -4473,6 +4567,63 @@ extension CometChatMessageList: ThreadDelegate {
 
 extension CometChatMessageList : MessageActionsDelegate {
     
+    func didCollaborativeWriteboardPressed() {
+        print("didCollaborativeWriteboardPressed")
+        if let group = currentGroup {
+            print("group is: \(group)")
+            CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":group.guid,"receiverType":"group"]) { (response) in
+                print("writeboard response: \(response)")
+            } onError: { (error) in
+                if let error = error?.errorDescription {
+                    DispatchQueue.main.async {
+                        let snackbar = CometChatSnackbar(message: error, duration: .short)
+                        snackbar.show()
+                    }
+                    
+                }
+            }
+        } else if let user = currentUser {
+            print("user is: \(user)")
+            CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":user.uid,"receiverType":"user"]) { (response) in
+                print("writeboard response: \(response)")
+            } onError: { (error) in
+                if let error = error?.errorDescription {
+                    DispatchQueue.main.async {
+                        let snackbar = CometChatSnackbar(message: error, duration: .short)
+                        snackbar.show()
+                    }
+                }
+            }
+        }
+    }
+    
+    func didCollaborativeWhiteboardPressed() {
+        print("didCollaborativeWhiteboardPressed")
+        
+        if let group = currentGroup {
+            
+            CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":group.guid,"receiverType":"group"]) { (response) in
+                print("whiteboard response: \(String(describing: response))")
+            } onError: { (error) in
+                if let error = error?.errorDescription {
+                    let snackbar = CometChatSnackbar(message: error, duration: .short)
+                    snackbar.show()
+                }
+            }
+            
+        } else if let user = currentUser {
+            CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":user.uid,"receiverType":"user"]) { (response) in
+                print("whiteboard response: \(String(describing: response))")
+            } onError: { (error) in
+                if let error = error?.errorDescription {
+                    let snackbar = CometChatSnackbar(message: error, duration: .short)
+                    snackbar.show()
+                }
+            }
+        }
+    }
+    
+    
     func didReactionPressed() {
         
     }
@@ -4760,7 +4911,39 @@ extension CometChatMessageList : MessageActionsDelegate {
             editViewName.text = name.capitalized
         }
         switch message.messageType {
-        case .text: editViewMessage.text = (message as? TextMessage)?.text
+        case .text:
+            
+            if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let dataMaskingDictionary = cometChatExtension["data-masking"] as? [String : Any] {
+                if let data = dataMaskingDictionary["data"] as? [String:Any], let sensitiveData = data["sensitive_data"] as? String {
+                    
+                    if sensitiveData == "yes" {
+                        if let maskedMessage = data["message_masked"] as? String {
+                            editViewMessage.text = maskedMessage
+                        }else{
+                            editViewMessage.text = (message as? TextMessage)?.text
+                        }
+                    }else{
+                        editViewMessage.text = (message as? TextMessage)?.text
+                    }
+                }else{
+                    editViewMessage.text = (message as? TextMessage)?.text
+                }
+            }else if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let profanityFilterDictionary = cometChatExtension["profanity-filter"] as? [String : Any] {
+                
+                if let profanity = profanityFilterDictionary["profanity"] as? String, let filteredMessage = profanityFilterDictionary["message_clean"] as? String {
+                    
+                    if profanity == "yes" {
+                        editViewMessage.text = filteredMessage
+                    }else{
+                        editViewMessage.text = (message as? TextMessage)?.text
+                    }
+                }else{
+                    editViewMessage.text = (message as? TextMessage)?.text
+                }
+            }else{
+                editViewMessage.text = (message as? TextMessage)?.text
+            }
+            
         case .image: editViewMessage.text = "📸 Photo"
         case .video: editViewMessage.text = "📹 Video"
         case .audio: editViewMessage.text = "🎵 Audio"
@@ -5057,4 +5240,31 @@ extension CometChatMessageList: ReactionViewDelegate {
     }
     
     
+}
+
+
+extension CometChatMessageList: CollaborativeDelegate {
+    
+    func didJoinPressed(forMessage: CustomMessage) {
+        
+        print("Message is: \(forMessage.stringValue())")
+        
+        
+        
+        if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let collaborativeDictionary = cometChatExtension["whiteboard"] as? [String : Any], let collaborativeURL =  collaborativeDictionary["board_url"] as? String {
+            
+            let collaborativeView = CollaborativeView()
+            collaborativeView.collaborativeType = .whiteboard
+            collaborativeView.collaborativeURL = collaborativeURL
+            self.navigationController?.pushViewController(collaborativeView, animated: true)
+            
+        }else if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let collaborativeDictionary = cometChatExtension["document"] as? [String : Any], let collaborativeURL =  collaborativeDictionary["document_url"] as? String {
+            
+            let collaborativeView = CollaborativeView()
+            collaborativeView.collaborativeType = .writeboard
+            collaborativeView.collaborativeURL = collaborativeURL
+            self.navigationController?.pushViewController(collaborativeView, animated: true)
+        
+        }
+    }
 }

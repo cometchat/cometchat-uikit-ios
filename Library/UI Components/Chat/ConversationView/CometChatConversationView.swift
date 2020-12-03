@@ -110,10 +110,14 @@ class CometChatConversationView: UITableViewCell {
                             if customMessage.type == "location" {
                                 message.text = "📍 has shared location"
                             }else if customMessage.type == "extension_poll" {
-                                 message.text = "📊 has added new poll"
+                                message.text = "📊 has added new poll"
                             }else if customMessage.type == "extension_sticker" {
                                 message.text = "💟 has sent sticker"
-                           }
+                            }else if customMessage.type == "extension_whiteboard" {
+                                message.text = "📝 has shared whiteboard"
+                            }else if customMessage.type == "extension_document" {
+                                message.text = "📃 has shared document"
+                            }
                         }else{
                             message.text = NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE",  bundle: UIKitSettings.bundle, comment: "")
                         }
@@ -126,7 +130,11 @@ class CometChatConversationView: UITableViewCell {
                                 message.text = senderName! + ":  " + "📊 has added new poll"
                             }else if customMessage.type == "extension_sticker" {
                                 message.text =  senderName! + ":  " + "💟 has sent sticker"
-                           }
+                           }else if customMessage.type == "extension_whiteboard" {
+                            message.text = senderName! + ":  " + "📝 has shared whiteboard"
+                        }else if customMessage.type == "extension_document" {
+                            message.text = senderName! + ":  " + "📃 has shared document"
+                        }
                         }else{
                             message.text = senderName! +  ":  " +  NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE",  bundle: UIKitSettings.bundle, comment: "")
                         }
@@ -156,7 +164,11 @@ class CometChatConversationView: UITableViewCell {
                             message.text = "📊 has added new poll"
                         }else if customMessage.type == "extension_sticker" {
                             message.text =   "💟 has sent sticker"
-                       }
+                       }else if customMessage.type == "extension_whiteboard" {
+                        message.text = "📝 has shared whiteboard"
+                    }else if customMessage.type == "extension_document" {
+                        message.text = "📃 has shared document"
+                    }
                     }
                     
                 case .custom where currentConversation.conversationType == .group:
@@ -167,7 +179,11 @@ class CometChatConversationView: UITableViewCell {
                             message.text = senderName! + ":  " + "📊 has added new poll"
                         }else if customMessage.type == "extension_sticker" {
                             message.text =  senderName! + ":  " + "💟 has sent sticker"
-                       }
+                       }else if customMessage.type == "extension_whiteboard" {
+                        message.text = senderName! + ":  " + "📝 has shared whiteboard"
+                    }else if customMessage.type == "extension_document" {
+                        message.text = senderName! + ":  " + "📃 has shared document"
+                    }
                     }
                 @unknown default:
                     break
