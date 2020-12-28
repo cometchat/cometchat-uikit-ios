@@ -18,8 +18,7 @@
 <a href=""><img src="https://img.shields.io/badge/Repo%20Size-13.3%20MB-brightgreen" /></a>
 <a href=""> <img src="https://img.shields.io/badge/Contributors-2-yellowgreen" /></a>
 <a href=" "> <img src="https://img.shields.io/badge/Version-2.1.9-red" /></a>
-<a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-swift-chat-ui-kit?style=social
-" /></a>
+<a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-swift-chat-ui-kit?style=social"/></a>
 
 </p>
 </br></br>
@@ -27,7 +26,7 @@
 <div style="width:100%">
     <div style="width:50%; display:inline-block">
         <p align="center">
-        <img align="left" src="https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/MainScreenshot1.png.png">    
+        <img align="left" src="https://github.com/cometchat-pro/ios-swift-chat-ui-kit/blob/master/Screenshots/MainScreenshot1.png">    
         </p>    
     </div>    
 </div>
