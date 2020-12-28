@@ -15,6 +15,7 @@ class CometChatCreateGroup: UIViewController {
     
     // MARK: - Declaration of Outlets
     
+    @IBOutlet weak var detailLabel: UILabel!
     @IBOutlet weak var name: UITextField!
     @IBOutlet weak var icon: Avatar!
     @IBOutlet weak var createGroup: UIButton!
@@ -68,7 +69,7 @@ class CometChatCreateGroup: UIViewController {
     */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
           if navigationController != nil{
-              navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+              navigationItem.title = title.localized()
               navigationItem.largeTitleDisplayMode = mode
               switch mode {
               case .automatic:
@@ -97,6 +98,11 @@ class CometChatCreateGroup: UIViewController {
         typeView.layer.borderWidth = 1
         typeView.clipsToBounds = true
         createGroup.backgroundColor = UIKitSettings.primaryColor
+        createGroup.setTitle("CREATE_GROUP".localized(), for: .normal)
+        selectedGroupType.text = "SELECT_GROUP_TYPE".localized()
+        name.placeholder = "ENTER_GROUP_NAME".localized()
+        detailLabel.text = "KINDLY_ENTER_GROUP_NAME".localized()
+        password.placeholder = "ENTER_GROUP_PWD".localized()
     }
     
     
@@ -118,7 +124,7 @@ class CometChatCreateGroup: UIViewController {
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
-            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", bundle: UIKitSettings.bundle, comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+            let closeButton = UIBarButtonItem(title: "CLOSE".localized(), style: .plain, target: self, action: #selector(closeButtonPressed))
             closeButton.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem = closeButton
         }
@@ -204,29 +210,29 @@ class CometChatCreateGroup: UIViewController {
     
     
     @IBAction func didSelectGroupPressed(_ sender: Any) {
-        let actionSheetController: UIAlertController = UIAlertController(title: nil, message: "Choose one of the group type to create group.", preferredStyle: .actionSheet)
+        let actionSheetController: UIAlertController = UIAlertController(title: nil, message: "CHOOSE_GROUP_TYPE".localized(), preferredStyle: .actionSheet)
         
-        let publicGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PUBLIC", bundle: UIKitSettings.bundle, comment: "")  + " Group", style: .default) { action -> Void in
+        let publicGroup: UIAlertAction = UIAlertAction(title: "PUBLIC".localized()  + "GROUP".localized(), style: .default) { action -> Void in
             self.groupType = .public
-            self.selectedGroupType.text = NSLocalizedString("PUBLIC", bundle: UIKitSettings.bundle, comment: "")  + " Group"
+            self.selectedGroupType.text = "PUBLIC".localized()  + "GROUP".localized()
             self.passwordView.isHidden = true
             self.password.text = ""
         }
         
-        let passwordProtectedGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PASSWORD_PROTECTED", bundle: UIKitSettings.bundle, comment: "")  + " Group", style: .default) { action -> Void in
+        let passwordProtectedGroup: UIAlertAction = UIAlertAction(title: "PASSWORD_PROTECTED".localized()  + "GROUP".localized(), style: .default) { action -> Void in
             self.groupType = .password
-            self.selectedGroupType.text = NSLocalizedString("PASSWORD_PROTECTED", bundle: UIKitSettings.bundle, comment: "")  + " Group"
+            self.selectedGroupType.text = "PASSWORD_PROTECTED".localized()  + "GROUP".localized()
             self.passwordView.isHidden = false
         }
         
-        let privateGroup: UIAlertAction = UIAlertAction(title: NSLocalizedString("PRIVATE", bundle: UIKitSettings.bundle, comment: "") + " Group", style: .default) { action -> Void in
+        let privateGroup: UIAlertAction = UIAlertAction(title: "PRIVATE".localized() + "GROUP".localized(), style: .default) { action -> Void in
             self.groupType = .private
-            self.selectedGroupType.text = NSLocalizedString("PRIVATE", bundle: UIKitSettings.bundle, comment: "") + " Group"
+            self.selectedGroupType.text = "PRIVATE".localized() + "GROUP".localized()
             self.passwordView.isHidden = true
             self.password.text = ""
         }
         
-        let cancelAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("CANCEL", bundle: UIKitSettings.bundle, comment: ""), style: .cancel) { action -> Void in
+        let cancelAction: UIAlertAction = UIAlertAction(title: "CANCEL".localized(), style: .cancel) { action -> Void in
         }
         cancelAction.setValue(UIColor.red, forKey: "titleTextColor")
         
@@ -264,15 +270,15 @@ class CometChatCreateGroup: UIViewController {
     */
     @IBAction func didCreateGroupPressed(_ sender: Any) {
         
-        if selectedGroupType.text == "Select Group Type" {
-            self.showAlert(title: "Warning!", msg: "Select group type first to create a group.")
+        if selectedGroupType.text == "SELECT_GROUP_TYPE".localized() {
+            self.showAlert(title: "WARNING".localized(), msg: "SELECT_GROUP_TYPE".localized())
        
         }else if groupType == .password && password.text?.count == 0 {
-            self.showAlert(title: "Warning!", msg: "Group password cannot be empty.")
+            self.showAlert(title: "WARNING".localized(), msg: "GROUP_PASSWORD_CANNOT_EMPTY".localized())
         }else{
             
             guard let name = name.text else {
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("ENTER_GROUP_NAME", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "ENTER_GROUP_NAME".localized(), duration: .short)
                 snackbar.show()
                 return
             }

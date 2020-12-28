@@ -92,7 +92,7 @@ public class CometChatConversationList: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -118,7 +118,7 @@ public class CometChatConversationList: UIViewController {
      */
     private func refreshConversations(){
         DispatchQueue.main.async {
-            self.tableView.setEmptyMessage(NSLocalizedString("", bundle: UIKitSettings.bundle, comment: ""))
+            self.tableView.setEmptyMessage("".localized())
             self.activityIndicator?.startAnimating()
             self.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self.tableView.bounds.width, height: CGFloat(44))
             self.tableView.tableFooterView = self.activityIndicator
@@ -227,7 +227,7 @@ public class CometChatConversationList: UIViewController {
         
         if #available(iOS 10.0, *) {
           let refreshControl = UIRefreshControl()
-          let title = NSLocalizedString("REFRESHING", bundle: UIKitSettings.bundle, comment: "")
+          let title = "REFRESHING".localized()
           refreshControl.attributedTitle = NSAttributedString(string: title)
           refreshControl.addTarget(self,
                                    action: #selector(refreshConversations(sender:)),
@@ -367,7 +367,7 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if conversations.isEmpty {
-            self.tableView.setEmptyMessage(NSLocalizedString("No Chats Found.", bundle: UIKitSettings.bundle, comment: ""))
+            self.tableView.setEmptyMessage("NO_CHATS_FOUND".localized())
         } else{
             self.tableView.restore()
         }
@@ -554,7 +554,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
             DispatchQueue.main.async {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
-                    cell.typing.text = user! + " " + NSLocalizedString("IS_TYPING", bundle: UIKitSettings.bundle, comment: "")
+                    cell.typing.text = user! + " " + "IS_TYPING".localized()
                     if cell.message.isHidden == false{
                         cell.typing.isHidden = false
                         cell.message.isHidden = true
@@ -565,7 +565,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationView, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
                     let user = typingDetails.sender?.name
-                    cell.typing.text = user! + " " + NSLocalizedString("IS_TYPING", bundle: UIKitSettings.bundle, comment: "")
+                    cell.typing.text = user! + " " + "IS_TYPING".localized()
                     if cell.typing.isHidden == false{
                         cell.typing.isHidden = true
                         cell.message.isHidden = false

@@ -59,10 +59,10 @@ class RightLinkPreviewBubble: UITableViewCell {
             }
             if let url = url {
                 if url.contains("youtube")  ||  url.contains("youtu.be") {
-                    visitButton.setTitle(NSLocalizedString("VIEW_ON_YOUTUBE", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
+                    visitButton.setTitle("VIEW_ON_YOUTUBE".localized(), for: .normal)
                     playbutton.isHidden = false
                 }else{
-                    visitButton.setTitle(NSLocalizedString("Visit", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
+                    visitButton.setTitle("Visit".localized(), for: .normal)
                     playbutton.isHidden = true
                 }
             }
@@ -87,13 +87,13 @@ class RightLinkPreviewBubble: UITableViewCell {
                 timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessage?.sentAt ?? 0))
             }else if linkPreviewMessage.sentAt == 0 {
                 receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
             }
             replybutton.tintColor = UIKitSettings.primaryColor
             if linkPreviewMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if linkPreviewMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = linkPreviewMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)

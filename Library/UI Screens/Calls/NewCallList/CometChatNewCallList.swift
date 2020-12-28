@@ -82,7 +82,7 @@ public class CometChatNewCallList: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -280,7 +280,7 @@ public class CometChatNewCallList: UIViewController {
         */
     private func addCloseButton(bool: Bool){
         if bool == true {
-            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", bundle: UIKitSettings.bundle, comment: ""), style: .plain, target: self, action: #selector(didCloseButtonPressed))
+            let closeButton = UIBarButtonItem(title: "CLOSE".localized(), style: .plain, target: self, action: #selector(didCloseButtonPressed))
             closeButton.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem = closeButton
         }

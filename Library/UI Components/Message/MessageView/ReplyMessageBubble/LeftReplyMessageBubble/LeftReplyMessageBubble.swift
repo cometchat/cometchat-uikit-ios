@@ -138,7 +138,7 @@ class LeftReplyMessageBubble: UITableViewCell {
                      }else if textmessage.sentAt > 0 {
                          timeStamp.text = String().setMessageTime(time: Int(textMessage?.sentAt ?? 0))
                      }else if textmessage.sentAt == 0 {
-                         timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                         timeStamp.text = "SENDING".localized()
                          name.text = LoggedInUser.name.capitalized + ":"
                      }
                     if let userName = textmessage.sender?.name {
@@ -203,12 +203,12 @@ class LeftReplyMessageBubble: UITableViewCell {
                 }
                 if (currentMessage.sender?.name) != nil {
                     switch currentMessage.messageType {
-                    case .text:  message.text =  NSLocalizedString("THIS_MESSAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .image: message.text = NSLocalizedString("THIS_IMAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .video: message.text = NSLocalizedString("THIS_VIDEO_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .audio: message.text =  NSLocalizedString("THIS_AUDIO_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .file:  message.text = NSLocalizedString("THIS_FILE_DELETED", bundle: UIKitSettings.bundle, comment: "")
-                    case .custom: message.text = NSLocalizedString("THIS_CUSTOM_MESSAGE_DELETED", bundle: UIKitSettings.bundle, comment: "")
+                    case .text:  message.text =  "THIS_MESSAGE_DELETED".localized()
+                    case .image: message.text = "THIS_MESSAGE_DELETED".localized()
+                    case .video: message.text = "THIS_MESSAGE_DELETED".localized()
+                    case .audio: message.text =  "THIS_MESSAGE_DELETED".localized()
+                    case .file:  message.text = "THIS_MESSAGE_DELETED".localized()
+                    case .custom: message.text = "THIS_MESSAGE_DELETED".localized()
                     case .groupMember: break
                     @unknown default: break }}
                 receiptStack.isHidden = true
@@ -358,7 +358,7 @@ class LeftReplyMessageBubble: UITableViewCell {
                           sentimentAnalysisView.isHidden = false
                           message.textColor = UIColor.white
                           message.font =  UIFont.systemFont(ofSize: 15, weight: .regular)
-                          message.text = NSLocalizedString("MAY_CONTAIN_NEGATIVE_SENTIMENT", bundle: UIKitSettings.bundle, comment: "")
+                          message.text = "MAY_CONTAIN_NEGATIVE_SENTIMENT".localized()
                           spaceConstraint.constant = 10
                           widthconstraint.constant = 45
                       }else{

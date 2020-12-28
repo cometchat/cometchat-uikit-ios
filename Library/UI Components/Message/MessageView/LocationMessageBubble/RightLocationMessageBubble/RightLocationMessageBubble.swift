@@ -82,7 +82,7 @@ class RightLocationMessageBubble: UITableViewCell {
                     timeStamp.text = String().setMessageTime(time: Int(locationMessage?.sentAt ?? 0))
                 }else if locationMessage.sentAt == 0 {
                     receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
-                    timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                    timeStamp.text = "SENDING".localized()
                 }
                 receipt.contentMode = .scaleAspectFit
         }

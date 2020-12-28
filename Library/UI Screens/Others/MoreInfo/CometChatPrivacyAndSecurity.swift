@@ -35,7 +35,7 @@ class CometChatPrivacyAndSecurity: UIViewController {
         self.setupItems()
         self.fetchBlockedUsersCount()
         self.addObservers()
-        self.set(title: NSLocalizedString("PRIVACY_AND_SECURITY", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
+        self.set(title: "PRIVACY_AND_SECURITY".localized(), mode: .automatic)
     }
     
     
@@ -59,7 +59,7 @@ class CometChatPrivacyAndSecurity: UIViewController {
     */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
            if navigationController != nil{
-               navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+               navigationItem.title = title.localized()
                navigationItem.largeTitleDisplayMode = mode
                switch mode {
                case .automatic:
@@ -170,11 +170,11 @@ class CometChatPrivacyAndSecurity: UIViewController {
         blockedUserRequest?.fetchNext(onSuccess: { (blockedUsers) in
             if let count =  blockedUsers?.count {
                 if  count == 0 {
-                    self.blockUsersCount =  NSLocalizedString("0_USERS", bundle: UIKitSettings.bundle, comment: "")
+                    self.blockUsersCount =  "0_USERS".localized()
                 }else if count > 0 && count < 100 {
-                    self.blockUsersCount = "\(count) " + NSLocalizedString("USERS", bundle: UIKitSettings.bundle, comment: "")
+                    self.blockUsersCount = "\(count) " + "USERS".localized()
                 }else{
-                    self.blockUsersCount = "100+ " + NSLocalizedString("USERS", bundle: UIKitSettings.bundle, comment: "")
+                    self.blockUsersCount = "100+ " + "USERS".localized()
                 }
                 DispatchQueue.main.async { self.tableView.reloadData() }
             }
@@ -225,7 +225,7 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
-            sectionTitle.text =  NSLocalizedString("PRIVACY", bundle: UIKitSettings.bundle, comment: "")
+            sectionTitle.text =  "PRIVACY".localized()
         }
         sectionTitle.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         if #available(iOS 13.0, *) {
@@ -269,18 +269,18 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
         let cell = UITableViewCell()
         if indexPath.section == 0 && indexPath.row == 0 {
             let blockedUserCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
-            blockedUserCell.title.text = NSLocalizedString("BLOCKED_USERS", bundle: UIKitSettings.bundle, comment: "")
+            blockedUserCell.title.text = "BLOCKED_USERS".localized()
             return blockedUserCell
         }else{
             switch privacy[safe:indexPath.row] {
             case CometChatPrivacyAndSecurity.GROUP_CELL:
                 let groupsCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
-                groupsCell.title.text = NSLocalizedString("Groups", bundle: UIKitSettings.bundle, comment: "")
+                groupsCell.title.text = "Groups".localized()
                 return groupsCell
                 
             case CometChatPrivacyAndSecurity.CALLS_CELL:
                 let callsCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
-                callsCell.title.text = NSLocalizedString("CALLS", bundle: UIKitSettings.bundle, comment: "")
+                callsCell.title.text = "CALLS".localized()
                 return callsCell
             default: break
             }

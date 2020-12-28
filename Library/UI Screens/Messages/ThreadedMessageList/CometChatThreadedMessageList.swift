@@ -340,9 +340,9 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         if replyCount != 0 {
             threadedReplyCount.isHidden = false
             if replyCount == 1 {
-                threadedReplyCount.text = "1 reply"
+                threadedReplyCount.text = "ONE_REPLY".localized()
             }else {
-                threadedReplyCount.text = String(replyCount) + " replies"
+                threadedReplyCount.text = String(replyCount) + " " +  "REPLIES".localized()
             }
             if let message = currentMessage, let indexpath = indexPath {
                 
@@ -385,7 +385,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            if messages.isEmpty { strongSelf.tableView?.setEmptyMessage("No Messages Found.")
+            if messages.isEmpty { strongSelf.tableView?.setEmptyMessage("NO_MESSAGES_FOUND".localized())
             }else{ strongSelf.tableView?.restore() }
         }
         let groupedMessages = Dictionary(grouping: messages) { (element) -> Date in
@@ -425,7 +425,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
     private func groupMessages(messages: [BaseMessage]){
         DispatchQueue.main.async {  [weak self] in
             guard let strongSelf = self else { return }
-            if messages.isEmpty { strongSelf.tableView?.setEmptyMessage("No Messages Found.")
+            if messages.isEmpty { strongSelf.tableView?.setEmptyMessage("NO_MESSAGES_FOUND".localized())
             }else{ strongSelf.tableView?.restore() }
         }
         let groupedMessages = Dictionary(grouping: messages) { (element) -> Date in
@@ -643,7 +643,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                 if let name = strongSelf.currentUser?.name {
                     DispatchQueue.main.async {
                         strongSelf.hide(view: .blockedView, false)
-                        strongSelf.blockedMessage.text = NSLocalizedString("YOU'VE_BLOCKED", bundle: UIKitSettings.bundle, comment: "") + " \(String(describing: name.capitalized))"
+                        strongSelf.blockedMessage.text = "YOU'VE_BLOCKED".localized() + " \(String(describing: name.capitalized))"
                     }
                 }
             }
@@ -866,7 +866,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         if let name = notification.userInfo?["name"] as? String {
             self.hide(view: .blockedView, false)
             blockedMessage.text =
-                NSLocalizedString("YOU'VE_BLOCKED", bundle: UIKitSettings.bundle, comment: "") + "\(String(describing: name.capitalized))"
+                "YOU'VE_BLOCKED".localized() + " \(String(describing: name.capitalized))"
         }
     }
     
@@ -951,12 +951,12 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
             backButton.setImage(edit, for: .normal)
             backButton.tintColor = UIKitSettings.primaryColor
         } else {}
-        backButton.setTitle(NSLocalizedString("BACK", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
+        backButton.setTitle("BACK".localized(), for: .normal)
         backButton.setTitleColor(backButton.tintColor, for: .normal) // You can change the TitleColor
         backButton.addTarget(self, action: #selector(self.didBackButtonPressed(_:)), for: .touchUpInside)
         
         let cancelButton = UIButton(type: .custom)
-        cancelButton.setTitle(NSLocalizedString("CANCEL", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
+        cancelButton.setTitle("CANCEL".localized(), for: .normal)
         cancelButton.setTitleColor(backButton.tintColor, for: .normal) // You can change the TitleColor
         cancelButton.addTarget(self, action: #selector(self.didCancelButtonPressed(_:)), for: .touchUpInside)
         self.navigationItem.leftBarButtonItem = nil
@@ -1134,7 +1134,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
     @IBAction func didCopyButtonPressed(_ sender: UIButton) {
         if selectedMessages.isEmpty {
             DispatchQueue.main.async {
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("SELECT_A_MESSGE", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "SELECT_A_MESSGE".localized(), duration: .short)
                 snackbar.show()
             }
         }else{
@@ -1148,7 +1148,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                 case .image: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
                 case .video: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
                 case .file: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
-                case .custom: messageText = NSLocalizedString("CUSTOM_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+                case .custom: messageText = "CUSTOM_MESSAGE".localized()
                 case .audio: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
                 case .groupMember: break
                 @unknown default: break
@@ -1158,7 +1158,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
             }
             UIPasteboard.general.string = messages.joined(separator: "\n\n")
             DispatchQueue.main.async {
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("TEXT_COPIED", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "TEXT_COPIED".localized(), duration: .short)
                 snackbar.show()
                 self.didPreformCancel()
             }
@@ -1730,7 +1730,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         send.isHidden = false
         
         textView.font = UIFont.systemFont(ofSize: 17)
-        textView.placeholder = NSAttributedString(string: "Type a Message...", attributes: [.foregroundColor: UIColor.lightGray, .font:  UIFont.systemFont(ofSize: 17) as Any])
+        textView.placeholder = NSAttributedString(string: "TYPE_A_MESSAGE".localized(), attributes: [.foregroundColor: UIColor.lightGray, .font:  UIFont.systemFont(ofSize: 17) as Any])
         textView.maxNumberOfLines = 5
         textView.delegate = self
         
@@ -2072,7 +2072,7 @@ extension CometChatThreadedMessageList: UITableViewDelegate , UITableViewDataSou
             let dateString = String().setMessageDateHeader(time: Int(firstMessageInSection.sentAt))
             let label = MessageDateHeader()
             if dateString == "01/01/1970" {
-                label.text = NSLocalizedString("TODAY", bundle: UIKitSettings.bundle, comment: "")
+                label.text = "TODAY".localized()
             }else{
                 label.text = dateString
             }
@@ -2272,14 +2272,14 @@ extension CometChatThreadedMessageList: UITableViewDelegate , UITableViewDataSou
                     }else{
                         let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
                         let customMessage = message as? CustomMessage
-                        receiverCell.message.text = NSLocalizedString("CUSTOM_MESSAGE", bundle: UIKitSettings.bundle, comment: "") +  "\(String(describing: customMessage?.customData))"
+                        receiverCell.message.text = "CUSTOM_MESSAGE".localized() +  "\(String(describing: customMessage?.customData))"
                         return receiverCell
                     }
                 }
                 //  CustomMessage Cell
                 let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
                 let customMessage = message as? CustomMessage
-                receiverCell.message.text = NSLocalizedString("CUSTOM_MESSAGE", bundle: UIKitSettings.bundle, comment: "") +  "\(String(describing: customMessage?.customData))"
+                receiverCell.message.text = "CUSTOM_MESSAGE".localized() +  "\(String(describing: customMessage?.customData))"
                 return receiverCell
             }
         }
@@ -2906,6 +2906,13 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
             actions.append(.createAPoll)
         }
         
+        if UIKitSettings.collaborativeWhiteboard == .enabled {
+            actions.append(.whiteboard)
+        }
+        
+        if UIKitSettings.collaborativeWhiteboard == .enabled {
+            actions.append(.writeboard)
+        }
         
         (group.rowVC as? MessageActions)?.set(actions: actions)
         presentPanModal(group.rowVC)
@@ -3689,7 +3696,7 @@ extension CometChatThreadedMessageList : CometChatUserDelegate {
             if user.status == .online {
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("ONLINE", bundle: UIKitSettings.bundle, comment: ""))
+                    strongSelf.setupNavigationBar(withSubtitle: "ONLINE".localized())
                 }
             }
         }
@@ -3708,7 +3715,7 @@ extension CometChatThreadedMessageList : CometChatUserDelegate {
             if user.status == .offline {
                 DispatchQueue.main.async {  [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.setupNavigationBar(withSubtitle: NSLocalizedString("OFFLINE", bundle: UIKitSettings.bundle, comment: ""))
+                    strongSelf.setupNavigationBar(withSubtitle: "OFFLINE".localized())
                 }
             }
         }
@@ -3928,10 +3935,55 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     
     func didCollaborativeWriteboardPressed() {
         
+        if let uid = currentUser?.uid {
+            CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"]) { (response) in
+                print("writeboard response: \(String(describing: response))")
+            } onError: { (error) in
+                if let error = error?.errorDescription {
+                    let snackbar = CometChatSnackbar(message: error, duration: .short)
+                    snackbar.show()
+                }
+            }
+
+        }
+        
+        if let guid = currentGroup?.guid {
+            CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"]) { (response) in
+                print("writeboard response: \(String(describing: response))")
+            } onError: { (error) in
+                if let error = error?.errorDescription {
+                    let snackbar = CometChatSnackbar(message: error, duration: .short)
+                    snackbar.show()
+                }
+            }
+        }
     }
     
     func didCollaborativeWhiteboardPressed() {
-     
+        if let uid = currentUser?.uid {
+            CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"]) { (response) in
+                print("whiteboard response: \(String(describing: response))")
+            } onError: { (error) in
+                if let error = error?.errorDescription {
+                    let snackbar = CometChatSnackbar(message: error, duration: .short)
+                    snackbar.show()
+                }
+            }
+
+        }
+        
+        
+        
+        if let guid = currentGroup?.guid {
+            CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"]) { (response) in
+                print("whiteboard response: \(String(describing: response))")
+            } onError: { (error) in
+                if let error = error?.errorDescription {
+                    let snackbar = CometChatSnackbar(message: error, duration: .short)
+                    snackbar.show()
+                }
+            }
+        }
     }
     
     
@@ -3963,14 +4015,14 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
             case .image: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
             case .video: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
             case .file: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
-            case .custom: messageText = NSLocalizedString("CUSTOM_MESSAGE", comment: "")
+            case .custom: messageText = "CUSTOM_MESSAGE".localized()
             case .audio: messageText = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
             case .groupMember: break
             @unknown default:break
             }
             UIPasteboard.general.string = messageText
             DispatchQueue.main.async {
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: NSLocalizedString("TEXT_COPIED", comment: ""), duration: .short)
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "TEXT_COPIED".localized(), duration: .short)
                 snackbar.show()
                 self.didPreformCancel()
             }
@@ -4015,7 +4067,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                         locationMessage.metaData = ["pushNotification": pushtitle]
                         locationMessage.parentMessageId = strongSelf.currentMessage?.id ?? 0
                         DispatchQueue.main.async {
-                            let alert = UIAlertController(title: nil, message: "Sending Location...", preferredStyle: .alert)
+                            let alert = UIAlertController(title: nil, message: "SENDING_LOCATION".localized(), preferredStyle: .alert)
                             let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
                             loadingIndicator.hidesWhenStopped = true
                             loadingIndicator.style = UIActivityIndicatorView.Style.gray
@@ -4027,7 +4079,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                             DispatchQueue.main.async { [weak self] in
                                 guard let strongSelf = self else { return }
                                 strongSelf.dismiss(animated: true, completion: nil)
-                                let snackbar = CometChatSnackbar(message: "Location sent successfully.", duration: .short)
+                                let snackbar = CometChatSnackbar(message: "LOCATION_SENT_SUCCESSFULLY".localized(), duration: .short)
                                 snackbar.show()
                                 
                                 if strongSelf.chatMessages.count == 0 {
@@ -4075,7 +4127,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                         locationMessage.metaData = ["pushNotification": pushtitle]
                         locationMessage.parentMessageId = strongSelf.currentMessage?.id ?? 0
                         DispatchQueue.main.async {
-                            let alert = UIAlertController(title: nil, message: "Sending Location...", preferredStyle: .alert)
+                            let alert = UIAlertController(title: nil, message: "SENDING_LOCATION".localized(), preferredStyle: .alert)
                             let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
                             loadingIndicator.hidesWhenStopped = true
                             loadingIndicator.style = UIActivityIndicatorView.Style.gray
@@ -4087,7 +4139,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                             DispatchQueue.main.async { [weak self] in
                                 guard let strongSelf = self else { return }
                                 strongSelf.dismiss(animated: true, completion: nil)
-                                let snackbar = CometChatSnackbar(message: "Location sent successfully.", duration: .short)
+                                let snackbar = CometChatSnackbar(message: "LOCATION_SENT_SUCCESSFULLY".localized(), duration: .short)
                                 snackbar.show()
                                 
                                 if strongSelf.chatMessages.count == 0 {

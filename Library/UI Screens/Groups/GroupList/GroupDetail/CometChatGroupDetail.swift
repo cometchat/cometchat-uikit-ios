@@ -92,7 +92,7 @@ class CometChatGroupDetail: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -330,7 +330,7 @@ class CometChatGroupDetail: UIViewController {
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
-            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", bundle: UIKitSettings.bundle, comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+            let closeButton = UIBarButtonItem(title: "CLOSE".localized(), style: .plain, target: self, action: #selector(closeButtonPressed))
             closeButton.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem = closeButton
         }
@@ -390,13 +390,13 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
-            sectionTitle.text =  NSLocalizedString("MEMBERS_", bundle: UIKitSettings.bundle, comment: "")
+            sectionTitle.text =  "MEMBERS_".localized()
         }else if section == 2{
             sectionTitle.text =  ""
         }else if section == 3{
-            sectionTitle.text =  NSLocalizedString("PRIVACY_&_SUPPORT", bundle: UIKitSettings.bundle, comment: "")
+            sectionTitle.text =  "PRIVACY_&_SUPPORT".localized()
         }else if section == 4{
-            sectionTitle.text =  NSLocalizedString("SHARED_MEDIA", bundle: UIKitSettings.bundle, comment: "")
+            sectionTitle.text =  "SHARED_MEDIA".localized()
         }
         sectionTitle.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         if #available(iOS 13.0, *) {
@@ -470,7 +470,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                     if memberCount == 1 {
                         groupDetail.detail.text = "1 Member"
                     }else{
-                        groupDetail.detail.text =  "\(memberCount)" +  NSLocalizedString("MEMBERS", bundle: UIKitSettings.bundle, comment: "")
+                        groupDetail.detail.text =  "\(memberCount)" + " " + "MEMBERS".localized()
                     }
                 }
                 return groupDetail
@@ -478,19 +478,19 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             case CometChatGroupDetail.ADMINISTRATOR_CELL:
                 let administratorCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
                 administratorCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-                administratorCell.title.text = "Administrators"
+                administratorCell.title.text = "ADMINISTRATORS".localized()
                 return administratorCell
                 
             case CometChatGroupDetail.MODERATORS_CELL:
                 let administratorCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
                 administratorCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-                administratorCell.title.text = "Moderators"
+                administratorCell.title.text = "MODERATORS".localized()
                 return administratorCell
                 
             case CometChatGroupDetail.BANNED_MEMBER_CELL:
                 let administratorCell = tableView.dequeueReusableCell(withIdentifier: "administratorView", for: indexPath) as! AdministratorView
                 administratorCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-                administratorCell.title.text = "Banned Members"
+                administratorCell.title.text = "BANNED_MEMBERS".localized()
                 return administratorCell
             default:break
             }
@@ -507,7 +507,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                 let membersCell = tableView.dequeueReusableCell(withIdentifier: "membersView", for: indexPath) as! MembersView
                 membersCell.member = member
                 if member.uid == currentGroup?.owner {
-                    membersCell.scope.text = NSLocalizedString("Owner", bundle: UIKitSettings.bundle, comment: "")
+                    membersCell.scope.text = "Owner".localized()
                 }
                 membersCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return membersCell
@@ -516,13 +516,13 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             switch supportItems[safe:indexPath.row] {
             case CometChatGroupDetail.DELETE_AND_EXIT_CELL:
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
-                supportCell.textLabel?.text = NSLocalizedString("DELETE_&_EXIT", bundle: UIKitSettings.bundle, comment: "")
+                supportCell.textLabel?.text = "DELETE_&_EXIT".localized()
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return supportCell
                 
             case CometChatGroupDetail.EXIT_CELL:
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
-                supportCell.textLabel?.text = NSLocalizedString("LEAVE_GROUP", bundle: UIKitSettings.bundle, comment: "")
+                supportCell.textLabel?.text = "LEAVE_GROUP".localized()
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return supportCell
             default:break
@@ -595,7 +595,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                     let data:[String: String] = ["guid": group.guid]
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                                 }
-                                let message = (selectedCell.member?.name ?? "") + NSLocalizedString("REMOVED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: "")
+                                let message = (selectedCell.member?.name ?? "") + " " + "REMOVED_SUCCESSFULLY".localized()
                                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                                 snackbar.show()
                             }
@@ -608,14 +608,14 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                             }
                         }
                     }))
-                    alert.addAction(UIAlertAction(title: NSLocalizedString("BAN_MEMBER", bundle: UIKitSettings.bundle, comment: ""), style: .default, handler: { action in
+                    alert.addAction(UIAlertAction(title: "BAN_MEMBER".localized(), style: .default, handler: { action in
                         CometChat.banGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
                             DispatchQueue.main.async {
                                 if let group = self.currentGroup {
                                     let data:[String: String] = ["guid": group.guid]
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                                 }
-                                let message = (selectedCell.member?.name ?? "") + NSLocalizedString("BANNED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: "")
+                                let message = (selectedCell.member?.name ?? "") + " " + "BANNED_SUCCESSFULLY".localized()
                                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                                 snackbar.show()
                             }
@@ -629,7 +629,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                         }
                     }))
                     alert.view.tintColor = UIKitSettings.primaryColor
-                    alert.addAction(UIAlertAction(title: NSLocalizedString("CANCEL", bundle: UIKitSettings.bundle, comment: ""), style: .cancel, handler: { action in
+                    alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
                     }))
                     if UIKitSettings.allowKickBanMembers == .enabled {
                         if LoggedInUser.uid == self.currentGroup?.owner || self.currentGroup?.scope == .admin || self.currentGroup?.scope == .moderator {
@@ -653,8 +653,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                             self.dismiss(animated: true) {
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
                             }
-                            let message = (self.currentGroup?.name ?? "") + NSLocalizedString(
-                                "DELETED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: "")
+                            let message = (self.currentGroup?.name ?? "") + " " + "DELETED_SUCCESSFULLY".localized()
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                             snackbar.show()
                         }
@@ -677,7 +676,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                         DispatchQueue.main.async {
                             self.dismiss(animated: true) {
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
-                                let message =  NSLocalizedString("YOU_LEFT_FROM", bundle: UIKitSettings.bundle, comment: "") +  (self.currentGroup?.name ?? "") + "."
+                                let message =  "YOU_LEFT_FROM".localized() + " " +  (self.currentGroup?.name ?? "") + "."
                                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                                 snackbar.show()
                             }
@@ -708,7 +707,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
    
     
             if  let selectedCell = tableView.cellForRow(at: indexPath) as? MembersView  {
-                let removeMember = UIAction(title: NSLocalizedString("REMOVE_MEMBER", bundle: UIKitSettings.bundle, comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { action in
+                let removeMember = UIAction(title: "REMOVE_MEMBER".localized(), image: UIImage(systemName: "trash"), attributes: .destructive) { action in
                     
                     CometChat.kickGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
                         DispatchQueue.main.async {
@@ -716,7 +715,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                 let data:[String: String] = ["guid": group.guid ]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                             }
-                            let message = (selectedCell.member?.name ?? "") + NSLocalizedString("REMOVED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: "")
+                            let message = (selectedCell.member?.name ?? "") + " " + "REMOVED_SUCCESSFULLY".localized()
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                             snackbar.show()
                         }
@@ -730,7 +729,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                     }
                 }
                 
-                let banMember = UIAction(title: NSLocalizedString("BAN_MEMBER", bundle: UIKitSettings.bundle, comment: ""), image: UIImage(systemName: "exclamationmark.octagon.fill"), attributes: .destructive){ action in
+                let banMember = UIAction(title: "BAN_MEMBER".localized(), image: UIImage(systemName: "exclamationmark.octagon.fill"), attributes: .destructive){ action in
                     
                     CometChat.banGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
                         DispatchQueue.main.async {
@@ -738,7 +737,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                 let data:[String: String] = ["guid": group.guid ]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                             }
-                            let message = (selectedCell.member?.name ?? "") + NSLocalizedString("BANNED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: "")
+                            let message = (selectedCell.member?.name ?? "") + " " + "BANNED_SUCCESSFULLY".localized()
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                             snackbar.show()
                         }
@@ -1042,20 +1041,20 @@ extension CometChatGroupDetail: DetailViewDelegate {
     func didCallButtonPressed(for: AppEntity) {
         
         let actionSheetController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let audioCall: UIAlertAction = UIAlertAction(title: NSLocalizedString("AUDIO_CALL", bundle: UIKitSettings.bundle, comment: ""), style: .default) { action -> Void in
+        let audioCall: UIAlertAction = UIAlertAction(title: "AUDIO_CALL".localized(), style: .default) { action -> Void in
             if let group = self.currentGroup {
                 CometChatCallManager().makeCall(call: .audio, to: group)
             }
         }
         
-        let videoCall: UIAlertAction = UIAlertAction(title: NSLocalizedString("VIDEO_CALL", bundle: UIKitSettings.bundle, comment: ""), style: .default) { action -> Void in
+        let videoCall: UIAlertAction = UIAlertAction(title: "VIDEO_CALL".localized(), style: .default) { action -> Void in
             
             if let group = self.currentGroup {
                 CometChatCallManager().makeCall(call: .video, to: group)
             }
         }
         
-        let cancelAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("CANCEL", bundle: UIKitSettings.bundle, comment: ""), style: .cancel) { action -> Void in
+        let cancelAction: UIAlertAction = UIAlertAction(title: "CANCEL".localized(), style: .cancel) { action -> Void in
         }
         cancelAction.setValue(UIColor.red, forKey: "titleTextColor")
         

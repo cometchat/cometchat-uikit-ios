@@ -70,28 +70,28 @@ import CometChatPro
         more.viewControllers = [userInfo]
       
         conversations.tabBarItem.image = UIImage(named: "chats.png", in: UIKitSettings.bundle, compatibleWith: nil)
-        conversations.tabBarItem.title = NSLocalizedString("CHATS", bundle: UIKitSettings.bundle, comment: "")
+        conversations.tabBarItem.title = "CHATS".localized()
         
         calls.tabBarItem.image = UIImage(named:"calls", in: UIKitSettings.bundle, compatibleWith: nil)
-        calls.tabBarItem.title = NSLocalizedString("CALLS", bundle: UIKitSettings.bundle, comment: "")
+        calls.tabBarItem.title = "CALLS".localized()
         
         users.tabBarItem.image = UIImage(named:"contacts", in: UIKitSettings.bundle, compatibleWith: nil)
-        users.tabBarItem.title = NSLocalizedString("CONTACTS", bundle: UIKitSettings.bundle, comment: "")
+        users.tabBarItem.title = "USERS".localized()
         
         groups.tabBarItem.image = UIImage(named:"groups", in: UIKitSettings.bundle, compatibleWith: nil)
-        groups.tabBarItem.title = NSLocalizedString("GROUPS", bundle: UIKitSettings.bundle, comment: "")
+        groups.tabBarItem.title = "GROUPS".localized()
         
         more.tabBarItem.image = UIImage(named:"more", in: UIKitSettings.bundle, compatibleWith: nil)
-        more.tabBarItem.title = NSLocalizedString("MORE", bundle: UIKitSettings.bundle, comment: "")
+        more.tabBarItem.title = "MORE".localized()
         
         //
         // Setting title and  LargeTitleDisplayMode for view controllers.
         
-        conversationList.set(title: NSLocalizedString("CHATS", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
-        callsList.set(title: NSLocalizedString("CALLS", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
-        userList.set(title: NSLocalizedString("CONTACTS", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
-        groupList.set(title: NSLocalizedString("GROUPS", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
-        userInfo.set(title: NSLocalizedString("MORE", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
+        conversationList.set(title: "CHATS".localized(), mode: .automatic)
+        callsList.set(title: "CALLS".localized(), mode: .automatic)
+        userList.set(title: "USERS".localized(), mode: .automatic)
+        groupList.set(title: "GROUPS".localized(), mode: .automatic)
+        userInfo.set(title: "MORE".localized(), mode: .automatic)
         
         let color = UIKitSettings.primaryColor
         self.tabBar.tintColor = color

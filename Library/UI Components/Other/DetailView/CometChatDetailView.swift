@@ -40,11 +40,11 @@ class CometChatDetailView: UITableViewCell {
             name.text = currentUser.name
                 switch currentUser.status {
                 case .online:
-                    detail.text = NSLocalizedString("ONLINE", bundle: UIKitSettings.bundle, comment: "")
+                    detail.text = "ONLINE".localized()
                 case .offline:
-                     detail.text = NSLocalizedString("OFFLINE", bundle: UIKitSettings.bundle, comment: "")
+                     detail.text = "OFFLINE".localized()
                 @unknown default:
-                    detail.text = NSLocalizedString("OFFLINE", bundle: UIKitSettings.bundle, comment: "")
+                    detail.text = "OFFLINE".localized()
                 }
             if UIKitSettings.showUserPresence == .disabled {
                 detail.isHidden = true
@@ -73,11 +73,11 @@ class CometChatDetailView: UITableViewCell {
                 name.text = currentGroup.name
                 switch currentGroup.groupType {
                 case .public:
-                    detail.text = NSLocalizedString("PUBLIC", bundle: UIKitSettings.bundle, comment: "")
+                    detail.text = "PUBLIC".localized()
                 case .private:
-                    detail.text = NSLocalizedString("PRIVATE", bundle: UIKitSettings.bundle, comment: "")
+                    detail.text = "PRIVATE".localized()
                 case .password:
-                    detail.text = NSLocalizedString("PASSWORD_PROTECTED", bundle: UIKitSettings.bundle, comment: "")
+                    detail.text = "PASSWORD_PROTECTED".localized()
                 @unknown default:
                     break
                 }

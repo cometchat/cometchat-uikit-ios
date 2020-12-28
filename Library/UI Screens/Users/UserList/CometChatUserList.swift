@@ -86,7 +86,7 @@ public class CometChatUserList: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:

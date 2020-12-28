@@ -65,7 +65,7 @@ import  AVFoundation
                 self.currentCall = ongoingCall
                 
                 DispatchQueue.main.async {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Calling \(name)", duration: .short)
+                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALLING".localized() + " \(name)", duration: .short)
                     snackbar.show()
                 }
             }) { (error) in
@@ -83,7 +83,7 @@ import  AVFoundation
             CometChat.initiateCall(call: call, onSuccess: { (ongoingCall) in
                 self.currentCall = ongoingCall
                 DispatchQueue.main.async {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Calling \(name)", duration: .short)
+                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALLING".localized() +  " \(name)", duration: .short)
                     snackbar.show()
                 }
             }) { (error) in
@@ -131,13 +131,13 @@ import  AVFoundation
                 CometChat.rejectCall(sessionID: session, status: .cancelled, onSuccess: {(cancelledCall) in
                     DispatchQueue.main.async {
                         self.dismiss()
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Ended.", duration: .short)
+                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_ENDED".localized(), duration: .short)
                         snackbar.show()
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
                         self.dismiss()
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Ended.", duration: .short)
+                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_ENDED".localized(), duration: .short)
                         snackbar.show()
                     }
                 }
@@ -145,7 +145,7 @@ import  AVFoundation
         }else{
             DispatchQueue.main.async {
                 self.dismiss()
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Ended.", duration: .short)
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_ENDED".localized(), duration: .short)
                 snackbar.show()
             }
         }
@@ -185,14 +185,14 @@ extension CometChatOutgoingCall: OutgoingCallDelegate {
                     CometChat.startCall(callSettings: self.callSetting!) { (userJoined) in
                         DispatchQueue.main.async {
                             if let name = userJoined?.name {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) joined.", duration: .short)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "JOINED".localized(), duration: .short)
                                 snackbar.show()
                             }
                         }
                     } userLeft: { (userLeft) in
                         DispatchQueue.main.async {
                             if let name = userLeft?.name {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) left.", duration: .short)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "LEFT_THE_CALL".localized(), duration: .short)
                                 snackbar.show()
                             }
                         }
@@ -204,7 +204,7 @@ extension CometChatOutgoingCall: OutgoingCallDelegate {
                     } callEnded: { (ended) in
                         DispatchQueue.main.async {
                             self.dismiss()
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Ended.", duration: .short)
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_ENDED".localized(), duration: .short)
                             snackbar.show()
                         }
                     }
@@ -228,13 +228,13 @@ extension CometChatOutgoingCall: OutgoingCallDelegate {
                 CometChat.rejectCall(sessionID: session, status: .ended, onSuccess: {(cancelledCall) in
                     DispatchQueue.main.async {
                         self.dismiss()
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Rejected.", duration: .short)
+                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_REJECTED".localized(), duration: .short)
                         snackbar.show()
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
                         self.dismiss()
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Rejected.", duration: .short)
+                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_REJECTED".localized(), duration: .short)
                         snackbar.show()
                     }
                 }
@@ -242,7 +242,7 @@ extension CometChatOutgoingCall: OutgoingCallDelegate {
         }else{
             DispatchQueue.main.async {
                 self.dismiss()
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Rejected.", duration: .short)
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_REJECTED".localized(), duration: .short)
                 snackbar.show()
             }
         }

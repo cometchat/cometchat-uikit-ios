@@ -23,9 +23,9 @@ class CollaborativeView: UIViewController , WKNavigationDelegate {
         setupNavigationBar()
         switch collaborativeType {
         case .whiteboard:
-            self.set(title: "Whiteboard", mode: .never)
+            self.set(title: "WHITEBOARD".localized(), mode: .never)
         case .writeboard:
-            self.set(title: "Document", mode: .never)
+            self.set(title: "DOCUMENT".localized(), mode: .never)
         }
         if let url = collaborativeURL {
             let link = URL(string: url)!
@@ -36,7 +36,7 @@ class CollaborativeView: UIViewController , WKNavigationDelegate {
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         self.webView.scrollView.zoomScale = 5.0
         DispatchQueue.main.async {
-            let alert = UIAlertController(title: nil, message: "Loading...", preferredStyle: .alert)
+            let alert = UIAlertController(title: nil, message: "LOADING".localized(), preferredStyle: .alert)
             let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
             loadingIndicator.hidesWhenStopped = true
             loadingIndicator.style = UIActivityIndicatorView.Style.gray
@@ -56,7 +56,7 @@ class CollaborativeView: UIViewController , WKNavigationDelegate {
     
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:

@@ -51,14 +51,13 @@ class RightCollaborativeMessageBubble: UITableViewCell {
     var whiteboardMessage: CustomMessage! {
         didSet {
             receiptStack.isHidden = true
-            print("whiteboardMessage is: \(whiteboardMessage.stringValue())")
             
-            title.text = "You’ve created a new collaborative whiteboard."
-            joinButton.setTitle("Launch", for: .normal)
+            title.text = "YOU_CREATED_WHITEBOARD".localized()
+            joinButton.setTitle("LAUNCH".localized(), for: .normal)
             icon.image = UIImage(named: "whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)
             
             if whiteboardMessage.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
             
             }else{
                 timeStamp.text = String().setMessageTime(time: whiteboardMessage.sentAt)
@@ -81,12 +80,12 @@ class RightCollaborativeMessageBubble: UITableViewCell {
                 timeStamp.text = String().setMessageTime(time: Int(whiteboardMessage?.sentAt ?? 0))
             }else if whiteboardMessage.sentAt == 0 {
                 receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
             }
             if whiteboardMessage?.replyCount != 0  && UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if whiteboardMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = whiteboardMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)
@@ -108,13 +107,12 @@ class RightCollaborativeMessageBubble: UITableViewCell {
     var writeboardMessage: CustomMessage! {
         didSet {
             
-            print("Writeboard is: \(writeboardMessage.stringValue())")
-            title.text = "You’ve created a new collaborative document."
-            joinButton.setTitle("Launch", for: .normal)
+            title.text = "YOU_CREATED_DOCUMENT".localized()
+            joinButton.setTitle("LAUNCH".localized(), for: .normal)
             icon.image = UIImage(named: "writeboard", in: UIKitSettings.bundle, compatibleWith: nil)
             receiptStack.isHidden = true
             if writeboardMessage.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
             }else{
                 timeStamp.text = String().setMessageTime(time: writeboardMessage.sentAt)
             }
@@ -136,12 +134,12 @@ class RightCollaborativeMessageBubble: UITableViewCell {
                 timeStamp.text = String().setMessageTime(time: Int(writeboardMessage?.sentAt ?? 0))
             }else if writeboardMessage.sentAt == 0 {
                 receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
             }
             if writeboardMessage?.replyCount != 0  && UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if whiteboardMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = whiteboardMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)

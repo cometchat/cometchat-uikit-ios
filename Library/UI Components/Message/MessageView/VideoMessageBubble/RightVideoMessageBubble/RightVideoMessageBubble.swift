@@ -50,7 +50,7 @@ class RightVideoMessageBubble: UITableViewCell {
                 }
             receiptStack.isHidden = true
             if mediaMessage.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
                 activityIndicator.isHidden = false
                 activityIndicator.startAnimating()
             }else{
@@ -69,14 +69,14 @@ class RightVideoMessageBubble: UITableViewCell {
             timeStamp.text = String().setMessageTime(time: Int(mediaMessage?.sentAt ?? 0))
             }else if mediaMessage.sentAt == 0 {
                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
-               timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+               timeStamp.text = "SENDING".localized()
             }
             parseThumbnailForVideo(forMessage: mediaMessage)
            
             if mediaMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
                   replybutton.isHidden = false
                 if mediaMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = mediaMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)

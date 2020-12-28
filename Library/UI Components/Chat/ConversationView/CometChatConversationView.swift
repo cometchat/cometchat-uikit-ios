@@ -89,54 +89,54 @@ class CometChatConversationView: UITableViewCell {
                         }
                         
                     case .image where currentConversation.conversationType == .user:
-                        message.text = NSLocalizedString("HAS_SENT_AN_IMAGE", bundle: UIKitSettings.bundle, comment: "")
+                        message.text = "MESSAGE_IMAGE".localized()
                     case .image where currentConversation.conversationType == .group:
-                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_AN_IMAGE", bundle: UIKitSettings.bundle, comment: "")
+                        message.text = senderName! + ":  " + "MESSAGE_IMAGE".localized()
                     case .video  where currentConversation.conversationType == .user:
-                        message.text = NSLocalizedString("HAS_SENT_A_VIDEO", bundle: UIKitSettings.bundle, comment: "")
+                        message.text = "MESSAGE_VIDEO".localized()
                     case .video  where currentConversation.conversationType == .group:
-                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_VIDEO", bundle: UIKitSettings.bundle, comment: "")
+                        message.text = senderName! + ":  " + "MESSAGE_VIDEO".localized()
                     case .audio  where currentConversation.conversationType == .user:
-                        message.text = NSLocalizedString("HAS_SENT_A_AUDIO", bundle: UIKitSettings.bundle, comment: "")
+                        message.text = "MESSAGE_AUDIO".localized()
                     case .audio  where currentConversation.conversationType == .group:
-                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_AUDIO", bundle: UIKitSettings.bundle, comment: "")
+                        message.text = senderName! + ":  " + "MESSAGE_AUDIO".localized()
                     case .file  where currentConversation.conversationType == .user:
-                        message.text = NSLocalizedString("HAS_SENT_A_FILE", bundle: UIKitSettings.bundle, comment: "")
+                        message.text = "MESSAGE_FILE".localized()
                     case .file  where currentConversation.conversationType == .group:
-                        message.text = senderName! + ":  " + NSLocalizedString("HAS_SENT_A_FILE", bundle: UIKitSettings.bundle, comment: "")
+                        message.text = senderName! + ":  " + "MESSAGE_FILE".localized()
                     case .custom where currentConversation.conversationType == .user:
                         
                         if let customMessage = currentConversation.lastMessage as? CustomMessage {
                             if customMessage.type == "location" {
-                                message.text = "📍 has shared location"
+                                message.text = "CUSTOM_MESSAGE_LOCATION".localized()
                             }else if customMessage.type == "extension_poll" {
-                                message.text = "📊 has added new poll"
+                                message.text = "CUSTOM_MESSAGE_POLL".localized()
                             }else if customMessage.type == "extension_sticker" {
-                                message.text = "💟 has sent sticker"
+                                message.text = "CUSTOM_MESSAGE_STICKER".localized()
                             }else if customMessage.type == "extension_whiteboard" {
-                                message.text = "📝 has shared whiteboard"
+                                message.text = "CUSTOM_MESSAGE_WHITEBOARD".localized()
                             }else if customMessage.type == "extension_document" {
-                                message.text = "📃 has shared document"
+                                message.text = "CUSTOM_MESSAGE_DOCUMENT".localized()
                             }
                         }else{
-                            message.text = NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE",  bundle: UIKitSettings.bundle, comment: "")
+                            message.text = "CUSTOM_MESSAGE".localized()
                         }
                        
                     case .custom where currentConversation.conversationType == .group:
                         if let customMessage = currentConversation.lastMessage as? CustomMessage {
                             if customMessage.type == "location" {
-                                message.text = senderName! + ":  " + "📍 has shared location"
+                                message.text = senderName! + ":  " + "CUSTOM_MESSAGE_LOCATION".localized()
                             }else if customMessage.type == "extension_poll" {
-                                message.text = senderName! + ":  " + "📊 has added new poll"
+                                message.text = senderName! + ":  " + "CUSTOM_MESSAGE_POLL".localized()
                             }else if customMessage.type == "extension_sticker" {
-                                message.text =  senderName! + ":  " + "💟 has sent sticker"
+                                message.text =  senderName! + ":  " + "CUSTOM_MESSAGE_STICKER".localized()
                            }else if customMessage.type == "extension_whiteboard" {
-                            message.text = senderName! + ":  " + "📝 has shared whiteboard"
+                            message.text = senderName! + ":  " + "CUSTOM_MESSAGE_WHITEBOARD".localized()
                         }else if customMessage.type == "extension_document" {
-                            message.text = senderName! + ":  " + "📃 has shared document"
+                            message.text = senderName! + ":  " + "CUSTOM_MESSAGE_DOCUMENT".localized()
                         }
                         }else{
-                            message.text = senderName! +  ":  " +  NSLocalizedString("HAS_SENT_A_CUSTOM_MESSAGE",  bundle: UIKitSettings.bundle, comment: "")
+                            message.text = senderName! +  ":  " +  "CUSTOM_MESSAGE".localized()
                         }
                     case .groupMember:break
                     case .none:break
@@ -154,35 +154,35 @@ class CometChatConversationView: UITableViewCell {
                         }
                     }
                 case .call:
-                    message.text = NSLocalizedString("HAS_SENT_A_CALL", bundle: UIKitSettings.bundle, comment: "")
+                    message.text = "HAS_SENT_A_CALL".localized()
                 case .custom where currentConversation.conversationType == .user:
                     
                     if let customMessage = currentConversation.lastMessage as? CustomMessage {
                         if customMessage.type == "location" {
-                            message.text = "📍 has shared location"
+                            message.text = "CUSTOM_MESSAGE_LOCATION".localized()
                         }else if customMessage.type == "extension_poll" {
-                            message.text = "📊 has added new poll"
+                            message.text = "CUSTOM_MESSAGE_POLL".localized()
                         }else if customMessage.type == "extension_sticker" {
-                            message.text =   "💟 has sent sticker"
+                            message.text =   "CUSTOM_MESSAGE_STICKER".localized()
                        }else if customMessage.type == "extension_whiteboard" {
-                        message.text = "📝 has shared whiteboard"
+                        message.text = "CUSTOM_MESSAGE_WHITEBOARD".localized()
                     }else if customMessage.type == "extension_document" {
-                        message.text = "📃 has shared document"
+                        message.text = "CUSTOM_MESSAGE_DOCUMENT".localized()
                     }
                     }
                     
                 case .custom where currentConversation.conversationType == .group:
                     if let customMessage = currentConversation.lastMessage as? CustomMessage {
                         if customMessage.type == "location" {
-                            message.text = senderName! + ":  " + "📍 has shared location"
+                            message.text = senderName! + ":  " + "CUSTOM_MESSAGE_LOCATION".localized()
                         }else if customMessage.type == "extension_poll" {
-                            message.text = senderName! + ":  " + "📊 has added new poll"
+                            message.text = senderName! + ":  " + "CUSTOM_MESSAGE_POLL".localized()
                         }else if customMessage.type == "extension_sticker" {
-                            message.text =  senderName! + ":  " + "💟 has sent sticker"
+                            message.text =  senderName! + ":  " + "CUSTOM_MESSAGE_STICKER".localized()
                        }else if customMessage.type == "extension_whiteboard" {
-                        message.text = senderName! + ":  " + "📝 has shared whiteboard"
+                        message.text = senderName! + ":  " + "CUSTOM_MESSAGE_WHITEBOARD".localized()
                     }else if customMessage.type == "extension_document" {
-                        message.text = senderName! + ":  " + "📃 has shared document"
+                        message.text = senderName! + ":  " + "CUSTOM_MESSAGE_DOCUMENT".localized()
                     }
                     }
                 @unknown default:

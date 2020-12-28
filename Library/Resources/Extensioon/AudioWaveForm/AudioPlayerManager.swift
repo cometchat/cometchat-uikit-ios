@@ -139,21 +139,21 @@ extension AudioErrorType: LocalizedError {
      var errorDescription: String? {
         switch self {
         case .alreadyRecording:
-            return "The application is currently recording sounds"
+            return "CURRENTLY_RECORDING".localized()
         case .alreadyPlaying:
-            return "The application is already playing a sound"
+            return "CURENTLY_PLAYING".localized()
         case .notCurrentlyPlaying:
-            return "The application is not currently playing"
+            return "CURENTLY_NOT_PLAYING".localized()
         case .audioFileWrongPath:
-            return "Invalid path for audio file"
+            return "INVALID_PATH_FOR_AUDIO".localized()
         case .recordFailed:
-            return "Unable to record sound at the moment, please try again"
+            return "UNABLE_TO_RECORD_ERROR".localized()
         case .playFailed:
-            return "Unable to play sound at the moment, please try again"
+            return "UNABLE_TO_PLAY_ERROR".localized()
         case .recordPermissionNotGranted:
-            return "Unable to record sound because the permission has not been granted. This can be changed in your settings."
+            return "UNABLE_TO_RECORD_PERMISSION".localized()
         case .internalError:
-            return "An error occured while trying to process audio command, please try again"
+            return "ERROR_OCCOURD_DURING_RECORD".localized()
         }
     }
 }
@@ -179,8 +179,8 @@ extension URL {
 
 extension UIViewController {
     func showAlert(with error: Error) {
-        let alertController = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "OK", style: .cancel) { _ in
+        let alertController = UIAlertController(title: "ERROR".localized(), message: error.localizedDescription, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK".localized(), style: .cancel) { _ in
             alertController.dismiss(animated: true, completion: nil)
         })
          alertController.view.tintColor = UIKitSettings.primaryColor

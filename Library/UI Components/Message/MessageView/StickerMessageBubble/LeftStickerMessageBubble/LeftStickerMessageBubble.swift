@@ -62,7 +62,7 @@ class LeftStickerMessageBubble: UITableViewCell {
                 
                 replyButton.isHidden = false
                 if stickerMessage?.replyCount == 1 {
-                    replyButton.setTitle("1 reply", for: .normal)
+                    replyButton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = stickerMessage?.replyCount {
                         replyButton.setTitle("\(replies) replies", for: .normal)
@@ -89,7 +89,7 @@ class LeftStickerMessageBubble: UITableViewCell {
                 imageMessage.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
             }
             if stickerMessageInThread.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
             }else{
                 timeStamp.text = String().setMessageTime(time: stickerMessageInThread.sentAt)
             }
@@ -101,7 +101,7 @@ class LeftStickerMessageBubble: UITableViewCell {
             }else if stickerMessageInThread.sentAt > 0 {
             timeStamp.text = String().setMessageTime(time: Int(stickerMessageInThread?.sentAt ?? 0))
             }else if stickerMessageInThread.sentAt == 0 {
-               timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+               timeStamp.text = "SENDING".localized()
                  name.text = LoggedInUser.name.capitalized + ":"
             }
             replyButton.isHidden = true

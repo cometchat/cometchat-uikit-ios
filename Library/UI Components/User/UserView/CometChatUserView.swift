@@ -45,12 +45,12 @@ class CometChatUserView: UITableViewCell {
             if  user?.status != nil {
                 switch user?.status {
                 case .online:
-                    userStatus.text = NSLocalizedString("ONLINE", bundle: UIKitSettings.bundle, comment: "")
+                    userStatus.text = "ONLINE".localized()
                 case .offline:
-                    userStatus.text = NSLocalizedString("OFFLINE", bundle: UIKitSettings.bundle, comment: "")
+                    userStatus.text = "OFFLINE".localized()
                 case .none: break
                 @unknown default:
-                    userStatus.text = NSLocalizedString("OFFLINE", bundle: UIKitSettings.bundle, comment: "")
+                    userStatus.text = "OFFLINE".localized()
                 }
             }
             if #available(iOS 13.0, *) {

@@ -84,7 +84,7 @@ public class CometChatCallsList: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -108,7 +108,7 @@ public class CometChatCallsList: UIViewController {
      */
     private func refreshCalls(){
         DispatchQueue.main.async {
-            self.tableView.setEmptyMessage(NSLocalizedString("", bundle: UIKitSettings.bundle, comment: ""))
+            self.tableView.setEmptyMessage("".localized())
             self.activityIndicator?.startAnimating()
             self.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self.tableView.bounds.width, height: CGFloat(44))
             self.tableView.tableFooterView = self.activityIndicator
@@ -274,7 +274,7 @@ public class CometChatCallsList: UIViewController {
      - Copyright:  ©  2020 CometChat Inc.
      */
      private func addSegmentControl(bool: Bool) {
-        let titles = ["All", "Missed"]
+        let titles = ["ALL".localized(), "MISSED".localized()]
         segmentControl = UISegmentedControl(items: titles)
         segmentControl.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 14, weight: .medium) as Any], for: .normal)
         segmentControl.setWidth(70, forSegmentAt: 0)
@@ -304,11 +304,11 @@ public class CometChatCallsList: UIViewController {
     */
     private func addEditButton(bool: Bool){
         if bool == true {
-            let edit = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(didEditButtonPressed))
+            let edit = UIBarButtonItem(title: "EDIT".localized(), style: .done, target: self, action: #selector(didEditButtonPressed))
             edit.tintColor = UIKitSettings.primaryColor
             self.navigationItem.leftBarButtonItem  = edit
         }else{
-            let done = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(didDoneButtonPressed))
+            let done = UIBarButtonItem(title: "DONE".localized(), style: .done, target: self, action: #selector(didDoneButtonPressed))
             self.navigationItem.leftBarButtonItem  = done
             done.tintColor = UIKitSettings.primaryColor
         }
@@ -361,7 +361,7 @@ public class CometChatCallsList: UIViewController {
         let newCallList = CometChatNewCallList()
         let navigationController = UINavigationController(rootViewController: newCallList)
          navigationController.modalPresentationStyle = .popover
-        newCallList.set(title: "New Call", mode: .never)
+        newCallList.set(title: "NEW_CALL".localized(), mode: .never)
         self.present(navigationController, animated: true, completion: nil)
     }
 }
@@ -415,7 +415,7 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if calls.isEmpty  {
-            self.tableView.setEmptyMessage(NSLocalizedString("No History Found.", bundle: UIKitSettings.bundle, comment: ""))
+            self.tableView.setEmptyMessage("NO_HISTORY_FOUND".localized())
         } else{
             self.tableView.restore()
         }

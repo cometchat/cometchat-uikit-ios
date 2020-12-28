@@ -68,7 +68,7 @@ class CometChatCreatePoll: UIViewController {
     */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
           if navigationController != nil{
-              navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+              navigationItem.title = title.localized()
               navigationItem.largeTitleDisplayMode = mode
               switch mode {
               case .automatic:
@@ -124,7 +124,7 @@ class CometChatCreatePoll: UIViewController {
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
-            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE",bundle: UIKitSettings.bundle, comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+            let closeButton = UIBarButtonItem(title: "CLOSE".localized(), style: .plain, target: self, action: #selector(closeButtonPressed))
             self.navigationItem.rightBarButtonItem = closeButton
         }
     }

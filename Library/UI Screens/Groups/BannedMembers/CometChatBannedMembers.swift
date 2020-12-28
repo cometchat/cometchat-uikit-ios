@@ -73,7 +73,7 @@ public class CometChatBannedMembers: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -194,13 +194,13 @@ public class CometChatBannedMembers: UIViewController {
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
-            let closeButton = UIBarButtonItem(title: NSLocalizedString("CLOSE", bundle: UIKitSettings.bundle, comment: ""), style: .plain, target: self, action: #selector(closeButtonPressed))
+            let closeButton = UIBarButtonItem(title: "CLOSE".localized(), style: .plain, target: self, action: #selector(closeButtonPressed))
             closeButton.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem = closeButton
             
             switch mode {
-            case .fetchGroupMembers: self.set(title: NSLocalizedString("MAKE_GROUP_MODERATOR", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
-            case .fetchModerators: self.set(title: NSLocalizedString("Moderators", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
+            case .fetchGroupMembers: self.set(title: "MAKE_GROUP_MODERATOR".localized(), mode: .automatic)
+            case .fetchModerators: self.set(title: "Moderators".localized(), mode: .automatic)
             case .none: break
             }
             self.setLargeTitleDisplayMode(.always)
@@ -309,14 +309,14 @@ extension CometChatBannedMembers: UITableViewDelegate , UITableViewDataSource {
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
             
-            let unbanMember = UIAction(title: NSLocalizedString("UNBAN_MEMBER", bundle: UIKitSettings.bundle, comment: ""), image: UIImage(systemName: "person.crop.circle"), attributes: .destructive) { action in
+            let unbanMember = UIAction(title: "UNBAN_MEMBER".localized(), image: UIImage(systemName: "person.crop.circle"), attributes: .destructive) { action in
                 if  let selectedCell = tableView.cellForRow(at: indexPath) as? MembersView {
                     if let member = selectedCell.member, let uid = member.uid, let guid = self.currentGroup?.guid {
                         
                         CometChat.unbanGroupMember(UID: uid, GUID: guid, onSuccess: { (sucess) in
                             DispatchQueue.main.async {
                             self.fetchBannedMembers(for: self.currentGroup!)
-                            let message =  (member.name ?? "") + NSLocalizedString("UNBANNED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: "") 
+                            let message =  (member.name ?? "") + " " + "UNBANNED_SUCCESSFULLY".localized()
                              let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                             snackbar.show()
                             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: nil)
@@ -349,12 +349,12 @@ extension CometChatBannedMembers: UITableViewDelegate , UITableViewDataSource {
                     if let member = selectedCell.member, let uid = member.uid, let guid = self.currentGroup?.guid {
                         let alert = UIAlertController(title: "Unban Member", message: "Are you sure want to unban member?", preferredStyle: .alert)
                         
-                        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", bundle: UIKitSettings.bundle, comment: ""), style: .default, handler: { action in
+                        alert.addAction(UIAlertAction(title: "OK".localized(), style: .default, handler: { action in
                             
                             CometChat.unbanGroupMember(UID: uid, GUID: guid, onSuccess: { (sucess) in
                                 DispatchQueue.main.async {
                                 self.fetchBannedMembers(for: self.currentGroup!)
-                                let message =  (member.name ?? "") + NSLocalizedString("UNBANNED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: "")
+                                let message =  (member.name ?? "") + " " + "UNBANNED_SUCCESSFULLY".localized()
                                  let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                                 snackbar.show()
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: nil)
@@ -370,7 +370,7 @@ extension CometChatBannedMembers: UITableViewDelegate , UITableViewDataSource {
                             }
                 
                         }))
-                        alert.addAction(UIAlertAction(title: NSLocalizedString("CANCEL", bundle: UIKitSettings.bundle, comment: ""), style: .cancel, handler: { action in
+                        alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
                         }))
                           alert.view.tintColor = UIKitSettings.primaryColor
                         self.present(alert, animated: true)

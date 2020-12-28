@@ -49,9 +49,9 @@ class RightAudioMessageBubble: UITableViewCell {
                 }
                    receiptStack.isHidden = true
                    if audioMessage.sentAt == 0 {
-                       timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                       timeStamp.text = "SENDING".localized()
                        name.text = "Audio File"
-                       size.text = NSLocalizedString("calculating...", bundle: UIKitSettings.bundle, comment: "")
+                       size.text = "calculating...".localized()
                    }else{
                        timeStamp.text = String().setMessageTime(time: audioMessage.sentAt)
                        name.text = "Audio File"
@@ -72,13 +72,13 @@ class RightAudioMessageBubble: UITableViewCell {
                        timeStamp.text = String().setMessageTime(time: Int(audioMessage?.sentAt ?? 0))
                        }else if audioMessage.sentAt == 0 {
                           receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
-                          timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                          timeStamp.text = "SENDING".localized()
                        }
             
             if audioMessage?.replyCount != 0 && UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if audioMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = audioMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)

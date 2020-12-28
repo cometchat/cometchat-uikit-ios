@@ -42,10 +42,10 @@ class RightFileMessageBubble: UITableViewCell {
         didSet {
             receiptStack.isHidden = true
             if fileMessage.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
-                name.text = NSLocalizedString("---", bundle: UIKitSettings.bundle, comment: "")
-                type.text = NSLocalizedString("---", bundle: UIKitSettings.bundle, comment: "")
-                size.text = NSLocalizedString("---", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
+                name.text = "---".localized()
+                type.text = "---".localized()
+                size.text = "---".localized()
             }else{
                 timeStamp.text = String().setMessageTime(time: fileMessage.sentAt)
                 name.text = fileMessage.attachment?.fileName.capitalized
@@ -72,12 +72,12 @@ class RightFileMessageBubble: UITableViewCell {
                 timeStamp.text = String().setMessageTime(time: Int(fileMessage?.sentAt ?? 0))
             }else if fileMessage.sentAt == 0 {
                 receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
             }
             if fileMessage?.replyCount != 0  && UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if fileMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = fileMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)

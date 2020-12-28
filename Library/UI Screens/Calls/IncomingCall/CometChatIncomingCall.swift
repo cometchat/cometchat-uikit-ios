@@ -71,6 +71,8 @@ public class CometChatIncomingCall: UIViewController {
        - Copyright:  ©  2020 CometChat Inc.
        */
     private func setupAppearance(forCall: Call?) {
+        acceptButton.setTitle("ACCEPT".localized(), for: .normal)
+        declineButton.setTitle("DECLINE".localized(), for: .normal)
         CometChatSoundManager().play(sound: .incomingCall, bool: true)
         DispatchQueue.main.async {
             self.incomingCallView.dropShadow()
@@ -78,19 +80,19 @@ public class CometChatIncomingCall: UIViewController {
             switch call.receiverType {
             case .user where call.callType == .audio:
                 if let user = call.callInitiator as? User {
-                    self.set(name: user.name?.capitalized ?? "", avatarURL: user.avatar ?? "", callStatus: "Incoming Audio Call", callStatusIcon: UIImage(named: "incomingAudio", in: UIKitSettings.bundle, compatibleWith: nil)!)
+                    self.set(name: user.name?.capitalized ?? "", avatarURL: user.avatar ?? "", callStatus: "INCOMING_AUDIO_CALL".localized(), callStatusIcon: UIImage(named: "incomingAudio", in: UIKitSettings.bundle, compatibleWith: nil)!)
                 }
             case .user where call.callType == .video:
                 if let user = call.callInitiator as? User {
-                    self.set(name: user.name?.capitalized ?? "", avatarURL: user.avatar ?? "", callStatus: "Incoming Video Call", callStatusIcon: UIImage(named: "incomingVideo", in: UIKitSettings.bundle, compatibleWith: nil)!)
+                    self.set(name: user.name?.capitalized ?? "", avatarURL: user.avatar ?? "", callStatus: "INCOMING_VIDEO_CALL".localized(), callStatusIcon: UIImage(named: "incomingVideo", in: UIKitSettings.bundle, compatibleWith: nil)!)
                 }
             case .group where call.callType == .audio:
                 if let group = call.callReceiver as? Group {
-                    self.set(name: group.name?.capitalized ?? "", avatarURL: group.icon ?? "", callStatus: "Incoming Audio Call", callStatusIcon: UIImage(named: "incomingAudio", in: UIKitSettings.bundle, compatibleWith: nil)!)
+                    self.set(name: group.name?.capitalized ?? "", avatarURL: group.icon ?? "", callStatus: "INCOMING_AUDIO_CALL".localized(), callStatusIcon: UIImage(named: "incomingAudio", in: UIKitSettings.bundle, compatibleWith: nil)!)
                 }
             case .group where call.callType == .video:
                 if let group = call.callReceiver as? Group {
-                    self.set(name: group.name?.capitalized ?? "", avatarURL: group.icon ?? "", callStatus: "Incoming Video Call", callStatusIcon: UIImage(named: "incomingVideo", in: UIKitSettings.bundle, compatibleWith: nil)!)
+                    self.set(name: group.name?.capitalized ?? "", avatarURL: group.icon ?? "", callStatus: "INCOMING_VIDEO_CALL".localized(), callStatusIcon: UIImage(named: "incomingVideo", in: UIKitSettings.bundle, compatibleWith: nil)!)
                 }
             case .user:  break
             case .group: break
@@ -153,14 +155,14 @@ public class CometChatIncomingCall: UIViewController {
                         CometChat.startCall(callSettings: self.callSetting!) { (userJoined) in
                             DispatchQueue.main.async {
                                 if let name = userJoined?.name {
-                                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) joined.", duration: .short)
+                                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "JOINED".localized(), duration: .short)
                                     snackbar.show()
                                 }
                             }
                         } userLeft: { (userLeft) in
                             DispatchQueue.main.async {
                                 if let name = userLeft?.name {
-                                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) left.", duration: .short)
+                                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "LEFT_THE_CALL".localized(), duration: .short)
                                     snackbar.show()
                                 }
                             }
@@ -172,7 +174,7 @@ public class CometChatIncomingCall: UIViewController {
                         } callEnded: { (callEnded) in
                             DispatchQueue.main.async {
                                 self.dismiss()
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Ended.", duration: .short)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_ENDED".localized(), duration: .short)
                                 snackbar.show()
                             }
                         }
@@ -199,13 +201,13 @@ public class CometChatIncomingCall: UIViewController {
                 CometChat.rejectCall(sessionID: session, status: .rejected, onSuccess: {(rejectedCall) in
                     DispatchQueue.main.async {
                         self.dismiss()
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Rejected.", duration: .short)
+                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_REJECTED".localized(), duration: .short)
                         snackbar.show()
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
                         self.dismiss()
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Rejected.", duration: .short)
+                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_REJECTED".localized(), duration: .short)
                         snackbar.show()
                     }
                 }
@@ -213,7 +215,7 @@ public class CometChatIncomingCall: UIViewController {
         }else{
             DispatchQueue.main.async {
                 self.dismiss()
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Rejected.", duration: .short)
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_REJECTED".localized(), duration: .short)
                 snackbar.show()
             }
         }
@@ -252,13 +254,13 @@ extension CometChatIncomingCall: IncomingCallDelegate {
                 CometChat.rejectCall(sessionID: session, status: .cancelled, onSuccess: {(cancelledCall) in
                     DispatchQueue.main.async {
                         self.dismiss()
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Cancelled.", duration: .short)
+                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_CANCELLED".localized(), duration: .short)
                         snackbar.show()
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
                         self.dismiss()
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Cancelled.", duration: .short)
+                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_CANCELLED".localized(), duration: .short)
                         snackbar.show()
                     }
                 }
@@ -266,7 +268,7 @@ extension CometChatIncomingCall: IncomingCallDelegate {
         }else{
             DispatchQueue.main.async {
                 self.dismiss()
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Cancelled.", duration: .short)
+                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_CANCELLED".localized(), duration: .short)
                 snackbar.show()
             }
         }

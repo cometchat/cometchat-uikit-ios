@@ -34,7 +34,7 @@ class ActionMessageBubble: UITableViewCell {
                 message.font =  UIFont.systemFont(ofSize: 15, weight: .bold)
                    switch call.callStatus  {
                    case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
-                       message.text = "Outgoing Audio Call"
+                    message.text = "OUTGOING_AUDIO_CALL".localized()
                        if #available(iOS 13.0, *) {
                            message.textColor = .label
                        } else {
@@ -42,7 +42,7 @@ class ActionMessageBubble: UITableViewCell {
                        }
                    case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                        
-                       message.text = "Incoming Audio Call"
+                    message.text = "INCOMING_AUDIO_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .label
@@ -52,7 +52,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .initiated where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
 
-                       message.text = "Incoming Audio Call"
+                    message.text = "INCOMING_AUDIO_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .label
@@ -62,7 +62,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .initiated where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     
-                       message.text = "Outgoing Audio Call"
+                    message.text = "OUTGOING_AUDIO_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .label
@@ -72,7 +72,7 @@ class ActionMessageBubble: UITableViewCell {
             
                    case .initiated where call.callType == .video && call.receiverType == .user  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
 
-                       message.text = "Outgoing Video Call"
+                    message.text = "OUTGOING_VIDEO_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .label
@@ -82,7 +82,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .initiated where call.callType == .video && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
 
-                       message.text = "Incoming Video Call"
+                    message.text = "INCOMING_VIDEO_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .label
@@ -92,7 +92,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .initiated where call.callType == .video && call.receiverType == .group  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     
-                       message.text = "Outgoing Video Call"
+                    message.text = "OUTGOING_VIDEO_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .label
@@ -102,7 +102,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .initiated where call.callType == .video && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
 
-                       message.text = "Incoming Video Call"
+                    message.text = "INCOMING_VIDEO_CALL".localized()
                       
                        if #available(iOS 13.0, *) {
                            message.textColor = .label
@@ -112,7 +112,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .unanswered where call.callType == .audio && call.receiverType == .user  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
 
-                       message.text = "Unanswered Audio Call"
+                    message.text = "UNANSWERED_AUDIO_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .systemRed
@@ -122,7 +122,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .unanswered where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                 
-                       message.text = "Missed Audio Call"
+                    message.text = "MISSED_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .systemRed
@@ -132,7 +132,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .unanswered where call.callType == .audio && call.receiverType == .group  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                       
-                       message.text = "Unanswered Audio Call"
+                    message.text = "UNANSWERED_AUDIO_CALL".localized()
                      
                        if #available(iOS 13.0, *) {
                            message.textColor = .systemRed
@@ -142,7 +142,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .unanswered where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                       
-                       message.text = "Missed Audio Call"
+                      message.text = "MISSED_CALL".localized()
                      
                        if #available(iOS 13.0, *) {
                            message.textColor = .systemRed
@@ -152,7 +152,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .unanswered where call.callType == .video && call.receiverType == .user  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                       
-                       message.text = "Unanswered Video Call"
+                    message.text = "UNANSWERED_VIDEO_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .systemRed
@@ -162,7 +162,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .unanswered where call.callType == .video && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                      
-                       message.text = "Missed Video Call"
+                    message.text = "MISSED_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .systemRed
@@ -172,7 +172,7 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .unanswered where call.callType == .video && call.receiverType == .group  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                        
-                       message.text = "Unanswered Video Call"
+                    message.text = "UNANSWERED_VIDEO_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .systemRed
@@ -182,24 +182,24 @@ class ActionMessageBubble: UITableViewCell {
                        
                    case .unanswered where call.callType == .video && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                      
-                       message.text = "Missed Video Call"
+                    message.text = "MISSED_CALL".localized()
                        
                        if #available(iOS 13.0, *) {
                            message.textColor = .systemRed
                        } else {
                            message.textColor = .red
                        }
-                   case .rejected: message.text = "Call Rejected"
-                   case .busy: message.text = "Call Busy"
-                   case .cancelled: message.text = "Call Cancelled"
-                   case .ended:  message.text = "Call Ended"
-                   case .initiated: message.text =  "Call Initiated"
-                   case .ongoing: message.text = "Call Ongoing"
-                   case .unanswered:  message.text = "Call Unanswered"
-                   @unknown default: message.text = "Call Cancelled"
+                   case .rejected: message.text = "REJECTED_CALL".localized()
+                   case .busy: message.text = "CALL_BUSY".localized()
+                   case .cancelled: message.text = "CALL_CANCELLED".localized()
+                   case .ended:  message.text = "CALL_ENDED".localized()
+                   case .initiated: message.text =  "CALL_INITIATED".localized()
+                   case .ongoing: message.text = "CALL_OUTGOING".localized()
+                   case .unanswered:  message.text = "CALL_UNANSWERED".localized()
+                   @unknown default: message.text = "CALL_CANCELLED".localized()
                    }
                }else{
-                message.text = "Action Message"
+                message.text = "ACTION_MESSAGE".localized()
             }
            }
        }

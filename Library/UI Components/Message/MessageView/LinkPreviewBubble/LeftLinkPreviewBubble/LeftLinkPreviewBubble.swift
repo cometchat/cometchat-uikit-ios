@@ -82,10 +82,10 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
             parseMaskedData(forMessage: linkPreviewMessage)
             if let url = url {
                 if url.contains("youtube")  ||  url.contains("youtu.be") {
-                    visitButton.setTitle(NSLocalizedString("VIEW_ON_YOUTUBE", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
+                    visitButton.setTitle("VIEW_ON_YOUTUBE".localized(), for: .normal)
                     playbutton.isHidden = false
                 }else{
-                    visitButton.setTitle(NSLocalizedString("Visit", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
+                    visitButton.setTitle("Visit".localized(), for: .normal)
                     playbutton.isHidden = true
                 }
             }
@@ -104,7 +104,7 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
             if linkPreviewMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
                 replyButton.isHidden = false
                 if linkPreviewMessage?.replyCount == 1 {
-                    replyButton.setTitle("1 reply", for: .normal)
+                    replyButton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = linkPreviewMessage?.replyCount {
                         replyButton.setTitle("\(replies) replies", for: .normal)
@@ -173,10 +173,10 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
               parseMaskedData(forMessage: linkPreviewMessageInThread)
               if let url = url {
                   if url.contains("youtube")  ||  url.contains("youtu.be") {
-                      visitButton.setTitle(NSLocalizedString("VIEW_ON_YOUTUBE", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
+                      visitButton.setTitle("VIEW_ON_YOUTUBE".localized(), for: .normal)
                       playbutton.isHidden = false
                   }else{
-                      visitButton.setTitle(NSLocalizedString("Visit", bundle: UIKitSettings.bundle, comment: ""), for: .normal)
+                      visitButton.setTitle("Visit".localized(), for: .normal)
                       playbutton.isHidden = true
                   }
               }
@@ -197,7 +197,7 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
               }else if linkPreviewMessageInThread.sentAt > 0 {
                   timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessageInThread?.sentAt ?? 0))
               }else if linkPreviewMessageInThread.sentAt == 0 {
-                  timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                  timeStamp.text = "SENDING".localized()
                   name.text = LoggedInUser.name.capitalized + ":"
               }
                nameView.isHidden = false

@@ -111,7 +111,7 @@
             switch currentActions[indexPath.row] {
             case .takeAPhoto:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Take a Photo"
+                cell.name.text =  "TAKE_A_PHOTO".localized()
                 cell.icon.image = UIImage(named: "􀌞.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
@@ -119,7 +119,7 @@
                 }
             case .photoAndVideoLibrary:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Photo & Video Library"
+                cell.name.text = "PHOTO_VIDEO_LIBRARY".localized()
                 cell.icon.image = UIImage(named: "􀣵.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
@@ -127,7 +127,7 @@
                 }
             case .document:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Document"
+                cell.name.text = "DOCUMENT".localized()
                 cell.icon.image = UIImage(named: "􀈕.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
@@ -135,7 +135,7 @@
                 }
             case .shareLocation:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Share Location"
+                cell.name.text = "SHARE_LOCATION".localized()
                 cell.icon.image = UIImage(named: "􀋑.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
@@ -143,7 +143,7 @@
                 }
             case .edit:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Edit Message"
+                cell.name.text = "EDIT_MESSAGE".localized()
                 if #available(iOS 13.0, *) {
                     cell.name.textColor = .label
                 }else{
@@ -156,7 +156,7 @@
                 }
             case .delete:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Delete Message"
+                cell.name.text = "DELETE_MESSAGE".localized()
                 if #available(iOS 13.0, *) {
                     cell.name.textColor = .label
                 }else{
@@ -170,7 +170,7 @@
                 }
             case .reply:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Reply Message"
+                cell.name.text = "REPLY_MESSAGE".localized()
                 cell.icon.image = UIImage(named: "reply1.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 if #available(iOS 13.0, *) {
                     cell.icon.tintColor = .label
@@ -185,7 +185,7 @@
                 }
             case .forward:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Forward Message"
+                cell.name.text = "FORWARD_MESSAGE".localized()
                 if #available(iOS 13.0, *) {
                     cell.name.textColor = .label
                 }else{
@@ -205,7 +205,7 @@
                 }
             case .thread:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Start Thread"
+                cell.name.text = "START_THREAD".localized()
                 cell.icon.image = UIImage(named: "􀌤.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 if #available(iOS 13.0, *) {
                     cell.name.textColor = .label
@@ -219,7 +219,7 @@
             case .share:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
                 cell.icon.image = UIImage(named: "􀈂.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                cell.name.text = "Share Message"
+                cell.name.text = "SHARE_MESSAGE".localized()
                 if #available(iOS 13.0, *) {
                     cell.name.textColor = .label
                 }else{
@@ -232,7 +232,7 @@
             case .messageInfo:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
                 cell.icon.image = UIImage(named: "􀅴.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                cell.name.text = "Message Information"
+                cell.name.text = "MESSAGE_INFORMATION".localized()
                 if #available(iOS 13.0, *) {
                     cell.name.textColor = .label
                 }else{
@@ -244,7 +244,7 @@
                 }
             case .copy:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Copy Message"
+                cell.name.text = "COPY_MESSAGE".localized()
                 cell.icon.image = UIImage(named: "􀉁.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
@@ -252,7 +252,7 @@
                 }
             case .createAPoll:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Create a Poll"
+                cell.name.text = "CREATE_A_POLL".localized()
                 cell.icon.image = UIImage(named: "􀌶.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
@@ -260,7 +260,7 @@
                 }
             case .sticker:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Send Sticker"
+                cell.name.text = "SEND_STICKER".localized()
                 cell.icon.image = UIImage(named: "sticker1.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
@@ -272,7 +272,7 @@
                 }
             case .whiteboard:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Collaborative Whiteboard"
+                cell.name.text = "COLLABORATIVE_WHITEBOARD".localized()
                 cell.icon.image = UIImage(named: "whiteboard.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
@@ -280,7 +280,7 @@
                 }
             case .writeboard:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "Collaborative Writeboard"
+                cell.name.text = "COLLABORATIVE_DOCUMENT".localized()
                 cell.icon.image = UIImage(named: "writeboard.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 cell.fullScreenSwitch.isHidden = true
                 cell.badgeCountSwitch.isHidden = true
@@ -359,7 +359,6 @@
                 self.dismiss(animated: true) {
                     MessageActions.actionsDelegate?.copyPressed()
                 }
-
             case .createAPoll:
                 self.dismiss(animated: true) {
                     MessageActions.actionsDelegate?.createAPollPressed()

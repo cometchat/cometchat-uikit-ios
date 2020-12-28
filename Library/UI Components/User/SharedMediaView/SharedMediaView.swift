@@ -67,6 +67,9 @@ class SharedMediaView: UITableViewCell {
         collectionView.delegate = self
         let SharedMediaCell = UINib(nibName: "SharedMediaCell", bundle: UIKitSettings.bundle)
         collectionView.register(SharedMediaCell, forCellWithReuseIdentifier: "sharedMediaCell")
+        mediaSelection.setTitle("PHOTOS".localized(), forSegmentAt: 0)
+        mediaSelection.setTitle("VIDEOS".localized(), forSegmentAt: 1)
+        mediaSelection.setTitle("DOCS".localized(), forSegmentAt: 2)
     }
     
     
@@ -292,21 +295,21 @@ extension SharedMediaView : UICollectionViewDelegate , UICollectionViewDataSourc
         switch self.mediaSelection.selectedSegmentIndex {
         case 0:
             if photos.isEmpty  {
-                self.collectionView.setEmptyMessage(NSLocalizedString("NO_PHOTOS", bundle: UIKitSettings.bundle, comment: ""))
+                self.collectionView.setEmptyMessage("NO_PHOTOS".localized())
             } else{
                 self.collectionView.restore()
             }
             return photos.count
         case 1:
             if videos.isEmpty  {
-                self.collectionView.setEmptyMessage(NSLocalizedString("NO_VIDEOS", bundle: UIKitSettings.bundle, comment: ""))
+                self.collectionView.setEmptyMessage("NO_VIDEOS".localized())
             } else{
                 self.collectionView.restore()
             }
             return videos.count
         case 2:
             if docs.isEmpty  {
-                self.collectionView.setEmptyMessage(NSLocalizedString("NO_DOCUMENTS", bundle: UIKitSettings.bundle, comment: ""))
+                self.collectionView.setEmptyMessage("NO_DOCUMENTS".localized())
             } else{
                 self.collectionView.restore()
             }

@@ -22,6 +22,7 @@ public class CometChatUserInfo: UIViewController {
     
     static let VIEW_PROFILE_CELL = 0
     static let PRIVACY_AND_SECURITY_CELL = 1
+    static let CHANGE_LANGUAGE_CELL = 2
     
     
     // MARK: - View controller lifecycle methods
@@ -52,7 +53,7 @@ public class CometChatUserInfo: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -209,7 +210,7 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
-            sectionTitle.text =  NSLocalizedString("PREFERENCES", bundle: UIKitSettings.bundle, comment: "")
+            sectionTitle.text =  "PREFERENCES".localized()
         }else if section == 2{
             sectionTitle.text =  ""
         }
@@ -273,7 +274,7 @@ extension CometChatUserInfo: UITableViewDelegate , UITableViewDataSource {
             userCell.userStatus.font =  UIFont.systemFont(ofSize: 15, weight: .regular)
             userCell.user = CometChat.getLoggedInUser()
             userCell.userStatus.isHidden = false
-            userCell.userStatus.text = NSLocalizedString("ONLINE", bundle: UIKitSettings.bundle, comment: "")
+            userCell.userStatus.text = "ONLINE".localized()
             userCell.separatorInset = UIEdgeInsets(top: 0, left: tableView.frame.size.width, bottom: 0, right: 0)
             return userCell
             
@@ -333,19 +334,19 @@ extension CometChatUserInfo: CometChatUserViewDelegate {
     
     func didEditInfoPressed() {
         
-        let alert = UIAlertController(title: "Update Information", message: "\nAre you sure you want to update the user information?", preferredStyle: .alert)
-        let save = UIAlertAction(title: "Update", style: .default) { (alertAction) in
+        let alert = UIAlertController(title: "UPDATE_INFORMATION".localized(), message: "\n" + "ARE_YOU_SURE_WANT_TO_UPDATE_USER_INFO".localized() + "?", preferredStyle: .alert)
+        let save = UIAlertAction(title: "UPDATE".localized(), style: .default) { (alertAction) in
             let textField = alert.textFields![0] as UITextField
             if textField.text != "" {
                 self.updateUserInformation(withName: textField.text)
             } else {
-                self.showAlert(title: "Warning!", msg: "User name cannot be empty.")
+                self.showAlert(title: "WARNING".localized(), msg: "USER_NAME_CANNOT_EMPTY".localized())
             }
         }
         alert.addTextField { (textField) in
-            textField.placeholder = "Enter your name"
+            textField.placeholder = "ENTER_YOUR_NAME".localized()
         }
-        let cancel = UIAlertAction(title: "Cancel", style: .default) { (alertAction) in }
+        let cancel = UIAlertAction(title: "CANCEL".localized(), style: .default) { (alertAction) in }
         alert.addAction(save)
         alert.addAction(cancel)
         self.present(alert, animated:true, completion: nil)

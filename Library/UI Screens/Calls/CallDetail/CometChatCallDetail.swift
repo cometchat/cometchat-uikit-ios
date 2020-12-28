@@ -156,7 +156,7 @@ class CometChatCallDetail: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -294,11 +294,11 @@ extension CometChatCallDetail: UITableViewDelegate , UITableViewDataSource {
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
-            sectionTitle.text =  NSLocalizedString("HISTORY", bundle: UIKitSettings.bundle, comment: "")
+            sectionTitle.text =  "HISTORY".localized()
         }else if section == 2{
-            sectionTitle.text =  NSLocalizedString("ACTIONS", bundle: UIKitSettings.bundle, comment: "")
+            sectionTitle.text =  "ACTIONS".localized()
         }else if section == 3{
-            sectionTitle.text =  NSLocalizedString("PRIVACY_&_SUPPORT", bundle: UIKitSettings.bundle, comment: "")
+            sectionTitle.text =  "PRIVACY_&_SUPPORT".localized()
         }
         sectionTitle.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         if #available(iOS 13.0, *) {
@@ -377,7 +377,7 @@ extension CometChatCallDetail: UITableViewDelegate , UITableViewDataSource {
             switch actionsItems[safe:indexPath.row] {
             case CometChatCallDetail.SEND_MESSAGE_CELL:
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
-                supportCell.textLabel?.text = NSLocalizedString("SEND_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+                supportCell.textLabel?.text = "SEND_MESSAGE".localized()
                 supportCell.textLabel?.textColor = UIKitSettings.primaryColor
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return supportCell
@@ -389,10 +389,10 @@ extension CometChatCallDetail: UITableViewDelegate , UITableViewDataSource {
             case CometChatCallDetail.BLOCK_USER_CELL:
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
                 if currentUser?.blockedByMe == true {
-                    supportCell.textLabel?.text = NSLocalizedString("UNBLOCK_USER", bundle: UIKitSettings.bundle, comment: "")
+                    supportCell.textLabel?.text = "UNBLOCK_USER".localized()
                     supportCell.textLabel?.textColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
                 }else if currentUser?.blockedByMe == false {
-                    supportCell.textLabel?.text = NSLocalizedString("BLOCK_USER", bundle: UIKitSettings.bundle, comment: "")
+                    supportCell.textLabel?.text = "BLOCK_USER".localized()
                     supportCell.textLabel?.textColor = .red
                 }
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
@@ -400,7 +400,7 @@ extension CometChatCallDetail: UITableViewDelegate , UITableViewDataSource {
                 
             case CometChatCallDetail.LEAVE_GROUP_CELL:
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "supportView", for: indexPath) as! SupportView
-                supportCell.textLabel?.text = NSLocalizedString("LEAVE_GROUP", bundle: UIKitSettings.bundle, comment: "")
+                supportCell.textLabel?.text = "LEAVE_GROUP".localized()
                 supportCell.textLabel?.textColor = .red
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return supportCell
@@ -454,7 +454,7 @@ extension CometChatCallDetail: UITableViewDelegate , UITableViewDataSource {
                         if let user = self.currentUser, let name = user.name {
                             self.set(user: user)
                             DispatchQueue.main.async {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name + NSLocalizedString("UNBLOCKED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name + " " + "UNBLOCKED_SUCCESSFULLY".localized(), duration: .short)
                                 snackbar.show()
                             }
                         }
@@ -473,7 +473,7 @@ extension CometChatCallDetail: UITableViewDelegate , UITableViewDataSource {
                                 self.set(user: user)
                                 let data:[String: String] = ["name": name]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: data)
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name +  NSLocalizedString("BLOCKED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
+                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name + " " + "BLOCKED_SUCCESSFULLY".localized(), duration: .short)
                                 snackbar.show()
                             }
                         }
@@ -494,7 +494,7 @@ extension CometChatCallDetail: UITableViewDelegate , UITableViewDataSource {
                         DispatchQueue.main.async {
                             self.dismiss(animated: true) {
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
-                                let message =  NSLocalizedString("YOU_LEFT_FROM", bundle: UIKitSettings.bundle, comment: "") +  (self.currentGroup?.name ?? "") + "."
+                                let message =  "YOU_LEFT_FROM".localized() + " " +  (self.currentGroup?.name ?? "") + "."
                                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                                 snackbar.show()
                             }
@@ -525,7 +525,7 @@ extension CometChatCallDetail: UITableViewDelegate , UITableViewDataSource {
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
             if  let selectedCell = (tableView.cellForRow(at: indexPath) as? CometChatDetailView){
-                let audioCall = UIAction(title: NSLocalizedString("AUDIO_CALL", bundle: UIKitSettings.bundle, comment: ""), image: UIImage(named: "audioCall", in: UIKitSettings.bundle, compatibleWith: nil)) { action in
+                let audioCall = UIAction(title: "AUDIO_CALL".localized(), image: UIImage(named: "audioCall", in: UIKitSettings.bundle, compatibleWith: nil)) { action in
                     if let user = selectedCell.user {
                         CometChatCallManager().makeCall(call: .audio, to: user)
                     }
@@ -534,7 +534,7 @@ extension CometChatCallDetail: UITableViewDelegate , UITableViewDataSource {
                     }
                 }
                 
-                let videoCall = UIAction(title: NSLocalizedString("VIDEO_CALL", bundle: UIKitSettings.bundle, comment: ""), image: UIImage(named: "videoCall", in: UIKitSettings.bundle, compatibleWith: nil)) { action in
+                let videoCall = UIAction(title: "VIDEO_CALL".localized(), image: UIImage(named: "videoCall", in: UIKitSettings.bundle, compatibleWith: nil)) { action in
                     if let user = selectedCell.user {
                         CometChatCallManager().makeCall(call: .video, to: user)
                     }
@@ -561,7 +561,7 @@ extension CometChatCallDetail : DetailViewDelegate {
     /// - Parameter for: This specifies `AppEntity` Object
     func didCallButtonPressed(for: AppEntity) {
         let actionSheetController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let audioCall: UIAlertAction = UIAlertAction(title: NSLocalizedString("AUDIO_CALL", bundle: UIKitSettings.bundle, comment: ""), style: .default) { action -> Void in
+        let audioCall: UIAlertAction = UIAlertAction(title: "AUDIO_CALL".localized(), style: .default) { action -> Void in
             if let user = self.currentUser {
                 CometChatCallManager().makeCall(call: .audio, to: user)
             }
@@ -570,7 +570,7 @@ extension CometChatCallDetail : DetailViewDelegate {
             }
         }
         
-        let videoCall: UIAlertAction = UIAlertAction(title: NSLocalizedString("VIDEO_CALL", bundle: UIKitSettings.bundle, comment: ""), style: .default) { action -> Void in
+        let videoCall: UIAlertAction = UIAlertAction(title: "VIDEO_CALL".localized(), style: .default) { action -> Void in
             if let user = self.currentUser {
                 CometChatCallManager().makeCall(call: .video, to: user)
             }
@@ -580,7 +580,7 @@ extension CometChatCallDetail : DetailViewDelegate {
             }
         }
         
-        let cancelAction: UIAlertAction = UIAlertAction(title: NSLocalizedString("CANCEL", bundle: UIKitSettings.bundle, comment: ""), style: .cancel) { action -> Void in
+        let cancelAction: UIAlertAction = UIAlertAction(title: "CANCEL".localized(), style: .cancel) { action -> Void in
         }
         cancelAction.setValue(UIColor.red, forKey: "titleTextColor")
         actionSheetController.addAction(audioCall)

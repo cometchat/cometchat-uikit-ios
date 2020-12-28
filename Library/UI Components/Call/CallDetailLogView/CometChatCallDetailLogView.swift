@@ -31,46 +31,46 @@ class CometChatCallDetailLogView: UITableViewCell {
                 duration.text = String().setCallsTime(time: Int(call.initiatedAt))
                 switch call.callStatus  {
                 case .initiated where call.callType == .audio && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
-                    self.callStatus.text = "Outgoing Audio Call"
+                    self.callStatus.text = "OUTGOING_AUDIO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "outgoingAudio", in: UIKitSettings.bundle, compatibleWith: nil)
                     
                 case .initiated where call.callType == .audio && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                     
-                    self.callStatus.text = "Incoming Audio Call"
+                    self.callStatus.text = "INCOMING_AUDIO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "incomingAudio", in: UIKitSettings.bundle, compatibleWith: nil)
                     
                     
                 case .initiated where call.callType == .video  && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                     
-                    self.callStatus.text = "Incoming Video Call"
+                    self.callStatus.text = "INCOMING_VIDEO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "incomingVideo", in: UIKitSettings.bundle, compatibleWith: nil)
                     
                     
                 case .initiated where call.callType == .video && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     
                     // This case satisfies the condition where loggedIn user sends  audio call in a group.
-                    self.callStatus.text = "Outgoing Video Call"
+                    self.callStatus.text = "OUTGOING_VIDEO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "outgoingVideo", in: UIKitSettings.bundle, compatibleWith: nil)
                     
                     
                 case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     
-                    self.callStatus.text = "Unanswered Audio Call"
+                    self.callStatus.text = "UNANSWERED_AUDIO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "missedAudio", in: UIKitSettings.bundle, compatibleWith: nil)
                     
                 case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
                     
-                    self.callStatus.text = "Missed Audio Call"
+                    self.callStatus.text = "MISSED_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "missedAudio", in: UIKitSettings.bundle, compatibleWith: nil)
                     
                 case .unanswered where call.callType == .video   && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
                     
-                    self.callStatus.text = "Unanswered Video Call"
+                    self.callStatus.text = "UNANSWERED_VIDEO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "missedVideo", in: UIKitSettings.bundle, compatibleWith: nil)
                     
                 case .unanswered where call.callType == .video  && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
     
-                    self.callStatus.text = "Missed Video Call"
+                    self.callStatus.text = "MISSED_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "missedVideo", in: UIKitSettings.bundle, compatibleWith: nil)
                 case .rejected: break
                 case .busy: break

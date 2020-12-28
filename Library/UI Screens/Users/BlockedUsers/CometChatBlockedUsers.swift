@@ -34,7 +34,7 @@ class CometChatBlockedUsers: UIViewController {
         self.setupTableView()
         self.setupNavigationBar()
         self.fetchBlockedUsers()
-        self.set(title: NSLocalizedString("BLOCKED_USERS", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
+        self.set(title: "BLOCKED_USERS".localized(), mode: .automatic)
     }
     
     
@@ -53,7 +53,7 @@ class CometChatBlockedUsers: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -252,7 +252,7 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
     ///   - indexPath: specifies current index for TableViewCell.
     func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String?
     {
-        return NSLocalizedString("UNBLOCK", bundle: UIKitSettings.bundle, comment: "")
+        return "UNBLOCK".localized()
     }
     
     
@@ -274,7 +274,7 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
                         tableView.deleteRows(at: [indexPath], with: .fade)
                         
                         if let name = selectedCell.user?.name {
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name)" + NSLocalizedString("UNBLOCKED_SUCCESSFULLY", bundle: UIKitSettings.bundle, comment: ""), duration: .short)
+                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name)" + " " + "UNBLOCKED_SUCCESSFULLY".localized(), duration: .short)
                             snackbar.show()
                         }
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: ["count": "\(self.blockedUsers.count)"])

@@ -27,7 +27,7 @@ class MembersView: UITableViewCell {
         didSet {
             if let currentMember = member {
                 if currentMember.uid == LoggedInUser.uid {
-                    name.text = NSLocalizedString("YOU", bundle: UIKitSettings.bundle, comment: "")
+                    name.text = "YOU".localized()
                     self.selectionStyle = .none
                 }else{
                     name.text = currentMember.name
@@ -35,9 +35,9 @@ class MembersView: UITableViewCell {
                 status.set(status: currentMember.status)
                 avatar.set(image: currentMember.avatar ?? "", with: currentMember.name ?? "")
                 switch currentMember.scope {
-                case .admin:  scope.text = NSLocalizedString("ADMIN", bundle: UIKitSettings.bundle, comment: "")
-                case .moderator: scope.text = NSLocalizedString("MODERATOR", bundle: UIKitSettings.bundle, comment: "")
-                case .participant: scope.text = NSLocalizedString("PARTICIPANT", bundle: UIKitSettings.bundle, comment: "")
+                case .admin:  scope.text = "ADMIN".localized()
+                case .moderator: scope.text = "MODERATOR".localized()
+                case .participant: scope.text = "PARTICIPANT".localized()
                 @unknown default: break }
                 
                 

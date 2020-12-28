@@ -58,9 +58,10 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
             }else {
                 nameView.isHidden = true
             }
+            joinButton.setTitle("JOIN".localized(), for: .normal)
             if let userName = whiteboardMessage.sender?.name {
                 name.text = userName + ":"
-                title.text = "\(userName) has shared a collaborative whiteboard."
+                title.text = "\(userName) " + "HAS_SHARED_WHITEBOARD".localized()
                 if #available(iOS 13.0, *) {
                     icon.image = UIImage(named: "whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
                 } else {
@@ -79,7 +80,7 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
             if whiteboardMessage.replyCount != 0  &&  UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if whiteboardMessage.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = whiteboardMessage.replyCount as? Int {
                         replybutton.setTitle("\(replies) replies", for: .normal)
@@ -96,7 +97,7 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
     var writeboardMessage: CustomMessage? {
         didSet {
             if let writeboardMessage = writeboardMessage {
-            print("writeboardMessage is: \(writeboardMessage.stringValue())")
+          
             self.reactionView.parseMessageReactionForMessage(message: writeboardMessage) { (success) in
                 if success == true {
                     self.reactionView.isHidden = false
@@ -110,9 +111,10 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
             }else {
                 nameView.isHidden = true
             }
+            joinButton.setTitle("JOIN".localized(), for: .normal)
             if let userName = writeboardMessage.sender?.name {
                 name.text = userName + ":"
-                title.text = "\(userName) has shared a collaborative document."
+                title.text = "\(userName) " +  "HAS_SHARED_COLLABORATIVE_DOCUMENT".localized()
                 if #available(iOS 13.0, *) {
                     icon.image = UIImage(named: "writeboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
                 } else {
@@ -130,7 +132,7 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
             if writeboardMessage.replyCount != 0  &&  UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if writeboardMessage.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = writeboardMessage.replyCount as? Int{
                         replybutton.setTitle("\(replies) replies", for: .normal)
@@ -158,7 +160,7 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
             }
             if let userName = whiteboardMessageInThread.sender?.name {
                 name.text = userName + ":"
-                title.text = "\(userName) has shared a collaborative whiteboard."
+                title.text = "\(userName) " + "HAS_SHARED_WHITEBOARD".localized()
                 if #available(iOS 13.0, *) {
                     icon.image = UIImage(named: "whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
                 } else {
@@ -168,8 +170,8 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
             icon.tintColor = UIKitSettings.primaryColor
             joinButton.tintColor = UIKitSettings.primaryColor
             if whiteboardMessageInThread.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
-                name.text = NSLocalizedString("---", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
+                name.text = "---".localized()
             }else{
                 timeStamp.text = String().setMessageTime(time: whiteboardMessageInThread.sentAt)
             }
@@ -181,7 +183,7 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
             }else if whiteboardMessageInThread.sentAt > 0 {
                 timeStamp.text = String().setMessageTime(time: Int(whiteboardMessageInThread.sentAt))
             }else if whiteboardMessageInThread.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
                  name.text = LoggedInUser.name.capitalized + ":"
             }
             replybutton.isHidden = true
@@ -202,7 +204,7 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
             }
             if let userName = whiteboardMessageInThread.sender?.name {
                 name.text = userName + ":"
-                title.text = "\(userName) has shared a collaborative document."
+                title.text = "\(userName) " + "HAS_SHARED_COLLABORATIVE_DOCUMENT".localized()
                 if #available(iOS 13.0, *) {
                     icon.image = UIImage(named: "writeboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
                 } else {
@@ -212,8 +214,8 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
             icon.tintColor = UIKitSettings.primaryColor
             joinButton.tintColor = UIKitSettings.primaryColor
             if whiteboardMessageInThread.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
-                name.text = NSLocalizedString("---", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
+                name.text = "---".localized()
             }else{
                 timeStamp.text = String().setMessageTime(time: whiteboardMessageInThread.sentAt)
             }
@@ -225,7 +227,7 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
             }else if whiteboardMessageInThread.sentAt > 0 {
                 timeStamp.text = String().setMessageTime(time: Int(whiteboardMessageInThread.sentAt))
             }else if whiteboardMessageInThread.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
                  name.text = LoggedInUser.name.capitalized + ":"
             }
             replybutton.isHidden = true
@@ -250,7 +252,7 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
                 collaborativeDelegate?.didJoinPressed(forMessage: message)
             }
         }else if  writeboardMessage != nil {
-            print("2")
+         
             if let message = writeboardMessage {
                 collaborativeDelegate?.didJoinPressed(forMessage: message)
             }
@@ -259,8 +261,7 @@ class LeftCollaborativeMessageBubble: UITableViewCell {
                 collaborativeDelegate?.didJoinPressed(forMessage: message)
             }
         }else if whiteboardMessageInThread != nil {
-            print("4")
-            
+          
             if let message = whiteboardMessageInThread {
                 collaborativeDelegate?.didJoinPressed(forMessage: message)
             }

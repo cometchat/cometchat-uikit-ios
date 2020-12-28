@@ -67,7 +67,7 @@ class LeftVideoMessageBubble: UITableViewCell {
             if mediaMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if mediaMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = mediaMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)
@@ -91,7 +91,7 @@ class LeftVideoMessageBubble: UITableViewCell {
                 }
             }
               if mediaMessageInThread.sentAt == 0 {
-                  timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                  timeStamp.text = "SENDING".localized()
               }else{
                
                   timeStamp.text = String().setMessageTime(time: mediaMessageInThread.sentAt)
@@ -103,7 +103,7 @@ class LeftVideoMessageBubble: UITableViewCell {
               }else if mediaMessageInThread.sentAt > 0 {
               timeStamp.text = String().setMessageTime(time: Int(mediaMessageInThread?.sentAt ?? 0))
               }else if mediaMessageInThread.sentAt == 0 {
-                 timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                 timeStamp.text = "SENDING".localized()
                  name.text = LoggedInUser.name.capitalized + ":"
               }
               parseThumbnailForVideo(forMessage: mediaMessageInThread)

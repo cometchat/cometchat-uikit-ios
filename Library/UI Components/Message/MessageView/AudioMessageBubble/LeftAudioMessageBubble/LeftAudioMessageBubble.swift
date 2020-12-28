@@ -74,7 +74,7 @@ class LeftAudioMessageBubble: UITableViewCell {
             if audioMessage?.replyCount != 0 && UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if audioMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = audioMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)
@@ -118,7 +118,7 @@ class LeftAudioMessageBubble: UITableViewCell {
             }else if audioMessageinThread.sentAt > 0 {
                 timeStamp.text = String().setMessageTime(time: Int(audioMessageinThread?.sentAt ?? 0))
             }else if audioMessageinThread.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
                 name.text = LoggedInUser.name.capitalized + ":"
             }
              nameView.isHidden = false

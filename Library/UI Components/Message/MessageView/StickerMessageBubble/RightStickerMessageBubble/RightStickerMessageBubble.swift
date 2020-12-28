@@ -60,12 +60,12 @@ class RightStickerMessageBubble: UITableViewCell {
             timeStamp.text = String().setMessageTime(time: Int(stickerMessage?.sentAt ?? 0))
             }else if stickerMessage.sentAt == 0 {
                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
-               timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+               timeStamp.text = "SENDING".localized()
             }
             if stickerMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if stickerMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = stickerMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)

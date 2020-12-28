@@ -82,7 +82,7 @@ public class CometChatGroupList: UIViewController {
      */
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
         if navigationController != nil{
-            navigationItem.title = NSLocalizedString(title, bundle: UIKitSettings.bundle, comment: "")
+            navigationItem.title = title.localized()
             navigationItem.largeTitleDisplayMode = mode
             switch mode {
             case .automatic:
@@ -316,7 +316,7 @@ public class CometChatGroupList: UIViewController {
     @objc func didCreateGroupPressed(){
         let createGroup = CometChatCreateGroup()
         let navigationController: UINavigationController = UINavigationController(rootViewController: createGroup)
-        createGroup.set(title: NSLocalizedString("CREATE_GROUP", bundle: UIKitSettings.bundle, comment: ""), mode: .automatic)
+        createGroup.set(title: "CREATE_GROUP".localized(), mode: .automatic)
         self.present(navigationController, animated: true, completion: nil)
         
     }
@@ -396,7 +396,7 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if groups.isEmpty {
-            self.tableView.setEmptyMessage("No Groups Found.")
+            self.tableView.setEmptyMessage("NO_GROUPS_FOUND".localized())
         } else{
             self.tableView.restore()
         }
@@ -452,8 +452,8 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
                 
             }else{
 
-                let alert = UIAlertController(title: "Enter Group Password", message: "Kindly, enter correct password to join the group.", preferredStyle: .alert)
-                let save = UIAlertAction(title: "Join", style: .default) { (alertAction) in
+                let alert = UIAlertController(title: "ENTER_GROUP_PWD".localized(), message: "ENTER_PASSWORD_TO_JOIN".localized(), preferredStyle: .alert)
+                let save = UIAlertAction(title: "JOIN".localized(), style: .default) { (alertAction) in
                     let textField = alert.textFields![0] as UITextField
                     
                     if textField.text != "" {
@@ -461,14 +461,14 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
                                    self.joinGroup(withGuid: selectedGroup.guid, name: selectedGroup.name ?? "", groupType: selectedGroup.groupType, password: password, indexPath: indexPath)
                         }
                     } else {
-                        self.showAlert(title: "Warning!", msg: "Password cannot be empty.")
+                        self.showAlert(title: "WARNING".localized(), msg: "GROUP_PASSWORD_CANNOT_EMPTY".localized())
                     }
                 }
                 alert.addTextField { (textField) in
-                    textField.placeholder = "Enter your name"
+                    textField.placeholder = "ENTER_YOUR_NAME".localized()
                     textField.isSecureTextEntry = true
                 }
-                let cancel = UIAlertAction(title: "Cancel", style: .default) { (alertAction) in }
+                let cancel = UIAlertAction(title: "CANCEL".localized(), style: .default) { (alertAction) in }
                 alert.addAction(save)
                 alert.addAction(cancel)
                 alert.view.tintColor = UIKitSettings.primaryColor
@@ -489,7 +489,7 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
     private func joinGroup(withGuid: String, name: String, groupType: CometChat.groupType, password: String, indexPath: IndexPath) {
         CometChat.joinGroup(GUID: withGuid, groupType: groupType, password: password, onSuccess: { (group) in
             DispatchQueue.main.async {
-                let message = NSLocalizedString("YOU_JOINED", bundle: UIKitSettings.bundle, comment: "") +  (name) + "."
+                let message = "YOU_JOINED".localized() +  (name) + "."
                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
                 snackbar.show()
                 self.tableView.deselectRow(at: indexPath, animated: true)

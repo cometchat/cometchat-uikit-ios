@@ -73,7 +73,7 @@ class LeftFileMessageBubble: UITableViewCell {
             if fileMessage?.replyCount != 0  &&  UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if fileMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = fileMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)
@@ -98,10 +98,10 @@ class LeftFileMessageBubble: UITableViewCell {
                 }
             }
             if fileMessageInThread.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
-                name.text = NSLocalizedString("---", bundle: UIKitSettings.bundle, comment: "")
-                type.text = NSLocalizedString("---", bundle: UIKitSettings.bundle, comment: "")
-                size.text = NSLocalizedString("---", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
+                name.text = "---".localized()
+                type.text = "---".localized()
+                size.text = "---".localized()
             }else{
                 timeStamp.text = String().setMessageTime(time: fileMessageInThread.sentAt)
                 name.text = fileMessageInThread.attachment?.fileName.capitalized
@@ -118,7 +118,7 @@ class LeftFileMessageBubble: UITableViewCell {
             }else if fileMessageInThread.sentAt > 0 {
                 timeStamp.text = String().setMessageTime(time: Int(fileMessageInThread?.sentAt ?? 0))
             }else if fileMessageInThread.sentAt == 0 {
-                timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                timeStamp.text = "SENDING".localized()
                  name.text = LoggedInUser.name.capitalized + ":"
             }
             replybutton.isHidden = true

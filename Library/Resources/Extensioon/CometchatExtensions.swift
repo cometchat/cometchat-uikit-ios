@@ -251,12 +251,12 @@ extension String {
         
         if secondsAgo < oneDay  {
             
-            return NSLocalizedString("TODAY", bundle: UIKitSettings.bundle, comment: "")
+            return "TODAY".localized()
             
         } else if secondsAgo < twoDays {
             let day = secondsAgo/day
             if day == 1 {
-                return NSLocalizedString("YESTERDAY", bundle: UIKitSettings.bundle, comment: "")
+                return "YESTERDAY".localized()
             }else{
                 let formatter = DateFormatter()
                 formatter.dateFormat = "EEE"
@@ -288,9 +288,9 @@ extension String {
         }
         if secondsAgo < minute  {
             if secondsAgo < 2{
-                return "Just Now"
+                return "JUST_NOW".localized()
             }else{
-                return "\(secondsAgo) secs"
+                return "\(secondsAgo) " + "SECS".localized()
             }
         } else {
             let formatter = DateFormatter()
@@ -326,9 +326,9 @@ extension String {
         
         if secondsAgo < minute  {
             if secondsAgo < 2{
-                return "Just Now"
+                return "JUST_NOW".localized()
             }else{
-                return "\(secondsAgo) secs"
+                return "\(secondsAgo) " + "SECS".localized()
             }
         } else if secondsAgo < hour {
             let min = secondsAgo/minute
@@ -344,7 +344,7 @@ extension String {
         }else if secondsAgo < twoDays {
             let day = secondsAgo/day
             if day == 1 {
-                return "Yesterday"
+                return "YESTERDAY".localized()
             }else{
                 let formatter = DateFormatter()
                 formatter.dateFormat = "EEE"
@@ -383,9 +383,9 @@ extension String {
         
         if secondsAgo < minute  {
             if secondsAgo < 2{
-                return "Just Now"
+                return "JUST_NOW".localized()
             }else{
-                return "\(secondsAgo) secs"
+                return "\(secondsAgo) " + "SECS".localized()
             }
         } else if secondsAgo < hour {
             let min = secondsAgo/minute

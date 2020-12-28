@@ -62,7 +62,7 @@ class MessageInformation: UIViewController {
         
         if #available(iOS 10.0, *) {
             let refreshControl = UIRefreshControl()
-            let title = NSLocalizedString("REFRESHING", comment: "")
+            let title = "REFRESHING".localized()
             refreshControl.attributedTitle = NSAttributedString(string: title)
             refreshControl.addTarget(self,
                                      action: #selector(refreshMessageInformation(sender:)),
@@ -223,7 +223,7 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
         if (section == 0) {
             return "Message"
         }else{
-            return NSLocalizedString("Receipt Information", comment: "")
+            return "Receipt Information".localized()
         }
     }
     
@@ -538,7 +538,7 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                         }else{
                             let  receiverCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
                             let customMessage = message as? CustomMessage
-                            receiverCell.message.text = NSLocalizedString("CUSTOM_MESSAGE", bundle: UIKitSettings.bundle, comment: "") +  "\(String(describing: customMessage?.customData))"
+                            receiverCell.message.text = "CUSTOM_MESSAGE".localized() +  "\(String(describing: customMessage?.customData))"
                             return receiverCell
                         }
                     }

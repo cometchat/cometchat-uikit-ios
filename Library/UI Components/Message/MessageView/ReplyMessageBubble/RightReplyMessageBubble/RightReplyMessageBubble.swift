@@ -69,7 +69,7 @@ class RightReplyMessageBubble: UITableViewCell {
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.sentAt ?? 0))
                 }else if textmessage.sentAt == 0 {
                     receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
-                    timeStamp.text = NSLocalizedString("SENDING", bundle: UIKitSettings.bundle, comment: "")
+                    timeStamp.text = "SENDING".localized()
                 }
             }
             messageView.tintColor = UIKitSettings.primaryColor
@@ -80,7 +80,7 @@ class RightReplyMessageBubble: UITableViewCell {
             if textMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
                 if textMessage?.replyCount == 1 {
-                    replybutton.setTitle("1 reply", for: .normal)
+                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
                 }else{
                     if let replies = textMessage?.replyCount {
                         replybutton.setTitle("\(replies) replies", for: .normal)
@@ -134,12 +134,12 @@ class RightReplyMessageBubble: UITableViewCell {
     weak var deletedMessage: BaseMessage? {
         didSet {
             switch deletedMessage?.messageType {
-            case .text:  message.text = NSLocalizedString("YOU_DELETED_THIS_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
-            case .image: message.text = NSLocalizedString("YOU_DELETED_THIS_IMAGE", bundle: UIKitSettings.bundle, comment: "")
-            case .video: message.text = NSLocalizedString("YOU_DELETED_THIS_VIDEO", bundle: UIKitSettings.bundle, comment: "")
-            case .audio: message.text =  NSLocalizedString("YOU_DELETED_THIS_AUDIO", bundle: UIKitSettings.bundle, comment: "")
-            case .file:  message.text = NSLocalizedString("YOU_DELETED_THIS_FILE", bundle: UIKitSettings.bundle, comment: "")
-            case .custom: message.text = NSLocalizedString("YOU_DELETED_THIS_CUSTOM_MESSAGE", bundle: UIKitSettings.bundle, comment: "")
+            case .text:  message.text = "YOU_DELETED_THIS_MESSAGE".localized()
+            case .image: message.text = "YOU_DELETED_THIS_IMAGE".localized()
+            case .video: message.text = "YOU_DELETED_THIS_VIDEO".localized()
+            case .audio: message.text =  "YOU_DELETED_THIS_AUDIO".localized()
+            case .file:  message.text = "YOU_DELETED_THIS_FILE".localized()
+            case .custom: message.text = "YOU_DELETED_THIS_CUSTOM_MESSAGE".localized()
             case .groupMember: break
             @unknown default: break }
             message.textColor = .darkGray
