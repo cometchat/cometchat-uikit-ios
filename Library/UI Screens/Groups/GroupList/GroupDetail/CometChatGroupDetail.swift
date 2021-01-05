@@ -468,7 +468,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                 
                 if let memberCount = currentGroup?.membersCount {
                     if memberCount == 1 {
-                        groupDetail.detail.text = "1 Member"
+                        groupDetail.detail.text = "1 " + "MEMBERS".localized()
                     }else{
                         groupDetail.detail.text =  "\(memberCount)" + " " + "MEMBERS".localized()
                     }

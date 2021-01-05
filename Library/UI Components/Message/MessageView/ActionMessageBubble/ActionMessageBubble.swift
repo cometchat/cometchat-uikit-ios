@@ -27,6 +27,65 @@ class ActionMessageBubble: UITableViewCell {
         }
     }
     
+    var actionMessage: ActionMessage? {
+        didSet {
+            
+            if let action = actionMessage?.action {
+                switch action {
+                case .joined:
+                    if let user = (actionMessage?.actionBy as? User)?.name {
+                        message.text = user + " " + "JOINED".localized()
+                    }
+                case .left:
+                    if let user = (actionMessage?.actionBy as? User)?.name {
+                        message.text = user + " " + "LEFT".localized()
+                    }
+                case .kicked:
+                    if let actionBy = (actionMessage?.actionBy as? User)?.name,let actionOn = (actionMessage?.actionOn as? User)?.name  {
+                        message.text = actionBy + " " + "KICKED".localized() +  " " + actionOn
+                    }
+                case .banned:
+                    if let actionBy = (actionMessage?.actionBy as? User)?.name,let actionOn = (actionMessage?.actionOn as? User)?.name  {
+                        message.text = actionBy + " " + "BANNED".localized() +  " " + actionOn
+                    }
+                case .unbanned:
+                    if let actionBy = (actionMessage?.actionBy as? User)?.name,let actionOn = (actionMessage?.actionOn as? User)?.name  {
+                        message.text = actionBy + " " + "UNBANNED".localized() +  " " + actionOn
+                    }
+                case .scopeChanged:
+                    if let actionBy = (actionMessage?.actionBy as? User)?.name,let actionOn = (actionMessage?.actionOn as? User)?.name, let scope = actionMessage?.newScope  {
+                        
+                        switch scope {
+                        
+                        case .admin:
+                            let admin = "ADMIN".localized()
+                            message.text = actionBy + " " + "MADE".localized() + " \(actionOn) \(admin)"
+                        case .moderator:
+                            let moderator = "MODERATOR".localized()
+                            message.text = actionBy + " " + "MADE".localized() + " \(actionOn) \(moderator)"
+                        case .participant:
+                            let participant = "PARTICIPANT".localized()
+                            message.text = actionBy + " " + "MADE".localized() + " \(actionOn) \(participant)"
+                        @unknown default:
+                            break
+                        }
+                        
+                    }
+                case .messageEdited:
+                    message.text = actionMessage?.message
+                case .messageDeleted:
+                    message.text = actionMessage?.message
+                case .added:
+                    if let actionBy = (actionMessage?.actionBy as? User)?.name,let actionOn = (actionMessage?.actionOn as? User)?.name  {
+                        message.text = actionBy + " " + "ADDED".localized() +  " " + actionOn
+                    }
+                @unknown default:
+                    message.text = "ACTION_MESSAGE".localized()
+                }
+            }
+        }
+    }
+        
     var call: Call? {
            didSet {
             if let call = call {

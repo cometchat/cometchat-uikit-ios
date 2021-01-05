@@ -15,9 +15,11 @@ class AddMemberView: UITableViewCell {
 
     @IBOutlet weak var addIcon: UIImageView!
     // MARK: - Initialization of required Methods
+    @IBOutlet weak var label: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        label.text = "ADD_MEMBERS".localized()
          addIcon.tintColor = UIKitSettings.primaryColor
         if #available(iOS 13.0, *) {
         }else{

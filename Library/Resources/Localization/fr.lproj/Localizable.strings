@@ -47,6 +47,7 @@
 "PRIVACY_&_SECURITY" = "Confidentialité et sécurité";
 "YOU'VE_BLOCKED" = "Vous avez bloqué";
 "MEMBERS" = "Membres";
+"MEMBER" = "Membre";
 "BACK" = " Retour";
 "CANCEL" = "Annuler";
 "SELECT_A_MESSGE" = "Veuillez sélectionner un message pour effectuer une action";
@@ -452,3 +453,11 @@
 "JUST_NOW" = "Juste maintenant";
 "SECS" = "secondes";
 "YOU_CANT_MESSAGE_THEM" = "Vous ne pouvez pas leur envoyer un message dans ce chat et vous ne recevrez pas leurs messages.";
+"TRANSLATE_MESSAGE" = "Traduire le message";
+"NO_TRANSLATION_AVAILABLE" = "Aucune traduction n'est disponible.";
+"LEFT" = "La gauche";
+"KICKED" = "frappé";
+"BANNED" = "bannie";
+"UNBANNED" = "non banni";
+"MADE" = "fabriqué";
+"ADDED" = "ajoutée";

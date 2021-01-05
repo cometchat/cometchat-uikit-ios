@@ -27,6 +27,7 @@
     case reaction
     case whiteboard
     case writeboard
+    case messageTranslate
  }
  
  protocol RowPresentable {
@@ -52,6 +53,7 @@
     func didReactionPressed()
     func didCollaborativeWriteboardPressed()
     func didCollaborativeWhiteboardPressed()
+    func didMessageTranslatePressed()
  }
 
 
@@ -286,6 +288,14 @@
                 cell.badgeCountSwitch.isHidden = true
                     return cell
                 }
+            case .messageTranslate:
+                if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
+                cell.name.text = "TRANSLATE_MESSAGE".localized()
+                cell.icon.image = UIImage(named: "translate.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                cell.fullScreenSwitch.isHidden = true
+                cell.badgeCountSwitch.isHidden = true
+                    return cell
+                }
             }
         }
         return staticCell
@@ -378,6 +388,10 @@
             case .writeboard:
                 self.dismiss(animated: true) {
                     MessageActions.actionsDelegate?.didCollaborativeWriteboardPressed()
+                }
+            case .messageTranslate:
+                self.dismiss(animated: true) {
+                    MessageActions.actionsDelegate?.didMessageTranslatePressed()
                 }
             }
         }

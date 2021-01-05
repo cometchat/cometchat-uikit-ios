@@ -48,6 +48,7 @@
 "PRIVACY_&_SECURITY" = "隐私与安全";
 "YOU'VE_BLOCKED" = "你已经封锁了";
 "MEMBERS" = "会员";
+"MEMBER" = "会员";
 "BACK" = "返回";
 "CANCEL" = "取消";
 "TEXT_COPIED" = "复制到剪贴板的文本";
@@ -424,3 +425,11 @@
 "JUST_NOW" = "現在";
 "SECS" = "秒";
 "YOU_CANT_MESSAGE_THEM" = "您無法在此聊天中向他們發送消息，也不會收到他們的消息。";
+"TRANSLATE_MESSAGE" = "翻译讯息";
+"NO_TRANSLATION_AVAILABLE" = "沒有可用的翻譯。";
+"LEFT" = "剩下";
+"KICKED" = "踢";
+"BANNED" = "被禁止";
+"UNBANNED" = "禁止的";
+"MADE" = "製作";
+"ADDED" = "添加";

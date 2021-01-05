@@ -39,6 +39,7 @@
 "PRIVACY_&_SECURITY" = "Datenschutz & Sicherheit";
 "YOU'VE_BLOCKED" = "Du hast geblockt";
 "MEMBERS" = "Mitglieder";
+"MEMBER" = "Mitglieder";
 "BACK" = " zurück";
 "CANCEL" = "Abbrechen";
 "TEXT_COPIED" = "Text in Zwischenablage kopiert";
@@ -415,3 +416,11 @@
 "JUST_NOW" = "Grade eben";
 "SECS" = "sek";
 "YOU_CANT_MESSAGE_THEM" = "Sie können ihnen in diesem Chat keine Nachrichten senden und erhalten keine Nachrichten.";
+"TRANSLATE_MESSAGE" = "Nachricht übersetzen";
+"NO_TRANSLATION_AVAILABLE" = "Es ist keine Übersetzung verfügbar.";
+"LEFT" = "entfernt";
+"KICKED" = "getreten";
+"BANNED" = "verboten";
+"UNBANNED" = "ungebannt";
+"MADE" = "gemacht";
+"ADDED" = "hinzugefügt";

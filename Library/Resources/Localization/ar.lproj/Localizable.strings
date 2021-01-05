@@ -37,6 +37,7 @@
 "PRIVACY_&_SECURITY" = "الخصوصية والأمان";
 "YOU'VE_BLOCKED" = "لقد حظرت";
 "MEMBERS" = "الأعضاء";
+"MEMBER" = "الأعضاء";
 "BACK" = " إلى الخلف";
 "CANCEL" = "إلغاء";
 "TEXT_COPIED" = "نص تم نسخه إلى الحافظة";
@@ -413,3 +414,11 @@
 "JUST_NOW" = "في هذة اللحظة";
 "SECS" = "ثوانى";
 "YOU_CANT_MESSAGE_THEM" = "لا يمكنك مراسلتهم في هذه الدردشة ، ولن تتلقى رسائلهم.";
+"TRANSLATE_MESSAGE" = "ترجمة الرسالة";
+"NO_TRANSLATION_AVAILABLE" = "لا توجد ترجمة متاحة.";
+"LEFT" = "إزالة";
+"KICKED" = "ركل";
+"BANNED" = "محظور";
+"UNBANNED" = "غير محظور";
+"MADE" = "مصنوع";
+"ADDED" = "مضاف";

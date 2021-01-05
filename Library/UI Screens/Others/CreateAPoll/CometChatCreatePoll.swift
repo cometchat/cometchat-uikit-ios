@@ -211,12 +211,12 @@ class CometChatCreatePoll: UIViewController {
     */
     @IBAction func didCreatePollPressed(_ sender: Any) {
         if let question = (tableView.cellForRow(at: IndexPath(item: 0, section: 0)) as? CreatePollQuestionView)?.question.text {
-            print("question is: \(question)")
+            
             var options = [String]()
             
             for item in 0...items.count {
                 if let option = (tableView.cellForRow(at: IndexPath(item: item, section: 1)) as? CreatePollOptionView)?.options.text {
-                    print("option is: \(option)")
+                 
                     options.append(option)
                 }
             }

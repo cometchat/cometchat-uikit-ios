@@ -40,6 +40,7 @@
 "PRIVACY_&_SECURITY" = "Privacidade e Segurança";
 "YOU'VE_BLOCKED" = "Você bloqueou";
 "MEMBERS" = "Membros";
+"MEMBER" = "Membro";
 "BACK" = " Voltar";
 "CANCEL" = "Cancelar";
 "TEXT_COPIED" = "Texto copiado para a área de transferência";
@@ -416,3 +417,11 @@
 "JUST_NOW" = "Agora mesmo";
 "SECS" = "segundas";
 "YOU_CANT_MESSAGE_THEM" = "Você não pode enviar mensagens para eles neste bate-papo e não receberá suas mensagens.";
+"TRANSLATE_MESSAGE" = "Traduzir mensagem";
+"NO_TRANSLATION_AVAILABLE" = "Nenhuma tradução disponível.";
+"LEFT" = "Esquerda";
+"KICKED" = "chutada";
+"BANNED" = "banido";
+"UNBANNED" = "não banido";
+"MADE" = "feita";
+"ADDED" = "adicionada";

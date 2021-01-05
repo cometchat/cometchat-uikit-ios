@@ -84,13 +84,13 @@ class MessageInformation: UIViewController {
     
     fileprivate func get(messageInformation forMessage: BaseMessage){
         if let messageID = forMessage.id as? Int {
-            print("messageID is: \(messageID)")
+          
             CometChat.getMessageReceipts(messageID, onSuccess: { (fetchedReceipts) in
-                print("Receipts are: \(fetchedReceipts)")
+              
                 self.receipts = fetchedReceipts
                 DispatchQueue.main.async { self.tableView.reloadData() }
             }) { (error) in
-                print("getMessageReceipts error is: \(String(describing: error?.errorDescription))")
+                
             }
         }
     }
@@ -433,8 +433,7 @@ extension MessageInformation: UITableViewDelegate, UITableViewDataSource {
                 }else if message.messageCategory == .action {
                     //  ActionMessage Cell
                     let  actionMessageCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
-                    let actionMessage = message as? ActionMessage
-                    actionMessageCell.message.text = actionMessage?.message
+                    actionMessageCell.actionMessage = message as? ActionMessage
                     return actionMessageCell
                 }else if message.messageCategory == .call {
                     //  CallMessage Cell

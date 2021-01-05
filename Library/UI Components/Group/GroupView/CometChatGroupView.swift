@@ -55,7 +55,7 @@ class CometChatGroupView: UITableViewCell {
                 
                 if let memberCount = group?.membersCount {
                     if  memberCount == 1 {
-                        groupMember.text = "1 " + "MEMBER".localized()
+                        groupMember.text = "1 " + "MEMBERS".localized()
                     }else {
                         groupMember.text = "\(memberCount) " + "MEMBERS".localized()
                     }

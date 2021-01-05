@@ -37,6 +37,7 @@
 "PRIVACY_&_SECURITY" = "Privasi & Keselamatan";
 "YOU'VE_BLOCKED" = "Anda telah menyekat";
 "MEMBERS" = "Ahli-ahli";
+"MEMBER" = "Ahli-ahli";
 "BACK" = " Belakang";
 "CANCEL" = "Batal";
 "TEXT_COPIED" = "Teks disalin ke Klipbod";
@@ -414,3 +415,11 @@
 "JUST_NOW" = "Baru Sekarang";
 "SECS" = "saat";
 "YOU_CANT_MESSAGE_THEM" = "Anda tidak boleh menghantar mesej dalam chat ini dan anda tidak akan menerima mesej mereka.";
+"TRANSLATE_MESSAGE" = "Terjemahkan Mesej";
+"NO_TRANSLATION_AVAILABLE" = "Tiada terjemahan tersedia.";
+"LEFT" = "Dibiarkan";
+"KICKED" = "ditendang";
+"BANNED" = "diharamkan";
+"UNBANNED" = "tidak dilarang";
+"MADE" = "dibuat";
+"ADDED" = "tambah";

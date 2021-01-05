@@ -163,7 +163,7 @@ public class CometChatConversationList: UIViewController {
            tableView.tableFooterView = activityIndicator
            tableView.tableFooterView?.isHidden = false
            conversationRequest.fetchNext(onSuccess: { (conversations) in
-               print("fetchConversations onSuccess: \(conversations)")
+             
                if conversations.count != 0{
                   self.conversations.append(contentsOf: conversations)
                    DispatchQueue.main.async {
@@ -182,7 +182,7 @@ public class CometChatConversationList: UIViewController {
                        snackbar.show()
                    }
                }
-               print("fetchConversations error:\(String(describing: error?.errorDescription))")
+              
            }
        }
     

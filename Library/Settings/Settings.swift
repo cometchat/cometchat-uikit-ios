@@ -113,4 +113,5 @@ struct UIKitSettings {
     static var messageReaction: SwitchMode = .enabled
     static var collaborativeWriteboard: SwitchMode = .enabled
     static var collaborativeWhiteboard: SwitchMode = .enabled
+    static var messageTranslation: SwitchMode = .enabled
 }

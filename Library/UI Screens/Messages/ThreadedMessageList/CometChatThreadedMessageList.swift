@@ -2215,8 +2215,7 @@ extension CometChatThreadedMessageList: UITableViewDelegate , UITableViewDataSou
             }else if message.messageCategory == .action {
                 //  ActionMessage Cell
                 let  actionMessageCell = tableView.dequeueReusableCell(withIdentifier: "actionMessageBubble", for: indexPath) as! ActionMessageBubble
-                let actionMessage = message as? ActionMessage
-                actionMessageCell.message.text = actionMessage?.message
+                actionMessageCell.actionMessage = message as? ActionMessage
                 return actionMessageCell
             }else if message.messageCategory == .call {
                 //  CallMessage Cell
@@ -3040,7 +3039,6 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
             stickerMessage?.senderUid = LoggedInUser.uid
             stickerMessage?.parentMessageId = currentMessage?.id ?? 0
             
-            print("ParentMessage ID: \(stickerMessage?.parentMessageId)")
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [stickerMessage!])
                 self.filteredMessages.append(stickerMessage!)
@@ -3081,7 +3079,7 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
             stickerMessage?.senderUid = LoggedInUser.uid
             stickerMessage?.parentMessageId = currentMessage?.id ?? 0
             
-            print("ParentMessage ID: \(stickerMessage?.parentMessageId)")
+           
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [stickerMessage!])
                 self.filteredMessages.append(stickerMessage!)
@@ -3932,12 +3930,15 @@ extension CometChatThreadedMessageList {
 
 extension CometChatThreadedMessageList : MessageActionsDelegate {
     
+    func didMessageTranslatePressed() {
+        
+    }
     
     func didCollaborativeWriteboardPressed() {
         
         if let uid = currentUser?.uid {
             CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"]) { (response) in
-                print("writeboard response: \(String(describing: response))")
+              
             } onError: { (error) in
                 if let error = error?.errorDescription {
                     let snackbar = CometChatSnackbar(message: error, duration: .short)
@@ -3949,7 +3950,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
         
         if let guid = currentGroup?.guid {
             CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"]) { (response) in
-                print("writeboard response: \(String(describing: response))")
+              
             } onError: { (error) in
                 if let error = error?.errorDescription {
                     let snackbar = CometChatSnackbar(message: error, duration: .short)
@@ -3962,7 +3963,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     func didCollaborativeWhiteboardPressed() {
         if let uid = currentUser?.uid {
             CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"]) { (response) in
-                print("whiteboard response: \(String(describing: response))")
+               
             } onError: { (error) in
                 if let error = error?.errorDescription {
                     let snackbar = CometChatSnackbar(message: error, duration: .short)
@@ -3976,7 +3977,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
         
         if let guid = currentGroup?.guid {
             CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"]) { (response) in
-                print("whiteboard response: \(String(describing: response))")
+              
             } onError: { (error) in
                 if let error = error?.errorDescription {
                     let snackbar = CometChatSnackbar(message: error, duration: .short)
@@ -4060,7 +4061,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                         guard let strongSelf = self else { return }
                         let pushtitle = (CometChat.getLoggedInUser()?.name ?? "") + "has shared his location"
                         let locationData = ["name": name,"latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude] as [String : Any]
-                        print("locationData: \(locationData)")
+                       
                         
                         guard let group = strongSelf.currentGroup else { return  }
                         let locationMessage = CustomMessage(receiverUid: group.guid , receiverType: .group, customData: locationData, type: "location")
@@ -4120,7 +4121,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                         guard let strongSelf = self else { return }
                         let pushtitle = (CometChat.getLoggedInUser()?.name ?? "") + "has shared his location"
                         let locationData = ["name": name,"latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude] as [String : Any]
-                        print("locationData: \(locationData)")
+                       
                         
                         guard let user = strongSelf.currentUser else { return  }
                         let locationMessage = CustomMessage(receiverUid: user.uid ?? "", receiverType: .user, customData: locationData, type: "location")
@@ -4410,7 +4411,7 @@ extension CometChatThreadedMessageList: PollExtensionDelegate {
     
     
     func voteForPoll(pollID: String, with option: String, cell: UITableViewCell) {
-        print("Voted for poll: \(pollID) with option: \(option)")
+     
         
         DispatchQueue.main.async {
             let alert = UIAlertController(title: nil, message: "Voting...", preferredStyle: .alert)
@@ -4459,14 +4460,14 @@ extension CometChatThreadedMessageList: PollExtensionDelegate {
 
 extension CometChatThreadedMessageList: GrowingTextViewDelegate {
     public func growingTextView(_ growingTextView: GrowingTextView, willChangeHeight height: CGFloat, difference: CGFloat) {
-        print("Height Will Change To: \(height)  Diff: \(difference)")
+       
         inputBarHeight.constant = height
         view.setNeedsLayout()
         view.layoutIfNeeded()
     }
     
     public func growingTextView(_ growingTextView: GrowingTextView, didChangeHeight height: CGFloat, difference: CGFloat) {
-        print("Height Did Change!")
+      
     }
     
     
@@ -4552,7 +4553,7 @@ extension CometChatThreadedMessageList: StickerViewDelegate {
     
     
     func didStickerSelected(sticker: Sticker) {
-        print("didStickerSelected: \(String(describing: sticker.url))")
+     
         if let url = sticker.url {
             DispatchQueue.main.async {
                 self.sendStickerInthread(withURL: url)
@@ -4561,7 +4562,7 @@ extension CometChatThreadedMessageList: StickerViewDelegate {
     }
     
     func didStickerSetSelected(stickerSet: StickerSet) {
-        print("didStickerSelected: \(String(describing: stickerSet.thumbnail))")
+      
     }
 
     
@@ -4625,7 +4626,6 @@ extension CometChatThreadedMessageList: CollaborativeDelegate {
     
     func didJoinPressed(forMessage: CustomMessage) {
         
-        print("Message is: \(forMessage.stringValue())")
 
         if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let collaborativeDictionary = cometChatExtension["whiteboard"] as? [String : Any], let collaborativeURL =  collaborativeDictionary["board_url"] as? String {
             

@@ -241,7 +241,7 @@ class LeftLinkPreviewBubble: UITableViewCell, WKNavigationDelegate {
     
     func parseMaskedData(forMessage: TextMessage){
         if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let dataMaskingDictionary = cometChatExtension["data-masking"] as? [String : Any] {
-            print("forMessage: \(forMessage.stringValue())")
+         
             if let data = dataMaskingDictionary["data"] as? [String:Any], let sensitiveData = data["sensitive_data"] as? String {
                 
                 if sensitiveData == "yes" {
