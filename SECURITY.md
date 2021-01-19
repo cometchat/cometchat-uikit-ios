@@ -12,6 +12,7 @@ keeping CometChat Pro and its users safe by responsibly disclosing any security
 vulnerability. Rest assured we will make every effort to acknowledge your
 contributions.
 
+
 ## Reporting a vulnerability
 
 To report any security related issues, please communicate with the CometChat Pro security team by sending an email to security@cometchat.com
