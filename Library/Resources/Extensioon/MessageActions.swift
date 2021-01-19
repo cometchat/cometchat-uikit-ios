@@ -28,6 +28,7 @@
     case whiteboard
     case writeboard
     case messageTranslate
+    case createMeeting
  }
  
  protocol RowPresentable {
@@ -54,10 +55,12 @@
     func didCollaborativeWriteboardPressed()
     func didCollaborativeWhiteboardPressed()
     func didMessageTranslatePressed()
+    func didAudioCallPressed()
+    func didVideoCallPressed()
  }
 
 
- class MessageActions: UITableViewController, PanModalPresentable {
+ class MessageActions: UITableViewController, PanModalPresentable, CreateMeetingDelegate {
      
      var isShortFormEnabled = true
      override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -94,7 +97,7 @@
              tableView.backgroundColor = .white
          }
         let actionsCell  = UINib.init(nibName: "ActionsCell", bundle: UIKitSettings.bundle)
-         self.tableView.register(actionsCell, forCellReuseIdentifier: "actionsCell")
+        self.tableView.register(actionsCell, forCellReuseIdentifier: "actionsCell")
         
         let addReactionCell  = UINib.init(nibName: "AddReactionsCell", bundle: UIKitSettings.bundle)
         self.tableView.register(addReactionCell, forCellReuseIdentifier: "addReactionsCell")
@@ -296,20 +299,42 @@
                 cell.badgeCountSwitch.isHidden = true
                     return cell
                 }
+            case .createMeeting:
+                if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
+                cell.name.text = "START_A_CALL".localized()
+                cell.icon.image = UIImage(named: "createMeeting.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                cell.fullScreenSwitch.isHidden = true
+                cell.badgeCountSwitch.isHidden = true
+                    return cell
+                }
+//
+//
+//                if let cell = tableView.dequeueReusableCell(withIdentifier: "cometChatCreateMeetingView", for: indexPath) as? CometChatCreateMeetingView {
+//                    cell.createMeetingDelegate = self
+//                    return cell
+//                }
             }
         }
         return staticCell
     }
      
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if UIKitSettings.messageReaction == .enabled {
-            if indexPath.row == 0 {
-                return 65.0
-            }else{
-                return 55.0
+        if let currentActions = actions {
+            switch currentActions[indexPath.row] {
+            case .reaction:
+                if UIKitSettings.messageReaction == .enabled {
+                    if indexPath.row == 0 {
+                        return 65.0
+                    }else{
+                        return 55.0
+                    }
+                }else{
+                    return 55.0
+                }
+            case .whiteboard, .writeboard, .messageTranslate, .sticker, .share, .thread, .delete, .forward, .edit, .reply, .copy ,.messageInfo ,.createAPoll ,.shareLocation ,.document , .photoAndVideoLibrary, .takeAPhoto, .createMeeting:  return 55.0
             }
         }else{
-            return 55.0
+            return 0
         }
     }
      
@@ -393,7 +418,23 @@
                 self.dismiss(animated: true) {
                     MessageActions.actionsDelegate?.didMessageTranslatePressed()
                 }
+            case .createMeeting:
+                self.dismiss(animated: true) {
+                    MessageActions.actionsDelegate?.didVideoCallPressed()
+                }
             }
+        }
+    }
+    
+    func didAudioCallPressed() {
+        self.dismiss(animated: true) {
+            MessageActions.actionsDelegate?.didAudioCallPressed()
+        }
+    }
+    
+    func didVideoCallPressed() {
+        self.dismiss(animated: true) {
+            MessageActions.actionsDelegate?.didVideoCallPressed()
         }
     }
 

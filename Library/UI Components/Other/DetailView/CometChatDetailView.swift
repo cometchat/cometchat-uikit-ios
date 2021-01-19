@@ -58,7 +58,6 @@ class CometChatDetailView: UITableViewCell {
                 call.tintColor = UIKitSettings.primaryColor
             } else {}
         }
-        
         if UIKitSettings.userVideoCall == .disabled && UIKitSettings.userAudioCall == .disabled {
             call.isHidden = true
         }else{
@@ -89,11 +88,7 @@ class CometChatDetailView: UITableViewCell {
                 } else {}
             }
             
-            if UIKitSettings.groupVideoCall == .disabled && UIKitSettings.groupAudioCall == .disabled {
-                call.isHidden = true
-            }else{
-                call.isHidden = false
-            }
+            call.isHidden = true
         }
     }
     

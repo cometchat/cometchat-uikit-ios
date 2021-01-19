@@ -148,6 +148,10 @@
 "HAS_SHARED_WHITEBOARD" = "has shared a collaborative whiteboard";
 "HAS_SHARED_COLLABORATIVE_DOCUMENT" ="has shared a collaborative document";
 "YOU_CREATED_WHITEBOARD" = "You’ve created a new collaborative whiteboard";
+"YOU_INITIATED_GROUP_AUDIO_CALL" = "You’ve initiated a group call";
+"YOU_INITIATED_GROUP_VIDEO_CALL" = "You’ve initiated a group call";
+"HAS_INITIATED_GROUP_AUDIO_CALL" = "has initiated a group call";
+"HAS_INITIATED_GROUP_VIDEO_CALL" = "has initiated a group call";
 "YOU_CREATED_DOCUMENT" = "You’ve created a new collaborative document";
 "SENDING_LOCATION" = "Sending Location...";
 "LOCATION_SENT_SUCCESSFULLY" = "Location sent successfully";
@@ -180,7 +184,7 @@
 "NO_USERS_FOUND" = "No users found";
 "ERROR" = "Error";
 "NO_GROUPS_FOUND" = "No groups found";
-"NO_CHATS_FOUND" = "No chats foung";
+"NO_CHATS_FOUND" = "No chats found";
 "MEDIA_MESSAGE" = "Media Message";
 "INCOMING_AUDIO_CALL" = "Incoming Audio Call";
 "INCOMING_VIDEO_CALL" = "Incoming Video Call";
@@ -458,3 +462,10 @@
 "UNBANNED" = "unbanned";
 "MADE" = "made";
 "ADDED" = "added";
+"START_A_CALL" = "Start a call";
+"START_AN_AUDIO_CALL" = "Start an Audio Call ☎️";
+"START_A_VIDEO_CALL" = "Start a Video Call 📹";
+"PLEASE_ENTER_A_NAME_FOR_A_GROUP_CALL" = "Please enter a name for the group call";
+"START" = "Start";
+"GROUP_CALL_NAME_CANNOT_EMPTY" = "Group call name cannot be empty";
+"ENTER_TITLE_HERE" = "Enter title here";

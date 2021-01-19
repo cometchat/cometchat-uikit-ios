@@ -198,7 +198,7 @@ extension CometChatKingfisherWrapper where Base: CFCrossPlatformImageView {
     ///   - provider: The `ImageDataProvider` object contains information about the data.
     ///   - placeholder: A placeholder to show while retrieving the image from the given `resource`.
     ///   - options: An options set to define image setting behaviors. See `CometChatKingfisherOptionsInfo` for more.
-    ///   - progressBlock: Called when the image downloading progress gets updated. If the response does not contain an
+    ///   - progressBlock: Called when the image downloading progress gets updated. If the response does not con@objc @objc tain an
     ///                    `expectedContentLength`, this block will not be called.
     ///   - completionHandler: Called when the image retrieved and set finished.
     /// - Returns: A task represents the image downloading.
@@ -386,7 +386,7 @@ extension CometChatKingfisherWrapper where Base: CFCrossPlatformImageView {
 }
 
 
-@objc extension CFCrossPlatformImageView {
+ extension CFCrossPlatformImageView {
     func shouldPreloadAllAnimation() -> Bool { return true }
 }
 

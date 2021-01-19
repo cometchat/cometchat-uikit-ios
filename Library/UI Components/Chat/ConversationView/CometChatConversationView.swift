@@ -117,7 +117,10 @@ class CometChatConversationView: UITableViewCell {
                                 message.text = "CUSTOM_MESSAGE_WHITEBOARD".localized()
                             }else if customMessage.type == "extension_document" {
                                 message.text = "CUSTOM_MESSAGE_DOCUMENT".localized()
+                            }else if customMessage.type == "meeting" {
+                                message.text = "HAS_INITIATED_GROUP_AUDIO_CALL".localized()
                             }
+                            
                         }else{
                             message.text = "CUSTOM_MESSAGE".localized()
                         }
@@ -134,6 +137,8 @@ class CometChatConversationView: UITableViewCell {
                             message.text = senderName! + ":  " + "CUSTOM_MESSAGE_WHITEBOARD".localized()
                         }else if customMessage.type == "extension_document" {
                             message.text = senderName! + ":  " + "CUSTOM_MESSAGE_DOCUMENT".localized()
+                        }else if customMessage.type == "meeting" {
+                            message.text = senderName! + ":  " + "HAS_INITIATED_GROUP_AUDIO_CALL".localized()
                         }
                         }else{
                             message.text = senderName! +  ":  " +  "CUSTOM_MESSAGE".localized()
@@ -168,6 +173,8 @@ class CometChatConversationView: UITableViewCell {
                         message.text = "CUSTOM_MESSAGE_WHITEBOARD".localized()
                     }else if customMessage.type == "extension_document" {
                         message.text = "CUSTOM_MESSAGE_DOCUMENT".localized()
+                    }else if customMessage.type == "meeting" {
+                        message.text = "HAS_INITIATED_GROUP_AUDIO_CALL".localized()
                     }
                     }
                     
@@ -183,6 +190,8 @@ class CometChatConversationView: UITableViewCell {
                         message.text = senderName! + ":  " + "CUSTOM_MESSAGE_WHITEBOARD".localized()
                     }else if customMessage.type == "extension_document" {
                         message.text = senderName! + ":  " + "CUSTOM_MESSAGE_DOCUMENT".localized()
+                    }else if customMessage.type == "meeting" {
+                        message.text = senderName! + ":  " + "HAS_INITIATED_GROUP_AUDIO_CALL".localized()
                     }
                     }
                 @unknown default:

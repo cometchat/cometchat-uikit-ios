@@ -28,6 +28,7 @@ struct MessageType {
     static var sticker : String = "extension_sticker"
     static var collaborativeWhiteboard : String = "extension_whiteboard"
     static var collaborativeDocument : String = "extension_document"
+    static var meeting : String = "meeting"
 }
 
 struct ActionType {
@@ -124,7 +125,9 @@ class MessageFilter {
         if UIKitSettings.enableActionsForGroupNotifications == .enabled {
             messageTypesForGroup.append(ActionType.groupMember)
         }else{}
-        
+        if UIKitSettings.groupAudioCall == .enabled || UIKitSettings.groupVideoCall == .enabled {
+            messageTypesForGroup.append(MessageType.meeting)
+        }else{}
         return messageTypesForGroup
     }
     

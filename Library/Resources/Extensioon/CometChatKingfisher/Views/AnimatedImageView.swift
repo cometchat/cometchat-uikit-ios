@@ -242,9 +242,9 @@ let KFRunLoopModeCommon = RunLoopMode.commonModes
     }
 
     // This is for back compatibility that using regular `UIImageView` to show animated image.
-    override func shouldPreloadAllAnimation() -> Bool {
-        return false
-    }
+//    override func shouldPreloadAllAnimation() -> Bool {
+//        return false
+//    }
 
     // Reset the animator.
     private func reset() {

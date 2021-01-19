@@ -77,7 +77,8 @@ class CometChatStickerView: UIViewController {
             self?.stickersCollectionView.backgroundView = self?.activityIndicator
             self?.stickersCollectionView.backgroundView?.isHidden = false
         }
-        CometChat.callExtension(slug: "stickers", type: .get, endPoint: "v1/fetch", body: nil) { (response) in
+        
+        CometChat.callExtension(slug: "stickers", type: .get, endPoint: "v1/fetch", body: nil, onSuccess: { (response) in
             if let response = response {
                
                  self.parseStickersSet(forData: response) { (result) in
@@ -98,8 +99,7 @@ class CometChatStickerView: UIViewController {
                     }
                 }
             }
-           
-        } onError: { (error) in
+        }) { (error) in
             print("Error with fetching stickers: \(String(describing: error?.errorDescription))")
         }
     }

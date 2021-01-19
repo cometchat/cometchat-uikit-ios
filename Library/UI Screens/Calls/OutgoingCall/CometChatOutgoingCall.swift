@@ -182,26 +182,26 @@ extension CometChatOutgoingCall: OutgoingCallDelegate {
                         self.callSetting = CallSettings.CallSettingsBuilder(callView: self.view, sessionId: session).build()
                     }
             
-                    CometChat.startCall(callSettings: self.callSetting!) { (userJoined) in
+                    CometChat.startCall(callSettings: self.callSetting!, userJoined: { (userJoined) in
                         DispatchQueue.main.async {
                             if let name = userJoined?.name {
                                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "JOINED".localized(), duration: .short)
                                 snackbar.show()
                             }
                         }
-                    } userLeft: { (userLeft) in
+                    }, userLeft: { (userLeft) in
                         DispatchQueue.main.async {
                             if let name = userLeft?.name {
                                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "LEFT_THE_CALL".localized(), duration: .short)
                                 snackbar.show()
                             }
                         }
-                    } onError: { (error) in
+                    }, onError: { (error) in
                         DispatchQueue.main.async {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Unable to start call.", duration: .short)
                             snackbar.show()
                         }
-                    } callEnded: { (ended) in
+                    }) { (ended) in
                         DispatchQueue.main.async {
                             self.dismiss()
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_ENDED".localized(), duration: .short)

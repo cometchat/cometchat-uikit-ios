@@ -3055,15 +3055,14 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
                 }
             }
             if let stickerMessage = stickerMessage {
-                
-                CometChat.sendCustomMessage(message: stickerMessage) { (message) in
+                CometChat.sendCustomMessage(message: stickerMessage, onSuccess: { (message) in
                     if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
                         self.chatMessages[lastSection][row] = message
                     }
                     DispatchQueue.main.async{ [weak self] in
                         guard let strongSelf = self else { return }
                         strongSelf.tableView?.reloadData()}
-                } onError: { (error) in
+                }) { (error) in
                     DispatchQueue.main.async {
                         if let errorMessage = error?.errorDescription {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
@@ -3096,14 +3095,14 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
                 }
             }
             if let stickerMessage = stickerMessage {
-                CometChat.sendCustomMessage(message: stickerMessage) { (message) in
+                CometChat.sendCustomMessage(message: stickerMessage, onSuccess: { (message) in
                     if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
                         self.chatMessages[lastSection][row] = message
                     }
                     DispatchQueue.main.async{  [weak self] in
                         guard let strongSelf = self else { return }
-                        strongSelf.tableView?.reloadData()}
-                } onError: { (error) in
+                         strongSelf.tableView?.reloadData()}
+                }) { (error) in
                     DispatchQueue.main.async {
                         if let errorMessage = error?.errorDescription {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
@@ -3111,7 +3110,6 @@ extension CometChatThreadedMessageList : ChatViewInternalDelegate {
                         }
                     }
                 }
-
             }
         }
     }
@@ -3930,6 +3928,10 @@ extension CometChatThreadedMessageList {
 
 extension CometChatThreadedMessageList : MessageActionsDelegate {
     
+    func didVideoCallPressed() {}
+    
+    func didAudioCallPressed() {}
+    
     func didMessageTranslatePressed() {
         
     }
@@ -3937,21 +3939,20 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     func didCollaborativeWriteboardPressed() {
         
         if let uid = currentUser?.uid {
-            CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"]) { (response) in
-              
-            } onError: { (error) in
+            CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"], onSuccess: { (response) in
+                
+            }) { (error) in
                 if let error = error?.errorDescription {
                     let snackbar = CometChatSnackbar(message: error, duration: .short)
                     snackbar.show()
                 }
             }
-
         }
         
         if let guid = currentGroup?.guid {
-            CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"]) { (response) in
-              
-            } onError: { (error) in
+            CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"], onSuccess: { (response) in
+                
+            }) { (error) in
                 if let error = error?.errorDescription {
                     let snackbar = CometChatSnackbar(message: error, duration: .short)
                     snackbar.show()
@@ -3962,23 +3963,22 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     
     func didCollaborativeWhiteboardPressed() {
         if let uid = currentUser?.uid {
-            CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"]) { (response) in
-               
-            } onError: { (error) in
+            CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"], onSuccess: { (response) in
+                
+            }) { (error) in
                 if let error = error?.errorDescription {
                     let snackbar = CometChatSnackbar(message: error, duration: .short)
                     snackbar.show()
                 }
             }
-
         }
         
         
         
         if let guid = currentGroup?.guid {
-            CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"]) { (response) in
-              
-            } onError: { (error) in
+            CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"], onSuccess: { (response) in
+                
+            }) { (error) in
                 if let error = error?.errorDescription {
                     let snackbar = CometChatSnackbar(message: error, duration: .short)
                     snackbar.show()
@@ -4582,11 +4582,11 @@ extension CometChatThreadedMessageList: ReactionViewDelegate {
         }
         if reaction.messageId == 0 {
             if let message = selectedMessage {
-                CometChat.callExtension(slug: "reactions", type: .post, endPoint: "v1/react", body: ["msgId":message.id, "emoji":reaction.title]) { (success) in
+                CometChat.callExtension(slug: "reactions", type: .post, endPoint: "v1/react", body: ["msgId":message.id, "emoji":reaction.title], onSuccess: { (success) in
                     DispatchQueue.main.async {
                         self.dismiss(animated: true, completion: nil)
                     }
-                } onError: { (error) in
+                }) { (error) in
                     DispatchQueue.main.async {
                         if let error = error?.errorDescription {
                             let snackbar = CometChatSnackbar(message: error, duration: .short)
@@ -4596,11 +4596,11 @@ extension CometChatThreadedMessageList: ReactionViewDelegate {
                 }
             }
         }else{
-            CometChat.callExtension(slug: "reactions", type: .post, endPoint: "v1/react", body: ["msgId":reaction.messageId, "emoji": reaction.title]) { (success) in
+            CometChat.callExtension(slug: "reactions", type: .post, endPoint: "v1/react", body: ["msgId":reaction.messageId, "emoji": reaction.title], onSuccess: { (success) in
                 DispatchQueue.main.async {
                     self.dismiss(animated: true, completion: nil)
                 }
-            } onError: { (error) in
+            }) { (error) in
                 if let error = error?.errorDescription {
                     let snackbar = CometChatSnackbar(message: error, duration: .short)
                     snackbar.show()

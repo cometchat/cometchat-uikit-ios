@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="Product Sans Regular.ttf">
+            <string>ProductSans-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" restorationIdentifier="cometChatCreateMeetingView" selectionStyle="default" indentationWidth="10" reuseIdentifier="cometChatCreateMeetingView" rowHeight="123" id="KGk-i7-Jjw" customClass="CometChatCreateMeetingView" customModule="CometChat_KitchenSink" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="330" height="123"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="330" height="123"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="createMeeting.png" translatesAutoresizingMaskIntoConstraints="NO" id="9FN-UV-rQh">
+                        <rect key="frame" x="15" y="15" width="28" height="25"/>
+                        <color key="tintColor" systemColor="labelColor"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="28" id="9iN-Jt-lCf"/>
+                            <constraint firstAttribute="height" constant="25" id="E36-5e-56S"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Create new meeting" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bXu-YO-MoT">
+                        <rect key="frame" x="58" y="16.5" width="170.5" height="22.5"/>
+                        <fontDescription key="fontDescription" name="ProductSans-Regular" family="Product Sans" pointSize="19"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="7" translatesAutoresizingMaskIntoConstraints="NO" id="9Ad-mO-h6z">
+                        <rect key="frame" x="15" y="55" width="300" height="40"/>
+                        <subviews>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="thu-zU-KTh">
+                                <rect key="frame" x="0.0" y="0.0" width="146.5" height="40"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="Jg5-ij-zRp">
+                                        <rect key="frame" x="10" y="7.5" width="126.5" height="25"/>
+                                        <subviews>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="audioCalling.png" translatesAutoresizingMaskIntoConstraints="NO" id="ZXX-iV-1Y5">
+                                                <rect key="frame" x="0.0" y="0.0" width="25" height="25"/>
+                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="25" id="B2P-oH-ndb"/>
+                                                    <constraint firstAttribute="height" constant="25" id="zuy-O3-90v"/>
+                                                </constraints>
+                                            </imageView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Audio call" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rAy-l9-cau">
+                                                <rect key="frame" x="40" y="0.0" width="86.5" height="25"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemFillColor"/>
+                                <constraints>
+                                    <constraint firstItem="Jg5-ij-zRp" firstAttribute="centerY" secondItem="thu-zU-KTh" secondAttribute="centerY" id="1u5-1k-f9x"/>
+                                    <constraint firstAttribute="height" constant="40" id="HiM-t3-kcg"/>
+                                    <constraint firstItem="Jg5-ij-zRp" firstAttribute="leading" secondItem="thu-zU-KTh" secondAttribute="leading" constant="10" id="KIK-VE-VcN"/>
+                                    <constraint firstAttribute="trailing" secondItem="Jg5-ij-zRp" secondAttribute="trailing" constant="10" id="kWF-FT-dR3"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xBi-Wf-aK5">
+                                <rect key="frame" x="153.5" y="0.0" width="146.5" height="40"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="hGS-yp-yOS">
+                                        <rect key="frame" x="10" y="7.5" width="126.5" height="25"/>
+                                        <subviews>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="videoCalling.png" translatesAutoresizingMaskIntoConstraints="NO" id="4LS-zZ-JuE">
+                                                <rect key="frame" x="0.0" y="0.0" width="25" height="25"/>
+                                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="25" id="MTk-IH-DkC"/>
+                                                    <constraint firstAttribute="width" constant="25" id="ebh-1D-HXX"/>
+                                                </constraints>
+                                            </imageView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Video call" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Y5Z-Cx-LQg">
+                                                <rect key="frame" x="40" y="0.0" width="86.5" height="25"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemFillColor"/>
+                                <constraints>
+                                    <constraint firstItem="hGS-yp-yOS" firstAttribute="leading" secondItem="xBi-Wf-aK5" secondAttribute="leading" constant="10" id="5U8-fU-XPB"/>
+                                    <constraint firstItem="hGS-yp-yOS" firstAttribute="centerY" secondItem="xBi-Wf-aK5" secondAttribute="centerY" id="Iyt-4i-tVY"/>
+                                    <constraint firstAttribute="trailing" secondItem="hGS-yp-yOS" secondAttribute="trailing" constant="10" id="tfo-gE-Pw3"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="40" id="MVw-P7-HbR"/>
+                        </constraints>
+                    </stackView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yil-Pg-1ec">
+                        <rect key="frame" x="0.0" y="110" width="330" height="1"/>
+                        <color key="backgroundColor" systemColor="systemFillColor"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="1" id="m3h-rA-G7y"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="9FN-UV-rQh" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="4Fk-d0-tBq"/>
+                    <constraint firstAttribute="trailing" secondItem="9Ad-mO-h6z" secondAttribute="trailing" constant="15" id="5KR-9y-jku"/>
+                    <constraint firstItem="9FN-UV-rQh" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="AKT-50-aoJ"/>
+                    <constraint firstAttribute="trailing" secondItem="yil-Pg-1ec" secondAttribute="trailing" id="UI6-DF-IZa"/>
+                    <constraint firstItem="9Ad-mO-h6z" firstAttribute="top" secondItem="9FN-UV-rQh" secondAttribute="bottom" constant="15" id="Xn6-gr-qnv"/>
+                    <constraint firstItem="9Ad-mO-h6z" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="bbo-2K-Bnx"/>
+                    <constraint firstItem="bXu-YO-MoT" firstAttribute="centerY" secondItem="9FN-UV-rQh" secondAttribute="centerY" id="jDc-Lz-gmi"/>
+                    <constraint firstItem="bXu-YO-MoT" firstAttribute="leading" secondItem="9FN-UV-rQh" secondAttribute="trailing" constant="15" id="l8Q-Nv-yfE"/>
+                    <constraint firstItem="yil-Pg-1ec" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="lff-Hr-9y4"/>
+                    <constraint firstAttribute="bottom" secondItem="yil-Pg-1ec" secondAttribute="bottom" id="o59-wv-TcR"/>
+                    <constraint firstItem="yil-Pg-1ec" firstAttribute="top" secondItem="9Ad-mO-h6z" secondAttribute="bottom" constant="15" id="zSF-VN-zLl"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <color key="tintColor" systemColor="labelColor"/>
+            <inset key="separatorInset" minX="70" minY="0.0" maxX="18" maxY="0.0"/>
+            <connections>
+                <outlet property="audioCallIcon" destination="ZXX-iV-1Y5" id="qSj-mH-uJi"/>
+                <outlet property="audioCallTitle" destination="rAy-l9-cau" id="olJ-7D-5hI"/>
+                <outlet property="audioCallView" destination="thu-zU-KTh" id="TbC-Ci-cCw"/>
+                <outlet property="createMeetingIcon" destination="9FN-UV-rQh" id="H4q-7s-dFe"/>
+                <outlet property="createMeetingTitle" destination="bXu-YO-MoT" id="Yd3-F7-goD"/>
+                <outlet property="videoCallIcon" destination="4LS-zZ-JuE" id="8TN-fh-lSS"/>
+                <outlet property="videoCallTitle" destination="Y5Z-Cx-LQg" id="a2j-0O-aFu"/>
+                <outlet property="videoCallView" destination="xBi-Wf-aK5" id="dKd-1A-S4k"/>
+            </connections>
+            <point key="canvasLocation" x="139.13043478260872" y="134.26339285714286"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="audioCalling.png" width="70" height="71"/>
+        <image name="createMeeting.png" width="86" height="58"/>
+        <image name="videoCalling.png" width="70" height="71"/>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemFillColor">
+            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
