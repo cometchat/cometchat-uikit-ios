@@ -177,14 +177,14 @@ iv. If the Library is added sucessfully,  all added folders  will be in Yellow c
 
 ___
 
-## 4. Launch UI Unified
+## 4. Launch CometChat UI
 
 ![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIUnified.jpg)
 
 
-**UI Unified** is a way to launch a fully working chat application using the **CometChat Kitchen Sink**.In UI Unified all the UI Screens and UI Components working together to give the full experience of a chat application with minimal coding effort. 
+**CometChat UI** is a way to launch a fully working chat application using the **CometChat Kitchen Sink**.In CometChat UI all the UI Components working together to give the full experience of a chat application with minimal coding effort. 
 
-To use Unified UI user has to launch `CometChatUnified` class.  `CometChatUnified` is a subclass of  `UITabbarController`.
+To use CometChat UI user has to launch `CometChatUI` class.  `CometChatUI` is a subclass of  `UITabbarController`.
 
 ```swift
 
@@ -199,9 +199,7 @@ self.present(cometChatUI, animated: true, completion: nil)
 
 Note: Please run the above code snippet in the main thread. 
 
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIUnified.gif)
-
-`CometChatUnified` provides below method to present this activity: 
+`CometChatUI` provides below method to present this activity: 
 
 1. `setup(withStyle: .fullScreen)` : This will present the window in Full screen.
 
