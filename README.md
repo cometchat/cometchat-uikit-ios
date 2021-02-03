@@ -11,7 +11,6 @@
 </br>
 
 
-
 # iOS Chat UI Kit
 
 <p align="left">

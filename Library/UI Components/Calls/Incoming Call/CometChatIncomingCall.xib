@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatIncomingCall" customModule="CometChat_KitchenSink" customModuleProvider="target">
+            <connections>
+                <outlet property="acceptButton" destination="8Ko-AH-0oD" id="CmW-SR-Xib"/>
+                <outlet property="avatar" destination="3zg-F7-rUY" id="nkH-Vg-bPF"/>
+                <outlet property="callStatus" destination="ZQu-uz-6fM" id="BA7-0m-9EP"/>
+                <outlet property="callStatusIcon" destination="qem-7t-LIc" id="7AE-No-O6b"/>
+                <outlet property="declineButton" destination="Bpe-XT-Vme" id="koS-7u-Of2"/>
+                <outlet property="incomingCallView" destination="IXn-Jx-v9E" id="6dm-SI-niO"/>
+                <outlet property="name" destination="a1z-BL-qA9" id="MAE-RO-U7e"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IXn-Jx-v9E">
+                    <rect key="frame" x="10" y="64" width="394" height="160"/>
+                    <subviews>
+                        <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="50" translatesAutoresizingMaskIntoConstraints="NO" id="1Vc-Dy-OS1">
+                            <rect key="frame" x="20" y="20" width="354" height="60"/>
+                            <subviews>
+                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="ZnR-fX-Mof">
+                                    <rect key="frame" x="0.0" y="6" width="244" height="48.5"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Iorn Man" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a1z-BL-qA9">
+                                            <rect key="frame" x="0.0" y="0.0" width="244" height="23"/>
+                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="19"/>
+                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <stackView opaque="NO" contentMode="scaleToFill" alignment="top" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="nyO-9h-UN4">
+                                            <rect key="frame" x="0.0" y="28" width="244" height="20.5"/>
+                                            <subviews>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="incomingAudio.png" translatesAutoresizingMaskIntoConstraints="NO" id="qem-7t-LIc">
+                                                    <rect key="frame" x="0.0" y="0.0" width="22" height="20"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="20" id="Aon-rr-Vd7"/>
+                                                        <constraint firstAttribute="width" constant="22" id="EfD-go-SbG"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Incoming Audio Call" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZQu-uz-6fM">
+                                                    <rect key="frame" x="30" y="0.0" width="214" height="20.5"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" white="1" alpha="0.69999999999999996" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </stackView>
+                                    </subviews>
+                                </stackView>
+                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ironman" translatesAutoresizingMaskIntoConstraints="NO" id="3zg-F7-rUY" customClass="CometChatAvatar" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                                    <rect key="frame" x="294" y="0.0" width="60" height="60"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="60" id="ZcE-l5-vQQ"/>
+                                        <constraint firstAttribute="width" constant="60" id="eg0-fk-0wF"/>
+                                    </constraints>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                            <real key="value" value="30"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                            <color key="value" systemColor="systemFillColor"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                            <real key="value" value="1"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                </imageView>
+                            </subviews>
+                        </stackView>
+                        <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="Ksz-tM-x9N">
+                            <rect key="frame" x="20" y="95" width="354" height="50"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bpe-XT-Vme">
+                                    <rect key="frame" x="0.0" y="0.0" width="169.5" height="50"/>
+                                    <color key="backgroundColor" red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="19"/>
+                                    <state key="normal" title="Decline">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </state>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                            <integer key="value" value="10"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                    <connections>
+                                        <action selector="didDeclineButtonPressed:" destination="-1" eventType="touchUpInside" id="FHs-1O-gs3"/>
+                                    </connections>
+                                </button>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Ko-AH-0oD">
+                                    <rect key="frame" x="184.5" y="0.0" width="169.5" height="50"/>
+                                    <color key="backgroundColor" red="0.20000000000000001" green="0.59999999999999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="19"/>
+                                    <state key="normal" title="Accept">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </state>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                            <integer key="value" value="10"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                    <connections>
+                                        <action selector="didAcceptButtonPressed:" destination="-1" eventType="touchUpInside" id="B5E-0S-nZr"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="50" id="T2N-5b-swz"/>
+                            </constraints>
+                        </stackView>
+                    </subviews>
+                    <color key="backgroundColor" red="0.19607843137254902" green="0.19607843137254902" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstItem="1Vc-Dy-OS1" firstAttribute="top" secondItem="IXn-Jx-v9E" secondAttribute="top" constant="20" id="8wo-AI-Cnf"/>
+                        <constraint firstItem="Ksz-tM-x9N" firstAttribute="leading" secondItem="IXn-Jx-v9E" secondAttribute="leading" constant="20" id="9cU-Xz-PZV"/>
+                        <constraint firstItem="1Vc-Dy-OS1" firstAttribute="leading" secondItem="IXn-Jx-v9E" secondAttribute="leading" constant="20" id="LqK-at-f5w"/>
+                        <constraint firstAttribute="bottom" secondItem="Ksz-tM-x9N" secondAttribute="bottom" constant="15" id="Y95-4u-x39"/>
+                        <constraint firstAttribute="height" constant="160" id="g1M-oP-MvJ"/>
+                        <constraint firstAttribute="trailing" secondItem="1Vc-Dy-OS1" secondAttribute="trailing" constant="20" id="hJ2-yv-zSG"/>
+                        <constraint firstAttribute="trailing" secondItem="Ksz-tM-x9N" secondAttribute="trailing" constant="20" id="w1M-90-zqf"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                            <integer key="value" value="15"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="IXn-Jx-v9E" secondAttribute="trailing" constant="10" id="2RQ-AF-Cd8"/>
+                <constraint firstItem="IXn-Jx-v9E" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="10" id="Imq-Gn-VQ0"/>
+                <constraint firstItem="IXn-Jx-v9E" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="20" id="zId-rC-Jen"/>
+            </constraints>
+            <point key="canvasLocation" x="131.8840579710145" y="97.767857142857139"/>
+        </view>
+    </objects>
+    <designables>
+        <designable name="3zg-F7-rUY">
+            <size key="intrinsicContentSize" width="300" height="300"/>
+        </designable>
+    </designables>
+    <resources>
+        <image name="incomingAudio.png" width="22" height="23"/>
+        <image name="ironman" width="300" height="300"/>
+        <systemColor name="systemFillColor">
+            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
