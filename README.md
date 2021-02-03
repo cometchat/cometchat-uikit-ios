@@ -189,9 +189,9 @@ To use Unified UI user has to launch `CometChatUnified` class.  `CometChatUnifie
 ```swift
 
 DispatchQueue.main.async {
-let unifiedUI = CometChatUnified()
-unifiedUI.setup(withStyle: .fullScreen)
-self.present(unifiedUI, animated: true, completion: nil)
+let cometChatUI = CometChatUI()
+cometChatUI.setup(withStyle: .fullScreen)
+self.present(cometChatUI, animated: true, completion: nil)
 }
 
 
