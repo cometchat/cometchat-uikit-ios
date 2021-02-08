@@ -4157,31 +4157,28 @@ extension CometChatMessageList : CometChatMessageDelegate {
     
     public func onMessageEdited(message: BaseMessage) {
         
-        DispatchQueue.main.async {  [weak self] in
-            guard let strongSelf = self else { return }
-            switch message.receiverType {
-            case .user:
-                strongSelf.refreshMessageList(forID: strongSelf.currentUser?.uid ?? "" , type: .user, scrollToBottom: false)
-            case .group:
-                strongSelf.refreshMessageList(forID: strongSelf.currentGroup?.guid ?? "" , type: .group, scrollToBottom: false)
-            @unknown default: break
+        if let indexpath = chatMessages.indexPath(where: {$0.id == message.id}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
+            DispatchQueue.main.async {  [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.tableView?.beginUpdates()
+                strongSelf.chatMessages[section][row] = message
+                strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
+                strongSelf.tableView?.endUpdates()
             }
         }
     }
     
     public func onMessageDeleted(message: BaseMessage) {
-        DispatchQueue.main.async {  [weak self] in
-            guard let strongSelf = self else { return }
-            switch message.receiverType {
-            case .user:
-                strongSelf.refreshMessageList(forID: strongSelf.currentUser?.uid ?? "" , type: .user, scrollToBottom: false)
-            case .group:
-                strongSelf.refreshMessageList(forID: strongSelf.currentGroup?.guid ?? "" , type: .group, scrollToBottom: false)
-            @unknown default: break
+        if let indexpath = chatMessages.indexPath(where: {$0.id == message.id}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
+            DispatchQueue.main.async {  [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.tableView?.beginUpdates()
+                strongSelf.chatMessages[section][row] = message
+                strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
+                strongSelf.tableView?.endUpdates()
             }
         }
     }
-    
 }
 
 extension Array where Element : Collection, Element.Index == Int {
@@ -5283,8 +5280,6 @@ extension CometChatMessageList: PollExtensionDelegate {
     
     
     func voteForPoll(pollID: String, with option: String, cell: UITableViewCell) {
-       
-        
         DispatchQueue.main.async {
             let alert = UIAlertController(title: nil, message: "Voting...", preferredStyle: .alert)
             let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
@@ -5295,7 +5290,7 @@ extension CometChatMessageList: PollExtensionDelegate {
             self.present(alert, animated: true, completion: nil)
         }
         
-        CometChat.callExtension(slug:  "polls", type: .post, endPoint: "v1/vote", body: ["vote":option,"id":pollID], onSuccess: { (response) in
+        CometChat.callExtension(slug:  "polls", type: .post, endPoint: "v2/vote", body: ["vote":option,"id":pollID], onSuccess: { (response) in
             DispatchQueue.main.async {
                 self.tableView?.beginUpdates()
                 if let cell = cell as? CometChatReceiverPollMessageBubble {
@@ -5392,17 +5387,18 @@ extension CometChatMessageList: StickerViewDelegate {
 extension CometChatMessageList: CometChatMessageReactionsDelegate {
     
     func didReactionPressed(reaction: CometChatMessageReaction) {
-        DispatchQueue.main.async {
-            let alert = UIAlertController(title: nil, message: "Adding Reaction...", preferredStyle: .alert)
-            let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-            loadingIndicator.hidesWhenStopped = true
-            loadingIndicator.style = UIActivityIndicatorView.Style.gray
-            loadingIndicator.startAnimating()
-            alert.view.addSubview(loadingIndicator)
-            self.present(alert, animated: true, completion: nil)
-        }
+       
         if reaction.messageId == 0 {
             if let message = selectedMessage {
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(title: nil, message: "Adding Reaction...", preferredStyle: .alert)
+                    let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+                    loadingIndicator.hidesWhenStopped = true
+                    loadingIndicator.style = UIActivityIndicatorView.Style.gray
+                    loadingIndicator.startAnimating()
+                    alert.view.addSubview(loadingIndicator)
+                    self.present(alert, animated: true, completion: nil)
+                }
                 CometChat.callExtension(slug: "reactions", type: .post, endPoint: "v1/react", body: ["msgId":message.id, "emoji":reaction.title], onSuccess: { (success) in
                     DispatchQueue.main.async {
                         self.dismiss(animated: true, completion: nil)
@@ -5417,6 +5413,15 @@ extension CometChatMessageList: CometChatMessageReactionsDelegate {
                 }
             }
         }else{
+            DispatchQueue.main.async {
+                let alert = UIAlertController(title: nil, message: "Updating Reaction...", preferredStyle: .alert)
+                let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+                loadingIndicator.hidesWhenStopped = true
+                loadingIndicator.style = UIActivityIndicatorView.Style.gray
+                loadingIndicator.startAnimating()
+                alert.view.addSubview(loadingIndicator)
+                self.present(alert, animated: true, completion: nil)
+            }
             CometChat.callExtension(slug: "reactions", type: .post, endPoint: "v1/react", body: ["msgId":reaction.messageId, "emoji": reaction.title], onSuccess: { (success) in
                 DispatchQueue.main.async {
                     self.dismiss(animated: true, completion: nil)

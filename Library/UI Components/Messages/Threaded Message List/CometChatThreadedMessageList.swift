@@ -4423,7 +4423,7 @@ extension CometChatThreadedMessageList: PollExtensionDelegate {
             self.present(alert, animated: true, completion: nil)
         }
         
-        CometChat.callExtension(slug:  "polls", type: .post, endPoint: "v1/vote", body: ["vote":option,"id":pollID], onSuccess: { (response) in
+        CometChat.callExtension(slug:  "polls", type: .post, endPoint: "v2/vote", body: ["vote":option,"id":pollID], onSuccess: { (response) in
             
             DispatchQueue.main.async {
                 self.tableView?.beginUpdates()

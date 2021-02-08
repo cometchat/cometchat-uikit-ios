@@ -184,11 +184,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                        self.option1Count.text = "\(value)%"
 
                         if value == 0 {
-                           if #available(iOS 13.0, *) {
-                                option1.backgroundColor = .systemBackground
-                            } else {
-                                option1.backgroundColor = .white
-                            }
+                            option1.backgroundColor = .white
                             option1Count.isHidden = true
                         }else{
                             option1.backgroundColor = .lightText
@@ -201,11 +197,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         
                        self.option1Count.text = "\(value)%"
                         if value == 0 {
-                            if #available(iOS 13.0, *) {
-                                option1.backgroundColor = .systemBackground
-                            } else {
-                                option1.backgroundColor = .white
-                            }
+                            option1.backgroundColor = .white
                             option1Count.isHidden = true
                         }else{
                             option1.backgroundColor = .lightText
@@ -216,11 +208,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count2), total: Double(total))
                         self.option2Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option2.backgroundColor = .systemBackground
-                            } else {
-                                option2.backgroundColor = .white
-                            }
+                            option2.backgroundColor = .white
                             option2Count.isHidden = true
                         }else{
                             option2.backgroundColor = .lightText
@@ -233,11 +221,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         
                        self.option1Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option1.backgroundColor = .systemBackground
-                            } else {
-                                option1.backgroundColor = .white
-                            }
+                            option1.backgroundColor = .white
                             option1Count.isHidden = true
                         }else{
                             option1.backgroundColor = .lightText
@@ -248,11 +232,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count2), total: Double(total))
                         self.option2Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option2.backgroundColor = .systemBackground
-                            } else {
-                                option2.backgroundColor = .white
-                            }
+                            option2.backgroundColor = .white
                             option2Count.isHidden = true
                         }else{
                             option2.backgroundColor = .lightText
@@ -263,11 +243,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count3), total: Double(total))
                         self.option3Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option3.backgroundColor = .systemBackground
-                            } else {
-                                option3.backgroundColor = .white
-                            }
+                            option3.backgroundColor = .white
                             option3Count.isHidden = true
                         }else{
                             option3.backgroundColor = .lightText
@@ -280,11 +256,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         
                        self.option1Count.text = "\(value)%"
                         if value == 0 {
-                            if #available(iOS 13.0, *) {
-                                option1.backgroundColor = .systemBackground
-                            } else {
-                                option1.backgroundColor = .white
-                            }
+                            option1.backgroundColor = .white
                             option1Count.isHidden = true
                         }else{
                             option1.backgroundColor = .lightText
@@ -296,11 +268,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         self.option2Count.text = "\(value)%"
         
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option2.backgroundColor = .systemBackground
-                            } else {
-                                option2.backgroundColor = .white
-                            }
+                            option2.backgroundColor = .white
                             option2Count.isHidden = true
                         }else{
                             option2.backgroundColor = .lightText
@@ -311,11 +279,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count3), total: Double(total))
                         self.option3Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option3.backgroundColor = .systemBackground
-                            } else {
-                                option3.backgroundColor = .white
-                            }
+                            option3.backgroundColor = .white
                             option3Count.isHidden = true
                         }else{
                             option3.backgroundColor = .lightText
@@ -326,11 +290,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count4), total: Double(total))
                         self.option4Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option4.backgroundColor = .systemBackground
-                            } else {
-                                option4.backgroundColor = .white
-                            }
+                            option4.backgroundColor = .white
                             option4Count.isHidden = true
                         }else{
                             option4.backgroundColor = .lightText
@@ -343,11 +303,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         
                        self.option1Count.text = "\(value)%"
                         if value == 0 {
-                            if #available(iOS 13.0, *) {
-                                option1.backgroundColor = .systemBackground
-                            } else {
-                                option1.backgroundColor = .white
-                            }
+                            option1.backgroundColor = .white
                             option1Count.isHidden = true
                         }else{
                             option1.backgroundColor = .lightText
@@ -358,11 +314,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count2), total: Double(total))
                         self.option2Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option2.backgroundColor = .systemBackground
-                            } else {
-                                option2.backgroundColor = .white
-                            }
+                            option2.backgroundColor = .white
                             option2Count.isHidden = true
                         }else{
                             option2.backgroundColor = .lightText
@@ -373,11 +325,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count3), total: Double(total))
                         self.option3Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option3.backgroundColor = .systemBackground
-                            } else {
-                                option3.backgroundColor = .white
-                            }
+                            option3.backgroundColor = .white
                             option3Count.isHidden = true
                         }else{
                             option3.backgroundColor = .lightText
@@ -388,11 +336,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count4), total: Double(total))
                         self.option4Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option4.backgroundColor = .systemBackground
-                            } else {
-                                option4.backgroundColor = .white
-                            }
+                            option4.backgroundColor = .white
                             option4Count.isHidden = true
                         }else{
                             option4.backgroundColor = .lightText
@@ -403,11 +347,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count4), total: Double(total))
                         self.option5Count.text = "\(value)%"
                         if value == 0 {
-                            if #available(iOS 13.0, *) {
-                                option5.backgroundColor = .systemBackground
-                            } else {
-                                option5.backgroundColor = .white
-                            }
+                            option5.backgroundColor = .white
                             option5Count.isHidden = true
                         }else{
                             option5.backgroundColor = .lightText
@@ -420,11 +360,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         
                        self.option1Count.text = "\(value)%"
                         if value == 0 {
-                            if #available(iOS 13.0, *) {
-                                option1.backgroundColor = .systemBackground
-                            } else {
-                                option1.backgroundColor = .white
-                            }
+                            option1.backgroundColor = .white
                             option1Count.isHidden = true
                         }else{
                             option1.backgroundColor = .lightText
@@ -435,11 +371,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count2), total: Double(total))
                         self.option2Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option2.backgroundColor = .systemBackground
-                            } else {
-                                option2.backgroundColor = .white
-                            }
+                            option2.backgroundColor = .white
                             option2Count.isHidden = true
                         }else{
                             option2.backgroundColor = .lightText
@@ -451,11 +383,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         self.option3Count.text = "\(value)%"
                       
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option3.backgroundColor = .systemBackground
-                            } else {
-                                option3.backgroundColor = .white
-                            }
+                            option3.backgroundColor = .white
                             option3Count.isHidden = true
                         }else{
                             option3.backgroundColor = .lightText
@@ -466,11 +394,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count4), total: Double(total))
                         self.option4Count.text = "\(value)%"
                         if value == 0{
-                            if #available(iOS 13.0, *) {
-                                option4.backgroundColor = .systemBackground
-                            } else {
-                                option4.backgroundColor = .white
-                            }
+                            option4.backgroundColor = .white
                             option4Count.isHidden = true
                         }else{
                             option4.backgroundColor = .lightText
@@ -481,11 +405,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                         let value = calculatePercentage(value: Double(count4), total: Double(total))
                         self.option5Count.text = "\(value)%"
                         if value == 0 {
-                            if #available(iOS 13.0, *) {
-                                option5.backgroundColor = .systemBackground
-                            } else {
-                                option5.backgroundColor = .white
-                            }
+                            option5.backgroundColor = .white
                             option5Count.isHidden = true
                         }else{
                             option5.backgroundColor = .lightText

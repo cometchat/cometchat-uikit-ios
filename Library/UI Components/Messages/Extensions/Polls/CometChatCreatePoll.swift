@@ -238,7 +238,7 @@ class CometChatCreatePoll: UIViewController {
                 self.present(alert, animated: true, completion: nil)
             }
             
-            CometChat.callExtension(slug: "polls", type: .post, endPoint: "v1/create", body: body, onSuccess: { (response) in
+            CometChat.callExtension(slug: "polls", type: .post, endPoint: "v2/create", body: body, onSuccess: { (response) in
                 print("callExtension onSuccess:\(String(describing: response))")
                 
                 DispatchQueue.main.async {
@@ -247,7 +247,7 @@ class CometChatCreatePoll: UIViewController {
                     }
                 }
             }) { (error) in
-                print("callExtension error:\(error?.errorDescription)")
+                print("callExtension error:\(String(describing: error?.errorDescription))")
             }
         }
     }
