@@ -93,9 +93,9 @@ import CometChatPro
 
 /*  ----------------------------------------------------------------------------------------- */
 
-  MARK: - CometChatCallDelegate Methods (For Swift Project)
-
-  Since, Objective C dosen't extend Appdelegate, kindly register for `CometChatCallDelegate` in AppDelegate and add those methods in AppDelegate.
+//  MARK: - CometChatCallDelegate Methods (For Swift Project)
+//
+//  Since, Objective C dosen't extend Appdelegate, kindly register for `CometChatCallDelegate` in AppDelegate and add those methods in AppDelegate.
 
 
 extension AppDelegate : CometChatCallDelegate {
@@ -176,7 +176,7 @@ extension AppDelegate : CometChatCallDelegate {
     }
 }
 
-  -----------------------------------------------------------------------------------------
+//  -----------------------------------------------------------------------------------------
 
 //// //  MARK: - CometChatCallDelegate Methods (For Objective C Project)
 ////
