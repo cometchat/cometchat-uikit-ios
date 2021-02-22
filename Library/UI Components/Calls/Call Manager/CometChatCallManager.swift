@@ -46,7 +46,7 @@ import CometChatPro
                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Kindly, unblock the user to make a call.", duration: .short)
                     snackbar.show()
             }else{
-                DispatchQueue.main.async { 
+                DispatchQueue.main.async {
                     let outgoingCall = CometChatOutgoingCall()
                     outgoingCall.makeCall(call: call, to: user)
                     outgoingCall.modalPresentationStyle = .fullScreen
@@ -91,7 +91,7 @@ import CometChatPro
     @objc func onOutgoingCallRejected(rejectedCall: Call, error: CometChatException?)
 }
 
-/*  ----------------------------------------------------------------------------------------- */
+///*  ----------------------------------------------------------------------------------------- */
 
 //  MARK: - CometChatCallDelegate Methods (For Swift Project)
 //
@@ -176,8 +176,8 @@ extension AppDelegate : CometChatCallDelegate {
     }
 }
 
-//  -----------------------------------------------------------------------------------------
-
+///*  ----------------------------------------------------------------------------------------- */
+//
 //// //  MARK: - CometChatCallDelegate Methods (For Objective C Project)
 ////
 //extension CometChatUI : CometChatCallDelegate {
@@ -250,6 +250,6 @@ extension AppDelegate : CometChatCallDelegate {
 //        }
 //    }
 //}
-//
-//
-///*  ----------------------------------------------------------------------------------------- */
+////
+////
+/////*  ----------------------------------------------------------------------------------------- */

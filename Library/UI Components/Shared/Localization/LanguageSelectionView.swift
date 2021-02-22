@@ -157,7 +157,7 @@ class LanguageSelectionView: UITableViewController {
 
 extension String {
     
-    func localized() ->String {
+    public func localized() ->String {
         
         CometChatLanguageBundle.setLanguage(Locale.current.languageCode ?? "en")
         UserDefaults.standard.set(Locale.current.languageCode, forKey: "lang")

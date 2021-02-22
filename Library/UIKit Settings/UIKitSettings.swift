@@ -38,7 +38,7 @@ enum SwitchMode {
 
 
 
-struct UIKitSettings {
+public struct UIKitSettings {
     
     static var bundle = Bundle.main
     
@@ -115,5 +115,5 @@ struct UIKitSettings {
     static var collaborativeWriteboard: SwitchMode = .enabled
     static var collaborativeWhiteboard: SwitchMode = .enabled
     static var messageTranslation: SwitchMode = .enabled
-    static var tabs: [Controller] = [.chats, .calls, .users , .groups, .settings]
+    public static var tabs: [Controller] = [.chats, .calls, .users , .groups, .settings]
 }

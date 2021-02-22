@@ -11,14 +11,13 @@
 </br>
 
 
-
 # iOS Chat UI Kit
 
 <p align="left">
 
 <a href=""><img src="https://img.shields.io/badge/Repo%20Size-13.3%20MB-brightgreen" /></a>
 <a href=""> <img src="https://img.shields.io/badge/Contributors-2-yellowgreen" /></a>
-<a href=" "> <img src="https://img.shields.io/badge/Version-2.1.14-red" /></a>
+<a href=" "> <img src="https://img.shields.io/badge/Version-2.1.9-red" /></a>
 <a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-swift-chat-ui-kit?style=social"/></a>
 <a href=""> <img src="https://img.shields.io/twitter/follow/cometchat?style=social" /></a>
 
