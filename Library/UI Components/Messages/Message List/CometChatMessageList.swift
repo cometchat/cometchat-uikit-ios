@@ -680,6 +680,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      */
     private func setupDelegates(){
         CometChat.messagedelegate = self
+        CometChat.userdelegate = self
         CometChat.groupdelegate = self
         documentPicker.delegate = self
         MessageActions.actionsDelegate = self
@@ -880,17 +881,11 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         backButton.tintColor = UIKitSettings.primaryColor
         backButton.setTitleColor(backButton.tintColor, for: .normal) // You can change the TitleColor
         backButton.addTarget(self, action: #selector(self.didBackButtonPressed(_:)), for: .touchUpInside)
-        
-        let cancelButton = UIButton(type: .custom)
-        cancelButton.setTitle("CANCEL".localized(), for: .normal)
-        backButton.tintColor = UIKitSettings.primaryColor
-        cancelButton.setTitleColor(backButton.tintColor, for: .normal) // You can change the TitleColor
-        cancelButton.addTarget(self, action: #selector(self.didCancelButtonPressed(_:)), for: .touchUpInside)
         self.navigationItem.leftBarButtonItem = nil
         if bool == true {
             self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         }else{
-            self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButton)
+            self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         }
     }
     
@@ -932,7 +927,9 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     }
     
     @IBAction func didCancelButtonPressed(_ sender: UIButton) {
+        print("didCancelButtonPressed")
         self.didPreformCancel()
+        hide(view: .editMessageView, true)
     }
     
     @IBAction func didAudioNoteDeletePressed(_ sender: UIButton) {
@@ -1961,8 +1958,10 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     keyboardHeight = keyboardHeight - view.safeAreaInsets.bottom
                 }
             }
-            inputBarBottomSpace.constant = keyboardHeight
-            view.layoutIfNeeded()
+            self.inputBarBottomSpace.constant = keyboardHeight
+            UIView.animate(withDuration: 0.3) {
+                self.view.superview?.layoutIfNeeded()
+            }
         }
     }
     
@@ -2125,12 +2124,7 @@ extension CometChatMessageList: UIDocumentPickerDelegate {
             }
         }
     }
-    
 
-    
-  
-    
-    
 }
 
 /*  ----------------------------------------------------------------------------------------- */
@@ -3081,8 +3075,6 @@ extension CometChatMessageList: GrowingTextViewDelegate {
     public func growingTextView(_ growingTextView: GrowingTextView, willChangeHeight height: CGFloat, difference: CGFloat) {
        
         inputBarHeight.constant = height
-        view.setNeedsLayout()
-        view.layoutIfNeeded()
     }
     
     public func growingTextView(_ growingTextView: GrowingTextView, didChangeHeight height: CGFloat, difference: CGFloat) {
@@ -3113,7 +3105,6 @@ extension CometChatMessageList: GrowingTextViewDelegate {
                 microphone.isHidden = true
             }
             send.isHidden = true
-            self.view.layoutIfNeeded()
             
         }else{
             microphone.isHidden = true
@@ -3125,7 +3116,6 @@ extension CometChatMessageList: GrowingTextViewDelegate {
             
             reactionButtonSpace.constant = 0
             reactionButtonWidth.constant = 0
-            self.view.layoutIfNeeded()
         }
         if UIKitSettings.sendTypingIndicator == .enabled {
             CometChat.startTyping(indicator: indicator)
@@ -4191,6 +4181,36 @@ extension Array where Element : Collection, Element.Index == Int {
     return nil
   }
 }
+
+/*  ----------------------------------------------------------------------------------------- */
+
+
+extension CometChatMessageList : CometChatUserDelegate {
+    
+    
+    public func onUserOnline(user: User) {
+        if user.uid == currentUser?.uid {
+            DispatchQueue.main.async {
+                self.setupNavigationBar(withSubtitle: "ONLINE".localized())
+            }
+            
+        }
+    }
+    
+    public func onUserOffline(user: User) {
+        if user.uid == currentUser?.uid {
+            DispatchQueue.main.async {
+                self.setupNavigationBar(withSubtitle: "OFFLINE".localized())
+            }
+        }
+    }
+    
+}
+
+
+
+
+
 
 /*  ----------------------------------------------------------------------------------------- */
 

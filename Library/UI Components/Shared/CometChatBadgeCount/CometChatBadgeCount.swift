@@ -18,7 +18,7 @@ import CometChatPro
 
 /*  ----------------------------------------------------------------------------------------- */
 
-@objc @IBDesignable  class CometChatBadgeCount: UILabel {
+@objc @IBDesignable  final class CometChatBadgeCount: UILabel {
     
     // MARK: - Declaration of IBInspectable
     
@@ -131,9 +131,9 @@ import CometChatPro
             self.isHidden = false
             self.text = "999+"
         }else{
+            self.text = "0"
             self.isHidden = true
         }
-        
         return self
     }
     
@@ -150,6 +150,11 @@ import CometChatPro
         let currentCount = self.getCount
         self.set(count: currentCount + 1)
         self.isHidden = false
+    }
+    
+    @objc  func removeCount() {
+        self.text = "0"
+        self.isHidden = true
     }
     
     deinit {

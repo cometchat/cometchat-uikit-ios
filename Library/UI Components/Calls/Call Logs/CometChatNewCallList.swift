@@ -247,7 +247,7 @@ public class CometChatNewCallList: UIViewController {
      */
     private func registerCells(){
         let CometChatUserListItem  = UINib.init(nibName: "CometChatUserListItem", bundle: UIKitSettings.bundle)
-        self.tableView.register(CometChatUserListItem, forCellReuseIdentifier: "userView")
+        self.tableView.register(CometChatUserListItem, forCellReuseIdentifier: "CometChatUserListItem")
     }
     
     /**
@@ -452,7 +452,7 @@ extension CometChatNewCallList: UITableViewDelegate , UITableViewDataSource {
         }
     
         if sections[safe: indexPath.section] == user?.name?.first?.uppercased(){
-            let userCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserListItem
+            let userCell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as! CometChatUserListItem
             userCell.user = user
             return userCell
         }else{

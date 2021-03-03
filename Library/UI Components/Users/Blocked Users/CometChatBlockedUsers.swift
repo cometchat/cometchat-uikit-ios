@@ -117,7 +117,7 @@ class CometChatBlockedUsers: UIViewController {
         self.tableView.tableFooterView = UIView(frame: .zero)
         tableView.isEditing = true
         let UserView  = UINib.init(nibName: "CometChatUserListItem", bundle: UIKitSettings.bundle)
-        self.tableView.register(UserView, forCellReuseIdentifier: "userView")
+        self.tableView.register(UserView, forCellReuseIdentifier: "CometChatUserListItem")
     }
     
     /**
@@ -219,7 +219,7 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
     ///   - section: An index number identifying a section of tableView.
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let user = blockedUsers[safe:indexPath.row]
-        let blockedUserCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserListItem
+        let blockedUserCell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as! CometChatUserListItem
         blockedUserCell.user = user
         return blockedUserCell
     }

@@ -41,6 +41,7 @@ public protocol UserListDelegate: AnyObject {
 
 public class CometChatUserList: UIViewController {
     
+    
     // MARK: - Declaration of Variables
     
     var userRequest : UsersRequest?
@@ -269,7 +270,7 @@ public class CometChatUserList: UIViewController {
      */
     private func registerCells(){
         let CometChatUserListItem  = UINib.init(nibName: "CometChatUserListItem", bundle: UIKitSettings.bundle)
-        self.tableView.register(CometChatUserListItem, forCellReuseIdentifier: "userView")
+        self.tableView.register(CometChatUserListItem, forCellReuseIdentifier: "CometChatUserListItem")
     }
     
     /**
@@ -451,7 +452,7 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
             user = users[safe:indexPath.row]
         }
         if sections[safe: indexPath.section] == user?.name?.first?.uppercased(){
-            let userCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserListItem
+            let userCell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as! CometChatUserListItem
             userCell.user = user
             return userCell
         }else{
@@ -486,7 +487,7 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastSectionIndex = tableView.numberOfSections - 1
         let lastRowIndex = tableView.numberOfRows(inSection: lastSectionIndex) - 1
-        if indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex {
+        if indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex && users.count > 10 {
             self.fetchUsers()
         }
     }

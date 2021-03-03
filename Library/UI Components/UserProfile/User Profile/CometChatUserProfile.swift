@@ -147,7 +147,7 @@ public class CometChatUserProfile: UIViewController {
      */
     private func registerCells(){
         let CometChatUserListItem  = UINib.init(nibName: "CometChatUserListItem", bundle: UIKitSettings.bundle)
-        self.tableView.register(CometChatUserListItem, forCellReuseIdentifier: "userView")
+        self.tableView.register(CometChatUserListItem, forCellReuseIdentifier: "CometChatUserListItem")
         
         let CometChatSettingsItem  = UINib.init(nibName: "CometChatSettingsItem", bundle: UIKitSettings.bundle)
         self.tableView.register(CometChatSettingsItem, forCellReuseIdentifier: "CometChatSettingsItem")
@@ -264,7 +264,7 @@ extension CometChatUserProfile: UITableViewDelegate , UITableViewDataSource {
         
         let cell:UITableViewCell = UITableViewCell()
         if indexPath.section == 0 && indexPath.row == 0 {
-            let userCell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as! CometChatUserListItem
+            let userCell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as! CometChatUserListItem
             userCell.avatarWidth.constant = 80
             userCell.avatarHeight.constant = 80
             userCell.userAvatar.cornerRadius = 40
@@ -275,6 +275,7 @@ extension CometChatUserProfile: UITableViewDelegate , UITableViewDataSource {
             userCell.user = CometChat.getLoggedInUser()
             userCell.userStatus.isHidden = false
             userCell.userStatus.text = "ONLINE".localized()
+            userCell.userStatus.textColor = #colorLiteral(red: 0.6039215686, green: 0.8039215686, blue: 0.1960784314, alpha: 1)
             userCell.separatorInset = UIEdgeInsets(top: 0, left: tableView.frame.size.width, bottom: 0, right: 0)
             return userCell
             

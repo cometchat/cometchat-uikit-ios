@@ -42,7 +42,7 @@ class CometChatMessageReactors: UITableViewController {
     
     private func setupTableView() {
         let CometChatUserListItem  = UINib.init(nibName: "CometChatUserListItem", bundle: UIKitSettings.bundle)
-        self.tableView.register(CometChatUserListItem, forCellReuseIdentifier: "userView")
+        self.tableView.register(CometChatUserListItem, forCellReuseIdentifier: "CometChatUserListItem")
         self.tableView.tableFooterView = UIView(frame: .zero)
        
     }
@@ -103,7 +103,7 @@ class CometChatMessageReactors: UITableViewController {
    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let staticCell = UITableViewCell()
-        if let cell = tableView.dequeueReusableCell(withIdentifier: "userView", for: indexPath) as? CometChatUserListItem {
+        if let cell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as? CometChatUserListItem {
             let user = reactors[safe: indexPath.section]?.reactors?[safe:indexPath.row]
             cell.userName.text = user?.name
             cell.userAvatar.set(image: user?.avatar ?? "", with: user?.name ?? "")

@@ -34,7 +34,7 @@ public protocol ConversationListDelegate : AnyObject{
 
 /*  ----------------------------------------------------------------------------------------- */
 
-public class CometChatConversationList: UIViewController {
+public final class CometChatConversationList: UIViewController {
     
     // MARK: - Declaration of Variables
     
@@ -45,7 +45,7 @@ public class CometChatConversationList: UIViewController {
     var filteredConversations: [Conversation] = [Conversation]()
     weak var conversationlistdelegate : ConversationListDelegate?
     var activityIndicator:UIActivityIndicatorView?
-    var searchedText: String = ""
+    lazy var searchedText: String? = ""
     var refreshControl = UIRefreshControl()
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
     
@@ -64,6 +64,7 @@ public class CometChatConversationList: UIViewController {
         self.setupSearchBar()
        
     }
+    
     
     public override func viewWillAppear(_ animated: Bool) {
         self.setupDelegates()
@@ -392,7 +393,7 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CometChatConversationListItem", for: indexPath) as! CometChatConversationListItem
         var conversation: Conversation?
-        cell.searchedText = searchedText
+        cell.searchedText = searchedText ?? ""
         if isSearching() {
             conversation = filteredConversations[safe:indexPath.row]
             
@@ -421,27 +422,30 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     ///   - tableView: The table-view object requesting this information.
     ///   - indexPath: specifies current index for TableViewCell.
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        guard let selectedConversation = tableView.cellForRow(at: indexPath) as? CometChatConversationListItem else{
-            return
-        }
-        switch selectedConversation.conversation?.conversationType {
-        case .user:
-            let convo1: CometChatMessageList = CometChatMessageList()
-            convo1.set(conversationWith: ((selectedConversation.conversation?.conversationWith as? User)!), type: .user)
-            convo1.hidesBottomBarWhenPushed = true
-            navigationController?.pushViewController(convo1, animated: true)
-        case .group:
-            let convo1: CometChatMessageList = CometChatMessageList()
-            convo1.set(conversationWith: ((selectedConversation.conversation?.conversationWith as? Group)!), type: .group)
-            convo1.hidesBottomBarWhenPushed = true
-            navigationController?.pushViewController(convo1, animated: true)
+        
+        
+        if let selectedConversation = tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, let conversation = selectedConversation.conversation ,let user = conversation.conversationWith as? User  {
             
-        case .none: break
-        case .some(.none): break 
-        @unknown default: break
+            selectedConversation.unreadBadgeCount.removeCount()
+            let messageList: CometChatMessageList = CometChatMessageList()
+            messageList.set(conversationWith: user, type: .user)
+            messageList.hidesBottomBarWhenPushed = true
+            navigationController?.pushViewController(messageList, animated: true)
+            
+            conversationlistdelegate?.didSelectConversationAtIndexPath(conversation: conversation, indexPath: indexPath)
+            tableView.deselectRow(at: indexPath, animated: true)
+            
+        }else if let selectedConversation = tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, let conversation = selectedConversation.conversation ,let group = conversation.conversationWith as? Group  {
+            
+            selectedConversation.unreadBadgeCount.removeCount()
+            let messageList: CometChatMessageList = CometChatMessageList()
+            messageList.set(conversationWith: group, type: .group)
+            messageList.hidesBottomBarWhenPushed = true
+            navigationController?.pushViewController(messageList, animated: true)
+            
+            conversationlistdelegate?.didSelectConversationAtIndexPath(conversation: conversation, indexPath: indexPath)
+            tableView.deselectRow(at: indexPath, animated: true)
         }
-        conversationlistdelegate?.didSelectConversationAtIndexPath(conversation: selectedConversation.conversation!, indexPath: indexPath)
     }
 }
 
@@ -489,7 +493,39 @@ extension CometChatConversationList : CometChatMessageDelegate {
      */
     public func onTextMessageReceived(textMessage: TextMessage) {
         DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
-        refreshConversations()
+        
+        if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == textMessage.sender?.uid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
+            let indexPath = IndexPath(row: row, section: 0)
+            DispatchQueue.main.async {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? User)?.uid == textMessage.sender?.uid {
+                    DispatchQueue.main.async {
+                        self.tableView.beginUpdates()
+                        if  let text = textMessage.text as NSString? {
+                            cell.message.attributedText =  cell.addBoldText(fullString: text, boldPartOfString: cell.searchedText as NSString, font: cell.normalSubtitlefont, boldFont: cell.boldSubtitlefont)
+                        }
+                        cell.unreadBadgeCount.incrementCount()
+                        self.tableView.endUpdates()
+                    }
+                }
+            }
+        }else if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == textMessage.receiverUid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
+            let indexPath = IndexPath(row: row, section: 0)
+            DispatchQueue.main.async {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? Group)?.guid == textMessage.receiverUid {
+                    DispatchQueue.main.async {
+                        self.tableView.beginUpdates()
+                        let senderName = textMessage.sender?.name
+                        if  let text = senderName! + ":  " + textMessage.text as NSString? {
+                            cell.message.attributedText =  cell.addBoldText(fullString: text, boldPartOfString: cell.searchedText as NSString, font: cell.normalSubtitlefont, boldFont: cell.boldSubtitlefont)
+                        }
+                        cell.unreadBadgeCount.incrementCount()
+                        self.tableView.endUpdates()
+                    }
+                }
+            }
+        }else {
+            refreshConversations()
+        }
     }
     
     /**
@@ -502,7 +538,55 @@ extension CometChatConversationList : CometChatMessageDelegate {
      */
     public func onMediaMessageReceived(mediaMessage: MediaMessage) {
         DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
-        refreshConversations()
+        
+        if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == mediaMessage.sender?.uid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
+            let indexPath = IndexPath(row: row, section: 0)
+            DispatchQueue.main.async {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? User)?.uid == mediaMessage.sender?.uid {
+                    DispatchQueue.main.async {
+                        self.tableView.beginUpdates()
+                        switch mediaMessage.messageType {
+                        case .text: break
+                        case .image: cell.message.text = "MESSAGE_IMAGE".localized()
+                        case .video: cell.message.text = "MESSAGE_VIDEO".localized()
+                        case .audio: cell.message.text = "MESSAGE_AUDIO".localized()
+                        case .file: cell.message.text =  "MESSAGE_FILE".localized()
+                        case .custom: break
+                        case .groupMember: break
+                        @unknown default: break
+                        }
+                        cell.unreadBadgeCount.incrementCount()
+                        self.tableView.endUpdates()
+                    }
+                }
+            }
+        }else if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == mediaMessage.receiverUid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
+            let indexPath = IndexPath(row: row, section: 0)
+            DispatchQueue.main.async {
+                if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? Group)?.guid == mediaMessage.receiverUid {
+                    DispatchQueue.main.async {
+                        self.tableView.beginUpdates()
+                        if let senderName = mediaMessage.sender?.name {
+                            switch mediaMessage.messageType {
+                            case .text: break
+                            case .image:  cell.message.text = senderName + ": " + "MESSAGE_IMAGE".localized()
+                            case .video:  cell.message.text = senderName + ": " + "MESSAGE_VIDEO".localized()
+                            case .audio:  cell.message.text = senderName + ": " + "MESSAGE_AUDIO".localized()
+                            case .file:   cell.message.text = senderName + ": " + "MESSAGE_FILE".localized()
+                            case .custom: break
+                            case .groupMember: break
+                            @unknown default: break
+                            }
+                        }
+                        
+                        cell.unreadBadgeCount.incrementCount()
+                        self.tableView.endUpdates()
+                    }
+                }
+            }
+        }else {
+            refreshConversations()
+        }
     }
     
     /**

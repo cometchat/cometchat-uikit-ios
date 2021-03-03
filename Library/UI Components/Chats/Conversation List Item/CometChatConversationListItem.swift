@@ -233,7 +233,7 @@ class CometChatConversationListItem: UITableViewCell {
     ///   - boldPartOfString: contains searched text string
     ///   - font: normal font
     ///   - boldFont: bold font
-    private func addBoldText(fullString: NSString, boldPartOfString: NSString, font: UIFont!, boldFont: UIFont!) -> NSAttributedString {
+     func addBoldText(fullString: NSString, boldPartOfString: NSString, font: UIFont!, boldFont: UIFont!) -> NSAttributedString {
         let nonBoldFontAttribute = [NSAttributedString.Key.font:font!]
         let boldFontAttribute = [NSAttributedString.Key.font:boldFont!]
         let boldString = NSMutableAttributedString(string: fullString as String, attributes:nonBoldFontAttribute)

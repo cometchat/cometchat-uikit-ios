@@ -11,6 +11,7 @@
 </br>
 
 
+
 # iOS Chat UI Kit
 
 <p align="left">
@@ -93,7 +94,7 @@ platform :ios, '11.0'
 use_frameworks!
 
 target 'YourApp' do
-     pod 'CometChatPro', '2.2.0'
+     pod 'CometChatPro', '2.2.1'
 end
 ________________________________________________________________
 
