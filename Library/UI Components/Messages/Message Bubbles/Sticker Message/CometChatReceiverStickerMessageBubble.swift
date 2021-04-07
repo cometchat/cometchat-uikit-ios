@@ -54,8 +54,11 @@ class CometChatReceiverStickerMessageBubble: UITableViewCell {
             }
             self.receiptStack.isHidden = true
             timeStamp.text = String().setMessageTime(time: stickerMessage.sentAt)
+       
             if let avatarURL = stickerMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: stickerMessage.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: stickerMessage.sender?.name ?? "")
             }
            
             if stickerMessage.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
@@ -105,6 +108,12 @@ class CometChatReceiverStickerMessageBubble: UITableViewCell {
                  name.text = LoggedInUser.name.capitalized + ":"
             }
             replyButton.isHidden = true
+            if let avatarURL = stickerMessageInThread.sender?.avatar  {
+                avatar.set(image: avatarURL, with: stickerMessageInThread.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: stickerMessageInThread.sender?.name ?? "")
+            }
+           
         }
     }
     

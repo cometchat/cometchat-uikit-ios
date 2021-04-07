@@ -134,9 +134,12 @@ class CometChatCallDetails: UIViewController {
                     progressIndicator.LoadingLabel.text = "Unable to fetch History."
                     self.tableView.reloadRows(at: [indexPath], with: .automatic)
                 }
-                if let errorMessage = error?.errorDescription {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
            
@@ -454,15 +457,17 @@ extension CometChatCallDetails: UITableViewDelegate , UITableViewDataSource {
                         if let user = self.currentUser, let name = user.name {
                             self.set(user: user)
                             DispatchQueue.main.async {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name + " " + "UNBLOCKED_SUCCESSFULLY".localized(), duration: .short)
-                                snackbar.show()
+                                CometChatSnackBoard.display(message: name + " " + "UNBLOCKED_SUCCESSFULLY".localized(), mode: .success, duration: .short)
                             }
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorMessage = error?.errorDescription {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                snackbar.show()
+                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                if errorCode.isLocalized {
+                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                }else{
+                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                }
                             }
                         }
                     }
@@ -473,15 +478,17 @@ extension CometChatCallDetails: UITableViewDelegate , UITableViewDataSource {
                                 self.set(user: user)
                                 let data:[String: String] = ["name": name]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: data)
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name + " " + "BLOCKED_SUCCESSFULLY".localized(), duration: .short)
-                                snackbar.show()
+                                CometChatSnackBoard.display(message: name + " " + "BLOCKED_SUCCESSFULLY".localized(), mode: .success, duration: .short)
                             }
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorMessage = error?.errorDescription {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                snackbar.show()
+                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                if errorCode.isLocalized {
+                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                }else{
+                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                }
                             }
                         }
                       
@@ -495,16 +502,18 @@ extension CometChatCallDetails: UITableViewDelegate , UITableViewDataSource {
                             self.dismiss(animated: true) {
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
                                 let message =  "YOU_LEFT_FROM".localized() + " " +  (self.currentGroup?.name ?? "") + "."
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                                snackbar.show()
+                                CometChatSnackBoard.display(message: message, mode: .success, duration: .short)
                             }
                             
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorMessage = error?.errorDescription {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                snackbar.show()
+                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                if errorCode.isLocalized {
+                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                }else{
+                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                }
                             }
                         }
                        

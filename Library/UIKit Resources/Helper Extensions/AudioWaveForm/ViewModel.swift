@@ -50,7 +50,7 @@ final class ViewModel {
             }
 
             self?.currentAudioRecord = SoundRecord(audioFilePathLocal: url, meteringLevels: [])
-            print("sound record created at url \(url.absoluteString))")
+          
             completion(self?.currentAudioRecord, nil)
         })
     }

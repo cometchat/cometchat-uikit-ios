@@ -51,7 +51,10 @@ class CometChatGroupDetail: UIViewController {
         safeArea = view.layoutMarginsGuide
         self.setupTableView()
         self.setupNavigationBar()
-        self.setupItems()
+//       self.setupItems()
+        if let scope = currentGroup?.scope {
+            self.setupItems(for: scope)
+        }
         self.addObsevers()
         
     }
@@ -127,48 +130,52 @@ class CometChatGroupDetail: UIViewController {
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
-    private func setupItems(){
+    
+    private func setupItems(for role: CometChat.GroupMemberScopeType) {
         settingsItems.removeAll()
         supportItems.removeAll()
         
-        if currentGroup?.scope == .admin || currentGroup?.owner == LoggedInUser.uid || currentGroup?.scope == .moderator {
-            if currentGroup?.scope == .moderator {
-               if UIKitSettings.joinOrLeaveGroup == .enabled {
-                    supportItems = [CometChatGroupDetail.EXIT_CELL]
-                }
-                settingsItems = [CometChatGroupDetail.GROUP_INFO_CELL]
-                if UIKitSettings.allowPromoteDemoteMembers == .enabled {
-                    settingsItems.append(CometChatGroupDetail.MODERATORS_CELL)
-                }
-                if UIKitSettings.allowKickBanMembers == .enabled {
-                    settingsItems.append(CometChatGroupDetail.BANNED_MEMBER_CELL)
-                }
-            }else {
-                settingsItems = [CometChatGroupDetail.GROUP_INFO_CELL]
-                if UIKitSettings.allowPromoteDemoteMembers == .enabled {
-                    settingsItems.append(CometChatGroupDetail.ADMINISTRATOR_CELL)
-                    settingsItems.append(CometChatGroupDetail.MODERATORS_CELL)
-                }
-                
-                if UIKitSettings.joinOrLeaveGroup == .enabled {
-                    supportItems = [CometChatGroupDetail.EXIT_CELL]
-                }
-                
-                if UIKitSettings.allowDeleteGroup == .enabled {
-                    supportItems = [CometChatGroupDetail.DELETE_AND_EXIT_CELL]
-                }
-            }
-        }else{
-            settingsItems = [CometChatGroupDetail.GROUP_INFO_CELL]
-            if UIKitSettings.joinOrLeaveGroup == .enabled {
-                supportItems = [CometChatGroupDetail.EXIT_CELL]
-            }
-        }
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
+        settingsItems.append(CometChatGroupDetail.GROUP_INFO_CELL)
         
+        switch role {
+       
+        case .admin:
+            
+            if UIKitSettings.allowPromoteDemoteMembers == .enabled {
+                settingsItems.append(CometChatGroupDetail.ADMINISTRATOR_CELL)
+                settingsItems.append(CometChatGroupDetail.MODERATORS_CELL)
+            }
+            if UIKitSettings.allowKickBanMembers == .enabled {
+                settingsItems.append(CometChatGroupDetail.BANNED_MEMBER_CELL)
+            }
+            if UIKitSettings.allowDeleteGroup == .enabled {
+                supportItems.append(CometChatGroupDetail.DELETE_AND_EXIT_CELL)
+            }
+            if UIKitSettings.joinOrLeaveGroup == .enabled {
+                supportItems.append(CometChatGroupDetail.EXIT_CELL)
+            }
+            
+        case .moderator:
+            
+            if UIKitSettings.allowPromoteDemoteMembers == .enabled {
+                settingsItems.append(CometChatGroupDetail.MODERATORS_CELL)
+            }
+            if UIKitSettings.allowKickBanMembers == .enabled {
+                settingsItems.append(CometChatGroupDetail.BANNED_MEMBER_CELL)
+            }
+            if UIKitSettings.joinOrLeaveGroup == .enabled {
+                supportItems.append(CometChatGroupDetail.EXIT_CELL)
+            }
+            
+        case .participant:
+            
+            if UIKitSettings.joinOrLeaveGroup == .enabled {
+                supportItems.append(CometChatGroupDetail.EXIT_CELL)
+            }
+        @unknown default: break }
+        DispatchQueue.main.async { self.tableView.reloadData() }
     }
+
     
     /**
      This method setup the tableview to load CometChatGroupDetail.
@@ -228,12 +235,15 @@ class CometChatGroupDetail: UIViewController {
     private func getGroup(group: Group){
         CometChat.getGroup(GUID: group.guid, onSuccess: { (group) in
             self.currentGroup = group
-            self.setupItems()
+            self.setupItems(for: group.scope)
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
         }
@@ -255,9 +265,12 @@ class CometChatGroupDetail: UIViewController {
             DispatchQueue.main.async {self.tableView.reloadData() }
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
         })
@@ -270,9 +283,12 @@ class CometChatGroupDetail: UIViewController {
             DispatchQueue.main.async { self.tableView.reloadData() }
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
          })
@@ -303,9 +319,12 @@ class CometChatGroupDetail: UIViewController {
                 }
             }, onError: { (error) in
                 DispatchQueue.main.async {
-                    if let errorMessage = error?.errorDescription {
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                        snackbar.show()
+                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                        if errorCode.isLocalized {
+                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                        }else{
+                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                        }
                     }
                 }
             })
@@ -415,17 +434,9 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
         switch section {
         case 0: return settingsItems.count
         case 1:
-            if UIKitSettings.allowAddMembers == .enabled {
-                return 1
-            }else {
-               return 0
-            }
+            if UIKitSettings.allowAddMembers == .enabled { return 1 }else { return 0 }
         case 2:
-            if UIKitSettings.viewGroupMembers == .enabled {
-                 return members.count
-            }else {
-               return 0
-            }
+            if UIKitSettings.viewGroupMembers == .enabled { return members.count } else {  return 0 }
         case 3: return supportItems.count
         case 4:
             if UIKitSettings.viewShareMedia == .enabled { return 1 } else { return 0 }
@@ -596,14 +607,16 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                                 }
                                 let message = (selectedCell.member?.name ?? "") + " " + "REMOVED_SUCCESSFULLY".localized()
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                                snackbar.show()
+                                CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                             }
                         }) { (error) in
                             DispatchQueue.main.async {
-                                if let errorMessage = error?.errorDescription {
-                                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                    snackbar.show()
+                                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                    if errorCode.isLocalized {
+                                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                    }else{
+                                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                    }
                                 }
                             }
                         }
@@ -616,14 +629,16 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                                 }
                                 let message = (selectedCell.member?.name ?? "") + " " + "BANNED_SUCCESSFULLY".localized()
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                                snackbar.show()
+                                CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                             }
                         }) { (error) in
                             DispatchQueue.main.async {
-                                if let errorMessage = error?.errorDescription {
-                                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                    snackbar.show()
+                                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                    if errorCode.isLocalized {
+                                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                    }else{
+                                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                    }
                                 }
                             }
                         }
@@ -647,48 +662,87 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             switch supportItems[safe:indexPath.row] {
             case CometChatGroupDetail.DELETE_AND_EXIT_CELL:
                 
-                if let guid = currentGroup?.guid {
-                    CometChat.deleteGroup(GUID: guid, onSuccess: { (success) in
-                        DispatchQueue.main.async {
-                            self.dismiss(animated: true) {
-                                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
+                let alert = UIAlertController(title: "WARNING".localized(), message: "USER_DELETE_GROUP_WARNING".localized(), preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK".localized(), style: .default, handler: { (action: UIAlertAction!) in
+                    if let guid = self.currentGroup?.guid {
+                        CometChat.deleteGroup(GUID: guid, onSuccess: { (success) in
+                            DispatchQueue.main.async {
+                                self.dismiss(animated: true) {
+                                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
+                                    let message = (self.currentGroup?.name ?? "") + " " + "DELETED_SUCCESSFULLY".localized()
+                                    CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
+                                  
+                                }
+                                
                             }
-                            let message = (self.currentGroup?.name ?? "") + " " + "DELETED_SUCCESSFULLY".localized()
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                            snackbar.show()
-                        }
-                    }) { (error) in
-                        DispatchQueue.main.async {
-                            if let errorMessage = error?.errorDescription {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                snackbar.show()
+                        }) { (error) in
+                            DispatchQueue.main.async {
+                                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                    if errorCode.isLocalized {
+                                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                    }else{
+                                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                    }
+                                }
                             }
                         }
                     }
-                }
+            }))
+                alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { (action: UIAlertAction!) in
+            }))
+            present(alert, animated: true, completion: nil)
+                
+              
                 
             case CometChatGroupDetail.EXIT_CELL:
                 
                 if let guid = currentGroup?.guid {
                     
-                    CometChat.leaveGroup(GUID: guid, onSuccess: { (success) in
+                    if currentGroup?.owner == LoggedInUser.uid {
+                        let alert = UIAlertController(title: "WARNING".localized(), message: "TRANSFER_OWNERSHIP_MESSAGE".localized(), preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "TRANSFER_OWNERSHIP".localized(), style: .default, handler: { (action: UIAlertAction!) in
+                            DispatchQueue.main.async {
+                                let transferOwnership = CometChatTransferOwnership()
+                                guard let group = self.currentGroup else { return }
+                                transferOwnership.set(group: group)
+                                let navigationController: UINavigationController = UINavigationController(rootViewController: transferOwnership)
+                                self.present(navigationController, animated: true, completion: nil)
+                            }
+                    }))
+                        alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { (action: UIAlertAction!) in
+                    }))
+                    present(alert, animated: true, completion: nil)
                         
-                        DispatchQueue.main.async {
-                            self.dismiss(animated: true) {
-                                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
-                                let message =  "YOU_LEFT_FROM".localized() + " " +  (self.currentGroup?.name ?? "") + "."
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                                snackbar.show()
+                    }else{
+                        let alert = UIAlertController(title: "WARNING".localized(), message: "USER_LEAVE_GROUP_WARNING".localized(), preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK".localized(), style: .default, handler: { (action: UIAlertAction!) in
+                            if let guid = self.currentGroup?.guid {
+                                CometChat.leaveGroup(GUID: guid, onSuccess: { (success) in
+                                    
+                                    DispatchQueue.main.async {
+                                        self.dismiss(animated: true) {
+                                            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
+                                            let message =  "YOU_LEFT_FROM".localized() + " " +  (self.currentGroup?.name ?? "") + "."
+                                            CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
+                                        }
+                                        
+                                    }
+                                }) { (error) in
+                                    DispatchQueue.main.async {
+                                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                            if errorCode.isLocalized {
+                                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                            }else{
+                                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                            
-                        }
-                    }) { (error) in
-                        DispatchQueue.main.async {
-                            if let errorMessage = error?.errorDescription {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                snackbar.show()
-                            }
-                        }
+                    }))
+                        alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { (action: UIAlertAction!) in
+                    }))
+                    present(alert, animated: true, completion: nil)
                     }
                 }
             default:break }
@@ -716,14 +770,16 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                             }
                             let message = (selectedCell.member?.name ?? "") + " " + "REMOVED_SUCCESSFULLY".localized()
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                            snackbar.show()
+                            CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorMessage = error?.errorDescription {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                snackbar.show()
+                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                if errorCode.isLocalized {
+                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                }else{
+                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                }
                             }
                         }
                     }
@@ -738,14 +794,16 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                             }
                             let message = (selectedCell.member?.name ?? "") + " " + "BANNED_SUCCESSFULLY".localized()
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                            snackbar.show()
+                            CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorMessage = error?.errorDescription {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                snackbar.show()
+                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                if errorCode.isLocalized {
+                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                }else{
+                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                }
                             }
                         }
                     }
@@ -954,17 +1012,15 @@ extension CometChatGroupDetail: QLPreviewControllerDataSource, QLPreviewControll
         if FileManager.default.fileExists(atPath: destinationUrl.path) {
             completion(true, destinationUrl)
         } else {
-            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Downloading...", duration: .forever)
-            snackbar.animationType = .slideFromBottomToTop
-            snackbar.show()
+            CometChatSnackBoard.show(message: "Downloading...")
             URLSession.shared.downloadTask(with: itemUrl!, completionHandler: { (location, response, error) -> Void in
                 guard let tempLocation = location, error == nil else { return }
                 do {
-                    snackbar.dismiss()
+                    CometChatSnackBoard.hide()
                     try FileManager.default.moveItem(at: tempLocation, to: destinationUrl)
                     completion(true, destinationUrl)
                 } catch let error as NSError {
-                    snackbar.dismiss()
+                    CometChatSnackBoard.hide()
                     completion(false, nil)
                 }
             }).resume()

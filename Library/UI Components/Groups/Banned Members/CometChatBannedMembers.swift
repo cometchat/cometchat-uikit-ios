@@ -240,9 +240,12 @@ public class CometChatBannedMembers: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                     let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                      snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
         })
@@ -317,16 +320,17 @@ extension CometChatBannedMembers: UITableViewDelegate , UITableViewDataSource {
                             DispatchQueue.main.async {
                             self.fetchBannedMembers(for: self.currentGroup!)
                             let message =  (member.name ?? "") + " " + "UNBANNED_SUCCESSFULLY".localized()
-                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                            snackbar.show()
+                            CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: nil)
                             }
                         }) { (error) in
                             DispatchQueue.main.async {
-                                if let errorMessage = error?.errorDescription {
-                            
-                                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                        snackbar.show()
+                                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                    if errorCode.isLocalized {
+                                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                    }else{
+                                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                    }
                                 }
                             }
                         }
@@ -355,16 +359,17 @@ extension CometChatBannedMembers: UITableViewDelegate , UITableViewDataSource {
                                 DispatchQueue.main.async {
                                 self.fetchBannedMembers(for: self.currentGroup!)
                                 let message =  (member.name ?? "") + " " + "UNBANNED_SUCCESSFULLY".localized()
-                                 let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                                snackbar.show()
+                                CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: nil)
                                 }
                             }) { (error) in
                                 DispatchQueue.main.async {
-                                    if let errorMessage = error?.errorDescription {
-                                
-                                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                            snackbar.show()
+                                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                        if errorCode.isLocalized {
+                                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                        }else{
+                                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                        }
                                     }
                                 }
                             }

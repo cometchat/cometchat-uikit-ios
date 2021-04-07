@@ -65,6 +65,7 @@ public final class CometChatConversationList: UIViewController {
        
     }
     
+ 
     
     public override func viewWillAppear(_ animated: Bool) {
         self.setupDelegates()
@@ -141,12 +142,14 @@ public final class CometChatConversationList: UIViewController {
             }
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                   let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                   snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
-          
         }
     }
     
@@ -177,10 +180,13 @@ public final class CometChatConversationList: UIViewController {
                    self.tableView.tableFooterView?.isHidden = true}
            }) { (error) in
                DispatchQueue.main.async {
-                   if let errorMessage = error?.errorDescription {
-                       let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                       snackbar.show()
-                   }
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
+                }
                }
               
            }
@@ -194,6 +200,7 @@ public final class CometChatConversationList: UIViewController {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     private  func setupDelegates(){
+        CometChat.connectiondelegate = self
         CometChat.messagedelegate = self
         CometChat.userdelegate = self
         CometChat.groupdelegate = self
@@ -500,9 +507,9 @@ extension CometChatConversationList : CometChatMessageDelegate {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? User)?.uid == textMessage.sender?.uid {
                     DispatchQueue.main.async {
                         self.tableView.beginUpdates()
-                        if  let text = textMessage.text as NSString? {
-                            cell.message.attributedText =  cell.addBoldText(fullString: text, boldPartOfString: cell.searchedText as NSString, font: cell.normalSubtitlefont, boldFont: cell.boldSubtitlefont)
-                        }
+                        cell.parseProfanityFilter(forMessage: textMessage)
+                        cell.parseMaskedData(forMessage: textMessage)
+                        cell.parseSentimentAnalysis(forMessage: textMessage)
                         cell.unreadBadgeCount.incrementCount()
                         self.tableView.endUpdates()
                     }
@@ -514,10 +521,9 @@ extension CometChatConversationList : CometChatMessageDelegate {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? Group)?.guid == textMessage.receiverUid {
                     DispatchQueue.main.async {
                         self.tableView.beginUpdates()
-                        let senderName = textMessage.sender?.name
-                        if  let text = senderName! + ":  " + textMessage.text as NSString? {
-                            cell.message.attributedText =  cell.addBoldText(fullString: text, boldPartOfString: cell.searchedText as NSString, font: cell.normalSubtitlefont, boldFont: cell.boldSubtitlefont)
-                        }
+                        cell.parseProfanityFilter(forMessage: textMessage)
+                        cell.parseMaskedData(forMessage: textMessage)
+                        cell.parseSentimentAnalysis(forMessage: textMessage)
                         cell.unreadBadgeCount.incrementCount()
                         self.tableView.endUpdates()
                     }
@@ -868,3 +874,31 @@ extension CometChatConversationList : CometChatGroupDelegate {
 }
 
 /*  ----------------------------------------------------------------------------------------- */
+
+extension CometChatConversationList: CometChatConnectionDelegate {
+    
+    public func connecting() {
+        DispatchQueue.main.async {
+            CometChatSnackBoard.show(message: "Connecting...")
+        }
+    }
+    
+    public func connected() {
+        DispatchQueue.main.async {
+            CometChatSnackBoard.show(message: "Connected", mode: .success, duration: .forever)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            CometChatSnackBoard.hide()
+            self.refreshConversations()
+        }
+    }
+    
+    public func disconnected() {
+        DispatchQueue.main.async {
+            CometChatSnackBoard.show(message: "Disconnected", mode: .error, duration: .forever)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            CometChatSnackBoard.hide()
+        }
+    }
+}

@@ -169,9 +169,12 @@ public class CometChatUserList: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                  let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
          }
@@ -226,9 +229,12 @@ public class CometChatUserList: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                  let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
         }
@@ -544,6 +550,9 @@ extension CometChatUserList : UISearchBarDelegate, UISearchResultsUpdating {
         userRequest?.fetchNext(onSuccess: { (users) in
             if users.count != 0 {
                 self.filteredUsers = users
+                DispatchQueue.main.async(execute: {self.tableView.reloadData()})
+            }else{
+                self.filteredUsers = []
                 DispatchQueue.main.async(execute: {self.tableView.reloadData()})
             }
         }) { (error) in

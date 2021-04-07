@@ -43,8 +43,8 @@ import CometChatPro
     @objc public func makeCall(call: CometChat.CallType, to: AppEntity){
         if let user = to as? User {
             if user.blockedByMe == true {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Kindly, unblock the user to make a call.", duration: .short)
-                    snackbar.show()
+                CometChatSnackBoard.display(message: "UNBLOCK_USER_MESSAGE".localized(), mode: .error, duration: .short)
+                    
             }else{
                 DispatchQueue.main.async {
                     let outgoingCall = CometChatOutgoingCall()
@@ -96,8 +96,7 @@ import CometChatPro
 //  MARK: - CometChatCallDelegate Methods (For Swift Project)
 //
 //  Since, Objective C dosen't extend Appdelegate, kindly register for `CometChatCallDelegate` in AppDelegate and add those methods in AppDelegate.
-
-
+@available(iOS 11, *)
 extension AppDelegate : CometChatCallDelegate {
 
     /**

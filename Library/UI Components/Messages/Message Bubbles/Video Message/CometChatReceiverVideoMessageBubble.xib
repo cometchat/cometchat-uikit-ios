@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -136,32 +136,19 @@
                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                         <state key="normal" title="Reply"/>
                         <connections>
-                            <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="JGG-Xq-nwI"/>
+                            <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="hps-2l-tdO"/>
                         </connections>
                     </button>
-                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lRG-kq-aOv">
-                        <rect key="frame" x="38" y="0.0" width="250" height="180"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                <integer key="value" value="15"/>
-                            </userDefinedRuntimeAttribute>
-                        </userDefinedRuntimeAttributes>
-                    </view>
                 </subviews>
                 <constraints>
                     <constraint firstAttribute="bottom" secondItem="dqz-0h-F2f" secondAttribute="bottom" constant="3" id="3Sb-cC-E9e"/>
-                    <constraint firstItem="lRG-kq-aOv" firstAttribute="leading" secondItem="44x-Mi-r94" secondAttribute="leading" id="E63-zZ-Jif"/>
                     <constraint firstAttribute="trailing" secondItem="dqz-0h-F2f" secondAttribute="trailing" id="ISo-xp-rTK"/>
-                    <constraint firstItem="QIb-1N-dmp" firstAttribute="centerY" secondItem="lRG-kq-aOv" secondAttribute="centerY" id="VPp-Kg-ThY"/>
-                    <constraint firstItem="lRG-kq-aOv" firstAttribute="top" secondItem="44x-Mi-r94" secondAttribute="top" id="ZN5-CJ-LQo"/>
-                    <constraint firstItem="lRG-kq-aOv" firstAttribute="trailing" secondItem="44x-Mi-r94" secondAttribute="trailing" id="aOF-Rz-85g"/>
                     <constraint firstItem="dqz-0h-F2f" firstAttribute="leading" secondItem="nh5-Fy-nN1" secondAttribute="trailing" constant="3" id="cSR-AP-6Pp"/>
                     <constraint firstItem="B6C-V2-6pM" firstAttribute="bottom" secondItem="44x-Mi-r94" secondAttribute="bottom" id="fAR-aj-ylc"/>
+                    <constraint firstItem="QIb-1N-dmp" firstAttribute="centerY" secondItem="44x-Mi-r94" secondAttribute="centerY" id="fEQ-Bw-kgd"/>
                     <constraint firstItem="nh5-Fy-nN1" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="jnS-5w-aIh"/>
-                    <constraint firstItem="QIb-1N-dmp" firstAttribute="centerX" secondItem="lRG-kq-aOv" secondAttribute="centerX" id="mhg-n2-dLL"/>
                     <constraint firstItem="dqz-0h-F2f" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="s2C-Da-hiY"/>
-                    <constraint firstItem="lRG-kq-aOv" firstAttribute="bottom" secondItem="44x-Mi-r94" secondAttribute="bottom" id="sIQ-wV-Lfh"/>
+                    <constraint firstItem="QIb-1N-dmp" firstAttribute="centerX" secondItem="44x-Mi-r94" secondAttribute="centerX" id="tSa-Jr-fPL"/>
                     <constraint firstItem="B6C-V2-6pM" firstAttribute="leading" secondItem="44x-Mi-r94" secondAttribute="trailing" constant="5" id="tYM-jS-cIu"/>
                     <constraint firstItem="nh5-Fy-nN1" firstAttribute="bottom" secondItem="44x-Mi-r94" secondAttribute="bottom" id="uSk-yN-KvX"/>
                 </constraints>
@@ -177,7 +164,6 @@
                 <outlet property="receiptStack" destination="aEX-q6-p6s" id="YbZ-dq-TMl"/>
                 <outlet property="replybutton" destination="B6C-V2-6pM" id="VDm-SE-Fxg"/>
                 <outlet property="timeStamp" destination="klY-Bu-y4G" id="tTe-Zj-CEX"/>
-                <outlet property="tintedView" destination="lRG-kq-aOv" id="aL7-EN-snt"/>
             </connections>
             <point key="canvasLocation" x="222" y="96"/>
         </tableViewCell>
