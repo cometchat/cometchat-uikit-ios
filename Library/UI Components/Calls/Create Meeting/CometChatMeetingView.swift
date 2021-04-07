@@ -16,7 +16,7 @@ class CometChatMeetingView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        print("CometChatMeetingView viewDidLoad")
+     
         
     }
     
@@ -40,7 +40,7 @@ class CometChatMeetingView: UIViewController {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }
 
-                let callSettings = CallSettings.CallSettingsBuilder(callView: strongSelf.customView, sessionId: sessionID).setAudioOnlyCall(audioOnly: false).build()
+                let callSettings = CallSettings.CallSettingsBuilder(callView: strongSelf.customView, sessionId: sessionID).setAudioOnlyCall(audioOnly: false).startWithAudioMuted(audioMuted: false).build()
                 
                 CometChat.startCall(callSettings: callSettings, userJoined: { (userJoined) in
                     DispatchQueue.main.async {
@@ -56,18 +56,19 @@ class CometChatMeetingView: UIViewController {
                             snackbar.show()
                         }
                     }
-                }, onError: { (error) in
-                    DispatchQueue.main.async {
-                        
-                        strongSelf.dismiss(animated: true, completion: nil)
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Unable to start call.", duration: .short)
-                        snackbar.show()
+                }, userListUpdated: {(userListUpdated) in }, onError: { (error) in
+                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                        if errorCode.isLocalized {
+                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                        }else{
+                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                        }
                     }
                 }) { (ended) in
                     DispatchQueue.main.async {
-                        strongSelf.dismiss(animated: true, completion: nil)
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_ENDED".localized(), duration: .short)
-                        snackbar.show()
+                        strongSelf.dismiss(animated: true) {
+                            CometChatSnackBoard.display(message: "CALL_ENDED".localized(), mode: .info, duration: .short)
+                        }
                     }
                 }
             }
@@ -75,7 +76,7 @@ class CometChatMeetingView: UIViewController {
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }
                 
-                let callSettings = CallSettings.CallSettingsBuilder(callView: strongSelf.customView, sessionId: sessionID).setAudioOnlyCall(audioOnly: false).build()
+                let callSettings = CallSettings.CallSettingsBuilder(callView: strongSelf.customView, sessionId: sessionID).setAudioOnlyCall(audioOnly: false).startWithVideoMuted(videoMuted: false).startWithAudioMuted(audioMuted: false).build()
                 
                 CometChat.startCall(callSettings: callSettings, userJoined: { (userJoined) in
                     DispatchQueue.main.async {
@@ -91,21 +92,28 @@ class CometChatMeetingView: UIViewController {
                             snackbar.show()
                         }
                     }
+                }, userListUpdated: {(userListUpdated) in
+                    
                 }, onError: { (error) in
                     DispatchQueue.main.async {
-                        
                         strongSelf.view.removeFromSuperview()
                         strongSelf.dismiss(animated: true, completion: nil)
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Unable to start call.", duration: .short)
-                        snackbar.show()
+                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                            if errorCode.isLocalized {
+                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                            }else{
+                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                            }
+                        }
                     }
                 }) { (callEnded) in
                     DispatchQueue.main.async {
                        
                         strongSelf.view.removeFromSuperview()
-                        strongSelf.dismiss(animated: true, completion: nil)
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "CALL_ENDED".localized(), duration: .short)
-                        snackbar.show()
+                        
+                            strongSelf.dismiss(animated: true) {
+                                CometChatSnackBoard.display(message: "CALL_ENDED".localized(), mode: .info, duration: .short)
+                            }
                     }
                 }
             }

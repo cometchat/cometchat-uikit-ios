@@ -97,9 +97,11 @@ class CometChatReceiverMeetingMessageBubble: UITableViewCell {
             
             timeStamp.text = String().setMessageTime(time: Int(meetingMessage.sentAt ?? 0))
             
-            if let avatarURL = meetingMessage.sender?.avatar  {
-                avatar.set(image: avatarURL, with: meetingMessage.sender?.name ?? "")
-            }
+                if let avatarURL = meetingMessage.sender?.avatar  {
+                    avatar.set(image: avatarURL, with: meetingMessage.sender?.name ?? "")
+                }else{
+                    avatar.set(image: "", with: meetingMessage.sender?.name ?? "")
+                }
             
             if meetingMessage.replyCount != 0  &&  UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false

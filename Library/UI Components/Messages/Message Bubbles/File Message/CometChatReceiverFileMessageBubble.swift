@@ -68,6 +68,8 @@ class CometChatReceiverFileMessageBubble: UITableViewCell {
             }
             if let avatarURL = fileMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: fileMessage.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: fileMessage.sender?.name ?? "")
             }
             
             if fileMessage?.replyCount != 0  &&  UIKitSettings.threadedChats == .enabled {
@@ -122,6 +124,11 @@ class CometChatReceiverFileMessageBubble: UITableViewCell {
                  name.text = LoggedInUser.name.capitalized + ":"
             }
             replybutton.isHidden = true
+            if let avatarURL = fileMessageInThread.sender?.avatar  {
+                avatar.set(image: avatarURL, with: fileMessageInThread.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: fileMessageInThread.sender?.name ?? "")
+            }
         }
     }
 

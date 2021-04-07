@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -56,27 +56,12 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </view>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="play.png" translatesAutoresizingMaskIntoConstraints="NO" id="X0F-8m-dRX">
-                                        <rect key="frame" x="97" y="62" width="56" height="56"/>
-                                    </imageView>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mbq-Sj-A2c">
-                                        <rect key="frame" x="-40" y="152" width="35" height="28"/>
-                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
-                                        <state key="normal" title="Reply"/>
-                                        <connections>
-                                            <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="b2V-0i-YcK"/>
-                                        </connections>
-                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstItem="xEA-H6-jk8" firstAttribute="leading" secondItem="Mbq-Sj-A2c" secondAttribute="trailing" constant="5" id="4oh-2X-PgL"/>
                                     <constraint firstAttribute="trailing" secondItem="c0Q-td-X1s" secondAttribute="trailing" constant="20" id="EHa-G3-MSY"/>
                                     <constraint firstItem="xEA-H6-jk8" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" id="KvZ-gv-Jd6"/>
-                                    <constraint firstItem="Mbq-Sj-A2c" firstAttribute="bottom" secondItem="xEA-H6-jk8" secondAttribute="bottom" id="XvD-nY-9Td"/>
-                                    <constraint firstItem="X0F-8m-dRX" firstAttribute="centerY" secondItem="xEA-H6-jk8" secondAttribute="centerY" id="gey-vl-aFV"/>
                                     <constraint firstAttribute="bottom" secondItem="xEA-H6-jk8" secondAttribute="bottom" id="kGV-1T-dbo"/>
-                                    <constraint firstItem="X0F-8m-dRX" firstAttribute="centerX" secondItem="xEA-H6-jk8" secondAttribute="centerX" id="vv9-KP-aT5"/>
                                     <constraint firstItem="c0Q-td-X1s" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="top" constant="20" id="wvD-Nh-Xlz"/>
                                     <constraint firstAttribute="trailing" secondItem="xEA-H6-jk8" secondAttribute="trailing" id="wyN-mA-ioJ"/>
                                 </constraints>
@@ -147,12 +132,36 @@
                             <constraint firstItem="Phu-Z4-jLg" firstAttribute="leading" secondItem="chB-ix-hEc" secondAttribute="leading" id="qtc-vY-iok"/>
                         </constraints>
                     </stackView>
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mbq-Sj-A2c">
+                        <rect key="frame" x="286" y="152" width="35" height="28"/>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
+                        <state key="normal" title="Reply"/>
+                        <connections>
+                            <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="b2V-0i-YcK"/>
+                        </connections>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="P2g-sz-ZAn">
+                        <rect key="frame" x="423" y="62" width="56" height="56"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="56" id="CbY-2r-frm"/>
+                            <constraint firstAttribute="width" constant="56" id="u8O-hf-wO6"/>
+                        </constraints>
+                        <state key="normal" image="play.png"/>
+                        <connections>
+                            <action selector="didPlayButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="fEn-E5-uCl"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="chB-ix-hEc" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="3vH-Wr-nJ2"/>
                     <constraint firstItem="chB-ix-hEc" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="8kf-io-G70"/>
                     <constraint firstAttribute="bottom" secondItem="chB-ix-hEc" secondAttribute="bottom" constant="3" id="BY9-90-eGh"/>
+                    <constraint firstItem="xEA-H6-jk8" firstAttribute="leading" secondItem="Mbq-Sj-A2c" secondAttribute="trailing" constant="5" id="H9R-xS-0Ez"/>
                     <constraint firstAttribute="trailing" secondItem="chB-ix-hEc" secondAttribute="trailing" constant="15" id="OcC-iJ-31f"/>
+                    <constraint firstItem="P2g-sz-ZAn" firstAttribute="centerY" secondItem="q6r-Il-FVP" secondAttribute="centerY" id="Qdh-Xt-gQB"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="P2g-sz-ZAn" secondAttribute="trailing" constant="92" id="jAi-r9-xgX"/>
+                    <constraint firstItem="Mbq-Sj-A2c" firstAttribute="bottom" secondItem="xEA-H6-jk8" secondAttribute="bottom" id="sjP-Tc-qtW"/>
+                    <constraint firstItem="P2g-sz-ZAn" firstAttribute="centerX" secondItem="q6r-Il-FVP" secondAttribute="centerX" id="v3q-18-gNw"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
@@ -164,6 +173,7 @@
                 <outlet property="receiptStack" destination="QFW-D7-Jho" id="FAS-xc-d1O"/>
                 <outlet property="replybutton" destination="Mbq-Sj-A2c" id="3u7-Zd-4Fe"/>
                 <outlet property="timeStamp" destination="cDA-gL-hf8" id="d5J-tj-3S9"/>
+                <outlet property="videoView" destination="q6r-Il-FVP" id="j8H-G2-CY7"/>
             </connections>
             <point key="canvasLocation" x="-28.260869565217394" y="108.48214285714285"/>
         </tableViewCell>

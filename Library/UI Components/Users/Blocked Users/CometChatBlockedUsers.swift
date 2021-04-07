@@ -175,10 +175,13 @@ class CometChatBlockedUsers: UIViewController {
             
         }, onError: { (error) in
             DispatchQueue.main.async {
-                    if let errorMessage = error?.errorDescription {
-                       let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                        snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
                     }
+                }
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true
             }
@@ -274,17 +277,19 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
                         tableView.deleteRows(at: [indexPath], with: .fade)
                         
                         if let name = selectedCell.user?.name {
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name)" + " " + "UNBLOCKED_SUCCESSFULLY".localized(), duration: .short)
-                            snackbar.show()
+                            CometChatSnackBoard.display(message: "\(name)" + " " + "UNBLOCKED_SUCCESSFULLY".localized(), mode: .success, duration: .short)
                         }
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: ["count": "\(self.blockedUsers.count)"])
                         
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
-                        if let errorMessage = error?.errorDescription {
-                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                             snackbar.show()
+                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                            if errorCode.isLocalized {
+                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                            }else{
+                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                            }
                         }
                     }
                 }

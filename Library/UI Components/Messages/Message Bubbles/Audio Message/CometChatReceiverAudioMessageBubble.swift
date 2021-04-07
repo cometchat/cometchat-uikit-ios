@@ -69,6 +69,8 @@ class CometChatReceiverAudioMessageBubble: UITableViewCell {
             }
             if let avatarURL = audioMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: audioMessage.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: audioMessage.sender?.name ?? "")
             }
             
             if audioMessage?.replyCount != 0 && UIKitSettings.threadedChats == .enabled {
@@ -109,6 +111,8 @@ class CometChatReceiverAudioMessageBubble: UITableViewCell {
             }
             if let avatarURL = audioMessageinThread.sender?.avatar  {
                 avatar.set(image: avatarURL, with: audioMessageinThread.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: audioMessageinThread.sender?.name ?? "")
             }
             
             if audioMessageinThread.readAt > 0 {

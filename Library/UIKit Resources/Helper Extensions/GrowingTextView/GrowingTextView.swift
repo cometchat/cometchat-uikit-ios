@@ -404,7 +404,7 @@ extension GrowingTextView {
 
         // Continuous multiple "\r\n" get an infinity caret rect, set it as the content offset will result in crash.
         guard caretY != CGFloat.infinity && caretY != CGFloat.greatestFiniteMagnitude else {
-            print("Invalid caretY: \(caretY)")
+      
             return
         }
 

@@ -87,15 +87,13 @@ class CometChatCollaborativeView: UIViewController , WKNavigationDelegate {
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         
-      
-        let snackbar = CometChatSnackbar(message: error.localizedDescription, duration: .short)
-        snackbar.show()
+            CometChatSnackBoard.display(message: error.localizedDescription, mode: .error, duration: .short)
+        
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
      
-        let snackbar = CometChatSnackbar(message: error.localizedDescription, duration: .short)
-        snackbar.show()
+        CometChatSnackBoard.display(message: error.localizedDescription, mode: .error, duration: .short)
     }
     
     func webView(_: WKWebView, didStartProvisionalNavigation _: WKNavigation!) {

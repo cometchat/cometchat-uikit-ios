@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -34,15 +34,6 @@
                             </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
                     </imageView>
-                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S9F-LR-9j4">
-                        <rect key="frame" x="293" y="152" width="35" height="28"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
-                        <state key="normal" title="Reply"/>
-                        <connections>
-                            <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="Ml5-yf-Iol"/>
-                        </connections>
-                    </button>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="dqz-0h-F2f">
                         <rect key="frame" x="38" y="0.0" width="354" height="243.5"/>
                         <subviews>
@@ -140,6 +131,14 @@
                     <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="unsafeContent.png" translatesAutoresizingMaskIntoConstraints="NO" id="LeB-qK-hMr">
                         <rect key="frame" x="115" y="54.5" width="96" height="71"/>
                     </imageView>
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S9F-LR-9j4">
+                        <rect key="frame" x="293" y="152" width="35" height="28"/>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
+                        <state key="normal" title="Reply"/>
+                        <connections>
+                            <action selector="didReplyButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="Ml5-yf-Iol"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstAttribute="bottom" secondItem="dqz-0h-F2f" secondAttribute="bottom" constant="3" id="3Sb-cC-E9e"/>
@@ -151,8 +150,10 @@
                     <constraint firstItem="LeB-qK-hMr" firstAttribute="centerX" secondItem="98G-Zi-rpU" secondAttribute="centerX" id="gBX-Ae-Tpj"/>
                     <constraint firstItem="nh5-Fy-nN1" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="jnS-5w-aIh"/>
                     <constraint firstAttribute="trailing" secondItem="dqz-0h-F2f" secondAttribute="trailing" id="mJb-47-b2E"/>
+                    <constraint firstItem="S9F-LR-9j4" firstAttribute="leading" secondItem="98G-Zi-rpU" secondAttribute="trailing" constant="5" id="qge-Zf-faM"/>
                     <constraint firstItem="dqz-0h-F2f" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="s2C-Da-hiY"/>
                     <constraint firstItem="nh5-Fy-nN1" firstAttribute="bottom" secondItem="44x-Mi-r94" secondAttribute="bottom" id="uSk-yN-KvX"/>
+                    <constraint firstItem="S9F-LR-9j4" firstAttribute="bottom" secondItem="98G-Zi-rpU" secondAttribute="bottom" id="wj7-ok-wKj"/>
                     <constraint firstItem="98G-Zi-rpU" firstAttribute="bottom" secondItem="44x-Mi-r94" secondAttribute="bottom" id="yiR-Qo-uTH"/>
                 </constraints>
             </tableViewCellContentView>
@@ -165,7 +166,7 @@
                 <outlet property="nameView" destination="Y4Z-7A-O2m" id="2jN-KJ-ljf"/>
                 <outlet property="reactionView" destination="W27-Ip-x5F" id="7vJ-Xz-uBM"/>
                 <outlet property="receiptStack" destination="aEX-q6-p6s" id="YbZ-dq-TMl"/>
-                <outlet property="replybutton" destination="S9F-LR-9j4" id="uyV-lA-QNX"/>
+                <outlet property="replybutton" destination="S9F-LR-9j4" id="CJv-6Y-MSv"/>
                 <outlet property="timeStamp" destination="klY-Bu-y4G" id="tTe-Zj-CEX"/>
                 <outlet property="unsafeContentView" destination="LeB-qK-hMr" id="neM-Qe-u6i"/>
             </connections>

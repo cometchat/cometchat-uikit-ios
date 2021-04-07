@@ -90,6 +90,11 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
                 replybutton.isHidden = true
             }
             replybutton.tintColor = UIKitSettings.primaryColor
+                if let avatarURL = whiteboardMessage.sender?.avatar  {
+                    avatar.set(image: avatarURL, with: whiteboardMessage.sender?.name ?? "")
+                }else{
+                    avatar.set(image: "", with: whiteboardMessage.sender?.name ?? "")
+                }
             }
         }
     }
@@ -125,9 +130,12 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
             joinButton.tintColor = UIKitSettings.primaryColor
                 timeStamp.text = String().setMessageTime(time: Int(writeboardMessage.sentAt))
             
-            if let avatarURL = writeboardMessage.sender?.avatar  {
-                avatar.set(image: avatarURL, with: writeboardMessage.sender?.name ?? "")
-            }
+          
+                if let avatarURL = writeboardMessage.sender?.avatar  {
+                    avatar.set(image: avatarURL, with: writeboardMessage.sender?.name ?? "")
+                }else{
+                    avatar.set(image: "", with: writeboardMessage.sender?.name ?? "")
+                }
             
             if writeboardMessage.replyCount != 0  &&  UIKitSettings.threadedChats == .enabled {
                 replybutton.isHidden = false
@@ -187,6 +195,12 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
                  name.text = LoggedInUser.name.capitalized + ":"
             }
             replybutton.isHidden = true
+                
+                if let avatarURL = whiteboardMessageInThread.sender?.avatar  {
+                    avatar.set(image: avatarURL, with: whiteboardMessageInThread.sender?.name ?? "")
+                }else{
+                    avatar.set(image: "", with: whiteboardMessageInThread.sender?.name ?? "")
+                }
             }
         }
     }
@@ -211,6 +225,11 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
                     icon.image = UIImage(named: "writeboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 }
             }
+                if let avatarURL = writeboardMessageInThread?.sender?.avatar  {
+                    avatar.set(image: avatarURL, with: writeboardMessageInThread?.sender?.name ?? "")
+                }else{
+                    avatar.set(image: "", with: whiteboardMessageInThread.sender?.name ?? "")
+                }
             icon.tintColor = UIKitSettings.primaryColor
             joinButton.tintColor = UIKitSettings.primaryColor
             if whiteboardMessageInThread.sentAt == 0 {

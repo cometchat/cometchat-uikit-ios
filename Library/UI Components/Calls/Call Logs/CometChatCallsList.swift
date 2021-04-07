@@ -133,9 +133,12 @@ public class CometChatCallsList: UIViewController {
             
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
             
@@ -181,11 +184,14 @@ public class CometChatCallsList: UIViewController {
             }
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
                     self.activityIndicator?.stopAnimating()
                     self.tableView.tableFooterView?.isHidden = true
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
            
@@ -527,13 +533,17 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
                         self.tableView.deleteRows(at: [indexPath], with: .automatic)
                         self.tableView.endUpdates()
                         
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Call Deleted", duration: .short)
-                        snackbar.show()
+                        CometChatSnackBoard.display(message: "Call Deleted", mode: .info, duration: .short)
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: error.errorDescription, duration: .short)
-                    snackbar.show()
+                        if let errorCode = error.errorCode as? String, let errorDescription = error.errorDescription as? String{
+                            if errorCode.isLocalized {
+                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                            }else{
+                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                            }
+                        }
                     }
                 }
             }

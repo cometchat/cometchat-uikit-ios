@@ -22,7 +22,7 @@ class CometChatMembersItem: UITableViewCell {
     @IBOutlet weak var status: CometChatStatusIndicator!
     
     // MARK: - Declaration of Variables
-    
+    var group: Group?
     weak var member: GroupMember? {
         didSet {
             if let currentMember = member {
@@ -35,7 +35,16 @@ class CometChatMembersItem: UITableViewCell {
                 status.set(status: currentMember.status)
                 avatar.set(image: currentMember.avatar ?? "", with: currentMember.name ?? "")
                 switch currentMember.scope {
-                case .admin:  scope.text = "ADMIN".localized()
+                case .admin:
+                    if let group = group {
+                        if group.owner == currentMember.uid {
+                            scope.text = "OWNER".localized()
+                        }else{
+                            scope.text = "ADMIN".localized()
+                        }
+                    }else{
+                        scope.text = "ADMIN".localized()
+                    }
                 case .moderator: scope.text = "MODERATOR".localized()
                 case .participant: scope.text = "PARTICIPANT".localized()
                 @unknown default: break }

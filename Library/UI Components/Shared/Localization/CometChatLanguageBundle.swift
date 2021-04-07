@@ -35,3 +35,25 @@ extension Bundle {
         objc_setAssociatedObject(Bundle.main, &bundleKey,    Bundle.main.path(forResource: language, ofType: "lproj"), .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
 }
+
+
+extension String {
+
+    var isLocalized: Bool {
+        return localized() != self
+    }
+
+    func localized(parameter: CVarArg? = nil) -> String {
+        if let parameter = parameter {
+            return String(format: NSLocalizedString(self, comment: ""), parameter)
+        }
+        else {
+            return NSLocalizedString(self, comment: "")
+        }
+    }
+
+    func localized(parameter0: CVarArg, parameter1: CVarArg) -> String {
+        return String(format: NSLocalizedString(self, comment: ""), parameter0, parameter1)
+    }
+
+}

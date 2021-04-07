@@ -239,7 +239,6 @@ class CometChatCreatePoll: UIViewController {
             }
             
             CometChat.callExtension(slug: "polls", type: .post, endPoint: "v2/create", body: body, onSuccess: { (response) in
-                print("callExtension onSuccess:\(String(describing: response))")
                 
                 DispatchQueue.main.async {
                     self.dismiss(animated: true) {
@@ -247,7 +246,11 @@ class CometChatCreatePoll: UIViewController {
                     }
                 }
             }) { (error) in
-                print("callExtension error:\(String(describing: error?.errorDescription))")
+                DispatchQueue.main.async {
+                self.dismiss(animated: true) {
+                    CometChatSnackBoard.display(message: "ERR_POLLS_NOT_ENABLED".localized(), mode: .error, duration: .middle)
+                }
+                }
             }
         }
     }
@@ -314,7 +317,7 @@ extension CometChatCreatePoll: UITableViewDataSource , UITableViewDelegate {
                 
                 let  optionView = tableView.dequeueReusableCell(withIdentifier: "CometChatCreatePollOptions", for: indexPath) as! CometChatCreatePollOptions
                 if indexPath.row == 0 {
-                    optionView.optionsLabel.text = "Options  "
+                    optionView.optionsLabel.text = "OPTIONS".localized()
                 }else{
                     optionView.optionsLabel.text = "                 "
                 }
@@ -351,7 +354,7 @@ extension CometChatCreatePoll: UITableViewDataSource , UITableViewDelegate {
           if #available(iOS 13.0, *) {
               deleteAction.image = UIImage(systemName: "trash")
           } else {
-              deleteAction.title = "Delete"
+            deleteAction.title = "DELETE".localized()
           }
           deleteAction.backgroundColor = .red
           let confrigation:UISwipeActionsConfiguration = UISwipeActionsConfiguration(actions: [deleteAction])
@@ -377,8 +380,7 @@ extension CometChatCreatePoll : AddNewOptionDelegate {
             tableView.endUpdates()
         }else{
             DispatchQueue.main.async {
-                let snackbar = CometChatSnackbar(message: "You cannot add more than 5 options at a time.", duration: .short)
-                snackbar.show()
+                CometChatSnackBoard.display(message: "CANNOT_ADD_MORE_THAN_FIVE_MESSAGE".localized(), mode: .error, duration: .short)
             }
         }
        

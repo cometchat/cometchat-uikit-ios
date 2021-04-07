@@ -78,14 +78,18 @@ class CometChatConversationListItem: UITableViewCell {
                     switch currentConversation.lastMessage?.messageType {
                     case .text where currentConversation.conversationType == .user:
                         
-                        if  let text = (currentConversation.lastMessage as? TextMessage)?.text as NSString? {
-                            message.attributedText =  addBoldText(fullString: text, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
+                        if let textMessage = currentConversation.lastMessage as? TextMessage {
+                            self.parseProfanityFilter(forMessage: textMessage)
+                            self.parseMaskedData(forMessage: textMessage)
+                            self.parseSentimentAnalysis(forMessage: textMessage)
                         }
-                        
+
                     case .text where currentConversation.conversationType == .group:
                         
-                        if  let text = senderName! + ":  " + (currentConversation.lastMessage as? TextMessage)!.text as NSString? {
-                            message.attributedText =  addBoldText(fullString: text, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
+                        if let textMessage = currentConversation.lastMessage as? TextMessage {
+                            self.parseProfanityFilter(forMessage: textMessage)
+                            self.parseMaskedData(forMessage: textMessage)
+                            self.parseSentimentAnalysis(forMessage: textMessage)
                         }
                         
                     case .image where currentConversation.conversationType == .user:
@@ -240,6 +244,109 @@ class CometChatConversationListItem: UITableViewCell {
         boldString.addAttributes(boldFontAttribute, range: fullString.range(of: boldPartOfString as String, options: .caseInsensitive))
         return boldString
     }
-}
+
 
 /*  ----------------------------------------------------------------------------------------- */
+
+
+func parseProfanityFilter(forMessage: TextMessage){
+    if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let profanityFilterDictionary = cometChatExtension["profanity-filter"] as? [String : Any] {
+        
+        if let profanity = profanityFilterDictionary["profanity"] as? String, let filteredMessage = profanityFilterDictionary["message_clean"] as? String {
+            
+            if profanity == "yes" {
+                switch forMessage.messageType {
+                case .text where forMessage.receiverType == .user:
+                    
+                    if  let text = filteredMessage as NSString? {
+                        message.attributedText =  addBoldText(fullString: text, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
+                    }
+                    
+                case .text where forMessage.receiverType == .group:
+                    let senderName = forMessage.sender?.name
+                    if  let text = senderName! + ":  " + filteredMessage as NSString? {
+                        message.attributedText =  addBoldText(fullString: text, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
+                    }
+                    
+                case .text, .image, .video, .audio, .file, .custom,.groupMember: break
+                @unknown default: break
+                }
+            }else{
+                message.attributedText =  addBoldText(fullString: forMessage.text as NSString, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
+            }
+        }else{
+            message.attributedText =  addBoldText(fullString: forMessage.text as NSString, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
+        }
+    }else{
+        message.attributedText =  addBoldText(fullString: forMessage.text as NSString, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
+    }
+}
+
+func parseMaskedData(forMessage: TextMessage){
+ if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let dataMaskingDictionary = cometChatExtension["data-masking"] as? [String : Any] {
+    
+     if let data = dataMaskingDictionary["data"] as? [String:Any], let sensitiveData = data["sensitive_data"] as? String {
+         
+         if sensitiveData == "yes" {
+             if let maskedMessage = data["message_masked"] as? String {
+                
+                switch forMessage.messageType {
+                case .text where forMessage.receiverType == .user:
+                    
+                    if  let text = maskedMessage as NSString? {
+                        message.attributedText =  addBoldText(fullString: text, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
+                    }
+                    
+                case .text where forMessage.receiverType == .group:
+                    let senderName = forMessage.sender?.name
+                    if  let text = senderName! + ":  " + maskedMessage as NSString? {
+                        message.attributedText =  addBoldText(fullString: text, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
+                    }
+                    
+                case .text, .image, .video, .audio, .file, .custom,.groupMember: break
+                @unknown default: break
+                }
+            
+             }else{
+                self.parseProfanityFilter(forMessage: forMessage)
+             }
+         }else{
+            self.parseProfanityFilter(forMessage: forMessage)
+         }
+     }else{
+        self.parseProfanityFilter(forMessage: forMessage)
+     }
+ }else{
+    self.parseProfanityFilter(forMessage: forMessage)
+ }
+}
+
+ func parseSentimentAnalysis(forMessage: TextMessage){
+    if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let sentimentAnalysisDictionary = cometChatExtension["sentiment-analysis"] as? [String : Any] {
+        if let sentiment = sentimentAnalysisDictionary["sentiment"] as? String {
+            if sentiment == "negative" {
+               
+                message.attributedText =  addBoldText(fullString: "MAY_CONTAIN_NEGATIVE_SENTIMENT".localized() as NSString, boldPartOfString: searchedText as NSString, font: normalSubtitlefont, boldFont: boldSubtitlefont)
+               
+            }else{
+                self.parseProfanityFilter(forMessage: forMessage)
+                self.parseMaskedData(forMessage: forMessage)
+            }
+        }else{
+            self.parseProfanityFilter(forMessage: forMessage)
+            self.parseMaskedData(forMessage: forMessage)
+        }
+    }else{
+        if #available(iOS 13.0, *) {
+            message.textColor = .label
+        } else {
+            message.textColor = .black
+        }
+        message.font =  UIFont.systemFont(ofSize: 17, weight: .regular)
+      
+        self.parseProfanityFilter(forMessage: forMessage)
+        self.parseMaskedData(forMessage: forMessage)
+    }
+}
+    
+}

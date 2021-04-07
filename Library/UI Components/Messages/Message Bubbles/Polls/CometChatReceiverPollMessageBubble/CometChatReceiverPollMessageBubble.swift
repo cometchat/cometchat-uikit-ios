@@ -86,6 +86,8 @@ class CometChatReceiverPollMessageBubble: UITableViewCell {
             self.parsePollsExtension(forMessage: pollMessage)
             if let avatarURL = pollMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: pollMessage.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: pollMessage.sender?.name ?? "")
             }
             time.text = String().setMessageTime(time: Int(pollMessage?.sentAt ?? 0))
             

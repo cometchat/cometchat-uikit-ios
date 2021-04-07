@@ -271,15 +271,14 @@ class CometChatCreateGroup: UIViewController {
     @IBAction func didCreateGroupPressed(_ sender: Any) {
         
         if selectedGroupType.text == "SELECT_GROUP_TYPE".localized() {
-            self.showAlert(title: "WARNING".localized(), msg: "SELECT_GROUP_TYPE".localized())
+            CometChatSnackBoard.display(message: "SELECT_GROUP_TYPE".localized(), mode: .error, duration: .short)
        
         }else if groupType == .password && password.text?.count == 0 {
-            self.showAlert(title: "WARNING".localized(), msg: "GROUP_PASSWORD_CANNOT_EMPTY".localized())
+            CometChatSnackBoard.display(message: "GROUP_PASSWORD_CANNOT_EMPTY".localized(), mode: .error, duration: .short)
         }else{
             
             guard let name = name.text else {
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "ENTER_GROUP_NAME".localized(), duration: .short)
-                snackbar.show()
+                CometChatSnackBoard.display(message:  "ENTER_GROUP_NAME".localized(), mode: .error, duration: .short)
                 return
             }
             
@@ -300,9 +299,12 @@ class CometChatCreateGroup: UIViewController {
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
-                        if let errorMessage = error?.errorDescription {
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                            snackbar.show()
+                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                            if errorCode.isLocalized {
+                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                            }else{
+                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                            }
                         }
                     }
                 }

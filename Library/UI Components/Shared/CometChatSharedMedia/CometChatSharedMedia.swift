@@ -120,13 +120,16 @@ class CometChatSharedMedia: UITableViewCell {
                     }
                 }, onError: { (error) in
                     DispatchQueue.main.async { [weak self] in
-                        if let errorMessage = error?.errorDescription {
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                            snackbar.show()
-                            self?.activityIndicator?.stopAnimating()
-                            self?.collectionView.backgroundView?.isHidden = true
-                            self?.collectionView.reloadData()
+                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                            if errorCode.isLocalized {
+                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                            }else{
+                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                            }
                         }
+                        self?.activityIndicator?.stopAnimating()
+                        self?.collectionView.backgroundView?.isHidden = true
+                        self?.collectionView.reloadData()
                     }
                 })
             }
@@ -160,13 +163,16 @@ class CometChatSharedMedia: UITableViewCell {
                     }
                 }, onError: { (error) in
                     DispatchQueue.main.async {  [weak self] in
-                        if let errorMessage = error?.errorDescription {
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                            snackbar.show()
-                            self?.activityIndicator?.stopAnimating()
-                            self?.collectionView.backgroundView?.isHidden = true
-                            self?.collectionView.reloadData()
+                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                            if errorCode.isLocalized {
+                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                            }else{
+                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                            }
                         }
+                        self?.activityIndicator?.stopAnimating()
+                        self?.collectionView.backgroundView?.isHidden = true
+                        self?.collectionView.reloadData()
                     }
                 })
             }
@@ -212,9 +218,12 @@ class CometChatSharedMedia: UITableViewCell {
              
             }, onError: { (error) in
                 DispatchQueue.main.async { [weak self] in
-                    if let errorMessage = error?.errorDescription {
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                        snackbar.show()
+                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                        if errorCode.isLocalized {
+                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                        }else{
+                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                        }
                         self?.activityIndicator?.stopAnimating()
                         self?.collectionView.backgroundView?.isHidden = true
                         self?.collectionView.reloadData()
@@ -241,9 +250,12 @@ class CometChatSharedMedia: UITableViewCell {
                 }
             }, onError: { (error) in
                 DispatchQueue.main.async { [weak self] in
-                    if let errorMessage = error?.errorDescription {
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                        snackbar.show()
+                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                        if errorCode.isLocalized {
+                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                        }else{
+                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                        }
                         self?.activityIndicator?.stopAnimating()
                         self?.collectionView.backgroundView?.isHidden = true
                         self?.collectionView.reloadData()
