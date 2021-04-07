@@ -67,6 +67,8 @@ class CometChatReceiverLinkPreviewBubble: UITableViewCell, WKNavigationDelegate 
             }
             if let avatarURL = linkPreviewMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: linkPreviewMessage.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: linkPreviewMessage.sender?.name ?? "")
             }
             if let userName = linkPreviewMessage.sender?.name {
                 name.text = userName + ":"
@@ -161,6 +163,8 @@ class CometChatReceiverLinkPreviewBubble: UITableViewCell, WKNavigationDelegate 
             }
             if let avatarURL = linkPreviewMessageInThread.sender?.avatar  {
                 avatar.set(image: avatarURL, with: linkPreviewMessageInThread.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: linkPreviewMessageInThread.sender?.name ?? "")
             }
             self.reactionView.parseMessageReactionForMessage(message: linkPreviewMessageInThread) { (success) in
                 if success == true {

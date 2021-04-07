@@ -384,17 +384,19 @@ extension CometChatUserDetails: UITableViewDelegate , UITableViewDataSource {
                         
                         let data:[String: String] = ["guid": self.currentGroup?.guid ?? ""]
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
-                        let message = (self.currentUser?.name ?? "") + "ADDED_SUCCESSFULLY".localized()
-                        let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                        snackbar.show()
-                        self.dismiss(animated: true) {}
-                        
+                        let message = (self.currentUser?.name ?? "") + " " + "ADDED_SUCCESSFULLY".localized()
+                        self.dismiss(animated: true) {
+                            CometChatSnackBoard.display(message: message, mode: .success, duration: .middle)
+                        }
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
-                        if let errorMessage = error?.errorDescription {
-                            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                            snackbar.show()
+                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                            if errorCode.isLocalized {
+                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                            }else{
+                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                            }
                         }
                     }
                 }
@@ -410,15 +412,17 @@ extension CometChatUserDetails: UITableViewDelegate , UITableViewDataSource {
                         if let user = self.currentUser, let name = user.name {
                             self.set(user: user)
                             DispatchQueue.main.async {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name + " " +  "UNBLOCKED_SUCCESSFULLY".localized(), duration: .short)
-                                snackbar.show()
+                                CometChatSnackBoard.display(message: name + " " +  "UNBLOCKED_SUCCESSFULLY".localized(), mode: .success, duration: .short)
                             }
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorMessage = error?.errorDescription {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                snackbar.show()
+                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                if errorCode.isLocalized {
+                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                }else{
+                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                }
                             }
                         }
                     }
@@ -429,15 +433,17 @@ extension CometChatUserDetails: UITableViewDelegate , UITableViewDataSource {
                                 self.set(user: user)
                                 let data:[String: String] = ["name": name]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: data)
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: name + " " + "BLOCKED_SUCCESSFULLY".localized(), duration: .short)
-                                snackbar.show()
+                                CometChatSnackBoard.display(message: name + " " + "BLOCKED_SUCCESSFULLY".localized(), mode: .success, duration: .short)
                             }
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorMessage = error?.errorDescription {
-                                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                                snackbar.show()
+                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                                if errorCode.isLocalized {
+                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                                }else{
+                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                                }
                             }
                         }
                     }
@@ -491,17 +497,15 @@ extension CometChatUserDetails :QLPreviewControllerDataSource, QLPreviewControll
         if FileManager.default.fileExists(atPath: destinationUrl.path) {
             completion(true, destinationUrl)
         } else {
-            let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "Downloading...", duration: .forever)
-            snackbar.animationType = .slideFromBottomToTop
-            snackbar.show()
+            CometChatSnackBoard.show(message: "Downloading...")
             URLSession.shared.downloadTask(with: itemUrl!, completionHandler: { (location, response, error) -> Void in
                 guard let tempLocation = location, error == nil else { return }
                 do {
-                    snackbar.dismiss()
+                    CometChatSnackBoard.hide()
                     try FileManager.default.moveItem(at: tempLocation, to: destinationUrl)
                     completion(true, destinationUrl)
                 } catch let error as NSError {
-                    snackbar.dismiss()
+                    CometChatSnackBoard.hide()
                     completion(false, nil)
                 }
             }).resume()

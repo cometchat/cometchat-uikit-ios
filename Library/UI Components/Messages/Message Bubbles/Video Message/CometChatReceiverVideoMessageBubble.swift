@@ -30,6 +30,7 @@ class CometChatReceiverVideoMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
+    weak var mediaDelegate: MediaDelegate?
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -62,6 +63,8 @@ class CometChatReceiverVideoMessageBubble: UITableViewCell {
             timeStamp.text = String().setMessageTime(time: mediaMessage.sentAt)
             if let avatarURL = mediaMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: mediaMessage.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: mediaMessage.sender?.name ?? "")
             }
             parseThumbnailForVideo(forMessage: mediaMessage)
             if mediaMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
@@ -77,6 +80,9 @@ class CometChatReceiverVideoMessageBubble: UITableViewCell {
                 replybutton.isHidden = true
             }
             replybutton.tintColor = UIKitSettings.primaryColor
+            let tapOnVideoMessage = UITapGestureRecognizer(target: self, action: #selector(self.didVideoMessagePressed(tapGestureRecognizer:)))
+            self.imageMessage.isUserInteractionEnabled = true
+            self.imageMessage.addGestureRecognizer(tapOnVideoMessage)
         }
     }
     
@@ -107,20 +113,26 @@ class CometChatReceiverVideoMessageBubble: UITableViewCell {
                  name.text = LoggedInUser.name.capitalized + ":"
               }
               parseThumbnailForVideo(forMessage: mediaMessageInThread)
-              
+            if let avatarURL = mediaMessageInThread.sender?.avatar  {
+                avatar.set(image: avatarURL, with: mediaMessageInThread.sender?.name ?? "")
+            }else{
+                avatar.set(image: "", with: mediaMessageInThread.sender?.name ?? "")
+            }
              replybutton.isHidden = true
              nameView.isHidden = false
           }
       }
-    
-    // MARK: - Initialization of required Methods
     @IBAction func didReplyButtonPressed(_ sender: Any) {
-           if let message = mediaMessage, let indexpath = indexPath {
-               CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
-           }
-
+        if let message = mediaMessage, let indexpath = indexPath {
+            CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+        }
        }
+
      
+    @objc func didVideoMessagePressed(tapGestureRecognizer: UITapGestureRecognizer)
+    {
+        mediaDelegate?.didOpenMedia(forMessage: mediaMessage, cell: self)
+    }
     
     override func awakeFromNib() {
         super.awakeFromNib()

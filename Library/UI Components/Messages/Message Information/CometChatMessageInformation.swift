@@ -90,7 +90,15 @@ class CometChatMessageInformation: UIViewController {
                 self.receipts = fetchedReceipts
                 DispatchQueue.main.async { self.tableView.reloadData() }
             }) { (error) in
-                
+                DispatchQueue.main.async {
+                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                        if errorCode.isLocalized {
+                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                        }else{
+                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                        }
+                    }
+                }
             }
         }
     }
@@ -99,7 +107,7 @@ class CometChatMessageInformation: UIViewController {
         var detectedExtension: CometChatExtension?
         
         if let metaData = message.metaData , let type = metaData["type"] as? String {
-            if type == "reply" {
+            if type == "reply" || metaData["replyToMessage"] as? [String : Any] != nil {
                 detectedExtension = .reply
             }else{
                 detectedExtension = .none

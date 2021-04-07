@@ -9,6 +9,11 @@
 import UIKit
 import CometChatPro
 
+protocol MediaDelegate: NSObject {
+    func didOpenMedia(forMessage: MediaMessage, cell: UITableViewCell)
+}
+
+
 /*  ----------------------------------------------------------------------------------------- */
 
 class CometChatSenderImageMessageBubble: UITableViewCell {
@@ -28,6 +33,7 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
+    weak var mediaDelegate: MediaDelegate?
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -106,16 +112,29 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
             }else{
                 receipt.isHighlighted = false
             }
+            
+            let tapOnImageMessage = UITapGestureRecognizer(target: self, action: #selector(self.didImageMessagePressed(tapGestureRecognizer:)))
+            self.imageMessage.isUserInteractionEnabled = true
+            self.imageMessage.addGestureRecognizer(tapOnImageMessage)
+            self.imageModerationView.isUserInteractionEnabled = true
+            self.imageModerationView.addGestureRecognizer(tapOnImageMessage)
+            self.unsafeContentView.isUserInteractionEnabled = true
+            self.unsafeContentView.addGestureRecognizer(tapOnImageMessage)
         }
     }
     
      // MARK: - Initialization of required Methods
     @IBAction func didReplyButtonPressed(_ sender: Any) {
-             if let message = mediaMessage, let indexpath = indexPath {
-                 CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
-             }
-
-         }
+        
+        if let message = mediaMessage, let indexpath = indexPath {
+            CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
+        }
+    }
+    
+    @objc func didImageMessagePressed(tapGestureRecognizer: UITapGestureRecognizer)
+    {
+        mediaDelegate?.didOpenMedia(forMessage: mediaMessage, cell: self)
+    }
     
     override func awakeFromNib() {
         super.awakeFromNib()

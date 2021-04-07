@@ -43,15 +43,13 @@ final class AudioPlayerManager: NSObject {
 
 		try self.audioPlayer = AVAudioPlayer(contentsOf: url)
 		self.setupPlayer(with: audioVisualizationTimeInterval)
-		print("Started to play sound")
-
+		
 		return self.audioPlayer!.duration
 	}
 
 	func play(_ data: Data, with audioVisualizationTimeInterval: TimeInterval = 0.05) throws -> TimeInterval {
 		try self.audioPlayer = AVAudioPlayer(data: data)
 		self.setupPlayer(with: audioVisualizationTimeInterval)
-		print("Started to play sound")
 
 		return self.audioPlayer!.duration
 	}
@@ -75,7 +73,6 @@ final class AudioPlayerManager: NSObject {
 			throw AudioErrorType.internalError
 		}
 
-		print("Resumed sound")
 		return self.audioPlayer!.duration - self.audioPlayer!.currentTime
 	}
 
@@ -86,7 +83,7 @@ final class AudioPlayerManager: NSObject {
 		}
 
 		self.audioPlayer?.pause()
-		print("Paused current playing sound")
+		
 	}
 
 	func stop() throws {
@@ -96,7 +93,6 @@ final class AudioPlayerManager: NSObject {
 		}
 		
 		self.audioPlayer?.stop()
-		print("Audio player stopped")
 	}
 	
 	// MARK: - Private

@@ -47,8 +47,24 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
         didSet {
             if let textmessage  = textMessage {
                 self.receiptStack.isHidden = true
-                self.parseProfanityFilter(forMessage: textmessage)
-                self.parseMaskedData(forMessage: textmessage)
+//                self.parseProfanityFilter(forMessage: textmessage)
+//                self.parseMaskedData(forMessage: textmessage)
+                
+                if textmessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
+                    if textmessage.text.count == 1 {
+                       message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                    }else if textmessage.text.count == 2 {
+                       message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                    }else if textmessage.text.count == 3{
+                       message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                    }else{
+                       message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                    }
+                }else{
+                   message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                }
+                self.message.text = textmessage.text
+                
                 self.reactionView.parseMessageReactionForMessage(message: textmessage) { (success) in
                     if success == true {
                         self.reactionView.isHidden = false
@@ -177,17 +193,43 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
     
     
      func parseProfanityFilter(forMessage: TextMessage){
-        if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let profanityFilterDictionary = cometChatExtension["profanity-filter"] as? [String : Any] {
+        if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let profanityFilterDictionary = cometChatExtension["profanity-filter"] as? [String : Any] {
             
             if let profanity = profanityFilterDictionary["profanity"] as? String, let filteredMessage = profanityFilterDictionary["message_clean"] as? String {
                 
                 if profanity == "yes" {
                     message.text = filteredMessage
                 }else{
-                    message.text = forMessage.text
+                    if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
+                        if forMessage.text.count == 1 {
+                           message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                        }else if forMessage.text.count == 2 {
+                           message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                        }else if forMessage.text.count == 3{
+                           message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                        }else{
+                           message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                        }
+                    }else{
+                       message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                    }
+                    self.message.text = forMessage.text
                 }
             }else{
-                message.text = forMessage.text
+                if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
+                    if forMessage.text.count == 1 {
+                       message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                    }else if forMessage.text.count == 2 {
+                       message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                    }else if forMessage.text.count == 3{
+                       message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                    }else{
+                       message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                    }
+                }else{
+                   message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                }
+                self.message.text = forMessage.text
             }
         }else{
             
@@ -217,30 +259,70 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
                     if let maskedMessage = data["message_masked"] as? String {
                         message.text = maskedMessage
                     }else{
-                        message.text = forMessage.text
+                        if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
+                            if forMessage.text.count == 1 {
+                               message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                            }else if forMessage.text.count == 2 {
+                               message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                            }else if forMessage.text.count == 3{
+                               message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                            }else{
+                               message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                            }
+                        }else{
+                           message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                        }
+                        self.message.text = forMessage.text
                     }
                 }else{
-                    message.text = forMessage.text
+                    if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
+                        if forMessage.text.count == 1 {
+                           message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                        }else if forMessage.text.count == 2 {
+                           message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                        }else if forMessage.text.count == 3{
+                           message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                        }else{
+                           message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                        }
+                    }else{
+                       message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                    }
+                    self.message.text = forMessage.text
                 }
             }else{
-                message.text = forMessage.text
+                if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
+                    if forMessage.text.count == 1 {
+                       message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                    }else if forMessage.text.count == 2 {
+                       message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                    }else if forMessage.text.count == 3{
+                       message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                    }else{
+                       message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                    }
+                }else{
+                   message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                }
+                self.message.text = forMessage.text
             }
         }else{
             
-            if forMessage.text.containsOnlyEmojis() {
+            if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
                 if forMessage.text.count == 1 {
-                    message.font =  UIFont.systemFont(ofSize: 51, weight: .regular)
+                   message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
                 }else if forMessage.text.count == 2 {
-                    message.font =  UIFont.systemFont(ofSize: 34, weight: .regular)
+                   message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
                 }else if forMessage.text.count == 3{
-                    message.font =  UIFont.systemFont(ofSize: 25, weight: .regular)
+                   message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
                 }else{
-                    message.font =  UIFont.systemFont(ofSize: 17, weight: .regular)
+                   message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                 }
             }else{
-                message.font =  UIFont.systemFont(ofSize: 17, weight: .regular)
+               message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
             }
             self.message.text = forMessage.text
+            self.parseProfanityFilter(forMessage: forMessage)
         }
     }
 

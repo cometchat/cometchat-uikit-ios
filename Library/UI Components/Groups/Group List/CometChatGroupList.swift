@@ -125,9 +125,12 @@ public class CometChatGroupList: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
         }
@@ -168,10 +171,13 @@ public class CometChatGroupList: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
            DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                  let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                if errorCode.isLocalized {
+                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                }else{
+                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
                 }
+            }
             }
         }
     }
@@ -490,8 +496,7 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
         CometChat.joinGroup(GUID: withGuid, groupType: groupType, password: password, onSuccess: { (group) in
             DispatchQueue.main.async {
                 let message = "YOU_JOINED".localized() +  (name) + "."
-                let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: message, duration: .short)
-                snackbar.show()
+                CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                 self.tableView.deselectRow(at: indexPath, animated: true)
                 let messageList = CometChatMessageList()
                 messageList.set(conversationWith: group, type: .group)
@@ -501,9 +506,12 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
             
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorMessage = error?.errorDescription {
-                    let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: errorMessage, duration: .short)
-                    snackbar.show()
+                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
+                    if errorCode.isLocalized {
+                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
+                    }else{
+                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
                 }
             }
         }
@@ -559,8 +567,11 @@ extension CometChatGroupList : UISearchBarDelegate, UISearchResultsUpdating {
     public func updateSearchResults(for searchController: UISearchController) {
         groupRequest  = GroupsRequest.GroupsRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").build()
         groupRequest.fetchNext(onSuccess: { (groups) in
-            if groups.count != 0{
+            if groups.count != 0 {
                 self.filteredGroups = groups
+                DispatchQueue.main.async {self.tableView.reloadData()}
+            }else{
+                self.filteredGroups = []
                 DispatchQueue.main.async {self.tableView.reloadData()}
             }
         }) { (error) in
