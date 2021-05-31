@@ -10,48 +10,70 @@ import UIKit
 import CometChatPro
 import WebKit
 
-class CometChatCollaborativeView: UIViewController , WKNavigationDelegate {
+enum WebViewType {
+    case whiteboard
+    case writeboard
+    case profile
+}
+
+class CometChatWebView: UIViewController , WKNavigationDelegate {
 
     
     @IBOutlet weak var webView: WKWebView!
     
-     var collaborativeURL: String?
-     var collaborativeType: CollaborativeType = .whiteboard
+     var url: String?
+     var webViewType: WebViewType = .whiteboard
+     var user: User?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupNavigationBar()
-        switch collaborativeType {
+        switch webViewType {
         case .whiteboard:
             self.set(title: "WHITEBOARD".localized(), mode: .never)
         case .writeboard:
             self.set(title: "DOCUMENT".localized(), mode: .never)
+        case .profile:
+            if let name = user?.name {
+                self.set(title: name, mode: .never)
+            }
         }
-        if let url = collaborativeURL {
-            let link = URL(string: url)!
-            let request = URLRequest(url: link)
-            webView.load(request)
+        
+        switch webViewType {
+        case .whiteboard:
+            if let url = url {
+                let link = URL(string: url)!
+                let request = URLRequest(url: link)
+                webView.load(request)
+            }
+        case .writeboard:
+            if let url = url {
+                let link = URL(string: url)!
+                let request = URLRequest(url: link)
+                webView.load(request)
+            }
+        case .profile:
+            if let currentLink = user?.link {
+                let link = URL(string: currentLink)!
+                let request = URLRequest(url: link)
+                webView.load(request)
+            }
         }
+      
         webView.navigationDelegate = self
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         self.webView.scrollView.zoomScale = 5.0
-        DispatchQueue.main.async {
-            let alert = UIAlertController(title: nil, message: "LOADING".localized(), preferredStyle: .alert)
-            let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-            loadingIndicator.hidesWhenStopped = true
-            loadingIndicator.style = UIActivityIndicatorView.Style.gray
-            loadingIndicator.startAnimating()
-            alert.view.addSubview(loadingIndicator)
-            self.present(alert, animated: true, completion: nil)
-        }
+
     }
     
     override func loadView() {
         let bundle = Bundle(for: type(of: self))
-        let nib = UINib(nibName: "CometChatCollaborativeView", bundle: bundle)
+        let nib = UINib(nibName: "CometChatWebView", bundle: bundle)
         let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.view  = view
+        self.navigationController?.navigationBar.tintColor = UIKitSettings.primaryColor
     }
     
     @objc public func set(title : String, mode: UINavigationItem.LargeTitleDisplayMode){
@@ -87,17 +109,18 @@ class CometChatCollaborativeView: UIViewController , WKNavigationDelegate {
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         
-            CometChatSnackBoard.display(message: error.localizedDescription, mode: .error, duration: .short)
-        
+        CometChatSnackBoard.display(message: error.localizedDescription, mode: .error, duration: .short)
+        self.dismiss(animated: true, completion: nil)
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
      
-        CometChatSnackBoard.display(message: error.localizedDescription, mode: .error, duration: .short)
+      CometChatSnackBoard.display(message: error.localizedDescription , mode: .error, duration: .short)
+//      self.dismiss(animated: true, completion: nil)
     }
     
     func webView(_: WKWebView, didStartProvisionalNavigation _: WKNavigation!) {
-        self.dismiss(animated: true, completion: nil)
+//        self.dismiss(animated: true, completion: nil)
     }
     
     func webView(_: WKWebView, didFinish _: WKNavigation!) {

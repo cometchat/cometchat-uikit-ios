@@ -71,7 +71,11 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
                     }
                 }
                 receiptStack.isHidden = true
-                nameView.isHidden = false
+                if currentMessage.receiverType == .group {
+                    nameView.isHidden = false
+                }else {
+                    nameView.isHidden = true
+                }
                 if let avatarURL = currentMessage.sender?.avatar  {
                     avatar.set(image: avatarURL, with: currentMessage.sender?.name ?? "")
                 }else{

@@ -47,21 +47,24 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
         didSet {
             if let textmessage  = textMessage {
                 self.receiptStack.isHidden = true
+                self.receipt.isHidden = true
 //                self.parseProfanityFilter(forMessage: textmessage)
 //                self.parseMaskedData(forMessage: textmessage)
                 
-                if textmessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
-                    if textmessage.text.count == 1 {
-                       message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
-                    }else if textmessage.text.count == 2 {
-                       message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
-                    }else if textmessage.text.count == 3{
-                       message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                FeatureRestriction.isLargerSizeEmojisEnabled { (success) in
+                    if success == .enabled && textmessage.text.containsOnlyEmojis() {
+                        if textmessage.text.count == 1 {
+                            self.message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                        }else if textmessage.text.count == 2 {
+                            self.message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                        }else if textmessage.text.count == 3{
+                            self.message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                        }else{
+                            self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                        }
                     }else{
-                       message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                        self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                     }
-                }else{
-                   message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                 }
                 self.message.text = textmessage.text
                 
@@ -73,40 +76,47 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
                     }
                 }
                 if textmessage.readAt > 0 {
-                    receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
+                    receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    receipt.tintColor = UIKitSettings.primaryColor
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
                 }else if textmessage.deliveredAt > 0 {
-                    receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
+                    receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.deliveredAt ?? 0))
                 }else if textmessage.sentAt > 0 {
-                    receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)
+                    receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.sentAt ?? 0))
                 }else if textmessage.sentAt == 0 {
-                    receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
+                    receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                     timeStamp.text = "SENDING".localized()
                 }
+                FeatureRestriction.isDeliveryReceiptsEnabled { (success) in
+                    switch success {
+                    case .enabled: self.receipt.isHidden = false
+                    case .disabled: self.receipt.isHidden = true
+                    }
+                }
+                FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                    switch success {
+                    case .enabled where textmessage.replyCount != 0 :
+                        self.replybutton.isHidden = false
+                        if textmessage.replyCount == 1 {
+                            self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                        }else{
+                            if let replies = textmessage.replyCount as? Int {
+                                self.replybutton.setTitle("\(replies) replies", for: .normal)
+                            }
+                        }
+                    case .disabled, .enabled : self.replybutton.isHidden = true
+                    }
+                }
+                
             }
             messageView.backgroundColor = UIKitSettings.primaryColor
             replybutton.tintColor = UIKitSettings.primaryColor
             receipt.contentMode = .scaleAspectFit
             message.textColor = .white
-            if UIKitSettings.showReadDeliveryReceipts == .disabled {
-                receipt.isHidden = true
-            }else{
-                receipt.isHighlighted = false
-            }
-            if textMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if textMessage?.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = textMessage?.replyCount {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
-                    }
-                }
-            }else{
-                replybutton.isHidden = true
-            }
+
+           
             
              let phoneParser1 = HyperlinkType.custom(pattern: RegexParser.phonePattern1)
              let phoneParser2 = HyperlinkType.custom(pattern: RegexParser.phonePattern2)
@@ -200,51 +210,57 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
                 if profanity == "yes" {
                     message.text = filteredMessage
                 }else{
-                    if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
-                        if forMessage.text.count == 1 {
-                           message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
-                        }else if forMessage.text.count == 2 {
-                           message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
-                        }else if forMessage.text.count == 3{
-                           message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                    FeatureRestriction.isLargerSizeEmojisEnabled { (success) in
+                        if success == .enabled && forMessage.text.containsOnlyEmojis() {
+                            if forMessage.text.count == 1 {
+                                self.message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                            }else if forMessage.text.count == 2 {
+                                self.message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                            }else if forMessage.text.count == 3{
+                                self.message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                            }else{
+                                self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                            }
                         }else{
-                           message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                            self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                         }
-                    }else{
-                       message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                     }
                     self.message.text = forMessage.text
                 }
             }else{
-                if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
-                    if forMessage.text.count == 1 {
-                       message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
-                    }else if forMessage.text.count == 2 {
-                       message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
-                    }else if forMessage.text.count == 3{
-                       message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                FeatureRestriction.isLargerSizeEmojisEnabled { (success) in
+                    if success == .enabled && forMessage.text.containsOnlyEmojis() {
+                        if forMessage.text.count == 1 {
+                            self.message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                        }else if forMessage.text.count == 2 {
+                            self.message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                        }else if forMessage.text.count == 3{
+                            self.message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                        }else{
+                            self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                        }
                     }else{
-                       message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                        self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                     }
-                }else{
-                   message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                 }
                 self.message.text = forMessage.text
             }
         }else{
             
-            if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
-                if forMessage.text.count == 1 {
-                   message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
-                }else if forMessage.text.count == 2 {
-                   message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
-                }else if forMessage.text.count == 3{
-                   message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+            FeatureRestriction.isLargerSizeEmojisEnabled { (success) in
+                if success == .enabled && forMessage.text.containsOnlyEmojis() {
+                    if forMessage.text.count == 1 {
+                        self.message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                    }else if forMessage.text.count == 2 {
+                        self.message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                    }else if forMessage.text.count == 3{
+                        self.message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                    }else{
+                        self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                    }
                 }else{
-                   message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                    self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                 }
-            }else{
-               message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
             }
             self.message.text = forMessage.text
         }
@@ -259,67 +275,75 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
                     if let maskedMessage = data["message_masked"] as? String {
                         message.text = maskedMessage
                     }else{
-                        if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
-                            if forMessage.text.count == 1 {
-                               message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
-                            }else if forMessage.text.count == 2 {
-                               message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
-                            }else if forMessage.text.count == 3{
-                               message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                        FeatureRestriction.isLargerSizeEmojisEnabled { (success) in
+                            if success == .enabled && forMessage.text.containsOnlyEmojis() {
+                                if forMessage.text.count == 1 {
+                                    self.message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                                }else if forMessage.text.count == 2 {
+                                    self.message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                                }else if forMessage.text.count == 3{
+                                    self.message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                                }else{
+                                    self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                                }
                             }else{
-                               message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                                self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                             }
-                        }else{
-                           message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                         }
                         self.message.text = forMessage.text
                     }
                 }else{
-                    if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
-                        if forMessage.text.count == 1 {
-                           message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
-                        }else if forMessage.text.count == 2 {
-                           message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
-                        }else if forMessage.text.count == 3{
-                           message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                    FeatureRestriction.isLargerSizeEmojisEnabled { (success) in
+                        if success == .enabled && forMessage.text.containsOnlyEmojis() {
+                            if forMessage.text.count == 1 {
+                                self.message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                            }else if forMessage.text.count == 2 {
+                                self.message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                            }else if forMessage.text.count == 3{
+                                self.message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                            }else{
+                                self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                            }
                         }else{
-                           message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                            self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                         }
-                    }else{
-                       message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                     }
                     self.message.text = forMessage.text
                 }
             }else{
-                if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
-                    if forMessage.text.count == 1 {
-                       message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
-                    }else if forMessage.text.count == 2 {
-                       message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
-                    }else if forMessage.text.count == 3{
-                       message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                FeatureRestriction.isLargerSizeEmojisEnabled { (success) in
+                    if success == .enabled && forMessage.text.containsOnlyEmojis() {
+                        if forMessage.text.count == 1 {
+                            self.message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                        }else if forMessage.text.count == 2 {
+                            self.message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                        }else if forMessage.text.count == 3{
+                            self.message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                        }else{
+                            self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                        }
                     }else{
-                       message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                        self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                     }
-                }else{
-                   message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                 }
                 self.message.text = forMessage.text
             }
         }else{
             
-            if forMessage.text.containsOnlyEmojis() && UIKitSettings.sendEmojiesInLargerSize == .enabled {
-                if forMessage.text.count == 1 {
-                   message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
-                }else if forMessage.text.count == 2 {
-                   message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
-                }else if forMessage.text.count == 3{
-                   message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+            FeatureRestriction.isLargerSizeEmojisEnabled { (success) in
+                if success == .enabled && forMessage.text.containsOnlyEmojis() {
+                    if forMessage.text.count == 1 {
+                        self.message.font = UIFont.systemFont(ofSize: 51, weight: .regular)
+                    }else if forMessage.text.count == 2 {
+                        self.message.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+                    }else if forMessage.text.count == 3{
+                        self.message.font = UIFont.systemFont(ofSize: 25, weight: .regular)
+                    }else{
+                        self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                    }
                 }else{
-                   message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+                    self.message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
                 }
-            }else{
-               message.font = UIFont.systemFont(ofSize: 17, weight: .regular)
             }
             self.message.text = forMessage.text
             self.parseProfanityFilter(forMessage: forMessage)

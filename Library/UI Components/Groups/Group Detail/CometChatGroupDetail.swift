@@ -141,36 +141,55 @@ class CometChatGroupDetail: UIViewController {
        
         case .admin:
             
-            if UIKitSettings.allowPromoteDemoteMembers == .enabled {
-                settingsItems.append(CometChatGroupDetail.ADMINISTRATOR_CELL)
-                settingsItems.append(CometChatGroupDetail.MODERATORS_CELL)
+            FeatureRestriction.isChangingGroupMemberScopeEnabled { (success) in
+                if success == .enabled {
+                    self.settingsItems.append(CometChatGroupDetail.ADMINISTRATOR_CELL)
+                    self.settingsItems.append(CometChatGroupDetail.MODERATORS_CELL)
+                }
             }
-            if UIKitSettings.allowKickBanMembers == .enabled {
-                settingsItems.append(CometChatGroupDetail.BANNED_MEMBER_CELL)
+            
+            FeatureRestriction.isBanningGroupMembersEnabled { (success) in
+                if success == .enabled {
+                    self.settingsItems.append(CometChatGroupDetail.BANNED_MEMBER_CELL)
+                }
             }
-            if UIKitSettings.allowDeleteGroup == .enabled {
-                supportItems.append(CometChatGroupDetail.DELETE_AND_EXIT_CELL)
+            
+            FeatureRestriction.isGroupDeletionEnabled { (success) in
+                if success == .enabled {
+                    self.supportItems.append(CometChatGroupDetail.DELETE_AND_EXIT_CELL)
+                }
             }
-            if UIKitSettings.joinOrLeaveGroup == .enabled {
-                supportItems.append(CometChatGroupDetail.EXIT_CELL)
+          
+            FeatureRestriction.isJoinLeaveGroupsEnabled { (success) in
+                if success == .enabled {
+                    self.supportItems.append(CometChatGroupDetail.EXIT_CELL)
+                }
             }
             
         case .moderator:
             
-            if UIKitSettings.allowPromoteDemoteMembers == .enabled {
-                settingsItems.append(CometChatGroupDetail.MODERATORS_CELL)
+            FeatureRestriction.isChangingGroupMemberScopeEnabled { (success) in
+                if success == .enabled {
+                    self.settingsItems.append(CometChatGroupDetail.MODERATORS_CELL)
+                }
             }
-            if UIKitSettings.allowKickBanMembers == .enabled {
-                settingsItems.append(CometChatGroupDetail.BANNED_MEMBER_CELL)
+            FeatureRestriction.isBanningGroupMembersEnabled { (success) in
+                if success == .enabled {
+                    self.settingsItems.append(CometChatGroupDetail.BANNED_MEMBER_CELL)
+                }
             }
-            if UIKitSettings.joinOrLeaveGroup == .enabled {
-                supportItems.append(CometChatGroupDetail.EXIT_CELL)
+            FeatureRestriction.isJoinLeaveGroupsEnabled { (success) in
+                if success == .enabled {
+                    self.supportItems.append(CometChatGroupDetail.EXIT_CELL)
+                }
             }
             
         case .participant:
             
-            if UIKitSettings.joinOrLeaveGroup == .enabled {
-                supportItems.append(CometChatGroupDetail.EXIT_CELL)
+            FeatureRestriction.isJoinLeaveGroupsEnabled { (success) in
+                if success == .enabled {
+                    self.supportItems.append(CometChatGroupDetail.EXIT_CELL)
+                }
             }
         @unknown default: break }
         DispatchQueue.main.async { self.tableView.reloadData() }
@@ -238,12 +257,8 @@ class CometChatGroupDetail: UIViewController {
             self.setupItems(for: group.scope)
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
         }
@@ -265,12 +280,8 @@ class CometChatGroupDetail: UIViewController {
             DispatchQueue.main.async {self.tableView.reloadData() }
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
         })
@@ -283,12 +294,8 @@ class CometChatGroupDetail: UIViewController {
             DispatchQueue.main.async { self.tableView.reloadData() }
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
          })
@@ -319,12 +326,8 @@ class CometChatGroupDetail: UIViewController {
                 }
             }, onError: { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             })
@@ -404,8 +407,8 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let returnedView = UIView(frame: CGRect(x: 5, y: 5, width: view.frame.size.width, height: 25))
-        let sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: view.frame.size.width, height: 20))
+        let returnedView = UIView(frame: CGRect(x: 5, y: 5, width: view.frame.size.width - 20, height: 25))
+        let sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: returnedView.frame.size.width, height: 20))
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
@@ -434,12 +437,33 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
         switch section {
         case 0: return settingsItems.count
         case 1:
-            if UIKitSettings.allowAddMembers == .enabled { return 1 }else { return 0 }
+            var rows: Int = 0
+            FeatureRestriction.isAddingGroupMembersEnabled { (success) in
+                switch success {
+                case .enabled: rows = 1
+                case .disabled: rows = 0
+                }
+            }
+            return rows
         case 2:
-            if UIKitSettings.viewGroupMembers == .enabled { return members.count } else {  return 0 }
+            var rows: Int = 0
+            FeatureRestriction.isViewingGroupMembersEnabled { (success) in
+                switch success {
+                case .enabled: rows = self.members.count
+                case .disabled: rows = 0
+                }
+            }
+            return rows
         case 3: return supportItems.count
         case 4:
-            if UIKitSettings.viewShareMedia == .enabled { return 1 } else { return 0 }
+            var rows: Int = 0
+            FeatureRestriction.isSharedMediaEnabled { (success) in
+                switch success {
+                case .enabled: rows = 1
+                case .disabled: rows = 0
+                }
+            }
+            return rows
         default: return 0
         }
     }
@@ -599,62 +623,61 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                     let memberName = (tableView.cellForRow(at: indexPath) as? CometChatMembersItem)?.member?.name ?? ""
                     let groupName = self.currentGroup?.name ?? ""
                     let alert = UIAlertController(title: nil, message: "Perform an action to remove or ban \(memberName) from \(groupName).", preferredStyle: .actionSheet)
-                    alert.addAction(UIAlertAction(title: "Remove Member", style: .default, handler: { action in
-                        CometChat.kickGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
-                            DispatchQueue.main.async {
-                                if let group = self.currentGroup {
-                                    let data:[String: String] = ["guid": group.guid]
-                                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
-                                }
-                                let message = (selectedCell.member?.name ?? "") + " " + "REMOVED_SUCCESSFULLY".localized()
-                                CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
-                            }
-                        }) { (error) in
-                            DispatchQueue.main.async {
-                                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                    if errorCode.isLocalized {
-                                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                    }else{
-                                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    
+                    FeatureRestriction.isKickingGroupMembersEnabled { (success) in
+                        if success == .enabled {
+                            alert.addAction(UIAlertAction(title: "Remove Member", style: .default, handler: { action in
+                                CometChat.kickGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
+                                    DispatchQueue.main.async {
+                                        if let group = self.currentGroup {
+                                            let data:[String: String] = ["guid": group.guid]
+                                            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
+                                        }
+                                      
+                                    }
+                                }) { (error) in
+                                    DispatchQueue.main.async {
+                                        if let error = error {
+                                            CometChatSnackBoard.showErrorMessage(for: error)
+                                        }
                                     }
                                 }
-                            }
+                            }))
                         }
-                    }))
-                    alert.addAction(UIAlertAction(title: "BAN_MEMBER".localized(), style: .default, handler: { action in
-                        CometChat.banGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
-                            DispatchQueue.main.async {
-                                if let group = self.currentGroup {
-                                    let data:[String: String] = ["guid": group.guid]
-                                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
-                                }
-                                let message = (selectedCell.member?.name ?? "") + " " + "BANNED_SUCCESSFULLY".localized()
-                                CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
-                            }
-                        }) { (error) in
-                            DispatchQueue.main.async {
-                                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                    if errorCode.isLocalized {
-                                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                    }else{
-                                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+                    }
+                    
+                    FeatureRestriction.isBanningGroupMembersEnabled { (success) in
+                        if success == .enabled {
+                            alert.addAction(UIAlertAction(title: "BAN_MEMBER".localized(), style: .default, handler: { action in
+                                CometChat.banGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
+                                    DispatchQueue.main.async {
+                                        if let group = self.currentGroup {
+                                            let data:[String: String] = ["guid": group.guid]
+                                            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
+                                        }
+                                       
+                                    }
+                                }) { (error) in
+                                    DispatchQueue.main.async {
+                                        if let error = error {
+                                            CometChatSnackBoard.showErrorMessage(for: error)
+                                        }
                                     }
                                 }
-                            }
+                            }))
                         }
-                    }))
+                    }
                     alert.view.tintColor = UIKitSettings.primaryColor
                     alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
                     }))
-                    if UIKitSettings.allowKickBanMembers == .enabled {
-                        if LoggedInUser.uid == self.currentGroup?.owner || self.currentGroup?.scope == .admin || self.currentGroup?.scope == .moderator {
-                            if selectedCell.member?.scope == .participant || selectedCell.member?.scope == .moderator {
-                                self.present(alert, animated: true)
-                            }else if LoggedInUser.uid == self.currentGroup?.owner && selectedCell.member?.scope == .admin && selectedCell.member?.uid != LoggedInUser.uid {
-                                self.present(alert, animated: true)
-                            }
+                    if LoggedInUser.uid == self.currentGroup?.owner || self.currentGroup?.scope == .admin || self.currentGroup?.scope == .moderator {
+                        if selectedCell.member?.scope == .participant || selectedCell.member?.scope == .moderator {
+                            self.present(alert, animated: true)
+                        }else if LoggedInUser.uid == self.currentGroup?.owner && selectedCell.member?.scope == .admin && selectedCell.member?.uid != LoggedInUser.uid {
+                            self.present(alert, animated: true)
                         }
                     }
+                    
                 }
             }
             
@@ -669,20 +692,13 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                             DispatchQueue.main.async {
                                 self.dismiss(animated: true) {
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
-                                    let message = (self.currentGroup?.name ?? "") + " " + "DELETED_SUCCESSFULLY".localized()
-                                    CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
-                                  
+
                                 }
-                                
                             }
                         }) { (error) in
                             DispatchQueue.main.async {
-                                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                    if errorCode.isLocalized {
-                                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                    }else{
-                                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                    }
+                                if let error = error {
+                                    CometChatSnackBoard.showErrorMessage(for: error)
                                 }
                             }
                         }
@@ -690,7 +706,8 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             }))
                 alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { (action: UIAlertAction!) in
             }))
-            present(alert, animated: true, completion: nil)
+                alert.view.tintColor = UIKitSettings.primaryColor
+                present(alert, animated: true, completion: nil)
                 
               
                 
@@ -711,6 +728,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                     }))
                         alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { (action: UIAlertAction!) in
                     }))
+                    alert.view.tintColor = UIKitSettings.primaryColor
                     present(alert, animated: true, completion: nil)
                         
                     }else{
@@ -722,19 +740,13 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                     DispatchQueue.main.async {
                                         self.dismiss(animated: true) {
                                             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil, userInfo: nil)
-                                            let message =  "YOU_LEFT_FROM".localized() + " " +  (self.currentGroup?.name ?? "") + "."
-                                            CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                                         }
                                         
                                     }
                                 }) { (error) in
                                     DispatchQueue.main.async {
-                                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                            if errorCode.isLocalized {
-                                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                            }else{
-                                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                            }
+                                        if let error = error {
+                                            CometChatSnackBoard.showErrorMessage(for: error)
                                         }
                                     }
                                 }
@@ -742,6 +754,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                     }))
                         alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { (action: UIAlertAction!) in
                     }))
+                        alert.view.tintColor = UIKitSettings.primaryColor
                     present(alert, animated: true, completion: nil)
                     }
                 }
@@ -758,7 +771,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
     @available(iOS 13.0, *)
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
-   
+            var actions: [UIMenuElement] = []
     
             if  let selectedCell = tableView.cellForRow(at: indexPath) as? CometChatMembersItem  {
                 let removeMember = UIAction(title: "REMOVE_MEMBER".localized(), image: UIImage(systemName: "trash"), attributes: .destructive) { action in
@@ -769,17 +782,12 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                 let data:[String: String] = ["guid": group.guid ]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                             }
-                            let message = (selectedCell.member?.name ?? "") + " " + "REMOVED_SUCCESSFULLY".localized()
-                            CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
+                           
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                     }
@@ -793,17 +801,12 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                                 let data:[String: String] = ["guid": group.guid ]
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                             }
-                            let message = (selectedCell.member?.name ?? "") + " " + "BANNED_SUCCESSFULLY".localized()
-                            CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
+                          
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                     }
@@ -812,15 +815,26 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                 let memberName = (tableView.cellForRow(at: indexPath) as? CometChatMembersItem)?.member?.name ?? ""
                 let groupName = self.currentGroup?.name ?? ""
                 
-                 if UIKitSettings.allowKickBanMembers == .enabled {
-                if LoggedInUser.uid == self.currentGroup?.owner || self.currentGroup?.scope == .admin ||  self.currentGroup?.scope == .moderator {
-                    if selectedCell.member?.scope == .participant ||  selectedCell.member?.scope == .moderator {
-                        return UIMenu(title:  "Perform an action to remove or ban \(memberName) from \(groupName)." , children: [removeMember, banMember])
-                    }else if LoggedInUser.uid == self.currentGroup?.owner && selectedCell.member?.scope == .admin && selectedCell.member?.uid != LoggedInUser.uid || selectedCell.member?.scope == .moderator {
-                        return UIMenu(title:  "Perform an action to remove or ban \(memberName) from \(groupName)." , children: [removeMember, banMember])
+                FeatureRestriction.isKickingGroupMembersEnabled { (success) in
+                    if success == .enabled {
+                        actions.append(removeMember)
                     }
                 }
+                
+                FeatureRestriction.isBanningGroupMembersEnabled { (success) in
+                    if success == .enabled {
+                        actions.append(banMember)
+                    }
                 }
+                
+                if LoggedInUser.uid == self.currentGroup?.owner || self.currentGroup?.scope == .admin ||  self.currentGroup?.scope == .moderator {
+                    if selectedCell.member?.scope == .participant ||  selectedCell.member?.scope == .moderator {
+                        return UIMenu(title:  "Perform an action to remove or ban \(memberName) from \(groupName)." , children: actions)
+                    }else if LoggedInUser.uid == self.currentGroup?.owner && selectedCell.member?.scope == .admin && selectedCell.member?.uid != LoggedInUser.uid || selectedCell.member?.scope == .moderator {
+                        return UIMenu(title:  "Perform an action to remove or ban \(memberName) from \(groupName)." , children: actions)
+                    }
+                }
+                
             }
             return UIMenu(title: "")
         })
@@ -1094,46 +1108,28 @@ extension CometChatGroupDetail: SharedMediaDelegate {
 
 extension CometChatGroupDetail: DetailViewDelegate {
     
-    func didCallButtonPressed(for: AppEntity) {
-        
-        let actionSheetController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let audioCall: UIAlertAction = UIAlertAction(title: "AUDIO_CALL".localized(), style: .default) { action -> Void in
-            if let group = self.currentGroup {
-                CometChatCallManager().makeCall(call: .audio, to: group)
-            }
-        }
-        
-        let videoCall: UIAlertAction = UIAlertAction(title: "VIDEO_CALL".localized(), style: .default) { action -> Void in
+    func didAudioCallButtonPressed(for: AppEntity) {
+    }
+    
+    func didVideoCallButtonPressed(for: AppEntity) {
+        if let group = self.currentGroup {
+            let sessionID = group.guid
+            let videoMeeting = CustomMessage(receiverUid: group.guid, receiverType: .group, customData: ["sessionID":sessionID, "callType":"video"], type: "meeting")
+            videoMeeting.metaData = ["pushNotification":"\(String(describing: CometChat.getLoggedInUser()?.name))" + "HAS_INITIATED_GROUP_VIDEO_CALL"]
             
-            if let group = self.currentGroup {
-                CometChatCallManager().makeCall(call: .video, to: group)
+            CometChat.sendCustomMessage(message: videoMeeting, onSuccess: { (message) in
+                DispatchQueue.main.async { [weak self] in
+                    let meetingView = CometChatMeetingView()
+                    meetingView.modalPresentationStyle = .fullScreen
+                    meetingView.performCall(with: sessionID, type: .video)
+                    self?.present(meetingView, animated: true, completion: nil)
+                    let data:[String: String] = ["guid": group.guid]
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didThreadDeleted"), object: nil, userInfo: data)
+                }
+            }) { (error) in
+                
             }
-        }
-        
-        let cancelAction: UIAlertAction = UIAlertAction(title: "CANCEL".localized(), style: .cancel) { action -> Void in
-        }
-        cancelAction.setValue(UIColor.red, forKey: "titleTextColor")
-        
-        if UIKitSettings.groupAudioCall == .enabled {
-            actionSheetController.addAction(audioCall)
-        }
-       
-        if UIKitSettings.groupVideoCall == .enabled {
-            actionSheetController.addAction(videoCall)
-        }
-        
-        actionSheetController.addAction(cancelAction)
-        actionSheetController.view.tintColor = UIKitSettings.primaryColor
-        // Added ActionSheet support for iPad
-          actionSheetController.view.tintColor = UIKitSettings.primaryColor
-        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad ){
-            if let currentPopoverpresentioncontroller =
-                actionSheetController.popoverPresentationController{
-                currentPopoverpresentioncontroller.sourceView = self.view
-                self.present(actionSheetController, animated: true, completion: nil)
-            }
-        }else{
-            self.present(actionSheetController, animated: true, completion: nil)
         }
     }
+
 }

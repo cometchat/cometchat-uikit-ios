@@ -17,7 +17,8 @@ import CometChatPro
 
 protocol  DetailViewDelegate : AnyObject  {
     
-    func didCallButtonPressed(for: AppEntity)
+    func didAudioCallButtonPressed(for: AppEntity)
+    func didVideoCallButtonPressed(for: AppEntity)
 }
 
 
@@ -30,7 +31,8 @@ class CometChatDetailItem: UITableViewCell {
     @IBOutlet weak var icon: CometChatAvatar!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var detail: UILabel!
-    @IBOutlet weak var call: UIButton!
+    @IBOutlet weak var videoCall: UIButton!
+    @IBOutlet weak var audioCall: UIButton!
     
     // MARK: - Declaration of Variables
     weak var detailViewDelegate: DetailViewDelegate?
@@ -46,22 +48,37 @@ class CometChatDetailItem: UITableViewCell {
                 @unknown default:
                     detail.text = "OFFLINE".localized()
                 }
-            if UIKitSettings.showUserPresence == .disabled {
-                detail.isHidden = true
-            }else{
-                detail.isHidden = false
+            FeatureRestriction.isUserPresenceEnabled { (success) in
+                switch success {
+                case .enabled:  self.detail.isHidden = false
+                case .disabled: self.detail.isHidden = true
+                }
             }
                  icon.set(image: currentUser.avatar ?? "", with: currentUser.name ?? "")
             if #available(iOS 13.0, *) {
-                let callingIcon = UIImage(named: "audioCall.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                call.setImage(callingIcon, for: .normal)
-                call.tintColor = UIKitSettings.primaryColor
+                let videoCallIcon = UIImage(named: "videoCall.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                videoCall.setImage(videoCallIcon, for: .normal)
+                videoCall.tintColor = UIKitSettings.primaryColor
+                
+                let audioCallIcon = UIImage(named: "audioCall.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                audioCall.setImage(audioCallIcon, for: .normal)
+                audioCall.tintColor = UIKitSettings.primaryColor
+                
             } else {}
         }
-        if UIKitSettings.userVideoCall == .disabled && UIKitSettings.userAudioCall == .disabled {
-            call.isHidden = true
-        }else{
-            call.isHidden = false
+        
+        FeatureRestriction.isOneOnOneAudioCallEnabled { (success) in
+            switch success {
+            case .enabled: self.audioCall.isHidden = true
+            case .disabled: self.audioCall.isHidden = true
+            }
+        }
+        
+        FeatureRestriction.isOneOnOneVideoCallEnabled { (success) in
+            switch success {
+            case .enabled: self.videoCall.isHidden = true
+            case .disabled: self.videoCall.isHidden = true
+            }
         }
     }
     }
@@ -82,24 +99,46 @@ class CometChatDetailItem: UITableViewCell {
                 }
                 icon.set(image: currentGroup.icon ?? "", with: currentGroup.name ?? "")
                 if #available(iOS 13.0, *) {
-                    let callingIcon = UIImage(named: "audioCall.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                    call.setImage(callingIcon, for: .normal)
-                    call.tintColor = UIKitSettings.primaryColor
+                    let videoCallIcon = UIImage(named: "videoCall.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    videoCall.setImage(videoCallIcon, for: .normal)
+                    videoCall.tintColor = UIKitSettings.primaryColor
+                    
+                    let audioCallIcon = UIImage(named: "audioCall.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    audioCall.setImage(audioCallIcon, for: .normal)
+                    audioCall.tintColor = UIKitSettings.primaryColor
                 } else {}
             }
             
-            call.isHidden = true
+            FeatureRestriction.isGroupVideoCallEnabled { (success) in
+                switch success {
+                case .enabled: self.videoCall.isHidden = true
+                case .disabled: self.videoCall.isHidden = true
+                }
+            }
+            
+            audioCall.isHidden = true
         }
     }
     
-    @IBAction func didCallPressed(_ sender: Any) {
+    @IBAction func didVideoCallPressed(_ sender: Any) {
         
         if let currentUser = user {
-             detailViewDelegate?.didCallButtonPressed(for: currentUser)
+             detailViewDelegate?.didVideoCallButtonPressed(for: currentUser)
         }
         
         if let currentGroup = group {
-            detailViewDelegate?.didCallButtonPressed(for: currentGroup)
+            detailViewDelegate?.didVideoCallButtonPressed(for: currentGroup)
+        }
+    }
+    
+    @IBAction func didAudioCallPressed(_ sender: Any) {
+        
+        if let currentUser = user {
+             detailViewDelegate?.didAudioCallButtonPressed(for: currentUser)
+        }
+        
+        if let currentGroup = group {
+            detailViewDelegate?.didAudioCallButtonPressed(for: currentGroup)
         }
     }
     

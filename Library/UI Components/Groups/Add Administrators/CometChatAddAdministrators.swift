@@ -247,12 +247,8 @@ public class CometChatAddAdministrators: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
         })
@@ -373,8 +369,6 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: ["guid":self.currentGroup?.guid ?? ""])
                                     
                                     DispatchQueue.main.async {
-                                        let message =  (member.name ?? "") + "is removed from admin privilege.".localized()
-                                        CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                                         if let group = self.currentGroup {
                                             self.fetchAdmins(for: group)
                                         }
@@ -386,12 +380,8 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                               
                                                 CometChatSnackBoard.display(message:  "You don't have privilege to make \(member.name!) as participant.", mode: .error, duration: .short)
                                             }else{
-                                                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                                    if errorCode.isLocalized {
-                                                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                                    }else{
-                                                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                                    }
+                                                if let error = error {
+                                                    CometChatSnackBoard.showErrorMessage(for: error)
                                                 }
                                             }
                                         }
@@ -404,7 +394,7 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                             if self.currentGroup?.owner == LoggedInUser.uid {
                                 
                                 if member.uid != LoggedInUser.uid {
-                                    return UIMenu(title: "REMOVE".localized() + "\(memberName)" + "AS_ADMIN_FROM".localized() + "\(groupName)" + "GROUP?" .localized(), children: [removeAdmin])
+                                    return UIMenu(title: "REMOVE".localized() + " \(memberName) " + "AS_ADMIN_FROM".localized() + " \(groupName) " + "GROUP?" .localized(), children: [removeAdmin])
                                 }
                             }
                         }
@@ -420,8 +410,7 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: ["guid":self.currentGroup?.guid ?? ""])
                                 
                                 DispatchQueue.main.async {
-                                    let message =  (member.name ?? "") +  " " + "IS_NOW_ADMIN".localized()
-                                    CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
+                                 
                                     if let group = self.currentGroup {
                                         self.fetchAdmins(for: group)
                                     }
@@ -432,12 +421,8 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                        if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
                                         CometChatSnackBoard.display(message:  "You don't have privilege to make \(member.name!) as admin.", mode: .error, duration: .short)
                                        }else{
-                                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                            if errorCode.isLocalized {
-                                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                            }else{
-                                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                            }
+                                        if let error = error {
+                                            CometChatSnackBoard.showErrorMessage(for: error)
                                         }
                                        }
                                    }
@@ -446,7 +431,7 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                         }
                         let memberName = (tableView.cellForRow(at: indexPath) as? CometChatMembersItem)?.member?.name ?? ""
                         let groupName = self.currentGroup?.name ?? ""
-                        return UIMenu(title: "ADD" .localized() + "\(memberName)" + " as admin in ".localized() + "\(groupName)" + "GROUP?".localized() , children: [removeAdmin])
+                        return UIMenu(title: "ADD" .localized() + " \(memberName) " + " as admin in ".localized() + " \(groupName) " + "GROUP?".localized() , children: [removeAdmin])
                     }
                 }
             }
@@ -480,8 +465,7 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                         alert.addAction(UIAlertAction(title: "OK".localized(), style: .default, handler: { action in
                             
                             CometChat.updateGroupMemberScope(UID: member.uid ?? "", GUID: self.currentGroup?.guid ?? "", scope: .participant, onSuccess: { (success) in
-                                let message =  (member.name ?? "") + " " + "REMOVE_FROM_ADMIN_PRIVILEGE".localized()
-                                CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
+                            
                                 DispatchQueue.main.async {
                                     if let group = self.currentGroup {
                                         self.fetchAdmins(for: group)
@@ -493,12 +477,8 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                         if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
                                             CometChatSnackBoard.display(message:  "You don't have privilege to make \(member.name!) as participant.", mode: .error, duration: .short)
                                         }else{
-                                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                                if errorCode.isLocalized {
-                                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                                }else{
-                                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                                }
+                                            if let error = error {
+                                                CometChatSnackBoard.showErrorMessage(for: error)
                                             }
                                         }
                                     }
@@ -528,8 +508,7 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                 DispatchQueue.main.async {
                                     self.navigationController?.popViewController(animated: true)
                                     self.mode = .fetchGroupMembers
-                                    let message =  (member.name ?? "") +  " " + "IS_NOW_ADMIN".localized()
-                                    CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
+                                   
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: nil)
                                 }
                             }) { (error) in
@@ -538,12 +517,8 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                                         if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
                                             CometChatSnackBoard.display(message:  "You don't have privilege to make \(member.name!) as admin.", mode: .error, duration: .short)
                                         }else{
-                                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                                if errorCode.isLocalized {
-                                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                                }else{
-                                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                                }
+                                            if let error = error {
+                                                CometChatSnackBoard.showErrorMessage(for: error)
                                             }
                                         }
                                     }
@@ -552,6 +527,7 @@ extension CometChatAddAdministrators: UITableViewDelegate , UITableViewDataSourc
                         }))
                         alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
                         }))
+                        alert.view.tintColor = UIKitSettings.primaryColor
                         self.present(alert, animated: true)
                     }
                 }

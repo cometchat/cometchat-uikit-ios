@@ -133,15 +133,11 @@ public class CometChatCallsList: UIViewController {
             
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
-            
+
         })
     }
     
@@ -184,17 +180,12 @@ public class CometChatCallsList: UIViewController {
             }
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    self.activityIndicator?.stopAnimating()
-                    self.tableView.tableFooterView?.isHidden = true
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                self.activityIndicator?.stopAnimating()
+                self.tableView.tableFooterView?.isHidden = true
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
-           
         })
     }
     
@@ -392,7 +383,7 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 0.5))
+        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width - 20, height: 0.5))
         return returnedView
     }
     
@@ -537,12 +528,8 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
-                        if let errorCode = error.errorCode as? String, let errorDescription = error.errorDescription as? String{
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error as? CometChatException{
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
                 }

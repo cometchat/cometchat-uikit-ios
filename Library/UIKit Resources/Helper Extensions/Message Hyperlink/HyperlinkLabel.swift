@@ -158,11 +158,11 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
     }
     
     open override func drawText(in rect: CGRect) {
-        let range = NSRange(location: 0, length: textStorage.length)
-        
+        let range = NSRange(location: 0, length: textStorage.length + 100)
+
         textContainer.size = rect.size
         let newOrigin = textOrigin(inRect: rect)
-        
+
         layoutManager.drawBackground(forGlyphRange: range, at: newOrigin)
         layoutManager.drawGlyphs(forGlyphRange: range, at: newOrigin)
     }
@@ -181,8 +181,11 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
     // MARK: - Auto layout
     
     open override var intrinsicContentSize: CGSize {
-        let superSize = super.intrinsicContentSize
-        textContainer.size = CGSize(width: superSize.width, height: CGFloat.greatestFiniteMagnitude)
+        guard let text = text, !text.isEmpty else {
+            return .zero
+        }
+
+        textContainer.size = CGSize(width: self.preferredMaxLayoutWidth, height: CGFloat.greatestFiniteMagnitude)
         let size = layoutManager.usedRect(for: textContainer)
         return CGSize(width: ceil(size.width), height: ceil(size.height))
     }
@@ -193,7 +196,7 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
         var avoidSuperCall = false
         
         switch touch.phase {
-        case .began, .moved:
+        case .began, .moved, .regionEntered, .regionMoved:
             if let element = element(at: location) {
                 if element.range.location != selectedElement?.range.location || element.range.length != selectedElement?.range.length {
                     updateAttributesWhenSelected(false)
@@ -205,7 +208,7 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
                 updateAttributesWhenSelected(false)
                 selectedElement = nil
             }
-        case .ended:
+        case .ended, .regionExited:
             guard let selectedElement = selectedElement else { return avoidSuperCall }
             
             switch selectedElement.element {

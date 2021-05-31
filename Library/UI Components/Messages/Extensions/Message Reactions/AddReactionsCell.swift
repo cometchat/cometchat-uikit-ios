@@ -67,7 +67,7 @@ extension AddReactionsCell: UICollectionViewDataSource, UICollectionViewDelegate
 
 extension AddReactionsCell: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 65, height: 65)
+        return CGSize(width: 60, height: 60)
     }
 }
 

@@ -31,8 +31,9 @@ class CometChatUserDetails: UIViewController {
     
     static let USER_INFO_CELL = 0
     static let SEND_MESSAGE_CELL = 1
-    static let ADD_TO_CONTACTS_CELL = 2
-    static let BLOCK_USER_CELL = 3
+    static let VIEW_PROFILE_CELL = 2
+    static let ADD_TO_CONTACTS_CELL = 3
+    static let BLOCK_USER_CELL = 4
     
     // MARK: - View controller lifecycle methods
     
@@ -109,13 +110,20 @@ class CometChatUserDetails: UIViewController {
             actionsItems = [CometChatUserDetails.SEND_MESSAGE_CELL, CometChatUserDetails.ADD_TO_CONTACTS_CELL]
         }else{
             actionsItems = [CometChatUserDetails.SEND_MESSAGE_CELL]
-        }
-        if UIKitSettings.blockUser == .enabled {
-         supportItems = [ CometChatUserDetails.BLOCK_USER_CELL]
-        }else{
-            supportItems = []
+            
+            FeatureRestriction.isViewProfileEnabled { (success) in
+                if success == .enabled && self.currentUser?.link != nil {
+                    self.actionsItems.append(CometChatUserDetails.VIEW_PROFILE_CELL)
+                }
+            }
         }
         
+        FeatureRestriction.isBlockUserEnabled { (success) in
+            switch success {
+            case .enabled: self.supportItems = [ CometChatUserDetails.BLOCK_USER_CELL]
+            case .disabled: self.supportItems = []
+            }
+        }
     }
     
     /**
@@ -221,14 +229,16 @@ extension CometChatUserDetails: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
-    /// This method specifies the view for header  in CometChatUserDetails
-    /// - Parameters:
-    ///   - tableView: The table-view object requesting this information.
-    ///   - section: An index number identifying a section of tableView .
+    
+
+    
+//    / This method specifies the view for header  in CometChatUserDetails
+//    / - Parameters:
+//    /   - tableView: The table-view object requesting this information.
+//    /   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 25))
-        let sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: view.frame.size.width, height: 20))
-        
+        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width - 20, height: 25))
+        let sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: returnedView.frame.size.width, height: 20))
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
@@ -268,12 +278,16 @@ extension CometChatUserDetails: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if  indexPath.section == 0 && indexPath.row == 0 {
             return 100
-        }else if indexPath.section == 3{
-            if UIKitSettings.viewShareMedia == .enabled {
-               return 320
-            }else{
-            return 0
+        }else if indexPath.section == 3 {
+            var height: CGFloat = 0
+            FeatureRestriction.isSharedMediaEnabled { (success) in
+                if success == .enabled {
+                    height = 320
+                }else {
+                    height = 0
+                }
             }
+            return height
         }else {
             return 60
         }
@@ -305,6 +319,14 @@ extension CometChatUserDetails: UITableViewDelegate , UITableViewDataSource {
                 supportCell.textLabel?.textColor = UIKitSettings.primaryColor
                 supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
                 return supportCell
+                
+            case CometChatUserDetails.VIEW_PROFILE_CELL:
+                let supportCell = tableView.dequeueReusableCell(withIdentifier: "CometChatPrivacyAndSupportItem", for: indexPath) as! CometChatPrivacyAndSupportItem
+                supportCell.textLabel?.text = "VIEW_PROFILE".localized()
+                supportCell.textLabel?.textColor = UIKitSettings.primaryColor
+                supportCell.separatorInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+                return supportCell
+                
             case CometChatUserDetails.ADD_TO_CONTACTS_CELL:
                 let supportCell = tableView.dequeueReusableCell(withIdentifier: "CometChatPrivacyAndSupportItem", for: indexPath) as! CometChatPrivacyAndSupportItem
                 
@@ -377,6 +399,13 @@ extension CometChatUserDetails: UITableViewDelegate , UITableViewDataSource {
                     navigationController?.pushViewController(messageList, animated: true)
                 }
                 
+            case CometChatUserDetails.VIEW_PROFILE_CELL:
+                
+                let profileView = CometChatWebView()
+                profileView.webViewType = .profile
+                profileView.user = currentUser
+                self.navigationController?.pushViewController(profileView, animated: true)
+                
             case CometChatUserDetails.ADD_TO_CONTACTS_CELL:
                 
                 CometChat.addMembersToGroup(guid: currentGroup?.guid ?? "", groupMembers: [GroupMember(UID: currentUser?.uid ?? "", groupMemberScope: .participant)], onSuccess: { (sucess) in
@@ -385,18 +414,12 @@ extension CometChatUserDetails: UITableViewDelegate , UITableViewDataSource {
                         let data:[String: String] = ["guid": self.currentGroup?.guid ?? ""]
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: data)
                         let message = (self.currentUser?.name ?? "") + " " + "ADDED_SUCCESSFULLY".localized()
-                        self.dismiss(animated: true) {
-                            CometChatSnackBoard.display(message: message, mode: .success, duration: .middle)
-                        }
+                        self.dismiss(animated: true) {}
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
-                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
                 }
@@ -411,18 +434,12 @@ extension CometChatUserDetails: UITableViewDelegate , UITableViewDataSource {
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserUnblocked"), object: nil, userInfo: nil)
                         if let user = self.currentUser, let name = user.name {
                             self.set(user: user)
-                            DispatchQueue.main.async {
-                                CometChatSnackBoard.display(message: name + " " +  "UNBLOCKED_SUCCESSFULLY".localized(), mode: .success, duration: .short)
-                            }
+                           
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                     }
@@ -432,18 +449,13 @@ extension CometChatUserDetails: UITableViewDelegate , UITableViewDataSource {
                             if let user = self.currentUser, let name = user.name {
                                 self.set(user: user)
                                 let data:[String: String] = ["name": name]
-                                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: data)
-                                CometChatSnackBoard.display(message: name + " " + "BLOCKED_SUCCESSFULLY".localized(), mode: .success, duration: .short)
+                                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: data)                  
                             }
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                     }
@@ -579,43 +591,16 @@ extension CometChatUserDetails: SharedMediaDelegate {
 
 extension CometChatUserDetails: DetailViewDelegate {
     
-    func didCallButtonPressed(for: AppEntity) {
-        let actionSheetController: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let audioCall: UIAlertAction = UIAlertAction(title: "AUDIO_CALL".localized(), style: .default) { action -> Void in
-            if let user = self.currentUser {
-                CometChatCallManager().makeCall(call: .audio, to: user)
-            }
-        }
-        
-        let videoCall: UIAlertAction = UIAlertAction(title: "VIDEO_CALL".localized(), style: .default) { action -> Void in
-            if let user = self.currentUser {
-                CometChatCallManager().makeCall(call: .video, to: user)
-            }
-        }
-        
-        let cancelAction: UIAlertAction = UIAlertAction(title: "CANCEL".localized(), style: .cancel) { action -> Void in
-        }
-        cancelAction.setValue(UIColor.red, forKey: "titleTextColor")
-        
-        if UIKitSettings.userAudioCall == .enabled {
-              actionSheetController.addAction(audioCall)
-        }
-        
-        if  UIKitSettings.userVideoCall == .enabled {
-             actionSheetController.addAction(videoCall)
-        }
-       
-        actionSheetController.addAction(cancelAction)
-        actionSheetController.view.tintColor = UIKitSettings.primaryColor
-        // Added ActionSheet support for iPad
-        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad ){
-            if let currentPopoverpresentioncontroller =
-                actionSheetController.popoverPresentationController{
-                currentPopoverpresentioncontroller.sourceView = self.view
-                self.present(actionSheetController, animated: true, completion: nil)
-            }
-        }else{
-            self.present(actionSheetController, animated: true, completion: nil)
+    func didAudioCallButtonPressed(for: AppEntity) {
+        if let user = self.currentUser {
+            CometChatCallManager().makeCall(call: .audio, to: user)
         }
     }
+    
+    func didVideoCallButtonPressed(for: AppEntity) {
+        if let user = self.currentUser {
+            CometChatCallManager().makeCall(call: .video, to: user)
+        }
+    }
+
 }

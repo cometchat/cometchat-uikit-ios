@@ -80,27 +80,29 @@ class CometChatSenderLinkPreviewBubble: UITableViewCell {
                 receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessage?.readAt ?? 0))
             }else if linkPreviewMessage.deliveredAt > 0 {
-                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessage?.deliveredAt ?? 0))
             }else if linkPreviewMessage.sentAt > 0 {
-                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(linkPreviewMessage?.sentAt ?? 0))
             }else if linkPreviewMessage.sentAt == 0 {
-                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = "SENDING".localized()
             }
             replybutton.tintColor = UIKitSettings.primaryColor
-            if linkPreviewMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if linkPreviewMessage?.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = linkPreviewMessage?.replyCount {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+            FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                switch success {
+                case .enabled where self.linkPreviewMessage.replyCount != 0 :
+                    self.replybutton.isHidden = false
+                    if self.linkPreviewMessage.replyCount == 1 {
+                        self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                    }else{
+                        if let replies = self.linkPreviewMessage.replyCount as? Int {
+                            self.replybutton.setTitle("\(replies) replies", for: .normal)
+                        }
                     }
+                case .disabled, .enabled : self.replybutton.isHidden = true
                 }
-            }else{
-                replybutton.isHidden = true
             }
             let phoneParser1 = HyperlinkType.custom(pattern: RegexParser.phonePattern1)
             let phoneParser2 = HyperlinkType.custom(pattern: RegexParser.phonePattern2)

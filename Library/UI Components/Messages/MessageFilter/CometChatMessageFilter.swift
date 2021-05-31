@@ -64,9 +64,11 @@ class MessageFilter {
         messageCategoriesForUser = [MessageCategory.message,
                                     MessageCategory.custom]
         
-        if UIKitSettings.enableActionsForCalls == .enabled {
-            messageCategoriesForUser.append(MessageCategory.call)
-        }else{}
+        FeatureRestriction.isCallActionMessagesEnabled { (success) in
+            if success == .enabled {
+                messageCategoriesForUser.append(MessageCategory.call)
+            }
+        }
         
         return messageCategoriesForUser
     }
@@ -76,8 +78,10 @@ class MessageFilter {
                                      MessageCategory.custom,
                                      MessageCategory.action]
         
-        if UIKitSettings.enableActionsForCalls == .enabled {
-            messageCategoriesForGroup.append(MessageCategory.call)
+        FeatureRestriction.isCallActionMessagesEnabled { (success) in
+            if success == .enabled {
+                messageCategoriesForUser.append(MessageCategory.call)
+            }
         }
         
         return messageCategoriesForGroup
@@ -92,15 +96,22 @@ class MessageFilter {
                                MessageType.file,
                                MessageType.location,
                                MessageType.poll]
-        if UIKitSettings.sendStickers == .enabled {
-            messageTypesForUser.append(MessageType.sticker)
-        }else{}
-        if UIKitSettings.collaborativeWhiteboard == .enabled {
-            messageTypesForUser.append(MessageType.collaborativeWhiteboard)
-        }else{}
-        if UIKitSettings.collaborativeWriteboard == .enabled {
-            messageTypesForUser.append(MessageType.collaborativeDocument)
-        }else{}
+        
+        FeatureRestriction.isStickersEnabled { (success) in
+            if success == .enabled {
+                messageTypesForUser.append(MessageType.sticker)
+            }
+        }
+        FeatureRestriction.isCollaborativeWhiteBoardEnabled { (success) in
+            if success == .enabled {
+                messageTypesForUser.append(MessageType.collaborativeWhiteboard)
+            }
+        }
+        FeatureRestriction.isCollaborativeDocumentEnabled { (success) in
+            if success == .enabled {
+                messageTypesForUser.append(MessageType.collaborativeDocument)
+            }
+        }
         return messageTypesForUser
     }
     
@@ -113,21 +124,36 @@ class MessageFilter {
                                 MessageType.file,
                                 MessageType.location,
                                 MessageType.poll]
-        if UIKitSettings.sendStickers == .enabled {
-            messageTypesForGroup.append(MessageType.sticker)
-        }else{}
-        if UIKitSettings.collaborativeWhiteboard == .enabled {
-            messageTypesForGroup.append(MessageType.collaborativeWhiteboard)
-        }else{}
-        if UIKitSettings.collaborativeWriteboard == .enabled {
-            messageTypesForGroup.append(MessageType.collaborativeDocument)
-        }else{}
-        if UIKitSettings.enableActionsForGroupNotifications == .enabled {
-            messageTypesForGroup.append(ActionType.groupMember)
-        }else{}
-        if UIKitSettings.groupAudioCall == .enabled || UIKitSettings.groupVideoCall == .enabled {
-            messageTypesForGroup.append(MessageType.meeting)
-        }else{}
+        
+        FeatureRestriction.isStickersEnabled { (success) in
+            if success == .enabled {
+                messageTypesForUser.append(MessageType.sticker)
+            }
+        }
+        FeatureRestriction.isCollaborativeWhiteBoardEnabled { (success) in
+            if success == .enabled {
+                messageTypesForUser.append(MessageType.collaborativeWhiteboard)
+            }
+        }
+        FeatureRestriction.isCollaborativeDocumentEnabled { (success) in
+            if success == .enabled {
+                messageTypesForUser.append(MessageType.collaborativeDocument)
+            }
+        }
+        
+        FeatureRestriction.isGroupActionMessagesEnabled { (success) in
+            if success == .enabled {
+                messageTypesForGroup.append(ActionType.groupMember)
+            }
+        }
+        
+        FeatureRestriction.isGroupAudioCallEnabled { (audioCallSuccess) in
+            FeatureRestriction.isGroupVideoCallEnabled { (videoCallSuccess) in
+                if audioCallSuccess == .enabled || videoCallSuccess == .enabled {
+                    messageTypesForGroup.append(MessageType.meeting)
+                }
+            }
+        }
         return messageTypesForGroup
     }
     

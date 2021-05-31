@@ -37,18 +37,18 @@ public class CometChatNewCallList: UIViewController {
     
     // MARK: - Declaration of Variables
     
-    var userRequest = UsersRequest.UsersRequestBuilder(limit: 20).build()
+    var userRequest : UsersRequest?
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
-    var users: [User] = [User]()
+    var users: [[User]] = [[User]]()
     var filteredUsers: [User] = [User]()
     weak var delegate : NewCallListDelegate?
     var activityIndicator:UIActivityIndicatorView?
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
     var sectionTitle : UILabel?
     var sections = [String]()
-    
-    
+    var sortedKeys = [String]()
+    var globalGroupedUsers: [String : [User]] = [:]
     // MARK: - View controller lifecycle methods
     
     override public func loadView() {
@@ -59,7 +59,6 @@ public class CometChatNewCallList: UIViewController {
         self.setupTableView()
         self.setupSearchBar()
         self.setupNavigationBar()
-        self.fetchUsers()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -135,40 +134,80 @@ public class CometChatNewCallList: UIViewController {
         activityIndicator?.startAnimating()
         activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
         tableView.tableFooterView = activityIndicator
-        tableView.tableFooterView = activityIndicator
         tableView.tableFooterView?.isHidden = false
-        userRequest.fetchNext(onSuccess: { (users) in
-          
+        userRequest?.fetchNext(onSuccess: { (users) in
             if users.count != 0 {
-                self.users = self.users.sorted(by: { (Obj1, Obj2) -> Bool in
-                    let Obj1_Name = Obj1.name ?? ""
-                    let Obj2_Name = Obj2.name ?? ""
-                    return (Obj1_Name.localizedCaseInsensitiveCompare(Obj2_Name) == .orderedAscending)
-                })
-                
-                self.users.append(contentsOf: users)
+                self.groupUsers(users: users)
+            }else{
                 DispatchQueue.main.async {
+                    self.tableView.restore()
                     self.activityIndicator?.stopAnimating()
                     self.tableView.tableFooterView?.isHidden = true
-                    self.tableView.reloadData()
                 }
             }
-            DispatchQueue.main.async {
-                self.activityIndicator?.stopAnimating()
-                self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
-            
+         }
+    }
+    
+    private func fetchNextUsers(){
+        activityIndicator?.startAnimating()
+        activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
+        tableView.tableFooterView = activityIndicator
+        tableView.tableFooterView?.isHidden = false
+        userRequest?.fetchNext(onSuccess: { (users) in
+            if users.count != 0 {
+                self.groupUsers(users: users)
+            }else{
+                DispatchQueue.main.async {
+                    self.tableView.restore()
+                    self.activityIndicator?.stopAnimating()
+                    self.tableView.tableFooterView?.isHidden = true
+                }
+            }
+        }) { (error) in
+            DispatchQueue.main.async {
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
+                }
+            }
+         }
+    }
+    
+    private func groupUsers(users: [User]){
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
+            if strongSelf.users.isEmpty { strongSelf.tableView?.setEmptyMessage("NO_USERS_FOUND".localized())
+            }else{ strongSelf.tableView?.restore() }
+        }
+        
+        let groupedUsers = Dictionary(grouping: users) { (element) -> String in
+            guard let name = element.name?.capitalized.trimmingCharacters(in: .whitespacesAndNewlines) else {return ""}
+            return (name as NSString).substring(to: 1)
+        }
+        globalGroupedUsers.merge(groupedUsers, uniquingKeysWith: +)
+        for key in groupedUsers.keys {
+            if !sortedKeys.contains(key) { sortedKeys.append(key) }
+        }
+        sortedKeys = sortedKeys.sorted{ $0.lowercased() < $1.lowercased()}
+        var staticUsers: [[User]] = [[User]]()
+        sortedKeys.forEach { (key) in
+            if let value = globalGroupedUsers[key] {
+                staticUsers.append(value)
+            }
+        }
+        DispatchQueue.main.async {
+            self.users = staticUsers
+            self.activityIndicator?.stopAnimating()
+            self.tableView.tableFooterView?.isHidden = true
+            self.tableView.reloadData()
         }
     }
+    
     
     // MARK: - Private instance methods.
     
@@ -176,7 +215,8 @@ public class CometChatNewCallList: UIViewController {
      This method fetches the list of users from  Server using **UserRequest** Class.
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
-    
+     - See Also:
+     [CometChatUserList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-1-comet-chat-user-list)
      */
     private func refreshUsers(){
         self.sections.removeAll()
@@ -186,34 +226,31 @@ public class CometChatNewCallList: UIViewController {
         tableView.tableFooterView = activityIndicator
         tableView.tableFooterView = activityIndicator
         tableView.tableFooterView?.isHidden = false
-        userRequest = UsersRequest.UsersRequestBuilder(limit: 20).build()
-        userRequest.fetchNext(onSuccess: { (users) in
-           
+        
+        if UIKitSettings.userInMode == .all {
+            userRequest = UsersRequest.UsersRequestBuilder(limit: 20).build()
+        }else if UIKitSettings.userInMode == .friends {
+            userRequest = UsersRequest.UsersRequestBuilder(limit: 20).friendsOnly(true).build()
+        }else if UIKitSettings.userInMode == .none {
+            userRequest = UsersRequest.UsersRequestBuilder(limit: 0).build()
+        }else {
+         userRequest = UsersRequest.UsersRequestBuilder(limit: 20).build()
+        }
+        userRequest?.fetchNext(onSuccess: { (users) in
             if users.count != 0 {
-                self.users = self.users.sorted(by: { (Obj1, Obj2) -> Bool in
-                    let Obj1_Name = Obj1.name ?? ""
-                    let Obj2_Name = Obj2.name ?? ""
-                    return (Obj1_Name.localizedCaseInsensitiveCompare(Obj2_Name) == .orderedAscending)
-                })
-                
-                self.users.append(contentsOf: users)
+                self.groupUsers(users: users)
+            }else{
                 DispatchQueue.main.async {
+                    self.tableView.restore()
                     self.activityIndicator?.stopAnimating()
                     self.tableView.tableFooterView?.isHidden = true
-                    self.tableView.reloadData()
                 }
             }
-            DispatchQueue.main.async {
-                self.activityIndicator?.stopAnimating()
-                self.tableView.tableFooterView?.isHidden = true}
+        
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
         }
@@ -370,23 +407,9 @@ extension CometChatNewCallList: UITableViewDelegate , UITableViewDataSource {
     /// - Parameter tableView: An object representing the table view requesting this information.
     public func numberOfSections(in tableView: UITableView) -> Int {
         if isSearching() {
-            if filteredUsers.count != 0 {
-                for user in filteredUsers {
-                    if !sections.contains((user.name?.first?.uppercased())!){
-                        sections.append(String((user.name?.first?.uppercased())!))
-                    }
-                }
-            }
-            return sections.count
+            return 1
         }else{
-            if users.count != 0 {
-                for user in users {
-                    if !sections.contains((user.name?.first?.uppercased())!){
-                        sections.append(String((user.name?.first?.uppercased())!))
-                    }
-                }
-            }
-            return sections.count
+            return users.count
         }
     }
     
@@ -396,11 +419,7 @@ extension CometChatNewCallList: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if isSearching(){
-            return 0
-        }else{
-            return 25
-        }
+        return 25
     }
     
     
@@ -413,7 +432,7 @@ extension CometChatNewCallList: UITableViewDelegate , UITableViewDataSource {
         if isSearching(){
             return filteredUsers.count
         }else{
-            return users.count
+            return users[safe: section]?.count ?? 0
         }
     }
     
@@ -423,23 +442,7 @@ extension CometChatNewCallList: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        
-        if isSearching() {
-            let user = filteredUsers[safe: indexPath.row]
-            if sections[safe: indexPath.section] == user?.name?.first?.uppercased(){
-                return 60
-            }else{
-                return 0
-            }
-        }else{
-            let user = users[safe:indexPath.row]
-            if sections[safe: indexPath.section] == user?.name?.first?.uppercased(){
-                return 60
-            }else{
-                return 0
-            }
-            
-        }
+        return 60
     }
     
     
@@ -450,21 +453,24 @@ extension CometChatNewCallList: UITableViewDelegate , UITableViewDataSource {
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell:UITableViewCell = UITableViewCell()
-        var user: User?
+        guard let section = indexPath.section as? Int else { return cell }
         if isSearching() {
-            user = filteredUsers[safe:indexPath.row]
-        } else {
-            user = users[safe:indexPath.row]
-        }
     
-        if sections[safe: indexPath.section] == user?.name?.first?.uppercased(){
-            let userCell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as! CometChatUserListItem
-            userCell.user = user
-            return userCell
-        }else{
-            cell.separatorInset = UIEdgeInsets(top: 0, left: tableView.frame.size.width, bottom: 0, right: 0)
-            return cell
+            if let user = filteredUsers[safe: indexPath.row] {
+                let userCell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as! CometChatUserListItem
+                userCell.user = user
+                return userCell
+            }
+        } else {
+
+            if let user = users[safe: section]?[safe: indexPath.row] {
+                let userCell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as! CometChatUserListItem
+                userCell.user = user
+                return userCell
+            }
         }
+        
+        return cell
     }
     
     
@@ -473,9 +479,16 @@ extension CometChatNewCallList: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 25))
-        sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: view.frame.size.width, height: 25))
-        sectionTitle?.text = self.sections[safe: section]
+
+        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width - 20, height: 25))
+        sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: returnedView.frame.size.width, height: 25))
+        if isSearching() {
+            sectionTitle?.text = ""
+        }else{
+            if let title = ((users[safe: section]?.first?.name?.capitalized ?? "") as? NSString)?.substring(to: 1) {
+                sectionTitle?.text = title
+            }
+        }
         if #available(iOS 13.0, *) {
             sectionTitle?.textColor = .lightGray
             returnedView.backgroundColor = .systemBackground
@@ -494,7 +507,7 @@ extension CometChatNewCallList: UITableViewDelegate , UITableViewDataSource {
         let lastSectionIndex = tableView.numberOfSections - 1
         let lastRowIndex = tableView.numberOfRows(inSection: lastSectionIndex) - 1
         if indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex {
-            self.fetchUsers()
+            self.fetchNextUsers()
         }
     }
     
@@ -539,14 +552,33 @@ extension CometChatNewCallList : UISearchBarDelegate, UISearchResultsUpdating {
     /// This method update the list of users as per string provided in search bar
     /// - Parameter searchController: The UISearchController object used as the search bar.
     public func updateSearchResults(for searchController: UISearchController) {
-        userRequest = UsersRequest.UsersRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").build()
-        userRequest.fetchNext(onSuccess: { (users) in
+        if UIKitSettings.userInMode == .all {
+            userRequest = UsersRequest.UsersRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").build()
+        }else if UIKitSettings.userInMode == .friends {
+            userRequest = UsersRequest.UsersRequestBuilder(limit: 20).friendsOnly(true).set(searchKeyword: searchController.searchBar.text ?? "").build()
+        }else if UIKitSettings.userInMode == .none {
+            userRequest = UsersRequest.UsersRequestBuilder(limit: 0).set(searchKeyword: searchController.searchBar.text ?? "").build()
+        }else {
+            userRequest = UsersRequest.UsersRequestBuilder(limit: 20).set(searchKeyword: searchController.searchBar.text ?? "").build()
+        }
+        userRequest?.fetchNext(onSuccess: { (users) in
             if users.count != 0 {
                 self.filteredUsers = users
-                DispatchQueue.main.async(execute: {self.tableView.reloadData()})
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                    self.tableView?.restore()
+                    self.activityIndicator?.stopAnimating()
+                    self.tableView.tableFooterView?.isHidden = true
+                }
+               
             }else{
                 self.filteredUsers = []
-                DispatchQueue.main.async(execute: {self.tableView.reloadData()})
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                    self.activityIndicator?.stopAnimating()
+                    self.tableView.tableFooterView?.isHidden = true
+                    self.tableView?.setEmptyMessage("NO_USERS_FOUND".localized())
+                }
             }
         }) { (error) in
          

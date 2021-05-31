@@ -42,7 +42,7 @@ class CometChatReceiverMeetingMessageBubble: UITableViewCell {
             return self.selectedBackgroundView?.backgroundColor ?? UIColor.clear
         }
     }
-    var collaborativeType: CollaborativeType = .whiteboard
+    var collaborativeType: WebViewType = .whiteboard
     weak var meetingDelegate: MeetingDelegate?
     var meetingMessage: CustomMessage? {
         didSet {
@@ -61,6 +61,7 @@ class CometChatReceiverMeetingMessageBubble: UITableViewCell {
                 nameView.isHidden = true
             }
             joinButton.setTitle("JOIN".localized(), for: .normal)
+            joinButton.tintColor = UIKitSettings.primaryColor
             if let userName = meetingMessage.sender?.name {
                 name.text = userName + ":"
                 
@@ -103,18 +104,20 @@ class CometChatReceiverMeetingMessageBubble: UITableViewCell {
                     avatar.set(image: "", with: meetingMessage.sender?.name ?? "")
                 }
             
-            if meetingMessage.replyCount != 0  &&  UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if meetingMessage.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = meetingMessage.replyCount as? Int {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+                FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                    switch success {
+                    case .enabled where self.meetingMessage?.replyCount != 0 :
+                        self.replybutton.isHidden = false
+                        if self.meetingMessage?.replyCount == 1 {
+                            self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                        }else{
+                            if let replies = self.meetingMessage?.replyCount as? Int {
+                                self.replybutton.setTitle("\(replies) replies", for: .normal)
+                            }
+                        }
+                    case .disabled, .enabled : self.replybutton.isHidden = true
                     }
                 }
-            }else{
-                replybutton.isHidden = true
-            }
             replybutton.tintColor = UIKitSettings.primaryColor
             }
         }

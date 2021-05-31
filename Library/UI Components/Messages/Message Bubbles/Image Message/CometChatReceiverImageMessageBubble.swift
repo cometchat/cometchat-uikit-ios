@@ -85,24 +85,28 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
               parseImageForModeration(forMessage: mediaMessage)
             replybutton.tintColor = UIKitSettings.primaryColor
             let tapOnImageMessage = UITapGestureRecognizer(target: self, action: #selector(self.didImageMessagePressed(tapGestureRecognizer:)))
-            self.imageMessage.isUserInteractionEnabled = true
-            self.imageMessage.addGestureRecognizer(tapOnImageMessage)
+            let tapOnImageMessage1 = UITapGestureRecognizer(target: self, action: #selector(self.didImageMessagePressed(tapGestureRecognizer:)))
+            let tapOnImageMessage2 = UITapGestureRecognizer(target: self, action: #selector(self.didImageMessagePressed(tapGestureRecognizer:)))
             self.imageModerationView.isUserInteractionEnabled = true
             self.imageModerationView.addGestureRecognizer(tapOnImageMessage)
             self.unsafeContentView.isUserInteractionEnabled = true
-            self.unsafeContentView.addGestureRecognizer(tapOnImageMessage)
+            self.unsafeContentView.addGestureRecognizer(tapOnImageMessage1)
+            self.imageMessage.isUserInteractionEnabled = true
+            self.imageMessage.addGestureRecognizer(tapOnImageMessage2)
             
-            if mediaMessage.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if mediaMessage?.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = mediaMessage?.replyCount {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+            FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                switch success {
+                case .enabled where self.mediaMessage.replyCount != 0 :
+                    self.replybutton.isHidden = false
+                    if self.mediaMessage.replyCount == 1 {
+                        self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                    }else{
+                        if let replies = self.mediaMessage.replyCount as? Int {
+                            self.replybutton.setTitle("\(replies) replies", for: .normal)
+                        }
                     }
+                case .disabled, .enabled : self.replybutton.isHidden = true
                 }
-            }else{
-                replybutton.isHidden = true
             }
         }
     }

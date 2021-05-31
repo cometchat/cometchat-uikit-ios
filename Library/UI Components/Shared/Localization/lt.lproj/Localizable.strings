@@ -699,3 +699,7 @@
 "ERR_OWNER_EXIT_FORBIDDEN" = "Savininkas negali išeiti iš grupės. Pirmiausia perduokite nuosavybės teises, kad išeitumėte iš grupės.";
 "ERR_API_VERSION_MISMATCH" = "V2.0 galiniai taškai nėra pasiekiami naudojant programos v3 versiją. Prašome naudoti SDK v3.0.X, palaikantį v3 galinius taškus.";
 "URL_NOT_FOUND" = "V2.0 galiniai taškai nėra pasiekiami naudojant programos v3 versiją. Prašome naudoti SDK v3.0.X, palaikantį v3 galinius taškus.";
+"LAST_ACTIVE_AT" = "Paskutinis aktyvus";
+"SOMETHING_WENT_WRONG_ERROR" = "Kažkas nepavyko, bandykite dar kartą.";
+"MESSAGE_IN_PRIVATE" = "Message In Private";
+"VIEW_PROFILE" = "View Profile";

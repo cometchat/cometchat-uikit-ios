@@ -56,14 +56,19 @@ class CometChatMeetingView: UIViewController {
                             snackbar.show()
                         }
                     }
-                }, userListUpdated: {(userListUpdated) in }, onError: { (error) in
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
+
+                },userListUpdated: {(userListUpdated) in
+                    
+                }, audioModesUpdated: {(userListUpdated) in
+                    
+                }, onError: { (error) in
+
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
+
                 }) { (ended) in
                     DispatchQueue.main.async {
                         strongSelf.dismiss(animated: true) {
@@ -94,16 +99,17 @@ class CometChatMeetingView: UIViewController {
                     }
                 }, userListUpdated: {(userListUpdated) in
                     
+
+                }, audioModesUpdated: {(audioModesUpdated) in
+
+                
                 }, onError: { (error) in
+
                     DispatchQueue.main.async {
                         strongSelf.view.removeFromSuperview()
                         strongSelf.dismiss(animated: true, completion: nil)
-                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
                 }) { (callEnded) in

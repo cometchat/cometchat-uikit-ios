@@ -519,12 +519,8 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
             
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
              
                 self.refreshControl.endRefreshing()
@@ -548,6 +544,14 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
       
         switch type {
         case .user:
+            FeatureRestriction.isHideDeletedMessagesEnabled { (success) in
+                switch success {
+                case .enabled: break
+//                    self.messageRequest = MessagesRequest.MessageRequestBuilder().set(uid: forID).hideReplies(hide: true).hideDeletedMessages(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForUser()).set(types: MessageFilter.fetchMessageTypesForUser()).build()
+                case .disabled:
+                    self.messageRequest = MessagesRequest.MessageRequestBuilder().set(uid: forID).hideReplies(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForUser()).set(types: MessageFilter.fetchMessageTypesForUser()).build()
+                }
+            }
             messageRequest = MessagesRequest.MessageRequestBuilder().set(uid: forID).hideReplies(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForUser()).set(types: MessageFilter.fetchMessageTypesForUser()).build()
             messageRequest?.fetchPrevious(onSuccess: { [weak self] (fetchedMessages) in
                 guard let strongSelf = self else { return }
@@ -580,19 +584,22 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                 }
                 }, onError: { (error) in
                     DispatchQueue.main.async {
-                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
             })
             typingIndicator = TypingIndicator(receiverID: forID, receiverType: .user)
         case .group:
-            
-            messageRequest = MessagesRequest.MessageRequestBuilder().set(guid: forID).hideReplies(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForGroups()).set(types: MessageFilter.fetchMessageTypesForGroup()).build()
+            FeatureRestriction.isHideDeletedMessagesEnabled { (success) in
+                switch success {
+                case .enabled: break
+//                    self.messageRequest = MessagesRequest.MessageRequestBuilder().set(guid: forID).hideReplies(hide: true).hideDeletedMessages(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForGroups()).set(types: MessageFilter.fetchMessageTypesForGroup()).build()
+                case .disabled:
+                    self.messageRequest = MessagesRequest.MessageRequestBuilder().set(guid: forID).hideReplies(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForGroups()).set(types: MessageFilter.fetchMessageTypesForGroup()).build()
+                }
+            }
+           
             messageRequest?.fetchPrevious(onSuccess: {[weak self] (fetchedMessages) in
                 guard let strongSelf = self else { return }
                 guard let messages = fetchedMessages else { return }
@@ -624,12 +631,8 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                 }
                 }, onError: { (error) in
                     DispatchQueue.main.async {
-                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
                     
@@ -956,26 +959,21 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
      [CometChatThreadedMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
     private func addBackButton(bool: Bool) {
-        
         let backButton = UIButton(type: .custom)
         if #available(iOS 13.0, *) {
             let edit = UIImage(named: "back.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-            backButton.setImage(edit, for: .normal)
+             backButton.setImage(edit, for: .normal)
             backButton.tintColor = UIKitSettings.primaryColor
         } else {}
         backButton.setTitle("BACK".localized(), for: .normal)
+        backButton.tintColor = UIKitSettings.primaryColor
         backButton.setTitleColor(backButton.tintColor, for: .normal) // You can change the TitleColor
         backButton.addTarget(self, action: #selector(self.didBackButtonPressed(_:)), for: .touchUpInside)
-        
-        let cancelButton = UIButton(type: .custom)
-        cancelButton.setTitle("CANCEL".localized(), for: .normal)
-        cancelButton.setTitleColor(backButton.tintColor, for: .normal) // You can change the TitleColor
-        cancelButton.addTarget(self, action: #selector(self.didCancelButtonPressed(_:)), for: .touchUpInside)
         self.navigationItem.leftBarButtonItem = nil
         if bool == true {
             self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         }else{
-            self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButton)
+            self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
         }
     }
     
@@ -1224,68 +1222,81 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                 self.addBackButton(bool: false)
                 var actions: [MessageAction] = []
                 
-                if UIKitSettings.messageReaction  == .enabled {
-                    actions.append(.reaction)
+                let group: RowPresentable = MessageActionsGroup()
+                
+                FeatureRestriction.isReactionsEnabled { (success) in
+                    if success == .enabled {
+                        actions.append(.reaction)
+                    }
+                }
+             
+              
+                FeatureRestriction.isMessageRepliesEnabled { (success) in
+                    if success == .enabled {
+                        actions.append(.reply)
+                    }
                 }
                 
-                if UIKitSettings.threadedChats  == .enabled {
-                    actions.append(.thread)
+                FeatureRestriction.isShareCopyForwardMessageEnabled { (success) in
+                    if success == .enabled {
+                        actions.append(.copy)
+                        actions.append(.forward)
+                        actions.append(.share)
+                    }
+                }
+              
+                FeatureRestriction.isMessageInPrivateEnabled { (success) in
+                    if success == .enabled {
+                        actions.append(.messageInPrivate)
+                    }
                 }
                 
-                if UIKitSettings.replyingToMessage == .enabled {
-                    actions.append(.reply)
-                }
-                
-                if UIKitSettings.shareCopyForwardMessage == .enabled {
-                    actions.append(.copy)
-                    actions.append(.forward)
-                    actions.append(.share)
-                }
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? CometChatReceiverTextMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
                     
                     self.selectedMessage = selectedCell.textMessageInThread
-                    
-                    
+
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
                         
-                        let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.textMessageInThread?.sender?.uid == LoggedInUser.uid {
                             
-                            if UIKitSettings.editMessage == .enabled {
-                                actions.append(.edit)
-                            }
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isEditMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.edit)
+                                }
                             }
                             
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
+                            }
+            
                         }else{
                             
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
                         }
                     }else{
-                        let group: RowPresentable = MessageActionsGroup()
+                        
                         if selectedCell.textMessageInThread?.sender?.uid == LoggedInUser.uid {
                             
-                            if UIKitSettings.editMessage == .enabled {
-                                actions.append(.edit)
-                            }
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isEditMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.edit)
+                                }
                             }
                             
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
+                            }
+                        
+                        }else{}
                     }
                 }
                 
@@ -1294,77 +1305,86 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                     self.selectedMessage = selectedCell.textMessageInThread
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
                         
-                        let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.textMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            if UIKitSettings.editMessage == .enabled {
-                                actions.append(.edit)
+                            
+                            FeatureRestriction.isEditMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.edit)
+                                }
                             }
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
+                           
                         }else{
                             
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
+                           
                         }
                     }else{
-                        let group: RowPresentable = MessageActionsGroup()
+                     
                         if selectedCell.textMessageInThread?.sender?.uid == LoggedInUser.uid {
                             
-                            if UIKitSettings.editMessage == .enabled {
-                                actions.append(.edit)
-                            }
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isEditMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.edit)
+                                }
                             }
                             
-                            (group.rowVC as? MessageActions)?.set(actions:actions)
-                            presentPanModal(group.rowVC)
-                        }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
+                            }
+                          
                         }
                     }
                 }
                 
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? CometChatReceiverLocationMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator && UIKitSettings.allowModeratorToDeleteMemberMessages == .enabled {
-                        self.selectedMessage = selectedCell.locationMessage
-                        let group: RowPresentable = MessageActionsGroup()
-                        if UIKitSettings.deleteMessage == .enabled {
-                            actions.append(.delete)
-                        }
-                        (group.rowVC as? MessageActions)?.set(actions: actions)
-                        presentPanModal(group.rowVC)
-                    }else{
-                        self.selectedMessage = selectedCell.locationMessage
-                        let group: RowPresentable = MessageActionsGroup()
-                        (group.rowVC as? MessageActions)?.set(actions: actions)
-                        presentPanModal(group.rowVC)
+                    self.selectedMessage = selectedCell.locationMessage
+                    FeatureRestriction.isDeleteMemberMessageEnabled { (success) in
+                        switch success {
+                        case .enabled:
+                            if self.currentGroup?.scope == .admin || self.currentGroup?.scope == .moderator {
+                                
+                                FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                    if success == .enabled {
+                                        actions.append(.delete)
+                                    }
+                                }
+                        
+                            }
+                        case .disabled:break }
                     }
                 }
                 
                 if  let selectedCell = tableView?.cellForRow(at: indexPath) as? CometChatReceiverPollMessageBubble {
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-                    if currentGroup?.scope == .admin || currentGroup?.scope == .moderator && UIKitSettings.allowModeratorToDeleteMemberMessages == .enabled {
-                        let group: RowPresentable = MessageActionsGroup()
-                        self.selectedMessage = selectedCell.pollMessage
-                        if UIKitSettings.deleteMessage == .enabled {
-                            actions.append(.delete)
+                    self.selectedMessage = selectedCell.pollMessage
+                    FeatureRestriction.isDeleteMemberMessageEnabled { (success) in
+                        switch success {
+                        case .enabled:
+                            if self.currentGroup?.scope == .admin || self.currentGroup?.scope == .moderator {
+
+                                FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                    if success == .enabled {
+                                        actions.append(.delete)
+                                    }
+                                }
+                              
+                            }
+                        case .disabled: break
+                    
                         }
-                        (group.rowVC as? MessageActions)?.set(actions: actions)
-                        presentPanModal(group.rowVC)
-                    }else{
-                        self.selectedMessage = selectedCell.pollMessage
-                        let group: RowPresentable = MessageActionsGroup()
-                        (group.rowVC as? MessageActions)?.set(actions: actions)
-                        presentPanModal(group.rowVC)
                     }
                 }
                 
@@ -1372,32 +1392,27 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
                     self.selectedMessage = selectedCell.mediaMessageInThread
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
-                        let group: RowPresentable = MessageActionsGroup()
+            
                         if selectedCell.mediaMessageInThread?.sender?.uid == LoggedInUser.uid {
                             
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
                             
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }
+                        }else{}
                     }else{
                         let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.mediaMessageInThread?.sender?.uid == LoggedInUser.uid {
                             
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }
+                    
+                        }else{ }
                     }
                 }
                 
@@ -1405,32 +1420,29 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
                     self.selectedMessage = selectedCell.mediaMessageInThread
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
-                        let group: RowPresentable = MessageActionsGroup()
+                       
                         if selectedCell.mediaMessageInThread?.sender?.uid == LoggedInUser.uid {
                             
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
+                           
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
+                           
                         }
                     }else{
-                        let group: RowPresentable = MessageActionsGroup()
+                       
                         if selectedCell.mediaMessageInThread?.sender?.uid == LoggedInUser.uid {
                             
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }
+                          
+                        }else{}
                     }
                 }
                 
@@ -1438,28 +1450,26 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
                     self.selectedMessage = selectedCell.linkPreviewMessageInThread
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
-                        let group: RowPresentable = MessageActionsGroup()
+                       
                         if selectedCell.linkPreviewMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }else{
-                            (group.rowVC as? MessageActions)?.set(actions:actions)
-                            presentPanModal(group.rowVC)
-                        }
+                         
+                        }else{ }
                     }else{
-                        let group: RowPresentable = MessageActionsGroup()
+                       
                         if selectedCell.linkPreviewMessageInThread?.sender?.uid == LoggedInUser.uid {
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
+                           
                         }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
+                            
                         }
                     }
                 }
@@ -1467,31 +1477,27 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
                     self.selectedMessage = selectedCell.fileMessageInThread
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
-                        let group: RowPresentable = MessageActionsGroup()
+                       
                         if selectedCell.fileMessageInThread?.sender?.uid == LoggedInUser.uid {
                             
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }
+                           
+                        }else{ }
                     }else{
-                        let group: RowPresentable = MessageActionsGroup()
+                        
                         if selectedCell.fileMessageInThread?.sender?.uid == LoggedInUser.uid {
                             
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }
+                          
+                        }else{}
                     }
                 }
                 
@@ -1499,36 +1505,32 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                     AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
                     self.selectedMessage = selectedCell.audioMessageinThread
                     if currentGroup?.scope == .admin || currentGroup?.scope == .moderator {
-                        let group: RowPresentable = MessageActionsGroup()
+            
                         if selectedCell.audioMessageinThread?.sender?.uid == LoggedInUser.uid {
                             
-                            
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }
+                           
+                        }else{}
                     }else{
                         let group: RowPresentable = MessageActionsGroup()
                         if selectedCell.audioMessageinThread?.sender?.uid == LoggedInUser.uid {
                             
-                            
-                            if UIKitSettings.deleteMessage == .enabled {
-                                actions.append(.delete)
+                            FeatureRestriction.isDeleteMessageEnabled { (success) in
+                                if success == .enabled {
+                                    actions.append(.delete)
+                                }
                             }
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }else{
-                            (group.rowVC as? MessageActions)?.set(actions: actions)
-                            presentPanModal(group.rowVC)
-                        }
+                          
+                        }else{}
                     }
                 }
+                
+                (group.rowVC as? MessageActions)?.set(actions: actions)
+                presentPanModal(group.rowVC)
             }
         }
     }
@@ -1754,14 +1756,19 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         reactionButtonSpace.constant = 0
         reactionButtonWidth.constant = 0
         
-        if UIKitSettings.sendEmojies == .disabled {
-            textView.keyboardType = .asciiCapable
+        FeatureRestriction.isEmojisEnabled { (success) in
+            if success == .disabled {
+                self.textView.keyboardType = .asciiCapable
+            }
         }
         
-        if UIKitSettings.sendMessage == .enabled {
-            messageComposer.isHidden = false
-        }else{
-            messageComposer.isHidden = true
+        FeatureRestriction.isGroupChatEnabled { (success) in
+            switch success {
+            case .enabled:
+                self.messageComposer.isHidden = false
+            case .disabled:
+                self.messageComposer.isHidden = true
+            }
         }
     }
     
@@ -1794,10 +1801,18 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                 self.blockedView.isHidden = false
                 self.tableViewBottomConstraint.constant = 110
             case .smartRepliesView:
-                if !smartRepliesView.buttontitles.isEmpty {
-                    self.smartRepliesView.isHidden = false
-                    self.tableViewBottomConstraint.constant = 66
-                    self.tableView?.scrollToBottomRow()
+                FeatureRestriction.isSmartRepliesEnabled { (success) in
+                    switch success {
+                    case .enabled:
+                        if !self.smartRepliesView.buttontitles.isEmpty {
+                            self.smartRepliesView.isHidden = false
+                            self.tableViewBottomConstraint.constant = 66
+                            self.tableView?.scrollToBottomRow()
+                        }
+                    case .disabled:
+                        self.smartRepliesView.isHidden = true
+                        self.tableViewBottomConstraint.constant = 0
+                    }
                 }
             case .editMessageView:
                 self.editView.isHidden = false
@@ -1907,12 +1922,8 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                 }
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
@@ -1997,12 +2008,8 @@ extension CometChatThreadedMessageList: UIDocumentPickerDelegate {
                     }) { (error) in
                         
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                     }
@@ -2039,12 +2046,8 @@ extension CometChatThreadedMessageList: UIDocumentPickerDelegate {
                             strongSelf.tableView?.reloadData()}
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                     }
@@ -2741,10 +2744,11 @@ extension CometChatThreadedMessageList : UITextViewDelegate {
                 return
             }
             CometChat.endTyping(indicator: indicator)
-            if UIKitSettings.sendVoiceNotes == .enabled {
-                microhone.isHidden = false
-            }else{
-                microhone.isHidden = true
+            FeatureRestriction.isVoiceNotesEnabled { (success) in
+                switch success {
+                case .enabled: self.microhone.isHidden = false
+                case .disabled: self.microhone.isHidden = true
+                }
             }
         }
     }
@@ -2756,20 +2760,25 @@ extension CometChatThreadedMessageList : UITextViewDelegate {
             return
         }
         if textView.text?.count == 0 {
-           if UIKitSettings.sendTypingIndicator == .enabled {
-                CometChat.startTyping(indicator: indicator)
+            FeatureRestriction.isTypingIndicatorsEnabled { (success) in
+                if success == .enabled {
+                    CometChat.startTyping(indicator: indicator)
+                }
             }
-           if UIKitSettings.sendVoiceNotes == .enabled {
-               microhone.isHidden = false
-            }else{
-                microhone.isHidden = true
+            FeatureRestriction.isVoiceNotesEnabled { (success) in
+                switch success {
+                case .enabled: self.microhone.isHidden = false
+                case .disabled: self.microhone.isHidden = true
+                }
             }
         }else{
             CometChat.endTyping(indicator: indicator)
             microhone.isHidden = true
         }
-        if UIKitSettings.sendTypingIndicator == .enabled {
-            CometChat.startTyping(indicator: indicator)
+        FeatureRestriction.isTypingIndicatorsEnabled { (success) in
+            if success == .enabled {
+                CometChat.startTyping(indicator: indicator)
+            }
         }
     }  
 }
@@ -2895,31 +2904,39 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
     public func didAttachmentButtonPressed() {
         let group: RowPresentable = MessageActionsGroup()
         var actions = [MessageAction]()
-        if UIKitSettings.sendPhotoVideos == .enabled {
-            actions.append(.takeAPhoto)
-            actions.append(.photoAndVideoLibrary)
-        }
-        if UIKitSettings.sendFiles == .enabled {
-            actions.append(.document)
-        }
-        if UIKitSettings.shareLocation == .enabled {
-            actions.append(.shareLocation)
-        }
-//        if UIKitSettings.sendStickers == .enabled {
-//            actions.append(.sticker)
-//        }
-        if UIKitSettings.createPoll == .enabled {
-            actions.append(.createAPoll)
+        
+        FeatureRestriction.isPhotosVideosEnabled { (success) in
+            if success == .enabled {
+                actions.append(.takeAPhoto)
+                actions.append(.photoAndVideoLibrary)
+            }
         }
         
-        if UIKitSettings.collaborativeWhiteboard == .enabled {
-            actions.append(.whiteboard)
+        FeatureRestriction.isFilesEnabled { (success) in
+            if success == .enabled {
+                actions.append(.document)
+            }
         }
         
-        if UIKitSettings.collaborativeWhiteboard == .enabled {
-            actions.append(.writeboard)
+        FeatureRestriction.isLocationSharingEnabled{ (success) in
+            if success == .enabled {
+                actions.append(.shareLocation)
+            }
         }
         
+        
+        FeatureRestriction.isCollaborativeWhiteBoardEnabled { (success) in
+            if success == .enabled {
+                actions.append(.whiteboard)
+            }
+        }
+        
+        FeatureRestriction.isCollaborativeDocumentEnabled { (success) in
+            if success == .enabled {
+                actions.append(.writeboard)
+            }
+        }
+       
         (group.rowVC as? MessageActions)?.set(actions: actions)
         presentPanModal(group.rowVC)
     }
@@ -2974,12 +2991,8 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                     strongSelf.tableView?.reloadData()}
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
@@ -3023,12 +3036,8 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                     strongSelf.tableView?.reloadData()}
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
@@ -3077,12 +3086,8 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                         strongSelf.tableView?.reloadData()}
                 }) { (error) in
                     DispatchQueue.main.async {
-                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
                 }
@@ -3120,12 +3125,8 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                          strongSelf.tableView?.reloadData()}
                 }) { (error) in
                     DispatchQueue.main.async {
-                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
                 }
@@ -3191,6 +3192,9 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                         strongSelf.didPreformCancel()
                         strongSelf.messageMode = .send
                         strongSelf.textView.text = ""
+                        if let error = error as? CometChatException{
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }
                     }
                 }
             }
@@ -3251,12 +3255,8 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                         textMessage = nil
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                     }
@@ -3306,12 +3306,8 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                     }
@@ -3368,12 +3364,8 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                         textMessage = nil
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                     }
@@ -3418,12 +3410,8 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                         }
                     }) { (error) in
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                      }
@@ -3674,29 +3662,43 @@ extension CometChatThreadedMessageList : CometChatMessageDelegate {
     
     public func onMessageEdited(message: BaseMessage) {
         
-        DispatchQueue.main.async {  [weak self] in
-            guard let strongSelf = self else { return }
-            switch message.receiverType {
-            case .user:
-                strongSelf.fetchThread(forID: strongSelf.currentUser?.uid ?? "", messageID: strongSelf.currentMessage?.id ?? 0, type: .user, scrollToBottom: false)
-                
-            case .group:
-                strongSelf.fetchThread(forID: strongSelf.currentGroup?.guid ?? "", messageID: strongSelf.currentMessage?.id ?? 0, type: .group, scrollToBottom: false)
-            @unknown default: break
+        if let indexpath = chatMessages.indexPath(where: {$0.id == message.id}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
+            DispatchQueue.main.async {  [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.tableView?.beginUpdates()
+                strongSelf.chatMessages[section][row] = message
+                strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
+                strongSelf.tableView?.endUpdates()
             }
         }
     }
     
     public func onMessageDeleted(message: BaseMessage) {
-        DispatchQueue.main.async {  [weak self] in
-            guard let strongSelf = self else { return }
-            switch message.receiverType {
-            case .user:
-                strongSelf.fetchThread(forID: strongSelf.currentUser?.uid ?? "", messageID: strongSelf.currentMessage?.id ?? 0, type: .user, scrollToBottom: false)
+        
+        FeatureRestriction.isHideDeletedMessagesEnabled { (success) in
+            switch success {
+            
+            case .enabled:
                 
-            case .group:
-                strongSelf.fetchThread(forID: strongSelf.currentGroup?.guid ?? "", messageID: strongSelf.currentMessage?.id ?? 0, type: .group, scrollToBottom: false)
-            @unknown default: break
+                if let indexpath = self.chatMessages.indexPath(where: {$0.id == message.id}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
+                    DispatchQueue.main.async {  [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.chatMessages[indexpath.section].remove(at: indexpath.row)
+                        strongSelf.tableView?.deleteRows(at: [indexpath], with: .automatic)
+                        strongSelf.tableView?.reloadData()
+                    }
+                }
+      
+            case .disabled:
+                if let indexpath = self.chatMessages.indexPath(where: {$0.id == message.id}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
+                    DispatchQueue.main.async {  [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.tableView?.beginUpdates()
+                        strongSelf.chatMessages[section][row] = message
+                        strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
+                        strongSelf.tableView?.endUpdates()
+                    }
+                }
             }
         }
     }
@@ -3802,12 +3804,8 @@ extension CometChatThreadedMessageList : CometChatSmartRepliesPreviewDelegate {
                 }
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
@@ -3843,12 +3841,8 @@ extension CometChatThreadedMessageList : CometChatSmartRepliesPreviewDelegate {
                     strongSelf.tableView?.reloadData() }
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
@@ -3920,6 +3914,7 @@ extension CometChatThreadedMessageList: CometChatReceiverTextMessageBubbleDelega
             }))
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
             }))
+            alert.view.tintColor = UIKitSettings.primaryColor
             present(alert, animated: true, completion: nil)
         }
     }
@@ -3952,6 +3947,7 @@ extension CometChatThreadedMessageList: CometChatReceiverReplyMessageBubbleDeleg
             }))
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
             }))
+            alert.view.tintColor = UIKitSettings.primaryColor
             present(alert, animated: true, completion: nil)
         }
     }
@@ -3969,8 +3965,15 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     
     func didAudioCallPressed() {}
     
-    func didMessageTranslatePressed() {
-        
+    func didMessageTranslatePressed() {}
+    
+    func didMessageInPrivatePressed() {
+        if let message = selectedMessage, let user = message.sender {
+            let messageList = CometChatMessageList()
+            messageList.set(conversationWith: user, type: .user)
+            messageList.isMessageInPrivateEnabled = true
+            self.navigationController?.pushViewController(messageList, animated: true)
+        }
     }
     
     func didCollaborativeWriteboardPressed() {
@@ -3979,9 +3982,9 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
             CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"], onSuccess: { (response) in
                 
             }) { (error) in
-              
-                    CometChatSnackBoard.display(message: "ERR_COLLABORATIVE_DOCUMENT_NOT_ENABLED".localized(), mode: .error, duration: .middle)
-               
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
+                }
             }
         }
         
@@ -3989,9 +3992,9 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
             CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"], onSuccess: { (response) in
                 
             }) { (error) in
-               
-                    CometChatSnackBoard.display(message: "ERR_COLLABORATIVE_DOCUMENT_NOT_ENABLED".localized(), mode: .error, duration: .middle)
-            
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
+                }
             }
         }
     }
@@ -4001,9 +4004,9 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
             CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":uid,"receiverType":"user"], onSuccess: { (response) in
                 
             }) { (error) in
-              
-                    CometChatSnackBoard.display(message: "ERR_COLLABORATIVE_WHITEBOARD_NOT_ENABLED".localized(), mode: .error, duration: .middle)
-               
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
+                }
             }
         }
         
@@ -4013,9 +4016,9 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
             CometChat.callExtension(slug: "whiteboard", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"], onSuccess: { (response) in
                 
             }) { (error) in
-               
-                    CometChatSnackBoard.display(message: "ERR_COLLABORATIVE_WHITEBOARD_NOT_ENABLED".localized(), mode: .error, duration: .middle)
-           
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
+                }
             }
         }
     }
@@ -4135,6 +4138,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                     }
                 }
             }))
+            alert.view.tintColor = UIKitSettings.primaryColor
             alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
                 
             }))
@@ -4194,9 +4198,11 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                     }
                 }
             }))
+            alert.view.tintColor = UIKitSettings.primaryColor
             alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
                 
             }))
+            alert.view.tintColor = UIKitSettings.primaryColor
             self.present(alert, animated: true)
         }
     }
@@ -4268,12 +4274,8 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                 }
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error.errorCode as? String, let errorDescription = error.errorDescription as? String{
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error as? CometChatException{
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                     self.didPreformCancel()
                 }
@@ -4281,23 +4283,36 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
         }else{
             guard let indexPath = selectedIndexPath else { return }
             CometChat.delete(messageId: message.id, onSuccess: { (deletedMessage) in
-                let textMessage:BaseMessage = (deletedMessage as? ActionMessage)?.actionOn as! BaseMessage
-                if let row = self.chatMessages[indexPath.section].firstIndex(where: {$0.id == textMessage.id}) {
-                    self.chatMessages[indexPath.section][row] = textMessage
-                }
-                DispatchQueue.main.async {
+                FeatureRestriction.isHideDeletedMessagesEnabled { (success) in
+                    switch success {
                     
-                    self.tableView?.reloadRows(at: [indexPath], with: .automatic)
-                    self.didPreformCancel()
+                    case .enabled:
+                                           
+                        if let indexpath = self.chatMessages.indexPath(where: {$0.id == message.id}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
+                            DispatchQueue.main.async {  [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.chatMessages[indexpath.section].remove(at: indexpath.row)
+                                strongSelf.tableView?.deleteRows(at: [indexpath], with: .automatic)
+                                strongSelf.tableView?.reloadData()
+                                strongSelf.didPreformCancel()
+                            }
+                        }
+                      
+                    case .disabled:
+                        let textMessage:BaseMessage = (deletedMessage as? ActionMessage)?.actionOn as! BaseMessage
+                        if let row = self.chatMessages[indexPath.section].firstIndex(where: {$0.id == textMessage.id}) {
+                            self.chatMessages[indexPath.section][row] = textMessage
+                        }
+                        DispatchQueue.main.async {
+                            self.tableView?.reloadRows(at: [indexPath], with: .automatic)
+                            self.didPreformCancel()
+                        }
+                    }
                 }
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error.errorCode as? String, let errorDescription = error.errorDescription as?  String{
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error as? CometChatException{
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                     self.didPreformCancel()
                 }
@@ -4409,7 +4424,7 @@ extension CometChatThreadedMessageList : LocationCellDelegate, CLLocationManager
         }))
         
         actionSheet.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: nil))
-        
+        actionSheet.view.tintColor = UIKitSettings.primaryColor
         self.present(actionSheet, animated: true, completion: nil)
     }
     
@@ -4484,9 +4499,9 @@ extension CometChatThreadedMessageList: PollExtensionDelegate {
             }
         }) { (error) in
                 DispatchQueue.main.async {
-                  
-                        CometChatSnackBoard.display(message: "ERR_POLLS_NOT_ENABLED".localized(), mode: .error, duration: .middle)
-                
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
+                    }
                 }
         }
         
@@ -4624,9 +4639,9 @@ extension CometChatThreadedMessageList: CometChatMessageReactionsDelegate {
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
-                    
-                            CometChatSnackBoard.display(message: "ERR_REACTIONS_NOT_ENABLED".localized(), mode: .error, duration: .middle)
-                    
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }
                     }
                 }
             }
@@ -4636,9 +4651,9 @@ extension CometChatThreadedMessageList: CometChatMessageReactionsDelegate {
                     self.dismiss(animated: true, completion: nil)
                 }
             }) { (error) in
-               
-                    CometChatSnackBoard.display(message: "ERR_REACTIONS_NOT_ENABLED".localized(), mode: .error, duration: .middle)
-            
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
+                }
             }
         }
     }
@@ -4664,16 +4679,16 @@ extension CometChatThreadedMessageList: CollaborativeDelegate {
 
         if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let collaborativeDictionary = cometChatExtension["whiteboard"] as? [String : Any], let collaborativeURL =  collaborativeDictionary["board_url"] as? String {
             
-            let collaborativeView = CometChatCollaborativeView()
-            collaborativeView.collaborativeType = .whiteboard
-            collaborativeView.collaborativeURL = collaborativeURL
+            let collaborativeView = CometChatWebView()
+            collaborativeView.webViewType = .whiteboard
+            collaborativeView.url = collaborativeURL
             self.navigationController?.pushViewController(collaborativeView, animated: true)
             
         }else if let metaData = forMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let collaborativeDictionary = cometChatExtension["document"] as? [String : Any], let collaborativeURL =  collaborativeDictionary["document_url"] as? String {
             
-            let collaborativeView = CometChatCollaborativeView()
-            collaborativeView.collaborativeType = .writeboard
-            collaborativeView.collaborativeURL = collaborativeURL
+            let collaborativeView = CometChatWebView()
+            collaborativeView.webViewType = .writeboard
+            collaborativeView.url = collaborativeURL
             self.navigationController?.pushViewController(collaborativeView, animated: true)
         
         }

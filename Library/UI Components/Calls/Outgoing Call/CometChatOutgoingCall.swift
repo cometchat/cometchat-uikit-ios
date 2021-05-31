@@ -65,17 +65,12 @@ import  AVFoundation
                 self.currentCall = ongoingCall
                 
                 DispatchQueue.main.async {
-                  
                     CometChatSnackBoard.display(message: "CALLING".localized() + " \(name)", mode: .info, duration: .short)
                 }
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
@@ -90,12 +85,8 @@ import  AVFoundation
                 }
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
@@ -198,14 +189,17 @@ extension CometChatOutgoingCall: OutgoingCallDelegate {
                                 CometChatSnackBoard.display(message: "\(name) " + "LEFT_THE_CALL".localized(), mode: .info, duration: .short)
                             }
                         }
-                    }, userListUpdated: {(userListUpdated) in }, onError: { (error) in
+
+
+                    }, userListUpdated: {(userListUpdated) in
+                        
+                    }, audioModesUpdated: {(userListUpdated) in
+                        
+                    }, onError: { (error) in
+
                         DispatchQueue.main.async {
-                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                if errorCode.isLocalized {
-                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                }else{
-                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                }
+                            if let error = error {
+                                CometChatSnackBoard.showErrorMessage(for: error)
                             }
                         }
                     }) { (ended) in
