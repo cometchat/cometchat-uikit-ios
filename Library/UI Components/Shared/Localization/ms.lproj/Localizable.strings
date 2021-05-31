@@ -699,3 +699,7 @@
 "ERR_OWNER_EXIT_FORBIDDEN" = "Pemilik tidak boleh meninggalkan kumpulan, sila pindahkan hak milik terlebih dahulu untuk meninggalkan kumpulan.";
 "ERR_API_VERSION_MISMATCH" = "Titik akhir v2.0 tidak dapat diakses untuk versi aplikasi v3. Sila gunakan SDK v3.0.X yang menyokong titik akhir v3.";
 "URL_NOT_FOUND" = "Titik akhir v2.0 tidak dapat diakses untuk versi aplikasi v3. Sila gunakan SDK v3.0.X yang menyokong titik akhir v3.";
+"LAST_ACTIVE_AT" = "Aktif Terakhir Pada";
+"SOMETHING_WENT_WRONG_ERROR" = "Ada yang tidak kena, sila cuba lagi.";
+"MESSAGE_IN_PRIVATE" = "Message In Private";
+"VIEW_PROFILE" = "View Profile";

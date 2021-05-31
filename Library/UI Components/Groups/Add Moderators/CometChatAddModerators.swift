@@ -247,12 +247,8 @@ public class CometChatAddModerators: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
          })
@@ -373,8 +369,6 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: ["guid":self.currentGroup?.guid ?? ""])
                                     
                                     DispatchQueue.main.async {
-                                        let message =  (member.name ?? "") + "is removed from admin privilege.".localized()
-                                        CometChatSnackBoard.display(message: message, mode: .success, duration: .short)
                                         if let group = self.currentGroup {
                                             self.fetchModerators(for: group)
                                         }
@@ -385,12 +379,8 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                                             if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
                                                 CometChatSnackBoard.display(message: "You don't have privilege to make \(member.name!) as participant.", mode: .error, duration: .short)
                                             }else{
-                                                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                                    if errorCode.isLocalized {
-                                                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .middle)
-                                                    }else{
-                                                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .middle)
-                                                    }
+                                                if let error = error {
+                                                    CometChatSnackBoard.showErrorMessage(for: error)
                                                 }
                                             }
                                         }
@@ -404,7 +394,7 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                             if self.currentGroup?.owner == LoggedInUser.uid || self.currentGroup?.scope == .admin || self.currentGroup?.scope == .moderator {
                                 
                                 if member.uid != LoggedInUser.uid {
-                                    return UIMenu(title: "REMOVE".localized() + "\(memberName)" + "AS_MODERATOR_FROM".localized() + "\(groupName)" + "GROUP?" .localized(), children: [removeAdmin])
+                                    return UIMenu(title: "REMOVE".localized() + " \(memberName) " + "AS_MODERATOR_FROM".localized() + " \(groupName) " + "GROUP?" .localized(), children: [removeAdmin])
                                 }
                             }
                         }
@@ -420,9 +410,7 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: ["guid":self.currentGroup?.guid ?? ""])
                                 
                                 DispatchQueue.main.async {
-                                    let message =  (member.name ?? "") +  " " + "IS_NOW_MODERATOR".localized()
-                                    CometChatSnackBoard.display(message: message, mode: .success, duration: .short)
-                                
+                                 
                                     if let group = self.currentGroup {
                                         self.fetchModerators(for: group)
                                     }
@@ -434,12 +422,8 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                                             
                                             CometChatSnackBoard.display(message:  "You don't have privilege to make \(member.name!) as moderator.", mode: .error, duration: .short)
                                         }else{
-                                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                                if errorCode.isLocalized {
-                                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .middle)
-                                                }else{
-                                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .middle)
-                                                }
+                                            if let error = error {
+                                                CometChatSnackBoard.showErrorMessage(for: error)
                                             }
                                         }
                                     }
@@ -448,7 +432,7 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                         }
                         let memberName = (tableView.cellForRow(at: indexPath) as? CometChatMembersItem)?.member?.name ?? ""
                         let groupName = self.currentGroup?.name ?? ""
-                        return UIMenu(title: "ADD" .localized() + "\(memberName)" + " as admin in ".localized() + "\(groupName)" + "GROUP?".localized() , children: [removeAdmin])
+                        return UIMenu(title: "ADD" .localized() + " \(memberName) " + " as admin in ".localized() + " \(groupName) " + "GROUP?".localized() , children: [removeAdmin])
                     }
                 }
             }
@@ -477,14 +461,12 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                 
                 if  let selectedCell = tableView.cellForRow(at: indexPath) as? CometChatMembersItem {
                     if let member = selectedCell.member {
-                        let alert = UIAlertController(title: "REMOVE".localized(), message: "Remove \(String(describing: member.name!.capitalized))" +
+                        let alert = UIAlertController(title: "REMOVE".localized(), message: "Remove \(String(describing: member.name!.capitalized)) " +
                     "AS_A_MODERATOR".localized(), preferredStyle: .alert)
                         
                         alert.addAction(UIAlertAction(title: "OK".localized(), style: .default, handler: { action in
                             
                             CometChat.updateGroupMemberScope(UID: member.uid ?? "", GUID: self.currentGroup?.guid ?? "", scope: .participant, onSuccess: { (success) in
-                                let message =  (member.name ?? "") + " " + "REMOVE_FROM_MODERATOR_PRIVILEGE".localized()
-                                CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                                 DispatchQueue.main.async {
                                     if let group = self.currentGroup {
                                         self.fetchModerators(for: group)
@@ -496,12 +478,8 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                                         if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
                                             CometChatSnackBoard.display(message:  "You don't have privilege to make \(member.name!) as participant.", mode: .error, duration: .short)
                                         }else{
-                                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                                if errorCode.isLocalized {
-                                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                                }else{
-                                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                                }
+                                            if let error = error {
+                                                CometChatSnackBoard.showErrorMessage(for: error)
                                             }
                                         }
                                     }
@@ -510,7 +488,7 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                         }))
                         alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
                         }))
-                          alert.view.tintColor = UIKitSettings.primaryColor
+                        alert.view.tintColor = UIKitSettings.primaryColor
                         self.present(alert, animated: true)
                     }
                 }
@@ -531,8 +509,7 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                                 DispatchQueue.main.async {
                                     self.navigationController?.popViewController(animated: true)
                                     self.mode = .fetchGroupMembers
-                                    let message =  (member.name ?? "") +  " " + "IS_NOW_MODERATOR".localized()
-                                    CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
+                                 
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: nil)
                                 }
                             }) { (error) in
@@ -541,12 +518,8 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                                         if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
                                             CometChatSnackBoard.display(message:  "You don't have privilege to make \(member.name!) as moderator.", mode: .error, duration: .short)
                                         }else{
-                                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                                if errorCode.isLocalized {
-                                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                                }else{
-                                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                                }
+                                            if let error = error {
+                                                CometChatSnackBoard.showErrorMessage(for: error)
                                             }
                                         }
                                     }
@@ -555,7 +528,7 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
                         }))
                         alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
                         }))
-                          alert.view.tintColor = UIKitSettings.primaryColor
+                        alert.view.tintColor = UIKitSettings.primaryColor
                         self.present(alert, animated: true)
                     }
                 }

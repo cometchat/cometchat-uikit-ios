@@ -91,12 +91,8 @@ class CometChatMessageInformation: UIViewController {
                 DispatchQueue.main.async { self.tableView.reloadData() }
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
@@ -746,7 +742,7 @@ extension CometChatMessageInformation: LocationCellDelegate {
         }))
         
         actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        
+        actionSheet.view.tintColor = UIKitSettings.primaryColor
         self.present(actionSheet, animated: true, completion: nil)
     }
     

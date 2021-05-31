@@ -62,21 +62,23 @@ import CometChatPro
     if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let reactionsDictionary = cometChatExtension["reactions"] as? [String : Any] {
         var currentReactions = [CometChatMessageReaction]()
         reactionsDictionary.forEach { (reaction, reactors) in
-            if reaction != nil && UIKitSettings.messageReaction == .enabled {
-                if let reactors = reactors as? [String: Any] {
-                    var currentReactors = [CometChatMessageReactor]()
-                    reactors.forEach { (uid,user) in
-                        let name = (user as? [String:Any])?["name"] as? String ?? ""
-                        let avatar = (user as? [String:Any])?["avatar"]  as? String ?? ""
-                        let reactor = CometChatMessageReactor(uid: uid, name: name, avatar: avatar)
-                        currentReactors.append(reactor)
+            FeatureRestriction.isReactionsEnabled { (success) in
+                if reaction != nil && success == .enabled {
+                    if let reactors = reactors as? [String: Any] {
+                        var currentReactors = [CometChatMessageReactor]()
+                        reactors.forEach { (uid,user) in
+                            let name = (user as? [String:Any])?["name"] as? String ?? ""
+                            let avatar = (user as? [String:Any])?["avatar"]  as? String ?? ""
+                            let reactor = CometChatMessageReactor(uid: uid, name: name, avatar: avatar)
+                            currentReactors.append(reactor)
+                        }
+                        let reaction = CometChatMessageReaction(title: reaction, name: reaction, messageId: message.id, reactors: currentReactors)
+                        currentReactions.append(reaction)
                     }
-                    let reaction = CometChatMessageReaction(title: reaction, name: reaction, messageId: message.id, reactors: currentReactors)
-                    currentReactions.append(reaction)
+                   handler(true)
+                }else{
+                    handler(false)
                 }
-               handler(true)
-            }else{
-                handler(false)
             }
         }
         self.reactions = currentReactions

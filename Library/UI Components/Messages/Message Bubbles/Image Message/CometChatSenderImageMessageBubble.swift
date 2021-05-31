@@ -85,41 +85,46 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
             receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
             timeStamp.text = String().setMessageTime(time: Int(mediaMessage?.readAt ?? 0))
             }else if mediaMessage.deliveredAt > 0 {
-            receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
+            receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             timeStamp.text = String().setMessageTime(time: Int(mediaMessage?.deliveredAt ?? 0))
             }else if mediaMessage.sentAt > 0 {
-            receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)
+            receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             timeStamp.text = String().setMessageTime(time: Int(mediaMessage?.sentAt ?? 0))
             }else if mediaMessage.sentAt == 0 {
-               receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
+               receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                timeStamp.text = "SENDING".localized()
             }
-            if mediaMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if mediaMessage?.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = mediaMessage?.replyCount {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+            FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                switch success {
+                case .enabled where self.mediaMessage.replyCount != 0 :
+                    self.replybutton.isHidden = false
+                    if self.mediaMessage.replyCount == 1 {
+                        self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                    }else{
+                        if let replies = self.mediaMessage.replyCount as? Int {
+                            self.replybutton.setTitle("\(replies) replies", for: .normal)
+                        }
                     }
+                case .disabled, .enabled : self.replybutton.isHidden = true
                 }
-            }else{
-                replybutton.isHidden = true
             }
             replybutton.tintColor = UIKitSettings.primaryColor
-            if UIKitSettings.showReadDeliveryReceipts == .disabled {
-                receipt.isHidden = true
-            }else{
-                receipt.isHighlighted = false
+            FeatureRestriction.isDeliveryReceiptsEnabled { (success) in
+                switch success {
+                case .enabled: self.receipt.isHidden = false
+                case .disabled: self.receipt.isHidden = true
+                }
             }
             
             let tapOnImageMessage = UITapGestureRecognizer(target: self, action: #selector(self.didImageMessagePressed(tapGestureRecognizer:)))
+            let tapOnImageMessage2 = UITapGestureRecognizer(target: self, action: #selector(self.didImageMessagePressed(tapGestureRecognizer:)))
+            let tapOnImageMessage3 = UITapGestureRecognizer(target: self, action: #selector(self.didImageMessagePressed(tapGestureRecognizer:)))
             self.imageMessage.isUserInteractionEnabled = true
             self.imageMessage.addGestureRecognizer(tapOnImageMessage)
             self.imageModerationView.isUserInteractionEnabled = true
-            self.imageModerationView.addGestureRecognizer(tapOnImageMessage)
+            self.imageModerationView.addGestureRecognizer(tapOnImageMessage2)
             self.unsafeContentView.isUserInteractionEnabled = true
-            self.unsafeContentView.addGestureRecognizer(tapOnImageMessage)
+            self.unsafeContentView.addGestureRecognizer(tapOnImageMessage3)
         }
     }
     

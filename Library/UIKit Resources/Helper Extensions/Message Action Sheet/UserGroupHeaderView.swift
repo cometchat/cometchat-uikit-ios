@@ -11,7 +11,7 @@ import UIKit
 class UserGroupHeaderView: UIView {
 
     struct Constants {
-        static let contentInsets = UIEdgeInsets(top: 12.0, left: 16.0, bottom: 12.0, right: 16.0)
+        static let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
     }
 
     // MARK: - Views
@@ -42,7 +42,7 @@ class UserGroupHeaderView: UIView {
 
     let seperatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = #colorLiteral(red: 0.8196078431, green: 0.8235294118, blue: 0.8274509804, alpha: 1).withAlphaComponent(0.11)
+        view.backgroundColor = .clear
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

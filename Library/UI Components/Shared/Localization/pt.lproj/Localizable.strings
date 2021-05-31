@@ -699,4 +699,7 @@
 "ERR_OWNER_EXIT_FORBIDDEN" = "O proprietário não pode deixar o grupo, primeiro transfira a propriedade para sair do grupo.";
 "ERR_API_VERSION_MISMATCH" = "Os pontos de extremidade v2.0 não são acessíveis para a versão do aplicativo v3. Use o SDK v3.0.X que oferece suporte a endpoints v3.";
 "URL_NOT_FOUND" = "Os pontos de extremidade v2.0 não são acessíveis para a versão do aplicativo v3. Use o SDK v3.0.X que oferece suporte a endpoints v3.";
-
+"LAST_ACTIVE_AT" = "Último ativo em";
+"SOMETHING_WENT_WRONG_ERROR" = "Alguma coisa deu errado. Por favor tente outra vez.";
+"MESSAGE_IN_PRIVATE" = "Message In Private";
+"VIEW_PROFILE" = "View Profile";

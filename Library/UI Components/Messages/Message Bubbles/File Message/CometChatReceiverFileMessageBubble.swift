@@ -72,17 +72,19 @@ class CometChatReceiverFileMessageBubble: UITableViewCell {
                 avatar.set(image: "", with: fileMessage.sender?.name ?? "")
             }
             
-            if fileMessage?.replyCount != 0  &&  UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if fileMessage?.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = fileMessage?.replyCount {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+            FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                switch success {
+                case .enabled where self.fileMessage.replyCount != 0 :
+                    self.replybutton.isHidden = false
+                    if self.fileMessage.replyCount == 1 {
+                        self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                    }else{
+                        if let replies = self.fileMessage.replyCount as? Int {
+                            self.replybutton.setTitle("\(replies) replies", for: .normal)
+                        }
                     }
+                case .disabled, .enabled : self.replybutton.isHidden = true
                 }
-            }else{
-                replybutton.isHidden = true
             }
             replybutton.tintColor = UIKitSettings.primaryColor
             

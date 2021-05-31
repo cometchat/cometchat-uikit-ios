@@ -103,17 +103,19 @@ class CometChatReceiverLinkPreviewBubble: UITableViewCell, WKNavigationDelegate 
             iconView.roundViewCorners([.layerMinXMinYCorner,.layerMaxXMinYCorner], radius: 15)
             visitButton.roundViewCorners([.layerMinXMaxYCorner,.layerMaxXMaxYCorner], radius: 15)
             
-            if linkPreviewMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
-                replyButton.isHidden = false
-                if linkPreviewMessage?.replyCount == 1 {
-                    replyButton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = linkPreviewMessage?.replyCount {
-                        replyButton.setTitle("\(replies) replies", for: .normal)
+            FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                switch success {
+                case .enabled where self.linkPreviewMessage.replyCount != 0 :
+                    self.replyButton.isHidden = false
+                    if self.linkPreviewMessage.replyCount == 1 {
+                        self.replyButton.setTitle("ONE_REPLY".localized(), for: .normal)
+                    }else{
+                        if let replies = self.linkPreviewMessage.replyCount as? Int {
+                            self.replyButton.setTitle("\(replies) replies", for: .normal)
+                        }
                     }
+                case .disabled, .enabled : self.replyButton.isHidden = true
                 }
-            }else{
-                replyButton.isHidden = true
             }
             replyButton.tintColor = UIKitSettings.primaryColor
             

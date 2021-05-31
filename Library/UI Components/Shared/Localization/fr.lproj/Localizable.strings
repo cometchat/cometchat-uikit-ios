@@ -699,4 +699,7 @@
 "ERR_OWNER_EXIT_FORBIDDEN" = "Le propriétaire ne peut pas quitter le groupe, veuillez d'abord transférer la propriété pour quitter le groupe.";
 "ERR_API_VERSION_MISMATCH" = "Les points de terminaison v2.0 ne sont pas accessibles pour la version v3 de l'application. Veuillez utiliser le SDK v3.0.X qui prend en charge les points de terminaison v3.";
 "URL_NOT_FOUND" = "Les points de terminaison v2.0 ne sont pas accessibles pour la version v3 de l'application. Veuillez utiliser le SDK v3.0.X qui prend en charge les points de terminaison v3.";
-
+"LAST_ACTIVE_AT" = "Dernière activité à";
+"SOMETHING_WENT_WRONG_ERROR" = "Une erreur s'est produite. Veuillez réessayer.";
+"MESSAGE_IN_PRIVATE" = "Message In Private";
+"VIEW_PROFILE" = "View Profile";

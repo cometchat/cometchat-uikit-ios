@@ -72,8 +72,9 @@ class CometChatReceiverLocationMessageBubble: UITableViewCell {
    
     
     @IBAction func didNAvigatePRessed(_ sender: Any) {
-        if let data = locationMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double , let title = data["name"] as? String{
-        locationDelegate?.didPressedOnLocation(latitude: latitude, longitude: longitude, name: title)
+        if let data = locationMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double {
+            let title = data["name"] as? String ?? ""
+            locationDelegate?.didPressedOnLocation(latitude: latitude, longitude: longitude, name: title)
         }
     }
         

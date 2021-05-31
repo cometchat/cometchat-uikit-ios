@@ -40,7 +40,7 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
             return self.selectedBackgroundView?.backgroundColor ?? UIColor.clear
         }
     }
-    var collaborativeType: CollaborativeType = .whiteboard
+    var collaborativeType: WebViewType = .whiteboard
     weak var collaborativeDelegate: CollaborativeDelegate?
     var whiteboardMessage: CustomMessage? {
         didSet {
@@ -59,6 +59,7 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
                 nameView.isHidden = true
             }
             joinButton.setTitle("JOIN".localized(), for: .normal)
+            joinButton.tintColor = UIKitSettings.primaryColor
             if let userName = whiteboardMessage.sender?.name {
                 name.text = userName + ":"
                 title.text = "\(userName) " + "HAS_SHARED_WHITEBOARD".localized()
@@ -76,19 +77,22 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
             if let avatarURL = whiteboardMessage.sender?.avatar  {
                 avatar.set(image: avatarURL, with: whiteboardMessage.sender?.name ?? "")
             }
-            
-            if whiteboardMessage.replyCount != 0  &&  UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if whiteboardMessage.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = whiteboardMessage.replyCount as? Int {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+                
+                FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                    switch success {
+                    case .enabled where whiteboardMessage.replyCount != 0 :
+                        self.replybutton.isHidden = false
+                        if whiteboardMessage.replyCount == 1 {
+                            self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                        }else{
+                            if let replies = whiteboardMessage.replyCount as? Int {
+                                self.replybutton.setTitle("\(replies) replies", for: .normal)
+                            }
+                        }
+                    case .disabled, .enabled : self.replybutton.isHidden = true
                     }
                 }
-            }else{
-                replybutton.isHidden = true
-            }
+
             replybutton.tintColor = UIKitSettings.primaryColor
                 if let avatarURL = whiteboardMessage.sender?.avatar  {
                     avatar.set(image: avatarURL, with: whiteboardMessage.sender?.name ?? "")
@@ -117,6 +121,7 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
                 nameView.isHidden = true
             }
             joinButton.setTitle("JOIN".localized(), for: .normal)
+            joinButton.tintColor = UIKitSettings.primaryColor
             if let userName = writeboardMessage.sender?.name {
                 name.text = userName + ":"
                 title.text = "\(userName) " +  "HAS_SHARED_COLLABORATIVE_DOCUMENT".localized()
@@ -137,18 +142,20 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
                     avatar.set(image: "", with: writeboardMessage.sender?.name ?? "")
                 }
             
-            if writeboardMessage.replyCount != 0  &&  UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if writeboardMessage.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = writeboardMessage.replyCount as? Int{
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+                FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                    switch success {
+                    case .enabled where writeboardMessage.replyCount != 0 :
+                        self.replybutton.isHidden = false
+                        if writeboardMessage.replyCount == 1 {
+                            self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                        }else{
+                            if let replies = writeboardMessage.replyCount as? Int {
+                                self.replybutton.setTitle("\(replies) replies", for: .normal)
+                            }
+                        }
+                    case .disabled, .enabled : self.replybutton.isHidden = true
                     }
                 }
-            }else{
-                replybutton.isHidden = true
-            }
             replybutton.tintColor = UIKitSettings.primaryColor
             }
         }

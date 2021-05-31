@@ -91,23 +91,20 @@ public class CometChatUserProfile: UIViewController {
               self.present(alert, animated: true, completion: nil)
           }
           let user = User(uid: uid, name: name)
-          CometChat.updateUser(user: user, apiKey: "Constants.apiKey", onSuccess: { (user) in
-              DispatchQueue.main.async {
-                  self.dismiss(animated: true, completion: nil)
-                  self.tableView.reloadData()
-              }
-          }) { (error) in
-              DispatchQueue.main.async {
-                  self.dismiss(animated: true, completion: nil)
-               if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+
+        CometChat.updateCurrentUserDetails(user: user) { (user) in
+            DispatchQueue.main.async {
+                self.dismiss(animated: true, completion: nil)
+                self.tableView.reloadData()
+            }
+        } onError: { (error) in
+            DispatchQueue.main.async {
+                self.dismiss(animated: true, completion: nil)
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
-              }
-          }
+            }
+        }
       }
     
     // MARK: - Private instance methods
@@ -208,8 +205,8 @@ extension CometChatUserProfile: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 25))
-        let sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: view.frame.size.width, height: 20))
+        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width - 20, height: 25))
+        let sectionTitle = UILabel(frame: CGRect(x: 10, y: 2, width: returnedView.frame.size.width, height: 20))
         if section == 0 {
             sectionTitle.text =  ""
         }else if section == 1{
@@ -291,7 +288,7 @@ extension CometChatUserProfile: UITableViewDelegate , UITableViewDataSource {
             case CometChatUserProfile.PRIVACY_AND_SECURITY_CELL:
                 settingsCell.settingsName.text = NSLocalizedString(
                     "PRIVACY_&_SECURITY", bundle: UIKitSettings.bundle, comment: "")
-                settingsCell.settingsIcon.image = UIImage(named: "􀉼", in: UIKitSettings.bundle, compatibleWith: nil)
+                settingsCell.settingsIcon.image = UIImage(named: "􀉼", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 return settingsCell
             default:
                 break
@@ -353,6 +350,7 @@ extension CometChatUserProfile: CometChatUserListItemDelegate {
         let cancel = UIAlertAction(title: "CANCEL".localized(), style: .default) { (alertAction) in }
         alert.addAction(save)
         alert.addAction(cancel)
+        alert.view.tintColor = UIKitSettings.primaryColor
         self.present(alert, animated:true, completion: nil)
     }
     

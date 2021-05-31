@@ -239,13 +239,37 @@ class CometChatCreateGroup: UIViewController {
         switch  UIKitSettings.groupInMode {
             
         case .publicGroups:
-            actionSheetController.addAction(publicGroup)
+            
+            FeatureRestriction.isPublicGroupEnabled { (success) in
+                if success == .enabled {
+                    actionSheetController.addAction(publicGroup)
+                }
+            }
+            
         case .passwordProtectedGroups:
-            actionSheetController.addAction(passwordProtectedGroup)
+            FeatureRestriction.isPasswordGroupEnabled { (success) in
+                if success == .enabled {
+                    actionSheetController.addAction(passwordProtectedGroup)
+                }
+            }
         case .publicAndPasswordProtectedGroups:
-            actionSheetController.addAction(publicGroup)
-            actionSheetController.addAction(passwordProtectedGroup)
-            actionSheetController.addAction(privateGroup)
+            
+            FeatureRestriction.isPublicGroupEnabled { (success) in
+                if success == .enabled {
+                    actionSheetController.addAction(publicGroup)
+                }
+            }
+            FeatureRestriction.isPasswordGroupEnabled { (success) in
+                if success == .enabled {
+                    actionSheetController.addAction(passwordProtectedGroup)
+                }
+            }
+            
+            FeatureRestriction.isPrivateGroupEnabled { (success) in
+                if success == .enabled {
+                    actionSheetController.addAction(privateGroup)
+                }
+            }
         case .none: break
         }
         actionSheetController.addAction(cancelAction)
@@ -299,12 +323,8 @@ class CometChatCreateGroup: UIViewController {
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
-                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
                 }

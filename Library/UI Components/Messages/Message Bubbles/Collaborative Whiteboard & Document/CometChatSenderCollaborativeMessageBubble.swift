@@ -9,10 +9,7 @@
 import UIKit
 import CometChatPro
 
-enum CollaborativeType {
-    case whiteboard
-    case writeboard
-}
+
 protocol  CollaborativeDelegate: NSObject {
     
     func didJoinPressed(forMessage: CustomMessage)
@@ -35,7 +32,7 @@ class CometChatSenderCollaborativeMessageBubble: UITableViewCell {
     
      // MARK: - Declaration of Variables
     var indexPath: IndexPath?
-    var collaborativeType: CollaborativeType = .whiteboard
+    var collaborativeType: WebViewType = .whiteboard
     weak var collaborativeDelegate: CollaborativeDelegate?
     var selectionColor: UIColor {
         set {
@@ -82,22 +79,25 @@ class CometChatSenderCollaborativeMessageBubble: UITableViewCell {
                 receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = "SENDING".localized()
             }
-            if whiteboardMessage?.replyCount != 0  && UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if whiteboardMessage?.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = whiteboardMessage?.replyCount {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+            FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                switch success {
+                case .enabled where self.whiteboardMessage.replyCount != 0 :
+                    self.replybutton.isHidden = false
+                    if self.whiteboardMessage.replyCount == 1 {
+                        self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                    }else{
+                        if let replies = self.whiteboardMessage.replyCount as? Int {
+                            self.replybutton.setTitle("\(replies) replies", for: .normal)
+                        }
                     }
+                case .disabled, .enabled : self.replybutton.isHidden = true
                 }
-            }else{
-                replybutton.isHidden = true
             }
-            if UIKitSettings.showReadDeliveryReceipts == .disabled {
-                receipt.isHidden = true
-            }else{
-                receipt.isHighlighted = false
+            FeatureRestriction.isDeliveryReceiptsEnabled { (success) in
+                switch success {
+                case .enabled: self.receipt.isHidden = false
+                case .disabled: self.receipt.isHidden = true
+                }
             }
             messageView.backgroundColor = UIKitSettings.primaryColor
             replybutton.tintColor = UIKitSettings.primaryColor
@@ -127,31 +127,34 @@ class CometChatSenderCollaborativeMessageBubble: UITableViewCell {
                 receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(writeboardMessage?.readAt ?? 0))
             }else if writeboardMessage.deliveredAt > 0 {
-                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(writeboardMessage?.deliveredAt ?? 0))
             }else if writeboardMessage.sentAt > 0 {
-                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(writeboardMessage?.sentAt ?? 0))
             }else if writeboardMessage.sentAt == 0 {
-                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = "SENDING".localized()
             }
-            if writeboardMessage?.replyCount != 0  && UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if whiteboardMessage?.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = whiteboardMessage?.replyCount {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+            FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                switch success {
+                case .enabled where self.writeboardMessage.replyCount != 0 :
+                    self.replybutton.isHidden = false
+                    if self.writeboardMessage.replyCount == 1 {
+                        self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                    }else{
+                        if let replies = self.writeboardMessage.replyCount as? Int {
+                            self.replybutton.setTitle("\(replies) replies", for: .normal)
+                        }
                     }
+                case .disabled, .enabled : self.replybutton.isHidden = true
                 }
-            }else{
-                replybutton.isHidden = true
             }
-            if UIKitSettings.showReadDeliveryReceipts == .disabled {
-                receipt.isHidden = true
-            }else{
-                receipt.isHighlighted = false
+            FeatureRestriction.isDeliveryReceiptsEnabled { (success) in
+                switch success {
+                case .enabled: self.receipt.isHidden = false
+                case .disabled: self.receipt.isHidden = true
+                }
             }
             messageView.backgroundColor = UIKitSettings.primaryColor
             replybutton.tintColor = UIKitSettings.primaryColor

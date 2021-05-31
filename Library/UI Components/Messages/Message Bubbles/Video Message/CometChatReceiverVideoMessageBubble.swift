@@ -67,17 +67,19 @@ class CometChatReceiverVideoMessageBubble: UITableViewCell {
                 avatar.set(image: "", with: mediaMessage.sender?.name ?? "")
             }
             parseThumbnailForVideo(forMessage: mediaMessage)
-            if mediaMessage?.replyCount != 0 &&  UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if mediaMessage?.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = mediaMessage?.replyCount {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+            FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                switch success {
+                case .enabled where self.mediaMessage.replyCount != 0 :
+                    self.replybutton.isHidden = false
+                    if self.mediaMessage.replyCount == 1 {
+                        self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                    }else{
+                        if let replies = self.mediaMessage.replyCount as? Int {
+                            self.replybutton.setTitle("\(replies) replies", for: .normal)
+                        }
                     }
+                case .disabled, .enabled : self.replybutton.isHidden = true
                 }
-            }else{
-                replybutton.isHidden = true
             }
             replybutton.tintColor = UIKitSettings.primaryColor
             let tapOnVideoMessage = UITapGestureRecognizer(target: self, action: #selector(self.didVideoMessagePressed(tapGestureRecognizer:)))

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,7 +19,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="WP2-G6-8Ii">
-                        <rect key="frame" x="38" y="10" width="458" height="443"/>
+                        <rect key="frame" x="38" y="0.0" width="458" height="453"/>
                         <subviews>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NLZ-D3-64x">
                                 <rect key="frame" x="0.0" y="-19" width="240" height="19"/>
@@ -40,13 +42,13 @@
                                 </constraints>
                             </view>
                             <stackView opaque="NO" contentMode="top" translatesAutoresizingMaskIntoConstraints="NO" id="CbI-Rb-km6">
-                                <rect key="frame" x="0.0" y="0.0" width="275.5" height="375"/>
+                                <rect key="frame" x="0.0" y="0.0" width="275.5" height="385"/>
                                 <subviews>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jix-DQ-9tZ">
-                                        <rect key="frame" x="0.0" y="0.0" width="131.5" height="375"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="131.5" height="385"/>
                                         <subviews>
                                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="l9W-sP-UG9">
-                                                <rect key="frame" x="0.0" y="0.0" width="131.5" height="375"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="131.5" height="385"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <userDefinedRuntimeAttributes>
                                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -55,7 +57,7 @@
                                                 </userDefinedRuntimeAttributes>
                                             </view>
                                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KZv-MO-iOx">
-                                                <rect key="frame" x="0.0" y="0.0" width="131.5" height="375"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="131.5" height="385"/>
                                                 <color key="backgroundColor" systemColor="systemRedColor"/>
                                                 <userDefinedRuntimeAttributes>
                                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -97,14 +99,14 @@
                                                 </subviews>
                                             </stackView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HFj-Lw-T6B" customClass="HyperlinkLabel" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                                <rect key="frame" x="15" y="34" width="46.5" height="331"/>
+                                                <rect key="frame" x="15" y="34" width="46.5" height="341"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="19"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ber-sq-W8I">
-                                                <rect key="frame" x="71.5" y="189.5" width="45" height="20"/>
+                                                <rect key="frame" x="71.5" y="194.5" width="45" height="20"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="20" id="KOx-gx-kUo"/>
                                                     <constraint firstAttribute="width" constant="45" id="ofq-s4-Ms7"/>
@@ -146,7 +148,7 @@
                                         </userDefinedRuntimeAttributes>
                                     </view>
                                     <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LEN-Kr-vvP">
-                                        <rect key="frame" x="131.5" y="0.0" width="144" height="375"/>
+                                        <rect key="frame" x="131.5" y="0.0" width="144" height="385"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
@@ -157,7 +159,7 @@
                                 </subviews>
                             </stackView>
                             <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="a5o-ab-f2X" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="375" width="458" height="50"/>
+                                <rect key="frame" x="0.0" y="385" width="458" height="50"/>
                                 <subviews>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceLeftToRight" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="aF1-jK-KOn">
                                         <rect key="frame" x="0.0" y="0.0" width="458" height="50"/>
@@ -183,7 +185,7 @@
                                 </connections>
                             </view>
                             <stackView opaque="NO" contentMode="top" translatesAutoresizingMaskIntoConstraints="NO" id="Mom-W2-IN7">
-                                <rect key="frame" x="0.0" y="425" width="30" height="18"/>
+                                <rect key="frame" x="0.0" y="435" width="30" height="18"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="right" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10:43" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XUr-Lq-dSS">
                                         <rect key="frame" x="0.0" y="0.0" width="30" height="18"/>
@@ -244,7 +246,7 @@
                     <constraint firstAttribute="trailing" secondItem="WP2-G6-8Ii" secondAttribute="trailing" id="hgx-lT-zGi"/>
                     <constraint firstItem="WP2-G6-8Ii" firstAttribute="leading" secondItem="PyW-mZ-4Vq" secondAttribute="trailing" constant="3" id="oDr-Fw-mxj"/>
                     <constraint firstItem="PmZ-IQ-CsT" firstAttribute="bottom" secondItem="KZv-MO-iOx" secondAttribute="bottom" id="wIW-uo-bCP"/>
-                    <constraint firstItem="WP2-G6-8Ii" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="wwN-IF-yut"/>
+                    <constraint firstItem="WP2-G6-8Ii" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="wwN-IF-yut"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
@@ -269,6 +271,14 @@
             <point key="canvasLocation" x="146.37681159420291" y="229.01785714285714"/>
         </tableViewCell>
     </objects>
+    <designables>
+        <designable name="HFj-Lw-T6B">
+            <size key="intrinsicContentSize" width="46" height="23"/>
+        </designable>
+        <designable name="PyW-mZ-4Vq">
+            <size key="intrinsicContentSize" width="240" height="240"/>
+        </designable>
+    </designables>
     <resources>
         <image name="defaultAvatar.jpg" width="240" height="240"/>
         <systemColor name="systemFillColor">

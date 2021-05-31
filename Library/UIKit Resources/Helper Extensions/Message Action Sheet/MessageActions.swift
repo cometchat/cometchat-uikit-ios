@@ -29,6 +29,7 @@
     case writeboard
     case messageTranslate
     case createMeeting
+    case messageInPrivate
  }
  
  protocol RowPresentable {
@@ -57,6 +58,7 @@
     func didMessageTranslatePressed()
     func didAudioCallPressed()
     func didVideoCallPressed()
+    func didMessageInPrivatePressed()
  }
 
 
@@ -73,7 +75,6 @@
      
      override func viewDidLoad() {
          super.viewDidLoad()
-         
          setupTableView()
          NotificationCenter.default.addObserver(self, selector:#selector(self.didWindowClosed(_:)), name: NSNotification.Name(rawValue: "didThreadOpened"), object: nil)
      }
@@ -176,7 +177,7 @@
             case .reply:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
                 cell.name.text = "REPLY_MESSAGE".localized()
-                cell.icon.image = UIImage(named: "reply1.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                cell.icon.image = UIImage(named: "reply.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 if #available(iOS 13.0, *) {
                     cell.icon.tintColor = .label
                     cell.name.textColor = .label
@@ -211,7 +212,7 @@
             case .thread:
                 if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
                 cell.name.text = "START_THREAD".localized()
-                cell.icon.image = UIImage(named: "􀌤.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                cell.icon.image = UIImage(named: "􀌲.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 if #available(iOS 13.0, *) {
                     cell.name.textColor = .label
                 }else{
@@ -307,12 +308,20 @@
                 cell.badgeCountSwitch.isHidden = true
                     return cell
                 }
-//
-//
-//                if let cell = tableView.dequeueReusableCell(withIdentifier: "cometChatCreateMeetingView", for: indexPath) as? CometChatCreateMeetingView {
-//                    cell.createMeetingDelegate = self
-//                    return cell
-//                }
+
+            case .messageInPrivate:
+                if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
+                cell.name.text = "MESSAGE_IN_PRIVATE".localized()
+                cell.icon.image = UIImage(named: "􀌤.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                if #available(iOS 13.0, *) {
+                    cell.name.textColor = .label
+                }else{
+                    cell.name.textColor = .black
+                }
+                cell.fullScreenSwitch.isHidden = true
+                cell.badgeCountSwitch.isHidden = true
+                    return cell
+                }
             }
         }
         return staticCell
@@ -322,16 +331,22 @@
         if let currentActions = actions {
             switch currentActions[indexPath.row] {
             case .reaction:
-                if UIKitSettings.messageReaction == .enabled {
-                    if indexPath.row == 0 {
-                        return 65.0
-                    }else{
-                        return 55.0
+                var height: CGFloat = 50
+                FeatureRestriction.isReactionsEnabled { (success) in
+                    switch success {
+                    case .enabled :
+                        if indexPath.row == 0 {
+                            height = 60.0
+                        }else{
+                            height = 55.0
+                        }
+                    case.disabled :  height = 55.0
                     }
-                }else{
-                    return 55.0
                 }
-            case .whiteboard, .writeboard, .messageTranslate, .sticker, .share, .thread, .delete, .forward, .edit, .reply, .copy ,.messageInfo ,.createAPoll ,.shareLocation ,.document , .photoAndVideoLibrary, .takeAPhoto, .createMeeting:  return 55.0
+                return height
+                
+            case .whiteboard, .writeboard, .messageTranslate, .sticker, .share, .thread, .delete, .forward, .edit, .reply, .copy ,.messageInfo ,.createAPoll ,.shareLocation ,.document , .photoAndVideoLibrary, .takeAPhoto, .createMeeting, .messageInPrivate:  return 55.0
+       
             }
         }else{
             return 0
@@ -421,6 +436,10 @@
             case .createMeeting:
                 self.dismiss(animated: true) {
                     MessageActions.actionsDelegate?.didVideoCallPressed()
+                }
+            case .messageInPrivate:
+                self.dismiss(animated: true) {
+                    MessageActions.actionsDelegate?.didMessageInPrivatePressed()
                 }
             }
         }

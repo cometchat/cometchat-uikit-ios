@@ -240,12 +240,8 @@ public class CometChatBannedMembers: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
         })
@@ -319,18 +315,13 @@ extension CometChatBannedMembers: UITableViewDelegate , UITableViewDataSource {
                         CometChat.unbanGroupMember(UID: uid, GUID: guid, onSuccess: { (sucess) in
                             DispatchQueue.main.async {
                             self.fetchBannedMembers(for: self.currentGroup!)
-                            let message =  (member.name ?? "") + " " + "UNBANNED_SUCCESSFULLY".localized()
-                            CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
+                           
                             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: nil)
                             }
                         }) { (error) in
                             DispatchQueue.main.async {
-                                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                    if errorCode.isLocalized {
-                                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                    }else{
-                                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                    }
+                                if let error = error {
+                                    CometChatSnackBoard.showErrorMessage(for: error)
                                 }
                             }
                         }
@@ -358,18 +349,13 @@ extension CometChatBannedMembers: UITableViewDelegate , UITableViewDataSource {
                             CometChat.unbanGroupMember(UID: uid, GUID: guid, onSuccess: { (sucess) in
                                 DispatchQueue.main.async {
                                 self.fetchBannedMembers(for: self.currentGroup!)
-                                let message =  (member.name ?? "") + " " + "UNBANNED_SUCCESSFULLY".localized()
-                                CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
+                               
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "refreshGroupDetails"), object: nil, userInfo: nil)
                                 }
                             }) { (error) in
                                 DispatchQueue.main.async {
-                                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                        if errorCode.isLocalized {
-                                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                                        }else{
-                                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                                        }
+                                    if let error = error {
+                                        CometChatSnackBoard.showErrorMessage(for: error)
                                     }
                                 }
                             }
@@ -377,7 +363,7 @@ extension CometChatBannedMembers: UITableViewDelegate , UITableViewDataSource {
                         }))
                         alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
                         }))
-                          alert.view.tintColor = UIKitSettings.primaryColor
+                        alert.view.tintColor = UIKitSettings.primaryColor
                         self.present(alert, animated: true)
                     }
                 }

@@ -699,3 +699,7 @@
 "ERR_OWNER_EXIT_FORBIDDEN" = "لا يمكن للمالك مغادرة المجموعة ، يرجى نقل الملكية أولاً لمغادرة المجموعة.";
 "ERR_API_VERSION_MISMATCH" = "لا يمكن الوصول إلى نقاط النهاية v2.0 لإصدار التطبيق v3. الرجاء استخدام SDK v3.0.X الذي يدعم نقاط نهاية الإصدار 3.";
 "URL_NOT_FOUND" = "لا يمكن الوصول إلى نقاط النهاية v2.0 لإصدار التطبيق v3. الرجاء استخدام SDK v3.0.X الذي يدعم نقاط نهاية الإصدار 3.";
+"LAST_ACTIVE_AT" = "آخر نشاط في";
+"SOMETHING_WENT_WRONG_ERROR" = "Something went wrong, please try again.";
+"MESSAGE_IN_PRIVATE" = "Message In Private";
+"VIEW_PROFILE" = "View Profile";

@@ -22,8 +22,8 @@
 "CUSTOM_MESSAGE_STICKER" = "💟 Aufkleber";
 "CUSTOM_MESSAGE_WHITEBOARD" = "📝 Whiteboard";
 "CUSTOM_MESSAGE_DOCUMENT" = "📃 Dokument";
-"ONLINE" = "Online";
-"OFFLINE" = "Offline";
+"ONLINE" = "online";
+"OFFLINE" = "offline";
 "YOU" = "Du";
 "ADMIN" = "Admin";
 "MODERATOR" = "Moderator";
@@ -701,3 +701,7 @@
 "ERR_OWNER_EXIT_FORBIDDEN" = "Der Eigentümer kann die Gruppe nicht verlassen. Bitte übertragen Sie zuerst das Eigentum, um die Gruppe zu verlassen.";
 "ERR_API_VERSION_MISMATCH" = "Auf die v2.0-Endpunkte kann für die App-Version v3 nicht zugegriffen werden. Bitte verwenden Sie SDK v3.0.X, das v3-Endpunkte unterstützt.";
 "URL_NOT_FOUND" = "Auf die v2.0-Endpunkte kann für die App-Version v3 nicht zugegriffen werden. Bitte verwenden Sie SDK v3.0.X, das v3-Endpunkte unterstützt.";
+"LAST_ACTIVE_AT" = "Zuletzt aktiv um";
+"SOMETHING_WENT_WRONG_ERROR" = "Etwas ist schief gelaufen. Bitte versuche es erneut.";
+"MESSAGE_IN_PRIVATE" = "Message In Private";
+"VIEW_PROFILE" = "View Profile";

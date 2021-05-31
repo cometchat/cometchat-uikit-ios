@@ -117,24 +117,39 @@ public enum Controller : String {
 
         for tab in UIKitSettings.tabs {
             
-            if tab == .chats && UIKitSettings.conversations == .enabled {
-                controllers.append(conversations)
+            FeatureRestriction.isRecentChatListEnabled { (success) in
+                switch success {
+                case .enabled where tab == .chats: controllers.append(self.conversations)
+                case .disabled, .enabled: break
+                }
             }
             
-            if tab == .calls && UIKitSettings.calls == .enabled {
-                controllers.append(calls)
+            FeatureRestriction.isCallListEnabled { (success) in
+                switch success {
+                case .enabled where tab == .calls: controllers.append(self.calls)
+                case .disabled, .enabled: break
+                }
             }
             
-            if tab == .groups && UIKitSettings.groups == .enabled {
-                controllers.append(groups)
+            FeatureRestriction.isUserListEnabled { (success) in
+                switch success {
+                case .enabled where tab == .users: controllers.append(self.users)
+                case .disabled, .enabled: break
+                }
             }
             
-            if tab == .users && UIKitSettings.users == .enabled {
-                controllers.append(users)
+            FeatureRestriction.isGroupListEnabled { (success) in
+                switch success {
+                case .enabled where tab == .groups: controllers.append(self.groups)
+                case .disabled, .enabled: break
+                }
             }
-            
-            if tab == .settings && UIKitSettings.userSettings == .enabled {
-                controllers.append(more)
+
+            FeatureRestriction.isUserSettingsEnabled { (success) in
+                switch success {
+                case .enabled where tab == .settings: controllers.append(self.more)
+                case .disabled, .enabled: break
+                }
             }
         }
         

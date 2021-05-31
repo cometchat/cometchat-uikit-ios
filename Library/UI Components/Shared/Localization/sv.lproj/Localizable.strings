@@ -699,4 +699,7 @@
 "ERR_OWNER_EXIT_FORBIDDEN" = "Ägaren kan inte lämna gruppen. Överför äganderätten först för att lämna gruppen.";
 "ERR_API_VERSION_MISMATCH" = "V2.0-slutpunkterna är inte tillgängliga för appversion v3. Använd SDK v3.0.X som stöder v3-slutpunkter.";
 "URL_NOT_FOUND" = "V2.0-slutpunkterna är inte tillgängliga för appversion v3. Använd SDK v3.0.X som stöder v3-slutpunkter.";
-
+"LAST_ACTIVE_AT" = "Senast aktiv kl";
+"SOMETHING_WENT_WRONG_ERROR" = "Något gick fel, försök igen.";
+"MESSAGE_IN_PRIVATE" = "Message In Private";
+"VIEW_PROFILE" = "View Profile";

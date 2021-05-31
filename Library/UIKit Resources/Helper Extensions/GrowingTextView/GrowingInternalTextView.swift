@@ -71,7 +71,6 @@ internal class GrowingInternalTextView: UITextView, NSCopying {
         textView.returnKeyType = returnKeyType
         textView.keyboardType = keyboardType
         textView.enablesReturnKeyAutomatically = enablesReturnKeyAutomatically
-
         textView.textContainerInset = textContainerInset
         textView.textContainer.lineFragmentPadding = textContainer.lineFragmentPadding
         textView.showsHorizontalScrollIndicator = showsHorizontalScrollIndicator

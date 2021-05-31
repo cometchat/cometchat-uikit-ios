@@ -30,8 +30,8 @@
 "CUSTOM_MESSAGE_STICKER" = "💟 Sticker";
 "CUSTOM_MESSAGE_WHITEBOARD" = "📝 Whiteboard";
 "CUSTOM_MESSAGE_DOCUMENT" = "📃 Document";
-"ONLINE" = "Online";
-"OFFLINE" = "Offline";
+"ONLINE" = "online";
+"OFFLINE" = "offline";
 "YOU" = "You";
 "ADMIN" = "Admin";
 "MODERATOR" = "Moderator";
@@ -75,7 +75,7 @@
 "TYPING" = "typing...";
 "IS_TYPING" = "is typing...";
 "CLOSE" = "Close";
-"KINDLY_ENTER_GROUP_NAME" = "Kindly, enter group name";
+"KINDLY_ENTER_GROUP_NAME" = "Please enter a valid name for the group and try again";
 "REFRESHING" = "Refreshing...";
 "UNBLOCK" = "Unblock";
 "UNBLOCKED_SUCCESSFULLY" = "unblocked sucessfully";
@@ -163,7 +163,6 @@
 "MISSED" = "Missed";
 "NO_CHATS_FOUND" = "No chats found";
 "NO_MESSAGES_FOUND" = "No messages found";
-"CHOOSE_GROUP_TYPE" = "Choose one of the group type to create group";
 "WARNING" = "Warning!";
 "CHOOSE_GROUP_TYPE" =  "Select group type first to create a group";
 "SELECT_GROUP_TYPE" = "Select Group Type";
@@ -500,7 +499,7 @@
 "ERROR_CALL_SESSION_MISMATCH" = "Call Session Mismatch. Please check the session ID";
 "ERROR_CALL_SESSIONID_NOT_FOUND" = "ERROR_CALL_SESSION_ID_NOT_FOUND";
 "ERROR_UID_GUID_NOT_SPECIFIED" = "Both UID and GUID cannot be null. Please specify the UID or the GUID for which the messages are to be fetched.";
-"ERROR_INTERNET_UNAVAILABLE" = "No Internet Connection. Please try again later.";
+"ERROR_INTERNET_UNAVAILABLE" = "Please check your internet connection";
 "ERROR_REQUEST_IN_PROGRESS" = "Request Already in Progress.";
 "ERROR_FILTERS_MISSING" = "Timestamp' or 'MessageId' or 'UpdatedAt' required to use the 'fetchNext()' method.";
 "ERROR_NO_DATA_FOUND" = "No more data found.";
@@ -554,7 +553,7 @@
 "ERROR_CONVERSATION_NOT_FOUND_MESSAGE" = "No such conversation found.";
 "ERROR_CALL_NOT_INITIATED_OR_ACCEPTED_MESSAGE" = "Please initiate/accept a call before calling this method.";
 "AUTH_ERR_EMPTY_APPID" = "Empty appId in the request header.";
-"AUTH_ERR_INVALID_APPID" = "The appId appId does not exists in appRegion region.";
+"AUTH_ERR_INVALID_APPID" = "The appId appId does not exists in this region.";
 "AUTH_ERR_EMPTY_APIKEY" = "Empty apiKey in the request header.";
 "AUTH_ERR_APIKEY_NOT_FOUND" = "The key apiKey does not exist. Please use correct apiKey.";
 "AUTH_ERR_NO_ACCESS" = "The key apiKey does not have enough clearance. Please use API key with a correct scope to perform the operation.";
@@ -714,3 +713,7 @@
 "ERR_OWNER_EXIT_FORBIDDEN" = "Owner cannot leave the group, please transfer ownership first to leave the group.";
 "ERR_API_VERSION_MISMATCH" = "The v2.0 endpoints are not accessible for the app version v3. Please use SDK v3.0.X which support v3 endpoints.";
 "URL_NOT_FOUND" = "The v2.0 endpoints are not accessible for the app version v3. Please use SDK v3.0.X which support v3 endpoints.";
+"LAST_ACTIVE_AT" = "Last Active At";
+"SOMETHING_WENT_WRONG_ERROR" = "Something went wrong, please try again.";
+"MESSAGE_IN_PRIVATE" = "Message In Private";
+"VIEW_PROFILE" = "View Profile";

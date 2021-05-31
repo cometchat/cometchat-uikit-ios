@@ -101,8 +101,9 @@ class CometChatStickerKeyboard: UIViewController {
             }
         }) { (error) in
             DispatchQueue.main.async {
-                CometChatSnackBoard.display(message: "ERR_STICKERS_NOT_ENABLED".localized(), mode: .error, duration: .middle)
-            }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
+                }}
             
             print("Error with fetching stickers: \(String(describing: error?.errorDescription))")
         }

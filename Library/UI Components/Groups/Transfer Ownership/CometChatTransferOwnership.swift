@@ -242,12 +242,8 @@ public class CometChatTransferOwnership: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
          })
@@ -324,9 +320,6 @@ extension CometChatTransferOwnership: UITableViewDelegate , UITableViewDataSourc
                                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: ["guid":self.currentGroup?.guid ?? ""])
                                 
                                 DispatchQueue.main.async {
-                                    let message =  (member.name ?? "") +  " " + "IS_NOW_OWNER".localized()
-                                    CometChatSnackBoard.display(message: message, mode: .success, duration: .middle)
-                                
                                     if let group = self.currentGroup {
                                         self.fetchGroupMembers(for: group)
                                     }
@@ -339,15 +332,9 @@ extension CometChatTransferOwnership: UITableViewDelegate , UITableViewDataSourc
                                             
                                             CometChatSnackBoard.display(message:  "You don't have privilege to make \(member.name!) as Owner.", mode: .error, duration: .short)
                                         }else{
-                                          
-                                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                                if errorCode.isLocalized {
-                                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .middle)
-                                                }else{
-                                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .middle)
-                                                }
+                                            if let error = error {
+                                                CometChatSnackBoard.showErrorMessage(for: error)
                                             }
-                                          
                                         }
                                     }
                                 }
@@ -383,8 +370,6 @@ extension CometChatTransferOwnership: UITableViewDelegate , UITableViewDataSourc
                             CometChat.transferGroupOwnership(UID: member.uid ?? "", GUID: self.currentGroup?.guid ?? "") { (success) in
                                 DispatchQueue.main.async {
                                     self.navigationController?.popViewController(animated: true)
-                                    let message =  (member.name ?? "") +  " " + "IS_NOW_OWNER".localized()
-                                    CometChatSnackBoard.display(message:  message, mode: .success, duration: .middle)
                                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didRefreshMembers"), object: nil, userInfo: nil)
                                 }
                             } onError: { (error) in
@@ -393,12 +378,8 @@ extension CometChatTransferOwnership: UITableViewDelegate , UITableViewDataSourc
                                         if error?.errorCode == "ERR_GROUP_NO_SCOPE_CLEARANCE" {
                                             CometChatSnackBoard.display(message:  "You don't have privilege to make \(member.name!) as owner.", mode: .error, duration: .short)
                                         }else{
-                                            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                                                if errorCode.isLocalized {
-                                                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .middle)
-                                                }else{
-                                                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .middle)
-                                                }
+                                            if let error = error {
+                                                CometChatSnackBoard.showErrorMessage(for: error)
                                             }
                                         }
                                     }
@@ -407,7 +388,7 @@ extension CometChatTransferOwnership: UITableViewDelegate , UITableViewDataSourc
                         }))
                         alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
                         }))
-                          alert.view.tintColor = UIKitSettings.primaryColor
+                        alert.view.tintColor = UIKitSettings.primaryColor
                         self.present(alert, animated: true)
                     }
                 }
