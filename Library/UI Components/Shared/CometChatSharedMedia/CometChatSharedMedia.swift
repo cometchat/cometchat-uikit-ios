@@ -120,12 +120,8 @@ class CometChatSharedMedia: UITableViewCell {
                     }
                 }, onError: { (error) in
                     DispatchQueue.main.async { [weak self] in
-                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                         self?.activityIndicator?.stopAnimating()
                         self?.collectionView.backgroundView?.isHidden = true
@@ -163,12 +159,8 @@ class CometChatSharedMedia: UITableViewCell {
                     }
                 }, onError: { (error) in
                     DispatchQueue.main.async {  [weak self] in
-                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                         self?.activityIndicator?.stopAnimating()
                         self?.collectionView.backgroundView?.isHidden = true
@@ -218,16 +210,12 @@ class CometChatSharedMedia: UITableViewCell {
              
             }, onError: { (error) in
                 DispatchQueue.main.async { [weak self] in
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
+                    }
                         self?.activityIndicator?.stopAnimating()
                         self?.collectionView.backgroundView?.isHidden = true
                         self?.collectionView.reloadData()
-                    }
                 }
             })
         case .group:
@@ -250,16 +238,12 @@ class CometChatSharedMedia: UITableViewCell {
                 }
             }, onError: { (error) in
                 DispatchQueue.main.async { [weak self] in
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
+                    }
                         self?.activityIndicator?.stopAnimating()
                         self?.collectionView.backgroundView?.isHidden = true
                         self?.collectionView.reloadData()
-                    }
                 }
             })
         @unknown default:break

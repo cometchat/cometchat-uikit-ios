@@ -124,16 +124,27 @@ import CometChatPro
      [CometChatBadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
     @objc  func set(count : Int) -> CometChatBadgeCount {
-        if count >=  1 && count < 999 {
-            self.isHidden = false
-            self.text = "\(count)"
-        }else if count > 999 {
-            self.isHidden = false
-            self.text = "999+"
-        }else{
-            self.text = "0"
-            self.isHidden = true
+        FeatureRestriction.isUnreadCountEnabled { (success) in
+            switch success {
+            case .enabled:
+                if count >=  1 && count < 999 {
+                    self.isHidden = false
+                    self.text = "\(count)"
+                    
+                }else if count > 999 {
+                    self.isHidden = false
+                    self.text = "999+"
+                   
+                }else{
+                    self.text = "0"
+                    self.isHidden = true
+                  
+                }
+            case .disabled:
+                self.isHidden = true
+            }
         }
+        
         return self
     }
     
@@ -147,14 +158,29 @@ import CometChatPro
         [CometChatBadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
         */
     @objc  func incrementCount() {
-        let currentCount = self.getCount
-        self.set(count: currentCount + 1)
-        self.isHidden = false
+        FeatureRestriction.isUnreadCountEnabled { (success) in
+            switch success {
+            case .enabled:
+                let currentCount = self.getCount
+                self.set(count: currentCount + 1)
+                self.isHidden = false
+            case .disabled:
+                self.isHidden = true
+            }
+        }
+       
     }
     
     @objc  func removeCount() {
-        self.text = "0"
-        self.isHidden = true
+        FeatureRestriction.isUnreadCountEnabled { (success) in
+            switch success {
+            case .enabled:
+                self.text = "0"
+                self.isHidden = true
+            case .disabled:
+                self.isHidden = true
+            }
+        }
     }
     
     deinit {

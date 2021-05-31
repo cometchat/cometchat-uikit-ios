@@ -709,4 +709,7 @@
 "ERR_OWNER_EXIT_FORBIDDEN" = "所有者不能离开论坛，请先转让所有权才能退出论坛。";
 "ERR_API_VERSION_MISMATCH" = "无法使用v3版的应用程序访问v2.0终结点。请使用支持v3端点的SDKv3.0.X。";
 "URL_NOT_FOUND" = "无法使用v3版的应用程序访问v2.0终结点。请使用支持v3端点的SDKv3.0.X。";
-
+"LAST_ACTIVE_AT" = "上次活動時間：";
+"SOMETHING_WENT_WRONG_ERROR" = "出問題了，請重試。";
+"MESSAGE_IN_PRIVATE" = "Message In Private";
+"VIEW_PROFILE" = "View Profile";

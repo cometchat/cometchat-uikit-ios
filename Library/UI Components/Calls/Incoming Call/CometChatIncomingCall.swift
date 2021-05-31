@@ -129,15 +129,8 @@ public class CometChatIncomingCall: UIViewController {
         self.callStatus.text = callStatus
         self.callStatusIcon.image = callStatusIcon
     }
-    
-    /**
-    This method triggers when user pressed accept button in  CometChatIncomingCall Screen.
-      - Parameter sender: specifies the user who pressed the button
-    - Author: CometChat Team
-    - Copyright:  ©  2020 CometChat Inc.
-    */
-    @IBAction func didAcceptButtonPressed(_ sender: Any) {
-        if let call = currentCall  {
+    public func acceptCall(withCall: Call?) {
+        if let call = withCall  {
             CometChatSoundManager().play(sound: .incomingCall, bool: false)
             CometChat.acceptCall(sessionID: call.sessionID ?? "", onSuccess: { (acceptedCall) in
                 if acceptedCall != nil {
@@ -163,7 +156,13 @@ public class CometChatIncomingCall: UIViewController {
                                     CometChatSnackBoard.display(message:  "\(name) " + "LEFT_THE_CALL".localized(), mode: .info, duration: .short)
                                 }
                             }
-                        }, userListUpdated: {(userListUpdated) in }, onError: { (error) in
+
+                        }, userListUpdated: {(userListUpdated) in
+                            
+                        }, audioModesUpdated: {(userListUpdated) in
+                            
+                        }, onError: { (error) in
+
                             DispatchQueue.main.async {
                                 if let errorMessage = error?.errorDescription {
                                     CometChatSnackBoard.display(message:  "CALL_ENDED".localized(), mode: .info, duration: .short)
@@ -181,15 +180,22 @@ public class CometChatIncomingCall: UIViewController {
                 }
             }) { (error) in
                 DispatchQueue.main.async {
-                    if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                        if errorCode.isLocalized {
-                            CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                        }else{
-                            CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                        }
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
+        }
+    }
+    /**
+    This method triggers when user pressed accept button in  CometChatIncomingCall Screen.
+      - Parameter sender: specifies the user who pressed the button
+    - Author: CometChat Team
+    - Copyright:  ©  2020 CometChat Inc.
+    */
+    @IBAction func didAcceptButtonPressed(_ sender: Any) {
+        if let call = currentCall  {
+            self.acceptCall(withCall: call)
         }
     }
     

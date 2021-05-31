@@ -32,7 +32,7 @@ import UIKit
     }
 
     var cornerRadius: CGFloat {
-        return 15.0
+        return 18.0
     }
 
     var springDamping: CGFloat {

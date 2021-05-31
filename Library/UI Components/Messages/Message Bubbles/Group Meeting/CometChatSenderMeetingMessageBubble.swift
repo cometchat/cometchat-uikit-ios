@@ -51,7 +51,7 @@ class CometChatSenderMeetingMessageBubble: UITableViewCell {
             receiptStack.isHidden = true
            
             joinButton.setTitle("JOIN".localized(), for: .normal)
-            
+            joinButton.tintColor = UIKitSettings.primaryColor
             if let data = meetingMessage.customData, let type = data["callType"] as? String{
                 if type == "audio" {
                     title.text = "YOU_INITIATED_GROUP_AUDIO_CALL".localized()
@@ -88,31 +88,34 @@ class CometChatSenderMeetingMessageBubble: UITableViewCell {
                 receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(meetingMessage?.readAt ?? 0))
             }else if meetingMessage.deliveredAt > 0 {
-                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(meetingMessage?.deliveredAt ?? 0))
             }else if meetingMessage.sentAt > 0 {
-                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(meetingMessage?.sentAt ?? 0))
             }else if meetingMessage.sentAt == 0 {
-                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = "SENDING".localized()
             }
-            if meetingMessage?.replyCount != 0  && UIKitSettings.threadedChats == .enabled {
-                replyButton.isHidden = false
-                if meetingMessage?.replyCount == 1 {
-                    replyButton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = meetingMessage?.replyCount {
-                        replyButton.setTitle("\(replies) replies", for: .normal)
+            FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                switch success {
+                case .enabled where self.meetingMessage.replyCount != 0 :
+                    self.replyButton.isHidden = false
+                    if self.meetingMessage.replyCount == 1 {
+                        self.replyButton.setTitle("ONE_REPLY".localized(), for: .normal)
+                    }else{
+                        if let replies = self.meetingMessage.replyCount as? Int {
+                            self.replyButton.setTitle("\(replies) replies", for: .normal)
+                        }
                     }
+                case .disabled, .enabled : self.replyButton.isHidden = true
                 }
-            }else{
-                replyButton.isHidden = true
             }
-            if UIKitSettings.showReadDeliveryReceipts == .disabled {
-                receipt.isHidden = true
-            }else{
-                receipt.isHighlighted = false
+            FeatureRestriction.isDeliveryReceiptsEnabled { (success) in
+                switch success {
+                case .enabled: self.receipt.isHidden = false
+                case .disabled: self.receipt.isHidden = true
+                }
             }
             messageView.backgroundColor = UIKitSettings.primaryColor
             replyButton.tintColor = UIKitSettings.primaryColor

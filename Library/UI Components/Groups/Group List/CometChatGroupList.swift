@@ -125,12 +125,8 @@ public class CometChatGroupList: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
         }
@@ -171,12 +167,8 @@ public class CometChatGroupList: UIViewController {
                 self.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
            DispatchQueue.main.async {
-            if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                if errorCode.isLocalized {
-                    CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                }else{
-                    CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                }
+            if let error = error {
+                CometChatSnackBoard.showErrorMessage(for: error)
             }
             }
         }
@@ -288,8 +280,10 @@ public class CometChatGroupList: UIViewController {
                 self.navigationController?.navigationBar.isTranslucent = true
             }
             
-            if UIKitSettings.groupCreation == .enabled {
-                self.addCreateGroup(true)
+            FeatureRestriction.isGroupCreationEnabled { ( success) in
+                if success == .enabled {
+                    self.addCreateGroup(true)
+                }
             }
         }
     }
@@ -345,7 +339,11 @@ public class CometChatGroupList: UIViewController {
         } else {}
         if #available(iOS 11.0, *) {
             if navigationController != nil{
-                navigationItem.searchController = searchController
+                FeatureRestriction.isGroupSearchEnabled { (success) in
+                    if success == .enabled {
+                        self.navigationItem.searchController = self.searchController
+                    }
+                }
             }else{
                 if let textfield = searchController.searchBar.value(forKey: "searchField") as? UITextField {
                     if #available(iOS 13.0, *) {textfield.textColor = .label } else {}
@@ -355,7 +353,11 @@ public class CometChatGroupList: UIViewController {
                         backgroundview.clipsToBounds = true
                     }
                 }
-                tableView.tableHeaderView = searchController.searchBar
+                FeatureRestriction.isGroupSearchEnabled { (success) in
+                    if success == .enabled {
+                        self.tableView.tableHeaderView = self.searchController.searchBar
+                    }
+                }
             }
         } else {}
     }
@@ -426,7 +428,7 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 0.5))
+        let returnedView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width - 20, height: 0.5))
         return returnedView
     }
     
@@ -495,8 +497,6 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
     private func joinGroup(withGuid: String, name: String, groupType: CometChat.groupType, password: String, indexPath: IndexPath) {
         CometChat.joinGroup(GUID: withGuid, groupType: groupType, password: password, onSuccess: { (group) in
             DispatchQueue.main.async {
-                let message = "YOU_JOINED".localized() +  (name) + "."
-                CometChatSnackBoard.display(message:  message, mode: .success, duration: .short)
                 self.tableView.deselectRow(at: indexPath, animated: true)
                 let messageList = CometChatMessageList()
                 messageList.set(conversationWith: group, type: .group)
@@ -506,12 +506,8 @@ extension CometChatGroupList: UITableViewDelegate , UITableViewDataSource {
             
         }) { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
         }

@@ -175,12 +175,8 @@ class CometChatBlockedUsers: UIViewController {
             
         }, onError: { (error) in
             DispatchQueue.main.async {
-                if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                    if errorCode.isLocalized {
-                        CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                    }else{
-                        CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                    }
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true
@@ -275,21 +271,13 @@ extension CometChatBlockedUsers: UITableViewDelegate , UITableViewDataSource {
                     DispatchQueue.main.async {
                         self.blockedUsers.remove(at: indexPath.row)
                         tableView.deleteRows(at: [indexPath], with: .fade)
-                        
-                        if let name = selectedCell.user?.name {
-                            CometChatSnackBoard.display(message: "\(name)" + " " + "UNBLOCKED_SUCCESSFULLY".localized(), mode: .success, duration: .short)
-                        }
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didUserBlocked"), object: nil, userInfo: ["count": "\(self.blockedUsers.count)"])
                         
                     }
                 }) { (error) in
                     DispatchQueue.main.async {
-                        if let errorCode = error?.errorCode, let errorDescription = error?.errorDescription {
-                            if errorCode.isLocalized {
-                                CometChatSnackBoard.display(message:  errorCode.localized() , mode: .error, duration: .short)
-                            }else{
-                                CometChatSnackBoard.display(message:  errorDescription , mode: .error, duration: .short)
-                            }
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
                 }

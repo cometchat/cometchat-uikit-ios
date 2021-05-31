@@ -248,7 +248,9 @@ class CometChatCreatePoll: UIViewController {
             }) { (error) in
                 DispatchQueue.main.async {
                 self.dismiss(animated: true) {
-                    CometChatSnackBoard.display(message: "ERR_POLLS_NOT_ENABLED".localized(), mode: .error, duration: .middle)
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
+                    }
                 }
                 }
             }

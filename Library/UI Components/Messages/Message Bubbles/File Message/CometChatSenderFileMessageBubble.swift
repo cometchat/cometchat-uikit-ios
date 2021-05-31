@@ -65,31 +65,34 @@ class CometChatSenderFileMessageBubble: UITableViewCell {
                 receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(fileMessage?.readAt ?? 0))
             }else if fileMessage.deliveredAt > 0 {
-                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(fileMessage?.deliveredAt ?? 0))
             }else if fileMessage.sentAt > 0 {
-                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(fileMessage?.sentAt ?? 0))
             }else if fileMessage.sentAt == 0 {
-                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = "SENDING".localized()
             }
-            if fileMessage?.replyCount != 0  && UIKitSettings.threadedChats == .enabled {
-                replybutton.isHidden = false
-                if fileMessage?.replyCount == 1 {
-                    replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
-                }else{
-                    if let replies = fileMessage?.replyCount {
-                        replybutton.setTitle("\(replies) replies", for: .normal)
+            FeatureRestriction.isThreadedMessagesEnabled { (success) in
+                switch success {
+                case .enabled where self.fileMessage.replyCount != 0 :
+                    self.replybutton.isHidden = false
+                    if self.fileMessage.replyCount == 1 {
+                        self.replybutton.setTitle("ONE_REPLY".localized(), for: .normal)
+                    }else{
+                        if let replies = self.fileMessage.replyCount as? Int {
+                            self.replybutton.setTitle("\(replies) replies", for: .normal)
+                        }
                     }
+                case .disabled, .enabled : self.replybutton.isHidden = true
                 }
-            }else{
-                replybutton.isHidden = true
             }
-            if UIKitSettings.showReadDeliveryReceipts == .disabled {
-                receipt.isHidden = true
-            }else{
-                receipt.isHighlighted = false
+            FeatureRestriction.isDeliveryReceiptsEnabled { (success) in
+                switch success {
+                case .enabled: self.receipt.isHidden = false
+                case .disabled: self.receipt.isHidden = true
+                }
             }
             messageView.backgroundColor = UIKitSettings.primaryColor
             replybutton.tintColor = UIKitSettings.primaryColor

@@ -699,4 +699,7 @@
 "ERR_OWNER_EXIT_FORBIDDEN" = "El propietario no puede abandonar el grupo, primero transfiera la propiedad para abandonar el grupo.";
 "ERR_API_VERSION_MISMATCH" = "No se puede acceder a los puntos finales v2.0 para la versión de la aplicación v3. Utilice SDK v3.0.X que admite puntos finales v3.";
 "URL_NOT_FOUND" = "No se puede acceder a los puntos finales v2.0 para la versión de la aplicación v3. Utilice SDK v3.0.X que admite puntos finales v3.";
-
+"LAST_ACTIVE_AT" = "Última activa en";
+"SOMETHING_WENT_WRONG_ERROR" = "Algo salió mal. Por favor, vuelva a intentarlo.";
+"MESSAGE_IN_PRIVATE" = "Message In Private";
+"VIEW_PROFILE" = "View Profile";

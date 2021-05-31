@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import CometChatPro
 
 private let globalInstance = CometChatSnackBoard()
 
@@ -973,5 +973,15 @@ extension CometChatSnackBoard {
         config.presentationContext = .window(windowLevel: UIWindow.Level.statusBar)
         config.duration = .forever
         CometChatSnackBoard.show(config: config, view: view)
+    }
+    
+    
+    public static func showErrorMessage(for error: CometChatException) {
+        
+        if error.errorCode == "ERROR_INTERNET_UNAVAILABLE" {
+            CometChatSnackBoard.display(message:  "ERROR_INTERNET_UNAVAILABLE".localized() , mode: .error, duration: .short)
+        }else{
+            CometChatSnackBoard.display(message:  "SOMETHING_WENT_WRONG_ERROR".localized() , mode: .error, duration: .short)
+        }
     }
 }

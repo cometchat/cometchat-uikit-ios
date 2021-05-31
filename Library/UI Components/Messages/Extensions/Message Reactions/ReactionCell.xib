@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -19,12 +19,12 @@
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6Aa-ia-7e0">
-                        <rect key="frame" x="5" y="5" width="51" height="53"/>
+                        <rect key="frame" x="7" y="7" width="47" height="49"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="blR-WO-xa8">
-                                <rect key="frame" x="5" y="5" width="41" height="43"/>
+                                <rect key="frame" x="3" y="3" width="41" height="43"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="32"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
                                 <state key="normal" title="😊">
                                     <color key="titleColor" systemColor="labelColor"/>
                                 </state>
@@ -35,14 +35,14 @@
                         </subviews>
                         <color key="backgroundColor" systemColor="systemFillColor"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="blR-WO-xa8" secondAttribute="trailing" constant="5" id="WSV-ol-P7n"/>
-                            <constraint firstAttribute="bottom" secondItem="blR-WO-xa8" secondAttribute="bottom" constant="5" id="Xb8-W3-bOJ"/>
-                            <constraint firstItem="blR-WO-xa8" firstAttribute="leading" secondItem="6Aa-ia-7e0" secondAttribute="leading" constant="5" id="bcc-eI-Rfa"/>
-                            <constraint firstItem="blR-WO-xa8" firstAttribute="top" secondItem="6Aa-ia-7e0" secondAttribute="top" constant="5" id="kkA-tS-YTF"/>
+                            <constraint firstAttribute="trailing" secondItem="blR-WO-xa8" secondAttribute="trailing" constant="3" id="WSV-ol-P7n"/>
+                            <constraint firstAttribute="bottom" secondItem="blR-WO-xa8" secondAttribute="bottom" constant="3" id="Xb8-W3-bOJ"/>
+                            <constraint firstItem="blR-WO-xa8" firstAttribute="leading" secondItem="6Aa-ia-7e0" secondAttribute="leading" constant="3" id="bcc-eI-Rfa"/>
+                            <constraint firstItem="blR-WO-xa8" firstAttribute="top" secondItem="6Aa-ia-7e0" secondAttribute="top" constant="3" id="kkA-tS-YTF"/>
                         </constraints>
                         <userDefinedRuntimeAttributes>
                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                <real key="value" value="27.5"/>
+                                <integer key="value" value="23"/>
                             </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
                     </view>
@@ -50,10 +50,10 @@
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <constraints>
-                <constraint firstAttribute="bottom" secondItem="6Aa-ia-7e0" secondAttribute="bottom" constant="5" id="CI2-GK-38O"/>
-                <constraint firstItem="6Aa-ia-7e0" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="5" id="CWR-OU-FWl"/>
-                <constraint firstAttribute="trailing" secondItem="6Aa-ia-7e0" secondAttribute="trailing" constant="5" id="omY-Bh-Qo5"/>
-                <constraint firstItem="6Aa-ia-7e0" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="5" id="tac-Me-08R"/>
+                <constraint firstAttribute="bottom" secondItem="6Aa-ia-7e0" secondAttribute="bottom" constant="7" id="CI2-GK-38O"/>
+                <constraint firstItem="6Aa-ia-7e0" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="7" id="CWR-OU-FWl"/>
+                <constraint firstAttribute="trailing" secondItem="6Aa-ia-7e0" secondAttribute="trailing" constant="7" id="omY-Bh-Qo5"/>
+                <constraint firstItem="6Aa-ia-7e0" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="7" id="tac-Me-08R"/>
             </constraints>
             <size key="customSize" width="74" height="77"/>
             <connections>
