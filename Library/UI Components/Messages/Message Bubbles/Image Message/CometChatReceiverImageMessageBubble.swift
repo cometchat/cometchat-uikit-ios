@@ -44,6 +44,16 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
     
     var mediaMessage: MediaMessage!{
         didSet {
+            
+            imageMessage.layer.cornerRadius = 12
+            imageMessage.layer.borderWidth = 1
+            if #available(iOS 13.0, *) {
+                imageMessage.layer.borderColor = UIColor.systemFill.cgColor
+            } else {
+                imageMessage.layer.borderColor = UIColor.lightText.cgColor
+            }
+            imageMessage.clipsToBounds = true
+            
                 self.reactionView.parseMessageReactionForMessage(message: mediaMessage) { (success) in
                     if success == true {
                         self.reactionView.isHidden = false

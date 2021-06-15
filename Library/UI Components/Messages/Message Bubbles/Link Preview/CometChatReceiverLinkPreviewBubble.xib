@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -19,7 +19,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="pfY-PS-tfn">
-                        <rect key="frame" x="38" y="0.0" width="395" height="442"/>
+                        <rect key="frame" x="38" y="3" width="395" height="439"/>
                         <subviews>
                             <stackView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="xC6-bS-4y0">
                                 <rect key="frame" x="0.0" y="0.0" width="250" height="356"/>
@@ -161,12 +161,12 @@
                                 </subviews>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="15"/>
+                                        <integer key="value" value="12"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </stackView>
                             <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="iP3-Bq-6tt" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="371" width="395" height="50"/>
+                                <rect key="frame" x="0.0" y="368" width="395" height="50"/>
                                 <subviews>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceLeftToRight" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="A0m-Eu-6Gc">
                                         <rect key="frame" x="0.0" y="0.0" width="395" height="50"/>
@@ -192,7 +192,7 @@
                                 </connections>
                             </view>
                             <stackView opaque="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="iei-4O-P7X">
-                                <rect key="frame" x="0.0" y="424" width="33" height="18"/>
+                                <rect key="frame" x="0.0" y="421" width="33" height="18"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10:43" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gRn-h2-mzD">
                                         <rect key="frame" x="0.0" y="0.0" width="33" height="18"/>
@@ -213,7 +213,7 @@
                         </constraints>
                     </stackView>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvatar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="YID-80-9Vj" customClass="CometChatAvatar" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                        <rect key="frame" x="5" y="326" width="30" height="30"/>
+                        <rect key="frame" x="5" y="329" width="30" height="30"/>
                         <color key="backgroundColor" systemColor="systemFillColor"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="30" id="b7E-WS-7Na"/>
@@ -229,7 +229,7 @@
                         </userDefinedRuntimeAttributes>
                     </imageView>
                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hdc-hO-IOJ">
-                        <rect key="frame" x="293" y="335" width="35" height="21"/>
+                        <rect key="frame" x="293" y="338" width="35" height="21"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="21" id="31k-2a-6j3"/>
                         </constraints>
@@ -246,7 +246,7 @@
                     <constraint firstItem="hdc-hO-IOJ" firstAttribute="leading" secondItem="EsP-jS-fcA" secondAttribute="trailing" constant="5" id="Kkq-7J-go2"/>
                     <constraint firstItem="pfY-PS-tfn" firstAttribute="leading" secondItem="YID-80-9Vj" secondAttribute="trailing" constant="3" id="fHu-Jl-4kb"/>
                     <constraint firstItem="YID-80-9Vj" firstAttribute="bottom" secondItem="EsP-jS-fcA" secondAttribute="bottom" id="fKQ-87-guf"/>
-                    <constraint firstItem="pfY-PS-tfn" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="pc1-oa-E3o"/>
+                    <constraint firstItem="pfY-PS-tfn" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="3" id="pc1-oa-E3o"/>
                     <constraint firstItem="YID-80-9Vj" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="rRu-9r-lZG"/>
                     <constraint firstAttribute="trailing" secondItem="pfY-PS-tfn" secondAttribute="trailing" id="sgp-a1-zGZ"/>
                 </constraints>
@@ -274,7 +274,7 @@
     </objects>
     <designables>
         <designable name="ViO-6S-fBa">
-            <size key="intrinsicContentSize" width="38" height="18"/>
+            <size key="intrinsicContentSize" width="37.5" height="18"/>
         </designable>
         <designable name="YID-80-9Vj">
             <size key="intrinsicContentSize" width="240" height="240"/>

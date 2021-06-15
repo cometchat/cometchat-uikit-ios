@@ -13,7 +13,7 @@ import CometChatPro
 /*  ----------------------------------------------------------------------------------------- */
 protocol  LocationCellDelegate: NSObject {
     
-    func didPressedOnLocation(latitude: Double, longitude : Double, name: String)
+    func didPressedOnLocation(latitude: Double, longitude : Double, title: String)
     
 }
 
@@ -24,12 +24,12 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
     @IBOutlet weak var locationTitle: UILabel!
+    @IBOutlet weak var subtitle: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var receipt: UIImageView!
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var map: UIImageView!
-    @IBOutlet weak var navigateButton: UIButton!
     
     // MARK: - Declaration of Variables
     weak var locationDelegate: LocationCellDelegate?
@@ -48,12 +48,11 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
     var url:String?
     var locationMessage: CustomMessage! {
         didSet{
+            
             receiptStack.isHidden = true
+            messageView.backgroundColor = UIKitSettings.primaryColor
             if let data = locationMessage.customData {
-                if let title = data["name"] as? String {
-                    
-                    self.locationTitle.text = title
-                }
+
                     self.reactionView.parseMessageReactionForMessage(message: locationMessage) { (success) in
                         if success == true {
                             self.reactionView.isHidden = false
@@ -61,14 +60,22 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
                             self.reactionView.isHidden = true
                         }
                     }
-                if let data = locationMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double, let locationURL = URL(string: "https://maps.googleapis.com/maps/api/staticmap?center=\(latitude),\(longitude)&markers=color:red%7Clabel:S%7C\(latitude),\(longitude)&zoom=14&size=230x150&key=AIzaSyAa8HeLH2lQMbPeOiMlM9D1VxZ7pbGQq8o"){
-                    map.cf.setImage(with: locationURL)
+                if let data = locationMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
+                    
+                    if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
+                        map.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                    }else{
+                        map.image = UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                    self.getAddressFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) { address in
+                        self.locationTitle.text = address
+                    }
                 }
                 
                 
             receiptStack.isHidden = true
             timeStamp.text = String().setMessageTime(time: locationMessage.sentAt)
-                messageView.layer.cornerRadius = 20
+                messageView.layer.cornerRadius = 12
                 messageView.clipsToBounds = true
                 
                 if locationMessage.readAt > 0 {
@@ -85,17 +92,19 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
                     timeStamp.text = "SENDING".localized()
                 }
                 receipt.contentMode = .scaleAspectFit
+                subtitle.text = "SHARED_LOCATION".localized()
+                let tapOnMapView = UITapGestureRecognizer(target: self, action: #selector(didNavigatePressed))
+                self.messageView.isUserInteractionEnabled = true
+                self.messageView.addGestureRecognizer(tapOnMapView)
+                
         }
     }
     }
 
     
-    @IBAction func didNavigatePressed(_ sender: Any) {
-
+    @objc func didNavigatePressed() {
         if let data = locationMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double {
-            let title = data["name"] as? String ?? ""
-            locationDelegate?.didPressedOnLocation(latitude: latitude, longitude: longitude, name: title)
-
+            locationDelegate?.didPressedOnLocation(latitude: latitude, longitude: longitude, title: locationTitle.text ?? "")
         }
     }
     
@@ -131,7 +140,65 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
         }
     }
 
+    func getMapFromLocatLon(from latitude: Double ,and longitude: Double, googleApiKey: String) -> URL? {
+        
+        if googleApiKey == "" ||   googleApiKey == "ENTER YOUR GOOGLE API KEY HERE" {
+            let url = URL(string: "")
+            return url
+        }else{
+            let url = URL(string: "https://maps.googleapis.com/maps/api/staticmap?center=\(latitude),\(longitude)&markers=color:red%7Clabel:S%7C\(latitude),\(longitude)&zoom=14&size=230x150&key=\(googleApiKey.trimmingCharacters(in: .whitespacesAndNewlines))")
+            return url
+        }
+      
+    }
     
+    func getAddressFromLocatLon(from latitude: Double ,and longitude: Double, googleApiKey: String, handler: @escaping (String) -> ()) {
+        
+        var addressString : String = ""
+        var center : CLLocationCoordinate2D = CLLocationCoordinate2D()
+        let ceo: CLGeocoder = CLGeocoder()
+        center.latitude = latitude
+        center.longitude = longitude
+        
+        let loc: CLLocation = CLLocation(latitude:center.latitude, longitude: center.longitude)
+        
+        ceo.reverseGeocodeLocation(loc, completionHandler:
+                                    {(placemarks, error) in
+                                        if let error = error {
+                                            handler("UNKNOWN_LOCATION".localized())
+                                        }else if let placemarks = placemarks {
+                                            if   let pm = placemarks as? [CLPlacemark] {
+                                                if pm.count > 0 {
+                                                    let place = pm[0]
+                                                    var addressString : String = ""
+                                                    if place.subLocality != nil {
+                                                        addressString = addressString + place.subLocality! + ", "
+                                                    }
+                                                    if place.thoroughfare != nil {
+                                                        addressString = addressString + place.thoroughfare! + ", "
+                                                    }
+                                                    if place.locality != nil {
+                                                        addressString = addressString + place.locality! + ", "
+                                                    }
+                                                    if place.country != nil {
+                                                        addressString = addressString + place.country! + ", "
+                                                    }
+                                                    if place.postalCode != nil {
+                                                        addressString = addressString + place.postalCode! + " "
+                                                    }
+                                                    
+                                                    handler(addressString)
+                                                }else{
+                                                    handler("UNKNOWN_LOCATION".localized())
+                                                }
+                                                
+                                            }
+                                            
+                                        }else{
+                                            handler("UNKNOWN_LOCATION".localized())
+                                        }
+                                    })
+    }
 }
 
 /*  ----------------------------------------------------------------------------------------- */

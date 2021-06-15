@@ -48,6 +48,9 @@ public struct UIKitSettings {
     
     static var bundle = Bundle.main
     
+    // Keys
+    static var googleApiKey = "ENTER YOUR GOOGLE API KEY HERE"
+    
     // style
     static var primaryColor: UIColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
     static var URLColor: UIColor = #colorLiteral(red: 0.01568627451, green: 0.1965779049, blue: 1, alpha: 1)
@@ -147,8 +150,10 @@ public struct UIKitSettings {
     static var xssFilter: SwitchMode =  .enabled
     static var imageModeration: SwitchMode =  .enabled
     static var sentimentAnalysis: SwitchMode =  .enabled
-    static var connectionIndicator: SwitchMode =  .enabled
+    static var connectionIndicator: SwitchMode =  .disabled
     static var messageInPrivate: SwitchMode =  .enabled
+    static var clearConversation: SwitchMode =  .enabled
+    static var replyInPrivate: SwitchMode =  .enabled
     static var messageInformation: SwitchMode =  .enabled
     static var viewProfile: SwitchMode =  .enabled
     public static var tabs: [Controller] = [.chats, .calls, .users , .groups, .settings]

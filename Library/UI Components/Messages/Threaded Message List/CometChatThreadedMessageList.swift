@@ -546,8 +546,8 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         case .user:
             FeatureRestriction.isHideDeletedMessagesEnabled { (success) in
                 switch success {
-                case .enabled: break
-//                    self.messageRequest = MessagesRequest.MessageRequestBuilder().set(uid: forID).hideReplies(hide: true).hideDeletedMessages(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForUser()).set(types: MessageFilter.fetchMessageTypesForUser()).build()
+                case .enabled:
+                    self.messageRequest = MessagesRequest.MessageRequestBuilder().set(uid: forID).hideReplies(hide: true).hideDeletedMessages(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForUser()).set(types: MessageFilter.fetchMessageTypesForUser()).build()
                 case .disabled:
                     self.messageRequest = MessagesRequest.MessageRequestBuilder().set(uid: forID).hideReplies(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForUser()).set(types: MessageFilter.fetchMessageTypesForUser()).build()
                 }
@@ -593,8 +593,8 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         case .group:
             FeatureRestriction.isHideDeletedMessagesEnabled { (success) in
                 switch success {
-                case .enabled: break
-//                    self.messageRequest = MessagesRequest.MessageRequestBuilder().set(guid: forID).hideReplies(hide: true).hideDeletedMessages(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForGroups()).set(types: MessageFilter.fetchMessageTypesForGroup()).build()
+                case .enabled:
+                   self.messageRequest = MessagesRequest.MessageRequestBuilder().set(guid: forID).hideReplies(hide: true).hideDeletedMessages(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForGroups()).set(types: MessageFilter.fetchMessageTypesForGroup()).build()
                 case .disabled:
                     self.messageRequest = MessagesRequest.MessageRequestBuilder().set(guid: forID).hideReplies(hide: true).setParentMessageId(parentMessageId: messageID).set(limit: 30).set(categories: MessageFilter.fetchMessageCategoriesForGroups()).set(types: MessageFilter.fetchMessageTypesForGroup()).build()
                 }
@@ -696,9 +696,9 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
      */
     private func didExtensionDetected(message: BaseMessage) -> CometChatExtension {
         var detectedExtension: CometChatExtension?
-        
-        if let metaData = message.metaData , let type = metaData["type"] as? String {
-            if type == "reply" || metaData["replyToMessage"] as? [String : Any] != nil {
+       
+        if let metaData = message.metaData {
+            if  metaData["reply-message"] as? [String : Any] != nil {
                 detectedExtension = .reply
             }else{
                 detectedExtension = .none
@@ -3055,12 +3055,12 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
         var stickerMessage: CustomMessage?
         switch self.isGroupIs {
         case true:
-            stickerMessage = CustomMessage(receiverUid: self.currentGroup?.guid ?? "", receiverType: .group, customData: ["stickerUrl": withURL], type: "extension_sticker")
+            stickerMessage = CustomMessage(receiverUid: self.currentGroup?.guid ?? "", receiverType: .group, customData: ["sticker_url": withURL], type: "extension_sticker")
             stickerMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
             stickerMessage?.sender?.uid = LoggedInUser.uid
             stickerMessage?.senderUid = LoggedInUser.uid
             stickerMessage?.parentMessageId = currentMessage?.id ?? 0
-            
+            stickerMessage?.metaData = ["incrementUnreadCount":true]
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [stickerMessage!])
                 self.filteredMessages.append(stickerMessage!)
@@ -3093,12 +3093,12 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                 }
             }
         case false:
-            stickerMessage = CustomMessage(receiverUid: self.currentUser?.uid ?? "", receiverType: .user, customData: ["stickerUrl": withURL], type: "extension_sticker")
+            stickerMessage = CustomMessage(receiverUid: self.currentUser?.uid ?? "", receiverType: .user, customData: ["sticker_url": withURL], type: "extension_sticker")
             stickerMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
             stickerMessage?.sender?.uid = LoggedInUser.uid
             stickerMessage?.senderUid = LoggedInUser.uid
             stickerMessage?.parentMessageId = currentMessage?.id ?? 0
-            
+            stickerMessage?.metaData = ["incrementUnreadCount":true]
            
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [stickerMessage!])
@@ -3211,7 +3211,7 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                     textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
                     textMessage?.sender?.uid = LoggedInUser.uid
                     textMessage?.senderUid = LoggedInUser.uid
-                    textMessage?.metaData = ["type": "reply","message":editViewMessage.text as Any,"replyToMessage":["message":editViewMessage.text as Any,"messageId": selectedMessage?.id,"name":selectedMessage?.sender?.name,"uid":selectedMessage?.sender?.uid]]
+                    textMessage?.metaData = ["reply-message": selectedMessage?.rawMessage ]
                     textMessage?.parentMessageId = currentMessage?.id ?? 0
                     
                     if chatMessages.count == 0 {
@@ -3265,7 +3265,8 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                     textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
                     textMessage?.sender?.uid = LoggedInUser.uid
                     textMessage?.senderUid = LoggedInUser.uid
-                    textMessage?.metaData = ["type": "reply","message":editViewMessage.text as Any,"replyToMessage":["message":editViewMessage.text as Any,"messageId": selectedMessage?.id,"name":selectedMessage?.sender?.name,"uid":selectedMessage?.sender?.uid]]
+                    textMessage?.metaData = ["reply-message": selectedMessage?.rawMessage ]
+                    
                     textMessage?.parentMessageId = currentMessage?.id ?? 0
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [textMessage!])
@@ -3895,7 +3896,7 @@ extension CometChatThreadedMessageList: CometChatReceiverTextMessageBubbleDelega
     
     func didTapOnSentimentAnalysisViewForLeftBubble(indexPath: IndexPath) {
         if let cell = self.tableView?.cellForRow(at: indexPath) as? CometChatReceiverTextMessageBubble {
-            let alert = UIAlertController(title: "Warning!", message: "Are you sure want to view this message?", preferredStyle: .alert)
+            let alert = UIAlertController(title: "WARNING".localized(), message: "Are you sure want to view this message?", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
                 self.tableView?.beginUpdates()
                 cell.message.font = UIFont.systemFont(ofSize: 13, weight: .regular)
@@ -3928,7 +3929,7 @@ extension CometChatThreadedMessageList: CometChatReceiverReplyMessageBubbleDeleg
     
     func didTapOnSentimentAnalysisViewForLeftReplyBubble(indexPath: IndexPath) {
         if let cell = self.tableView?.cellForRow(at: indexPath) as? CometChatReceiverReplyMessageBubble {
-            let alert = UIAlertController(title: "Warning!", message: "Are you sure want to view this message?", preferredStyle: .alert)
+            let alert = UIAlertController(title: "WARNING".localized(), message: "Are you sure want to view this message?", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
                 self.tableView?.beginUpdates()
                 cell.message.font = UIFont.systemFont(ofSize: 13, weight: .regular)
@@ -3966,6 +3967,21 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
     func didAudioCallPressed() {}
     
     func didMessageTranslatePressed() {}
+    
+    
+    func didReplyInPrivatePressed() {
+       
+        if let message = selectedMessage, let user = message.sender {
+            let messageList = CometChatMessageList()
+            messageList.set(conversationWith: user, type: .user)
+            messageList.isMessageInPrivateEnabled = true
+            messageList.selectedMessage = message
+            messageList.messageMode = .reply
+            messageList.isMessageInPrivateEnabled = true
+            self.navigationController?.pushViewController(messageList, animated: true)
+        }
+        
+    }
     
     func didMessageInPrivatePressed() {
         if let message = selectedMessage, let user = message.sender {
@@ -4100,7 +4116,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                         
                         guard let group = strongSelf.currentGroup else { return  }
                         let locationMessage = CustomMessage(receiverUid: group.guid , receiverType: .group, customData: locationData, type: "location")
-                        locationMessage.metaData = ["pushNotification": pushtitle]
+                        locationMessage.metaData = ["pushNotification": pushtitle, "incrementUnreadCount":true]
                         locationMessage.parentMessageId = strongSelf.currentMessage?.id ?? 0
                         DispatchQueue.main.async {
                             let alert = UIAlertController(title: nil, message: "SENDING_LOCATION".localized(), preferredStyle: .alert)
@@ -4155,11 +4171,10 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                         guard let strongSelf = self else { return }
                         let pushtitle = (CometChat.getLoggedInUser()?.name ?? "") + "HAS_SHARED_LOCATION".localized()
                         let locationData = ["name": name,"latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude] as [String : Any]
-                       
                         
                         guard let user = strongSelf.currentUser else { return  }
                         let locationMessage = CustomMessage(receiverUid: user.uid ?? "", receiverType: .user, customData: locationData, type: "location")
-                        locationMessage.metaData = ["pushNotification": pushtitle]
+                        locationMessage.metaData = ["pushNotification": pushtitle, "incrementUnreadCount":true]
                         locationMessage.parentMessageId = strongSelf.currentMessage?.id ?? 0
                         DispatchQueue.main.async {
                             let alert = UIAlertController(title: nil, message: "SENDING_LOCATION".localized(), preferredStyle: .alert)
@@ -4409,13 +4424,13 @@ extension CometChatThreadedMessageList : LocationCellDelegate, CLLocationManager
         
     }
     
-    func didPressedOnLocation(latitude: Double, longitude: Double, name: String) {
+    func didPressedOnLocation(latitude: Double, longitude: Double, title: String) {
         
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         actionSheet.addAction(UIAlertAction(title: "OPEN_IN_APPLE_MAPS".localized(), style: .default, handler: { (alert:UIAlertAction!) -> Void in
             
-            self.openMapsForPlace(latitude: latitude, longitude: longitude, name: name)
+            self.openMapsForPlace(latitude: latitude, longitude: longitude, title: title)
         }))
         
         actionSheet.addAction(UIAlertAction(title: "OPEN_IN_GOOGLE_MAPS".localized(), style: .default, handler: { (alert:UIAlertAction!) -> Void in
@@ -4430,11 +4445,8 @@ extension CometChatThreadedMessageList : LocationCellDelegate, CLLocationManager
     
     
     
-    func openMapsForPlace(latitude: CLLocationDegrees, longitude: CLLocationDegrees, name: String) {
-        
-        let latitude: CLLocationDegrees = 37.2
-        let longitude: CLLocationDegrees = 22.9
-        
+    func openMapsForPlace(latitude: CLLocationDegrees, longitude: CLLocationDegrees, title: String) {
+
         let regionDistance:CLLocationDistance = 10000
         let coordinates = CLLocationCoordinate2DMake(latitude, longitude)
         let regionSpan = MKCoordinateRegion(center: coordinates, latitudinalMeters: regionDistance, longitudinalMeters: regionDistance)
@@ -4444,7 +4456,7 @@ extension CometChatThreadedMessageList : LocationCellDelegate, CLLocationManager
         ]
         let placemark = MKPlacemark(coordinate: coordinates, addressDictionary: nil)
         let mapItem = MKMapItem(placemark: placemark)
-        mapItem.name = name
+        mapItem.name = title
         mapItem.openInMaps(launchOptions: options)
     }
     
