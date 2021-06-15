@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -19,7 +19,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" alignment="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="chB-ix-hEc">
-                        <rect key="frame" x="0.0" y="0.0" width="576" height="248"/>
+                        <rect key="frame" x="0.0" y="3" width="576" height="248"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q6r-Il-FVP">
                                 <rect key="frame" x="326" y="0.0" width="250" height="180"/>
@@ -33,7 +33,7 @@
                                         </constraints>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                                <integer key="value" value="15"/>
+                                                <integer key="value" value="12"/>
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </imageView>
@@ -67,7 +67,7 @@
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                        <integer key="value" value="15"/>
+                                        <integer key="value" value="12"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
                                         <integer key="value" value="1"/>
@@ -134,7 +134,7 @@
                         </constraints>
                     </stackView>
                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mbq-Sj-A2c">
-                        <rect key="frame" x="286" y="152" width="35" height="28"/>
+                        <rect key="frame" x="286" y="155" width="35" height="28"/>
                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                         <state key="normal" title="Reply"/>
                         <connections>
@@ -142,7 +142,7 @@
                         </connections>
                     </button>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="P2g-sz-ZAn">
-                        <rect key="frame" x="423" y="62" width="56" height="56"/>
+                        <rect key="frame" x="423" y="65" width="56" height="56"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="56" id="CbY-2r-frm"/>
                             <constraint firstAttribute="width" constant="56" id="u8O-hf-wO6"/>
@@ -154,7 +154,7 @@
                     </button>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="chB-ix-hEc" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="3vH-Wr-nJ2"/>
+                    <constraint firstItem="chB-ix-hEc" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="3" id="3vH-Wr-nJ2"/>
                     <constraint firstItem="chB-ix-hEc" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="8kf-io-G70"/>
                     <constraint firstAttribute="bottom" secondItem="chB-ix-hEc" secondAttribute="bottom" constant="3" id="BY9-90-eGh"/>
                     <constraint firstItem="xEA-H6-jk8" firstAttribute="leading" secondItem="Mbq-Sj-A2c" secondAttribute="trailing" constant="5" id="H9R-xS-0Ez"/>
@@ -179,11 +179,6 @@
             <point key="canvasLocation" x="-28.260869565217394" y="108.48214285714285"/>
         </tableViewCell>
     </objects>
-    <designables>
-        <designable name="c0Q-td-X1s">
-            <size key="intrinsicContentSize" width="180" height="180"/>
-        </designable>
-    </designables>
     <resources>
         <image name="play.png" width="56" height="56"/>
         <image name="wait.png" width="18" height="18"/>

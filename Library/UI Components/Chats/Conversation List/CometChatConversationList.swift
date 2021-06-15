@@ -461,7 +461,7 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     
     
     public func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        
+        var actions = [UIContextualAction]()
         guard  let selectedCell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem  else { return nil }
         
         let deleteAction =  UIContextualAction(style: .destructive, title: "", handler: { (action,view, completionHandler ) in
@@ -520,7 +520,14 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
             let image =  UIImage(named: "delete.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             deleteAction.image = image
         }
-        return  UISwipeActionsConfiguration(actions: [deleteAction])
+        
+         FeatureRestriction.isclearConversationEnabled(completion: { success in
+            if success == .enabled {
+                actions.append(deleteAction)
+            }
+        })
+       
+        return  UISwipeActionsConfiguration(actions: actions)
     }
     
 }

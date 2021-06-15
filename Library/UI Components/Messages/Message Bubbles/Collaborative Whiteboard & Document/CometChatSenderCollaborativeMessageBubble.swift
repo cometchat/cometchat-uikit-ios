@@ -51,6 +51,7 @@ class CometChatSenderCollaborativeMessageBubble: UITableViewCell {
             
             title.text = "YOU_CREATED_WHITEBOARD".localized()
             joinButton.setTitle("LAUNCH".localized(), for: .normal)
+            joinButton.tintColor = UIKitSettings.primaryColor
             icon.image = UIImage(named: "whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)
             
             if whiteboardMessage.sentAt == 0 {
@@ -109,6 +110,7 @@ class CometChatSenderCollaborativeMessageBubble: UITableViewCell {
             
             title.text = "YOU_CREATED_DOCUMENT".localized()
             joinButton.setTitle("LAUNCH".localized(), for: .normal)
+            joinButton.tintColor = UIKitSettings.primaryColor
             icon.image = UIImage(named: "writeboard", in: UIKitSettings.bundle, compatibleWith: nil)
             receiptStack.isHidden = true
             if writeboardMessage.sentAt == 0 {

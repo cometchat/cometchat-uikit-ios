@@ -39,16 +39,18 @@ class CometChatSenderStickerMessageBubble: UITableViewCell {
     var stickerMessage: CustomMessage! {
         didSet {
             receiptStack.isHidden = true
-            if let url = URL(string: stickerMessage.customData?["stickerUrl"] as? String ?? "") {
+            if let url = URL(string: stickerMessage.customData?["sticker_url"] as? String ?? "") {
                 imageMessage.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
+            }else{
+                imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
             }
-                self.reactionView.parseMessageReactionForMessage(message: stickerMessage) { (success) in
-                    if success == true {
-                        self.reactionView.isHidden = false
-                    }else{
-                        self.reactionView.isHidden = true
-                    }
+            self.reactionView.parseMessageReactionForMessage(message: stickerMessage) { (success) in
+                if success == true {
+                    self.reactionView.isHidden = false
+                }else{
+                    self.reactionView.isHidden = true
                 }
+            }
             if stickerMessage.readAt > 0 {
             receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
             timeStamp.text = String().setMessageTime(time: Int(stickerMessage?.readAt ?? 0))

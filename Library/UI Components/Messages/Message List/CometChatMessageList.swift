@@ -184,6 +184,10 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         setupDelegates()
         locationAuthStatus()
         hideSystemBackButton(bool: true)
+        
+        if messageMode == .reply {
+            self.didReplyPressed()
+        }
     }
     
     
@@ -493,8 +497,8 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         case .group:
             FeatureRestriction.isHideDeletedMessagesEnabled { (success) in
                 switch success {
-                case .enabled:
-                    self.messageRequest = MessagesRequest.MessageRequestBuilder().set(guid: forID).set(categories:MessageFilter.fetchMessageCategoriesForGroups()).set(types: MessageFilter.fetchMessageTypesForGroup()).hideReplies(hide: true).hideDeletedMessages(hide: true).set(limit: 30).build()
+                case .enabled: 
+                 self.messageRequest = MessagesRequest.MessageRequestBuilder().set(guid: forID).set(categories:MessageFilter.fetchMessageCategoriesForGroups()).set(types: MessageFilter.fetchMessageTypesForGroup()).hideReplies(hide: true).hideDeletedMessages(hide: true).set(limit: 30).build()
                 case .disabled:
                     self.messageRequest = MessagesRequest.MessageRequestBuilder().set(guid: forID).set(categories:MessageFilter.fetchMessageCategoriesForGroups()).set(types: MessageFilter.fetchMessageTypesForGroup()).hideReplies(hide: true).set(limit: 30).build()
                 }
@@ -605,8 +609,8 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     private func didExtensionDetected(message: BaseMessage) -> CometChatExtension {
         var detectedExtension: CometChatExtension?
         
-        if let metaData = message.metaData , let type = metaData["type"] as? String {
-            if type == "reply" || metaData["replyToMessage"] as? [String : Any] != nil {
+        if let metaData = message.metaData {
+            if metaData["reply-message"] as? [String : Any] != nil {
                 detectedExtension = .reply
             }else{
                 detectedExtension = .none
@@ -1495,6 +1499,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         }
                     }
                     
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
+                        }
+                    }
+                    
                     FeatureRestriction.isDeleteMemberMessageEnabled { (success) in
                         switch success {
                         case .enabled:
@@ -1529,6 +1539,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     FeatureRestriction.isMessageInPrivateEnabled { (success) in
                         if success == .enabled && self.currentGroup != nil {
                             actions.append(.messageInPrivate)
+                        }
+                    }
+                    
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
                         }
                     }
                     
@@ -1576,6 +1592,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         }
                     }
                     
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
+                        }
+                    }
+                    
                     FeatureRestriction.isDeleteMemberMessageEnabled { (success) in
                         switch success {
                         
@@ -1604,6 +1626,13 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     FeatureRestriction.isMessageInPrivateEnabled { (success) in
                         if success == .enabled && self.currentGroup != nil {
                             actions.append(.messageInPrivate)
+                        }
+                    }
+                    
+                    
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
                         }
                     }
                     
@@ -1636,6 +1665,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         }
                     }
                     
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
+                        }
+                    }
+                    
                     FeatureRestriction.isDeleteMemberMessageEnabled { (success) in
                         switch success {
                         
@@ -1662,6 +1697,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     FeatureRestriction.isMessageInPrivateEnabled { (success) in
                         if success == .enabled && self.currentGroup != nil {
                             actions.append(.messageInPrivate)
+                        }
+                    }
+                    
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
                         }
                     }
                     
@@ -1706,6 +1747,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         }
                     }
                     
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
+                        }
+                    }
+                    
                     FeatureRestriction.isDeleteMemberMessageEnabled { (success) in
                         switch success {
                         
@@ -1733,6 +1780,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     FeatureRestriction.isMessageInPrivateEnabled { (success) in
                         if success == .enabled && self.currentGroup != nil {
                             actions.append(.messageInPrivate)
+                        }
+                    }
+                    
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
                         }
                     }
                     
@@ -1768,6 +1821,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         }
                     }
                     
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
+                        }
+                    }
+                    
                     FeatureRestriction.isDeleteMemberMessageEnabled { (success) in
                         switch success {
                         case .enabled:
@@ -1793,6 +1852,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     FeatureRestriction.isMessageInPrivateEnabled { (success) in
                         if success == .enabled && self.currentGroup != nil {
                             actions.append(.messageInPrivate)
+                        }
+                    }
+                    
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
                         }
                     }
                     
@@ -1823,6 +1888,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                         }
                     }
                     
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
+                        }
+                    }
+                    
                     FeatureRestriction.isDeleteMemberMessageEnabled { (success) in
                         switch success {
                         case .enabled:
@@ -1848,6 +1919,12 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     FeatureRestriction.isMessageInPrivateEnabled { (success) in
                         if success == .enabled && self.currentGroup != nil {
                             actions.append(.messageInPrivate)
+                        }
+                    }
+                    
+                    FeatureRestriction.isReplyInPrivateEnabled(completion: ) { (success) in
+                        if success == .enabled && self.currentGroup != nil {
+                            actions.append(.replyInPrivate)
                         }
                     }
                     
@@ -2589,6 +2666,7 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                     case .text where message.senderUid == LoggedInUser.uid:
                         if let textMessage = message as? TextMessage {
                             let isContainsExtension = didExtensionDetected(message: textMessage)
+                         
                             switch isContainsExtension {
                             case .linkPreview:
                                 let senderCell = tableView.dequeueReusableCell(withIdentifier: "CometChatSenderLinkPreviewBubble", for: indexPath) as! CometChatSenderLinkPreviewBubble
@@ -3701,10 +3779,11 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
         var stickerMessage: CustomMessage?
         switch self.isGroupIs {
         case true:
-            stickerMessage = CustomMessage(receiverUid: self.currentGroup?.guid ?? "", receiverType: .group, customData: ["stickerUrl": withURL], type: "extension_sticker")
+            stickerMessage = CustomMessage(receiverUid: self.currentGroup?.guid ?? "", receiverType: .group, customData: ["sticker_url": withURL], type: "extension_sticker")
             stickerMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
             stickerMessage?.sender?.uid = LoggedInUser.uid
             stickerMessage?.senderUid = LoggedInUser.uid
+            stickerMessage?.metaData = ["incrementUnreadCount":true]
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [stickerMessage!])
                 self.filteredMessages.append(stickerMessage!)
@@ -3737,10 +3816,11 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                 }
             }
         case false:
-            stickerMessage = CustomMessage(receiverUid: self.currentUser?.uid ?? "", receiverType: .user, customData: ["stickerUrl": withURL], type: "extension_sticker")
+            stickerMessage = CustomMessage(receiverUid: self.currentUser?.uid ?? "", receiverType: .user, customData: ["sticker_url": withURL], type: "extension_sticker")
             stickerMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
             stickerMessage?.sender?.uid = LoggedInUser.uid
             stickerMessage?.senderUid = LoggedInUser.uid
+            stickerMessage?.metaData = ["incrementUnreadCount":true]
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [stickerMessage!])
                 self.filteredMessages.append(stickerMessage!)
@@ -3864,7 +3944,7 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                     textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
                     textMessage?.sender?.uid = LoggedInUser.uid
                     textMessage?.senderUid = LoggedInUser.uid
-                    textMessage?.metaData = ["type": "reply","message":editViewMessage.text as Any,"replyToMessage":["message":editViewMessage.text as Any,"messageId": selectedMessage?.id,"name":selectedMessage?.sender?.name,"uid":selectedMessage?.sender?.uid]]
+                    textMessage?.metaData = ["reply-message": selectedMessage?.rawMessage ]
                     
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [textMessage!])
@@ -3894,7 +3974,7 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                     CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
                         DispatchQueue.main.async{ [weak self] in
                             guard let strongSelf = self else { return }
-                            
+                            print("textMessage?.rawData: \((message.rawMessage))")
                             if let indexpath = strongSelf.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
                                 DispatchQueue.main.async {  [weak self] in
                                     guard let strongSelf = self else { return }
@@ -3922,9 +4002,7 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                     textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
                     textMessage?.sender?.uid = LoggedInUser.uid
                     textMessage?.senderUid = LoggedInUser.uid
-                    
-                    textMessage?.metaData = ["type": "reply","message":editViewMessage.text as Any,"replyToMessage":["message":editViewMessage.text as Any,"messageId": selectedMessage?.id,"name":selectedMessage?.sender?.name,"uid":selectedMessage?.sender?.uid]]
-                    
+                    textMessage?.metaData = ["reply-message": selectedMessage?.rawMessage ]
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [textMessage!])
                         guard let indicator = typingIndicator else {
@@ -4923,7 +5001,7 @@ extension CometChatMessageList: CometChatReceiverReplyMessageBubbleDelegate {
     
     func didTapOnSentimentAnalysisViewForLeftReplyBubble(indexPath: IndexPath) {
             if let cell = self.tableView?.cellForRow(at: indexPath) as? CometChatReceiverReplyMessageBubble {
-            let alert = UIAlertController(title: "Warning!", message: "Are you sure want to view this message?", preferredStyle: .alert)
+                let alert = UIAlertController(title: "WARNING".localized(), message: "Are you sure want to view this message?", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
                     self.tableView?.beginUpdates()
                     cell.message.font = UIFont.systemFont(ofSize: 17, weight: .medium)
@@ -5077,6 +5155,19 @@ extension CometChatMessageList: ThreadDelegate {
 
 
 extension CometChatMessageList : MessageActionsDelegate {
+    
+    
+    func didReplyInPrivatePressed() {
+        if let message = selectedMessage, let user = message.sender {
+            let messageList = CometChatMessageList()
+            messageList.set(conversationWith: user, type: .user)
+            messageList.isMessageInPrivateEnabled = true
+            messageList.selectedMessage = message
+            messageList.messageMode = .reply
+            messageList.isMessageInPrivateEnabled = true
+            self.navigationController?.pushViewController(messageList, animated: true)
+        }
+    }
     
     func didMessageInPrivatePressed() {
         if let message = selectedMessage, let user = message.sender {
@@ -5273,22 +5364,19 @@ extension CometChatMessageList : MessageActionsDelegate {
         
         switch self.isGroupIs {
         case true:
-            let name = (CometChat.getLoggedInUser()?.name ?? "") + "'s  location"
+       
+            let alert = UIAlertController(title: "" , message: "SHARE_LOCATION_CONFIRMATION_MESSAGE".localized(), preferredStyle: .alert)
             
-            let alert = UIAlertController(title: name , message: "Are you sure you want to share your location?", preferredStyle: .alert)
-            
-            alert.addAction(UIAlertAction(title: "Share", style: .default, handler: { action in
+            alert.addAction(UIAlertAction(title: "SHARE".localized(), style: .default, handler: { action in
                 
                 if let location = self.curentLocation {
                     DispatchQueue.main.async { [weak self] in
                         guard let strongSelf = self else { return }
-                        let pushtitle = (CometChat.getLoggedInUser()?.name ?? "") + "has shared his location"
-                        let locationData = ["name": name,"latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude] as [String : Any]
-                      
-                        
+                        let pushtitle = (CometChat.getLoggedInUser()?.name ?? "") + " has shared his location"
+                        let locationData = ["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude] as [String : Any]
                         guard let group = strongSelf.currentGroup else { return  }
                         let locationMessage = CustomMessage(receiverUid: group.guid , receiverType: .group, customData: locationData, type: "location")
-                        locationMessage.metaData = ["pushNotification": pushtitle]
+                        locationMessage.metaData = ["pushNotification": pushtitle, "incrementUnreadCount":true]
                         DispatchQueue.main.async {
                             let alert = UIAlertController(title: nil, message: "SENDING_LOCATION".localized(), preferredStyle: .alert)
                             let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
@@ -5331,22 +5419,20 @@ extension CometChatMessageList : MessageActionsDelegate {
             alert.view.tintColor = UIKitSettings.primaryColor
             self.present(alert, animated: true)
         case false:
-            let name = (CometChat.getLoggedInUser()?.name ?? "") + "S_LOCATION".localized()
-            
-            let alert = UIAlertController(title: name , message: "SHARE_LOCATION_CONFIRMATION_MESSAGE".localized(), preferredStyle: .alert)
+        
+            let alert = UIAlertController(title: "" , message: "SHARE_LOCATION_CONFIRMATION_MESSAGE".localized(), preferredStyle: .alert)
             
             alert.addAction(UIAlertAction(title: "SHARE".localized(), style: .default, handler: { action in
                 
                 if let location = self.curentLocation {
                     DispatchQueue.main.async { [weak self] in
                         guard let strongSelf = self else { return }
-                        let pushtitle = (CometChat.getLoggedInUser()?.name ?? "") + "HAS_SHARED_LOCATION".localized()
-                        let locationData = ["name": name,"latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude] as [String : Any]
-                       
+                        let pushtitle = (CometChat.getLoggedInUser()?.name ?? "") + " has shared his location"
+                        let locationData = ["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude] as [String : Any]
                         
                         guard let user = strongSelf.currentUser else { return  }
                         let locationMessage = CustomMessage(receiverUid: user.uid ?? "", receiverType: .user, customData: locationData, type: "location")
-                        locationMessage.metaData = ["pushNotification": pushtitle]
+                        locationMessage.metaData = ["pushNotification": pushtitle, "incrementUnreadCount":true]
                         DispatchQueue.main.async {
                             let alert = UIAlertController(title: nil, message: "SENDING_LOCATION".localized(), preferredStyle: .alert)
                             let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
@@ -5565,7 +5651,7 @@ extension CometChatMessageList : MessageActionsDelegate {
                 }else if type == "extension_document" {
                     editViewMessage.text = "CUSTOM_MESSAGE_DOCUMENT".localized()
                 }else if type == "meeting" {
-                    editViewMessage.text = "GROUP_CALL".localized()
+                    editViewMessage.text = "CUSTOM_MESSAGE_GROUP_CALL".localized()
                 }
             }
         case .groupMember: break
@@ -5643,13 +5729,13 @@ extension CometChatMessageList: LocationCellDelegate, CLLocationManagerDelegate 
         self.curentLocation = location
     }
     
-    func didPressedOnLocation(latitude: Double, longitude: Double, name: String) {
+    func didPressedOnLocation(latitude: Double, longitude: Double, title: String) {
         
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         actionSheet.addAction(UIAlertAction(title: "OPEN_IN_APPLE_MAPS".localized(), style: .default, handler: { (alert:UIAlertAction!) -> Void in
             
-            self.openMapsForPlace(latitude: latitude, longitude: longitude, name: name)
+            self.openMapsForPlace(latitude: latitude, longitude: longitude, title: title)
         }))
         
         actionSheet.addAction(UIAlertAction(title: "OPEN_IN_GOOGLE_MAPS".localized(), style: .default, handler: { (alert:UIAlertAction!) -> Void in
@@ -5664,11 +5750,8 @@ extension CometChatMessageList: LocationCellDelegate, CLLocationManagerDelegate 
     
     
     
-    func openMapsForPlace(latitude: CLLocationDegrees, longitude: CLLocationDegrees, name: String) {
-        
-        let latitude: CLLocationDegrees = 37.2
-        let longitude: CLLocationDegrees = 22.9
-        
+    func openMapsForPlace(latitude: CLLocationDegrees, longitude: CLLocationDegrees, title: String) {
+
         let regionDistance:CLLocationDistance = 10000
         let coordinates = CLLocationCoordinate2DMake(latitude, longitude)
         let regionSpan = MKCoordinateRegion(center: coordinates, latitudinalMeters: regionDistance, longitudinalMeters: regionDistance)
@@ -5678,7 +5761,7 @@ extension CometChatMessageList: LocationCellDelegate, CLLocationManagerDelegate 
         ]
         let placemark = MKPlacemark(coordinate: coordinates, addressDictionary: nil)
         let mapItem = MKMapItem(placemark: placemark)
-        mapItem.name = name
+        mapItem.name = title
         mapItem.openInMaps(launchOptions: options)
     }
     
