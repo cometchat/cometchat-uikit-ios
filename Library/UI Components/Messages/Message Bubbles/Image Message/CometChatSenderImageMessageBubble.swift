@@ -29,6 +29,7 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var imageModerationView: UIView!
     @IBOutlet weak var unsafeContentView: UIImageView!
+    @IBOutlet weak var imageContainer: UIView!
     
     
     // MARK: - Declaration of Variables
@@ -47,6 +48,14 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
     
     var mediaMessage: MediaMessage! {
         didSet {
+            imageContainer.layer.cornerRadius = 12
+            imageContainer.layer.borderWidth = 1
+            if #available(iOS 13.0, *) {
+                imageContainer.layer.borderColor = UIColor.systemFill.cgColor
+            } else {
+                imageContainer.layer.borderColor = UIColor.lightText.cgColor
+            }
+            imageContainer.clipsToBounds = true
             receiptStack.isHidden = true
             self.reactionView.parseMessageReactionForMessage(message: mediaMessage) { (success) in
                 if success == true {

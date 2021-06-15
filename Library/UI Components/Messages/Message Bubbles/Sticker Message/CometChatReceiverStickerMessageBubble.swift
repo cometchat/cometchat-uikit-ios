@@ -49,8 +49,11 @@ class CometChatReceiverStickerMessageBubble: UITableViewCell {
             }else {
                 nameView.isHidden = true
             }
-            if let url = URL(string: stickerMessage.customData?["stickerUrl"] as? String ?? "") {
+            print("stickerMessage: \(stickerMessage.stringValue())")
+            if let url = URL(string: stickerMessage.customData?["sticker_url"] as? String ?? "") {
                 imageMessage.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
+            }else{
+                imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
             }
             self.receiptStack.isHidden = true
             timeStamp.text = String().setMessageTime(time: stickerMessage.sentAt)
@@ -89,7 +92,7 @@ class CometChatReceiverStickerMessageBubble: UITableViewCell {
     var stickerMessageInThread: CustomMessage! {
         didSet {
             receiptStack.isHidden = true
-            if let url = URL(string: stickerMessage.customData?["stickerUrl"] as? String ?? "") {
+            if let url = URL(string: stickerMessage.customData?["sticker_url"] as? String ?? "") {
                 imageMessage.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
             }
             if stickerMessageInThread.sentAt == 0 {

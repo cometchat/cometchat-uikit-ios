@@ -80,7 +80,7 @@ class MessageFilter {
         
         FeatureRestriction.isCallActionMessagesEnabled { (success) in
             if success == .enabled {
-                messageCategoriesForUser.append(MessageCategory.call)
+                messageCategoriesForGroup.append(MessageCategory.call)
             }
         }
         
@@ -95,23 +95,11 @@ class MessageFilter {
                                MessageType.video,
                                MessageType.file,
                                MessageType.location,
-                               MessageType.poll]
-        
-        FeatureRestriction.isStickersEnabled { (success) in
-            if success == .enabled {
-                messageTypesForUser.append(MessageType.sticker)
-            }
-        }
-        FeatureRestriction.isCollaborativeWhiteBoardEnabled { (success) in
-            if success == .enabled {
-                messageTypesForUser.append(MessageType.collaborativeWhiteboard)
-            }
-        }
-        FeatureRestriction.isCollaborativeDocumentEnabled { (success) in
-            if success == .enabled {
-                messageTypesForUser.append(MessageType.collaborativeDocument)
-            }
-        }
+                               MessageType.poll,
+                               MessageType.sticker,
+                               MessageType.collaborativeWhiteboard,
+                               MessageType.collaborativeDocument]
+
         return messageTypesForUser
     }
     
@@ -123,24 +111,11 @@ class MessageFilter {
                                 MessageType.video,
                                 MessageType.file,
                                 MessageType.location,
-                                MessageType.poll]
-        
-        FeatureRestriction.isStickersEnabled { (success) in
-            if success == .enabled {
-                messageTypesForUser.append(MessageType.sticker)
-            }
-        }
-        FeatureRestriction.isCollaborativeWhiteBoardEnabled { (success) in
-            if success == .enabled {
-                messageTypesForUser.append(MessageType.collaborativeWhiteboard)
-            }
-        }
-        FeatureRestriction.isCollaborativeDocumentEnabled { (success) in
-            if success == .enabled {
-                messageTypesForUser.append(MessageType.collaborativeDocument)
-            }
-        }
-        
+                                MessageType.poll,
+                                MessageType.sticker,
+                                MessageType.collaborativeWhiteboard,
+                                MessageType.collaborativeDocument]
+       
         FeatureRestriction.isGroupActionMessagesEnabled { (success) in
             if success == .enabled {
                 messageTypesForGroup.append(ActionType.groupMember)

@@ -76,13 +76,16 @@ public final class CometChatSoundManager: NSObject {
                     }
                 }
             case .outgoingCall:
+                
                 FeatureRestriction.isCallsSoundEnabled { (success) in
                     if success == .enabled {
+                        let session = AVAudioSession.sharedInstance()
                         if otherAudioPlaying == false {
                             guard let soundURL = UIKitSettings.bundle.url(forResource: "OutgoingCall", withExtension: "wav") else { return }
                             do {
-                                try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
-                                try AVAudioSession.sharedInstance().setActive(true)
+                                try session.setCategory(.playAndRecord)
+                                try session.overrideOutputAudioPort(AVAudioSession.PortOverride.none)
+                                try session.setActive(true)
                                 audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
                                 audioPlayer?.numberOfLoops = -1
                                 audioPlayer?.prepareToPlay()

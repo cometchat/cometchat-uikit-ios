@@ -32,6 +32,15 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
     @IBOutlet weak var replyMessage: UILabel!
     @IBOutlet weak var spaceConstraint: NSLayoutConstraint!
     @IBOutlet weak var widthconstraint: NSLayoutConstraint!
+    @IBOutlet weak var replyMessageView: UIView!
+    @IBOutlet weak var replyMessageIndicator: UIView!
+    @IBOutlet weak var replyMessageUserName: UILabel!
+    @IBOutlet weak var thumbnailView: UIView!
+    @IBOutlet weak var thumbnailViewWidth: NSLayoutConstraint!
+    @IBOutlet weak var thumbnailViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var thumbnailViewLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var thumbnaikViewTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var thumbnail: UIImageView!
     
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
@@ -57,8 +66,113 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
                 if let userName = currentMessage.sender?.name {
                     name.text = userName + ":"
                 }
-                if let metaData = textMessage?.metaData, let message = metaData["message"] as? String {
-                    self.replyMessage.text = message
+              
+                if let metaData = currentMessage.metaData, let replyToMessage = metaData["reply-message"] as? [String:Any], let baseMessage = CometChat.processMessage(replyToMessage).0 as? BaseMessage {
+                    self.replyMessageIndicator.backgroundColor = UIKitSettings.primaryColor
+                    self.replyMessage.isHidden = false
+                    self.replyMessageUserName.isHidden = false
+                    if let name = baseMessage.sender?.name {
+                    self.replyMessageUserName.text = name.capitalized
+                    }
+                    switch baseMessage.messageCategory {
+                   
+                    case .message:
+                        switch baseMessage.messageType {
+                        case .text:
+                            if let currentReplyMessage = baseMessage as? TextMessage {
+                                self.hidethumbnailView(bool: true)
+                                self.parseProfanityFilter(forReplyMessage: currentReplyMessage)
+                                self.parseMaskedData(forReplyMessage: currentReplyMessage)
+                            }
+                        case .image:
+                            self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                            self.hidethumbnailView(bool: true)
+                            self.replyMessage.text = "MESSAGE_IMAGE".localized()
+                        case .video:
+                            self.hidethumbnailView(bool: true)
+                            self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                            self.replyMessage.text = "MESSAGE_VIDEO".localized()
+                        case .audio:
+                            self.hidethumbnailView(bool: true)
+                            self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                            self.replyMessage.text = "MESSAGE_AUDIO".localized()
+                        case .file:
+                            self.hidethumbnailView(bool: true)
+                            self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                            self.replyMessage.text = "MESSAGE_FILE".localized()
+                        case .custom:
+                            if let customMessage = baseMessage as? CustomMessage {
+                                self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                                if customMessage.type == "location" {
+                                    
+                                    if let data = customMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
+                                        
+                                        if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
+                                            thumbnail.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                                        }else{
+                                        }
+                                    }
+                                    self.hidethumbnailView(bool: false)
+                                    replyMessage.text = "CUSTOM_MESSAGE_LOCATION".localized()
+                                }else if customMessage.type == "extension_poll" {
+                                    self.hidethumbnailView(bool: true)
+                                    replyMessage.text = "CUSTOM_MESSAGE_POLL".localized()
+                                }else if customMessage.type == "extension_sticker" {
+                                    self.hidethumbnailView(bool: true)
+                                    replyMessage.text = "CUSTOM_MESSAGE_STICKER".localized()
+                                }else if customMessage.type == "extension_whiteboard" {
+                                    self.hidethumbnailView(bool: true)
+                                    replyMessage.text = "CUSTOM_MESSAGE_WHITEBOARD".localized()
+                                }else if customMessage.type == "extension_document" {
+                                    self.hidethumbnailView(bool: true)
+                                    replyMessage.text = "CUSTOM_MESSAGE_DOCUMENT".localized()
+                                }else if customMessage.type == "meeting" {
+                                    self.hidethumbnailView(bool: true)
+                                    replyMessage.text = "CUSTOM_MESSAGE_GROUP_CALL".localized()
+                                }
+                            }
+                        case .groupMember: break
+                        @unknown default: break
+                        }
+                    case .action: break
+                    case .call: break
+                    case .custom:
+                        if let customMessage = baseMessage as? CustomMessage {
+                            self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                            if customMessage.type == "location" {
+                               
+                                if let data = customMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
+                                    
+                                    if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
+                                        thumbnail.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                                    }else{
+                                    }
+                                }
+                                self.hidethumbnailView(bool: false)
+                                replyMessage.text = "CUSTOM_MESSAGE_LOCATION".localized()
+                            }else if customMessage.type == "extension_poll" {
+                                self.hidethumbnailView(bool: true)
+                                replyMessage.text = "CUSTOM_MESSAGE_POLL".localized()
+                            }else if customMessage.type == "extension_sticker" {
+                                self.hidethumbnailView(bool: true)
+                                replyMessage.text =   "CUSTOM_MESSAGE_STICKER".localized()
+                            }else if customMessage.type == "extension_whiteboard" {
+                                self.hidethumbnailView(bool: true)
+                                replyMessage.text = "CUSTOM_MESSAGE_WHITEBOARD".localized()
+                            }else if customMessage.type == "extension_document" {
+                                self.hidethumbnailView(bool: true)
+                                replyMessage.text = "CUSTOM_MESSAGE_DOCUMENT".localized()
+                            }else if customMessage.type == "meeting" {
+                                self.hidethumbnailView(bool: true)
+                                replyMessage.text = "CUSTOM_MESSAGE_GROUP_CALL".localized()
+                            }
+                        }
+                    @unknown default: break
+                    }
+                }else{
+                    self.replyMessage.isHidden = false
+                    self.replyMessageUserName.isHidden = true
+                    self.replyMessage.text = "This reply message is outdated."
                 }
                 self.parseProfanityFilter(forMessage: currentMessage)
                 self.parseSentimentAnalysis(forMessage: currentMessage)
@@ -127,9 +241,113 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
                        self.parseMaskedData(forMessage: textmessage)
                        self.parseSentimentAnalysis(forMessage: textmessage)
                      
-                     if let metaData = textmessage.metaData, let message = metaData["message"] as? String {
-                         self.replyMessage.text = message
-                     }
+                    if let metaData = textmessage.metaData, let replyToMessage = metaData["reply-message"] as? [String:Any], let baseMessage = CometChat.processMessage(replyToMessage).0 as? BaseMessage {
+                        self.replyMessageIndicator.backgroundColor = UIKitSettings.primaryColor
+                        self.replyMessage.isHidden = false
+                        self.replyMessageUserName.isHidden = false
+                        if let name = baseMessage.sender?.name {
+                        self.replyMessageUserName.text = name.capitalized
+                        }
+                        switch baseMessage.messageCategory {
+                       
+                        case .message:
+                            switch baseMessage.messageType {
+                            case .text:
+                                if let currentReplyMessage = baseMessage as? TextMessage {
+                                    self.hidethumbnailView(bool: true)
+                                    self.parseProfanityFilter(forReplyMessage: currentReplyMessage)
+                                    self.parseMaskedData(forReplyMessage: currentReplyMessage)
+                                }
+                            case .image:
+                                self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                                self.hidethumbnailView(bool: true)
+                                self.replyMessage.text = "MESSAGE_IMAGE".localized()
+                            case .video:
+                                self.hidethumbnailView(bool: true)
+                                self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                                self.replyMessage.text = "MESSAGE_VIDEO".localized()
+                            case .audio:
+                                self.hidethumbnailView(bool: true)
+                                self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                                self.replyMessage.text = "MESSAGE_AUDIO".localized()
+                            case .file:
+                                self.hidethumbnailView(bool: true)
+                                self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                                self.replyMessage.text = "MESSAGE_FILE".localized()
+                            case .custom:
+                                if let customMessage = baseMessage as? CustomMessage {
+                                    self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                                    if customMessage.type == "location" {
+                                        
+                                        if let data = customMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
+                                            
+                                            if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
+                                                thumbnail.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                                            }else{
+                                            }
+                                        }
+                                        self.hidethumbnailView(bool: false)
+                                        replyMessage.text = "CUSTOM_MESSAGE_LOCATION".localized()
+                                    }else if customMessage.type == "extension_poll" {
+                                        self.hidethumbnailView(bool: true)
+                                        replyMessage.text = "CUSTOM_MESSAGE_POLL".localized()
+                                    }else if customMessage.type == "extension_sticker" {
+                                        self.hidethumbnailView(bool: true)
+                                        replyMessage.text = "CUSTOM_MESSAGE_STICKER".localized()
+                                    }else if customMessage.type == "extension_whiteboard" {
+                                        self.hidethumbnailView(bool: true)
+                                        replyMessage.text = "CUSTOM_MESSAGE_WHITEBOARD".localized()
+                                    }else if customMessage.type == "extension_document" {
+                                        self.hidethumbnailView(bool: true)
+                                        replyMessage.text = "CUSTOM_MESSAGE_DOCUMENT".localized()
+                                    }else if customMessage.type == "meeting" {
+                                        self.hidethumbnailView(bool: true)
+                                        replyMessage.text = "CUSTOM_MESSAGE_GROUP_CALL".localized()
+                                    }
+                                }
+                            case .groupMember: break
+                            @unknown default: break
+                            }
+                        case .action: break
+                        case .call: break
+                        case .custom:
+                            if let customMessage = baseMessage as? CustomMessage {
+                                self.replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                                if customMessage.type == "location" {
+                                   
+                                    if let data = customMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
+                                        
+                                        if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
+                                            thumbnail.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                                        }else{
+                                        }
+                                    }
+                                    self.hidethumbnailView(bool: false)
+                                    replyMessage.text = "CUSTOM_MESSAGE_LOCATION".localized()
+                                }else if customMessage.type == "extension_poll" {
+                                    self.hidethumbnailView(bool: true)
+                                    replyMessage.text = "CUSTOM_MESSAGE_POLL".localized()
+                                }else if customMessage.type == "extension_sticker" {
+                                    self.hidethumbnailView(bool: true)
+                                    replyMessage.text =   "CUSTOM_MESSAGE_STICKER".localized()
+                                }else if customMessage.type == "extension_whiteboard" {
+                                    self.hidethumbnailView(bool: true)
+                                    replyMessage.text = "CUSTOM_MESSAGE_WHITEBOARD".localized()
+                                }else if customMessage.type == "extension_document" {
+                                    self.hidethumbnailView(bool: true)
+                                    replyMessage.text = "CUSTOM_MESSAGE_DOCUMENT".localized()
+                                }else if customMessage.type == "meeting" {
+                                    self.hidethumbnailView(bool: true)
+                                    replyMessage.text = "CUSTOM_MESSAGE_GROUP_CALL".localized()
+                                }
+                            }
+                        @unknown default: break
+                        }
+                    }else{
+                        self.replyMessage.isHidden = false
+                        self.replyMessageUserName.isHidden = true
+                        self.replyMessage.text = "This reply message is outdated."
+                    }
                     self.reactionView.parseMessageReactionForMessage(message: textmessage) { (success) in
                         if success == true {
                             self.reactionView.isHidden = false
@@ -287,7 +505,28 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
         let url = URL(string: url)
         Image.cf.setImage(with: url)
     }
+ 
+    private func hidethumbnailView(bool: Bool) {
+        if bool == true {
+            self.thumbnailView.isHidden = true
+            self.thumbnailViewWidth.constant = 0
+            self.thumbnailViewLeadingConstraint.constant = 10
+            self.thumbnaikViewTrailingConstraint.constant = 0
+        } else {
+            self.thumbnailView.isHidden = false
+            self.thumbnailViewWidth.constant = 40
+            self.thumbnailViewLeadingConstraint.constant = 15
+            self.thumbnaikViewTrailingConstraint.constant = 8
+        }
+    }
     
+    
+    func getMapFromLocatLon(from latitude: Double ,and longitude: Double, googleApiKey: String) -> URL? {
+        
+        let url = URL(string: "https://maps.googleapis.com/maps/api/staticmap?center=\(latitude),\(longitude)&markers=color:red%7Clabel:S%7C\(latitude),\(longitude)&zoom=14&size=230x150&key=\(googleApiKey.trimmingCharacters(in: .whitespacesAndNewlines))")
+        
+        return url
+    }
 
      func parseProfanityFilter(forMessage: TextMessage){
             if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let profanityFilterDictionary = cometChatExtension["profanity-filter"] as? [String : Any] {
@@ -394,7 +633,113 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
                   self.parseProfanityFilter(forMessage: forMessage)
               }
           }
-
+    
+    
+    func parseProfanityFilter(forReplyMessage: TextMessage){
+           if let metaData = forReplyMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let profanityFilterDictionary = cometChatExtension["profanity-filter"] as? [String : Any] {
+               
+               if let profanity = profanityFilterDictionary["profanity"] as? String, let filteredMessage = profanityFilterDictionary["message_clean"] as? String {
+                   
+                   if profanity == "yes" {
+                       replyMessage.text = filteredMessage
+                   }else{
+                    replyMessage.text = forReplyMessage.text
+                   }
+               }else{
+                replyMessage.text = forReplyMessage.text
+               }
+           }else{
+               if forReplyMessage.text.containsOnlyEmojis() {
+                   if forReplyMessage.text.count == 1 {
+                    replyMessage.font =  UIFont.systemFont(ofSize: 47, weight: .regular)
+                   }else if forReplyMessage.text.count == 2 {
+                    replyMessage.font =  UIFont.systemFont(ofSize: 30, weight: .regular)
+                   }else if forReplyMessage.text.count == 3{
+                    replyMessage.font =  UIFont.systemFont(ofSize: 21, weight: .regular)
+                   }else{
+                    replyMessage.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+                   }
+                 
+               }else{
+                replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+               }
+               self.replyMessage.text = forReplyMessage.text
+           }
+       }
+   
+   func parseMaskedData(forReplyMessage: TextMessage){
+       if let metaData = forReplyMessage.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let dataMaskingDictionary = cometChatExtension["data-masking"] as? [String : Any] {
+         
+           if let data = dataMaskingDictionary["data"] as? [String:Any], let sensitiveData = data["sensitive_data"] as? String {
+               
+               if sensitiveData == "yes" {
+                   if let maskedMessage = data["message_masked"] as? String {
+                    replyMessage.text = maskedMessage
+                   }else{
+                    replyMessage.text = forReplyMessage.text
+                   }
+               }else{
+                replyMessage.text = forReplyMessage.text
+               }
+           }else{
+            replyMessage.text = forReplyMessage.text
+           }
+       }else{
+           
+           if forReplyMessage.text.containsOnlyEmojis() {
+            if forReplyMessage.text.count == 1 {
+             replyMessage.font =  UIFont.systemFont(ofSize: 47, weight: .regular)
+            }else if forReplyMessage.text.count == 2 {
+             replyMessage.font =  UIFont.systemFont(ofSize: 30, weight: .regular)
+            }else if forReplyMessage.text.count == 3{
+             replyMessage.font =  UIFont.systemFont(ofSize: 21, weight: .regular)
+            }else{
+             replyMessage.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+            }
+           }else{
+            replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+           }
+           self.replyMessage.text = forReplyMessage.text
+       }
+   }
+   
+           private func parseSentimentAnalysis(forReplyMessage: TextMessage){
+             if let metaData = textMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let sentimentAnalysisDictionary = cometChatExtension["sentiment-analysis"] as? [String : Any] {
+                 if let sentiment = sentimentAnalysisDictionary["sentiment"] as? String {
+                     if sentiment == "negative" {
+                         sentimentAnalysisView.isHidden = false
+                        replyMessage.textColor = UIColor.white
+                        replyMessage.font =  UIFont.systemFont(ofSize: 15, weight: .regular)
+                        replyMessage.text = "MAY_CONTAIN_NEGATIVE_SENTIMENT".localized()
+                         spaceConstraint.constant = 10
+                         widthconstraint.constant = 45
+                     }else{
+                         if #available(iOS 13.0, *) {
+                            replyMessage.textColor = .label
+                         } else {
+                            replyMessage.textColor = .black
+                         }
+                        replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                         sentimentAnalysisView.isHidden = true
+                         spaceConstraint.constant = 0
+                         widthconstraint.constant = 0
+                     }
+                 }else{
+                     self.parseProfanityFilter(forReplyMessage: forReplyMessage)
+                 }
+             }else{
+                 if #available(iOS 13.0, *) {
+                    replyMessage.textColor = .label
+                 } else {
+                    replyMessage.textColor = .black
+                 }
+                 replyMessage.font =  UIFont.systemFont(ofSize: 13, weight: .regular)
+                 sentimentAnalysisView.isHidden = true
+                 spaceConstraint.constant = 0
+                 widthconstraint.constant = 0
+                 self.parseProfanityFilter(forReplyMessage: forReplyMessage)
+             }
+         }
 }
 
 
