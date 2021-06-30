@@ -30,7 +30,6 @@
     case messageTranslate
     case createMeeting
     case messageInPrivate
-    case replyInPrivate
  }
  
  protocol RowPresentable {
@@ -60,7 +59,6 @@
     func didAudioCallPressed()
     func didVideoCallPressed()
     func didMessageInPrivatePressed()
-    func didReplyInPrivatePressed()
  }
 
 
@@ -324,19 +322,6 @@
                 cell.badgeCountSwitch.isHidden = true
                     return cell
                 }
-            case .replyInPrivate:
-                if let cell = tableView.dequeueReusableCell(withIdentifier: "actionsCell", for: indexPath) as? ActionsCell {
-                cell.name.text = "REPLY_IN_PRIVATE".localized()
-                cell.icon.image = UIImage(named: "reply-private.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                if #available(iOS 13.0, *) {
-                    cell.name.textColor = .label
-                }else{
-                    cell.name.textColor = .black
-                }
-                cell.fullScreenSwitch.isHidden = true
-                cell.badgeCountSwitch.isHidden = true
-                    return cell
-                }
             }
         }
         return staticCell
@@ -360,7 +345,8 @@
                 }
                 return height
                 
-            case .whiteboard, .writeboard, .messageTranslate, .sticker, .share, .thread, .delete, .forward, .edit, .reply, .copy ,.messageInfo ,.createAPoll ,.shareLocation ,.document , .photoAndVideoLibrary, .takeAPhoto, .createMeeting, .messageInPrivate, .replyInPrivate:  return 55.0
+            case .whiteboard, .writeboard, .messageTranslate, .sticker, .share, .thread, .delete, .forward, .edit, .reply, .copy ,.messageInfo ,.createAPoll ,.shareLocation ,.document , .photoAndVideoLibrary, .takeAPhoto, .createMeeting, .messageInPrivate:  return 55.0
+       
             }
         }else{
             return 0
@@ -454,10 +440,6 @@
             case .messageInPrivate:
                 self.dismiss(animated: true) {
                     MessageActions.actionsDelegate?.didMessageInPrivatePressed()
-                }
-            case .replyInPrivate:
-                self.dismiss(animated: true) {
-                    MessageActions.actionsDelegate?.didReplyInPrivatePressed()
                 }
             }
         }

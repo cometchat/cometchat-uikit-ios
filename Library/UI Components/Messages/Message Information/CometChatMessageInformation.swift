@@ -102,8 +102,8 @@ class CometChatMessageInformation: UIViewController {
     private func didExtensionDetected(message: BaseMessage) -> CometChatExtension {
         var detectedExtension: CometChatExtension?
         
-        if let metaData = message.metaData {
-            if metaData["reply-message"] as? [String : Any] != nil {
+        if let metaData = message.metaData , let type = metaData["type"] as? String {
+            if type == "reply" || metaData["replyToMessage"] as? [String : Any] != nil {
                 detectedExtension = .reply
             }else{
                 detectedExtension = .none
@@ -269,7 +269,6 @@ extension CometChatMessageInformation: UITableViewDelegate, UITableViewDataSourc
                         case .text where message.senderUid != LoggedInUser.uid:
                             if let textMessage = message as? TextMessage {
                                 let isContainsExtension = didExtensionDetected(message: textMessage)
-                            
                                 switch isContainsExtension {
                                 case .linkPreview:
                                     let receiverCell = tableView.dequeueReusableCell(withIdentifier: "CometChatReceiverLinkPreviewBubble", for: indexPath) as! CometChatReceiverLinkPreviewBubble
@@ -728,13 +727,13 @@ extension CometChatMessageInformation: LocationCellDelegate {
     
  
     
-    func didPressedOnLocation(latitude: Double, longitude: Double, title: String) {
+    func didPressedOnLocation(latitude: Double, longitude: Double, name: String) {
         
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         actionSheet.addAction(UIAlertAction(title: "Open in Apple Maps", style: .default, handler: { (alert:UIAlertAction!) -> Void in
             
-            self.openMapsForPlace(latitude: latitude, longitude: longitude, title: title)
+            self.openMapsForPlace(latitude: latitude, longitude: longitude, name: name)
         }))
         
         actionSheet.addAction(UIAlertAction(title: "Open in Google Maps", style: .default, handler: { (alert:UIAlertAction!) -> Void in
@@ -749,7 +748,10 @@ extension CometChatMessageInformation: LocationCellDelegate {
     
     
     
-    func openMapsForPlace(latitude: CLLocationDegrees, longitude: CLLocationDegrees, title: String) {
+    func openMapsForPlace(latitude: CLLocationDegrees, longitude: CLLocationDegrees, name: String) {
+        
+        let latitude: CLLocationDegrees = 37.2
+        let longitude: CLLocationDegrees = 22.9
         
         let regionDistance:CLLocationDistance = 10000
         let coordinates = CLLocationCoordinate2DMake(latitude, longitude)
@@ -760,7 +762,7 @@ extension CometChatMessageInformation: LocationCellDelegate {
         ]
         let placemark = MKPlacemark(coordinate: coordinates, addressDictionary: nil)
         let mapItem = MKMapItem(placemark: placemark)
-        mapItem.name = title
+        mapItem.name = name
         mapItem.openInMaps(launchOptions: options)
     }
     

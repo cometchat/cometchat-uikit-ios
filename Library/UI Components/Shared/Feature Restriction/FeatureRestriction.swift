@@ -714,22 +714,6 @@ public final class FeatureRestriction {
         }
     }
     
-    static func isclearConversationEnabled(completion: @escaping (_ bool: SwitchMode) -> Void) {
-        if  UIKitSettings.clearConversation == .enabled {
-            completion(.enabled)
-        }else{
-            completion(.disabled)
-        }
-    }
-    
-    static func isReplyInPrivateEnabled(completion: @escaping (_ bool: SwitchMode) -> Void) {
-        if  UIKitSettings.replyInPrivate == .enabled {
-            completion(.enabled)
-        }else{
-            completion(.disabled)
-        }
-    }
-    
     //------------------------------------------------------------------------------------------------//
     
     
