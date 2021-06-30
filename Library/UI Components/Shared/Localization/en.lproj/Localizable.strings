@@ -455,7 +455,7 @@
 "SECS" = "secs";
 "YOU_CANT_MESSAGE_THEM" = "You can't message them in this chat, and you won't receive their messages.";
 "TRANSLATE_MESSAGE" = "Translate Message";
-"NO_TRANSLATION_AVAILABLE" = "No translation is available.";
+"NO_TRANSLATION_AVAILABLE" = "Selected language for translation is similar to the language of original message";
 "LEFT" = "Left";
 "KICKED" = "kicked";
 "BANNED" = "banned";
@@ -479,7 +479,7 @@
 "USER_DELETE_GROUP_WARNING" = "Are you sure you want to delete this group?";
 "USER_READ_MESSAGE_WARNING" = "Are you sure want to view this message?";
 "TRANSFER_OWNERSHIP" = "Transfer Ownership";
-"TRANSFER_OWNERSHIP_MESSAGE" = "You are group owner, Transfer group ownership to someone else before leaving the group.";
+"TRANSFER_OWNERSHIP_MESSAGE" = "You are the group owner, please transfer ownership to a member before leaving the group";
 "ASSIGN_AS_OWNER" = "Assign as group owner";
 "IS_NOW_OWNER" = "is now Owner";
 "AS_A_OWNER" = "Assign as group owner";
@@ -505,5 +505,12 @@
 "VIEW_PROFILE" = "View Profile";
 "UNKNOWN_LOCATION" = "Unknown Location";
 "SHARED_LOCATION" = "Shared Location";
-"ERROR_INTERNET_UNAVAILABLE" = "No Internet Connection. Please try again later.";;
-
+"ERROR_INTERNET_UNAVAILABLE" = "No Internet Connection. Please try again later.";
+"SELECT_USER" = "Select User";
+"SELECT_GROUP" = "Select Group";
+"SEARCH_USERS" = "Search Users";
+"SEARCH_GROUPS" = "Search Groups";
+"NO_REPLIES" = "No Replies";
+"LEAVE" = "Leave";
+"DELETE" = "Delete";
+"VIEW" = "View";

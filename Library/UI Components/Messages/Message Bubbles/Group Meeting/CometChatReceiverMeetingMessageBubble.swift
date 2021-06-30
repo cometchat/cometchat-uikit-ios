@@ -70,16 +70,16 @@ class CometChatReceiverMeetingMessageBubble: UITableViewCell {
                     if type == "audio" {
                         title.text = "\(userName) " + "HAS_INITIATED_GROUP_AUDIO_CALL".localized()
                         if #available(iOS 13.0, *) {
-                            icon.image = UIImage(named: "calls.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
+                            icon.image = UIImage(named: "messages-video-call.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
                         } else {
-                            icon.image = UIImage(named: "calls.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                            icon.image = UIImage(named: "messages-video-call.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                         }
                     }else{
                         title.text = "\(userName) " + "HAS_INITIATED_GROUP_VIDEO_CALL".localized()
                         if #available(iOS 13.0, *) {
-                            icon.image = UIImage(named: "missedVideo.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
+                            icon.image = UIImage(named: "messages-video-call.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
                         } else {
-                            icon.image = UIImage(named: "calls.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                            icon.image = UIImage(named: "messages-video-call.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                         }
                     }
                     

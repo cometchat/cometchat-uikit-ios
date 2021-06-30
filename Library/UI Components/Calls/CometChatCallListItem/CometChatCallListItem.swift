@@ -41,7 +41,7 @@ class CometChatCallListItem: UITableViewCell {
                         
                     }
                     callStatus.text = "OUTGOING_AUDIO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "outgoingAudio", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "outgoing-audio-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .label
                     } else {
@@ -57,7 +57,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: user.avatar ?? "", with: user.name ?? "")
                     }
                     callStatus.text = "INCOMING_AUDIO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "incomingAudio", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "incoming-audio-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .label
                     } else {
@@ -73,7 +73,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: group.icon ?? "", with: group.name ?? "")
                     }
                     callStatus.text = "INCOMING_AUDIO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "incomingAudio", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "incoming-audio-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .label
                     } else {
@@ -89,7 +89,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: group.icon ?? "", with: group.name ?? "")
                     }
                     callStatus.text = "OUTGOING_AUDIO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "outgoingAudio", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "outgoing-audio-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .label
                     } else {
@@ -105,7 +105,7 @@ class CometChatCallListItem: UITableViewCell {
                         
                     }
                     callStatus.text = "OUTGOING_VIDEO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "outgoingVideo", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "outgoing-video-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .label
                     } else {
@@ -120,7 +120,7 @@ class CometChatCallListItem: UITableViewCell {
                         
                     }
                     callStatus.text = "INCOMING_VIDEO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "incomingVideo", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "incoming-video-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .label
                     } else {
@@ -134,7 +134,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: group.icon ?? "", with: group.name ?? "")
                     }
                     callStatus.text = "OUTGOING_VIDEO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "outgoingVideo", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "outgoing-video-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .label
                     } else {
@@ -148,7 +148,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: group.icon ?? "", with: group.name ?? "")
                     }
                     callStatus.text = "INCOMING_VIDEO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "incomingVideo", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "incoming-video-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .label
                     } else {
@@ -162,7 +162,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: user.avatar ?? "", with: user.name ?? "")
                     }
                     callStatus.text = "UNANSWERED_AUDIO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "missedAudio", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .systemRed
                     } else {
@@ -177,7 +177,7 @@ class CometChatCallListItem: UITableViewCell {
                         
                     }
                     callStatus.text = "MISSED_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "missedAudio", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .systemRed
                     } else {
@@ -191,7 +191,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: group.icon ?? "", with: group.name ?? "")
                     }
                     callStatus.text = "UNANSWERED_AUDIO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "missedAudio", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .systemRed
                     } else {
@@ -205,7 +205,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: group.icon ?? "", with: group.name ?? "")
                     }
                     callStatus.text = "MISSED_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "missedAudio", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .systemRed
                     } else {
@@ -219,7 +219,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: user.avatar ?? "", with: user.name ?? "")
                     }
                     callStatus.text = "UNANSWERED_VIDEO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "missedVideo", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .systemRed
                     } else {
@@ -234,7 +234,7 @@ class CometChatCallListItem: UITableViewCell {
                         
                     }
                     callStatus.text = "MISSED_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "missedVideo", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .systemRed
                     } else {
@@ -248,7 +248,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: group.icon ?? "", with: group.name ?? "")
                     }
                     callStatus.text = "UNANSWERED_VIDEO_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "missedVideo", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .systemRed
                     } else {
@@ -262,7 +262,7 @@ class CometChatCallListItem: UITableViewCell {
                         avatar.set(image: group.icon ?? "", with: group.name ?? "")
                     }
                     callStatus.text = "MISSED_CALL".localized()
-                    callStatusIcon.image = UIImage(named: "missedVideo", in: UIKitSettings.bundle, compatibleWith: nil)
+                    callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     if #available(iOS 13.0, *) {
                         name.textColor = .systemRed
                     } else {

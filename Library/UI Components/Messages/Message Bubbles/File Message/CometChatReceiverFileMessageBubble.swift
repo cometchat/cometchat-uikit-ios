@@ -87,7 +87,9 @@ class CometChatReceiverFileMessageBubble: UITableViewCell {
                 }
             }
             replybutton.tintColor = UIKitSettings.primaryColor
-            
+            icon.image = UIImage(named: "messages-file-upload.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            icon.tintColor = UIKitSettings.primaryColor
+
         }
     }
     
@@ -131,6 +133,9 @@ class CometChatReceiverFileMessageBubble: UITableViewCell {
             }else{
                 avatar.set(image: "", with: fileMessageInThread.sender?.name ?? "")
             }
+            icon.image = UIImage(named: "messages-file-upload.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            icon.tintColor = .white
+
         }
     }
 

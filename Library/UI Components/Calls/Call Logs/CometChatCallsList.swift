@@ -320,7 +320,7 @@ public class CometChatCallsList: UIViewController {
     private func addNewCallButton(bool: Bool){
         if bool == true {
             var newCall = UIBarButtonItem()
-            newCall =  UIBarButtonItem(image: UIImage(named: "newCall", in: UIKitSettings.bundle, compatibleWith: nil), style: .done, target: self, action: #selector(didNewCallPressed))
+            newCall =  UIBarButtonItem(image: UIImage(named: "new-call", in: UIKitSettings.bundle, compatibleWith: nil), style: .done, target: self, action: #selector(didNewCallPressed))
             newCall.tintColor = UIKitSettings.primaryColor
             self.navigationItem.rightBarButtonItem  = newCall
         }

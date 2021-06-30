@@ -730,6 +730,14 @@ public final class FeatureRestriction {
         }
     }
     
+    static func isStartConversationEnabled(completion: @escaping (_ bool: SwitchMode) -> Void) {
+        if  UIKitSettings.startConversation == .enabled {
+            completion(.enabled)
+        }else{
+            completion(.disabled)
+        }
+    }
+    
     //------------------------------------------------------------------------------------------------//
     
     

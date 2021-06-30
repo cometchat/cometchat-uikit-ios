@@ -66,18 +66,21 @@
                                         <rect key="frame" x="197" y="7.5" width="45" height="45"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="OQb-7i-HIR">
-                                                <rect key="frame" x="13.5" y="7" width="18.5" height="33"/>
+                                                <rect key="frame" x="5" y="7" width="35" height="33"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="play.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Urt-0t-CMY">
-                                                        <rect key="frame" x="0.0" y="-0.5" width="18.5" height="33.5"/>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="messages-audio-file.png" translatesAutoresizingMaskIntoConstraints="NO" id="Urt-0t-CMY">
+                                                        <rect key="frame" x="0.0" y="0.0" width="35" height="33"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="35" id="UGV-lq-tuw"/>
+                                                        </constraints>
                                                         <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
                                                     </imageView>
                                                 </subviews>
                                             </stackView>
                                         </subviews>
-                                        <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstItem="OQb-7i-HIR" firstAttribute="top" secondItem="8W2-5h-IYH" secondAttribute="top" constant="7" id="23b-Bx-G7D"/>
                                             <constraint firstAttribute="width" constant="45" id="CXP-El-NVU"/>
@@ -223,7 +226,7 @@
     </designables>
     <resources>
         <image name="defaultAvatar.jpg" width="240" height="240"/>
-        <image name="play.fill" catalog="system" width="116" height="128"/>
+        <image name="messages-audio-file.png" width="24" height="24"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

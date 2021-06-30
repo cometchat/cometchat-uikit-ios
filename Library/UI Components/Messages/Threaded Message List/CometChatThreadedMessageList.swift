@@ -157,7 +157,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
     private let viewModel = ViewModel()
     var audioURL:URL?
     var fileName : String?
-    var getCount: Int?
+    var getCount: Int = 0
     var indexPath: IndexPath?
     private var chronometer: Chronometer?
     var curentLocation: CLLocation?
@@ -328,37 +328,50 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                         threadedFileMessageView.isHidden = false
                         threadedMessageFileName.text = "Sticker"
                         threadedMessageFileType.text = "💟 Sticker"
+                    }else if customMessage.type == "meeting" {
+                        threadedFileMessageView.isHidden = false
+                        threadedMessageFileName.text = "Group call"
+                        threadedMessageFileType.text = "📞 Group call"
+                    }else if customMessage.type == "extension_whiteboard" {
+                        threadedFileMessageView.isHidden = false
+                        threadedMessageFileName.text = "Collaborative Whiteboard"
+                        threadedMessageFileType.text = "📝 Whiteboard"
+                    }else if customMessage.type == "extension_document" {
+                        threadedFileMessageView.isHidden = false
+                        threadedMessageFileName.text = "Collaborative Document"
+                        threadedMessageFileType.text = "📃 Document"
                     }
                 }
             @unknown default: break
             }
             
-            set(replyCount: forMessage.replyCount)
+            if forMessage.replyCount == 0 {
+                set(replyCount: 0)
+            }else{
+                set(replyCount: forMessage.replyCount)
+            }
+           
         }
     }
     
     private func set(replyCount: Int) {
+        threadedReplyCount.isHidden = false
         self.getCount = replyCount
-        if replyCount != 0 {
-            threadedReplyCount.isHidden = false
-            if replyCount == 1 {
-                threadedReplyCount.text = "ONE_REPLY".localized()
-            }else {
-                threadedReplyCount.text = String(replyCount) + " " +  "REPLIES".localized()
-            }
-            if let message = currentMessage, let indexpath = indexPath {
-                
-                CometChatThreadedMessageList.threadDelegate?.didReplyAdded(forMessage: message, text: threadedReplyCount.text ?? "", indexPath: indexpath)
-            }
+        if replyCount == 0 {
+            threadedReplyCount.text = "NO_REPLIES".localized()
+        }else if replyCount == 1 {
+            threadedReplyCount.text = "ONE_REPLY".localized()
         }else{
-            set(replyCount: 1)
-            threadedReplyCount.isHidden = true
+            threadedReplyCount.text = String(replyCount) + " " +  "REPLIES".localized()
+        }
+        if let message = currentMessage, let indexpath = indexPath {
+             CometChatThreadedMessageList.threadDelegate?.didReplyAdded(forMessage: message, text: threadedReplyCount.text ?? "", indexPath: indexpath)
         }
     }
     
     @objc public func incrementCount() {
-        let currentCount = self.getCount ?? 0
-        self.set(replyCount: currentCount + 1)
+        let currentCount = self.getCount + 1
+        self.set(replyCount: currentCount)
     }
     
     @IBAction func didForwardMessagePressed(_ sender: Any) {
@@ -505,9 +518,9 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
             }
             guard let lastMessage = messages.last else { return }
             if strongSelf.isGroupIs == true {
-                CometChat.markAsRead(messageId: lastMessage.id, receiverId: strongSelf.currentGroup?.guid ?? "", receiverType: .group, messageSender: lastMessage.sender?.uid ?? "")
+                CometChat.markAsRead(baseMessage: lastMessage)
             }else{
-                CometChat.markAsRead(messageId: lastMessage.id, receiverId: strongSelf.currentUser?.uid ?? "", receiverType: .user, messageSender: lastMessage.sender?.uid ?? "")
+                CometChat.markAsRead(baseMessage: lastMessage)
             }
             var oldMessages = [BaseMessage]()
             for msg in messages{ oldMessages.append(msg) }
@@ -565,7 +578,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                 guard let lastMessage = messages.last else {
                     return
                 }
-                CometChat.markAsRead(messageId: lastMessage.id, receiverId: forID, receiverType: .user, messageSender: lastMessage.sender?.uid ?? "")
+                CometChat.markAsRead(baseMessage: lastMessage)
                 strongSelf.filteredMessages = messages.filter {$0.sender?.uid == LoggedInUser.uid}
                 DispatchQueue.main.async {
                     if lastMessage.sender?.uid != LoggedInUser.uid {
@@ -612,7 +625,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
                 guard let lastMessage = messages.last else {
                     return
                 }
-                CometChat.markAsRead(messageId: lastMessage.id, receiverId: forID, receiverType: .group, messageSender: lastMessage.sender?.uid ?? "")
+                CometChat.markAsRead(baseMessage: lastMessage)
                 strongSelf.filteredMessages = messages.filter {$0.sender?.uid == LoggedInUser.uid }
                 DispatchQueue.main.async {
                     if lastMessage.sender?.uid != LoggedInUser.uid {
@@ -961,11 +974,10 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
     private func addBackButton(bool: Bool) {
         let backButton = UIButton(type: .custom)
         if #available(iOS 13.0, *) {
-            let edit = UIImage(named: "back.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            let edit = UIImage(named: "messages-back.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
              backButton.setImage(edit, for: .normal)
             backButton.tintColor = UIKitSettings.primaryColor
         } else {}
-        backButton.setTitle("BACK".localized(), for: .normal)
         backButton.tintColor = UIKitSettings.primaryColor
         backButton.setTitleColor(backButton.tintColor, for: .normal) // You can change the TitleColor
         backButton.addTarget(self, action: #selector(self.didBackButtonPressed(_:)), for: .touchUpInside)
@@ -1748,8 +1760,8 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         textView.delegate = self
         
         if #available(iOS 13.0, *) {
-            let edit = UIImage(named: "send.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-            send.setImage(edit, for: .normal)
+            let sendImage = UIImage(named: "send-message-filled.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            send.setImage(sendImage, for: .normal)
             send.tintColor = UIKitSettings.primaryColor
         } else {}
         
@@ -1986,6 +1998,7 @@ extension CometChatThreadedMessageList: UIDocumentPickerDelegate {
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [mediaMessage!])
                         self.filteredMessages.append(mediaMessage!)
+                        self.incrementCount()
                     }else{
                         self.chatMessages[lastSection].append(message)
                         self.filteredMessages.append(message)
@@ -2025,6 +2038,7 @@ extension CometChatThreadedMessageList: UIDocumentPickerDelegate {
                     if chatMessages.count == 0 {
                         self.addNewGroupedMessage(messages: [mediaMessage!])
                         self.filteredMessages.append(mediaMessage!)
+                        self.incrementCount()
                     }else{
                         self.chatMessages[lastSection].append(message)
                         self.filteredMessages.append(message)
@@ -2961,6 +2975,7 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [mediaMessage!])
                 self.filteredMessages.append(mediaMessage!)
+                self.incrementCount()
             }else{
                 self.chatMessages[lastSection].append(mediaMessage!)
                 self.filteredMessages.append(mediaMessage!)
@@ -3064,6 +3079,7 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [stickerMessage!])
                 self.filteredMessages.append(stickerMessage!)
+                self.incrementCount()
             }else{
                 self.chatMessages[lastSection].append(stickerMessage!)
                 self.filteredMessages.append(stickerMessage!)
@@ -3221,6 +3237,7 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                             return
                         }
                         CometChat.endTyping(indicator: indicator)
+                        self.incrementCount()
                     }else{
                         self.chatMessages[lastSection].append(textMessage!)
                         self.filteredMessages.append(textMessage!)
@@ -3274,6 +3291,7 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                             return
                         }
                         CometChat.endTyping(indicator: indicator)
+                        self.incrementCount()
                     }else{
                         self.chatMessages[lastSection].append(textMessage!)
                         self.filteredMessages.append(textMessage!)
@@ -3335,6 +3353,7 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                             return
                         }
                         CometChat.endTyping(indicator: indicator)
+                        self.incrementCount()
                     }else{
                         self.chatMessages[lastSection].append(textMessage!)
                         self.filteredMessages.append(textMessage!)
@@ -3382,6 +3401,7 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                             return
                         }
                         CometChat.endTyping(indicator: indicator)
+                        self.incrementCount()
                     }else{
                         self.chatMessages[lastSection].append(textMessage!)
                         self.filteredMessages.append(textMessage!)
@@ -3440,7 +3460,7 @@ extension CometChatThreadedMessageList : CometChatMessageDelegate {
         DispatchQueue.main.async{ CometChatSoundManager().play(sound: .incomingMessage, bool: true)}
         switch message.receiverType {
         case .user:
-            CometChat.markAsRead(messageId: message.id, receiverId: message.senderUid, receiverType: .user, messageSender: message.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: message)
             if chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [message])
                 self.incrementCount()
@@ -3456,7 +3476,7 @@ extension CometChatThreadedMessageList : CometChatMessageDelegate {
             }
             
         case .group:
-            CometChat.markAsRead(messageId: message.id, receiverId: message.receiverUid, receiverType: .user, messageSender: message.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: message)
             if chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [message])
                 self.incrementCount()
@@ -3896,8 +3916,8 @@ extension CometChatThreadedMessageList: CometChatReceiverTextMessageBubbleDelega
     
     func didTapOnSentimentAnalysisViewForLeftBubble(indexPath: IndexPath) {
         if let cell = self.tableView?.cellForRow(at: indexPath) as? CometChatReceiverTextMessageBubble {
-            let alert = UIAlertController(title: "WARNING".localized(), message: "Are you sure want to view this message?", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
+            let alert = UIAlertController(title: "", message: "Are you sure want to view this message?", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "VIEW".localized(), style: .default, handler: { (action: UIAlertAction!) in
                 self.tableView?.beginUpdates()
                 cell.message.font = UIFont.systemFont(ofSize: 13, weight: .regular)
                 cell.sentimentAnalysisView.isHidden = true
@@ -3913,7 +3933,7 @@ extension CometChatThreadedMessageList: CometChatReceiverTextMessageBubbleDelega
                 }
                 self.tableView?.endUpdates()
             }))
-            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+            alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { (action: UIAlertAction!) in
             }))
             alert.view.tintColor = UIKitSettings.primaryColor
             present(alert, animated: true, completion: nil)
@@ -3929,8 +3949,8 @@ extension CometChatThreadedMessageList: CometChatReceiverReplyMessageBubbleDeleg
     
     func didTapOnSentimentAnalysisViewForLeftReplyBubble(indexPath: IndexPath) {
         if let cell = self.tableView?.cellForRow(at: indexPath) as? CometChatReceiverReplyMessageBubble {
-            let alert = UIAlertController(title: "WARNING".localized(), message: "Are you sure want to view this message?", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
+            let alert = UIAlertController(title: "", message: "Are you sure want to view this message?", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK".localized(), style: .default, handler: { (action: UIAlertAction!) in
                 self.tableView?.beginUpdates()
                 cell.message.font = UIFont.systemFont(ofSize: 13, weight: .regular)
                 cell.sentimentAnalysisView.isHidden = true
@@ -3946,7 +3966,7 @@ extension CometChatThreadedMessageList: CometChatReceiverReplyMessageBubbleDeleg
                 }
                 self.tableView?.endUpdates()
             }))
-            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+            alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { (action: UIAlertAction!) in
             }))
             alert.view.tintColor = UIKitSettings.primaryColor
             present(alert, animated: true, completion: nil)
@@ -4136,6 +4156,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                                 if strongSelf.chatMessages.count == 0 {
                                     strongSelf.addNewGroupedMessage(messages: [message])
                                     strongSelf.filteredMessages.append(message)
+                                    strongSelf.incrementCount()
                                 }else{
                                     strongSelf.chatMessages[lastSection].append(message)
                                     strongSelf.filteredMessages.append(message)

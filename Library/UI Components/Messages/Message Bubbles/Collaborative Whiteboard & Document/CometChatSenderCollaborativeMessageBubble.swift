@@ -52,8 +52,8 @@ class CometChatSenderCollaborativeMessageBubble: UITableViewCell {
             title.text = "YOU_CREATED_WHITEBOARD".localized()
             joinButton.setTitle("LAUNCH".localized(), for: .normal)
             joinButton.tintColor = UIKitSettings.primaryColor
-            icon.image = UIImage(named: "whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)
-            
+            icon.image = UIImage(named: "messages-collaborative-whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            icon.tintColor = .white
             if whiteboardMessage.sentAt == 0 {
                 timeStamp.text = "SENDING".localized()
             
@@ -68,16 +68,16 @@ class CometChatSenderCollaborativeMessageBubble: UITableViewCell {
                     }
                 }
             if whiteboardMessage.readAt > 0 {
-                receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(whiteboardMessage?.readAt ?? 0))
             }else if whiteboardMessage.deliveredAt > 0 {
-                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(whiteboardMessage?.deliveredAt ?? 0))
             }else if whiteboardMessage.sentAt > 0 {
-                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "message-sent", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(whiteboardMessage?.sentAt ?? 0))
             }else if whiteboardMessage.sentAt == 0 {
-                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "messages-wait", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = "SENDING".localized()
             }
             FeatureRestriction.isThreadedMessagesEnabled { (success) in
@@ -111,7 +111,8 @@ class CometChatSenderCollaborativeMessageBubble: UITableViewCell {
             title.text = "YOU_CREATED_DOCUMENT".localized()
             joinButton.setTitle("LAUNCH".localized(), for: .normal)
             joinButton.tintColor = UIKitSettings.primaryColor
-            icon.image = UIImage(named: "writeboard", in: UIKitSettings.bundle, compatibleWith: nil)
+            icon.image = UIImage(named: "messages-collaborative-document", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            icon.tintColor = .white
             receiptStack.isHidden = true
             if writeboardMessage.sentAt == 0 {
                 timeStamp.text = "SENDING".localized()
@@ -126,16 +127,16 @@ class CometChatSenderCollaborativeMessageBubble: UITableViewCell {
                     }
                 }
             if writeboardMessage.readAt > 0 {
-                receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(writeboardMessage?.readAt ?? 0))
             }else if writeboardMessage.deliveredAt > 0 {
-                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(writeboardMessage?.deliveredAt ?? 0))
             }else if writeboardMessage.sentAt > 0 {
-                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                receipt.image = UIImage(named: "message-sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(writeboardMessage?.sentAt ?? 0))
             }else if writeboardMessage.sentAt == 0 {
-                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                receipt.image = UIImage(named: "messages-wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = "SENDING".localized()
             }
             FeatureRestriction.isThreadedMessagesEnabled { (success) in

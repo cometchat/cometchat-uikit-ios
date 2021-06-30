@@ -36,7 +36,7 @@
                                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dZz-Gs-mXj">
                                                                 <rect key="frame" x="0.0" y="0.0" width="250" height="160"/>
                                                                 <subviews>
-                                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="location-map.png" translatesAutoresizingMaskIntoConstraints="NO" id="5Iw-Js-l7i">
+                                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="5Iw-Js-l7i">
                                                                         <rect key="frame" x="0.0" y="0.0" width="250" height="160"/>
                                                                         <color key="backgroundColor" systemColor="systemFillColor"/>
                                                                     </imageView>
@@ -178,7 +178,6 @@
         </tableViewCell>
     </objects>
     <resources>
-        <image name="location-map.png" width="388.5" height="272.25"/>
         <image name="wait.png" width="18" height="18"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

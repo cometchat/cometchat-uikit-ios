@@ -51,6 +51,9 @@ class CometChatReceiverAudioMessageBubble: UITableViewCell {
                     self.reactionView.isHidden = true
                 }
             }
+            icon.image = UIImage(named: "messages-audio-file.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            icon.tintColor = UIKitSettings.primaryColor
+
             receiptStack.isHidden = true
             if audioMessage.receiverType == .group {
               nameView.isHidden = false
@@ -135,6 +138,8 @@ class CometChatReceiverAudioMessageBubble: UITableViewCell {
             if let avatarURL = audioMessageinThread?.sender?.avatar  {
                 avatar.set(image: avatarURL, with: audioMessageinThread?.sender?.name ?? "")
             }
+            icon.image = UIImage(named: "messages-audio-file.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            icon.tintColor = UIKitSettings.primaryColor
         }
     }
     

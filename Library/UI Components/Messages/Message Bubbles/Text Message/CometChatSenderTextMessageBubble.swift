@@ -76,17 +76,17 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
                     }
                 }
                 if textmessage.readAt > 0 {
-                    receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                     receipt.tintColor = UIKitSettings.primaryColor
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
                 }else if textmessage.deliveredAt > 0 {
-                    receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.deliveredAt ?? 0))
                 }else if textmessage.sentAt > 0 {
-                    receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    receipt.image = UIImage(named: "message-sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.sentAt ?? 0))
                 }else if textmessage.sentAt == 0 {
-                    receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    receipt.image = UIImage(named: "messages-wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                     timeStamp.text = "SENDING".localized()
                 }
                 FeatureRestriction.isDeliveryReceiptsEnabled { (success) in

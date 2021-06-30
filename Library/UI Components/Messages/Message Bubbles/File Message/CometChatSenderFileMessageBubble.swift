@@ -62,16 +62,16 @@ class CometChatSenderFileMessageBubble: UITableViewCell {
                     }
                 }
             if fileMessage.readAt > 0 {
-                receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(fileMessage?.readAt ?? 0))
             }else if fileMessage.deliveredAt > 0 {
-                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(fileMessage?.deliveredAt ?? 0))
             }else if fileMessage.sentAt > 0 {
-                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                receipt.image = UIImage(named: "message-sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(fileMessage?.sentAt ?? 0))
             }else if fileMessage.sentAt == 0 {
-                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                receipt.image = UIImage(named: "messages-wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = "SENDING".localized()
             }
             FeatureRestriction.isThreadedMessagesEnabled { (success) in
@@ -96,6 +96,8 @@ class CometChatSenderFileMessageBubble: UITableViewCell {
             }
             messageView.backgroundColor = UIKitSettings.primaryColor
             replybutton.tintColor = UIKitSettings.primaryColor
+            icon.image = UIImage(named: "messages-file-upload.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            icon.tintColor = .white
         }
     }
     

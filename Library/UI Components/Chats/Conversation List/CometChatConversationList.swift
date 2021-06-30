@@ -276,8 +276,33 @@ public final class CometChatConversationList: UIViewController {
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
+            
+            FeatureRestriction.isStartConversationEnabled { ( success) in
+                if success == .enabled {
+                    self.addStartConversation(true)
+                }
+            }
         }
     }
+    
+    private func addStartConversation(_ inNavigationBar: Bool){
+        if inNavigationBar == true {
+            let createGroupImage = UIImage(named: "chats-create.png", in: UIKitSettings.bundle, compatibleWith: nil)
+            let createGroupButton = UIBarButtonItem(image: createGroupImage, style: .plain, target: self, action: #selector(didStartConversationPressed))
+            createGroupButton.tintColor = UIKitSettings.primaryColor
+            self.navigationItem.rightBarButtonItem = createGroupButton
+        }
+    }
+    
+    @objc func didStartConversationPressed(){
+        let startConversation = CometChatStartConversation()
+        let navigationController: UINavigationController = UINavigationController(rootViewController: startConversation)
+        startConversation.set(title: "SELECT_USER".localized(), mode: .automatic)
+        navigationController.modalPresentationStyle = .fullScreen
+        self.present(navigationController, animated: true, completion: nil)
+        
+    }
+    
     
     /**
      This method setup the search bar for conversationList viewController.
@@ -514,12 +539,8 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
             completionHandler(true)
         })
         
-        if #available(iOS 13.0, *) {
-            deleteAction.image = UIImage(systemName: "trash")
-        } else {
-            let image =  UIImage(named: "delete.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-            deleteAction.image = image
-        }
+        let image =  UIImage(named: "chats-delete.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        deleteAction.image = image
         
          FeatureRestriction.isclearConversationEnabled(completion: { success in
             if success == .enabled {

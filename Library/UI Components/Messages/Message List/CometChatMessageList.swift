@@ -65,7 +65,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     return UIImage(systemName: "pause.fill") ?? UIImage(named: "play")!
                 } else {}
             }
-            return UIImage(named: "microphone")!
+            return UIImage(named: "microphone-circle")!
         }
        
         var audioVisualizationMode: AudioVisualizationView.AudioVisualizationMode {
@@ -406,9 +406,9 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             }
             guard let lastMessage = messages.last else { return }
             if strongSelf.isGroupIs == true {
-                CometChat.markAsRead(messageId: lastMessage.id, receiverId: strongSelf.currentGroup?.guid ?? "", receiverType: .group, messageSender: lastMessage.sender?.uid ?? "")
+                CometChat.markAsRead(baseMessage: lastMessage)
             }else{
-                CometChat.markAsRead(messageId: lastMessage.id, receiverId: strongSelf.currentUser?.uid ?? "", receiverType: .user, messageSender: lastMessage.sender?.uid ?? "")
+                CometChat.markAsRead(baseMessage: lastMessage)
             }
             var oldMessages = [BaseMessage]()
             for msg in messages{ oldMessages.append(msg) }
@@ -468,7 +468,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                 guard let lastMessage = messages.last else {
                     return
                 }
-                CometChat.markAsRead(messageId: lastMessage.id, receiverId: forID, receiverType: .user, messageSender: lastMessage.sender?.uid ?? "")
+                CometChat.markAsRead(baseMessage: lastMessage)
                 strongSelf.messages.append(contentsOf: messages)
                 strongSelf.filteredMessages = messages.filter {$0.sender?.uid == LoggedInUser.uid}
                 DispatchQueue.main.async {
@@ -516,7 +516,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                 guard let lastMessage = messages.last else {
                     return
                 }
-                CometChat.markAsRead(messageId: lastMessage.id, receiverId: forID, receiverType: .group, messageSender: lastMessage.sender?.uid ?? "")
+                CometChat.markAsRead(baseMessage: lastMessage)
                 strongSelf.messages.append(contentsOf: messages)
                 strongSelf.filteredMessages = messages.filter {$0.sender?.uid == LoggedInUser.uid }
                 DispatchQueue.main.async {
@@ -908,9 +908,9 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      */
     private func addBackButton(bool: Bool) {
         let backButton = UIButton(type: .custom)
-        backButton.frame = CGRect(x: -10, y: 0, width: 30, height: 30)
+        backButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         if #available(iOS 13.0, *) {
-            let edit = UIImage(named: "back.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            let edit = UIImage(named: "messages-back.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
              backButton.setImage(edit, for: .normal)
         } else {}
         backButton.tintColor = UIKitSettings.primaryColor
@@ -1129,7 +1129,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             self.navigationItem.rightBarButtonItem = nil
             let videoCall = UIButton(type: .custom)
             videoCall.frame = CGRect(x: 0, y: 0, width: 35, height: 30)
-            var videoCallIcon = UIImage(named: "􀍉.png", in: UIKitSettings.bundle, compatibleWith: nil)
+            var videoCallIcon = UIImage(named: "messages-video-call.png", in: UIKitSettings.bundle, compatibleWith: nil)
             if #available(iOS 13.0, *) {
                 videoCallIcon = videoCallIcon?.withRenderingMode(.alwaysTemplate)
             } else {
@@ -1140,7 +1140,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             
             let audioCall = UIButton(type: .custom)
             audioCall.frame = CGRect(x: 10, y: 0, width: 35, height: 30)
-            var audioCallIcon = UIImage(named: "􀌾.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            var audioCallIcon = UIImage(named: "messages-audio-call.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             if #available(iOS 13.0, *) {
                 audioCallIcon = audioCallIcon?.withRenderingMode(.alwaysTemplate)
             } else {}
@@ -1151,7 +1151,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             
             let infoButton = UIButton(type: .custom)
             infoButton.frame = CGRect(x: 10, y: 0, width: 35, height: 30)
-            var infoIcon = UIImage(named: "info.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            var infoIcon = UIImage(named: "messages-info.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             if #available(iOS 13.0, *) {
                 infoIcon = infoIcon?.withRenderingMode(.alwaysTemplate)
             } else {}
@@ -2171,7 +2171,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         textView.delegate = self
 
         if #available(iOS 13.0, *) {
-            let edit = UIImage(named: "send.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            let edit = UIImage(named: "send-message-filled.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             send.setImage(edit, for: .normal)
             send.tintColor = UIKitSettings.primaryColor
         } else {}
@@ -2339,8 +2339,8 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         messageComposer.internalDelegate = self
         
         if #available(iOS 13.0, *) {
-            let edit = UIImage(named: "send.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-            send.setImage(edit, for: .normal)
+            let sendImage = UIImage(named: "send-message-filled.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            send.setImage(sendImage, for: .normal)
             send.tintColor = UIKitSettings.primaryColor
         } else {}
     }
@@ -4199,7 +4199,7 @@ extension CometChatMessageList : CometChatMessageDelegate {
         }
         switch message.receiverType {
         case .user:
-            CometChat.markAsRead(messageId: message.id, receiverId: message.senderUid, receiverType: .user, messageSender: message.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: message)
             if chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [message])
             }else{
@@ -4216,7 +4216,7 @@ extension CometChatMessageList : CometChatMessageDelegate {
         
             
         case .group:
-            CometChat.markAsRead(messageId: message.id, receiverId: message.receiverUid, receiverType: .user, messageSender: message.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: message)
             if chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [message])
             }else{
@@ -4394,12 +4394,12 @@ extension CometChatMessageList : CometChatMessageDelegate {
                     
                     switch receipt.receiptType {
                     case .delivered:
-                        textMessageCell.receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
+                        textMessageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)
                     case .read:
-                        textMessageCell.receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                        textMessageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                         textMessageCell.receipt.tintColor = UIKitSettings.primaryColor
                     @unknown default:
-                        textMessageCell.receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)
+                        textMessageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)
                     }
                 })
             }
@@ -4696,7 +4696,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
     public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
             self.fetchGroup(group: joinedGroup.guid)
-            CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group, messageSender: action.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: action)
             self.refreshMessageList(forID: joinedGroup.guid, type: .group, scrollToBottom: true)
         }
     }
@@ -4715,7 +4715,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
     public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
             self.fetchGroup(group: leftGroup.guid)
-            CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group, messageSender: action.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: action)
             self.appendNewMessage(message: action)
         }
     }
@@ -4735,7 +4735,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
     public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
             self.fetchGroup(group: kickedFrom.guid)
-            CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group, messageSender: action.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: action)
             self.appendNewMessage(message: action)
         }
     }
@@ -4754,7 +4754,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
      */
     public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
-            CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group, messageSender: action.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: action)
             self.appendNewMessage(message: action)
         }
     }
@@ -4773,7 +4773,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
      */
     public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
-            CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group, messageSender: action.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: action)
             self.appendNewMessage(message: action)
         }
     }
@@ -4794,7 +4794,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
      */
     public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
-            CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group, messageSender: action.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: action)
             self.appendNewMessage(message: action)
         }
     }
@@ -4814,7 +4814,7 @@ extension CometChatMessageList : CometChatGroupDelegate {
     public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
         if action.receiverUid == self.currentGroup?.guid && action.receiverType == .group {
             self.fetchGroup(group: addedTo.guid)
-            CometChat.markAsRead(messageId: action.id, receiverId: action.receiverUid, receiverType: .group, messageSender: action.sender?.uid ?? "")
+            CometChat.markAsRead(baseMessage: action)
             self.appendNewMessage(message: action)
         }
     }
@@ -5001,8 +5001,8 @@ extension CometChatMessageList: CometChatReceiverReplyMessageBubbleDelegate {
     
     func didTapOnSentimentAnalysisViewForLeftReplyBubble(indexPath: IndexPath) {
             if let cell = self.tableView?.cellForRow(at: indexPath) as? CometChatReceiverReplyMessageBubble {
-                let alert = UIAlertController(title: "WARNING".localized(), message: "Are you sure want to view this message?", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
+                let alert = UIAlertController(title:"", message: "Are you sure want to view this message?", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "VIEW".localized(), style: .default, handler: { (action: UIAlertAction!) in
                     self.tableView?.beginUpdates()
                     cell.message.font = UIFont.systemFont(ofSize: 17, weight: .medium)
                     cell.sentimentAnalysisView.isHidden = true
@@ -5018,7 +5018,7 @@ extension CometChatMessageList: CometChatReceiverReplyMessageBubbleDelegate {
                     }
                  self.tableView?.endUpdates()
             }))
-            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+                alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { (action: UIAlertAction!) in
             }))
             alert.view.tintColor = UIKitSettings.primaryColor
             present(alert, animated: true, completion: nil)

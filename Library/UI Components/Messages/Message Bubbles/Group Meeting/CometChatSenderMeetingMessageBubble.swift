@@ -55,10 +55,10 @@ class CometChatSenderMeetingMessageBubble: UITableViewCell {
             if let data = meetingMessage.customData, let type = data["callType"] as? String{
                 if type == "audio" {
                     title.text = "YOU_INITIATED_GROUP_AUDIO_CALL".localized()
-                    icon.image = UIImage(named: "calls.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    icon.image = UIImage(named: "messages-video-call.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 }else{
                     title.text = "YOU_INITIATED_GROUP_VIDEO_CALL".localized()
-                    icon.image = UIImage(named: "missedVideo.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    icon.image = UIImage(named: "messages-video-call.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 }
                 
                 if let title = data["title"] as? String {
@@ -85,16 +85,16 @@ class CometChatSenderMeetingMessageBubble: UITableViewCell {
                 }
             }
             if meetingMessage.readAt > 0 {
-                receipt.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)
+                receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)
                 timeStamp.text = String().setMessageTime(time: Int(meetingMessage?.readAt ?? 0))
             }else if meetingMessage.deliveredAt > 0 {
-                receipt.image = UIImage(named: "delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(meetingMessage?.deliveredAt ?? 0))
             }else if meetingMessage.sentAt > 0 {
-                receipt.image = UIImage(named: "sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                receipt.image = UIImage(named: "message-sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = String().setMessageTime(time: Int(meetingMessage?.sentAt ?? 0))
             }else if meetingMessage.sentAt == 0 {
-                receipt.image = UIImage(named: "wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                receipt.image = UIImage(named: "messages-wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = "SENDING".localized()
             }
             FeatureRestriction.isThreadedMessagesEnabled { (success) in

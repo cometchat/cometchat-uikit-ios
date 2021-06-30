@@ -43,6 +43,8 @@ class CometChatPrivacyAndSecurity: UIViewController {
         self.addObservers()
     }
     
+    
+    
      // MARK: - Public instance methods
     
     
@@ -156,7 +158,30 @@ class CometChatPrivacyAndSecurity: UIViewController {
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
+            self.addBackButton(bool: true)
         }
+    }
+    
+    private func addBackButton(bool: Bool) {
+        let backButton = UIButton(type: .custom)
+        if #available(iOS 13.0, *) {
+            let edit = UIImage(named: "userprofile-back.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+             backButton.setImage(edit, for: .normal)
+            backButton.tintColor = UIKitSettings.primaryColor
+        } else {}
+        backButton.tintColor = UIKitSettings.primaryColor
+        backButton.setTitleColor(backButton.tintColor, for: .normal) // You can change the TitleColor
+        backButton.addTarget(self, action: #selector(self.didBackButtonPressed), for: .touchUpInside)
+        self.navigationItem.leftBarButtonItem = nil
+        if bool == true {
+            self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
+        }else{
+            self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
+        }
+    }
+    
+    @objc func didBackButtonPressed() {
+        self.navigationController?.popViewController(animated: true)
     }
     
 

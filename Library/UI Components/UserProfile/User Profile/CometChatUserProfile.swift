@@ -288,7 +288,8 @@ extension CometChatUserProfile: UITableViewDelegate , UITableViewDataSource {
             case CometChatUserProfile.PRIVACY_AND_SECURITY_CELL:
                 settingsCell.settingsName.text = NSLocalizedString(
                     "PRIVACY_&_SECURITY", bundle: UIKitSettings.bundle, comment: "")
-                settingsCell.settingsIcon.image = UIImage(named: "􀉼", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                settingsCell.settingsIcon.image = UIImage(named: "userprofile-privacy", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                settingsCell.settingsIcon.tintColor = UIKitSettings.secondaryColor
                 return settingsCell
             default:
                 break

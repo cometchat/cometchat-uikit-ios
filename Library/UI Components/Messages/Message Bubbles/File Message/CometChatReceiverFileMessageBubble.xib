@@ -77,16 +77,16 @@
                                         <rect key="frame" x="197" y="7.5" width="45" height="45"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="OQb-7i-HIR">
-                                                <rect key="frame" x="11.5" y="7" width="22" height="33"/>
+                                                <rect key="frame" x="10.5" y="7" width="24" height="33"/>
                                                 <subviews>
-                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="doc.text.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Urt-0t-CMY">
-                                                        <rect key="frame" x="0.0" y="-2.5" width="22" height="24"/>
+                                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="messages-file-upload.png" translatesAutoresizingMaskIntoConstraints="NO" id="Urt-0t-CMY">
+                                                        <rect key="frame" x="0.0" y="0.0" width="24" height="20.5"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
                                                     </imageView>
                                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="PDF" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cSS-Es-tXg">
-                                                        <rect key="frame" x="0.0" y="24" width="22" height="9"/>
+                                                        <rect key="frame" x="0.0" y="25.5" width="24" height="7.5"/>
                                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="8"/>
                                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <nil key="highlightedColor"/>
@@ -232,7 +232,7 @@
     </designables>
     <resources>
         <image name="defaultAvatar.jpg" width="240" height="240"/>
-        <image name="doc.text.fill" catalog="system" width="115" height="128"/>
+        <image name="messages-file-upload.png" width="24" height="24"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

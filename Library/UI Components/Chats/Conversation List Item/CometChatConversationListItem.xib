@@ -100,15 +100,15 @@
                             <stackView opaque="NO" contentMode="scaleAspectFit" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="Bo8-mm-SpW">
                                 <rect key="frame" x="0.0" y="0.0" width="76" height="20"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="blueTick.png" translatesAutoresizingMaskIntoConstraints="NO" id="n71-Of-vwF">
-                                        <rect key="frame" x="0.0" y="0.0" width="16" height="17"/>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chats-message-read.png" translatesAutoresizingMaskIntoConstraints="NO" id="n71-Of-vwF">
+                                        <rect key="frame" x="0.0" y="0.0" width="16" height="24"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="15" id="HiJ-i1-Tav"/>
                                             <constraint firstAttribute="width" constant="16" id="WYn-SZ-6VH"/>
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="6:53 PM" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qkI-Nt-2dc">
-                                        <rect key="frame" x="21" y="0.0" width="55" height="17"/>
+                                        <rect key="frame" x="21" y="0.0" width="55" height="24"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
@@ -220,7 +220,7 @@
         </designable>
     </designables>
     <resources>
-        <image name="blueTick.png" width="14" height="10"/>
+        <image name="chats-message-read.png" width="24" height="24"/>
         <image name="defaultAvatar.jpg" width="240" height="240"/>
         <systemColor name="secondarySystemBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
