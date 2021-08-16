@@ -122,9 +122,9 @@ import CometChatPro
     @objc  func set(status: CometChatPro.CometChat.UserStatus) -> CometChatStatusIndicator {
         switch status {
         case .online:
-            self.backgroundColor = #colorLiteral(red: 0.6039215686, green: 0.8039215686, blue: 0.1960784314, alpha: 1)
+            self.backgroundColor = #colorLiteral(red: 0.231372549, green: 0.8745098039, blue: 0.1843137255, alpha: 1)
         case .offline:
-            self.backgroundColor = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1)
+            self.backgroundColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 1)
         case .available: break
         @unknown default:
             break

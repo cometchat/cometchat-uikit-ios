@@ -341,6 +341,7 @@ public final class CometChatConversationList: UIViewController {
                     }
                 }
             }} else {}
+       
     }
     
     /**
@@ -596,7 +597,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onTextMessageReceived(textMessage: TextMessage) {
-        
+        CometChat.markAsDelivered(baseMessage: textMessage)
         switch  UIKitSettings.chatListMode {
        
         case .user:
@@ -682,7 +683,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onMediaMessageReceived(mediaMessage: MediaMessage) {
-        
+        CometChat.markAsDelivered(baseMessage: mediaMessage)
         switch UIKitSettings.chatListMode {
        
         case .user:
@@ -802,6 +803,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onCustomMessageReceived(customMessage: CustomMessage) {
+        CometChat.markAsDelivered(baseMessage: customMessage)
         DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
         refreshConversations()
     }
@@ -973,6 +975,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
+        CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -991,6 +994,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
+        CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -1010,6 +1014,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
+        CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -1029,6 +1034,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
+        CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -1048,6 +1054,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
+        CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -1069,6 +1076,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
+        CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -1088,6 +1096,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
     ///[CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
    
     public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
+        CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()

@@ -161,6 +161,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
     var indexPath: IndexPath?
     private var chronometer: Chronometer?
     var curentLocation: CLLocation?
+    var isAnimating: Bool = true
     let locationManager = CLLocationManager()
     
     private var currentState: AudioRecodingState = .ready {
@@ -2874,35 +2875,7 @@ extension CometChatThreadedMessageList:QLPreviewControllerDataSource, QLPreviewC
 extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegate {
     
     
-    public func didReactionButtonPressed() {
-        if let user = currentUser {
-            let reactionIndicator = TypingIndicator(receiverID: user.uid ?? "", receiverType: .user)
-            if currentReaction == .heart {
-                reactionIndicator.metadata = ["type":"live_reaction", "reaction": "heart"]
-            }else{
-                reactionIndicator.metadata = ["type":"live_reaction", "reaction": "thumbsup"]
-            }
-            CometChat.startTyping(indicator: reactionIndicator)
-            reactionView.startAnimation()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-                CometChat.endTyping(indicator: reactionIndicator)
-                self.reactionView.stopAnimation()
-            })
-        }else if let group = currentGroup {
-            let reactionIndicator = TypingIndicator(receiverID: group.guid , receiverType: .group)
-            if currentReaction == .heart {
-                reactionIndicator.metadata = ["type":"live_reaction", "reaction":"heart"]
-            }else{
-                reactionIndicator.metadata = ["type":"live_reaction", "reaction":"thumbsup"]
-            }
-            CometChat.startTyping(indicator: reactionIndicator)
-            reactionView.startAnimation()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-                CometChat.endTyping(indicator: reactionIndicator)
-                self.reactionView.stopAnimation()
-            })
-        }
-    }
+    public func didReactionButtonPressed() {}
     
     public func didMicrophoneButtonPressed(with: UILongPressGestureRecognizer) {
         

@@ -652,7 +652,7 @@ public final class FeatureRestriction {
     
     static func isGroupActionMessagesEnabled(completion: @escaping (_ bool: SwitchMode) -> Void) {
         if  UIKitSettings.enableActionsForGroupNotifications == .enabled {
-            completion(.disabled)
+            completion(.enabled)
         }else{
             completion(.disabled)
         }

@@ -32,6 +32,7 @@ import CometChatPro
     }
     var getCount: Int {
         get {
+            
             return Int(self.text ?? "0") ?? 0
         }
     }
@@ -144,7 +145,6 @@ import CometChatPro
                 self.isHidden = true
             }
         }
-        
         return self
     }
     

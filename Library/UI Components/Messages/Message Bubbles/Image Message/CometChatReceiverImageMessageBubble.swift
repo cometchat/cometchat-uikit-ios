@@ -77,21 +77,21 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
                 avatar.set(image: "", with: mediaMessage.sender?.name ?? "")
             }
             if let mediaURL = mediaMessage.metaData, let imageUrl = mediaURL["fileURL"] as? String {
-                  let url = URL(string: imageUrl)
-                  if (url?.checkFileExist())! {
-                      do {
-                          let imageData = try Data(contentsOf: url!)
-                          let image = UIImage(data: imageData as Data)
-                          imageMessage.image = image
-                      } catch {
+                let url = URL(string: imageUrl)
+                if (url?.checkFileExist())! {
+                    do {
+                        let imageData = try Data(contentsOf: url!)
+                        let image = UIImage(data: imageData as Data)
+                        imageMessage.image = image
+                    } catch {
                         
-                      }
-                  }else{
-                      parseThumbnailForImage(forMessage: mediaMessage)
-                  }
-              }else{
-                  parseThumbnailForImage(forMessage: mediaMessage)
-              }
+                    }
+                }else{
+                    parseThumbnailForImage(forMessage: mediaMessage)
+                }
+            }else{
+                parseThumbnailForImage(forMessage: mediaMessage)
+            }
               parseImageForModeration(forMessage: mediaMessage)
             replybutton.tintColor = UIKitSettings.primaryColor
             let tapOnImageMessage = UITapGestureRecognizer(target: self, action: #selector(self.didImageMessagePressed(tapGestureRecognizer:)))

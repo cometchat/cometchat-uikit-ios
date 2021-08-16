@@ -81,12 +81,15 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.readAt ?? 0))
                 }else if textmessage.deliveredAt > 0 {
                     receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    receipt.tintColor = UIKitSettings.secondaryColor
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.deliveredAt ?? 0))
                 }else if textmessage.sentAt > 0 {
                     receipt.image = UIImage(named: "message-sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    receipt.tintColor = UIKitSettings.secondaryColor
                     timeStamp.text = String().setMessageTime(time: Int(textMessage?.sentAt ?? 0))
                 }else if textmessage.sentAt == 0 {
                     receipt.image = UIImage(named: "messages-wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    receipt.tintColor = UIKitSettings.secondaryColor
                     timeStamp.text = "SENDING".localized()
                 }
                 FeatureRestriction.isDeliveryReceiptsEnabled { (success) in

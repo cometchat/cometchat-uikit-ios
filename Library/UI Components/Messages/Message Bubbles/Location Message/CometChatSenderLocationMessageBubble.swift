@@ -154,7 +154,7 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
     
     func getAddressFromLocatLon(from latitude: Double ,and longitude: Double, googleApiKey: String, handler: @escaping (String) -> ()) {
         
-        var addressString : String = ""
+        var _ : String = ""
         var center : CLLocationCoordinate2D = CLLocationCoordinate2D()
         let ceo: CLGeocoder = CLGeocoder()
         center.latitude = latitude
@@ -164,7 +164,7 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
         
         ceo.reverseGeocodeLocation(loc, completionHandler:
                                     {(placemarks, error) in
-                                        if let error = error {
+                                        if error != nil {
                                             handler("UNKNOWN_LOCATION".localized())
                                         }else if let placemarks = placemarks {
                                             if   let pm = placemarks as? [CLPlacemark] {
