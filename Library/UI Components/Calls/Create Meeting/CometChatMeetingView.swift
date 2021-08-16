@@ -42,24 +42,24 @@ class CometChatMeetingView: UIViewController {
 
                 let callSettings = CallSettings.CallSettingsBuilder(callView: strongSelf.customView, sessionId: sessionID).setAudioOnlyCall(audioOnly: false).startWithAudioMuted(audioMuted: false).build()
                 
-                CometChat.startCall(callSettings: callSettings, userJoined: { (userJoined) in
+                CometChat.startCall(callSettings: callSettings, onUserJoined: { (userJoined) in
                     DispatchQueue.main.async {
                         if let name = userJoined?.name {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "JOINED".localized(), duration: .short)
                             snackbar.show()
                         }
                     }
-                }, userLeft: { (userLeft) in
+                }, onUserLeft: { (userLeft) in
                     DispatchQueue.main.async {
                         if let name = userLeft?.name {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "LEFT_THE_CALL".localized(), duration: .short)
                             snackbar.show()
                         }
                     }
-
-                },userListUpdated: {(userListUpdated) in
                     
-                }, audioModesUpdated: {(userListUpdated) in
+                },onUserListUpdated: {(userListUpdated) in
+                    
+                }, onAudioModesUpdated: {(userListUpdated) in
                     
                 }, onError: { (error) in
 
@@ -83,24 +83,24 @@ class CometChatMeetingView: UIViewController {
                 
                 let callSettings = CallSettings.CallSettingsBuilder(callView: strongSelf.customView, sessionId: sessionID).setAudioOnlyCall(audioOnly: false).startWithVideoMuted(videoMuted: false).startWithAudioMuted(audioMuted: false).build()
                 
-                CometChat.startCall(callSettings: callSettings, userJoined: { (userJoined) in
+                CometChat.startCall(callSettings: callSettings, onUserJoined: { (userJoined) in
                     DispatchQueue.main.async {
                         if let name = userJoined?.name {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "JOINED".localized(), duration: .short)
                             snackbar.show()
                         }
                     }
-                }, userLeft: { (userLeft) in
+                }, onUserLeft: { (userLeft) in
                     DispatchQueue.main.async {
                         if let name = userLeft?.name {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "LEFT_THE_CALL".localized(), duration: .short)
                             snackbar.show()
                         }
                     }
-                }, userListUpdated: {(userListUpdated) in
+                }, onUserListUpdated: {(userListUpdated) in
                     
-
-                }, audioModesUpdated: {(audioModesUpdated) in
+                    
+                }, onAudioModesUpdated: {(audioModesUpdated) in
 
                 
                 }, onError: { (error) in

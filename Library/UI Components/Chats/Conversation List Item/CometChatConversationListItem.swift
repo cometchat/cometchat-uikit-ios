@@ -45,8 +45,8 @@ class CometChatConversationListItem: UITableViewCell {
     weak var conversation: Conversation? {
         didSet {
             if let currentConversation = conversation {
-                read.image = UIImage(named: "read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                read.tintColor = UIKitSettings.primaryColor
+
+               
                 unreadBadgeCount.backgroundColor = UIKitSettings.primaryColor
                 switch currentConversation.conversationType {
                 case .user:
@@ -223,8 +223,19 @@ class CometChatConversationListItem: UITableViewCell {
                     @unknown default:
                         break
                     }
+                    
                     if currentMessage.readAt > 0.0  {
+                        read.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                         read.isHidden = false
+                        read.tintColor = UIKitSettings.primaryColor
+                    }else if currentMessage.deliveredAt > 0.0  {
+                        read.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                        read.isHidden = false
+                        read.tintColor = UIKitSettings.secondaryColor
+                    }else if currentMessage.sentAt > 0  {
+                        read.image = UIImage(named: "message-sent", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                        read.isHidden = false
+                        read.tintColor = UIKitSettings.secondaryColor
                     }else{
                         read.isHidden = true
                     }
@@ -233,6 +244,8 @@ class CometChatConversationListItem: UITableViewCell {
                     }else {
                         isThread.isHidden = true
                     }
+                }else{
+                    read.isHidden = true
                 }
                 if #available(iOS 13.0, *) {
                     message.textColor = .label

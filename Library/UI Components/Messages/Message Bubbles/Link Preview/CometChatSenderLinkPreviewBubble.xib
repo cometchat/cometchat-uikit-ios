@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -19,10 +19,10 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="ZyS-Uo-Tay">
-                        <rect key="frame" x="0.0" y="20" width="577" height="438"/>
+                        <rect key="frame" x="0.0" y="3" width="577" height="455"/>
                         <subviews>
                             <stackView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" axis="vertical" alignment="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="arD-MQ-EdS">
-                                <rect key="frame" x="327" y="0.0" width="250" height="370"/>
+                                <rect key="frame" x="327" y="0.0" width="250" height="387"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="372-98-BIa">
                                         <rect key="frame" x="0.0" y="0.0" width="250" height="160"/>
@@ -59,10 +59,10 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cPZ-HF-4Mz">
-                                        <rect key="frame" x="0.0" y="160" width="250" height="164"/>
+                                        <rect key="frame" x="0.0" y="160" width="250" height="181"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="WtT-db-4F2">
-                                                <rect key="frame" x="8" y="8" width="234" height="148"/>
+                                                <rect key="frame" x="8" y="8" width="234" height="165"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SecondHand Shoes" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oeN-PW-Ctc">
                                                         <rect key="frame" x="0.0" y="0.0" width="234" height="20"/>
@@ -74,16 +74,16 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="n5g-TX-cVF">
-                                                        <rect key="frame" x="0.0" y="25" width="234" height="18"/>
+                                                        <rect key="frame" x="0.0" y="25" width="234" height="20"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <color key="textColor" systemColor="systemGrayColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="k6m-N4-aYP">
-                                                        <rect key="frame" x="0.0" y="48" width="234" height="100"/>
+                                                        <rect key="frame" x="0.0" y="50" width="234" height="115"/>
                                                         <subviews>
                                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nQU-kW-Q7z">
-                                                                <rect key="frame" x="0.0" y="0.0" width="2" height="100"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="2" height="115"/>
                                                                 <color key="backgroundColor" systemColor="systemGrayColor"/>
                                                                 <constraints>
                                                                     <constraint firstAttribute="width" constant="2" id="AXS-hD-hsq"/>
@@ -95,7 +95,7 @@
                                                                 </userDefinedRuntimeAttributes>
                                                             </view>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yeR-e8-gNL" customClass="HyperlinkLabel" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                                                <rect key="frame" x="7" y="0.0" width="227" height="100"/>
+                                                                <rect key="frame" x="7" y="0.0" width="227" height="115"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
@@ -118,14 +118,14 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fjh-aQ-B6J">
-                                        <rect key="frame" x="0.0" y="324" width="250" height="2"/>
+                                        <rect key="frame" x="0.0" y="341" width="250" height="2"/>
                                         <color key="backgroundColor" systemColor="systemFillColor"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="2" id="dS1-ho-TeZ"/>
                                         </constraints>
                                     </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Y3e-UV-yc2">
-                                        <rect key="frame" x="0.0" y="326" width="250" height="44"/>
+                                        <rect key="frame" x="0.0" y="343" width="250" height="44"/>
                                         <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="PYq-sU-VjV"/>
@@ -146,12 +146,12 @@
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="15"/>
+                                        <integer key="value" value="12"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </stackView>
                             <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="GFm-0P-doK" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="370" width="577" height="50"/>
+                                <rect key="frame" x="0.0" y="387" width="577" height="50"/>
                                 <subviews>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceRightToLeft" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="dE5-Wz-0wf">
                                         <rect key="frame" x="0.0" y="0.0" width="577" height="50"/>
@@ -177,7 +177,7 @@
                                 </connections>
                             </view>
                             <stackView opaque="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="NGA-RF-0Cq">
-                                <rect key="frame" x="526" y="420" width="51" height="18"/>
+                                <rect key="frame" x="526" y="437" width="51" height="18"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10:43" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XbT-Nn-EOI">
                                         <rect key="frame" x="0.0" y="0.0" width="33" height="18"/>
@@ -223,7 +223,7 @@
                     <constraint firstAttribute="bottom" secondItem="ZyS-Uo-Tay" secondAttribute="bottom" constant="3" id="R57-Zz-a0y"/>
                     <constraint firstAttribute="trailing" secondItem="ZyS-Uo-Tay" secondAttribute="trailing" constant="15" id="fSF-mR-Y1B"/>
                     <constraint firstItem="qam-P0-6Xf" firstAttribute="bottom" secondItem="Y3e-UV-yc2" secondAttribute="bottom" id="g8c-s7-Wuu"/>
-                    <constraint firstItem="ZyS-Uo-Tay" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="20" symbolic="YES" id="kIB-0M-zli"/>
+                    <constraint firstItem="ZyS-Uo-Tay" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="3" id="kIB-0M-zli"/>
                     <constraint firstItem="ZyS-Uo-Tay" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="tBX-Pu-2Ax"/>
                 </constraints>
             </tableViewCellContentView>
@@ -248,7 +248,7 @@
     </objects>
     <designables>
         <designable name="yeR-e8-gNL">
-            <size key="intrinsicContentSize" width="38" height="18"/>
+            <size key="intrinsicContentSize" width="37.5" height="18"/>
         </designable>
     </designables>
     <resources>

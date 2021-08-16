@@ -652,7 +652,7 @@ public final class FeatureRestriction {
     
     static func isGroupActionMessagesEnabled(completion: @escaping (_ bool: SwitchMode) -> Void) {
         if  UIKitSettings.enableActionsForGroupNotifications == .enabled {
-            completion(.disabled)
+            completion(.enabled)
         }else{
             completion(.disabled)
         }
@@ -708,6 +708,30 @@ public final class FeatureRestriction {
     
     static func isViewProfileEnabled(completion: @escaping (_ bool: SwitchMode) -> Void) {
         if  UIKitSettings.viewProfile == .enabled {
+            completion(.enabled)
+        }else{
+            completion(.disabled)
+        }
+    }
+    
+    static func isclearConversationEnabled(completion: @escaping (_ bool: SwitchMode) -> Void) {
+        if  UIKitSettings.clearConversation == .enabled {
+            completion(.enabled)
+        }else{
+            completion(.disabled)
+        }
+    }
+    
+    static func isReplyInPrivateEnabled(completion: @escaping (_ bool: SwitchMode) -> Void) {
+        if  UIKitSettings.replyInPrivate == .enabled {
+            completion(.enabled)
+        }else{
+            completion(.disabled)
+        }
+    }
+    
+    static func isStartConversationEnabled(completion: @escaping (_ bool: SwitchMode) -> Void) {
+        if  UIKitSettings.startConversation == .enabled {
             completion(.enabled)
         }else{
             completion(.disabled)

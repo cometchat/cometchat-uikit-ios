@@ -685,8 +685,8 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             switch supportItems[safe:indexPath.row] {
             case CometChatGroupDetail.DELETE_AND_EXIT_CELL:
                 
-                let alert = UIAlertController(title: "WARNING".localized(), message: "USER_DELETE_GROUP_WARNING".localized(), preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK".localized(), style: .default, handler: { (action: UIAlertAction!) in
+                let alert = UIAlertController(title: "", message: "USER_DELETE_GROUP_WARNING".localized(), preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "DELETE".localized(), style: .default, handler: { (action: UIAlertAction!) in
                     if let guid = self.currentGroup?.guid {
                         CometChat.deleteGroup(GUID: guid, onSuccess: { (success) in
                             DispatchQueue.main.async {
@@ -716,7 +716,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                 if let guid = currentGroup?.guid {
                     
                     if currentGroup?.owner == LoggedInUser.uid {
-                        let alert = UIAlertController(title: "WARNING".localized(), message: "TRANSFER_OWNERSHIP_MESSAGE".localized(), preferredStyle: .alert)
+                        let alert = UIAlertController(title: "", message: "TRANSFER_OWNERSHIP_MESSAGE".localized(), preferredStyle: .alert)
                         alert.addAction(UIAlertAction(title: "TRANSFER_OWNERSHIP".localized(), style: .default, handler: { (action: UIAlertAction!) in
                             DispatchQueue.main.async {
                                 let transferOwnership = CometChatTransferOwnership()
@@ -732,8 +732,8 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                     present(alert, animated: true, completion: nil)
                         
                     }else{
-                        let alert = UIAlertController(title: "WARNING".localized(), message: "USER_LEAVE_GROUP_WARNING".localized(), preferredStyle: .alert)
-                        alert.addAction(UIAlertAction(title: "OK".localized(), style: .default, handler: { (action: UIAlertAction!) in
+                        let alert = UIAlertController(title: "", message: "USER_LEAVE_GROUP_WARNING".localized(), preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "LEAVE".localized(), style: .default, handler: { (action: UIAlertAction!) in
                             if let guid = self.currentGroup?.guid {
                                 CometChat.leaveGroup(GUID: guid, onSuccess: { (success) in
                                     
@@ -774,7 +774,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
             var actions: [UIMenuElement] = []
     
             if  let selectedCell = tableView.cellForRow(at: indexPath) as? CometChatMembersItem  {
-                let removeMember = UIAction(title: "REMOVE_MEMBER".localized(), image: UIImage(systemName: "trash"), attributes: .destructive) { action in
+                let removeMember = UIAction(title: "REMOVE_MEMBER".localized(), image: UIImage(named: "groups-delete.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate), attributes: .destructive) { action in
                     
                     CometChat.kickGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
                         DispatchQueue.main.async {
@@ -793,7 +793,7 @@ extension CometChatGroupDetail: UITableViewDelegate , UITableViewDataSource {
                     }
                 }
                 
-                let banMember = UIAction(title: "BAN_MEMBER".localized(), image: UIImage(systemName: "exclamationmark.octagon.fill"), attributes: .destructive){ action in
+                let banMember = UIAction(title: "BAN_MEMBER".localized(), image: UIImage(named: "ban-member.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate), attributes: .destructive){ action in
                     
                     CometChat.banGroupMember(UID: selectedCell.member?.uid ?? "", GUID: self.currentGroup?.guid ?? "", onSuccess: { (success) in
                         DispatchQueue.main.async {

@@ -106,7 +106,7 @@ enum LiveReaction {
         super.awakeFromNib()
     }
     
-    func startAnimation() {
+    func sendReaction() {
         isAnimating = true
         views = []
         var imagesArray = [UIImage?]()
@@ -198,7 +198,7 @@ enum LiveReaction {
         })
     }
     
-    func stopAnimation() {
+    func stopReaction() {
         views = []
         guard let v = views else {return}
         isAnimating = false
