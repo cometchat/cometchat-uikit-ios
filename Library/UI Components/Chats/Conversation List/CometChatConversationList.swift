@@ -276,8 +276,33 @@ public final class CometChatConversationList: UIViewController {
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
+            
+            FeatureRestriction.isStartConversationEnabled { ( success) in
+                if success == .enabled {
+                    self.addStartConversation(true)
+                }
+            }
         }
     }
+    
+    private func addStartConversation(_ inNavigationBar: Bool){
+        if inNavigationBar == true {
+            let createGroupImage = UIImage(named: "chats-create.png", in: UIKitSettings.bundle, compatibleWith: nil)
+            let createGroupButton = UIBarButtonItem(image: createGroupImage, style: .plain, target: self, action: #selector(didStartConversationPressed))
+            createGroupButton.tintColor = UIKitSettings.primaryColor
+            self.navigationItem.rightBarButtonItem = createGroupButton
+        }
+    }
+    
+    @objc func didStartConversationPressed(){
+        let startConversation = CometChatStartConversation()
+        let navigationController: UINavigationController = UINavigationController(rootViewController: startConversation)
+        startConversation.set(title: "SELECT_USER".localized(), mode: .automatic)
+        navigationController.modalPresentationStyle = .fullScreen
+        self.present(navigationController, animated: true, completion: nil)
+        
+    }
+    
     
     /**
      This method setup the search bar for conversationList viewController.
@@ -316,6 +341,7 @@ public final class CometChatConversationList: UIViewController {
                     }
                 }
             }} else {}
+       
     }
     
     /**
@@ -461,7 +487,7 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     
     
     public func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        
+        var actions = [UIContextualAction]()
         guard  let selectedCell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem  else { return nil }
         
         let deleteAction =  UIContextualAction(style: .destructive, title: "", handler: { (action,view, completionHandler ) in
@@ -514,13 +540,16 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
             completionHandler(true)
         })
         
-        if #available(iOS 13.0, *) {
-            deleteAction.image = UIImage(systemName: "trash")
-        } else {
-            let image =  UIImage(named: "delete.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-            deleteAction.image = image
-        }
-        return  UISwipeActionsConfiguration(actions: [deleteAction])
+        let image =  UIImage(named: "chats-delete.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        deleteAction.image = image
+        
+         FeatureRestriction.isclearConversationEnabled(completion: { success in
+            if success == .enabled {
+                actions.append(deleteAction)
+            }
+        })
+       
+        return  UISwipeActionsConfiguration(actions: actions)
     }
     
 }
@@ -568,7 +597,6 @@ extension CometChatConversationList : CometChatMessageDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onTextMessageReceived(textMessage: TextMessage) {
-        
         switch  UIKitSettings.chatListMode {
        
         case .user:
@@ -654,7 +682,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onMediaMessageReceived(mediaMessage: MediaMessage) {
-        
+
         switch UIKitSettings.chatListMode {
        
         case .user:
@@ -774,6 +802,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onCustomMessageReceived(customMessage: CustomMessage) {
+       
         DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
         refreshConversations()
     }
@@ -945,6 +974,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
+       
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -963,6 +993,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
+      
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -982,6 +1013,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
+       
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -1001,6 +1033,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
+       
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -1020,6 +1053,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
+       
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -1041,6 +1075,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
+      
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
@@ -1060,6 +1095,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
     ///[CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
    
     public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
+     
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()

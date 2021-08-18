@@ -156,7 +156,7 @@ public class CometChatIncomingCall: UIViewController {
                                     CometChatSnackBoard.display(message:  "\(name) " + "LEFT_THE_CALL".localized(), mode: .info, duration: .short)
                                 }
                             }
-
+                            
                         }, userListUpdated: {(userListUpdated) in
                             
                         }, audioModesUpdated: {(userListUpdated) in

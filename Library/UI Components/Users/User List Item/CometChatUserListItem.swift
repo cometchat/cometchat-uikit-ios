@@ -54,7 +54,7 @@ class CometChatUserListItem: UITableViewCell {
                 }
             }
             if #available(iOS 13.0, *) {
-                let edit = UIImage(named: "editIcon.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                let edit = UIImage(named: "userprofile-edit.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                  editInfo.setImage(edit, for: .normal)
                 editInfo.tintColor = UIKitSettings.primaryColor
             } else {}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -145,7 +145,7 @@
                                 <constraint firstAttribute="height" constant="30" id="zro-7q-ePp"/>
                             </constraints>
                             <color key="tintColor" systemColor="labelColor"/>
-                            <state key="normal" image="add.png"/>
+                            <state key="normal" image="add-circle-filled.png"/>
                             <connections>
                                 <action selector="attachmentButtonPressed:" destination="m5m-at-Prg" eventType="touchUpInside" id="hSG-O9-ERi"/>
                             </connections>
@@ -164,7 +164,7 @@
                                         <constraint firstAttribute="width" constant="30" id="Y2m-qE-ZMt"/>
                                         <constraint firstAttribute="height" constant="30" id="qEW-xO-dCw"/>
                                     </constraints>
-                                    <state key="normal" image="send.png"/>
+                                    <state key="normal" image="send-message-filled.png"/>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="number" keyPath="setCornerRadius">
                                             <real key="value" value="0.0"/>
@@ -180,7 +180,7 @@
                                         <constraint firstAttribute="height" constant="30" id="G7l-CR-Ogh"/>
                                         <constraint firstAttribute="width" constant="30" id="vPe-fK-Fdf"/>
                                     </constraints>
-                                    <state key="normal" image="microphone.png"/>
+                                    <state key="normal" image="microphone-circle.png"/>
                                     <connections>
                                         <action selector="microphoneButtonPressed:" destination="m5m-at-Prg" eventType="touchUpInside" id="T6K-HQ-h1K"/>
                                     </connections>
@@ -273,7 +273,7 @@
                                 <constraint firstAttribute="height" constant="30" id="8da-my-ekk"/>
                             </constraints>
                             <color key="tintColor" systemColor="labelColor"/>
-                            <state key="normal" image="delete.png"/>
+                            <state key="normal" image="messages-delete.png"/>
                         </button>
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -298,7 +298,7 @@
                                 <constraint firstAttribute="height" constant="22" id="QV1-cC-p9I"/>
                                 <constraint firstAttribute="width" constant="22" id="XJq-UW-3tD"/>
                             </constraints>
-                            <state key="normal" image="close.png"/>
+                            <state key="normal" image="messages-close-circle.png"/>
                         </button>
                         <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7JE-vZ-kkn">
                             <rect key="frame" x="20" y="10" width="4" height="38"/>
@@ -366,7 +366,7 @@
                                         <constraint firstAttribute="width" constant="35" id="SgZ-BE-9Fc"/>
                                         <constraint firstAttribute="height" constant="35" id="mSb-Hy-4dr"/>
                                     </constraints>
-                                    <state key="normal" image="send.png"/>
+                                    <state key="normal" image="send-message-filled.png"/>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="number" keyPath="setCornerRadius">
                                             <real key="value" value="12"/>
@@ -461,8 +461,8 @@
                                 <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Btc-H0-UDY">
                                     <rect key="frame" x="0.0" y="0.0" width="394" height="40"/>
                                     <subviews>
-                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ironman" translatesAutoresizingMaskIntoConstraints="NO" id="v87-MD-pkT" customClass="CometChatAvatar" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="v87-MD-pkT" customClass="CometChatAvatar" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                                            <rect key="frame" x="0.0" y="0.0" width="198" height="40"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="40" id="F8z-mT-IFj"/>
                                                 <constraint firstAttribute="height" constant="40" id="cf6-iN-pLk"/>
@@ -474,16 +474,16 @@
                                             </userDefinedRuntimeAttributes>
                                         </imageView>
                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="sis-0y-qpb">
-                                            <rect key="frame" x="48" y="0.0" width="346" height="40"/>
+                                            <rect key="frame" x="206" y="0.0" width="188" height="40"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hn4-w6-jw9">
-                                                    <rect key="frame" x="0.0" y="0.0" width="346" height="20.5"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="188" height="20.5"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="93b-Wx-xEi">
-                                                    <rect key="frame" x="0.0" y="23.5" width="346" height="16.5"/>
+                                                    <rect key="frame" x="0.0" y="23.5" width="188" height="16.5"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <color key="textColor" systemColor="systemGrayColor"/>
                                                     <nil key="highlightedColor"/>
@@ -673,22 +673,16 @@
             <point key="canvasLocation" x="-397.10144927536237" y="-557.14285714285711"/>
         </view>
     </objects>
-    <designables>
-        <designable name="v87-MD-pkT">
-            <size key="intrinsicContentSize" width="300" height="300"/>
-        </designable>
-    </designables>
     <resources>
-        <image name="add.png" width="29" height="30"/>
-        <image name="close.png" width="16" height="16"/>
-        <image name="delete.png" width="24" height="24"/>
+        <image name="add-circle-filled.png" width="28" height="28"/>
         <image name="forward1.png" width="24" height="24"/>
         <image name="heart.png" width="30" height="25"/>
-        <image name="ironman" width="300" height="300"/>
-        <image name="microphone.png" width="29" height="30"/>
+        <image name="messages-close-circle.png" width="24" height="24"/>
+        <image name="messages-delete.png" width="24" height="24"/>
+        <image name="microphone-circle.png" width="28" height="28"/>
         <image name="more_vertical.png" width="24" height="24"/>
         <image name="pause.fill" catalog="system" width="116" height="128"/>
-        <image name="send.png" width="30" height="31"/>
+        <image name="send-message-filled.png" width="27" height="27"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

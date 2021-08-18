@@ -56,7 +56,7 @@ class CometChatMeetingView: UIViewController {
                             snackbar.show()
                         }
                     }
-
+                    
                 },userListUpdated: {(userListUpdated) in
                     
                 }, audioModesUpdated: {(userListUpdated) in
@@ -99,7 +99,7 @@ class CometChatMeetingView: UIViewController {
                     }
                 }, userListUpdated: {(userListUpdated) in
                     
-
+                    
                 }, audioModesUpdated: {(audioModesUpdated) in
 
                 

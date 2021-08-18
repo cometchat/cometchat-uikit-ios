@@ -38,13 +38,13 @@ class CometChatGroupListItem: UITableViewCell {
                 case .public:
                     groupType.image = UIImage(color: .clear)
                 case .private: if #available(iOS 13.0, *) {
-                    groupType.image =  UIImage.init(systemName: "shield.lefthalf.fill")
+                    groupType.image =  UIImage(named: "private-group.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 } else { }
                 case .password: if #available(iOS 13.0, *) {
-                    groupType.image =  UIImage.init(systemName: "lock.fill")
+                    groupType.image =  UIImage(named: "password-protected-group.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 } else {
                     if #available(iOS 13.0, *) {
-                        groupType.image =  UIImage.init(systemName: "lock.fill")
+                        groupType.image = UIImage(named: "password-protected-group.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                     } else {
                         // Fallback on earlier versions
                     }

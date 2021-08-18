@@ -64,9 +64,9 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
                 name.text = userName + ":"
                 title.text = "\(userName) " + "HAS_SHARED_WHITEBOARD".localized()
                 if #available(iOS 13.0, *) {
-                    icon.image = UIImage(named: "whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
+                    icon.image = UIImage(named: "messages-collaborative-whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
                 } else {
-                    icon.image = UIImage(named: "whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    icon.image = UIImage(named: "messages-collaborative-whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 }
             }
             icon.tintColor = UIKitSettings.primaryColor
@@ -126,9 +126,9 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
                 name.text = userName + ":"
                 title.text = "\(userName) " +  "HAS_SHARED_COLLABORATIVE_DOCUMENT".localized()
                 if #available(iOS 13.0, *) {
-                    icon.image = UIImage(named: "writeboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
+                    icon.image = UIImage(named: "messages-collaborative-document", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
                 } else {
-                    icon.image = UIImage(named: "writeboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    icon.image = UIImage(named: "messages-collaborative-document", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 }
             }
             icon.tintColor = UIKitSettings.primaryColor
@@ -177,10 +177,11 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
                 name.text = userName + ":"
                 title.text = "\(userName) " + "HAS_SHARED_WHITEBOARD".localized()
                 if #available(iOS 13.0, *) {
-                    icon.image = UIImage(named: "whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
+                    icon.image = UIImage(named: "messages-collaborative-whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 } else {
-                    icon.image = UIImage(named: "whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                    icon.image = UIImage(named: "messages-collaborative-whiteboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 }
+                
             }
             icon.tintColor = UIKitSettings.primaryColor
             joinButton.tintColor = UIKitSettings.primaryColor
@@ -226,11 +227,8 @@ class CometChatReceiverCollaborativeMessageBubble: UITableViewCell {
             if let userName = whiteboardMessageInThread.sender?.name {
                 name.text = userName + ":"
                 title.text = "\(userName) " + "HAS_SHARED_COLLABORATIVE_DOCUMENT".localized()
-                if #available(iOS 13.0, *) {
-                    icon.image = UIImage(named: "writeboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).withTintColor(.systemGray)
-                } else {
-                    icon.image = UIImage(named: "writeboard", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                }
+                icon.image = UIImage(named: "messages-collaborative-document", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                icon.tintColor = UIKitSettings.primaryColor
             }
                 if let avatarURL = writeboardMessageInThread?.sender?.avatar  {
                     avatar.set(image: avatarURL, with: writeboardMessageInThread?.sender?.name ?? "")

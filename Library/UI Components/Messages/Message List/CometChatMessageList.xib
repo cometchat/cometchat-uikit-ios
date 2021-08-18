@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -142,7 +142,7 @@
                                 <constraint firstAttribute="height" constant="30" id="W2q-Jf-aDb"/>
                             </constraints>
                             <color key="tintColor" systemColor="labelColor"/>
-                            <state key="normal" image="add.png"/>
+                            <state key="normal" image="add-circle-filled.png"/>
                             <connections>
                                 <action selector="attachmentButtonPressed:" destination="qtD-Ii-Ra0" eventType="touchUpInside" id="YnM-yp-UgL"/>
                             </connections>
@@ -161,7 +161,7 @@
                                         <constraint firstAttribute="height" constant="30" id="QxO-ZB-uZF"/>
                                         <constraint firstAttribute="width" constant="30" id="xcz-b6-plt"/>
                                     </constraints>
-                                    <state key="normal" image="send.png"/>
+                                    <state key="normal" image="send-message-filled.png"/>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="number" keyPath="setCornerRadius">
                                             <real key="value" value="0.0"/>
@@ -177,7 +177,7 @@
                                         <constraint firstAttribute="height" constant="30" id="feW-Wk-mbS"/>
                                         <constraint firstAttribute="width" constant="30" id="rbY-gS-HLR"/>
                                     </constraints>
-                                    <state key="normal" image="microphone.png"/>
+                                    <state key="normal" image="microphone-circle.png"/>
                                     <connections>
                                         <action selector="microphoneButtonPressed:" destination="qtD-Ii-Ra0" eventType="touchUpInside" id="t9S-lY-hju"/>
                                     </connections>
@@ -270,7 +270,7 @@
                                 <constraint firstAttribute="height" constant="30" id="jnH-JS-cTG"/>
                             </constraints>
                             <color key="tintColor" systemColor="labelColor"/>
-                            <state key="normal" image="delete.png"/>
+                            <state key="normal" image="messages-delete.png"/>
                             <connections>
                                 <action selector="didAudioNoteDeletePressed:" destination="-1" eventType="touchUpInside" id="zKz-mL-iwA"/>
                             </connections>
@@ -298,7 +298,7 @@
                                 <constraint firstAttribute="height" constant="22" id="Ed2-IC-H4Q"/>
                                 <constraint firstAttribute="width" constant="22" id="Zz6-0j-Nmf"/>
                             </constraints>
-                            <state key="normal" image="close1.png"/>
+                            <state key="normal" image="messages-close-circle.png"/>
                             <connections>
                                 <action selector="didCancelButtonPressed:" destination="-1" eventType="touchUpInside" id="02V-mu-XTj"/>
                             </connections>
@@ -369,7 +369,7 @@
                                         <constraint firstAttribute="width" constant="35" id="EaC-Vf-FEr"/>
                                         <constraint firstAttribute="height" constant="35" id="ldt-Me-50g"/>
                                     </constraints>
-                                    <state key="normal" image="send.png"/>
+                                    <state key="normal" image="send-message-filled.png"/>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="number" keyPath="setCornerRadius">
                                             <real key="value" value="12"/>
@@ -503,13 +503,13 @@
         </view>
     </objects>
     <resources>
-        <image name="add.png" width="29" height="30"/>
-        <image name="close1.png" width="41" height="41"/>
-        <image name="delete.png" width="24" height="24"/>
+        <image name="add-circle-filled.png" width="24" height="24"/>
         <image name="heart.png" width="30" height="25"/>
-        <image name="microphone.png" width="29" height="30"/>
+        <image name="messages-close-circle.png" width="24" height="24"/>
+        <image name="messages-delete.png" width="24" height="24"/>
+        <image name="microphone-circle.png" width="24" height="24"/>
         <image name="pause.fill" catalog="system" width="116" height="128"/>
-        <image name="send.png" width="30" height="31"/>
+        <image name="send-message-filled.png" width="24" height="24"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
