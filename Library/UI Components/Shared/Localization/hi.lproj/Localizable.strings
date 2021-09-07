@@ -490,3 +490,14 @@
 "MESSAGE_IN_PRIVATE" = "निजी तौर पर संदेश भेजें";
 "REPLY_IN_PRIVATE" = "निजी तौर पर जवाब दें";
 "VIEW_PROFILE" = "प्रोफ़ाइल देखें";
+"UNKNOWN_LOCATION" = "अज्ञात स्थान";
+"SHARED_LOCATION" = "साझा स्थान";
+"ERROR_INTERNET_UNAVAILABLE" = "कोई इंटरनेट कनेक्शन नहीं। बाद में पुन: प्रयास करें।";
+"SELECT_USER" = "उपयोगकर्ता का चयन करें";
+"SELECT_GROUP" = "समूह का चयन करें";
+"SEARCH_USERS" = "उपयोगकर्ता खोजें";
+"SEARCH_GROUPS" = "समूह खोजें";
+"NO_REPLIES" = "जवाब नहीं";
+"LEAVE" = "छोड़ना";
+"DELETE" = "हटाएं";
+"VIEW" = "राय";

@@ -490,3 +490,14 @@
 "MESSAGE_IN_PRIVATE" = "Skicka meddelande privat";
 "REPLY_IN_PRIVATE" = "Svara privat";
 "VIEW_PROFILE" = "Visa profil";
+"UNKNOWN_LOCATION" = "Okänd plats";
+"SHARED_LOCATION" = "Delad plats";
+"ERROR_INTERNET_UNAVAILABLE" = "Ingen internetanslutning. Vänligen försök igen senare.";
+"SELECT_USER" = "Välj Användare";
+"SELECT_GROUP" = "Välj Grupp";
+"SEARCH_USERS" = "Sök användare";
+"SEARCH_GROUPS" = "Sök grupper";
+"NO_REPLIES" = "Inga svar";
+"LEAVE" = "Lämna";
+"DELETE" = "Radera";
+"VIEW" = "Se";
