@@ -493,3 +493,14 @@
 "MESSAGE_IN_PRIVATE" = "Enviar mensagem privada";
 "REPLY_IN_PRIVATE" = "Responder em particular";
 "VIEW_PROFILE" = "Ver Perfil";
+"UNKNOWN_LOCATION" = "Localização Desconhecida";
+"SHARED_LOCATION" = "Localização compartilhada";
+"ERROR_INTERNET_UNAVAILABLE" = "Sem conexão com a Internet. Por favor, tente novamente mais tarde.";
+"SELECT_USER" = "Selecione o usuário";
+"SELECT_GROUP" = "Selecione o Grupo";
+"SEARCH_USERS" = "Usuários de busca";
+"SEARCH_GROUPS" = "Grupos de Pesquisa";
+"NO_REPLIES" = "Sem Respostas";
+"LEAVE" = "Sair";
+"DELETE" = "Excluir";
+"VIEW" = "Visualizar";

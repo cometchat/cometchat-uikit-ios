@@ -68,6 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 ```
+
 ___
 
 ## Installing iOS Chat UI Kit
@@ -104,8 +105,8 @@ platform :ios, '11.0'
 use_frameworks!
 
 target 'YourApp' do
-pod 'CometChatPro', '3.0.1'
-pod 'CometChatCalls', '2.1.0'
+     pod 'CometChatPro', '3.0.1'
+     pod 'CometChatCalls', '2.1.0'
 end
 ________________________________________________________________
 

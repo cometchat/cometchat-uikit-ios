@@ -60,7 +60,7 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
                             self.reactionView.isHidden = true
                         }
                     }
-                if let data = locationMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
+                if let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
                     
                     if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
                         map.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))

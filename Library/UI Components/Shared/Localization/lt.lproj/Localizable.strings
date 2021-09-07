@@ -494,3 +494,14 @@
 "MESSAGE_IN_PRIVATE" = "Siųsti žinutę privačiai";
 "REPLY_IN_PRIVATE" = "Atsakyti privačiai";
 "VIEW_PROFILE" = "Peržiūrėti profilį";
+"UNKNOWN_LOCATION" = "Nežinoma vieta";
+"SHARED_LOCATION" = "Bendrinama vieta";
+"ERROR_INTERNET_UNAVAILABLE" = "Nėra interneto ryšio. Pabandykite dar kartą vėliau.";
+"SELECT_USER" = "Pasirinkite Vartotojas";
+"SELECT_GROUP" = "Pasirinkite Grupė";
+"SEARCH_USERS" = "Ieškoti naudotojų";
+"SEARCH_GROUPS" = "Ieškoti grupėse";
+"NO_REPLIES" = "Nėra atsakymų";
+"LEAVE" = "Palikite";
+"DELETE" = "Ištrinti";
+"VIEW" = "Peržiūrėti";

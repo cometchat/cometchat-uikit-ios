@@ -490,3 +490,14 @@
 "MESSAGE_IN_PRIVATE" = "إرسال رسالة خاصة";
 "REPLY_IN_PRIVATE" = "الرد على القطاع الخاص";
 "VIEW_PROFILE" = "عرض الملف الشخصي";
+"UNKNOWN_LOCATION" = "موقع غير معروف";
+"SHARED_LOCATION" = "موقع مشترك";
+"ERROR_INTERNET_UNAVAILABLE" = "لا يوجد اتصال بالإنترنت. الرجاء معاودة المحاولة في وقت لاحق.";
+"SELECT_USER" = "اختر المستخدم";
+"SELECT_GROUP" = "اختر مجموعة";
+"SEARCH_USERS" = "بحث في المستخدمين";
+"SEARCH_GROUPS" = "مجموعات البحث";
+"NO_REPLIES" = "لا توجد ردود";
+"LEAVE" = "يترك";
+"DELETE" = "حذف";
+"VIEW" = "رأي";
