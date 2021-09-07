@@ -713,3 +713,14 @@
     "NO_VIDEOS" = "Keine Videos";
     "NO_DOCUMENTS" = "Keine Dokumente";
     "JOIN" = "Beitreten";
+"UNKNOWN_LOCATION" = "Unbekannter Ort";
+"SHARED_LOCATION" = "Gemeinsamer Standort";
+"ERROR_INTERNET_UNAVAILABLE" = "Keine Internetverbindung. Bitte versuchen Sie es später erneut.";
+"SELECT_USER" = "Nutzer wählen";
+"SELECT_GROUP" = "Wähle die Gruppe";
+"SEARCH_USERS" = "Benutzer suchen";
+"SEARCH_GROUPS" = "Gruppen suchen";
+"NO_REPLIES" = "Keine Antworten";
+"LEAVE" = "Verlassen";
+"DELETE" = "Löschen";
+"VIEW" = "Sicht";

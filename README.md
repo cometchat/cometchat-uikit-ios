@@ -106,6 +106,7 @@ use_frameworks!
 
 target 'YourApp' do
      pod 'CometChatPro', '3.0.1'
+     pod 'CometChatCalls', '2.1.0'
 end
 ________________________________________________________________
 

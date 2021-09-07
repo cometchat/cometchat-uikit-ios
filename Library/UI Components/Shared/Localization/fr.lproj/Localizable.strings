@@ -490,3 +490,14 @@
 "MESSAGE_IN_PRIVATE" = "Envoyer un message privately";
 "REPLY_IN_PRIVATE" = "Répondre en privé";
 "VIEW_PROFILE" = "Voir le profil";
+"UNKNOWN_LOCATION" = "Emplacement inconnu";
+"SHARED_LOCATION" = "Emplacement partagé";
+"ERROR_INTERNET_UNAVAILABLE" = "Pas de connexion Internet. Veuillez réessayer plus tard.";
+"SELECT_USER" = "Sélectionnez l'utilisateur";
+"SELECT_GROUP" = "Sélectionner un groupe";
+"SEARCH_USERS" = "Rechercher des utilisateurs";
+"SEARCH_GROUPS" = "Groupes de recherche";
+"NO_REPLIES" = "Aucune réponse";
+"LEAVE" = "Laisser";
+"DELETE" = "Effacer";
+"VIEW" = "Vue";

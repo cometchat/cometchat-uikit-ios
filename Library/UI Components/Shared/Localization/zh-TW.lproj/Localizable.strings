@@ -500,3 +500,14 @@
 "MESSAGE_IN_PRIVATE" = "私下傳送訊息";
 "REPLY_IN_PRIVATE" = "私下回覆";
 "VIEW_PROFILE" = "檢視縱斷面";
+"UNKNOWN_LOCATION" = "موقع غير معروف";
+"SHARED_LOCATION" = "موقع مشترك";
+"ERROR_INTERNET_UNAVAILABLE" = "لا يوجد اتصال بالإنترنت. الرجاء معاودة المحاولة في وقت لاحق.";
+"SELECT_USER" = "اختر المستخدم";
+"SELECT_GROUP" = "اختر مجموعة";
+"SEARCH_USERS" = "بحث في المستخدمين";
+"SEARCH_GROUPS" = "مجموعات البحث";
+"NO_REPLIES" = "لا توجد ردود";
+"LEAVE" = "يترك";
+"DELETE" = "حذف";
+"VIEW" = "رأي";

@@ -494,3 +494,14 @@
 "MESSAGE_IN_PRIVATE" = "Hantar mesej secara peribadi";
 "REPLY_IN_PRIVATE" = "Balas secara peribadi";
 "VIEW_PROFILE" = "Lihat Profil";
+"UNKNOWN_LOCATION" = "Lokasi Tidak Diketahui";
+"SHARED_LOCATION" = "Lokasi Dikongsi";
+"ERROR_INTERNET_UNAVAILABLE" = "Tiada sambungan internet. Sila cuba sebentar lagi.";
+"SELECT_USER" = "Pilih Pengguna";
+"SELECT_GROUP" = "Pilih Kumpulan";
+"SEARCH_USERS" = "Cari Pengguna";
+"SEARCH_GROUPS" = "Cari Kumpulan";
+"NO_REPLIES" = "Tiada Balasan";
+"LEAVE" = "Tinggalkan";
+"DELETE" = "Padam";
+"VIEW" = "Pandangan";

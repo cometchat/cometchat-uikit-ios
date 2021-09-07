@@ -501,3 +501,14 @@
 "MESSAGE_IN_PRIVATE" = "私下发送消息";
 "REPLY_IN_PRIVATE" = "私下回复";
 "VIEW_PROFILE" = "查看档案";
+"UNKNOWN_LOCATION" = "未知位置";
+"SHARED_LOCATION" = "共享位置";
+"ERROR_INTERNET_UNAVAILABLE" = "没有网络连接。请稍后再试。";
+"SELECT_USER" = "选择用户";
+"SELECT_GROUP" = "选择组";
+"SEARCH_USERS" = "搜索用户";
+"SEARCH_GROUPS" = "搜索组";
+"NO_REPLIES" = "没有回复";
+"LEAVE" = "离开";
+"DELETE" = "删除";
+"VIEW" = "看法";

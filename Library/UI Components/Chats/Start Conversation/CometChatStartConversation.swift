@@ -234,6 +234,7 @@ public class CometChatStartConversation: UIViewController {
      [CometChatStartConversation Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-1-comet-chat-user-list)
      */
     private func refreshUsers(){
+        self.globalGroupedUsers.removeAll()
         self.sections.removeAll()
         self.users.removeAll()
         activityIndicator?.startAnimating()
