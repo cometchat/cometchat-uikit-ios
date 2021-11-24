@@ -756,6 +756,18 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         NotificationCenter.default.addObserver(self, selector:#selector(self.didUserUnblocked(_:)), name: NSNotification.Name(rawValue: "didUserUnblocked"), object: nil)
         NotificationCenter.default.addObserver(self, selector:#selector(self.didGroupDeleted(_:)), name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil)
         NotificationCenter.default.addObserver(self, selector:#selector(self.didThreadDeleted(_:)), name: NSNotification.Name(rawValue: "didThreadDeleted"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appMovedToForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+       
+    }
+    
+    @objc func appMovedToForeground() {
+        if !CometChat.backgroundTaskEnabled() {
+             if let user = currentUser?.uid {
+                self.refreshMessageList(forID: user, type: .user, scrollToBottom: true)
+            }else if let group = currentGroup?.guid {
+                self.refreshMessageList(forID: group, type: .group, scrollToBottom: true)
+            }
+        }
     }
     
     private func removeObservers() {
@@ -765,7 +777,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "didUserUnblocked"), object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "didGroupDeleted"), object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "didThreadDeleted"), object: nil)
-        
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     

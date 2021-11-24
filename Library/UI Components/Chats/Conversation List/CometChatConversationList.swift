@@ -61,9 +61,24 @@ public final class CometChatConversationList: UIViewController {
         self.refreshConversations()
         self.setupNavigationBar()
         self.setupSearchBar()
+        self.addObservers()
     }
     
- 
+    
+    fileprivate func addObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(appMovedToForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+    
+    fileprivate func removeObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+        
+    }
+    
+    @objc func appMovedToForeground() {
+        if !CometChat.backgroundTaskEnabled() {
+            self.refreshConversations()
+        }
+    }
     
     public override func viewWillAppear(_ animated: Bool) {
         self.setupDelegates()
