@@ -48,6 +48,7 @@ public class CometChatIncomingCall: UIViewController {
     
     override public func viewWillAppear(_ animated: Bool) {
         CometChatCallManager.incomingCallDelegate = self
+        CometChatCallManager.outgoingCallDelegate = self
     }
     
      // MARK: - Public Instance methods
@@ -275,6 +276,45 @@ extension CometChatIncomingCall: IncomingCallDelegate {
             DispatchQueue.main.async {
                 self.dismiss()
                 CometChatSnackBoard.display(message:  "CALL_CANCELLED".localized(), mode: .info, duration: .short)
+            }
+        }
+    }
+}
+
+/*  ----------------------------------------------------------------------------------------- */
+
+// MARK: - OutgoingCallDelegate methods
+
+extension CometChatIncomingCall: OutgoingCallDelegate {
+    
+    /**
+       This method triggers when outgoing call accepted by User or group.
+        - Parameters:
+         - acceptedCall: Specifies a Call Object
+           - error:  triggers when error occurs
+       - Author: CometChat Team
+       - Copyright:  ©  2020 CometChat Inc.
+       */
+    public func onOutgoingCallAccepted(acceptedCall: Call, error: CometChatException?) {
+        DispatchQueue.main.async {
+            if acceptedCall.sender?.uid == LoggedInUser.uid {
+                self.dismiss()
+            }
+        }
+    }
+    
+    /**
+       This method triggers when outgoing call rejceted by User or group.
+        - Parameters:
+         - rejectedCall: Specifies a Call Object
+           - error:  triggers when error occurs
+       - Author: CometChat Team
+       - Copyright:  ©  2020 CometChat Inc.
+       */
+    public func onOutgoingCallRejected(rejectedCall: Call, error: CometChatException?) {
+        DispatchQueue.main.async {
+            if rejectedCall.sender?.uid == LoggedInUser.uid {
+                self.dismiss()
             }
         }
     }
