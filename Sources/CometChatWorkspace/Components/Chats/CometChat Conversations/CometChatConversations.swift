@@ -70,6 +70,7 @@ public class CometChatConversations: CometChatListBase {
         let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.view  = view
+        
     }
    
     
