@@ -85,14 +85,14 @@ public class CometChatLocalize: Bundle {
     
     
     public override func localizedString(forKey key: String,
-                                  value: String?,
-                                  table tableName: String?) -> String {
+                                         value: String?,
+                                         table tableName: String?) -> String {
         
         guard let path = objc_getAssociatedObject(self, &bundleKey) as? String,
-            let bundle = Bundle(path: path) else {
-                
-                return super.localizedString(forKey: key, value: value, table: tableName)
-        }
+              let bundle = Bundle(path: path) else {
+                  
+                  return super.localizedString(forKey: key, value: value, table: tableName)
+              }
         
         return bundle.localizedString(forKey: key, value: value, table: tableName)
     }
@@ -105,23 +105,24 @@ extension String {
         CometChatLocalize.set(locale: Language(rawValue: CometChatLocalize.locale) ?? .english)
         UserDefaults.standard.set(CometChatLocalize.locale, forKey: "lang")
         if let lang = UserDefaults.standard.value(forKey: "lang") as? String {
-            let path = Bundle.module.path(forResource: lang, ofType: "lproj")
-            let bundle = Bundle(path: path!)
-            return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
+            if  let path = Bundle.module.path(forResource: lang, ofType: "lproj"), let bundle = Bundle(path: path) {
+                return NSLocalizedString(self, tableName: nil, bundle: bundle, value: "", comment: "")
+            }
         }else{
-            let path = Bundle.module.path(forResource: "en", ofType: "lproj")
-            let bundle = Bundle(path: path!)
-            return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
+            if let path = Bundle.module.path(forResource: "en", ofType: "lproj"), let bundle = Bundle(path: path) {
+                return NSLocalizedString(self, tableName: nil, bundle: bundle, value: "", comment: "")
+            }
         }
+        return ""
     }
 }
 
 extension String {
-
+    
     var isLocalized: Bool {
         return localize() != self
     }
-
+    
     func localize(parameter: CVarArg? = nil) -> String {
         if let parameter = parameter {
             return String(format: NSLocalizedString(self, comment: ""), parameter)
@@ -130,9 +131,9 @@ extension String {
             return NSLocalizedString(self, comment: "")
         }
     }
-
+    
     func localize(parameter0: CVarArg, parameter1: CVarArg) -> String {
         return String(format: NSLocalizedString(self, comment: ""), parameter0, parameter1)
     }
-
+    
 }
