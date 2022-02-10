@@ -8,7 +8,7 @@
 import UIKit
 import CometChatPro
 
-class CometChatMessages: UIViewController {
+public class CometChatMessages: UIViewController {
     
     
     // MARK ->  Message Header Declarations
@@ -29,7 +29,7 @@ class CometChatMessages: UIViewController {
     var currentGroup: Group?
     var messageTemplates: [CometChatMessageTemplate]?
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         setupKeyboard()
         
         if let templates = CometChatMessagesConfiguration.getMessageFilterList()  {
@@ -51,14 +51,14 @@ class CometChatMessages: UIViewController {
     }
     
     
-    override func viewWillAppear(_ animated: Bool) {
+    public override func viewWillAppear(_ animated: Bool) {
         setupMessageHeader()
         setupMessageList()
         setupMessageComposer()
         
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+    public override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.navigationBar.isHidden = false
     }
     
