@@ -58,7 +58,7 @@ public class CometChatConversations: CometChatListBase {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        setupSuperview()
+       
         setupAppearance()
         setupDelegates()
         configureConversationList()
