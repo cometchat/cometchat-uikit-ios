@@ -17,8 +17,7 @@ public class dummy: UIViewController {
 
     
     public override func loadView() {
-        let bundle = Bundle(for: type(of: self))
-        let nib = UINib(nibName: "dummy", bundle: bundle)
+        let nib = UINib(nibName: "dummy", bundle: Bundle.module)
         let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.view  = view
