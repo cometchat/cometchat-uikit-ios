@@ -172,10 +172,18 @@ protocol CometChatMessageComposerDelegate: NSObject {
     }
     
     private func commonInit() {
-        Bundle.module.loadNibNamed("CometChatMessageComposer", owner: self, options: nil)
-        addSubview(contentView)
-        contentView.frame = bounds
-        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        let nib = UINib(nibName: "CometChatMessageComposer", bundle: Bundle.module)
+        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(view)
+       // self.contentView.  = view
+        
+        addSubview(view)
+//        Bundle.module.loadNibNamed("CometChatMessageComposer", owner: self, options: nil)
+//        addSubview(contentView)
+//        contentView.frame = bounds
+//        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         configureMessageComposer()
         locationAuthStatus()
         setupDelegates()

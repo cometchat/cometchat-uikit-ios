@@ -257,10 +257,15 @@ protocol CometChatMessageHeaderDelegate: NSObject {
     }
     
     private func commonInit() {
-      Bundle.module.loadNibNamed("CometChatMessageHeader", owner: self, options: nil)
-      addSubview(contentView)
-      contentView.frame = bounds
-      contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//      Bundle.module.loadNibNamed("CometChatMessageHeader", owner: self, options: nil)
+//      addSubview(contentView)
+//      contentView.frame = bounds
+//      contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//
+        let nib = UINib(nibName: "CometChatMessageHeader", bundle: Bundle.module)
+        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(view)
       configureMessageHeader()
     }
 
