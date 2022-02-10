@@ -65,13 +65,13 @@ public class CometChatConversations: CometChatListBase {
 
     }
     
-    private func setupSuperview() {
-        let bundle = Bundle(for: type(of: self))
-        let nib = UINib(nibName: "CometChatConversations", bundle: bundle)
+    public override func loadView() {
+        let nib = UINib(nibName: "CometChatConversations", bundle: Bundle.module)
         let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.view  = view
     }
+   
     
     @discardableResult
     public func set(configuration: CometChatConfiguration) ->  CometChatConversations {

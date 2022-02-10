@@ -38,6 +38,13 @@ class CometChatMessages: UIViewController {
         CometChatMessageHover.messageHoverDelegate = self
     }
     
+    public override func loadView() {
+        let nib = UINib(nibName: "CometChatMessages", bundle: Bundle.module)
+        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.view  = view
+    }
+    
     
     public func set(templates: [CometChatMessageTemplate]) {
         self.messageTemplates = templates
