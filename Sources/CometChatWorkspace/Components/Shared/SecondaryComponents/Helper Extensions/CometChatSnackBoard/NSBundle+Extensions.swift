@@ -16,13 +16,13 @@ extension Bundle {
 
         let candidates = [
             // Bundle should be present here when the package is linked into an App.
-            Bundle.main.resourceURL,
+            Bundle.module.resourceURL,
 
             // Bundle should be present here when the package is linked into a framework.
             Bundle(for: BundleToken.self).resourceURL,
 
             // For command-line tools.
-            Bundle.main.bundleURL,
+            Bundle.module.bundleURL,
         ]
 
         let bundleNames = [

@@ -9,6 +9,6 @@ import Foundation
 
 public struct CometChatUIKit {
     
-    static var bundle =  Bundle.main
+    static var bundle =  Bundle.module
     static var  googleApiKey = ""
 }

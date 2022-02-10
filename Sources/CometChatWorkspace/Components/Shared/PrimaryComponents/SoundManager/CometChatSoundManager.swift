@@ -32,15 +32,15 @@ public enum Sound {
     var file: URL? {
         switch self {
         case .incomingCall:
-            return Bundle.main.url(forResource: "IncomingCall", withExtension: "wav")
+            return Bundle.module.url(forResource: "IncomingCall", withExtension: "wav")
         case .incomingMessage:
-            return Bundle.main.url(forResource: "IncomingMessage", withExtension: "wav")
+            return Bundle.module.url(forResource: "IncomingMessage", withExtension: "wav")
         case .incomingMessageFromOther:
-            return Bundle.main.url(forResource: "IncomingMessageFromOther", withExtension: "wav")
+            return Bundle.module.url(forResource: "IncomingMessageFromOther", withExtension: "wav")
         case .outgoingCall:
-            return Bundle.main.url(forResource: "OutgoingCall", withExtension: "wav")
+            return Bundle.module.url(forResource: "OutgoingCall", withExtension: "wav")
         case .outgoingMessage:
-            return Bundle.main.url(forResource: "OutgoingMessage", withExtension: "wav")
+            return Bundle.module.url(forResource: "OutgoingMessage", withExtension: "wav")
         }
     }
 }

@@ -68,9 +68,9 @@ public class CometChatLocalize: Bundle {
     public class func set(locale: Language){
         self.locale = locale.rawValue
         defer {
-            object_setClass(Bundle.main, CometChatLocalize.self)
+            object_setClass(Bundle.module, CometChatLocalize.self)
         }
-        objc_setAssociatedObject(Bundle.main, &bundleKey,    Bundle.main.path(forResource: locale.rawValue, ofType: "lproj"), .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        objc_setAssociatedObject(Bundle.module, &bundleKey,    Bundle.module.path(forResource: locale.rawValue, ofType: "lproj"), .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
     
     /**
@@ -105,11 +105,11 @@ extension String {
         CometChatLocalize.set(locale: Language(rawValue: CometChatLocalize.locale) ?? .english)
         UserDefaults.standard.set(CometChatLocalize.locale, forKey: "lang")
         if let lang = UserDefaults.standard.value(forKey: "lang") as? String {
-            let path = Bundle.main.path(forResource: lang, ofType: "lproj")
+            let path = Bundle.module.path(forResource: lang, ofType: "lproj")
             let bundle = Bundle(path: path!)
             return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
         }else{
-            let path = Bundle.main.path(forResource: "en", ofType: "lproj")
+            let path = Bundle.module.path(forResource: "en", ofType: "lproj")
             let bundle = Bundle(path: path!)
             return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
         }
