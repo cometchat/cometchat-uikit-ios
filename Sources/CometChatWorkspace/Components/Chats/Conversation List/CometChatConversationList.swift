@@ -120,7 +120,7 @@ import CometChatPro
     }
     
     private func commonInit() {
-        Bundle.module.loadNibNamed("CometChatConversationList", owner: self, options: nil)
+        Bundle.main.loadNibNamed("CometChatConversationList", owner: self, options: nil)
         addSubview(contentView)
         contentView.frame = bounds
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -170,7 +170,7 @@ import CometChatPro
     }
     
     private func registerCellWith(title: String){
-        let cell = UINib(nibName: title, bundle: Bundle.module)
+        let cell = UINib(nibName: title, bundle: Bundle.main)
         self.tableView.register(cell, forCellReuseIdentifier: title)
     }
     
@@ -385,7 +385,7 @@ extension CometChatConversationList: UITableViewDelegate, UITableViewDataSource 
                     }))
                     alert.addAction(UIAlertAction(title: "CANCEL".localize(), style: .cancel, handler: { (action: UIAlertAction!) in
                     }))
-                    alert.view.tintColor = CometChatTheme.style.primaryIconColor
+                    alert.view.tintColor = CometChatTheme.palatte?.primary
                     self.controller?.present(alert, animated: true, completion: nil)
                     
                     
@@ -418,7 +418,7 @@ extension CometChatConversationList: UITableViewDelegate, UITableViewDataSource 
                     }))
                     alert.addAction(UIAlertAction(title: "CANCEL".localize(), style: .cancel, handler: { (action: UIAlertAction!) in
                     }))
-                    alert.view.tintColor = CometChatTheme.style.primaryIconColor
+                    alert.view.tintColor = CometChatTheme.palatte?.primary
                     self.controller?.present(alert, animated: true, completion: nil)
                     
                     

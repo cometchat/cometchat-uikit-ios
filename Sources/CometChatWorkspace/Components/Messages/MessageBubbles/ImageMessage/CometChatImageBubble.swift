@@ -32,7 +32,7 @@ class CometChatImageBubble: UITableViewCell {
     @IBOutlet weak var imageModerationView: UIView!
     @IBOutlet weak var unsafeContentImage: UIImageView!
     
-    var bubbleType: BubbleType = CometChatTheme.messageList.bubbleType
+    var bubbleType: BubbleType = CometChatThemeOld.messageList.bubbleType
     weak var mediaDelegate: MediaDelegate?
     
     unowned var selectionColor: UIColor {
@@ -258,19 +258,19 @@ class CometChatImageBubble: UITableViewCell {
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .right)
-                        self.set(corner: CometChatTheme.messageList.rightBubbleCorners)
+                        self.set(corner: CometChatThemeOld.messageList.rightBubbleCorners)
                     case .leftAligned:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
                     }
                 }else{
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
                     case .leftAligned:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
                     }
                 }
                 self.enable(tap: true)

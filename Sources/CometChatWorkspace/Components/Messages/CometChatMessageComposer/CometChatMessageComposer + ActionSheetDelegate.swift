@@ -97,7 +97,7 @@ extension CometChatMessageComposer : CometChatActionSheetDelegate {
             alert.addAction(UIAlertAction(title: "CANCEL".localize(), style: .cancel, handler: { action in
                 
             }))
-            alert.view.tintColor = CometChatTheme.style.primaryIconColor
+            alert.view.tintColor = CometChatTheme.palatte?.primary
             controller.present(alert, animated: true)
         }
      

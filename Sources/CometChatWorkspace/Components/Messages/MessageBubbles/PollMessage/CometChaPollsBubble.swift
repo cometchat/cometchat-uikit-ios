@@ -59,7 +59,7 @@ class CometChatPollsBubble: UITableViewCell {
     
     var pollID: String?
     
-    var bubbleType: BubbleType = CometChatTheme.messageList.bubbleType
+    var bubbleType: BubbleType = CometChatThemeOld.messageList.bubbleType
     
     weak var pollDelegate: PollsDelegate?
     
@@ -290,27 +290,27 @@ class CometChatPollsBubble: UITableViewCell {
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .right)
-                        self.set(corner: CometChatTheme.messageList.rightBubbleCorners)
-                        self.set(backgroundColor: CometChatTheme.messageList.rightBubbleBackgroundColor)
-                        self.set(titleColor: CometChatTheme.messageList.rightBubbleTextColor)
+                        self.set(corner: CometChatThemeOld.messageList.rightBubbleCorners)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.rightBubbleBackgroundColor)
+                        self.set(titleColor: CometChatThemeOld.messageList.rightBubbleTextColor)
                     case .leftAligned:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
-                        self.set(backgroundColor: CometChatTheme.messageList.leftBubbleBackgroundColor)
-                        self.set(titleColor: CometChatTheme.messageList.leftBubbleTextColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.leftBubbleBackgroundColor)
+                        self.set(titleColor: CometChatThemeOld.messageList.leftBubbleTextColor)
                     }
                 }else{
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .left)
-                        self.set(backgroundColor: CometChatTheme.messageList.leftBubbleBackgroundColor)
-                        self.set(titleColor: CometChatTheme.messageList.leftBubbleTextColor)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.leftBubbleBackgroundColor)
+                        self.set(titleColor: CometChatThemeOld.messageList.leftBubbleTextColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
                     case .leftAligned:
                         self.set(messageAlignment: .left)
-                        self.set(backgroundColor: CometChatTheme.messageList.leftBubbleBackgroundColor)
-                        self.set(titleColor: CometChatTheme.messageList.leftBubbleTextColor)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.leftBubbleBackgroundColor)
+                        self.set(titleColor: CometChatThemeOld.messageList.leftBubbleTextColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
                     }
                 }
                 self.enable(tap: true)

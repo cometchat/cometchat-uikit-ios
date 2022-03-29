@@ -26,7 +26,7 @@ class CometChatVideoBubble: UITableViewCell {
     @IBOutlet weak var playButton: UIImageView!
     @IBOutlet weak var receiptStack: UIStackView!
     
-    var bubbleType: BubbleType = CometChatTheme.messageList.bubbleType
+    var bubbleType: BubbleType = CometChatThemeOld.messageList.bubbleType
     weak var mediaDelegate: MediaDelegate?
     
     unowned var selectionColor: UIColor {
@@ -231,23 +231,23 @@ class CometChatVideoBubble: UITableViewCell {
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .right)
-                        self.set(corner: CometChatTheme.messageList.rightBubbleCorners)
-                        self.set(backgroundColor: CometChatTheme.messageList.rightBubbleBackgroundColor)
+                        self.set(corner: CometChatThemeOld.messageList.rightBubbleCorners)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.rightBubbleBackgroundColor)
                     case .leftAligned:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
-                        self.set(backgroundColor: CometChatTheme.messageList.leftBubbleBackgroundColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.leftBubbleBackgroundColor)
                     }
                 }else{
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
-                        self.set(backgroundColor: CometChatTheme.messageList.leftBubbleBackgroundColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.leftBubbleBackgroundColor)
                     case .leftAligned:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
-                        self.set(backgroundColor: CometChatTheme.messageList.leftBubbleBackgroundColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.leftBubbleBackgroundColor)
                     }
                 }
                 self.enable(tap: true)

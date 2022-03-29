@@ -23,7 +23,7 @@ import CometChatPro
     
     @IBInspectable var cornerRadius: CGFloat = 0.0
     @IBInspectable var borderColor: UIColor = UIColor.black
-    @IBInspectable var borderWidth: CGFloat = 0.5
+    @IBInspectable var borderWidth: CGFloat = 0.0
     private var customBackgroundColor = UIColor.white
     override  var backgroundColor: UIColor?{
         didSet {
@@ -31,6 +31,7 @@ import CometChatPro
             super.backgroundColor = UIColor.clear
         }
     }
+    var imageView = UIImageView()
     
     // MARK: - Initialization of required Methods
     
@@ -109,8 +110,8 @@ import CometChatPro
      [CometChatStatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
      */
     @discardableResult
-    @objc  func set(color: UIColor) -> CometChatStatusIndicator {
-        self.backgroundColor = color
+    @objc  func set(backgroundColor: UIColor) -> CometChatStatusIndicator {
+        self.backgroundColor = backgroundColor
         return self
     }
     
@@ -148,6 +149,19 @@ import CometChatPro
         return self
     }
     
+    @discardableResult
+    @objc  public func set(icon: UIImage, with tintColor: UIColor) -> CometChatStatusIndicator {
+        self.imageView.frame = CGRect(x: self.frame.size.width/2 - 5, y: self.frame.size.height/2 - 5, width: 10, height: 10)
+        self.addSubview(imageView)
+        self.imageView.image = icon.withRenderingMode(.alwaysTemplate)
+        self.imageView.contentMode = .scaleAspectFit
+        self.tintColor = tintColor
+        return self
+    }
+
+    
 }
 
 /*  ----------------------------------------------------------------------------------------- */
+
+

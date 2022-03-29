@@ -24,7 +24,7 @@ extension UIImageView {
                        textAttributes: [NSAttributedString.Key: Any]? = nil) {
         
         let image = imageSnap(text: string != nil ? string?.initials : "",
-                              color: color ?? CometChatTheme.style.primaryIconColor,
+                              color: (color ?? CometChatTheme.palatte?.primary) ?? UIColor.clear,
                               circular: circular,
                               stroke: stroke,
                               textAttributes:textAttributes)

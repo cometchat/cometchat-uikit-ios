@@ -30,7 +30,7 @@ class CometChatStickerBubble: UITableViewCell {
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var unsafeContentImage: UIImageView!
     
-    var bubbleType: BubbleType = CometChatTheme.messageList.bubbleType
+    var bubbleType: BubbleType = CometChatThemeOld.messageList.bubbleType
     weak var stickerDelegate: StickerDelegate?
     
     
@@ -211,19 +211,19 @@ class CometChatStickerBubble: UITableViewCell {
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .right)
-                        self.set(corner: CometChatTheme.messageList.rightBubbleCorners)
+                        self.set(corner: CometChatThemeOld.messageList.rightBubbleCorners)
                     case .leftAligned:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
                     }
                 }else{
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
                     case .leftAligned:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
                     }
                 }
                 background.backgroundColor = .clear

@@ -27,7 +27,7 @@ class ReactionCountCell: UICollectionViewCell {
     var reaction: CometChatMessageReaction? {
         didSet {
             reactionCountView.layer.borderWidth = 0.5
-            reactionCountView.layer.borderColor = CometChatTheme.style.primaryIconColor.cgColor
+            reactionCountView.layer.borderColor = CometChatTheme.palatte?.primary?.cgColor ?? UIColor.clear.cgColor
             if let title = reaction?.title, let count = reaction?.reactors?.count {
                 reactionLabel.text = "\(title) \(count)"
             }

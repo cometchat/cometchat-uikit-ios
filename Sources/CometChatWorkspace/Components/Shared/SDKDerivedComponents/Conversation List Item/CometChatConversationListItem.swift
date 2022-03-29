@@ -46,10 +46,10 @@ import AVFAudio
     
     // MARK: - Declaration of Variables
     lazy var searchedText: String = ""
-    let normalTitlefont = CometChatTheme.style.titleFont
-    let boldTitlefont =  CometChatTheme.style.titleFont
-    let normalSubtitlefont = CometChatTheme.style.subtitleFont
-    let boldSubtitlefont = CometChatTheme.style.subtitleFont
+    let normalTitlefont = CometChatTheme.typography?.Name2 ?? UIFont.systemFont(ofSize: 17, weight: .medium)
+    let boldTitlefont =   CometChatTheme.typography?.Name2 ?? UIFont.systemFont(ofSize: 17, weight: .medium)
+    let normalSubtitlefont = CometChatTheme.typography?.Subtitle1 ?? UIFont.systemFont(ofSize: 15, weight: .regular)
+    let boldSubtitlefont = CometChatTheme.typography?.Subtitle1 ?? UIFont.systemFont(ofSize: 15, weight: .regular)
     
     // MARK: - public instance Method
     
@@ -417,6 +417,7 @@ import AVFAudio
         return self
     }
     
+    
     /**
      This method will set the typing indicator color  for `CometChatConversationListItem`.
      - Parameters:
@@ -568,39 +569,81 @@ import AVFAudio
     }
     
     
+    @discardableResult
+    public func set(data: InputData) -> CometChatConversationListItem {
+        self.set(titleWithAttributedText: addBoldText(fullString: data.title! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont))
+        self.avatar.setAvatar(avatarUrl: data.thumbnail ?? "", with: data.title ?? "").set(backgroundColor: CometChatTheme.palatte?.accent500 ?? UIColor.gray)
+        if let userStatus = data.userStatus {
+            self.set(statusIndicator: userStatus)
+            self.statusIndicator.set(borderWidth: 2).set(borderColor: CometChatTheme.palatte?.background ?? UIColor.systemBackground)
+        }
+        if let groupType = data.groupType {
+            
+            switch groupType {
+            case .public:
+                statusIndicator.isHidden = true
+                statusIndicator.set(borderWidth: 0)
+            case .private:
+                statusIndicator.isHidden = false
+                statusIndicator.set(borderWidth: 0).set(backgroundColor: #colorLiteral(red: 0, green: 0.7843137255, blue: 0.4352941176, alpha: 1))
+               let  image = UIImage(named: "chats-shield", in: CometChatUIKit.bundle, compatibleWith: nil)
+                statusIndicator.set(icon:  image ?? UIImage(), with: .white)
+                statusIndicator.set(borderWidth: 0)
+            case .password:
+                statusIndicator.isHidden = false
+                statusIndicator.set(borderWidth: 0).set(backgroundColor: #colorLiteral(red: 0.968627451, green: 0.6470588235, blue: 0, alpha: 1))
+                let image = UIImage(named: "chats-lock", in: CometChatUIKit.bundle, compatibleWith: nil) ?? UIImage()
+                statusIndicator.set(icon:  image, with: .white)
+            @unknown default: break }
+        }
+        return self
+    }
     
+    
+    @discardableResult
+    public func set(style: Style) -> CometChatConversationListItem {
+        set(background: [style.background?.cgColor])
+        set(titleColor: style.titleColor ?? UIColor.black)
+        set(titleFont: style.titleFont ?? UIFont.systemFont(ofSize: 22, weight: .medium))
+        set(subTitleColor: style.subTitleColor ?? UIColor.gray)
+        set(subTitleFont: style.subTitleFont ?? UIFont.systemFont(ofSize: 17, weight: .regular))
+        avatar.set(cornerRadius: style.cornerRadius ?? 0)
+        avatar.set(borderWidth: style.border ?? 0)
+        return self
+    }
     
     weak var conversation: Conversation? {
         didSet {
             if let currentConversation = conversation {
+                
                 switch currentConversation.conversationType {
                 case .user:
                     guard let user =  currentConversation.conversationWith as? User else {
                         return
                     }
-                    self.set(titleWithAttributedText: addBoldText(fullString: user.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont))
-                    
-                    self.avatar.setAvatar(avatarUrl: user.avatar ?? "", with: user.name ?? "")
-                    self.set(statusIndicator: user.status)
+                   
+                    let inputData = InputData(id: user.uid ?? "", thumbnail: user.avatar, userStatus: user.status, groupType: nil, title: user.name, subTitle: "")
+                 
+                    self.set(data: inputData)
                     
                 case .group:
                     guard let group =  currentConversation.conversationWith as? Group else { return  }
                     
-                    self.set(titleWithAttributedText: addBoldText(fullString: group.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont))
+                    let inputData = InputData(id: group.guid, thumbnail: group.icon, userStatus: nil, groupType: group.groupType, title: group.name, subTitle: "")
+                 
+                    self.set(data: inputData)
                     
-                    self.avatar.setAvatar(avatarUrl: group.icon ?? "", with: group.name ?? "")
-                    statusIndicator.isHidden = true
+                    
                 case .none: break
                 @unknown default:  break
                 }
+                
+            
                 
                 if let currentMessage = currentConversation.lastMessage {
                     let senderName = currentMessage.sender?.name
                     switch currentMessage.messageCategory {
                     case .message:
-                        
-                    
-                        
                         if currentMessage.deletedAt > 0.0 {
                             if isHideDeletedMessages {
                                 self.set(subTitle: "")
@@ -754,18 +797,22 @@ import AVFAudio
                 }
                 
                 self.set(time: Int(currentConversation.updatedAt))
-                self.set(unreadCount: unreadCount.set(backgroundColor: CometChatTheme.style.primaryIconColor).set(count: currentConversation.unreadMessageCount))
+                self.set(unreadCount: unreadCount.set(backgroundColor: CometChatTheme.palatte?.primary ?? UIColor.clear).set(count: currentConversation.unreadMessageCount))
                 
                 // Setting colors
                 self.set(background: [UIColor.clear.cgColor])
-                self.set(titleColor: CometChatTheme.style.titleColor)
-                self.set(subTitleColor: CometChatTheme.style.subtitleColor)
+                self.set(titleColor: CometChatTheme.palatte?.accent ?? UIColor.clear)
+                self.set(subTitleColor:  CometChatTheme.palatte?.accent700 ?? UIColor.clear)
                 
                 self.show(groupActions: CometChatStore.conversations.hideGroupActions)
                 self.show(deletedMessages: CometChatStore.conversations.hideDeletedMessages)
             }
             self.hide(avatar: false)
             self.addLongPress()
+            
+            let style = Style(background: CometChatTheme.palatte?.background, border: 1, cornerRadius: 25, titleColor: CometChatTheme.palatte?.accent, titleFont: CometChatTheme.typography?.Name2, subTitleColor: CometChatTheme.palatte?.accent500, subTitleFont: CometChatTheme.typography?.Subtitle1)
+            
+            set(style: style)
         }
     }
     
@@ -809,9 +856,9 @@ import AVFAudio
     ///   - boldPartOfString: contains searched text string
     ///   - font: normal font
     ///   - boldFont: bold font
-    func addBoldText(fullString: NSString, boldPartOfString: NSString, font: UIFont!, boldFont: UIFont!) -> NSAttributedString {
-        let nonBoldFontAttribute = [NSAttributedString.Key.font:font!]
-        let boldFontAttribute = [NSAttributedString.Key.font:boldFont!]
+    func addBoldText(fullString: NSString, boldPartOfString: NSString, font: UIFont, boldFont: UIFont) -> NSAttributedString {
+        let nonBoldFontAttribute = [NSAttributedString.Key.font:font]
+        let boldFontAttribute = [NSAttributedString.Key.font:boldFont]
         let boldString = NSMutableAttributedString(string: fullString as String, attributes:nonBoldFontAttribute)
         boldString.addAttributes(boldFontAttribute, range: fullString.range(of: boldPartOfString as String, options: .caseInsensitive))
         return boldString
@@ -943,3 +990,45 @@ import AVFAudio
     }
     
 }
+
+extension UIImage {
+    func resizeImage(_ dimension: CGFloat, opaque: Bool, contentMode: UIView.ContentMode = .scaleAspectFit) -> UIImage {
+            var width: CGFloat
+            var height: CGFloat
+            var newImage: UIImage
+
+            let size = self.size
+            let aspectRatio =  size.width/size.height
+
+            switch contentMode {
+                case .scaleAspectFit:
+                    if aspectRatio > 1 {                            // Landscape image
+                        width = dimension
+                        height = dimension / aspectRatio
+                    } else {                                        // Portrait image
+                        height = dimension
+                        width = dimension * aspectRatio
+                    }
+
+            default:
+                fatalError("UIIMage.resizeToFit(): FATAL: Unimplemented ContentMode")
+            }
+
+            if #available(iOS 10.0, *) {
+                let renderFormat = UIGraphicsImageRendererFormat.default()
+                renderFormat.opaque = opaque
+                let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height), format: renderFormat)
+                newImage = renderer.image {
+                    (context) in
+                    self.draw(in: CGRect(x: 0, y: 0, width: width, height: height))
+                }
+            } else {
+                UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: height), opaque, 0)
+                    self.draw(in: CGRect(x: 0, y: 0, width: width, height: height))
+                    newImage = UIGraphicsGetImageFromCurrentImageContext()!
+                UIGraphicsEndImageContext()
+            }
+
+            return newImage
+        }
+    }

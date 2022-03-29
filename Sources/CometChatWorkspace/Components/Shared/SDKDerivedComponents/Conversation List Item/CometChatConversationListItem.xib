@@ -43,6 +43,19 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dAD-LJ-cxp" customClass="CometChatStatusIndicator" customModule="CometChatUIKit" customModuleProvider="target">
+                                <rect key="frame" x="49" y="44" width="16" height="16"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="16" id="6r8-SB-QbP"/>
+                                    <constraint firstAttribute="width" constant="16" id="ORB-RR-p25"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="8"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="wId-l8-b8U">
                                 <rect key="frame" x="80" y="10" width="439" height="123"/>
                                 <subviews>
@@ -153,40 +166,17 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
-                            <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="CometChatUserListItem" translatesAutoresizingMaskIntoConstraints="NO" id="ha3-h5-xV4" customClass="CometChatStatusIndicator" customModule="CometChatUIKit" customModuleProvider="target">
-                                <rect key="frame" x="52" y="40" width="18" height="18"/>
-                                <color key="backgroundColor" systemColor="tertiaryLabelColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="18" id="3GY-bD-guv"/>
-                                    <constraint firstAttribute="width" constant="18" id="kKk-Qf-CKU"/>
-                                </constraints>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                        <color key="value" systemColor="secondarySystemBackgroundColor"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                        <real key="value" value="3"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                        <real key="value" value="9"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="boolean" keyPath="hide" value="YES"/>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="setBackgroundColor">
-                                        <color key="value" systemColor="systemRedColor"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                            </view>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="qg6-2M-6C7" firstAttribute="leading" secondItem="tly-lr-9EV" secondAttribute="leading" constant="15" id="3pG-HP-68v"/>
-                            <constraint firstItem="ha3-h5-xV4" firstAttribute="bottom" secondItem="qg6-2M-6C7" secondAttribute="bottom" constant="-2" id="AU4-Sf-aRC"/>
                             <constraint firstItem="wId-l8-b8U" firstAttribute="top" secondItem="tly-lr-9EV" secondAttribute="top" constant="10" id="LOZ-lD-ZDE"/>
                             <constraint firstItem="qg6-2M-6C7" firstAttribute="top" secondItem="tly-lr-9EV" secondAttribute="top" constant="10" id="O4A-iq-EsW"/>
-                            <constraint firstItem="ha3-h5-xV4" firstAttribute="trailing" secondItem="qg6-2M-6C7" secondAttribute="trailing" constant="5" id="bfQ-Js-tBL"/>
+                            <constraint firstItem="dAD-LJ-cxp" firstAttribute="bottom" secondItem="qg6-2M-6C7" secondAttribute="bottom" id="T1h-Qk-EDb"/>
                             <constraint firstAttribute="trailing" secondItem="wId-l8-b8U" secondAttribute="trailing" constant="15" id="edV-aP-cNs"/>
                             <constraint firstItem="wId-l8-b8U" firstAttribute="leading" secondItem="qg6-2M-6C7" secondAttribute="trailing" constant="15" id="h0d-sH-Zih"/>
                             <constraint firstAttribute="bottom" secondItem="wId-l8-b8U" secondAttribute="bottom" constant="15" id="yi2-Pu-lQy"/>
+                            <constraint firstItem="dAD-LJ-cxp" firstAttribute="trailing" secondItem="qg6-2M-6C7" secondAttribute="trailing" id="zEN-K6-Z2W"/>
                         </constraints>
                     </view>
                 </subviews>
@@ -208,7 +198,7 @@
                 <outlet property="avatarWidthConstant" destination="gEj-ND-IEA" id="XSq-YV-O0v"/>
                 <outlet property="background" destination="tly-lr-9EV" id="2ee-Vv-8qY"/>
                 <outlet property="receipt" destination="n71-Of-vwF" id="m0e-Jf-FwE"/>
-                <outlet property="statusIndicator" destination="ha3-h5-xV4" id="UBM-1M-pjn"/>
+                <outlet property="statusIndicator" destination="dAD-LJ-cxp" id="7wS-wt-UUs"/>
                 <outlet property="subTitle" destination="rlb-S7-USG" id="TeU-J3-VrY"/>
                 <outlet property="threadIndicator" destination="bMF-rv-OhU" id="fUX-r6-e9X"/>
                 <outlet property="time" destination="qkI-Nt-2dc" id="PUY-q8-szU"/>
@@ -236,20 +226,11 @@
         <namedColor name="subtitleColor">
             <color red="0.50199997425079346" green="0.50199997425079346" blue="0.50199997425079346" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemFillColor">
             <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="tertiaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

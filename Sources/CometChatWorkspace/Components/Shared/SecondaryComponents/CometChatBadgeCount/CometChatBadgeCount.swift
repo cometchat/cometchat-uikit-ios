@@ -24,7 +24,7 @@ import CometChatPro
     @IBInspectable var borderColor: UIColor = UIColor.clear
     @IBInspectable var borderWidth: CGFloat = 0.5
     @IBInspectable var radius: CGFloat = BadgeCountConfiguration().cornerRadius
-    @IBInspectable var setBackgroundColor: UIColor = CometChatTheme.style.primaryIconColor
+    @IBInspectable var setBackgroundColor: UIColor = CometChatTheme.palatte?.background ?? UIColor.clear
     @IBInspectable var setTextColor: UIColor = .white
     var getCount: Int {
         get {

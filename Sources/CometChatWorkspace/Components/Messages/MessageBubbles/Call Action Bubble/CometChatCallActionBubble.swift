@@ -23,7 +23,7 @@ class CometChatCallActionBubble: UITableViewCell {
     @IBOutlet weak var receiptStack: UIStackView!
     @IBOutlet weak var title: UILabel!
     
-    var bubbleType: BubbleType = CometChatTheme.messageList.bubbleType
+    var bubbleType: BubbleType = CometChatThemeOld.messageList.bubbleType
     weak var meetingDelegate: MeetingDelegate?
     
     unowned var selectionColor: UIColor {
@@ -330,7 +330,7 @@ class CometChatCallActionBubble: UITableViewCell {
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .right)
-                        self.set(corner: CometChatTheme.messageList.rightBubbleCorners)
+                        self.set(corner: CometChatThemeOld.messageList.rightBubbleCorners)
                         if #available(iOS 13.0, *) {
                             self.set(backgroundColor: [UIColor.systemFill.cgColor])
                             self.set(titleColor: .label)
@@ -342,8 +342,8 @@ class CometChatCallActionBubble: UITableViewCell {
                         }
                     case .leftAligned:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
-                        self.set(titleColor: CometChatTheme.messageList.leftBubbleTextColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
+                        self.set(titleColor: CometChatThemeOld.messageList.leftBubbleTextColor)
                         if #available(iOS 13.0, *) {
                             self.set(backgroundColor: [UIColor.systemFill.cgColor])
                             self.set(titleColor: .label)
@@ -358,8 +358,8 @@ class CometChatCallActionBubble: UITableViewCell {
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
-                        self.set(titleColor: CometChatTheme.messageList.leftBubbleTextColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
+                        self.set(titleColor: CometChatThemeOld.messageList.leftBubbleTextColor)
                         if #available(iOS 13.0, *) {
                             self.set(backgroundColor: [UIColor.systemFill.cgColor])
                             self.set(titleColor: .label)
@@ -371,8 +371,8 @@ class CometChatCallActionBubble: UITableViewCell {
                         }
                     case .leftAligned:
                         self.set(messageAlignment: .left)
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
-                        self.set(titleColor: CometChatTheme.messageList.leftBubbleTextColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
+                        self.set(titleColor: CometChatThemeOld.messageList.leftBubbleTextColor)
                         if #available(iOS 13.0, *) {
                             self.set(backgroundColor: [UIColor.systemFill.cgColor])
                             self.set(titleColor: .label)

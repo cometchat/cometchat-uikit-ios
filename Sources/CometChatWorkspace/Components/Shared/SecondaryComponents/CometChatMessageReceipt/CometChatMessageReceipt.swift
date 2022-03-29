@@ -5,7 +5,7 @@
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
  
- CometChatAvatar: This component will be the class of UIImageView which is customizable to display CometChatAvatar.
+ CometChatAvatar: This component will be the class of UIImageView which is customizable to display CometChatMessageReceipt.
  
  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  */
 
@@ -40,8 +40,8 @@ import  CometChatPro
     
     // MARK: - instance methods
     @discardableResult
-    @objc func set(messageWaitIcon: UIImage) -> CometChatMessageReceipt {
-        self.messageWaitIcon = messageWaitIcon
+    @objc func set(messageInProgressIcon: UIImage) -> CometChatMessageReceipt {
+        self.messageWaitIcon = messageInProgressIcon
         return self
     }
     
@@ -81,19 +81,19 @@ import  CometChatPro
         if forMessage.readAt > 0 {
             self.isHidden = false
             self.image = messageReadIcon
-            self.tintColor = CometChatTheme.style.primaryIconColor
+            self.tintColor = CometChatTheme.palatte?.primary
         }else if forMessage.deliveredAt > 0 {
             self.isHidden = false
             self.image = messageDeliveredIcon
-            self.tintColor = CometChatTheme.style.secondaryIconColor
+            self.tintColor = CometChatTheme.palatte?.accent500
         }else if forMessage.sentAt > 0 {
             self.isHidden = false
             self.image = messageSentIcon
-            self.tintColor = CometChatTheme.style.secondaryIconColor
+            self.tintColor = CometChatTheme.palatte?.accent500
         }else if forMessage.sentAt == 0 {
             self.isHidden = false
             self.image = messageWaitIcon
-            self.tintColor = CometChatTheme.style.secondaryIconColor
+            self.tintColor = CometChatTheme.palatte?.accent500
         }else{
             self.isHidden = true
         }
@@ -102,7 +102,7 @@ import  CometChatPro
     
     @discardableResult
     public func set(configuration: MessageReceiptConfiguration)  -> CometChatMessageReceipt {
-        self.set(messageWaitIcon: configuration.messageWaitIcon  ?? UIImage())
+        self.set(messageInProgressIcon: configuration.messageWaitIcon  ?? UIImage())
         self.set(messageSentIcon: configuration.messageSentIcon  ?? UIImage())
         self.set(messageReadIcon: configuration.messageReadIcon  ?? UIImage())
         self.set(messageDeliveredIcon: configuration.messageDeliveredIcon  ?? UIImage())

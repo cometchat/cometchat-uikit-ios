@@ -53,9 +53,19 @@ public enum  MessageType : String {
     var messageCategories: [String] = [String]()
     weak var controller: UIViewController?
     var customViews:[String: UIView ] = [String:UIView]()
-    
+    var messagesConfigurations: CometChatMessagesConfiguration?
     var messageHovers:[String: [MessageHover]] = [String: [MessageHover]]()
     var templates: [CometChatMessageTemplate] = [CometChatMessageTemplate]()
+    
+    
+    @discardableResult
+    @objc public func set(configuration: CometChatConfiguration) -> CometChatMessageList {
+        if let configuration = configuration as? CometChatMessagesConfiguration {
+            
+        }
+        return self
+    }
+    
     
     @discardableResult
     @objc public func set(user: User) -> CometChatMessageList {
@@ -64,6 +74,7 @@ public enum  MessageType : String {
         return self
     }
     
+    
     @discardableResult
     @objc public func set(group: Group) -> CometChatMessageList {
         self.currentGroup = group
@@ -71,11 +82,11 @@ public enum  MessageType : String {
         return self
     }
     
-    @discardableResult
-    public func set(messageType: [MessageType]) -> CometChatMessageList {
-        self.messageType = messageType
-        return self
-    }
+//    @discardableResult
+//    public func set(messageType: [MessageType]) -> CometChatMessageList {
+//        self.messageType = messageType
+//        return self
+//    }
     
     @discardableResult
     @objc public func set(backgroundColor: UIColor) -> CometChatMessageList {
@@ -553,16 +564,11 @@ public enum  MessageType : String {
     }
     
     private func commonInit() {
-//        
-//        Bundle.module.loadNibNamed("CometChatMessageList", owner: self, options: nil)
-//        addSubview(contentView)
-//        contentView.frame = bounds
-//        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-//        
-        let nib = UINib(nibName: "CometChatMessageList", bundle: Bundle.module)
-        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
-        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        addSubview(view)
+        
+        Bundle.main.loadNibNamed("CometChatMessageList", owner: self, options: nil)
+        addSubview(contentView)
+        contentView.frame = bounds
+        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         setupTableView()
         registerCells()
@@ -607,7 +613,7 @@ public enum  MessageType : String {
     }
     
     private func registerCellWith(title: String){
-        let cell = UINib(nibName: title, bundle: Bundle.module)
+        let cell = UINib(nibName: title, bundle: Bundle.main)
         self.tableView.register(cell, forCellReuseIdentifier: title)
     }
     

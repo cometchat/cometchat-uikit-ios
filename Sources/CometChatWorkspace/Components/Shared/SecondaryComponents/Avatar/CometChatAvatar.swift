@@ -27,10 +27,15 @@ import AVFAudio
     let context = UIGraphicsGetCurrentContext()
     var rectangle : CGRect?
     
+    @IBInspectable var setOuterView: Bool = false
     @IBInspectable var cornerRadius: CGFloat = 0
-    @IBInspectable var borderColor: UIColor = UIColor.lightGray
+    @IBInspectable var borderColor: UIColor = UIColor.clear
     @IBInspectable var borderWidth: CGFloat = 0.5
-    @IBInspectable var setBackgroundColor: UIColor = CometChatTheme.style.primaryIconColor.withAlphaComponent(0.5)
+    @IBInspectable var setBackgroundColor: UIColor =  CometChatTheme.palatte?.primary ?? UIColor.clear
+    
+    @IBInspectable var setFont: UIFont = CometChatTheme.typography?.Name1 ?? UIFont.systemFont(ofSize: 20, weight: .medium)
+    @IBInspectable var setFontColor: UIColor = CometChatTheme.palatte?.background ?? UIColor.white
+    
     
     // MARK: - Initialization of required Methods
     override init(image: UIImage?) { super.init(image: image) }
@@ -41,6 +46,8 @@ import AVFAudio
         super.layoutSubviews()
         self.layer.borderColor = borderColor.cgColor
         self.backgroundColor = setBackgroundColor
+        self.layer.cornerRadius = cornerRadius
+        self.layer.borderWidth = borderWidth
         self.clipsToBounds = true
     }
     // MARK: - instance methods
@@ -74,6 +81,19 @@ import AVFAudio
         return self
     }
     
+    @discardableResult
+    @objc func set(font : UIFont) -> CometChatAvatar {
+        self.setFont = font
+        return self
+    }
+    
+    @discardableResult
+    @objc func set(fontColor: UIColor) -> CometChatAvatar {
+        self.setFontColor = fontColor
+        return self
+    }
+    
+    
     /**
      This method used to set the backgroundColor for Avatar class
      - Parameter borderColor: This specifies a `UIColor` for border of the Avatar.
@@ -84,7 +104,7 @@ import AVFAudio
      */
     @discardableResult
     @objc func set(backgroundColor : UIColor) -> CometChatAvatar {
-        self.backgroundColor = backgroundColor
+        self.setBackgroundColor = backgroundColor
         return self
     }
     
@@ -115,7 +135,8 @@ import AVFAudio
     @objc func setAvatar(avatarUrl: String) -> CometChatAvatar {
         
         let url = URL(string: avatarUrl)
-        self.cf.setImage(with: url, placeholder: UIImage(named: "defaultAvatar.jpg", in: Bundle.module , compatibleWith: nil))
+        self.cf.setImage(with: url, placeholder: UIImage(named: "defaultAvatar.jpg", in: Bundle.main , compatibleWith: nil))
+        self.set(outerView: setOuterView)
         return self
     }
     
@@ -125,9 +146,9 @@ import AVFAudio
             guard let strongSelf = self else { return }
             let url = URL(string: avatarUrl)
             let imageView  = UIImageView(frame: strongSelf.frame)
-            imageView.setImage(string: name.uppercased())
+            imageView.setImage(string: name.uppercased(), color: strongSelf.setBackgroundColor, textAttributes: [ NSAttributedString.Key.font: strongSelf.setFont, NSAttributedString.Key.foregroundColor: strongSelf.setFontColor])
             strongSelf.cf.setImage(with: url, placeholder: imageView.image)
-//            strongSelf.set(outerView: true)
+            strongSelf.set(outerView: strongSelf.setOuterView)
         }
         return self
     }
@@ -139,7 +160,7 @@ import AVFAudio
         let imageView  = UIImageView(frame: self.frame)
         imageView.setImage(string: user.name?.uppercased())
         self.cf.setImage(with: url, placeholder: imageView.image)
-        
+        self.set(outerView: setOuterView)
         return self
     }
     
@@ -149,11 +170,13 @@ import AVFAudio
         let imageView  = UIImageView(frame: self.frame)
         imageView.setImage(string: group.name?.uppercased())
         self.cf.setImage(with: url, placeholder: imageView.image)
+        self.set(outerView: setOuterView)
         return self
     }
     
     @discardableResult
     @objc func set(outerView: Bool) -> CometChatAvatar {
+        if outerView == true {
         self.layer.borderWidth = 5.0
         self.layer.borderColor = setBackgroundColor.cgColor
         self.layer.cornerRadius = self.frame.width / 2
@@ -164,6 +187,7 @@ import AVFAudio
         borderLayer.borderWidth = 5
         borderLayer.cornerRadius = borderLayer.frame.width / 2
         self.layer.insertSublayer(borderLayer, above: self.layer)
+        }
         return self
     }
     

@@ -22,6 +22,7 @@ extension CometChatMessageList {
         if message.messageCategory == .action {
             return nil
         }
+
         
         switch message.messageType {
         case .text:  hovers = messageHovers["text"] ?? []

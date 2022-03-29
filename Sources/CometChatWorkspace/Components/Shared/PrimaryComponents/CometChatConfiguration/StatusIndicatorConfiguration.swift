@@ -14,7 +14,7 @@ public class StatusIndicatorConfiguration: CometChatConfiguration {
     var cornerRadius: CGFloat = 0
     var borderWidth: CGFloat = 0
     var backgroundColorForOnlineState: UIColor = #colorLiteral(red: 0.231372549, green: 0.8745098039, blue: 0.1843137255, alpha: 1)
-    var backgroundColorForOfflineState: UIColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 1)
+    var backgroundColorForOfflineState: UIColor = #colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1)
     
     public func set(cornerRadius: CGFloat) -> StatusIndicatorConfiguration {
         self.cornerRadius = cornerRadius
@@ -40,4 +40,5 @@ public class StatusIndicatorConfiguration: CometChatConfiguration {
         return self
     }
 
+   
 }

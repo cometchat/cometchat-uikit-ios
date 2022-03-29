@@ -66,7 +66,7 @@ class CometChatMessageReactors: UITableViewController {
     private func addCloseButton(bool: Bool){
         if bool == true {
             let closeButton = UIBarButtonItem(title: "CLOSE".localize(), style: .plain, target: self, action: #selector(didCloseButtonPressed))
-            closeButton.tintColor = CometChatTheme.style.primaryIconColor
+            closeButton.tintColor = CometChatTheme.palatte?.primary
             self.navigationItem.rightBarButtonItem = closeButton
         }
     }

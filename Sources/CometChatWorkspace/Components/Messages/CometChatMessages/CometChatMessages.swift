@@ -8,7 +8,7 @@
 import UIKit
 import CometChatPro
 
-public class CometChatMessages: UIViewController {
+class CometChatMessages: UIViewController {
     
     
     // MARK ->  Message Header Declarations
@@ -28,8 +28,9 @@ public class CometChatMessages: UIViewController {
     var currentUser: User?
     var currentGroup: Group?
     var messageTemplates: [CometChatMessageTemplate]?
+    var messageCofiguration: CometChatMessagesConfiguration?
     
-    public override func viewDidLoad() {
+    override func viewDidLoad() {
         setupKeyboard()
         
         if let templates = CometChatMessagesConfiguration.getMessageFilterList()  {
@@ -38,27 +39,34 @@ public class CometChatMessages: UIViewController {
         CometChatMessageHover.messageHoverDelegate = self
     }
     
-    public override func loadView() {
-        let nib = UINib(nibName: "CometChatMessages", bundle: Bundle.module)
-        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
-        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        self.view  = view
+    
+    public func set(configuration: CometChatMessagesConfiguration) {
+        self.messageCofiguration = configuration
     }
     
+    @discardableResult
+    public func set(configurations: [CometChatConfiguration]) ->  CometChatMessages {
+        let currentConfigurations = configurations.filter{ $0 is CometChatMessagesConfiguration }
+        if let currentConfiguration = currentConfigurations.last as? CometChatMessagesConfiguration {
+        //    self.messageList.set(configuration: currentConfiguration)
+        }
+        return self
+    }
     
     public func set(templates: [CometChatMessageTemplate]) {
         self.messageTemplates = templates
     }
     
     
-    public override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
+        
         setupMessageHeader()
         setupMessageList()
         setupMessageComposer()
         
     }
     
-    public override func viewWillDisappear(_ animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.navigationBar.isHidden = false
     }
     

@@ -18,9 +18,9 @@ import CometChatPro
     @IBInspectable var borderWidth: CGFloat = 0.5
     @IBInspectable var radius: CGFloat = 0
     @IBInspectable var setBackgroundColor: UIColor = UIColor.clear
-    @IBInspectable var setTimeColor: UIColor = CometChatTheme.style.subtitleColor
-    @IBInspectable var setTimeFont: UIFont = CometChatTheme.style.subtitleFont
-//    @IBInspectable var setTimeFormat: UIColor = CometChatTheme.style.titleColor
+    @IBInspectable var setTimeColor: UIColor = CometChatThemeOld.style.subtitleColor
+    @IBInspectable var setTimeFont: UIFont = CometChatThemeOld.style.subtitleFont
+//    @IBInspectable var setTimeFormat: UIColor = CometChatThemeOld.style.titleColor
     
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)!

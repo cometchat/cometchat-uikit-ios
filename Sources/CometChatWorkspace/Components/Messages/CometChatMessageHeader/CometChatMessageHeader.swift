@@ -12,7 +12,7 @@ import CometChatPro
 
 
 protocol CometChatMessageHeaderDelegate: NSObject {
-
+    
     func didBackButtonPressed()
     func didAudioCallButtonPressed()
     func didVideoCallButtonPressed()
@@ -42,7 +42,7 @@ protocol CometChatMessageHeaderDelegate: NSObject {
     var infoIcon: UIImage = UIImage(named: "messages-info.png")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     var controller: UIViewController?
     
-    weak var messageHeaderDelegate: CometChatMessageHeaderDelegate?
+    public static var messageHeaderDelegate: CometChatMessageHeaderDelegate?
     
     @discardableResult
     @objc public func set(user: User) -> CometChatMessageHeader {
@@ -70,7 +70,7 @@ protocol CometChatMessageHeaderDelegate: NSObject {
         return self
     }
     
-
+    
     
     @discardableResult
     public func set(background: [Any]?) ->  CometChatMessageHeader {
@@ -143,7 +143,7 @@ protocol CometChatMessageHeaderDelegate: NSObject {
         self.info.tintColor = infoIconTint
         return self
     }
-
+    
     
     
     @discardableResult
@@ -189,9 +189,9 @@ protocol CometChatMessageHeaderDelegate: NSObject {
         return self
     }
     
-
+    
     fileprivate func registerObservers() {
-      //  CometChat.messagedelegate = self
+        //  CometChat.messagedelegate = self
         CometChat.userdelegate = self
     }
     
@@ -220,19 +220,41 @@ protocol CometChatMessageHeaderDelegate: NSObject {
             }else{
                 set(subtitle: "\(group.membersCount) Members")
             }
+            
+            switch group.groupType {
+            case .public:
+                statusIndicator.isHidden = true
+                statusIndicator.set(borderWidth: 0)
+            case .private:
+                statusIndicator.isHidden = false
+                statusIndicator.set(borderWidth: 0).set(backgroundColor:   #colorLiteral(red: 0, green: 0.7843137255, blue: 0.4352941176, alpha: 1))
+                
+                let image = UIImage(named: "groups-shield", in: CometChatUIKit.bundle, compatibleWith: nil)
+                
+                statusIndicator.set(icon:  image ?? UIImage(), with: .white)
+                statusIndicator.set(borderWidth: 0)
+            case .password:
+                statusIndicator.isHidden = false
+                statusIndicator.set(borderWidth: 0).set(backgroundColor: #colorLiteral(red: 0.968627451, green: 0.6470588235, blue: 0, alpha: 1))
+                let image = UIImage(named: "groups-lock", in: CometChatUIKit.bundle, compatibleWith: nil) ?? UIImage()
+                statusIndicator.set(icon:  image, with: .white)
+            @unknown default:
+                break
+            }
         }
+        
         self.set(backButtonIcon: backButtonIcon)
         self.set(infoIcon: infoIcon)
         self.set(videoCallIcon: videoCallIcon)
         self.set(audioCallIcon: audioCallIcon)
         
-        self.set(backButtonIconTint: CometChatTheme.style.primaryIconColor)
-        self.set(infoIconTint: CometChatTheme.style.primaryIconColor)
-        self.set(videoCallIconTint: CometChatTheme.style.primaryIconColor)
-        self.set(audioCallIconTint: CometChatTheme.style.primaryIconColor)
-        self.set(background: [CometChatTheme.style.primaryBackgroundColor.cgColor])
+        self.set(backButtonIconTint: CometChatTheme.palatte?.primary ?? UIColor.clear)
+        self.set(infoIconTint:  CometChatTheme.palatte?.primary  ?? UIColor.clear)
+        self.set(videoCallIconTint:  CometChatTheme.palatte?.primary ?? UIColor.clear)
+        self.set(audioCallIconTint:  CometChatTheme.palatte?.primary ?? UIColor.clear)
+        self.set(background: [CometChatTheme.palatte?.background?.cgColor ?? UIColor.systemBackground.cgColor])
         
-      //  self.filterMessageHeader()
+        //  self.filterMessageHeader()
         self.registerObservers()
         self.audioCall.isHidden = true
         self.videoCall.isHidden = true
@@ -243,13 +265,13 @@ protocol CometChatMessageHeaderDelegate: NSObject {
     // MARK: - Initialization of required Methods
     
     override init(frame: CGRect) {
-      super.init(frame: UIScreen.main.bounds)
-      commonInit()
+        super.init(frame: UIScreen.main.bounds)
+        commonInit()
     }
     
     required init?(coder aDecoder: NSCoder) {
-      super.init(coder: aDecoder)
-      commonInit()
+        super.init(coder: aDecoder)
+        commonInit()
     }
     
     override func reloadInputViews() {
@@ -257,36 +279,31 @@ protocol CometChatMessageHeaderDelegate: NSObject {
     }
     
     private func commonInit() {
-//      Bundle.module.loadNibNamed("CometChatMessageHeader", owner: self, options: nil)
-//      addSubview(contentView)
-//      contentView.frame = bounds
-//      contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-//
-        let nib = UINib(nibName: "CometChatMessageHeader", bundle: Bundle.module)
-        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
-        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        addSubview(view)
-      configureMessageHeader()
+        Bundle.main.loadNibNamed("CometChatMessageHeader", owner: self, options: nil)
+        addSubview(contentView)
+        contentView.frame = bounds
+        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        configureMessageHeader()
     }
-
     
-//
-//    private func filterMessageHeader() {
-//        if let messageTemplates = CometChatConfiguration.getMessageFilterList() {
-//            for template in messageTemplates {
-//                if template.id == "call" && currentUser != nil {
-//                    self.audioCall.isHidden = false
-//                    self.videoCall.isHidden = false
-//                }else if template.id == "meeting" && currentGroup != nil {
-//                    self.audioCall.isHidden = true
-//                    self.videoCall.isHidden = false
-//                }
-//            }
-//        }else{
-//             self.audioCall.isHidden = false
-//             self.videoCall.isHidden = false
-//        }
-//    }
+    
+    //
+    //    private func filterMessageHeader() {
+    //        if let messageTemplates = CometChatConfiguration.getMessageFilterList() {
+    //            for template in messageTemplates {
+    //                if template.id == "call" && currentUser != nil {
+    //                    self.audioCall.isHidden = false
+    //                    self.videoCall.isHidden = false
+    //                }else if template.id == "meeting" && currentGroup != nil {
+    //                    self.audioCall.isHidden = true
+    //                    self.videoCall.isHidden = false
+    //                }
+    //            }
+    //        }else{
+    //             self.audioCall.isHidden = false
+    //             self.videoCall.isHidden = false
+    //        }
+    //    }
     
     @IBAction func didBackButtonPressed(_ sender: Any) {
         
@@ -298,22 +315,22 @@ protocol CometChatMessageHeaderDelegate: NSObject {
         case .none: break
         case .some(_): break
         }
-        messageHeaderDelegate?.didBackButtonPressed()
+        CometChatMessageHeader.messageHeaderDelegate?.didBackButtonPressed()
     }
     
     @IBAction func didAudioCallButtonPressed(_ sender: Any) {
-        messageHeaderDelegate?.didAudioCallButtonPressed()
+        CometChatMessageHeader.messageHeaderDelegate?.didAudioCallButtonPressed()
         
     }
     
     @IBAction func didVideoCallButtonPressed(_ sender: Any) {
         
-        messageHeaderDelegate?.didVideoCallButtonPressed()
+        CometChatMessageHeader.messageHeaderDelegate?.didVideoCallButtonPressed()
     }
     
     @IBAction func didInfoButtonPressed(_ sender: Any) {
         
-        messageHeaderDelegate?.didInfoButtonPressed()
+        CometChatMessageHeader.messageHeaderDelegate?.didInfoButtonPressed()
         
     }
     
@@ -345,13 +362,13 @@ extension CometChatMessageHeader: CometChatMessageDelegate {
             }
         case .group:
             if let group = currentGroup {
-            if typingDetails.receiverID == group.guid {
-                if group.membersCount == 1 {
-                    self.set(subtitle: "1 " + "MEMBER".localize())
-                }else {
-                    self.set(subtitle: "\(group.membersCount) " + "MEMBERS".localize())
+                if typingDetails.receiverID == group.guid {
+                    if group.membersCount == 1 {
+                        self.set(subtitle: "1 " + "MEMBER".localize())
+                    }else {
+                        self.set(subtitle: "\(group.membersCount) " + "MEMBERS".localize())
+                    }
                 }
-            }
             }
         @unknown default: break
         }
@@ -374,3 +391,5 @@ extension CometChatMessageHeader: CometChatUserDelegate {
         }
     }
 }
+
+

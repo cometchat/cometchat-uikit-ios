@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatUserList" customModule="CometChatUIKit" customModuleProvider="target">
+            <connections>
+                <outlet property="background" destination="SC3-Sz-Eao" id="vxo-Dt-ccw"/>
+                <outlet property="contentView" destination="iN0-l3-epB" id="DdI-eM-8bw"/>
+                <outlet property="tableView" destination="kAs-PR-aIa" id="PHz-3T-gTN"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="572" height="988"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SC3-Sz-Eao" customClass="CometChatGradientView" customModule="CometChatUIKit" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="0.0" width="572" height="988"/>
+                    <subviews>
+                        <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="kAs-PR-aIa">
+                            <rect key="frame" x="0.0" y="0.0" width="572" height="988"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="sectionIndexBackgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </tableView>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="kAs-PR-aIa" secondAttribute="bottom" id="G3b-Wg-ims"/>
+                        <constraint firstAttribute="trailing" secondItem="kAs-PR-aIa" secondAttribute="trailing" id="QJr-y1-ywR"/>
+                        <constraint firstItem="kAs-PR-aIa" firstAttribute="leading" secondItem="SC3-Sz-Eao" secondAttribute="leading" id="m4e-3w-o5Y"/>
+                        <constraint firstItem="kAs-PR-aIa" firstAttribute="top" secondItem="SC3-Sz-Eao" secondAttribute="top" id="t0U-SB-BXo"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="SC3-Sz-Eao" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="58W-6f-9Qu"/>
+                <constraint firstItem="SC3-Sz-Eao" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="Tma-7I-D7f"/>
+                <constraint firstAttribute="bottom" secondItem="SC3-Sz-Eao" secondAttribute="bottom" id="fko-xB-5EY"/>
+                <constraint firstAttribute="trailing" secondItem="SC3-Sz-Eao" secondAttribute="trailing" id="pS6-dQ-wcT"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="333.33333333333337" y="93.080357142857139"/>
+        </view>
+    </objects>
+</document>

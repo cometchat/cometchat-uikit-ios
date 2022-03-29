@@ -94,6 +94,8 @@ public class  ConversationListItemConfiguration: CometChatConfiguration {
     public func hide(deletedMessages: Bool) -> ConversationListItemConfiguration {
         self.hideDeletedMessages = deletedMessages
         return self
+        
+        
     }
     
     

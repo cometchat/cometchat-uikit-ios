@@ -52,7 +52,7 @@ protocol ActionSheetHeaderViewDelegate: NSObject {
     }
     
     private func commonInit() {
-      Bundle.module.loadNibNamed("ActionSheetHeaderView", owner: self, options: nil)
+      Bundle.main.loadNibNamed("ActionSheetHeaderView", owner: self, options: nil)
       addSubview(contentView)
       contentView.frame = bounds
         background.backgroundColor = CometChatActionSheet.backgroundColor

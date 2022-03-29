@@ -19,7 +19,7 @@ public class MessageComposerConfiguration: CometChatConfiguration {
     private var maxLines: Int?
     private var isAttachmentVisible,isMicrophoneVisible,isLiveReactionVisible,isSendButtonVisible: Bool?
     
-    public func setCornerRadius(cornerRadius: Int) -> MessageComposerConfiguration {
+    public func set(cornerRadius: Int) -> MessageComposerConfiguration {
         self.cornerRadius = cornerRadius
         return self
     }
@@ -28,7 +28,7 @@ public class MessageComposerConfiguration: CometChatConfiguration {
         return cornerRadius
     }
     
-    public func setBorderWidth(borderWidth: CGFloat) -> MessageComposerConfiguration {
+    public func set(borderWidth: CGFloat) -> MessageComposerConfiguration {
         self.borderWidth = borderWidth
         return self
     }
@@ -37,7 +37,7 @@ public class MessageComposerConfiguration: CometChatConfiguration {
         return borderWidth
     }
     
-    public func setWidth(width: CGFloat) -> MessageComposerConfiguration {
+    public func set(width: CGFloat) -> MessageComposerConfiguration {
         self.width = width
         return self
     }
@@ -46,7 +46,7 @@ public class MessageComposerConfiguration: CometChatConfiguration {
         return width
     }
     
-    public func setHeight(height: CGFloat) -> MessageComposerConfiguration {
+    public func set(height: CGFloat) -> MessageComposerConfiguration {
         self.height = height
         return self
     }
@@ -55,8 +55,8 @@ public class MessageComposerConfiguration: CometChatConfiguration {
         return height
     }
     
-    public func setTextSize(size: CGFloat) -> MessageComposerConfiguration {
-        self.textSize = size
+    public func set(textSize: CGFloat) -> MessageComposerConfiguration {
+        self.textSize = textSize
         return self
     }
     
@@ -64,8 +64,8 @@ public class MessageComposerConfiguration: CometChatConfiguration {
         return textSize
     }
     
-    public func setMaxLines(numberOfLines: Int) -> MessageComposerConfiguration {
-        self.maxLines = numberOfLines
+    public func set(maxLines: Int) -> MessageComposerConfiguration {
+        self.maxLines = maxLines
         return self
     }
     
@@ -73,8 +73,8 @@ public class MessageComposerConfiguration: CometChatConfiguration {
         return maxLines
     }
     
-    public func hideAttachment(bool: Bool) -> MessageComposerConfiguration {
-        self.isAttachmentVisible = bool
+    public func hide(attachment: Bool) -> MessageComposerConfiguration {
+        self.isAttachmentVisible = attachment
         return self
     }
     
@@ -82,8 +82,8 @@ public class MessageComposerConfiguration: CometChatConfiguration {
         return isAttachmentVisible
     }
     
-    public func hideMicrophone(bool: Bool) -> MessageComposerConfiguration {
-        self.isMicrophoneVisible = bool
+    public func hide(microphone: Bool) -> MessageComposerConfiguration {
+        self.isMicrophoneVisible = microphone
         return self
     }
     

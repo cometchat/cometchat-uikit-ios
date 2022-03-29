@@ -27,7 +27,7 @@ class CometChatWhiteboardBubble: UITableViewCell {
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var join: UIButton!
     
-    var bubbleType: BubbleType = CometChatTheme.messageList.bubbleType
+    var bubbleType: BubbleType = CometChatThemeOld.messageList.bubbleType
     weak var collaborativeDelegate: CollaborativeDelegate?
     
     unowned var selectionColor: UIColor {
@@ -243,34 +243,34 @@ class CometChatWhiteboardBubble: UITableViewCell {
                     case .standard:
                         self.set(messageAlignment: .right)
                         self.set(title: "YOU_CREATED_WHITEBOARD".localize())
-                        self.set(titleColor: CometChatTheme.messageList.rightBubbleTextColor)
-                        self.set(thumbnailTintColor: CometChatTheme.messageList.rightBubbleTextColor)
-                        self.set(corner: CometChatTheme.messageList.rightBubbleCorners)
-                        self.set(backgroundColor: CometChatTheme.messageList.rightBubbleBackgroundColor)
+                        self.set(titleColor: CometChatThemeOld.messageList.rightBubbleTextColor)
+                        self.set(thumbnailTintColor: CometChatThemeOld.messageList.rightBubbleTextColor)
+                        self.set(corner: CometChatThemeOld.messageList.rightBubbleCorners)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.rightBubbleBackgroundColor)
                     case .leftAligned:
                         self.set(messageAlignment: .left)
                         self.set(title: "YOU_CREATED_WHITEBOARD".localize())
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
-                        self.set(titleColor: CometChatTheme.messageList.leftBubbleTextColor)
-                        self.set(thumbnailTintColor: CometChatTheme.messageList.leftBubbleTextColor)
-                        self.set(backgroundColor: CometChatTheme.messageList.leftBubbleBackgroundColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
+                        self.set(titleColor: CometChatThemeOld.messageList.leftBubbleTextColor)
+                        self.set(thumbnailTintColor: CometChatThemeOld.messageList.leftBubbleTextColor)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.leftBubbleBackgroundColor)
                     }
                 }else{
                     switch bubbleType {
                     case .standard:
                         self.set(messageAlignment: .left)
                         self.set(title: "HAS_SHARED_WHITEBOARD".localize())
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
-                        self.set(titleColor: CometChatTheme.messageList.leftBubbleTextColor)
-                        self.set(thumbnailTintColor: CometChatTheme.messageList.leftBubbleTextColor)
-                        self.set(backgroundColor: CometChatTheme.messageList.leftBubbleBackgroundColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
+                        self.set(titleColor: CometChatThemeOld.messageList.leftBubbleTextColor)
+                        self.set(thumbnailTintColor: CometChatThemeOld.messageList.leftBubbleTextColor)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.leftBubbleBackgroundColor)
                     case .leftAligned:
                         self.set(messageAlignment: .left)
                         self.set(title: "HAS_SHARED_WHITEBOARD".localize())
-                        self.set(corner: CometChatTheme.messageList.leftBubbleCorners)
-                        self.set(titleColor: CometChatTheme.messageList.leftBubbleTextColor)
-                        self.set(thumbnailTintColor: CometChatTheme.messageList.leftBubbleTextColor)
-                        self.set(backgroundColor: CometChatTheme.messageList.leftBubbleBackgroundColor)
+                        self.set(corner: CometChatThemeOld.messageList.leftBubbleCorners)
+                        self.set(titleColor: CometChatThemeOld.messageList.leftBubbleTextColor)
+                        self.set(thumbnailTintColor: CometChatThemeOld.messageList.leftBubbleTextColor)
+                        self.set(backgroundColor: CometChatThemeOld.messageList.leftBubbleBackgroundColor)
                     }
                 }
                 self.enableLongPress(bool: true)

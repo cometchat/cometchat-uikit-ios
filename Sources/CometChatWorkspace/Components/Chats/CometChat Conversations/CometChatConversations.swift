@@ -58,21 +58,11 @@ public class CometChatConversations: CometChatListBase {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-       
         setupAppearance()
         setupDelegates()
         configureConversationList()
 
     }
-    
-    public override func loadView() {
-        let nib = UINib(nibName: "CometChatConversations", bundle: Bundle.module)
-        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
-        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        self.view  = view
-        
-    }
-   
     
     @discardableResult
     public func set(configuration: CometChatConfiguration) ->  CometChatConversations {
@@ -138,17 +128,17 @@ public class CometChatConversations: CometChatListBase {
 
     
     private func setupAppearance() {
-        self.set(background: [CometChatTheme.style.primaryBackgroundColor.cgColor])
-        self.set(searchBackground: .white)
+        self.set(background: [CometChatTheme.palatte?.background?.cgColor ?? UIColor.systemBackground.cgColor])
+        self.set(searchBackground: CometChatTheme.palatte?.accent100 ?? UIColor.systemFill)
             .set(searchPlaceholder: "SEARCH".localize())
             .set(searchTextColor: .label)
             .set(title: "CHATS".localize(), mode: .automatic)
-            .set(titleColor: CometChatTheme.style.titleColor)
+            .set(titleColor: CometChatTheme.palatte?.accent ?? UIColor.clear)
             .hide(search: false)
         
             self.hide(startConversation: true)
             .set(startConversationIcon: startConversationIcon ?? UIImage())
-            .   set(startConversationIconTint: CometChatTheme.style.primaryIconColor)
+            .set(startConversationIconTint: CometChatTheme.palatte?.primary ?? UIColor.clear)
     
         conversationList.set(controller: self)
     }

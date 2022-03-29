@@ -172,18 +172,10 @@ protocol CometChatMessageComposerDelegate: NSObject {
     }
     
     private func commonInit() {
-        
-        let nib = UINib(nibName: "CometChatMessageComposer", bundle: Bundle.module)
-        let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
-        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        addSubview(view)
-       // self.contentView.  = view
-        
-        addSubview(view)
-//        Bundle.module.loadNibNamed("CometChatMessageComposer", owner: self, options: nil)
-//        addSubview(contentView)
-//        contentView.frame = bounds
-//        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        Bundle.main.loadNibNamed("CometChatMessageComposer", owner: self, options: nil)
+        addSubview(contentView)
+        contentView.frame = bounds
+        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         configureMessageComposer()
         locationAuthStatus()
         setupDelegates()
@@ -213,9 +205,9 @@ protocol CometChatMessageComposerDelegate: NSObject {
         send.isHidden = true
         
         if #available(iOS 13.0, *) {
-            let sendImage = UIImage(named: "send-message-filled.png", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            let sendImage = UIImage(named: "send-message-filled.png", in: Bundle.main, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             send.setImage(sendImage, for: .normal)
-            send.tintColor = CometChatTheme.style.primaryIconColor
+            send.tintColor = CometChatTheme.palatte?.primary
         } else {}
         setMessageFilter(templates: templates)
     }
