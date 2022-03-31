@@ -17,11 +17,17 @@ public enum GroupDisplayMode {
 
 
 public class GroupListConfiguration: CometChatConfiguration {
-
+    
+    var emptyView: UIView?
     var background: [CGColor]?
-    var showCreateGroup : Bool = true
-    var showDeleteGroup : Bool = true
-    var showLeaveGroup : Bool = true
+    var hideCreateGroup : Bool = true
+    var hideDeleteGroup : Bool = true
+    var hideLeaveGroup : Bool = true
+    var hideError : Bool = false
+    var isJoinedOnly : Bool = false
+    var searchKeyWord : String = ""
+    var tags : [String] = [String]()
+    var limit : Int = 30
     var groupListMode: GroupDisplayMode  = .none
     var groupListItemConfiguration : GroupListItemConfiguration?
     
@@ -30,39 +36,53 @@ public class GroupListConfiguration: CometChatConfiguration {
         return self
     }
     
-    public func set(groupListMode: GroupDisplayMode) -> GroupListConfiguration {
-        self.groupListMode = groupListMode
+    
+    
+    public func hide(createGroup: Bool) -> GroupListConfiguration {
+        self.hideCreateGroup = createGroup
         return self
     }
     
-    
-    public func show(createGroup: Bool) -> GroupListConfiguration {
-        self.showCreateGroup = createGroup
+    public func hide(deleteGroup: Bool) -> GroupListConfiguration {
+        self.hideDeleteGroup = deleteGroup
         return self
     }
     
-    public func show(deleteGroup: Bool) -> GroupListConfiguration {
-        self.showDeleteGroup = deleteGroup
+    public func hide(leaveGroup: Bool) -> GroupListConfiguration {
+        self.hideLeaveGroup = leaveGroup
         return self
     }
     
-    public func show(leaveGroup: Bool) -> GroupListConfiguration {
-        self.showLeaveGroup = leaveGroup
+    public func set(emptyView: UIView) -> GroupListConfiguration {
+        self.emptyView = emptyView
         return self
     }
     
-    public func set(groupListItemConfiguration: GroupListItemConfiguration) -> GroupListConfiguration {
-        self.groupListItemConfiguration = groupListItemConfiguration
+    public func hide(error: Bool) -> GroupListConfiguration {
+        self.hideError = error
         return self
     }
     
-    public func set(configuration: GroupListConfiguration) {
-        self.background = configuration.background
-        self.showDeleteGroup = configuration.showDeleteGroup
-        self.showCreateGroup = configuration.showCreateGroup
-        self.showLeaveGroup = configuration.showLeaveGroup
-        self.groupListMode = configuration.groupListMode
-        self.groupListItemConfiguration = configuration.groupListItemConfiguration
+    public func set(joinedOnly: Bool) -> GroupListConfiguration {
+        self.isJoinedOnly = joinedOnly
+        return self
     }
+    
+    public func set(searchKeyword: String) -> GroupListConfiguration {
+        self.searchKeyWord = searchKeyword
+        return self
+    }
+    
+    public func set(tags: [String]) -> GroupListConfiguration {
+        self.tags = tags
+        return self
+    }
+    
+    public func set(limit: Int) -> GroupListConfiguration {
+        self.limit = limit
+        return self
+    }
+    
+  
 }
 

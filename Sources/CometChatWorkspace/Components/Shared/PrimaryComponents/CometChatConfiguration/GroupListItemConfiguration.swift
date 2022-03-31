@@ -13,7 +13,7 @@ public class  GroupListItemConfiguration: CometChatConfiguration {
     var background: [CGColor]?
     var hideStatusIndicator: Bool = false
     var hideAvatar: Bool = false
-    
+    var inputData: InputData?
     var avatarConfiguration: AvatarConfiguration?
     var statusIndicatorConfiguration: StatusIndicatorConfiguration?
 
@@ -41,6 +41,11 @@ public class  GroupListItemConfiguration: CometChatConfiguration {
     
     public func hide(avatar: Bool) -> GroupListItemConfiguration {
         self.hideAvatar = avatar
+        return self
+    }
+    
+    public func set(inputData: InputData) -> GroupListItemConfiguration {
+        self.inputData = inputData
         return self
     }
     

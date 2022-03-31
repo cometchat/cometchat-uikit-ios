@@ -14,8 +14,17 @@ class CometChatUserListItem: UITableViewCell {
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var statusIndicator: CometChatStatusIndicator!
     @IBOutlet weak var avatarWidthConstant: NSLayoutConstraint!
-    
+    var configurations: [CometChatConfiguration]?
     // MARK: - public instance Method
+    
+    
+    @discardableResult
+    @objc public func set(configurations: [CometChatConfiguration]?) -> CometChatUserListItem {
+        self.configurations = configurations
+        configureUserListItem()
+        return self
+    }
+    
     
     /**
      This method will set the `User` object used in the `UserListItem` for all sub-components.
@@ -116,6 +125,12 @@ class CometChatUserListItem: UITableViewCell {
     }
     
     @discardableResult
+    @objc public func hide(statusIndicator: Bool) -> CometChatUserListItem {
+        self.statusIndicator.isHidden = statusIndicator
+        return self
+    }
+    
+    @discardableResult
     @objc public func hide(avatar: Bool) -> CometChatUserListItem {
         if avatar == true {
             self.avatar.isHidden = true
@@ -154,6 +169,7 @@ class CometChatUserListItem: UITableViewCell {
         self.set(titleColor: style.titleColor ?? UIColor.gray)
         self.set(titleFont: style.titleFont ?? UIFont.systemFont(ofSize: 20, weight: .regular))
         self.avatar.set(cornerRadius: style.cornerRadius ?? 0.0).set(borderWidth: style.border ?? 0.0)
+        
         return self
     }
     
@@ -174,16 +190,49 @@ class CometChatUserListItem: UITableViewCell {
     var user: User? {
         didSet {
             if let user = user {
-                
-                let data = InputData(id: user.uid ?? "", thumbnail: user.avatar, userStatus: user.status, groupType: nil, title: user.name, subTitle: "")
+            
+                let data = InputData(id: user.uid ?? "", thumbnail: user.avatar, userStatus: user.status,  title: user.name, subTitle: "")
                 
                 set(data: data)
                 
                 let style = Style(background: CometChatTheme.palatte?.background, border: 1, cornerRadius: 19.0, titleColor: CometChatTheme.palatte?.accent, titleFont: CometChatTheme.typography?.Name2, subTitleColor: nil, subTitleFont:nil)
                
                 set(style: style)
-                hide(avatar: false)
+                configureUserListItem()
                 addLongPress()
+            }
+        }
+    }
+    
+    private func configureUserListItem() {
+        
+        if let configurations = configurations {
+            
+            let userListItemConfiguration = configurations.filter{ $0 is UserListItemConfiguration }
+            if let configuration = userListItemConfiguration.last as? UserListItemConfiguration {
+                set(background: configuration.background)
+                hide(avatar: configuration.hideAvatar)
+                hide(statusIndicator: configuration.hideStatusIndicator)
+            }
+            
+            let avatarConfiguration = configurations.filter{ $0 is AvatarConfiguration }
+            if let configuration = avatarConfiguration.last as? AvatarConfiguration {
+                
+                avatar.set(cornerRadius: configuration.cornerRadius)
+                avatar.set(borderWidth: configuration.borderWidth)
+                if configuration.outerViewWidth != 0 {
+                    avatar.set(outerView: true)
+                    avatar.set(borderWidth: configuration.outerViewWidth)
+                }
+                self.set(avatar: avatar)
+            }
+            
+            let statusIndicatorConfiguration = configurations.filter{ $0 is StatusIndicatorConfiguration }
+            if let configuration = statusIndicatorConfiguration.last as? StatusIndicatorConfiguration {
+                statusIndicator.set(cornerRadius: configuration.cornerRadius)
+                statusIndicator.set(borderWidth: configuration.borderWidth)
+                statusIndicator.set(status: .online, backgroundColor: configuration.backgroundColorForOnlineState)
+                statusIndicator.set(status: .offline, backgroundColor: configuration.backgroundColorForOfflineState)
             }
         }
     }
@@ -197,7 +246,6 @@ class CometChatUserListItem: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-       
         
     }
 

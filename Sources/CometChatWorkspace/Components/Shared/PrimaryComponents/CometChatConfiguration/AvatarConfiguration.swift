@@ -17,8 +17,6 @@ public class AvatarConfiguration: CometChatConfiguration  {
     var outerViewWidth: CGFloat = 0
     var outerViewSpacing: CGFloat = 0
     
-    var avatar: CometChatAvatar?
-    
     public func set(cornerRadius: CGFloat) -> AvatarConfiguration {
         self.cornerRadius = cornerRadius
         return self

@@ -38,6 +38,11 @@ import CometChatPro
      */
     @objc optional func onDeleteGroup(group: Group)
     
+
+    @objc optional func onError(error: CometChatException)
+    
+    
+    
 }
 
 class CometChatGroups: CometChatListBase {
@@ -45,7 +50,7 @@ class CometChatGroups: CometChatListBase {
     @IBOutlet weak var groupList: CometChatGroupList!
     var createGroupIcon = UIImage(named: "groups-create.png", in: CometChatUIKit.bundle, compatibleWith: nil)
     var createGroupButton: UIBarButtonItem?
-    
+    var configurations: [CometChatConfiguration]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,21 +60,11 @@ class CometChatGroups: CometChatListBase {
     }
     
     @discardableResult
-    public func set(configuration: CometChatConfiguration) ->  CometChatGroups {
-        if let configuration = configuration as? GroupListConfiguration {
-            self.groupList.set(configuration: configuration)
-        }
+    @objc public func set(configurations: [CometChatConfiguration]?) -> CometChatGroups {
+        self.configurations = configurations
         return self
     }
-    
-    @discardableResult
-    public func set(configurations: [CometChatConfiguration]) ->  CometChatGroups {
-        let currentConfigurations = configurations.filter{ $0 is GroupListConfiguration }
-        if let currentConfiguration = currentConfigurations.last as? GroupListConfiguration {
-            self.groupList.set(configuration: currentConfiguration)
-        }
-        return self
-    }
+
     
     
     @discardableResult
@@ -131,6 +126,7 @@ class CometChatGroups: CometChatListBase {
     
     private func configureGroupList() {
         groupList.set(controller: self)
+            .set(configurations: configurations)
             .set(background: [CometChatTheme.palatte?.background?.cgColor ?? UIColor.systemBackground.cgColor])
     }
     

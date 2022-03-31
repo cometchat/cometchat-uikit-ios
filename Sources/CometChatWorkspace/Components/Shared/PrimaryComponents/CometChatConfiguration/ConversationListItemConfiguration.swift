@@ -20,7 +20,8 @@ public class  ConversationListItemConfiguration: CometChatConfiguration {
     var threadIndicatorText: String = "In a thread ⤵"
     var hideGroupActionMessages: Bool = false
     var hideDeletedMessages: Bool = false
-    
+    var hideTime: Bool = false
+    var inputData: InputData?
     var avatarConfiguration: AvatarConfiguration?
     var statusIndicatorConfiguration: StatusIndicatorConfiguration?
     var badgeCountConfiguration: BadgeCountConfiguration?
@@ -95,7 +96,17 @@ public class  ConversationListItemConfiguration: CometChatConfiguration {
         self.hideDeletedMessages = deletedMessages
         return self
         
+    }
+    
+    public func hide(time: Bool) -> ConversationListItemConfiguration {
+        self.hideTime = time
+        return self
         
+    }
+    
+    public func set(inputData: InputData) -> ConversationListItemConfiguration {
+        self.inputData = inputData
+        return self
     }
     
     

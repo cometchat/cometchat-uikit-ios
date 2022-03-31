@@ -43,6 +43,8 @@ import AVFAudio
     var isTypingIndicatorEnabled: Bool = false
     var isThreadIndicatorEnabled: Bool = false
     var isHideDeletedMessages: Bool = false
+    var hideUnreadCount: Bool = false
+    var hideTime: Bool = false
     
     // MARK: - Declaration of Variables
     lazy var searchedText: String = ""
@@ -50,8 +52,17 @@ import AVFAudio
     let boldTitlefont =   CometChatTheme.typography?.Name2 ?? UIFont.systemFont(ofSize: 17, weight: .medium)
     let normalSubtitlefont = CometChatTheme.typography?.Subtitle1 ?? UIFont.systemFont(ofSize: 15, weight: .regular)
     let boldSubtitlefont = CometChatTheme.typography?.Subtitle1 ?? UIFont.systemFont(ofSize: 15, weight: .regular)
-    
+    var configurations: [CometChatConfiguration]?
     // MARK: - public instance Method
+    
+    
+    
+    @discardableResult
+    @objc public func set(configurations: [CometChatConfiguration]?) -> CometChatConversationListItem {
+        self.configurations = configurations
+        configureConversationListItem()
+        return self
+    }
     
     /**
      This method will set the `Conversation` object used in the `ConversationListItem` for all sub-components.
@@ -66,7 +77,6 @@ import AVFAudio
             self.conversation = conversation
         }
         return self
-        
     }
     
     /**
@@ -276,11 +286,19 @@ import AVFAudio
      */
     @discardableResult
     @objc public func set(time: Int) -> CometChatConversationListItem {
-        self.time.isHidden = false
-        self.time.text = String().setConversationsTime(time: time)
+        if hideTime == false {
+            self.time.text = String().setConversationsTime(time: time)
+        }else{
+            self.time.isHidden = true
+        }
         return self
     }
     
+    @discardableResult
+    @objc public func hide(time: Bool) -> CometChatConversationListItem {
+        self.hideTime = time
+        return self
+    }
     /**
      This method will set the time font for `CometChatConversationListItem`.
      - Parameters:
@@ -319,8 +337,11 @@ import AVFAudio
      */
     @discardableResult
     @objc public func set(unreadCount: CometChatBadgeCount) -> CometChatConversationListItem {
-        self.unreadCount  = unreadCount
-        
+        if hideUnreadCount == true {
+            self.unreadCount.isHidden = true
+        }else{
+            self.unreadCount  = unreadCount
+        }
         return self
     }
     
@@ -334,10 +355,10 @@ import AVFAudio
      */
     @discardableResult
     public func hide(unreadCount: Bool) -> CometChatConversationListItem {
-        self.unreadCount.isHidden = unreadCount
+        self.hideUnreadCount = unreadCount
         return self
     }
-  
+    
     /**
      The status indicator is a CometChatStatusIndicator that specifies a user status for a conversation for  `CometChatConversationListItem`.
      - Parameters:
@@ -396,13 +417,13 @@ import AVFAudio
      - Author: CometChat Team
      - Copyright:  ©  2022 CometChat Inc.
      */
-//    @discardableResult
-//    public func show(typingIndicator: Bool) -> CometChatConversationListItem {
-//        self.typingIndicator.isHidden = !typingIndicator
-//        return self
-//    }
+    //    @discardableResult
+    //    public func show(typingIndicator: Bool) -> CometChatConversationListItem {
+    //        self.typingIndicator.isHidden = !typingIndicator
+    //        return self
+    //    }
     
-
+    
     /**
      This method will set the typing indicator font   for `CometChatConversationListItem`.
      - Parameters:
@@ -538,46 +559,17 @@ import AVFAudio
         return self
     }
     
-    @discardableResult
-    public func set(configuration: ConversationListItemConfiguration) -> CometChatConversationListItem {
-        set(background: configuration.background)
-        hide(statusIndicator: configuration.hideStatusIndicator)
-        hide(avatar: configuration.hideAvatar)
-        hide(unreadCount: configuration.hideUnreadCount)
-        hide(receipt: configuration.hideReceipt)
-        hide(threadIndicator: configuration.hideThreadIndicator)
-        show(typingIndicator: configuration.showTypingIndicator)
-        set(threadIndicatorText: configuration.threadIndicatorText)
-        show(groupActions: !configuration.hideGroupActionMessages)
-        show(deletedMessages: !configuration.hideDeletedMessages)
-       
-        if let avatarConfiguration = configuration.avatarConfiguration {
-            self.avatar.set(configuration: avatarConfiguration)
-        }
-        if let statusIndicatorConfiguration = configuration.statusIndicatorConfiguration {
-            self.statusIndicator.set(configuration: statusIndicatorConfiguration)
-        }
-        
-        if let badgeCountConfiguration = configuration.badgeCountConfiguration {
-            self.unreadCount.set(configuration: badgeCountConfiguration)
-        }
-        
-        if let messageReceiptConfiguration = configuration.messageReceiptConfiguration {
-            self.receipt.set(configuration: messageReceiptConfiguration)
-        }
-        return self
-    }
-    
+  
     
     @discardableResult
-    public func set(data: InputData) -> CometChatConversationListItem {
-        self.set(titleWithAttributedText: addBoldText(fullString: data.title! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont))
-        self.avatar.setAvatar(avatarUrl: data.thumbnail ?? "", with: data.title ?? "").set(backgroundColor: CometChatTheme.palatte?.accent500 ?? UIColor.gray)
-        if let userStatus = data.userStatus {
+    public func set(inputData: InputData) -> CometChatConversationListItem {
+        self.set(titleWithAttributedText: addBoldText(fullString: inputData.title! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont))
+        self.avatar.setAvatar(avatarUrl: inputData.thumbnail ?? "", with: inputData.title ?? "").set(backgroundColor: CometChatTheme.palatte?.accent500 ?? UIColor.gray)
+        if let userStatus = inputData.userStatus {
             self.set(statusIndicator: userStatus)
             self.statusIndicator.set(borderWidth: 2).set(borderColor: CometChatTheme.palatte?.background ?? UIColor.systemBackground)
         }
-        if let groupType = data.groupType {
+        if let groupType = inputData.groupType {
             
             switch groupType {
             case .public:
@@ -586,7 +578,7 @@ import AVFAudio
             case .private:
                 statusIndicator.isHidden = false
                 statusIndicator.set(borderWidth: 0).set(backgroundColor: #colorLiteral(red: 0, green: 0.7843137255, blue: 0.4352941176, alpha: 1))
-               let  image = UIImage(named: "chats-shield", in: CometChatUIKit.bundle, compatibleWith: nil)
+                let  image = UIImage(named: "chats-shield", in: CometChatUIKit.bundle, compatibleWith: nil)
                 statusIndicator.set(icon:  image ?? UIImage(), with: .white)
                 statusIndicator.set(borderWidth: 0)
             case .password:
@@ -594,7 +586,7 @@ import AVFAudio
                 statusIndicator.set(borderWidth: 0).set(backgroundColor: #colorLiteral(red: 0.968627451, green: 0.6470588235, blue: 0, alpha: 1))
                 let image = UIImage(named: "chats-lock", in: CometChatUIKit.bundle, compatibleWith: nil) ?? UIImage()
                 statusIndicator.set(icon:  image, with: .white)
-            @unknown default: break }
+                @unknown default: break }
         }
         return self
     }
@@ -602,13 +594,39 @@ import AVFAudio
     
     @discardableResult
     public func set(style: Style) -> CometChatConversationListItem {
-        set(background: [style.background?.cgColor])
-        set(titleColor: style.titleColor ?? UIColor.black)
-        set(titleFont: style.titleFont ?? UIFont.systemFont(ofSize: 22, weight: .medium))
-        set(subTitleColor: style.subTitleColor ?? UIColor.gray)
-        set(subTitleFont: style.subTitleFont ?? UIFont.systemFont(ofSize: 17, weight: .regular))
-        avatar.set(cornerRadius: style.cornerRadius ?? 0)
-        avatar.set(borderWidth: style.border ?? 0)
+        if let background = style.background?.cgColor {
+            set(background: [background])
+        }
+        if let titleColor = style.titleColor {
+            set(titleColor: titleColor)
+        }
+        if let titleFont = style.titleFont {
+            set(titleFont: titleFont)
+        }
+        if let subTitleColor = style.subTitleColor {
+            set(subTitleColor: subTitleColor)
+        }
+        if let subTitleFont = style.subTitleFont {
+            set(subTitleFont: subTitleFont)
+        }
+        if let cornerRadius = style.cornerRadius {
+            avatar.set(cornerRadius: cornerRadius)
+        }
+        if let borderWidth = style.border {
+            avatar.set(borderWidth: borderWidth)
+        }
+        if let typingIndicatorFont = style.typingIndicatorTextFont {
+            set(typingIndicatorFont: typingIndicatorFont)
+        }
+        if let typingIndicatorColor = style.typingIndicatorTextColor {
+            set(typingIndicatorColor: typingIndicatorColor)
+        }
+        if let threadIndicatorTextFont = style.threadIndicatorTextFont {
+            set(threadIndicatorFont: threadIndicatorTextFont)
+        }
+        if let threadIndicatorTextColor = style.threadIndicatorTextColor {
+            set(threadIndicatorColor: threadIndicatorTextColor)
+        }
         return self
     }
     
@@ -621,24 +639,23 @@ import AVFAudio
                     guard let user =  currentConversation.conversationWith as? User else {
                         return
                     }
-                   
-                    let inputData = InputData(id: user.uid ?? "", thumbnail: user.avatar, userStatus: user.status, groupType: nil, title: user.name, subTitle: "")
-                 
-                    self.set(data: inputData)
+                    
+                    let inputData = InputData(id: user.uid ?? "", thumbnail: user.avatar, userStatus: user.status, title: user.name, subTitle: "")
+                    
+                    self.set(inputData: inputData)
                     
                 case .group:
                     guard let group =  currentConversation.conversationWith as? Group else { return  }
                     
-                    let inputData = InputData(id: group.guid, thumbnail: group.icon, userStatus: nil, groupType: group.groupType, title: group.name, subTitle: "")
-                 
-                    self.set(data: inputData)
+                    let inputData = InputData(id: group.guid, thumbnail: group.icon,  groupType: group.groupType, title: group.name, subTitle: "")
                     
+                    self.set(inputData: inputData)
                     
                 case .none: break
                 @unknown default:  break
                 }
                 
-            
+                
                 
                 if let currentMessage = currentConversation.lastMessage {
                     let senderName = currentMessage.sender?.name
@@ -810,9 +827,10 @@ import AVFAudio
             self.hide(avatar: false)
             self.addLongPress()
             
-            let style = Style(background: CometChatTheme.palatte?.background, border: 1, cornerRadius: 25, titleColor: CometChatTheme.palatte?.accent, titleFont: CometChatTheme.typography?.Name2, subTitleColor: CometChatTheme.palatte?.accent500, subTitleFont: CometChatTheme.typography?.Subtitle1)
+            let style = Style(background: CometChatTheme.palatte?.background, border: 1, cornerRadius: 25, titleColor: CometChatTheme.palatte?.accent, titleFont: CometChatTheme.typography?.Name2, subTitleColor: CometChatTheme.palatte?.accent500, subTitleFont: CometChatTheme.typography?.Subtitle1, typingIndicatorTextColor: CometChatTheme.palatte?.accent500, typingIndicatorTextFont: CometChatTheme.typography?.Subtitle1, threadIndicatorTextColor: CometChatTheme.palatte?.accent500, threadIndicatorTextFont: CometChatTheme.typography?.Subtitle1)
             
             set(style: style)
+            configureConversationListItem()
         }
     }
     
@@ -829,7 +847,68 @@ import AVFAudio
             }
         }
     }
-   
+    
+    private func configureConversationListItem() {
+        
+        if let configurations = configurations {
+            
+            let conversationListItemConfiguration = configurations.filter{ $0 is ConversationListItemConfiguration }
+            if let configuration = conversationListItemConfiguration.last as? ConversationListItemConfiguration {
+                set(background: configuration.background)
+                hide(avatar: configuration.hideAvatar)
+                hide(statusIndicator: configuration.hideStatusIndicator)
+                hide(receipt: configuration.hideReceipt)
+                hide(unreadCount: configuration.hideUnreadCount)
+                hide(threadIndicator: configuration.hideThreadIndicator)
+                set(threadIndicatorText: configuration.threadIndicatorText)
+                show(typingIndicator: configuration.showTypingIndicator)
+                show(deletedMessages: !configuration.hideDeletedMessages)
+                show(groupActions: !configuration.hideGroupActionMessages)
+                hide(time: configuration.hideTime)
+            }
+            
+            let avatarConfiguration = configurations.filter{ $0 is AvatarConfiguration }
+            if let configuration = avatarConfiguration.last as? AvatarConfiguration {
+                
+                avatar.set(cornerRadius: configuration.cornerRadius)
+                avatar.set(borderWidth: configuration.borderWidth)
+                if configuration.outerViewWidth != 0 {
+                    avatar.set(outerView: true)
+                    avatar.set(borderWidth: configuration.outerViewWidth)
+                }
+                self.set(avatar: avatar)
+            }
+            
+            let statusIndicatorConfiguration = configurations.filter{ $0 is StatusIndicatorConfiguration }
+            if let configuration = statusIndicatorConfiguration.last as? StatusIndicatorConfiguration {
+                statusIndicator.set(cornerRadius: configuration.cornerRadius)
+                statusIndicator.set(borderWidth: configuration.borderWidth)
+                statusIndicator.set(status: .online, backgroundColor: configuration.backgroundColorForOnlineState)
+                statusIndicator.set(status: .offline, backgroundColor: configuration.backgroundColorForOfflineState)
+            }
+            
+            let messageReceiptConfiguration = configurations.filter{ $0 is MessageReceiptConfiguration }
+            if let configuration = messageReceiptConfiguration.last as? MessageReceiptConfiguration {
+                
+                receipt.set(messageInProgressIcon: configuration.getProgressIcon())
+                    .set(messageReadIcon: configuration.getReadIcon())
+                    .set(messageDeliveredIcon: configuration.getDeliveredIcon())
+                    .set(messageErrorIcon: configuration.getFailureIcon())
+                    .set(messageSentIcon: configuration.getSentIcon())
+                
+                set(receipt: receipt)
+            }
+            
+            let badgeCountConfiguration = configurations.filter{ $0 is BadgeCountConfiguration }
+            if let configuration = badgeCountConfiguration.last as? BadgeCountConfiguration {
+                
+                unreadCount.set(cornerRadius: configuration.cornerRadius)
+                set(unreadCount: unreadCount)
+            }
+        }
+    }
+    
+    
     
     public override func prepareForReuse() {
         conversation = nil
@@ -990,45 +1069,3 @@ import AVFAudio
     }
     
 }
-
-extension UIImage {
-    func resizeImage(_ dimension: CGFloat, opaque: Bool, contentMode: UIView.ContentMode = .scaleAspectFit) -> UIImage {
-            var width: CGFloat
-            var height: CGFloat
-            var newImage: UIImage
-
-            let size = self.size
-            let aspectRatio =  size.width/size.height
-
-            switch contentMode {
-                case .scaleAspectFit:
-                    if aspectRatio > 1 {                            // Landscape image
-                        width = dimension
-                        height = dimension / aspectRatio
-                    } else {                                        // Portrait image
-                        height = dimension
-                        width = dimension * aspectRatio
-                    }
-
-            default:
-                fatalError("UIIMage.resizeToFit(): FATAL: Unimplemented ContentMode")
-            }
-
-            if #available(iOS 10.0, *) {
-                let renderFormat = UIGraphicsImageRendererFormat.default()
-                renderFormat.opaque = opaque
-                let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height), format: renderFormat)
-                newImage = renderer.image {
-                    (context) in
-                    self.draw(in: CGRect(x: 0, y: 0, width: width, height: height))
-                }
-            } else {
-                UIGraphicsBeginImageContextWithOptions(CGSize(width: width, height: height), opaque, 0)
-                    self.draw(in: CGRect(x: 0, y: 0, width: width, height: height))
-                    newImage = UIGraphicsGetImageFromCurrentImageContext()!
-                UIGraphicsEndImageContext()
-            }
-
-            return newImage
-        }
-    }

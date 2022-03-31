@@ -40,6 +40,8 @@ import CometChatPro
      */
     @objc optional func onDeleteConversation(conversation: Conversation)
     
+    
+    @objc optional func onError(error: CometChatException)
 }
 
 /**
@@ -55,6 +57,7 @@ public class CometChatConversations: CometChatListBase {
     // MARK: - Declaration of Variables
     var startConversationIcon = UIImage(named: "chats-create.png", in: CometChatUIKit.bundle, compatibleWith: nil)
     var startConversationButton: UIBarButtonItem?
+    var configurations: [CometChatConfiguration]?
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,20 +67,10 @@ public class CometChatConversations: CometChatListBase {
 
     }
     
-    @discardableResult
-    public func set(configuration: CometChatConfiguration) ->  CometChatConversations {
-        if let configuration = configuration as? ConversationListConfiguration {
-            self.conversationList.set(configuration: configuration)
-        }
-        return self
-    }
     
     @discardableResult
     public func set(configurations: [CometChatConfiguration]) ->  CometChatConversations {
-        let currentConfigurations = configurations.filter{ $0 is ConversationListConfiguration }
-        if let currentConfiguration = currentConfigurations.last as? ConversationListConfiguration {
-            self.conversationList.set(configuration: currentConfiguration)
-        }
+        self.configurations = configurations
         return self
     }
     
@@ -149,6 +142,7 @@ public class CometChatConversations: CometChatListBase {
     
     private func configureConversationList() {
         conversationList.set(conversationType: CometChatStore.conversations.conversationType)
+            .set(configurations: configurations)
             .show(deleteConversation: true)
             .set(controller: self)
     }

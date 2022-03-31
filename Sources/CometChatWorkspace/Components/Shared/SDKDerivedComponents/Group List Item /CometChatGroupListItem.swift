@@ -16,7 +16,15 @@ class CometChatGroupListItem: UITableViewCell {
     @IBOutlet weak var subtitle: UILabel!
     @IBOutlet weak var statusIndicator: CometChatStatusIndicator!
     @IBOutlet weak var avatarWidthconstant: NSLayoutConstraint!
+    var configurations: [CometChatConfiguration]?
     
+    
+    @discardableResult
+    @objc public func set(configurations: [CometChatConfiguration]?) -> CometChatGroupListItem {
+        self.configurations = configurations
+        configureGroupListItem()
+        return self
+    }
     
     @discardableResult public func set(group: Group?) ->  CometChatGroupListItem {
         if let group = group {
@@ -262,14 +270,50 @@ class CometChatGroupListItem: UITableViewCell {
         didSet {
             if let group = group {
                 
-                let data = InputData(id: group.guid, thumbnail: group.icon, userStatus: nil, groupType: group.groupType, title: group.name, subTitle: "\(group.membersCount) " + "MEMBERS".localize())
+                let data = InputData(id: group.guid, thumbnail: group.icon, groupType: group.groupType, title: group.name, subTitle: "\(group.membersCount) " + "MEMBERS".localize())
                 set(data: data)
                 
                 let style = Style(background: CometChatTheme.palatte?.background, border: 1, cornerRadius: 24.0, titleColor: CometChatTheme.palatte?.accent, titleFont: CometChatTheme.typography?.Name2, subTitleColor: CometChatTheme.palatte?.accent600, subTitleFont: CometChatTheme.typography?.Subtitle1)
                 
                 set(style: style)
                 addLongPress()
+                configureGroupListItem()
              }
+        }
+    }
+    
+    private func configureGroupListItem() {
+        
+        print("configureGroupListItem: \(configurations)")
+        
+        if let configurations = configurations {
+            
+            let groupListItemConfiguration = configurations.filter{ $0 is GroupListItemConfiguration }
+            if let configuration = groupListItemConfiguration.last as? GroupListItemConfiguration {
+                set(background: configuration.background)
+                hide(avatar: configuration.hideAvatar)
+                hide(statusIndicator: configuration.hideStatusIndicator)
+            }
+            
+            let avatarConfiguration = configurations.filter{ $0 is AvatarConfiguration }
+            if let configuration = avatarConfiguration.last as? AvatarConfiguration {
+                
+                avatar.set(cornerRadius: configuration.cornerRadius)
+                avatar.set(borderWidth: configuration.borderWidth)
+                if configuration.outerViewWidth != 0 {
+                    avatar.set(outerView: true)
+                    avatar.set(borderWidth: configuration.outerViewWidth)
+                }
+                self.set(avatar: avatar)
+            }
+            
+            let statusIndicatorConfiguration = configurations.filter{ $0 is StatusIndicatorConfiguration }
+            if let configuration = statusIndicatorConfiguration.last as? StatusIndicatorConfiguration {
+                statusIndicator.set(cornerRadius: configuration.cornerRadius)
+                statusIndicator.set(borderWidth: configuration.borderWidth)
+                statusIndicator.set(status: .online, backgroundColor: configuration.backgroundColorForOnlineState)
+                statusIndicator.set(status: .offline, backgroundColor: configuration.backgroundColorForOfflineState)
+            }
         }
     }
     

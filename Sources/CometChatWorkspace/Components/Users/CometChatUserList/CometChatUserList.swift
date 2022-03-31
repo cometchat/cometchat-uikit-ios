@@ -36,16 +36,33 @@ import CometChatPro
     var headerBackground: UIColor?
     var headerTextColor: UIColor?
     var headerTextFont: UIFont?
-    
-    var configuration: UserListConfiguration?
+    var limit: Int = 30
+    var searchKeyword: String = ""
+    var status: CometChat.UserStatus = .offline
+    var friendsOnly: Bool = false
+    var hideBlockedUsers: Bool = false
+    var roles: [String] = [String]()
+    var tags: [String] = [String]()
+    var uids: [String] = [String]()
+    var emptyView: UIView?
+    var errorView: UIView?
+    var hideError: Bool? = false
+    var hideSectionHeader: Bool? = false
+    var errorText: String = ""
+    var emptyStateText: String = "NO_USERS_FOUND".localize()
+    var emptyStateTextFont: UIFont = UIFont.systemFont(ofSize: 34, weight: .bold)
+    var emptyStateTextColor: UIColor = UIColor.gray
+    var errorStateTextFont: UIFont?
+    var errorStateTextColor: UIColor?
+    var configurations: [CometChatConfiguration]?
     
     @discardableResult
-    @objc public func set(configuration: UserListConfiguration) -> CometChatUserList {
-        self.configuration = configuration
-        self.set(background: configuration.background)
+    @objc public func set(configurations: [CometChatConfiguration]?) -> CometChatUserList {
+        self.configurations = configurations
+        configureUserList()
         return self
     }
-    
+
     
     /**
      The` background` is a `UIView` which is present in the backdrop for `CometChatUserList`.
@@ -99,6 +116,180 @@ import CometChatPro
         return self
     }
     
+    @discardableResult
+    @objc public func set(limit: Int) -> CometChatUserList {
+        self.limit = limit
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(searchKeyword: String) -> CometChatUserList {
+        self.searchKeyword = searchKeyword
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(status: CometChat.UserStatus) -> CometChatUserList {
+        self.status = status
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(friendsOnly:Bool) -> CometChatUserList {
+        self.friendsOnly = friendsOnly
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(hideBlockedUsers:Bool) -> CometChatUserList {
+        self.hideBlockedUsers = hideBlockedUsers
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(roles:[String]) -> CometChatUserList {
+        self.roles = roles
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(tags:[String]) -> CometChatUserList {
+        self.tags = tags
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(uids:[String]) -> CometChatUserList {
+        self.uids = uids
+        return self
+    }
+
+    
+    @discardableResult
+    public func set(emptyView: UIView?) -> CometChatUserList {
+        self.emptyView = emptyView
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorView: UIView?) -> CometChatUserList {
+        self.errorView = errorView
+        return self
+    }
+    
+    @discardableResult
+    public func set(emptyStateMessage: String) -> CometChatUserList {
+        self.emptyStateText = emptyStateMessage
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorMessage: String) -> CometChatUserList {
+        self.errorText = errorMessage
+        return self
+    }
+    
+    @discardableResult
+    public func hide(errorMessage: Bool) -> CometChatUserList {
+        self.hideError = errorMessage
+        return self
+    }
+    
+    
+    
+    @discardableResult
+    public func set(emptyStateTextFont: UIFont) -> CometChatUserList {
+        self.emptyStateTextFont = emptyStateTextFont
+        return self
+    }
+    
+    @discardableResult
+    public func set(emptyStateTextColor: UIColor) -> CometChatUserList {
+        self.emptyStateTextColor = emptyStateTextColor
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorStateTextFont: UIFont) -> CometChatUserList {
+        self.errorStateTextFont = errorStateTextFont
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorStateTextColor: UIColor) -> CometChatUserList {
+        self.errorStateTextColor = errorStateTextColor
+        return self
+    }
+    
+    @discardableResult
+    public func set(userList: [User]) -> CometChatUserList {
+        self.groupUsers(users: userList)
+        return self
+    }
+    
+    @discardableResult
+    public func update(user: User) -> CometChatUserList {
+            DispatchQueue.main.async {  [weak self] in
+                guard let strongSelf = self else { return }
+                if let indexpath = strongSelf.users.indexPath(where: {$0.uid == user.uid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int {
+                    strongSelf.tableView?.beginUpdates()
+                    strongSelf.users[section][row] = user
+                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
+                    strongSelf.tableView?.endUpdates()
+                }
+            }
+        return self
+    }
+    
+    
+    @discardableResult
+    public func remove(user: User) -> CometChatUserList {
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
+            if let indexpath = strongSelf.users.indexPath(where: {$0.uid == user.uid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int {
+                strongSelf.tableView.beginUpdates()
+                strongSelf.users[section].remove(at: row)
+                strongSelf.tableView?.deleteRows(at: [indexpath], with: .automatic)
+                strongSelf.tableView.endUpdates()
+            }
+        }
+        return self
+    }
+    
+    @discardableResult
+    public func clearList() -> CometChatUserList {
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.users.removeAll()
+            strongSelf.tableView.reloadData()
+        }
+        return self
+    }
+    
+    
+    @discardableResult
+    public func size() -> Int {
+        return  users.joined().count
+    }
+    
+    @discardableResult
+    public func hide(sectionHeader: Bool) -> CometChatUserList {
+        self.hideSectionHeader = sectionHeader
+        return self
+    }
+    
+
+    @discardableResult
+    public func set(style: Style) -> CometChatUserList {
+        self.set(background: [style.background?.cgColor ?? UIColor.systemBackground.cgColor])
+        self.set(emptyStateTextFont: style.emptyStateTextFont ?? UIFont.systemFont(ofSize: 20, weight: .bold))
+        self.set(emptyStateTextColor: style.emptyStateTextColor ?? UIColor.gray)
+        self.set(errorStateTextFont: style.errorStateTextFont ?? UIFont.systemFont(ofSize: 20, weight: .bold))
+        self.set(errorStateTextColor: style.errorStateTextColor ?? UIColor.gray)
+        return self
+    }
+    
+    
     // MARK: - Instance Methods
     
     override init(frame: CGRect) {
@@ -109,9 +300,11 @@ import CometChatPro
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         commonInit()
+        
     }
     
     private func commonInit() {
+        print(" CometChatUserList configurations: \(configurations)")
         Bundle.main.loadNibNamed("CometChatUserList", owner: self, options: nil)
         addSubview(contentView)
         contentView.frame = bounds
@@ -119,9 +312,32 @@ import CometChatPro
         setuptTableView()
         registerCells()
         setupDelegates()
+        configureUserList()
         if users.isEmpty {
             refreshUsers()
         }
+    }
+    
+    
+    
+    
+   private func configureUserList() {
+       if let configurations = configurations {
+           let currentConfigurations = configurations.filter{ $0 is UserListConfiguration }
+           if let configuration = currentConfigurations.last as? UserListConfiguration {
+               set(background: configuration.background)
+               hide(sectionHeader: configuration.hideSectionHeader)
+               set(friendsOnly: configuration.isFriendOnly)
+               set(hideBlockedUsers: configuration.hideBlockedUsers)
+               hide(errorMessage: configuration.hideError)
+               set(searchKeyword: configuration.searchKeyword)
+               set(status: configuration.status)
+               set(limit: configuration.limit)
+               set(tags: configuration.tags)
+               set(roles: configuration.roles)
+               set(uids: configuration.uids)
+           }
+       }
     }
     
     private  func setupDelegates(){
@@ -163,10 +379,12 @@ import CometChatPro
      [CometChatUserList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-1-comet-chat-user-list)
      */
     private func fetchUsers(){
+        
         activityIndicator?.startAnimating()
         activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
         tableView.tableFooterView = activityIndicator
         tableView.tableFooterView?.isHidden = false
+        
         userRequest?.fetchNext(onSuccess: { (users) in
             if users.count != 0 {
                 self.groupUsers(users: users)
@@ -180,7 +398,14 @@ import CometChatPro
         }) { (error) in
             DispatchQueue.main.async {
                 if let error = error {
-                    CometChatSnackBoard.showErrorMessage(for: error)
+                    CometChatUsers.comethatUsersDelegate?.onError?(error: error)
+                    if self.hideError == false {
+                        if self.errorText.isEmpty {
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }else{
+                            CometChatSnackBoard.display(message: self.errorText ?? "", mode: .error, duration: .short)
+                        }
+                    }
                 }
             }
         }
@@ -204,7 +429,14 @@ import CometChatPro
         }) { (error) in
             DispatchQueue.main.async {
                 if let error = error {
-                    CometChatSnackBoard.showErrorMessage(for: error)
+                    CometChatUsers.comethatUsersDelegate?.onError?(error: error)
+                    if self.hideError == false {
+                        if self.errorText.isEmpty {
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }else{
+                            CometChatSnackBoard.display(message: self.errorText ?? "", mode: .error, duration: .short)
+                        }
+                    }
                 }
             }
         }
@@ -213,7 +445,12 @@ import CometChatPro
     private func groupUsers(users: [User]){
         DispatchQueue.main.async {  [weak self] in
             guard let strongSelf = self else { return }
-            if strongSelf.users.isEmpty { strongSelf.tableView?.setEmptyMessage("NO_USERS_FOUND".localize())
+            if strongSelf.users.isEmpty {
+                if let emptyView = strongSelf.emptyView {
+                    strongSelf.tableView.set(customView: emptyView)
+                }else{
+                    strongSelf.tableView?.setEmptyMessage(strongSelf.emptyStateText ?? "", color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
+                }
             }else{ strongSelf.tableView?.restore() }
         }
         
@@ -251,6 +488,7 @@ import CometChatPro
      [CometChatUserList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-1-comet-chat-user-list)
      */
     private func refreshUsers(){
+        
         self.globalGroupedUsers.removeAll()
         self.sections.removeAll()
         self.users.removeAll()
@@ -260,24 +498,39 @@ import CometChatPro
         tableView.tableFooterView = activityIndicator
         tableView.tableFooterView?.isHidden = false
         
-        userRequest = UsersRequest.UsersRequestBuilder(limit: 20).build()
+        userRequest = UsersRequest.UsersRequestBuilder(limit: limit).set(tags: tags).set(roles: roles).set(UIDs: uids).set(status: status).set(searchKeyword: searchKeyword).friendsOnly(friendsOnly).hideBlockedUsers(hideBlockedUsers).build()
         
         userRequest?.fetchNext(onSuccess: { (users) in
             if users.count != 0 {
+                self.set(configurations: self.configurations)
                 self.groupUsers(users: users)
             }else{
-                
-                DispatchQueue.main.async {
-                    self.tableView.restore()
-                    self.activityIndicator?.stopAnimating()
-                    self.tableView.tableFooterView?.isHidden = true
+               
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.tableView.restore()
+                    strongSelf.activityIndicator?.stopAnimating()
+                    strongSelf.tableView.tableFooterView?.isHidden = true
+                    if let emptyView = strongSelf.emptyView {
+                        strongSelf.tableView.set(customView: emptyView)
+                    }else{
+                        strongSelf.tableView?.setEmptyMessage(strongSelf.emptyStateText ?? "", color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
+                    }
                 }
+               
             }
             
         }) { (error) in
             DispatchQueue.main.async {
                 if let error = error {
-                    CometChatSnackBoard.showErrorMessage(for: error)
+                    CometChatUsers.comethatUsersDelegate?.onError?(error: error)
+                    if self.hideError == false {
+                        if self.errorText.isEmpty {
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }else{
+                            CometChatSnackBoard.display(message: self.errorText ?? "", mode: .error, duration: .short)
+                        }
+                    }
                 }
             }
         }
@@ -286,8 +539,10 @@ import CometChatPro
     
     public func filterUsers(forText: String?) {
         if let text = forText {
+            self.set(searchKeyword: forText ?? "")
             if !text.isEmpty {
-                userRequest = UsersRequest.UsersRequestBuilder(limit: 20).set(searchKeyword: text).build()
+                userRequest = UsersRequest.UsersRequestBuilder(limit: limit).set(tags: tags).set(roles: roles).set(UIDs: uids).set(status: status).set(searchKeyword: forText ?? "").friendsOnly(friendsOnly).hideBlockedUsers(hideBlockedUsers).build()
+                
                 userRequest?.fetchNext(onSuccess: { (users) in
                     if users.count != 0 {
                         self.filteredUsers = users
@@ -299,11 +554,16 @@ import CometChatPro
                         }
                     }else{
                         self.filteredUsers = []
-                        DispatchQueue.main.async {
-                            self.tableView.reloadData()
-                            self.activityIndicator?.stopAnimating()
-                            self.tableView.tableFooterView?.isHidden = true
-                            self.tableView?.setEmptyMessage("NO_USERS_FOUND".localize())
+                        DispatchQueue.main.async { [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.tableView.reloadData()
+                            strongSelf.activityIndicator?.stopAnimating()
+                            strongSelf.tableView.tableFooterView?.isHidden = true
+                            if let emptyView = strongSelf.emptyView {
+                                strongSelf.tableView.set(customView: emptyView)
+                            }else{
+                                strongSelf.tableView?.setEmptyMessage(strongSelf.emptyStateText ?? "", color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
+                            }
                         }
                     }
                 }) { (error) in
@@ -334,7 +594,11 @@ extension CometChatUserList: UITableViewDelegate, UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if hideSectionHeader == false {
         return 25
+        }else{
+            return 0
+        }
     }
     
     /// This method specifiesnumber of rows in CometChatUserList
@@ -365,18 +629,24 @@ extension CometChatUserList: UITableViewDelegate, UITableViewDataSource {
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
+        print("configurations cellForRowAt: \(configurations)")
+        
         guard let section = indexPath.section as? Int else { return UITableViewCell() }
         if isSearching {
             
-            if let user = filteredUsers[safe: indexPath.row] , let userCell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as? CometChatUserListItem {
-                userCell.user = user
-                return userCell
+            if let user = filteredUsers[safe: indexPath.row] , let cometChatUserListItem = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as? CometChatUserListItem {
+                cometChatUserListItem.set(configurations: configurations)
+                cometChatUserListItem.set(user: user)
+                return cometChatUserListItem
             }
         } else {
             
-            if let user = users[safe: section]?[safe: indexPath.row] , let userCell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as? CometChatUserListItem {
-                userCell.user = user
-                return userCell
+           
+            
+            if let user = users[safe: section]?[safe: indexPath.row] , let cometChatUserListItem = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as? CometChatUserListItem {
+                cometChatUserListItem.set(user: user)
+                cometChatUserListItem.set(configurations: configurations)
+                return cometChatUserListItem
             }
         }
         
@@ -467,8 +737,6 @@ extension CometChatUserList : CometChatUserDelegate {
      - Copyright:  ©  2022 CometChat Inc.
      */
     public func onUserOffline(user: User) {
-        
-        print("user status: \(user.status)")
         if let indexpath = users.indexPath(where: {$0.uid == user.uid}){
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }

@@ -12,7 +12,7 @@ import UIKit
 
 struct Palette {
     
-    static var mode: UIUserInterfaceStyle = .light
+ //   static var mode: UIUserInterfaceStyle = .light
     
     var background: UIColor? = UIColor(named: "background")
     

@@ -26,34 +26,29 @@ import CometChatPro
      */
     @objc optional func onItemLongClick(user: User)
     
+    
+    @objc optional func onError(error: CometChatException)
 }
 
 
 class CometChatUsers: CometChatListBase {
 
     @IBOutlet weak var userList: CometChatUserList!
+    var configurations: [CometChatConfiguration]?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupAppearance()
         setupDelegates()
         configureUserList()
+       
     }
     
-    @discardableResult
-    public func set(configuration: CometChatConfiguration) ->  CometChatUsers {
-        if let configuration = configuration as? UserListConfiguration {
-            self.userList.set(configuration: configuration)
-        }
-        return self
-    }
     
     @discardableResult
     public func set(configurations: [CometChatConfiguration]) ->  CometChatUsers {
-        let currentConfigurations = configurations.filter{ $0 is UserListConfiguration }
-        if let currentConfiguration = currentConfigurations.last as? UserListConfiguration {
-            self.userList.set(configuration: currentConfiguration)
-        }
+        self.configurations = configurations
         return self
     }
 
@@ -69,10 +64,11 @@ class CometChatUsers: CometChatListBase {
     
     private func configureUserList() {
         userList.set(controller: self)
-                .set(background: [CometChatTheme.palatte?.background?.cgColor ?? UIColor.systemBackground.cgColor])
-                .set(sectionHeaderBackground: CometChatTheme.palatte?.background ?? UIColor.clear)
-                .set(sectionHeaderTextColor:  CometChatTheme.palatte?.accent500 ?? UIColor.black)
-                .set(sectionHeaderTextFont: CometChatTheme.typography?.Caption1 ?? UIFont.systemFont(ofSize: 13, weight: .medium))
+            .set(configurations: configurations)
+            .set(background: [CometChatTheme.palatte?.background?.cgColor ?? UIColor.systemBackground.cgColor])
+            .set(sectionHeaderBackground: CometChatTheme.palatte?.background ?? UIColor.clear)
+            .set(sectionHeaderTextColor:  CometChatTheme.palatte?.accent500 ?? UIColor.black)
+            .set(sectionHeaderTextFont: CometChatTheme.typography?.Caption1 ?? UIFont.systemFont(ofSize: 13, weight: .medium))
     }
     
     private func setupDelegates() {

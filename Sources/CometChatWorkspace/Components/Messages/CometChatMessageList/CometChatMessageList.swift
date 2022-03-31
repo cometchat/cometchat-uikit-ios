@@ -56,7 +56,21 @@ public enum  MessageType : String {
     var messagesConfigurations: CometChatMessagesConfiguration?
     var messageHovers:[String: [MessageHover]] = [String: [MessageHover]]()
     var templates: [CometChatMessageTemplate] = [CometChatMessageTemplate]()
-    
+    var limit: Int = 20
+    var searchKeyword: String = ""
+    var status: CometChat.UserStatus = .offline
+    var friendsOnly: Bool = false
+    var hideBlockedUsers: Bool = false
+    var roles: [String] = [String]()
+    var tags: [String] = [String]()
+    var uids: [String] = [String]()
+    var emptyView: UIView?
+    var errorView: UIView?
+    var emptyStateText: String = "NO_MESSAGES_FOUND".localize()
+    var emptyStateTextFont: UIFont = UIFont.systemFont(ofSize: 34, weight: .bold)
+    var emptyStateTextColor: UIColor = UIColor.gray
+    var errorStateTextFont: UIFont?
+    var errorStateTextColor: UIColor?
     
     @discardableResult
     @objc public func set(configuration: CometChatConfiguration) -> CometChatMessageList {
@@ -232,7 +246,12 @@ public enum  MessageType : String {
     private func addNewGroupedMessage(messages: [BaseMessage]){
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            if messages.isEmpty { strongSelf.tableView?.setEmptyMessage("NO_MESSAGES_FOUND".localize())
+            if messages.isEmpty {
+                if let emptyView = strongSelf.emptyView {
+                    strongSelf.tableView.set(customView: emptyView)
+            }else{
+                strongSelf.tableView?.setEmptyMessage(strongSelf.emptyStateText ?? "", color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
+            }
             }else{ strongSelf.tableView?.restore() }
         }
         let groupedMessages = Dictionary(grouping: messages) { (element) -> Date in
@@ -268,7 +287,12 @@ public enum  MessageType : String {
     private func groupMessages(messages: [BaseMessage]){
         DispatchQueue.main.async {  [weak self] in
             guard let strongSelf = self else { return }
-            if messages.isEmpty { strongSelf.tableView?.setEmptyMessage("NO_MESSAGES_FOUND".localize())
+            if messages.isEmpty {
+                if let emptyView = strongSelf.emptyView {
+                    strongSelf.tableView.set(customView: emptyView)
+            }else{
+                strongSelf.tableView?.setEmptyMessage(strongSelf.emptyStateText ?? "", color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
+            }
             }else{ strongSelf.tableView?.restore() }
         }
         let groupedMessages = Dictionary(grouping: messages) { (element) -> Date in
@@ -584,7 +608,7 @@ public enum  MessageType : String {
     
     fileprivate func setupTableView() {
         tableView.separatorStyle = .none
-        tableView.setEmptyMessage("LOADING".localize())
+        tableView.setEmptyMessage("LOADING".localize(), color: emptyStateTextColor, font: emptyStateTextFont)
         tableView.dataSource = self
         tableView.delegate = self
         refreshControl = UIRefreshControl()

@@ -30,16 +30,28 @@ import CometChatPro
     var activityIndicator:UIActivityIndicatorView?
     var controller: UIViewController?
     var isSearching: Bool = false
+    var limit: Int = 30
+    var searchKeyword: String = ""
+    var joinedOnly: Bool = false
+    var tags: [String] = [String]()
+    var emptyView: UIView?
+    var errorView: UIView?
+    var hideError: Bool? = false
+    var errorText: String = ""
+    var emptyText: String = "NO_GROUPS_FOUND".localize()
+    var emptyStateTextFont: UIFont = UIFont.systemFont(ofSize: 34, weight: .bold)
+    var emptyStateTextColor: UIColor = UIColor.gray
+    var errorStateTextFont: UIFont?
+    var errorStateTextColor: UIColor?
+    var configurations: [CometChatConfiguration]?
     
-    var configuration: GroupListConfiguration?
-  
+    
     @discardableResult
-    @objc public func set(configuration: GroupListConfiguration) -> CometChatGroupList {
-        self.configuration = configuration
-        self.set(background: configuration.background)
+    @objc public func set(configurations: [CometChatConfiguration]?) -> CometChatGroupList {
+        self.configurations = configurations
+        configureGroupList()
         return self
     }
-    
     
     /**
      The` background` is a `UIView` which is present in the backdrop for `CometChatGroupList`.
@@ -60,6 +72,166 @@ import CometChatPro
         }
         return self
     }
+    
+    @discardableResult
+    @objc public func set(limit: Int) -> CometChatGroupList {
+        self.limit = limit
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(searchKeyword: String) -> CometChatGroupList {
+        self.searchKeyword = searchKeyword
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(joinedOnly: Bool) -> CometChatGroupList {
+        self.joinedOnly = joinedOnly
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(tags:[String]) -> CometChatGroupList {
+        self.tags = tags
+        return self
+    }
+    
+  
+    @discardableResult
+    public func set(emptyView: UIView?) -> CometChatGroupList {
+        self.emptyView = emptyView
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorView: UIView?) -> CometChatGroupList {
+        self.errorView = errorView
+        return self
+    }
+    
+    @discardableResult
+    public func set(emptyStateMessage: String) -> CometChatGroupList {
+        self.emptyText = emptyStateMessage
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorMessage: String) -> CometChatGroupList {
+        self.errorText = errorMessage
+        return self
+    }
+    
+    @discardableResult
+    public func hide(errorMessage: Bool) -> CometChatGroupList {
+        self.hideError = errorMessage
+        return self
+    }
+    
+    
+    @discardableResult
+    public func set(emptyStateTextFont: UIFont) -> CometChatGroupList {
+        self.emptyStateTextFont = emptyStateTextFont
+        return self
+    }
+    
+    @discardableResult
+    public func set(emptyStateTextColor: UIColor) -> CometChatGroupList {
+        self.emptyStateTextColor = emptyStateTextColor
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorStateTextFont: UIFont) -> CometChatGroupList {
+        self.errorStateTextFont = errorStateTextFont
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorStateTextColor: UIColor) -> CometChatGroupList {
+        self.errorStateTextColor = errorStateTextColor
+        return self
+    }
+    
+    @discardableResult
+    public func set(groupList: [Group]) -> CometChatGroupList {
+        self.groups = groupList
+        return self
+    }
+    
+    @discardableResult
+    public func update(group: Group) -> CometChatGroupList {
+        if let row = self.groups.firstIndex(where: {$0.guid == group.guid}) {
+            let indexPath = IndexPath(row: row, section: 0)
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                    strongSelf.tableView?.beginUpdates()
+                    strongSelf.groups[row] = group
+                    strongSelf.tableView?.reloadRows(at: [indexPath], with: .automatic)
+                    strongSelf.tableView?.endUpdates()
+                }
+            }
+        return self
+    }
+    
+    
+    @discardableResult
+    public func remove(group: Group) -> CometChatGroupList {
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
+            if let row = strongSelf.groups.firstIndex(where: {$0.guid == group.guid}) {
+                let indexPath = IndexPath(row: row, section: 0)
+                strongSelf.tableView.beginUpdates()
+                strongSelf.groups.remove(at: row)
+                strongSelf.tableView?.deleteRows(at: [indexPath], with: .automatic)
+                strongSelf.tableView.endUpdates()
+            }
+        }
+        return self
+    }
+    
+    @discardableResult
+    public func clearList() -> CometChatGroupList {
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.groups.removeAll()
+            strongSelf.tableView.reloadData()
+        }
+        return self
+    }
+    
+    
+    @discardableResult
+    public func size() -> Int {
+        return  groups.count
+    }
+    
+
+    @discardableResult
+    public func set(style: Style) -> CometChatGroupList {
+        self.set(background: [style.background?.cgColor ?? UIColor.systemBackground.cgColor])
+        self.set(emptyStateTextFont: style.emptyStateTextFont ?? UIFont.systemFont(ofSize: 20, weight: .bold))
+        self.set(emptyStateTextColor: style.emptyStateTextColor ?? UIColor.gray)
+        self.set(errorStateTextFont: style.errorStateTextFont ?? UIFont.systemFont(ofSize: 20, weight: .bold))
+        self.set(errorStateTextColor: style.errorStateTextColor ?? UIColor.gray)
+        return self
+    }
+    
+    private func configureGroupList() {
+        if let configurations = configurations {
+            let currentConfigurations = configurations.filter{ $0 is GroupListConfiguration }
+            if let configuration = currentConfigurations.last as? GroupListConfiguration {
+                set(background: configuration.background)
+                set(emptyView: configuration.emptyView)
+                set(joinedOnly: configuration.isJoinedOnly)
+                hide(errorMessage: configuration.hideError)
+                set(searchKeyword: configuration.searchKeyWord)
+                set(limit: configuration.limit)
+                set(tags: configuration.tags)
+               
+            }
+        }
+     }
     
     /**
      This method will set the instance of the view controller from which the `CometChatGroupList` is presented. This method is mandatory to call when the conversation list is presented.
@@ -96,13 +268,14 @@ import CometChatPro
         setuptTableView()
         registerCells()
         setupDelegates()
+        configureGroupList()
         if groups.isEmpty {
              refreshGroups()
         }
     }
     
     private  func setupDelegates(){
-        CometChat.groupdelegate = self
+       
     }
     
     fileprivate func setuptTableView() {
@@ -162,7 +335,14 @@ import CometChatPro
         }) { (error) in
             DispatchQueue.main.async {
                 if let error = error {
-                    CometChatSnackBoard.showErrorMessage(for: error)
+                    CometChatUsers.comethatUsersDelegate?.onError?(error: error)
+                    if self.hideError == false {
+                        if self.errorText.isEmpty {
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }else{
+                            CometChatSnackBoard.display(message: self.errorText ?? "", mode: .error, duration: .short)
+                        }
+                    }
                 }
             }
         }
@@ -183,7 +363,14 @@ import CometChatPro
         }) { (error) in
             DispatchQueue.main.async {
                 if let error = error {
-                    CometChatSnackBoard.showErrorMessage(for: error)
+                    if self.hideError == false {
+                        CometChatUsers.comethatUsersDelegate?.onError?(error: error)
+                        if self.errorText.isEmpty {
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }else{
+                            CometChatSnackBoard.display(message: self.errorText ?? "", mode: .error, duration: .short)
+                        }
+                    }
                 }
             }
         }
@@ -206,9 +393,9 @@ import CometChatPro
         tableView.tableFooterView = activityIndicator
         tableView.tableFooterView = activityIndicator
         tableView.tableFooterView?.isHidden = false
-        groupRequest = GroupsRequest.GroupsRequestBuilder(limit: 20).build()
+        groupRequest = GroupsRequest.GroupsRequestBuilder(limit: limit).set(searchKeyword: searchKeyword).set(joinedOnly: joinedOnly).set(tags: tags).build()
         groupRequest?.fetchNext(onSuccess: { [weak self] (fetchedGroups) in
-           
+            self?.set(configurations: self?.configurations)
             guard let this = self else {
                 return
             }
@@ -231,10 +418,17 @@ import CometChatPro
                 this.activityIndicator?.stopAnimating()
                 this.tableView.tableFooterView?.isHidden = true}
         }) { (error) in
-           DispatchQueue.main.async {
-            if let error = error {
-                CometChatSnackBoard.showErrorMessage(for: error)
-            }
+            DispatchQueue.main.async {
+                if let error = error {
+                    CometChatUsers.comethatUsersDelegate?.onError?(error: error)
+                    if self.hideError == false {
+                        if self.errorText.isEmpty {
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }else{
+                            CometChatSnackBoard.display(message: self.errorText ?? "", mode: .error, duration: .short)
+                        }
+                    }
+                }
             }
         }
     }
@@ -242,7 +436,7 @@ import CometChatPro
     public func filterGroups(forText: String?) {
         if let text = forText {
             if !text.isEmpty {
-                groupRequest = GroupsRequest.GroupsRequestBuilder(limit: 20).set(searchKeyword: text).build()
+                groupRequest = GroupsRequest.GroupsRequestBuilder(limit: limit).set(searchKeyword: text).set(joinedOnly: joinedOnly).set(tags: tags).build()
                 groupRequest?.fetchNext(onSuccess: { (groups) in
                     if groups.count != 0 {
                         self.filteredgroups = groups
@@ -258,7 +452,11 @@ import CometChatPro
                             self.tableView.reloadData()
                             self.activityIndicator?.stopAnimating()
                             self.tableView.tableFooterView?.isHidden = true
-                            self.tableView?.setEmptyMessage("NO_GROUPS_FOUND".localize())
+                            if let emptyView = self.emptyView {
+                                self.tableView.set(customView: emptyView)
+                            }else{
+                                self.tableView?.setEmptyMessage(self.emptyText ?? "", color: self.emptyStateTextColor, font: self.emptyStateTextFont)
+                            }
                         }
                     }
                 }) { (error) in
@@ -317,15 +515,17 @@ extension CometChatGroupList: UITableViewDelegate, UITableViewDataSource {
         guard let section = indexPath.section as? Int else { return UITableViewCell() }
         if isSearching {
     
-            if let group = filteredgroups[safe: indexPath.row] , let groupCell = tableView.dequeueReusableCell(withIdentifier: "CometChatGroupListItem", for: indexPath) as? CometChatGroupListItem {
-                groupCell.group = group
-                return groupCell
+            if let group = filteredgroups[safe: indexPath.row] , let cometChatGroupListItem = tableView.dequeueReusableCell(withIdentifier: "CometChatGroupListItem", for: indexPath) as? CometChatGroupListItem {
+                cometChatGroupListItem.set(configurations: configurations)
+                cometChatGroupListItem.set(group: group)
+                return cometChatGroupListItem
             }
         } else {
 
-            if let group = groups[safe: indexPath.row] , let groupCell = tableView.dequeueReusableCell(withIdentifier: "CometChatGroupListItem", for: indexPath) as? CometChatGroupListItem {
-                groupCell.group = group
-                return groupCell
+            if let group = groups[safe: indexPath.row] , let cometChatGroupListItem = tableView.dequeueReusableCell(withIdentifier: "CometChatGroupListItem", for: indexPath) as? CometChatGroupListItem {
+                cometChatGroupListItem.set(configurations: configurations)
+                cometChatGroupListItem.set(group: group)
+                return cometChatGroupListItem
             }
         }
         
@@ -405,39 +605,3 @@ extension CometChatGroupList: UITableViewDelegate, UITableViewDataSource {
 
 /*  ----------------------------------------------------------------------------------------- */
 
-// MARK: - CometChatgroupDelegate Delegate
-
-extension CometChatGroupList : CometChatGroupDelegate {
-    
-    public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
-        
-    }
-    
-    public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
-        
-    }
-    
-    public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
-        
-    }
-    
-    public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
-        
-    }
-    
-    public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
-        
-    }
-    
-    public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
-        
-    }
-    
-    public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
-        
-    }
-    
-   
-}
-
-/*  ----------------------------------------------------------------------------------------- */

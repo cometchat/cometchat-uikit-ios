@@ -48,7 +48,7 @@ class CometChatMessages: UIViewController {
     public func set(configurations: [CometChatConfiguration]) ->  CometChatMessages {
         let currentConfigurations = configurations.filter{ $0 is CometChatMessagesConfiguration }
         if let currentConfiguration = currentConfigurations.last as? CometChatMessagesConfiguration {
-        //    self.messageList.set(configuration: currentConfiguration)
+            self.messageList.set(configuration: currentConfiguration)
         }
         return self
     }

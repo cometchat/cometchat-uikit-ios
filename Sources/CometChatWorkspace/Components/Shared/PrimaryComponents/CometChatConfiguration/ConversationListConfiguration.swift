@@ -7,19 +7,20 @@
 
 import Foundation
 import UIKit
+import CometChatPro
 
-public enum ChatDisplayMode {
-   case user
-   case group
-   case both
-}
 
 
 public class ConversationListConfiguration: CometChatConfiguration {
 
     var background: [CGColor]?
     var showDeleteConversation : Bool = true
-    var chatListMode: ChatDisplayMode  = .both
+    var conversationType: CometChat.ConversationType  = .none
+    var hideError : Bool = false
+    var userAndGroupTags : Bool = false
+    var searchKeyWord : String = ""
+    var tags : [String] = [String]()
+    var limit : Int = 30
     var conversationListItemConfiguration :ConversationListItemConfiguration?
     
     public func set(background: [CGColor]) -> ConversationListConfiguration {
@@ -27,8 +28,8 @@ public class ConversationListConfiguration: CometChatConfiguration {
         return self
     }
     
-    public func set(chatListMode: ChatDisplayMode) -> ConversationListConfiguration {
-        self.chatListMode = chatListMode
+    public func set(conversationType: CometChat.ConversationType) -> ConversationListConfiguration {
+        self.conversationType = conversationType
         return self
     }
     
@@ -38,15 +39,25 @@ public class ConversationListConfiguration: CometChatConfiguration {
         return self
     }
     
-    public func set(conversationListItemConfiguration: ConversationListItemConfiguration) -> ConversationListConfiguration {
-        self.conversationListItemConfiguration = conversationListItemConfiguration
+    public func set(limit: Int) -> ConversationListConfiguration {
+        self.limit = limit
         return self
     }
     
-    public func set(configuration: ConversationListConfiguration) {
-        self.background = configuration.background
-        self.showDeleteConversation = configuration.showDeleteConversation
-        self.conversationListItemConfiguration = configuration.conversationListItemConfiguration
+    public func set(tags: [String]) -> ConversationListConfiguration {
+        self.tags = tags
+        return self
+    }
+    
+    
+    public func set(userAndGroupTags:Bool) -> ConversationListConfiguration {
+        self.userAndGroupTags = userAndGroupTags
+        return self
+    }
+    
+    public func hide(error: Bool) -> ConversationListConfiguration {
+        self.hideError = error
+        return self
     }
 }
 

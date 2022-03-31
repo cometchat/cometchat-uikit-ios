@@ -34,15 +34,19 @@ extension UICollectionView {
 
 extension UITableView {
     
-    func setEmptyMessage(_ message: String) {
+    func setEmptyMessage(_ message: String, color: UIColor? , font: UIFont?) {
         let messageLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: (self.bounds.size.height/2)))
         messageLabel.text = message
-        messageLabel.textColor = CometChatTheme.palatte?.accent600
+        messageLabel.textColor = color ?? CometChatTheme.palatte?.accent600
         messageLabel.numberOfLines = 0;
         messageLabel.textAlignment = .center
-        messageLabel.font = CometChatTheme.typography?.Heading ?? UIFont.systemFont(ofSize: 35, weight: .bold)
+        messageLabel.font = font
         messageLabel.sizeToFit()
         self.backgroundView = messageLabel
+    }
+    
+    func set(customView: UIView) {
+        self.backgroundView = customView
     }
     
     func restore() {

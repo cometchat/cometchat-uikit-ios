@@ -28,21 +28,33 @@ import CometChatPro
     var activityIndicator:UIActivityIndicatorView?
     lazy var searchedText: String? = ""
     var refreshControl = UIRefreshControl()
-    var conversationType: CometChat.ConversationType = .none
     weak var controller: UIViewController?
     var isSearching: Bool = false
     var isDeleteConversationEnabled: Bool = true
+    var limit: Int = 30
+    var searchKeyword: String = ""
+    var conversationType: CometChat.ConversationType = .none
+    var userAndGroupTags: Bool = false
+    var tags: [String] = [String]()
+    var emptyView: UIView?
+    var errorView: UIView?
+    var hideError: Bool? = false
+    var errorText: String = ""
+    var emptyStateText: String = "NO_CHATS_FOUND".localize()
+    var emptyStateTextFont: UIFont = UIFont.systemFont(ofSize: 34, weight: .bold)
+    var emptyStateTextColor: UIColor = UIColor.gray
+    var errorStateTextFont: UIFont?
+    var errorStateTextColor: UIColor?
+    var configurations: [CometChatConfiguration]?
+
     
-    var configuration: ConversationListConfiguration?
-  
     @discardableResult
-    @objc public func set(configuration: ConversationListConfiguration) -> CometChatConversationList {
-        self.configuration = configuration
-        self.show(deleteConversation: configuration.showDeleteConversation)
-        self.set(background: configuration.background)
+    @objc public func set(configurations: [CometChatConfiguration]?) -> CometChatConversationList {
+        self.configurations = configurations
+        configureConversationList()
         return self
     }
-    
+
     
     /**
      The` background` is a `UIView` which is present in the backdrop for `CometChatConversationList`.
@@ -106,6 +118,154 @@ import CometChatPro
         return self
     }
     
+    @discardableResult
+    public func set(emptyStateMessage: String) -> CometChatConversationList {
+        self.emptyStateText = emptyStateMessage
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorMessage: String) -> CometChatConversationList {
+        self.errorText = errorMessage
+        return self
+    }
+    
+    @discardableResult
+    public func hide(errorMessage: Bool) -> CometChatConversationList {
+        self.hideError = errorMessage
+        return self
+    }
+    
+    
+    @discardableResult
+    @objc public func set(limit: Int) -> CometChatConversationList {
+        self.limit = limit
+        return self
+    }
+    
+    @discardableResult
+    @objc public func set(searchKeyword: String) -> CometChatConversationList {
+        self.searchKeyword = searchKeyword
+        return self
+    }
+    
+
+    
+    @discardableResult
+    @objc public func set(userAndGroupTags: Bool) -> CometChatConversationList {
+        self.userAndGroupTags = userAndGroupTags
+        return self
+    }
+    
+    
+    @discardableResult
+    @objc public func set(tags:[String]) -> CometChatConversationList {
+        self.tags = tags
+        return self
+    }
+    
+    
+    @discardableResult
+    public func set(emptyView: UIView?) -> CometChatConversationList {
+        self.emptyView = emptyView
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorView: UIView?) -> CometChatConversationList {
+        self.errorView = errorView
+        return self
+    }
+    
+    
+    
+    @discardableResult
+    public func set(emptyStateTextFont: UIFont) -> CometChatConversationList {
+        self.emptyStateTextFont = emptyStateTextFont
+        return self
+    }
+    
+    @discardableResult
+    public func set(emptyStateTextColor: UIColor) -> CometChatConversationList {
+        self.emptyStateTextColor = emptyStateTextColor
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorStateTextFont: UIFont) -> CometChatConversationList {
+        self.errorStateTextFont = errorStateTextFont
+        return self
+    }
+    
+    @discardableResult
+    public func set(errorStateTextColor: UIColor) -> CometChatConversationList {
+        self.errorStateTextColor = errorStateTextColor
+        return self
+    }
+    
+    @discardableResult
+    public func set(conversationList: [Conversation]) -> CometChatConversationList {
+        self.conversations = conversationList
+        return self
+    }
+    
+    @discardableResult
+    public func update(conversation: Conversation) -> CometChatConversationList {
+        if let row = self.conversations.firstIndex(where: {$0.conversationId == conversation.conversationId}) {
+            let indexPath = IndexPath(row: row, section: 0)
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                    strongSelf.tableView?.beginUpdates()
+                    strongSelf.conversations[row] = conversation
+                    strongSelf.tableView?.reloadRows(at: [indexPath], with: .automatic)
+                    strongSelf.tableView?.endUpdates()
+                }
+            }
+        return self
+    }
+    
+    
+    @discardableResult
+    public func remove(conversation: Conversation) -> CometChatConversationList {
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
+            if let row = strongSelf.conversations.firstIndex(where: {$0.conversationId == conversation.conversationId}) {
+                let indexPath = IndexPath(row: row, section: 0)
+                strongSelf.tableView.beginUpdates()
+                strongSelf.conversations.remove(at: row)
+                strongSelf.tableView?.deleteRows(at: [indexPath], with: .automatic)
+                strongSelf.tableView.endUpdates()
+            }
+        }
+        return self
+    }
+    
+    @discardableResult
+    public func clearList() -> CometChatConversationList {
+        DispatchQueue.main.async {  [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.conversations.removeAll()
+            strongSelf.tableView.reloadData()
+        }
+        return self
+    }
+    
+    
+    @discardableResult
+    public func size() -> Int {
+        return  conversations.count
+    }
+    
+
+    @discardableResult
+    public func set(style: Style) -> CometChatConversationList {
+        self.set(background: [style.background?.cgColor ?? UIColor.systemBackground.cgColor])
+        self.set(emptyStateTextFont: style.emptyStateTextFont ?? UIFont.systemFont(ofSize: 20, weight: .bold))
+        self.set(emptyStateTextColor: style.emptyStateTextColor ?? UIColor.gray)
+        self.set(errorStateTextFont: style.errorStateTextFont ?? UIFont.systemFont(ofSize: 20, weight: .bold))
+        self.set(errorStateTextColor: style.errorStateTextColor ?? UIColor.gray)
+        return self
+    }
     
     // MARK: - Instance Methods
     
@@ -128,7 +288,25 @@ import CometChatPro
         setuptTableView()
         registerCells()
         setupDelegates()
+        configureConversationList()
         refreshConversations()
+    }
+    
+    
+   private func configureConversationList() {
+       if let configurations = configurations {
+           let currentConfigurations = configurations.filter{ $0 is ConversationListConfiguration }
+           if let configuration = currentConfigurations.last as? ConversationListConfiguration {
+               set(background: configuration.background)
+               set(conversationType: configuration.conversationType)
+               show(deleteConversation: configuration.showDeleteConversation)
+               set(limit: configuration.limit)
+               set(tags: configuration.tags)
+               set(userAndGroupTags: configuration.userAndGroupTags)
+               hide(errorMessage: configuration.hideError)
+
+           }
+       }
     }
     
     private  func setupDelegates(){
@@ -175,20 +353,26 @@ import CometChatPro
     }
     
     private func refreshConversations(){
-        DispatchQueue.main.async {
-            self.tableView.setEmptyMessage("".localize())
-            self.activityIndicator?.startAnimating()
-            self.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self.tableView.bounds.width, height: CGFloat(44))
-            self.tableView.tableFooterView = self.activityIndicator
-            self.tableView.tableFooterView = self.activityIndicator
-            self.tableView.tableFooterView?.isHidden = false
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            if let emptyView = strongSelf.emptyView {
+                strongSelf.tableView.set(customView: emptyView)
+            }else{
+                strongSelf.tableView?.setEmptyMessage(strongSelf.emptyStateText ?? "", color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
+            }
+            strongSelf.activityIndicator?.startAnimating()
+            strongSelf.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: strongSelf.tableView.bounds.width, height: CGFloat(44))
+            strongSelf.tableView.tableFooterView = strongSelf.activityIndicator
+            strongSelf.tableView.tableFooterView = strongSelf.activityIndicator
+            strongSelf.tableView.tableFooterView?.isHidden = false
         }
         
-        conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: 15).setConversationType(conversationType: conversationType).build()
+        conversationRequest = ConversationRequest.ConversationRequestBuilder(limit: limit).setConversationType(conversationType: conversationType).setTags(tags).withUserAndGroupTags(userAndGroupTags).build()
         
         conversationRequest?.fetchNext(onSuccess: { (fetchedConversations) in
             self.conversations = fetchedConversations
             DispatchQueue.main.async {
+                self.set(configurations: self.configurations)
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true
                 self.tableView.reloadData()
@@ -196,7 +380,14 @@ import CometChatPro
         }) { (error) in
             DispatchQueue.main.async {
                 if let error = error {
-                    CometChatSnackBoard.showErrorMessage(for: error)
+                    CometChatConversations.comethatConversationsDelegate?.onError?(error: error)
+                    if self.hideError == false {
+                        if self.errorText.isEmpty {
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }else{
+                            CometChatSnackBoard.display(message: self.errorText ?? "", mode: .error, duration: .short)
+                        }
+                    }
                 }
             }
         }
@@ -224,7 +415,14 @@ import CometChatPro
         }) { (error) in
             DispatchQueue.main.async {
                 if let error = error {
-                    CometChatSnackBoard.showErrorMessage(for: error)
+                    CometChatConversations.comethatConversationsDelegate?.onError?(error: error)
+                    if self.hideError == false {
+                        if self.errorText.isEmpty {
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }else{
+                            CometChatSnackBoard.display(message: self.errorText ?? "", mode: .error, duration: .short)
+                        }
+                    }
                 }
             }
         }
@@ -261,7 +459,11 @@ extension CometChatConversationList: UITableViewDelegate, UITableViewDataSource 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if conversations.isEmpty {
-            self.tableView.setEmptyMessage("NO_CHATS_FOUND".localize())
+            if let emptyView = self.emptyView {
+                self.tableView.set(customView: emptyView)
+            }else{
+                self.tableView?.setEmptyMessage(self.emptyStateText ?? "", color: self.emptyStateTextColor, font: self.emptyStateTextFont)
+            }
         } else{
             self.tableView.restore()
         }
@@ -286,15 +488,12 @@ extension CometChatConversationList: UITableViewDelegate, UITableViewDataSource 
     ///   - section: An index number identifying a section of tableView.
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let conversationListItem = tableView.dequeueReusableCell(withIdentifier: "CometChatConversationListItem", for: indexPath) as? CometChatConversationListItem {
+            conversationListItem.set(configurations: configurations)
             conversationListItem.searchedText = searchedText ?? ""
             if isSearching {
                 conversationListItem.set(conversation: filteredConversations[safe:indexPath.row])
             } else {
                 conversationListItem.set(conversation: conversations[safe:indexPath.row])
-            }
-            
-            if let conversationListItemConfiguration = configuration?.conversationListItemConfiguration {
-                conversationListItem.set(configuration: conversationListItemConfiguration)
             }
             return conversationListItem
         }
@@ -377,10 +576,16 @@ extension CometChatConversationList: UITableViewDelegate, UITableViewDataSource 
                         } onError: { (error) in
                             DispatchQueue.main.async {
                                 if let error = error {
-                                    CometChatSnackBoard.showErrorMessage(for: error)
+                                    CometChatConversations.comethatConversationsDelegate?.onError?(error: error)
+                                    if self.hideError == false {
+                                        if self.errorText.isEmpty {
+                                            CometChatSnackBoard.showErrorMessage(for: error)
+                                        }else{
+                                            CometChatSnackBoard.display(message: self.errorText ?? "", mode: .error, duration: .short)
+                                        }
+                                    }
                                 }
                             }
-                            
                         }
                     }))
                     alert.addAction(UIAlertAction(title: "CANCEL".localize(), style: .cancel, handler: { (action: UIAlertAction!) in
@@ -410,10 +615,16 @@ extension CometChatConversationList: UITableViewDelegate, UITableViewDataSource 
                         } onError: { (error) in
                             DispatchQueue.main.async {
                                 if let error = error {
-                                    CometChatSnackBoard.showErrorMessage(for: error)
+                                    CometChatConversations.comethatConversationsDelegate?.onError?(error: error)
+                                    if self.hideError == false {
+                                        if self.errorText.isEmpty {
+                                            CometChatSnackBoard.showErrorMessage(for: error)
+                                        }else{
+                                            CometChatSnackBoard.display(message: self.errorText ?? "", mode: .error, duration: .short)
+                                        }
+                                    }
                                 }
                             }
-                            
                         }
                     }))
                     alert.addAction(UIAlertAction(title: "CANCEL".localize(), style: .cancel, handler: { (action: UIAlertAction!) in
@@ -457,7 +668,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
      */
     public func onTextMessageReceived(textMessage: TextMessage) {
         CometChat.markAsDelivered(baseMessage: textMessage)
-        switch  configuration?.chatListMode {
+        switch  conversationType {
             
         case .user:
             DispatchQueue.main.async {
@@ -499,7 +710,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
             }else {
                 refreshConversations()
             }
-        case .both:
+        case .none:
             DispatchQueue.main.async {
                 CometChatSoundManager().play(sound: .incomingMessageFromOther) }
             if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == textMessage.sender?.uid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
@@ -547,7 +758,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
      */
     public func onMediaMessageReceived(mediaMessage: MediaMessage) {
         CometChat.markAsDelivered(baseMessage: mediaMessage)
-        switch configuration?.chatListMode {
+        switch conversationType {
             
         case .user:
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageFromOther) }
@@ -605,7 +816,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
             }else {
                 refreshConversations()
             }
-        case .both:
+        case .none:
             DispatchQueue.main.async {
                 CometChatSoundManager().play(sound: .incomingMessageFromOther) }
             if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == mediaMessage.sender?.uid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
@@ -788,7 +999,7 @@ extension CometChatConversationList : CometChatUserDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onUserOnline(user: User) {
-        if configuration?.chatListMode == .user || configuration?.chatListMode == .both {
+        if conversationType == .user || conversationType == .none {
             if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == user.uid}) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
@@ -810,7 +1021,7 @@ extension CometChatConversationList : CometChatUserDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onUserOffline(user: User) {
-        if configuration?.chatListMode == .user || configuration?.chatListMode == .both {
+        if conversationType == .user || conversationType == .none {
             if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == user.uid}) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
@@ -842,7 +1053,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
-        if configuration?.chatListMode == .group || configuration?.chatListMode == .both {
+        if conversationType == .group || conversationType == .none {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageFromOther) }
             refreshConversations()
         }
@@ -860,7 +1071,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
-        if configuration?.chatListMode == .group || configuration?.chatListMode == .both {
+        if conversationType == .group || conversationType == .none {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageFromOther) }
             refreshConversations()
         }
@@ -879,7 +1090,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
-        if configuration?.chatListMode == .group || configuration?.chatListMode == .both {
+        if conversationType == .group || conversationType == .none {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageFromOther) }
             refreshConversations()
         }
@@ -898,7 +1109,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
-        if configuration?.chatListMode == .group || configuration?.chatListMode == .both {
+        if conversationType == .group || conversationType == .none {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageFromOther) }
             refreshConversations()
         }
@@ -917,7 +1128,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
-        if configuration?.chatListMode == .group || configuration?.chatListMode == .both {
+        if conversationType == .group || conversationType == .none {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageFromOther) }
             refreshConversations()
         }
@@ -938,7 +1149,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
-        if configuration?.chatListMode == .group || configuration?.chatListMode == .both {
+        if conversationType == .group || conversationType == .none {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageFromOther) }
             refreshConversations()
         }
@@ -957,7 +1168,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
     ///[CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
     
     public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
-        if configuration?.chatListMode == .group || configuration?.chatListMode == .both {
+        if conversationType == .group || conversationType == .none {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageFromOther) }
             refreshConversations()
         }

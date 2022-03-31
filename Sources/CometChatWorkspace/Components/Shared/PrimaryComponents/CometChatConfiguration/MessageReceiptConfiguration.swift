@@ -23,6 +23,12 @@ public class MessageReceiptConfiguration: CometChatConfiguration  {
     }
     
     @discardableResult
+    @objc func setSentIcon(icon: UIImage) -> MessageReceiptConfiguration {
+        self.messageSentIcon = icon
+        return self
+    }
+    
+    @discardableResult
     @objc func setDeliveredIcon(icon: UIImage) -> MessageReceiptConfiguration {
         self.messageSentIcon = icon
         return self
@@ -40,21 +46,26 @@ public class MessageReceiptConfiguration: CometChatConfiguration  {
         return self
     }
     
-    public func getProgressIcon() -> UIImage?{
-        return messageWaitIcon
+    public func getProgressIcon() -> UIImage{
+        return messageWaitIcon ?? UIImage()
     }
     
-    public func getDeliveredIcon() -> UIImage? {
-        return messageDeliveredIcon
+    public func getDeliveredIcon() -> UIImage {
+        return messageDeliveredIcon ?? UIImage()
     }
     
-    public func getReadIcon() -> UIImage? {
-        return messageReadIcon
+    public func getReadIcon() -> UIImage {
+        return messageReadIcon ?? UIImage()
     }
     
-    public func getFailureIcon() -> UIImage? {
-        return messageErrorIcon
+    public func getFailureIcon() -> UIImage {
+        return messageErrorIcon ?? UIImage()
     }
+    
+    public func getSentIcon() -> UIImage {
+        return messageSentIcon ?? UIImage()
+    }
+    
     
     
     
