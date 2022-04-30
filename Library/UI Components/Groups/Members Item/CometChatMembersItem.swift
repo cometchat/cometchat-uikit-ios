@@ -22,6 +22,7 @@ class CometChatMembersItem: UITableViewCell {
     @IBOutlet weak var status: CometChatStatusIndicator!
     
     // MARK: - Declaration of Variables
+    
     var group: Group?
     weak var member: GroupMember? {
         didSet {
@@ -33,7 +34,8 @@ class CometChatMembersItem: UITableViewCell {
                     name.text = currentMember.name
                 }
                 status.set(status: currentMember.status)
-                avatar.set(image: currentMember.avatar ?? "", with: currentMember.name ?? "")
+                /// Set the avatar for the member.
+                avatar.set(image: currentMember.avatar, with: currentMember.name)
                 switch currentMember.scope {
                 case .admin:
                     if let group = group {
@@ -60,6 +62,8 @@ class CometChatMembersItem: UITableViewCell {
     
     override func prepareForReuse() {
         member = nil
+        // Cancel Image Request
+        avatar.cancel()
     }
     
      // MARK: - Initialization of required Methods

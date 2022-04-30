@@ -37,6 +37,8 @@ class CometChatSenderReplyMessageBubble: UITableViewCell {
   
     
     // MARK: - Declaration of Variables
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
     var indexPath: IndexPath?
     let systemLanguage = Locale.preferredLanguages.first
     weak var hyperlinkdelegate: HyperLinkDelegate?
@@ -103,7 +105,15 @@ class CometChatSenderReplyMessageBubble: UITableViewCell {
                                     if let data = customMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
                                         
                                         if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
-                                            thumbnail.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                                            imageRequest = imageService.image(for: url) { [weak self] image in
+                                                guard let strongSelf = self else { return }
+                                                // Update Thumbnail Image View
+                                                if let image = image {
+                                                    strongSelf.thumbnail.image = image
+                                                }else{
+                                                    strongSelf.thumbnail.image = UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                                                }
+                                            }
                                         }else{
                                         }
                                     }
@@ -143,7 +153,15 @@ class CometChatSenderReplyMessageBubble: UITableViewCell {
                                 if let data = customMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
                                     
                                     if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
-                                        thumbnail.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                                        imageRequest = imageService.image(for: url) { [weak self] image in
+                                            guard let strongSelf = self else { return }
+                                            // Update Thumbnail Image View
+                                            if let image = image {
+                                                strongSelf.thumbnail.image = image
+                                            }else{
+                                                strongSelf.thumbnail.image = UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                                            }
+                                        }
                                     }else{
                                     }
                                 }
@@ -445,7 +463,9 @@ class CometChatSenderReplyMessageBubble: UITableViewCell {
         }
     }
     
-    
+    override func prepareForReuse() {
+        imageRequest?.cancel()
+    }
     
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
              super.setHighlighted(highlighted, animated: animated)

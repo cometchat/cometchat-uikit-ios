@@ -586,10 +586,8 @@ extension CometChatStartConversation: UITableViewDelegate , UITableViewDataSourc
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell:UITableViewCell = UITableViewCell()
-        
         if searchController.searchBar.selectedScopeButtonIndex == 0 {
-            guard let section = indexPath.section as? Int else { return cell }
+            guard let section = indexPath.section as? Int else { return UITableViewCell() }
             if isSearching() {
         
                 if let user = filteredUsers[safe: indexPath.row] {
@@ -622,7 +620,7 @@ extension CometChatStartConversation: UITableViewDelegate , UITableViewDataSourc
         }
         
      
-        return cell
+        return UITableViewCell()
     }
     
     

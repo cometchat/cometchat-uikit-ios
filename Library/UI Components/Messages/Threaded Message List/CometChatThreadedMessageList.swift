@@ -2148,7 +2148,7 @@ extension CometChatThreadedMessageList: UITableViewDelegate , UITableViewDataSou
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView.
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell:UITableViewCell = UITableViewCell()
+
         if let message = chatMessages[indexPath.section][safe: indexPath.row] {
             
             
@@ -2310,7 +2310,7 @@ extension CometChatThreadedMessageList: UITableViewDelegate , UITableViewDataSou
             }
         }
         }
-        return cell
+        return UITableViewCell()
     }
     
     

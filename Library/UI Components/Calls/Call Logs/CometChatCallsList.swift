@@ -438,8 +438,6 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
     ///   - section: An index number identifying a section of tableView.
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = UITableViewCell()
-        
         switch segmentControl.selectedSegmentIndex {
         case 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: "CometChatCallListItem", for: indexPath) as! CometChatCallListItem
@@ -453,7 +451,7 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
             return cell
         default: break
         }
-        return cell
+        return UITableViewCell()
     }
     
     /// This method triggers when particulatr cell is clicked by the user .

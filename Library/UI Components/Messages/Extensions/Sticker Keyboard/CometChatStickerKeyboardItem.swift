@@ -18,10 +18,22 @@ class CometChatStickerKeyboardItem: UICollectionViewCell {
     
     // MARK: - Declaration of Outlets.
     @IBOutlet weak var stickerIcon: UIImageView!
+    
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
+    
     var stickerSet: CometChatStickerSet! {
         didSet {
             if let url = URL(string: stickerSet.thumbnail ?? "") {
-                stickerIcon.cf.setImage(with: url)
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.stickerIcon.image = image
+                    }else{
+                        strongSelf.stickerIcon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
                
             }
         }
@@ -30,8 +42,15 @@ class CometChatStickerKeyboardItem: UICollectionViewCell {
     var sticker: CometChatSticker! {
         didSet {
             if let url = URL(string: sticker.url ?? "") {
-                stickerIcon.cf.setImage(with: url)
-            
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.stickerIcon.image = image
+                    }else{
+                        strongSelf.stickerIcon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
             }
         }
     }
@@ -41,6 +60,10 @@ class CometChatStickerKeyboardItem: UICollectionViewCell {
         super.awakeFromNib()
         
     
+    }
+    
+    override func prepareForReuse() {
+        imageRequest?.cancel()
     }
     
 }

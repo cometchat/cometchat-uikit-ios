@@ -29,6 +29,8 @@ class CometChatSenderVideoMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
     weak var mediaDelegate: MediaDelegate?
     var selectionColor: UIColor {
         set {
@@ -139,23 +141,23 @@ class CometChatSenderVideoMessageBubble: UITableViewCell {
        }
 
     
-    
-    /**
-    This method used to set the image for CometChatSenderVideoMessageBubble class
-    - Parameter image: This specifies a `URL` for  the Avatar.
-    - Author: CometChat Team
-    - Copyright:  ©  2019 CometChat Inc.
-    */
-     func set(Image: UIImageView, forURL url: String) {
-        let url = URL(string: url)
-        Image.cf.setImage(with: url)
+    override func prepareForReuse() {
+        imageRequest?.cancel()
     }
-    
+
     private func parseThumbnailForVideo(forMessage: MediaMessage?) {
            imageMessage.image = nil
            if let metaData = forMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let thumbnailGenerationDictionary = cometChatExtension["thumbnail-generation"] as? [String : Any] {
                if let url = URL(string: thumbnailGenerationDictionary["url_medium"] as? String ?? "") {
-                self.imageMessage.cf.setImage(with: url)
+                   imageRequest = imageService.image(for: url) { [weak self] image in
+                       guard let strongSelf = self else { return }
+                       // Update Thumbnail Image View
+                       if let image = image {
+                           strongSelf.imageMessage.image = image
+                       }else{
+                           strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                       }
+                   }
                }
            }else{
             imageMessage.image = UIImage(color: #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1))

@@ -35,6 +35,8 @@ class CometChatCreateGroup: UIViewController {
     var documentsUrl: URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }
+    /// This is a limit for group name and password.
+    private var groupNameAndPasswordLimit = 100
     
     // MARK: - View controller lifecycle methods
     
@@ -44,6 +46,7 @@ class CometChatCreateGroup: UIViewController {
         self.setupSuperView()
         self.setupNavigationBar()
         self.addObservers()
+        name.isUserInteractionEnabled = true
     }
     
     override func loadView() {
@@ -103,6 +106,8 @@ class CometChatCreateGroup: UIViewController {
         name.placeholder = "ENTER_GROUP_NAME".localized()
         detailLabel.text = "KINDLY_ENTER_GROUP_NAME".localized()
         password.placeholder = "ENTER_GROUP_PWD".localized()
+        password.delegate = self
+        name.delegate = self
     }
     
     
@@ -371,6 +376,21 @@ class CometChatCreateGroup: UIViewController {
     */
     @objc func closeButtonPressed(){
         self.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension CometChatCreateGroup: UITextFieldDelegate {
+    
+    /**
+        This method will call everytime when user enter text or delete the text from the UITextFiled,
+           and this method has string parameter that gives the latest input that you have entered or deleted.
+     */
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        /// If either password or groupname text exceeds over 100, disable the button, otherwise enable.
+        let count = string.isEmpty ? textField.text!.count - 1 : textField.text!.count + string.count
+        createGroup.backgroundColor = count > groupNameAndPasswordLimit ? UIColor.lightGray : UIKitSettings.primaryColor
+        createGroup.isEnabled = count > groupNameAndPasswordLimit ? false : true
+        return true
     }
 }
 

@@ -29,6 +29,9 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
     @IBOutlet weak var unsafeContentView: UIImageView!
     
     // MARK: - Declaration of Variables
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
+    
     var indexPath: IndexPath?
     weak var mediaDelegate: MediaDelegate?
     var selectionColor: UIColor {
@@ -204,26 +207,34 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
 
        }
     
-    /**
-     This method used to set the image for CometChatReceiverImageMessageBubble class
-     - Parameter image: This specifies a `URL` for  the Avatar.
-     - Author: CometChat Team
-     - Copyright:  ©  2020 CometChat Inc.
-     */
-     func set(Image: UIImageView, forURL url: String) {
-        let url = URL(string: url)
-        Image.cf.setImage(with: url)
-    }
     
     private func parseThumbnailForImage(forMessage: MediaMessage?) {
          imageMessage.image = nil
          if let metaData = forMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let thumbnailGenerationDictionary = cometChatExtension["thumbnail-generation"] as? [String : Any] {
              if let url = URL(string: thumbnailGenerationDictionary["url_medium"] as? String ?? "") {
-                 imageMessage.cf.setImage(with: url)
+                 self.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                 imageRequest = imageService.image(for: url) { [weak self] image in
+                     guard let strongSelf = self else { return }
+                     // Update Thumbnail Image View
+                     if let image = image {
+                         strongSelf.imageMessage.image = image
+                     }else{
+                         strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                     }
+                 }
              }
          }else{
              if let url = URL(string: mediaMessage.attachment?.fileUrl ?? "") {
-                 imageMessage.cf.setImage(with: url)
+                 self.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                 imageRequest = imageService.image(for: url) { [weak self] image in
+                     guard let strongSelf = self else { return }
+                     // Update Thumbnail Image View
+                     if let image = image {
+                         strongSelf.imageMessage.image = image
+                     }else{
+                         strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                     }
+                 }
              }
          }
      }
@@ -244,6 +255,10 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
              }
          }
      }
+    
+    override func prepareForReuse() {
+            imageRequest?.cancel()
+    }
     
 }
 

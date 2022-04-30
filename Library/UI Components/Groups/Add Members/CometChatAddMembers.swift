@@ -443,8 +443,7 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
        ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell:UITableViewCell = UITableViewCell()
-        guard let section = indexPath.section as? Int else { return cell }
+        guard let section = indexPath.section as? Int else { return UITableViewCell() }
         if isSearching() {
     
             if let user = filteredUsers[safe: indexPath.row] {
@@ -461,7 +460,7 @@ extension CometChatAddMembers: UITableViewDelegate , UITableViewDataSource {
             }
         }
         
-        return cell
+        return UITableViewCell()    
         }
     
     /// This method specifies the view for header  in CometChatAddMembers

@@ -21,7 +21,7 @@ class CometChatCallListItem: UITableViewCell {
     @IBOutlet weak var time: UILabel!
     
      // MARK: - Declaration of Variables
-
+    
     var currentUser: User?
     var currentGroup: Group?
     
@@ -37,8 +37,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let user = call.callReceiver as? User {
                         self.currentUser = user
                         self.name.text = user.name
-                        avatar.set(image: user.avatar ?? "", with: user.name ?? "")
-                        
+                        /// Set the image for the user.
+                        avatar.set(image: user.avatar, with: user.name)
                     }
                     callStatus.text = "OUTGOING_AUDIO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "outgoing-audio-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -54,7 +54,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let user = call.callInitiator as? User {
                         self.currentUser = user
                         self.name.text = user.name
-                        avatar.set(image: user.avatar ?? "", with: user.name ?? "")
+                        /// Set the avatar for the user.
+                        avatar.set(image: user.avatar, with: user.name)
                     }
                     callStatus.text = "INCOMING_AUDIO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "incoming-audio-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -70,7 +71,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let group = call.callReceiver as? Group {
                         self.currentGroup = group
                         self.name.text = group.name
-                        avatar.set(image: group.icon ?? "", with: group.name ?? "")
+                        /// Set the avatar for the group.
+                        avatar.set(image: group.icon, with: group.name)
                     }
                     callStatus.text = "INCOMING_AUDIO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "incoming-audio-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -86,7 +88,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let group = call.callReceiver as? Group {
                         self.currentGroup = group
                         self.name.text = group.name
-                        avatar.set(image: group.icon ?? "", with: group.name ?? "")
+                        /// Set the avatar for the group.
+                        avatar.set(image: group.icon, with: group.name)
                     }
                     callStatus.text = "OUTGOING_AUDIO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "outgoing-audio-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -101,7 +104,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let user = call.callReceiver as? User {
                         self.currentUser = user
                         self.name.text = user.name
-                        avatar.set(image: user.avatar ?? "", with: user.name ?? "")
+                        /// Set the avatar for the user.
+                        avatar.set(image: user.name, with: user.name)
                         
                     }
                     callStatus.text = "OUTGOING_VIDEO_CALL".localized()
@@ -116,8 +120,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let user = call.callInitiator as? User {
                         self.currentUser = user
                         self.name.text = user.name
-                        avatar.set(image: user.avatar ?? "", with: user.name ?? "")
-                        
+                        /// Set the avatar for the user.
+                        avatar.set(image: user.name, with: user.name)
                     }
                     callStatus.text = "INCOMING_VIDEO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "incoming-video-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -131,7 +135,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let group = call.callReceiver as? Group {
                         self.currentGroup = group
                         self.name.text = group.name
-                        avatar.set(image: group.icon ?? "", with: group.name ?? "")
+                        /// Set the avatar for the group.
+                        avatar.set(image: group.icon, with: group.name)
                     }
                     callStatus.text = "OUTGOING_VIDEO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "outgoing-video-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -145,7 +150,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let group = call.callReceiver as? Group {
                         self.currentGroup = group
                         self.name.text = group.name
-                        avatar.set(image: group.icon ?? "", with: group.name ?? "")
+                        /// Set the avatar for the group.
+                        avatar.set(image: group.icon, with: group.name)
                     }
                     callStatus.text = "INCOMING_VIDEO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "incoming-video-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -159,7 +165,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let user = call.callReceiver as? User {
                         self.currentUser = user
                         self.name.text = user.name
-                        avatar.set(image: user.avatar ?? "", with: user.name ?? "")
+                        /// Set the avatar for the user.
+                        avatar.set(image: user.avatar, with: user.name)
                     }
                     callStatus.text = "UNANSWERED_AUDIO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -173,8 +180,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let user = call.callInitiator as? User {
                         self.currentUser = user
                         self.name.text = user.name
-                        avatar.set(image: user.avatar ?? "", with: user.name ?? "")
-                        
+                        /// Set the avatar for the user.
+                        avatar.set(image: user.avatar, with: user.name)
                     }
                     callStatus.text = "MISSED_CALL".localized()
                     callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -188,7 +195,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let group = call.callReceiver as? Group {
                         self.currentGroup = group
                         self.name.text = group.name
-                        avatar.set(image: group.icon ?? "", with: group.name ?? "")
+                        /// Set the avatar for the group.
+                        avatar.set(image: group.icon, with: group.name)
                     }
                     callStatus.text = "UNANSWERED_AUDIO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -202,7 +210,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let group = call.callReceiver as? Group {
                         self.currentGroup = group
                         self.name.text = group.name
-                        avatar.set(image: group.icon ?? "", with: group.name ?? "")
+                        /// Set the avatar for the group.
+                        avatar.set(image: group.icon, with: group.name)
                     }
                     callStatus.text = "MISSED_CALL".localized()
                     callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -216,7 +225,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let user = call.callReceiver as? User {
                         self.currentUser = user
                         self.name.text = user.name
-                        avatar.set(image: user.avatar ?? "", with: user.name ?? "")
+                        /// Set the avatar for the user.
+                        avatar.set(image: user.avatar, with: user.name)
                     }
                     callStatus.text = "UNANSWERED_VIDEO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -230,8 +240,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let user = call.callInitiator as? User {
                         self.currentUser = user
                         self.name.text = user.name
-                        avatar.set(image: user.avatar ?? "", with: user.name ?? "")
-                        
+                        /// Set the avatar for the user.
+                        avatar.set(image: user.avatar, with: user.name)
                     }
                     callStatus.text = "MISSED_CALL".localized()
                     callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -245,7 +255,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let group = call.callReceiver as? Group {
                         self.currentGroup = group
                         self.name.text = group.name
-                        avatar.set(image: group.icon ?? "", with: group.name ?? "")
+                        /// Set the avatar for the group.
+                        avatar.set(image: group.icon, with: group.name)
                     }
                     callStatus.text = "UNANSWERED_VIDEO_CALL".localized()
                     callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -259,7 +270,8 @@ class CometChatCallListItem: UITableViewCell {
                     if let group = call.callReceiver as? Group {
                         self.currentGroup = group
                         self.name.text = group.name
-                        avatar.set(image: group.icon ?? "", with: group.name ?? "")
+                        /// Set the avatar for the group.
+                        avatar.set(image: group.icon, with: group.name)
                     }
                     callStatus.text = "MISSED_CALL".localized()
                     callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -294,6 +306,12 @@ class CometChatCallListItem: UITableViewCell {
         super.setSelected(selected, animated: animated)
         
         // Configure the view for the selected state
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        // Cancel Image Request
+        avatar.cancel()
     }
     
 }

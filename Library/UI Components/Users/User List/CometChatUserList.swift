@@ -200,7 +200,15 @@ public class CometChatUserList: UIViewController {
         
         let groupedUsers = Dictionary(grouping: users) { (element) -> String in
             guard let name = element.name?.capitalized.trimmingCharacters(in: .whitespacesAndNewlines) else {return ""}
-            return (name as NSString).substring(to: 1)
+            if name.count > 0 {
+                if let string = (name as? NSString)?.substring(to: 1) {
+                    return  string
+                }else{
+                    return ""
+                }
+            }else {
+                return ""
+            }
         }
         globalGroupedUsers.merge(groupedUsers, uniquingKeysWith: +)
         for key in groupedUsers.keys {
@@ -458,9 +466,8 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell:UITableViewCell = UITableViewCell()
-        guard let section = indexPath.section as? Int else { return cell }
+
+        guard let section = indexPath.section as? Int else { return UITableViewCell() }
         if isSearching() {
     
             if let user = filteredUsers[safe: indexPath.row] {
@@ -477,7 +484,7 @@ extension CometChatUserList: UITableViewDelegate , UITableViewDataSource {
             }
         }
         
-        return cell
+        return UITableViewCell()
     }
     
     

@@ -34,6 +34,8 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
     weak var mediaDelegate: MediaDelegate?
     var selectionColor: UIColor {
         set {
@@ -160,31 +162,41 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
         }
     }
     
+    override func prepareForReuse() {
+        imageRequest?.cancel()
+    }
+    
      override func setSelected(_ selected: Bool, animated: Bool) {
            super.setSelected(selected, animated: animated)
        }
     
-    
-    /**
-    This method used to set the image for CometChatSenderImageMessageBubble class
-    - Parameter image: This specifies a `URL` for  the Avatar.
-    - Author: CometChat Team
-    - Copyright:  ©  2020 CometChat Inc.
-    */
-     func set(Image: UIImageView, forURL url: String) {
-        let url = URL(string: url)
-        Image.cf.setImage(with: url)
-    }
+
     
     private func parseThumbnailForImage(forMessage: MediaMessage?) {
         imageMessage.image = nil
         if let metaData = forMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let thumbnailGenerationDictionary = cometChatExtension["thumbnail-generation"] as? [String : Any] {
             if let url = URL(string: thumbnailGenerationDictionary["url_medium"] as? String ?? "") {
-                imageMessage.cf.setImage(with: url)
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.imageMessage.image = image
+                    }else{
+                        strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
             }
         }else{
             if let url = URL(string: mediaMessage.attachment?.fileUrl ?? "") {
-                imageMessage.cf.setImage(with: url)
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.imageMessage.image = image
+                    }else{
+                        strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
             }
         }
     }

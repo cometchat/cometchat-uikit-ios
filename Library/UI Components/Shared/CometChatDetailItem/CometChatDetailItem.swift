@@ -54,7 +54,8 @@ class CometChatDetailItem: UITableViewCell {
                 case .disabled: self.detail.isHidden = true
                 }
             }
-                 icon.set(image: currentUser.avatar ?? "", with: currentUser.name ?? "")
+            /// Set the avatar for user.
+            icon.set(image: currentUser.avatar, with: currentUser.name)
             if #available(iOS 13.0, *) {
                 let videoCallIcon = UIImage(named: "videoCall.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 videoCall.setImage(videoCallIcon, for: .normal)
@@ -97,7 +98,8 @@ class CometChatDetailItem: UITableViewCell {
                 @unknown default:
                     break
                 }
-                icon.set(image: currentGroup.icon ?? "", with: currentGroup.name ?? "")
+               /// Set the group icon 
+                icon.set(image: currentGroup.icon, with: currentGroup.name)
                 if #available(iOS 13.0, *) {
                     let videoCallIcon = UIImage(named: "videoCall.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                     videoCall.setImage(videoCallIcon, for: .normal)
@@ -145,6 +147,8 @@ class CometChatDetailItem: UITableViewCell {
     override func prepareForReuse() {
         group = nil
         user = nil
+        // Cancel Image Request
+        icon.cancel()
     }
 
     

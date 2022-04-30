@@ -24,6 +24,8 @@ class CometChatSenderStickerMessageBubble: UITableViewCell {
     
     
     // MARK: - Declaration of Variables
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
     var indexPath: IndexPath?
     var selectionColor: UIColor {
         set {
@@ -40,7 +42,15 @@ class CometChatSenderStickerMessageBubble: UITableViewCell {
         didSet {
             receiptStack.isHidden = true
             if let url = URL(string: stickerMessage.customData?["sticker_url"] as? String ?? "") {
-                imageMessage.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.imageMessage.image = image
+                    }else{
+                        strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
             }else{
                 imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
             }
@@ -111,15 +121,8 @@ class CometChatSenderStickerMessageBubble: UITableViewCell {
        }
     
     
-    /**
-    This method used to set the image for CometChatSenderImageMessageBubble class
-    - Parameter image: This specifies a `URL` for  the Avatar.
-    - Author: CometChat Team
-    - Copyright:  ©  2020 CometChat Inc.
-    */
-     func set(Image: UIImageView, forURL url: String) {
-        let url = URL(string: url)
-        Image.cf.setImage(with: url)
+    override func prepareForReuse() {
+        imageRequest?.cancel()
     }
   
    

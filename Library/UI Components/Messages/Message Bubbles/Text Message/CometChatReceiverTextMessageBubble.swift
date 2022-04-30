@@ -325,16 +325,6 @@ class CometChatReceiverTextMessageBubble: UITableViewCell {
                   }
               }
     
-    /**
-     This method used to set the image for CometChatReceiverTextMessageBubble class
-     - Parameter image: This specifies a `URL` for  the Avatar.
-     - Author: CometChat Team
-     - Copyright:  ©  2020 CometChat Inc.
-     */
-     func set(Image: UIImageView, forURL url: String) {
-        let url = URL(string: url)
-        Image.cf.setImage(with: url)
-    }
     
      
        func parseProfanityFilter(forMessage: TextMessage){

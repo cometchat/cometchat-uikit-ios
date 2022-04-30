@@ -506,52 +506,62 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
         guard  let selectedCell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem  else { return nil }
         
         let deleteAction =  UIContextualAction(style: .destructive, title: "", handler: { (action,view, completionHandler ) in
-            
-            if let conversationWith = selectedCell.conversation?.conversationWith, let conversationType = selectedCell.conversation?.conversationType {
-                
-                switch conversationType {
+ 
+            let alert = UIAlertController(title: "", message: "Are you sure you want to delete this conversation?".localized(), preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "DELETE".localized(), style: .default, handler: { (action: UIAlertAction!) in
                
-               
-                case .user:
+                if let conversationWith = selectedCell.conversation?.conversationWith, let conversationType = selectedCell.conversation?.conversationType {
                     
-                    CometChat.deleteConversation(conversationWith: (conversationWith as? User)?.uid ?? "" , conversationType: .user) { (success) in
-                        self.conversations.remove(at: indexPath.row)
-                        DispatchQueue.main.async {
-                            if !self.conversations.isEmpty{
-                                tableView.deleteRows(at: [indexPath], with: .fade)
+                    switch conversationType {
+                   
+                   
+                    case .user:
+                        
+                        CometChat.deleteConversation(conversationWith: (conversationWith as? User)?.uid ?? "" , conversationType: .user) { (success) in
+                            self.conversations.remove(at: indexPath.row)
+                            DispatchQueue.main.async {
+                                if !self.conversations.isEmpty{
+                                    tableView.deleteRows(at: [indexPath], with: .fade)
+                                }
+                                self.tableView.reloadData()
                             }
-                            self.tableView.reloadData()
-                        }
-                    } onError: { (error) in
-                        DispatchQueue.main.async {
-                            if let error = error {
-                                CometChatSnackBoard.showErrorMessage(for: error)
+                        } onError: { (error) in
+                            DispatchQueue.main.async {
+                                if let error = error {
+                                    CometChatSnackBoard.showErrorMessage(for: error)
+                                }
                             }
                         }
+
+                    case .group:
+                        
+                        CometChat.deleteConversation(conversationWith: (conversationWith as? Group)?.guid ?? "" , conversationType: .group) { (success) in
+                            self.conversations.remove(at: indexPath.row)
+                            DispatchQueue.main.async {
+                                if !self.conversations.isEmpty{
+                                    tableView.deleteRows(at: [indexPath], with: .fade)
+                                }
+                            }
+                        } onError: { (error) in
+                            DispatchQueue.main.async {
+                                if let error = error {
+                                    CometChatSnackBoard.showErrorMessage(for: error)
+                                }
+                            }
+
+                        }
+
+                    case .none: break
+                    @unknown default: break
                     }
-
-                case .group:
-                    
-                    CometChat.deleteConversation(conversationWith: (conversationWith as? Group)?.guid ?? "" , conversationType: .group) { (success) in
-                        self.conversations.remove(at: indexPath.row)
-                        DispatchQueue.main.async {
-                            if !self.conversations.isEmpty{
-                                tableView.deleteRows(at: [indexPath], with: .fade)
-                            }
-                        }
-                    } onError: { (error) in
-                        DispatchQueue.main.async {
-                            if let error = error {
-                                CometChatSnackBoard.showErrorMessage(for: error)
-                            }
-                        }
-
-                    }
-
-                case .none: break
-                @unknown default: break
                 }
-            }
+        }))
+            alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { (action: UIAlertAction!) in
+        }))
+            alert.view.tintColor = UIKitSettings.primaryColor
+            self.present(alert, animated: true, completion: nil)
+            
+          
             completionHandler(true)
         })
         
@@ -601,7 +611,7 @@ extension CometChatConversationList : UISearchBarDelegate, UISearchResultsUpdati
 
 // MARK: - CometChatMessageDelegate Delegate
 
-extension CometChatConversationList : CometChatMessageDelegate {
+extension CometChatConversationList : CometChatMessageDelegate{
     
     /**
      This method triggers when real time text message message arrives from CometChat Pro SDK
@@ -1154,3 +1164,4 @@ extension CometChatConversationList: CometChatConnectionDelegate {
         }
     }
 }
+

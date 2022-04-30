@@ -30,6 +30,8 @@ class CometChatSenderLinkPreviewBubble: UITableViewCell {
     @IBOutlet weak var replybutton: UIButton!
     
     // MARK: - Declaration of Variables
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
     var indexPath: IndexPath?
     var selectionColor: UIColor {
         set {
@@ -162,9 +164,18 @@ class CometChatSenderLinkPreviewBubble: UITableViewCell {
                 linkDescription.text = description
             }
             
-            if let thumbnail = linkPreview["image"] as? String {
-                let url = URL(string: thumbnail)
-                icon.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
+            if let thumbnail = linkPreview["image"] as? String , let url = URL(string: thumbnail){
+                
+                self.icon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.icon.image = image
+                    }else{
+                        strongSelf.icon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
             }
             
             if let linkURL = linkPreview["url"] as? String {
@@ -256,7 +267,9 @@ class CometChatSenderLinkPreviewBubble: UITableViewCell {
            super.setSelected(selected, animated: animated)
        }
     
-    
+    override func prepareForReuse() {
+                imageRequest?.cancel()
+        }
 }
 
 /*  ----------------------------------------------------------------------------------------- */

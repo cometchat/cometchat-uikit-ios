@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -135,6 +135,7 @@
                                             <constraint firstAttribute="bottom" secondItem="gtb-fP-zIc" secondAttribute="bottom" constant="8" id="Mba-Ya-Uel"/>
                                             <constraint firstAttribute="trailing" secondItem="gtb-fP-zIc" secondAttribute="trailing" constant="8" id="USG-nU-Zvb"/>
                                             <constraint firstItem="gtb-fP-zIc" firstAttribute="leading" secondItem="ck2-YM-kZE" secondAttribute="leading" constant="8" id="em3-Fn-b92"/>
+                                            <constraint firstAttribute="width" constant="250" id="hZ3-mr-NrH"/>
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qsx-tN-cfq">

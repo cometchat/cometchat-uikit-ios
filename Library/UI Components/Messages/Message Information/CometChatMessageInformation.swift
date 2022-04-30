@@ -245,7 +245,6 @@ extension CometChatMessageInformation: UITableViewDelegate, UITableViewDataSourc
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell:UITableViewCell = UITableViewCell()
         
         if  indexPath.section == 0 && indexPath.row == 0 {
             if let message = message {
@@ -555,7 +554,7 @@ extension CometChatMessageInformation: UITableViewDelegate, UITableViewDataSourc
             receiptBubble.receipt = receipt
             return receiptBubble
         }
-        return cell
+        return UITableViewCell()
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

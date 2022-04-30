@@ -42,6 +42,8 @@ class CometChatReceiverLinkPreviewBubble: UITableViewCell, WKNavigationDelegate 
     
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -309,9 +311,17 @@ class CometChatReceiverLinkPreviewBubble: UITableViewCell, WKNavigationDelegate 
                 linkDescription.text = description
             }
             
-            if let thumbnail = linkPreview["image"] as? String {
-                let url = URL(string: thumbnail)
-                icon.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
+            if let thumbnail = linkPreview["image"] as? String,  let url = URL(string: thumbnail) {
+                self.icon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.icon.image = image
+                    }else{
+                        strongSelf.icon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
             }
             
             if let linkURL = linkPreview["url"] as? String {
@@ -368,6 +378,9 @@ class CometChatReceiverLinkPreviewBubble: UITableViewCell, WKNavigationDelegate 
            }
        }
     
+    override func prepareForReuse() {
+                imageRequest?.cancel()
+        }
 }
 
 
