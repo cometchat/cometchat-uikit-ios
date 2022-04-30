@@ -14,6 +14,7 @@
 
 // Chat window
 "SENDING" = "Sending...";
+"TAP_TO_START_CONVERSATION" = "Tap to start conversation";
 "THIS_MESSAGE_DELETED" = "⚠️ This message was deleted";
 "YOU_DELETED_THIS_MESSAGE" = "⚠️ You deleted this message";
 "VIEW_ON_YOUTUBE" = "View on Youtube";

@@ -44,6 +44,8 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
     let systemLanguage = Locale.preferredLanguages.first
      weak var delegate: CometChatReceiverReplyMessageBubbleDelegate?
     weak var hyperlinkdelegate: HyperLinkDelegate?
@@ -108,7 +110,16 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
                                     if let data = customMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
                                         
                                         if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
-                                            thumbnail.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                                            self.thumbnail.image = UIImage(named: "location-map.png.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                                            imageRequest = imageService.image(for: url) { [weak self] image in
+                                                guard let strongSelf = self else { return }
+                                                // Update Thumbnail Image View
+                                                if let image = image {
+                                                    strongSelf.thumbnail.image = image
+                                                }else{
+                                                    strongSelf.thumbnail.image = UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                                                }
+                                            }
                                         }else{
                                         }
                                     }
@@ -144,7 +155,16 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
                                 if let data = customMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
                                     
                                     if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
-                                        thumbnail.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                                        self.thumbnail.image = UIImage(named: "location-map.png.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                                        imageRequest = imageService.image(for: url) { [weak self] image in
+                                            guard let strongSelf = self else { return }
+                                            // Update Thumbnail Image View
+                                            if let image = image {
+                                                strongSelf.thumbnail.image = image
+                                            }else{
+                                                strongSelf.thumbnail.image = UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                                            }
+                                        }
                                     }else{
                                     }
                                 }
@@ -282,7 +302,15 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
                                         if let data = customMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
                                             
                                             if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
-                                                thumbnail.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                                                imageRequest = imageService.image(for: url) { [weak self] image in
+                                                    guard let strongSelf = self else { return }
+                                                    // Update Thumbnail Image View
+                                                    if let image = image {
+                                                        strongSelf.thumbnail.image = image
+                                                    }else{
+                                                        strongSelf.thumbnail.image = UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                                                    }
+                                                }
                                             }else{
                                             }
                                         }
@@ -318,7 +346,15 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
                                     if let data = customMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
                                         
                                         if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
-                                            thumbnail.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                                            imageRequest = imageService.image(for: url) { [weak self] image in
+                                                guard let strongSelf = self else { return }
+                                                // Update Thumbnail Image View
+                                                if let image = image {
+                                                    strongSelf.thumbnail.image = image
+                                                }else{
+                                                    strongSelf.thumbnail.image = UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                                                }
+                                            }
                                         }else{
                                         }
                                     }
@@ -481,6 +517,7 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
         super.prepareForReuse()
         textMessage = nil
         deletedMessage = nil
+        imageRequest?.cancel()
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -495,16 +532,6 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
         }
     }
     
-    /**
-     This method used to set the image for CometChatReceiverTextMessageBubble class
-     - Parameter image: This specifies a `URL` for  the Avatar.
-     - Author: CometChat Team
-     - Copyright:  ©  2020 CometChat Inc.
-     */
-     func set(Image: UIImageView, forURL url: String) {
-        let url = URL(string: url)
-        Image.cf.setImage(with: url)
-    }
  
     private func hidethumbnailView(bool: Bool) {
         if bool == true {
@@ -740,6 +767,8 @@ class CometChatReceiverReplyMessageBubble: UITableViewCell {
                  self.parseProfanityFilter(forReplyMessage: forReplyMessage)
              }
          }
+    
+
 }
 
 

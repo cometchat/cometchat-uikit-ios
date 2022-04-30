@@ -61,7 +61,8 @@ class CometChatGroupListItem: UITableViewCell {
                     }
                     
                 }
-                groupAvatar.set(image: currentGroup.icon ?? "", with: currentGroup.name ?? "")
+                /// Set the  avatar for group
+                groupAvatar.set(image: currentGroup.icon, with: group?.name)
             }
             
         }
@@ -76,6 +77,8 @@ class CometChatGroupListItem: UITableViewCell {
     
     override func prepareForReuse() {
         group = nil
+        // Cancel Image Request
+        groupAvatar.cancel()
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

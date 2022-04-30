@@ -293,7 +293,6 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = UITableViewCell()
         if indexPath.section == 0 && indexPath.row == 0 {
             let blockedUserCell = tableView.dequeueReusableCell(withIdentifier: "CometChatAdministratorsItem", for: indexPath) as! CometChatAdministratorsItem
             blockedUserCell.title.text = "BLOCKED_USERS".localized()
@@ -312,7 +311,7 @@ extension CometChatPrivacyAndSecurity : UITableViewDelegate , UITableViewDataSou
             default: break
             }
         }
-        return cell
+        return UITableViewCell()
     }
     
     /// This method triggers when particular cell is clicked by the user .

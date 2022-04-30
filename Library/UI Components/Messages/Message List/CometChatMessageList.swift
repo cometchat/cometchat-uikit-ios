@@ -477,9 +477,14 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                 DispatchQueue.main.async {
                     if lastMessage.sender?.uid != LoggedInUser.uid {
                         if let lastMessage = lastMessage as? TextMessage {
-                            let titles = strongSelf.parseSmartRepliesMessages(message: lastMessage)
-                            strongSelf.smartRepliesView.set(titles: titles)
-                            strongSelf.hide(view: .smartRepliesView, false)
+                            if let titles = strongSelf.parseSmartRepliesMessages(message: lastMessage) {
+                                if !titles.isEmpty {
+                                    strongSelf.smartRepliesView.set(titles: titles)
+                                    strongSelf.hide(view: .smartRepliesView, false)
+                                }else{
+                                    strongSelf.hide(view: .smartRepliesView, true)
+                                }
+                            }
                         }
                     }else{
                         strongSelf.hide(view: .smartRepliesView, true)
@@ -526,9 +531,14 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                 DispatchQueue.main.async {
                     if lastMessage.sender?.uid != LoggedInUser.uid {
                         if let lastMessage = lastMessage as? TextMessage {
-                            let titles = strongSelf.parseSmartRepliesMessages(message: lastMessage)
-                            strongSelf.smartRepliesView.set(titles: titles)
-                            strongSelf.hide(view: .smartRepliesView, false)
+                            if let titles = strongSelf.parseSmartRepliesMessages(message: lastMessage) {
+                                if !titles.isEmpty {
+                                    strongSelf.smartRepliesView.set(titles: titles)
+                                    strongSelf.hide(view: .smartRepliesView, false)
+                                }else{
+                                    strongSelf.hide(view: .smartRepliesView, true)
+                                }
+                            }
                         }
                     }else{
                         strongSelf.hide(view: .smartRepliesView, true)
@@ -619,41 +629,54 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             }else{
                 detectedExtension = .none
             }
-        }else if let stickerMessage = message as? CustomMessage , let type = stickerMessage.type {
+        }
+        
+        if let stickerMessage = message as? CustomMessage , let type = stickerMessage.type {
             if type == "extension_sticker" {
                 detectedExtension = .sticker
             }else{
                 detectedExtension == .none
             }
-        }else if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let linkPreviewDictionary = cometChatExtension["link-preview"] as? [String : Any], let linkArray = linkPreviewDictionary["links"] as? [[String: Any]], let _ = linkArray[safe: 0] {
+        }
+        
+        if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["profanity-filter"] as? [String : Any] {
+            
+            detectedExtension = .profanityFilter
+            
+        }
+    
+         if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["sentiment-analysis"] as? [String : Any] {
+            
+            detectedExtension = .sentimentAnalysis
+        }
+      
+        if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let linkPreviewDictionary = cometChatExtension["link-preview"] as? [String : Any], let linkArray = linkPreviewDictionary["links"] as? [[String: Any]], let _ = linkArray[safe: 0] {
             
             detectedExtension = .linkPreview
             
-        }else if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["smart-reply"] as? [String : Any] {
+        }
+        if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["smart-reply"] as? [String : Any] {
             
             detectedExtension = .smartReply
             
-        }else if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["message-translation"] as? [String : Any] {
+        }
+        if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["message-translation"] as? [String : Any] {
             
             detectedExtension = .messageTranslation
             
-        }else if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["thumbnail-generation"] as? [String : Any] {
+        }
+        
+        if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["thumbnail-generation"] as? [String : Any] {
             
             detectedExtension = .thumbnailGeneration
             
-        }else if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["image-moderation"] as? [String : Any] {
+        }
+        
+        if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["image-moderation"] as? [String : Any] {
             
             detectedExtension = .imageModeration
             
-        }else if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["profanity-filter"] as? [String : Any] {
-            
-            detectedExtension = .profanityFilter
-            
-        }else if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let _ = cometChatExtension["sentiment-analysis"] as? [String : Any] {
-            
-            detectedExtension = .profanityFilter
         }
-        
         return detectedExtension ?? .none
     }
     
@@ -666,7 +689,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      - See Also:
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    private func parseSmartRepliesMessages(message: TextMessage) -> [String] {
+    private func parseSmartRepliesMessages(message: TextMessage) -> [String]? {
         var replyMessages: [String] = [String]()
         if  let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let smartReply = cometChatExtension["smart-reply"] as? [String : Any] {
             
@@ -2618,10 +2641,8 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView.
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell:UITableViewCell = UITableViewCell()
         
-        
-        guard let section = indexPath.section as? Int else { return cell }
+        guard let section = indexPath.section as? Int else { return UITableViewCell() }
         
         if let message = chatMessages[safe: section]?[safe: indexPath.row] {
             
@@ -3005,7 +3026,7 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
                 }
             }
         }
-        return cell
+        return UITableViewCell()
     }
     
     
@@ -4135,6 +4156,8 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                                 strongSelf.chatMessages[section][row] = message
                                 strongSelf.hideReceiptForCell(at: IndexPath(row: row - 1, section: section), bool: true, message: message)
                                 strongSelf.hideReceiptForCell(at: IndexPath(row: row, section: section), bool: false, message: message)
+                                /// Reload the last row 
+                                strongSelf.tableView?.reloadRows(at: [indexpath], with: .none)
                                 strongSelf.tableView?.endUpdates()
                                 strongSelf.send.isEnabled = true
                                 textMessage = nil
@@ -4187,6 +4210,8 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                                 strongSelf.chatMessages[section][row] = message
                                 strongSelf.hideReceiptForCell(at: IndexPath(row: row - 1, section: section), bool: true, message: message)
                                 strongSelf.hideReceiptForCell(at: IndexPath(row: row, section: section), bool: false, message: message)
+                                /// Reload the last row
+                                strongSelf.tableView?.reloadRows(at: [indexpath], with: .none)
                                 strongSelf.tableView?.endUpdates()
                                 strongSelf.send.isEnabled = true
                                 textMessage = nil
@@ -4330,15 +4355,21 @@ extension CometChatMessageList : CometChatMessageDelegate {
                 if let sender = textMessage.sender?.uid, let currentUser = strongSelf.currentUser?.uid {
                     if sender == currentUser && textMessage.receiverType == .user {
                         strongSelf.appendNewMessage(message: textMessage)
-                        let titles = strongSelf.parseSmartRepliesMessages(message: textMessage)
-                        strongSelf.smartRepliesView.set(titles: titles)
-                        strongSelf.hide(view: .smartRepliesView, false)
+                        if let titles = strongSelf.parseSmartRepliesMessages(message: textMessage) {
+                            if !titles.isEmpty {
+                                strongSelf.smartRepliesView.set(titles: titles)
+                                strongSelf.hide(view: .smartRepliesView, false)
+                            }else{
+                                strongSelf.hide(view: .smartRepliesView, true)
+                            }
+                        }
                         
                     }else if sender == LoggedInUser.uid && textMessage.receiverType == .user {
                         strongSelf.appendNewMessage(message: textMessage)
-                        let titles = strongSelf.parseSmartRepliesMessages(message: textMessage)
-                        strongSelf.smartRepliesView.set(titles: titles)
-                        strongSelf.hide(view: .smartRepliesView, true)
+                        if let titles = strongSelf.parseSmartRepliesMessages(message: textMessage) {
+                            strongSelf.smartRepliesView.set(titles: titles)
+                            strongSelf.hide(view: .smartRepliesView, true)
+                        }
                     }
                 }else{
                     CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true)
@@ -4351,14 +4382,20 @@ extension CometChatMessageList : CometChatMessageDelegate {
                     // Receiving real time messages for the group this window is opened for.
                     if group == currentGroup && textMessage.receiverType == .group && sender != LoggedInUser.uid {
                         strongSelf.appendNewMessage(message: textMessage)
-                        let titles = strongSelf.parseSmartRepliesMessages(message: textMessage)
-                        strongSelf.smartRepliesView.set(titles: titles)
-                        strongSelf.hide(view: .smartRepliesView, false)
+                        if let titles = strongSelf.parseSmartRepliesMessages(message: textMessage) {
+                            if !titles.isEmpty {
+                                strongSelf.smartRepliesView.set(titles: titles)
+                                strongSelf.hide(view: .smartRepliesView, false)
+                            }else{
+                                strongSelf.hide(view: .smartRepliesView, true)
+                            }
+                        }
                     }else if sender == LoggedInUser.uid && textMessage.receiverType == .group && group == currentGroup {
                         strongSelf.appendNewMessage(message: textMessage)
-                        let titles = strongSelf.parseSmartRepliesMessages(message: textMessage)
-                        strongSelf.smartRepliesView.set(titles: titles)
-                        strongSelf.hide(view: .smartRepliesView, true)
+                        if let titles = strongSelf.parseSmartRepliesMessages(message: textMessage) {
+                          strongSelf.smartRepliesView.set(titles: titles)
+                          strongSelf.hide(view: .smartRepliesView, true)
+                        }
                     }
                 }else{
                     CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true)

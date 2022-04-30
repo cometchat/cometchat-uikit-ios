@@ -262,7 +262,6 @@ extension CometChatUserProfile: UITableViewDelegate , UITableViewDataSource {
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell:UITableViewCell = UITableViewCell()
         if indexPath.section == 0 && indexPath.row == 0 {
             let userCell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as! CometChatUserListItem
             userCell.avatarWidth.constant = 80
@@ -302,7 +301,7 @@ extension CometChatUserProfile: UITableViewDelegate , UITableViewDataSource {
                 break
             }
         }
-        return cell
+        return UITableViewCell()
     }
     
     /// This method triggers when particular cell is clicked by the user .

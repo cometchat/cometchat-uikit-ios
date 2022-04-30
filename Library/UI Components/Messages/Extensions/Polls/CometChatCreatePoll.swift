@@ -303,7 +303,6 @@ extension CometChatCreatePoll: UITableViewDataSource , UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
         
         if indexPath.section == 0 {
             
@@ -334,7 +333,7 @@ extension CometChatCreatePoll: UITableViewDataSource , UITableViewDelegate {
             addNewOptionView.newOptionDelegate = self
             return addNewOptionView
         }
-        return cell
+        return UITableViewCell()
     }
     
     //trailingSwipeActionsConfigurationForRowAt indexPath -->

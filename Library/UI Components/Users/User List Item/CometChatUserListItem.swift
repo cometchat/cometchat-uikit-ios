@@ -35,13 +35,13 @@ class CometChatUserListItem: UITableViewCell {
     @IBOutlet weak var editInfo: UIButton!
     
     // MARK: - Declaration of Variables
-    
     weak var delegate: CometChatUserListItemDelegate?
     
     var user: User? {
         didSet {
             userName.text = user?.name
-            userAvatar.set(image: user?.avatar ?? "", with: user?.name ?? "")
+            /// Set the avatar for user.
+            userAvatar.set(image: user?.avatar, with: user?.name)
             if  user?.status != nil {
                 switch user?.status {
                 case .online:
@@ -74,6 +74,11 @@ class CometChatUserListItem: UITableViewCell {
     
     @IBAction func editInfoPressed(_ sender: Any) {
         delegate?.didEditInfoPressed()
+    }
+    
+    override func prepareForReuse() {
+        // Cancel Image Request
+        userAvatar.cancel()
     }
     
 }

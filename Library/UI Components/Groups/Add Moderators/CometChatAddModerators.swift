@@ -314,7 +314,6 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
     ///   - section: An index number identifying a section of tableView.
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = UITableViewCell()
         if mode == .fetchModerators {
             if indexPath.section == 0 {
                 let addAdminCell = tableView.dequeueReusableCell(withIdentifier: "CometChatAddMemberItem", for: indexPath) as! CometChatAddMemberItem
@@ -337,7 +336,7 @@ extension CometChatAddModerators: UITableViewDelegate , UITableViewDataSource {
             membersCell.member = member
             return membersCell
         }
-        return cell
+        return UITableViewCell()
     }
     
     

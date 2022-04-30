@@ -34,6 +34,10 @@ import  CometChatPro
     override init(frame: CGRect) { super.init(frame: frame) }
     required init?(coder aDecoder: NSCoder) { super.init(coder: aDecoder) }
     
+    // MARK: - Variable declaration.
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         self.layer.cornerRadius = cornerRadius
@@ -107,37 +111,60 @@ import  CometChatPro
      - See Also:
      [Avatar Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-1-avatar)
      */
-    @objc func set(image: String) {
-        
-        let url = URL(string: image)
-        self.cf.setImage(with: url, placeholder: UIImage(named: "defaultAvatar.jpg", in: UIKitSettings.bundle, compatibleWith: nil))
-    }
-    
-    
-    @objc func set(image: String, with name: String) {
-        DispatchQueue.main.async { [weak self] in
-            let url = URL(string: image)
-            let imageView  = UIImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-            imageView.setImage(string: name.uppercased())
-            self?.cf.setImage(with: url, placeholder: imageView.image)
+    @objc func set(image: String?, with name: String? = nil) {
+        /// This method is for set the name label to the image view.
+        setImage(string: name?.uppercased() ?? "")
+        if let urlString = image, let url = URL(string: urlString) {
+            /// This method will fetch the image from remote.
+            imageRequest = imageService.image(for: url) { [weak self] image in
+                guard let strongSelf = self else { return }
+                // Update Thumbnail Image View
+                if let image = image {
+                    strongSelf.image = image
+                }else{
+                    strongSelf.setImage(string: name?.uppercased() ?? "")
+                }
+            }
         }
     }
-    
+
+    @objc func cancel() {
+        /// This method will cancel the request.
+        imageRequest?.cancel()
+    }
     
     @objc func set(entity: AppEntity) {
         
         if let user = entity as? User {
-            let url = URL(string: user.avatar ?? "")
-            let imageView  = UIImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-            imageView.setImage(string: user.name?.uppercased())
-            self.cf.setImage(with: url, placeholder: imageView.image)
+            setImage(string: user.name?.uppercased() ?? "")
+            if  let url = URL(string: user.avatar ?? "") {
+                /// This method will fetch the image from remote.
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.image = image
+                    }else{
+                        strongSelf.setImage(string: user.name?.uppercased() ?? "")
+                    }
+                }
+            }
         }
         
         if let group = entity as? Group {
-            let url = URL(string: group.icon ?? "")
-            let imageView  = UIImageView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-            imageView.setImage(string: group.name?.uppercased())
-            self.cf.setImage(with: url, placeholder: imageView.image)
+            setImage(string: group.name?.uppercased() ?? "")
+            if let url = URL(string: group.icon ?? "") {
+                /// This method will fetch the image from remote.
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.image = image
+                    }else{
+                        strongSelf.setImage(string: group.name?.uppercased() ?? "")
+                    }
+                }
+            }
         }
     }
 }

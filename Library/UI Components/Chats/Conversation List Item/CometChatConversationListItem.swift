@@ -41,7 +41,6 @@ class CometChatConversationListItem: UITableViewCell {
     let normalSubtitlefont = UIFont.systemFont(ofSize: 15, weight: .regular)
     let boldSubtitlefont = UIFont.systemFont(ofSize: 15, weight: .bold)
     
-    
     weak var conversation: Conversation? {
         didSet {
             if let currentConversation = conversation {
@@ -54,7 +53,8 @@ class CometChatConversationListItem: UITableViewCell {
                         return
                     }
                     name.attributedText = addBoldText(fullString: user.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont)
-                    avatar.set(image: user.avatar ?? "", with: user.name ?? "")
+                    /// Set the avatar for the user.
+                    avatar.set(image: user.avatar, with: user.name)
                     status.isHidden = false
                     status.set(status: user.status)
                     
@@ -69,7 +69,8 @@ class CometChatConversationListItem: UITableViewCell {
                         return
                     }
                     name.attributedText = addBoldText(fullString: group.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont)
-                    avatar.set(image: group.icon ?? "", with: group.name ?? "")
+                    /// Set the avatar for the group.
+                    avatar.set(image: group.icon, with: group.name)
                     status.isHidden = true
                 case .none:
                     break
@@ -245,7 +246,9 @@ class CometChatConversationListItem: UITableViewCell {
                         isThread.isHidden = true
                     }
                 }else{
+                    /// When last messge does not get OR There is no conversation at all.
                     read.isHidden = true
+                    self.message.text = "TAP_TO_START_CONVERSATION".localized()
                 }
                 if #available(iOS 13.0, *) {
                     message.textColor = .label
@@ -262,6 +265,8 @@ class CometChatConversationListItem: UITableViewCell {
     override func prepareForReuse() {
         conversation = nil
         searchedText = ""
+        // Cancel Image Request
+        avatar.cancel()
     }
     
     // MARK: - Initialization of required Methods

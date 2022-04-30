@@ -28,6 +28,8 @@ class CometChatReceiverLocationMessageBubble: UITableViewCell {
     @IBOutlet weak var avatar: CometChatAvatar!
     
     // MARK: - Declaration of Variables
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -61,7 +63,15 @@ class CometChatReceiverLocationMessageBubble: UITableViewCell {
             if let data = locationMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
                 
                 if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
-                    map.cf.setImage(with: url, placeholder: UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                    imageRequest = imageService.image(for: url) { [weak self] image in
+                        guard let strongSelf = self else { return }
+                        // Update Thumbnail Image View
+                        if let image = image {
+                            strongSelf.map.image = image
+                        }else{
+                            strongSelf.map.image = UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                        }
+                    }
                 }else{
                     map.image = UIImage(named: "location-map.png", in: UIKitSettings.bundle, compatibleWith: nil)
                 }
@@ -124,6 +134,10 @@ class CometChatReceiverLocationMessageBubble: UITableViewCell {
             selectionColor = .white
         }
         
+    }
+    
+    override func prepareForReuse() {
+        imageRequest?.cancel()
     }
     
     func getMapFromLocatLon(from latitude: Double ,and longitude: Double, googleApiKey: String) -> URL? {

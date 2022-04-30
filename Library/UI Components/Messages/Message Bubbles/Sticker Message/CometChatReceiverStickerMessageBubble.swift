@@ -27,6 +27,8 @@ class CometChatReceiverStickerMessageBubble: UITableViewCell {
     
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -51,7 +53,15 @@ class CometChatReceiverStickerMessageBubble: UITableViewCell {
             }
             print("stickerMessage: \(stickerMessage.stringValue())")
             if let url = URL(string: stickerMessage.customData?["sticker_url"] as? String ?? "") {
-                imageMessage.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.imageMessage.image = image
+                    }else{
+                        strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
             }else{
                 imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
             }
@@ -93,7 +103,15 @@ class CometChatReceiverStickerMessageBubble: UITableViewCell {
         didSet {
             receiptStack.isHidden = true
             if let url = URL(string: stickerMessage.customData?["sticker_url"] as? String ?? "") {
-                imageMessage.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    // Update Thumbnail Image View
+                    if let image = image {
+                        strongSelf.imageMessage.image = image
+                    }else{
+                        strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
             }
             if stickerMessageInThread.sentAt == 0 {
                 timeStamp.text = "SENDING".localized()
@@ -145,18 +163,10 @@ class CometChatReceiverStickerMessageBubble: UITableViewCell {
            super.setSelected(selected, animated: animated)
            
        }
-    
-    /**
-     This method used to set the image for CometChatReceiverImageMessageBubble class
-     - Parameter image: This specifies a `URL` for  the CometChatAvatar.
-     - Author: CometChat Team
-     - Copyright:  ©  2020 CometChat Inc.
-     */
-     func set(Image: UIImageView, forURL url: String) {
-        let url = URL(string: url)
-        Image.cf.setImage(with: url)
-    }
 
+    override func prepareForReuse() {
+        imageRequest?.cancel()
+    }
     
 }
 

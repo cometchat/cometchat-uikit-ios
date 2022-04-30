@@ -27,7 +27,8 @@ class CometChatSharedMediaItem: UICollectionViewCell {
     @IBOutlet weak var play: UIImageView!
     
     // MARK: - Declaration of Variables.
-    
+    private var imageRequest: Cancellable?
+    private lazy var imageService = ImageService()
     var message : MediaMessage! {
         didSet {
             switch message.messageType {
@@ -36,7 +37,15 @@ class CometChatSharedMediaItem: UICollectionViewCell {
                 self.docsView.isHidden = true
                 self.play.isHidden = true
                 if let url = URL(string: message.attachment?.fileUrl ?? "") {
-                    self.photo.cf.setImage(with: url, placeholder: UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil))
+                    imageRequest = imageService.image(for: url) { [weak self] image in
+                        guard let strongSelf = self else { return }
+                        // Update Thumbnail Image View
+                        if let image = image {
+                            strongSelf.photo.image = image
+                        }else{
+                            strongSelf.photo.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                        }
+                    }
                 }
             case .video:
                 self.photo.image = nil
@@ -65,6 +74,9 @@ class CometChatSharedMediaItem: UICollectionViewCell {
         // Initialization code
     }
     
+    override func prepareForReuse() {
+        imageRequest?.cancel()
+    }
 }
 
 /*  ----------------------------------------------------------------------------------------- */

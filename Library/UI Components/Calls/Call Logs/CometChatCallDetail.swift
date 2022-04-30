@@ -361,7 +361,7 @@ extension CometChatCallDetails: UITableViewDelegate , UITableViewDataSource {
     ///   - tableView: The table-view object requesting this information.
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell:UITableViewCell = UITableViewCell()
+
         switch indexPath.section {
         case 0:
             switch settingItems[safe:indexPath.row] {
@@ -428,7 +428,7 @@ extension CometChatCallDetails: UITableViewDelegate , UITableViewDataSource {
             }
         default: break
         }
-        return cell
+        return UITableViewCell()
     }
     
     /// This method triggers when particular cell is clicked by the user .

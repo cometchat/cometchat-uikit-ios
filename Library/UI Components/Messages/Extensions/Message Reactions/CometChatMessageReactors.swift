@@ -102,14 +102,14 @@ class CometChatMessageReactors: UITableViewController {
 
    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let staticCell = UITableViewCell()
+
         if let cell = tableView.dequeueReusableCell(withIdentifier: "CometChatUserListItem", for: indexPath) as? CometChatUserListItem {
             let user = reactors[safe: indexPath.section]?.reactors?[safe:indexPath.row]
             cell.userName.text = user?.name
             cell.userAvatar.set(image: user?.avatar ?? "", with: user?.name ?? "")
             return cell
         }
-        return staticCell
+        return UITableViewCell()
     }
  
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
