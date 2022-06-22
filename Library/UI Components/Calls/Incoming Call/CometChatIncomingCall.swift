@@ -162,6 +162,14 @@ public class CometChatIncomingCall: UIViewController {
                             
                         }, onAudioModesUpdated: {(userListUpdated) in
                             
+                        }, onUserMuted: { onUserMuted in
+                            
+                        }, onCallSwitchedToVideo: { onCallSwitchedToVideo in
+                            
+                        }, onRecordingStarted: { onRecordingStarted in
+                            
+                        }, onRecordingStopped: { onRecordingStopped in
+                            
                         }, onError: { (error) in
 
                             DispatchQueue.main.async {

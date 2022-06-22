@@ -1257,9 +1257,9 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
                     }else{
                         strongSelf.chatMessages[lastSection].append(message)
                         strongSelf.filteredMessages.append(message)
-                        strongSelf.tableView?.beginUpdates()
-                        strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                        strongSelf.tableView?.endUpdates()
+                        let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                        strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                        strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                         strongSelf.tableView?.scrollToBottomRow()
                         CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
                     }
@@ -2504,9 +2504,9 @@ extension CometChatMessageList: UIDocumentPickerDelegate {
                         self.filteredMessages.append(message)
                         DispatchQueue.main.async { [weak self] in
                             guard let strongSelf = self else { return }
-                            strongSelf.tableView?.beginUpdates()
-                            strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                            strongSelf.tableView?.endUpdates()
+                            let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                            strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                             strongSelf.tableView?.scrollToBottomRow()
                         }
                     }
@@ -2541,9 +2541,9 @@ extension CometChatMessageList: UIDocumentPickerDelegate {
                         self.filteredMessages.append(message)
                         DispatchQueue.main.async { [weak self] in
                             guard let strongSelf = self else { return }
-                            strongSelf.tableView?.beginUpdates()
-                            strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                            strongSelf.tableView?.endUpdates()
+                            let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                            strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                             strongSelf.tableView?.scrollToBottomRow()
                         }
                     }
@@ -3745,9 +3745,9 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                 self.filteredMessages.append(mediaMessage!)
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.tableView?.beginUpdates()
-                    strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                    strongSelf.tableView?.endUpdates()
+                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                    strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                     strongSelf.tableView?.scrollToBottomRow()
                 }
             }
@@ -3788,9 +3788,9 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                 self.filteredMessages.append(mediaMessage!)
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.tableView?.beginUpdates()
-                    strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                    strongSelf.tableView?.endUpdates()
+                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                    strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                     strongSelf.tableView?.scrollToBottomRow()
                 }
             }
@@ -3846,9 +3846,9 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
                     strongSelf.tableViewBottomConstraint.constant = 300
-                    strongSelf.tableView?.beginUpdates()
-                    strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                    strongSelf.tableView?.endUpdates()
+                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                    strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                     strongSelf.tableView?.scrollToBottomRow()
                 }
             }
@@ -3883,9 +3883,9 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
                     strongSelf.tableViewBottomConstraint.constant = 300
-                    strongSelf.tableView?.beginUpdates()
-                    strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                    strongSelf.tableView?.endUpdates()
+                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                    strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                     strongSelf.tableView?.scrollToBottomRow()
                 }
             }
@@ -4017,11 +4017,12 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                             guard let strongSelf = self else { return }
                             strongSelf.hide(view: .editMessageView, true)
                             strongSelf.hide(view: .smartRepliesView, true)
-                            strongSelf.tableView?.beginUpdates()
-                            strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                            strongSelf.tableView?.endUpdates()
+                            let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                            strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                             strongSelf.tableView?.scrollToBottomRow()
                             strongSelf.textView.text = ""
+                            
                         }
                     }
                     CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
@@ -4031,11 +4032,8 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                             if let indexpath = strongSelf.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
                                 DispatchQueue.main.async {  [weak self] in
                                     guard let strongSelf = self else { return }
-                                    strongSelf.tableView?.beginUpdates()
                                     strongSelf.chatMessages[section][row] = message
                                     strongSelf.tableView?.reloadRows(at:[IndexPath(row: row - 1, section: section)], with: .none)
-                                    strongSelf.tableView?.reloadRows(at:[IndexPath(row: row, section: section)], with: .none)
-                                    strongSelf.tableView?.endUpdates()
                                     strongSelf.messageMode = .send
                                     strongSelf.didPreformCancel()
                                     strongSelf.send.isEnabled = true
@@ -4074,9 +4072,9 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                             guard let strongSelf = self else { return }
                             strongSelf.hide(view: .editMessageView, true)
                             strongSelf.hide(view: .smartRepliesView, true)
-                            strongSelf.tableView?.beginUpdates()
-                            strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                            strongSelf.tableView?.endUpdates()
+                            let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                            strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                             strongSelf.tableView?.scrollToBottomRow()
                             strongSelf.textView.text = ""
                         }
@@ -4088,11 +4086,8 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                             if let indexpath = strongSelf.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
                                 DispatchQueue.main.async {  [weak self] in
                                     guard let strongSelf = self else { return }
-                                    strongSelf.tableView?.beginUpdates()
                                     strongSelf.chatMessages[section][row] = message
                                     strongSelf.tableView?.reloadRows(at:[IndexPath(row: row - 1, section: section)], with: .none)
-                                    strongSelf.tableView?.reloadRows(at:[IndexPath(row: row, section: section)], with: .none)
-                                    strongSelf.tableView?.endUpdates()
                                     strongSelf.messageMode = .send
                                     strongSelf.didPreformCancel()
                                     strongSelf.send.isEnabled = true
@@ -4140,9 +4135,9 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                         DispatchQueue.main.async {[weak self] in
                             guard let strongSelf = self else { return }
                             strongSelf.hide(view: .smartRepliesView, true)
-                            strongSelf.tableView?.beginUpdates()
-                            strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                            strongSelf.tableView?.endUpdates()
+                            let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                            strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
+                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                             strongSelf.tableView?.scrollToBottomRow()
                             strongSelf.send.isEnabled = false
                             strongSelf.textView.text = ""
@@ -4152,13 +4147,11 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                         if let indexpath = self.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
                             DispatchQueue.main.async {  [weak self] in
                                 guard let strongSelf = self else { return }
-                                strongSelf.tableView?.beginUpdates()
                                 strongSelf.chatMessages[section][row] = message
                                 strongSelf.hideReceiptForCell(at: IndexPath(row: row - 1, section: section), bool: true, message: message)
                                 strongSelf.hideReceiptForCell(at: IndexPath(row: row, section: section), bool: false, message: message)
                                 /// Reload the last row 
-                                strongSelf.tableView?.reloadRows(at: [indexpath], with: .none)
-                                strongSelf.tableView?.endUpdates()
+                                strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                                 strongSelf.send.isEnabled = true
                                 textMessage = nil
                             }
@@ -4192,9 +4185,9 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                         DispatchQueue.main.async {  [weak self] in
                             guard let strongSelf = self else { return }
                             strongSelf.hide(view: .smartRepliesView, true)
-                            strongSelf.tableView?.beginUpdates()
-                            strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                            strongSelf.tableView?.endUpdates()
+                            let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                            strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
+                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                             strongSelf.tableView?.scrollToBottomRow()
                             strongSelf.textView.text = ""
                             strongSelf.send.isEnabled = false
@@ -4206,13 +4199,10 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                         if let indexpath = self.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
                             DispatchQueue.main.async {  [weak self] in
                                 guard let strongSelf = self else { return }
-                                strongSelf.tableView?.beginUpdates()
                                 strongSelf.chatMessages[section][row] = message
                                 strongSelf.hideReceiptForCell(at: IndexPath(row: row - 1, section: section), bool: true, message: message)
                                 strongSelf.hideReceiptForCell(at: IndexPath(row: row, section: section), bool: false, message: message)
-                                /// Reload the last row
                                 strongSelf.tableView?.reloadRows(at: [indexpath], with: .none)
-                                strongSelf.tableView?.endUpdates()
                                 strongSelf.send.isEnabled = true
                                 textMessage = nil
                                 
@@ -4539,7 +4529,6 @@ extension CometChatMessageList : CometChatMessageDelegate {
                             
                             strongSelf.updateReceiptForCell(at: indexpath, receipt: receipt)
                         }
-                        //                        message.readAt = Double(receipt.timeStamp)
                         strongSelf.tableView?.reloadRows(at: [indexpath], with: .none)
                         strongSelf.tableView?.endUpdates()
                     }
@@ -4569,7 +4558,6 @@ extension CometChatMessageList : CometChatMessageDelegate {
                             strongSelf.updateReceiptForCell(at: indexpath, receipt: receipt)
                         }
                         
-                        //                        message.deliveredAt = Double(receipt.timeStamp)
                         strongSelf.tableView?.reloadRows(at: [indexpath], with: .none)
                         strongSelf.tableView?.endUpdates()
                     }
@@ -4578,10 +4566,7 @@ extension CometChatMessageList : CometChatMessageDelegate {
                 if let indexpath = strongSelf.chatMessages.indexPath(where: {$0.deliveredAt == 0}), let section = indexpath.section as? Int, let row = indexpath.row as? Int, let message = strongSelf.chatMessages[section][row] as? BaseMessage {
                     DispatchQueue.main.async { [weak self] in
                         guard let strongSelf = self else { return }
-                        //                        strongSelf.tableView?.beginUpdates()
                         message.deliveredAt = Double(receipt.timeStamp)
-                        //                        strongSelf.tableView?.reloadRows(at: [indexpath], with: .none)
-                        //                        strongSelf.tableView?.endUpdates()
                     }
                 }
             }
@@ -4649,10 +4634,8 @@ extension CometChatMessageList : CometChatMessageDelegate {
         if let indexpath = chatMessages.indexPath(where: {$0.id == message.id}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
             DispatchQueue.main.async {  [weak self] in
                 guard let strongSelf = self else { return }
-                strongSelf.tableView?.beginUpdates()
                 strongSelf.chatMessages[section][row] = message
                 strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                strongSelf.tableView?.endUpdates()
             }
         }
     }
@@ -4677,10 +4660,8 @@ extension CometChatMessageList : CometChatMessageDelegate {
                 if let indexpath = self.chatMessages.indexPath(where: {$0.id == message.id}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
                     DispatchQueue.main.async {  [weak self] in
                         guard let strongSelf = self else { return }
-                        strongSelf.tableView?.beginUpdates()
                         strongSelf.chatMessages[section][row] = message
                         strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                        strongSelf.tableView?.endUpdates()
                     }
                 }
             }
@@ -4912,9 +4893,9 @@ extension CometChatMessageList : CometChatSmartRepliesPreviewDelegate {
             CometChat.endTyping(indicator: indicator)
             DispatchQueue.main.async {  [weak self] in
                 guard let strongSelf = self else { return }
-                strongSelf.tableView?.beginUpdates()
-                strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                strongSelf.tableView?.endUpdates()
+                let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
+                strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                 strongSelf.tableView?.scrollToBottomRow()
                 strongSelf.textView.text = ""
             }
@@ -4950,9 +4931,9 @@ extension CometChatMessageList : CometChatSmartRepliesPreviewDelegate {
             CometChat.endTyping(indicator: indicator)
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else { return }
-                strongSelf.tableView?.beginUpdates()
-                strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                strongSelf.tableView?.endUpdates()
+                let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
+                strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                 strongSelf.tableView?.scrollToBottomRow()
                 strongSelf.textView.text = ""
             }
@@ -5456,9 +5437,9 @@ extension CometChatMessageList : MessageActionsDelegate {
                                 }else{
                                     strongSelf.chatMessages[lastSection].append(message)
                                     strongSelf.filteredMessages.append(message)
-                                    strongSelf.tableView?.beginUpdates()
-                                    strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                                    strongSelf.tableView?.endUpdates()
+                                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                                    strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
+                                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                                     strongSelf.tableView?.scrollToBottomRow()
                                     CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
                                 }
@@ -5512,9 +5493,9 @@ extension CometChatMessageList : MessageActionsDelegate {
                                 }else{
                                     strongSelf.chatMessages[lastSection].append(message)
                                     strongSelf.filteredMessages.append(message)
-                                    strongSelf.tableView?.beginUpdates()
-                                    strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
-                                    strongSelf.tableView?.endUpdates()
+                                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                                    strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
+                                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
                                     strongSelf.tableView?.scrollToBottomRow()
                                     CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
                                 }

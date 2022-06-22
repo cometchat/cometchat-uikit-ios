@@ -195,6 +195,14 @@ extension CometChatOutgoingCall: OutgoingCallDelegate {
                         
                     }, onAudioModesUpdated: {(userListUpdated) in
                         
+                    }, onUserMuted: { onUserMuted in
+                        
+                    }, onCallSwitchedToVideo: { onCallSwitchedToVideo in
+                        
+                    }, onRecordingStarted: { onRecordingStarted in
+                        
+                    }, onRecordingStopped: { onRecordingStopped in
+                        
                     }, onError: { (error) in
 
                         DispatchQueue.main.async {
