@@ -4,13 +4,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "CometChatProUIKit",
+    name: "CometChatUIKit",
     defaultLocalization: "en",
     platforms: [
         .iOS(.v13)
     ],
     products: [
-        .library(name: "CometChatProUIKit", targets: ["CometChatProUIKit"])
+        .library(name: "CometChatUIKit", targets: ["CometChatUIKit"])
     ],
     
     dependencies: [
@@ -21,7 +21,7 @@ let package = Package(
         )
     ],
     targets: [
-        .target(name: "CometChatProUIKit", dependencies: ["CometChatPro"], path:  "./Sources/Components" ,
+        .target(name: "CometChatUIKit", dependencies: ["CometChatPro"], path:  "./Sources/Components" ,
                 resources: [.process("Chats/Resources"), .process("Groups/Resources"), .process("Messages/Resources"), .process("Shared/Resources"), .process("Users/Resources") ])
        ,
     ]
