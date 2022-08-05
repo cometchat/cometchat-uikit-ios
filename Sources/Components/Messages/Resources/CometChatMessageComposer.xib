@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatMessageComposer" customModule="CometChatUIKit">
+            <connections>
+                <outlet property="attachment" destination="wys-dO-xKt" id="NMr-KO-YPg"/>
+                <outlet property="background" destination="0zE-kA-sqy" id="5d8-Za-poN"/>
+                <outlet property="bottomView" destination="AJO-Oc-Byf" id="B8l-Ph-zcz"/>
+                <outlet property="close" destination="6De-m6-eaZ" id="kD8-zX-b8O"/>
+                <outlet property="contentView" destination="iN0-l3-epB" id="B1t-A3-wpY"/>
+                <outlet property="emoji" destination="9v3-Ip-RWQ" id="T95-VX-SbV"/>
+                <outlet property="heightConstant" destination="ES4-is-eXh" id="Mh3-Fl-QRQ"/>
+                <outlet property="liveReaction" destination="Ltt-ZF-V8j" id="29X-VM-D6s"/>
+                <outlet property="messagePreview" destination="hTB-02-HvD" id="pxh-0A-Oug"/>
+                <outlet property="send" destination="rhO-YJ-UHF" id="T0Z-KH-0IG"/>
+                <outlet property="seperator" destination="A6a-N7-Dvn" id="Gqb-8w-zKA"/>
+                <outlet property="sticker" destination="ORh-Zk-wqH" id="2Ku-Wn-rfq"/>
+                <outlet property="subtitle" destination="gTh-Jb-6gz" id="x7z-Yb-hmQ"/>
+                <outlet property="textView" destination="W8h-8y-bPT" id="LKc-uH-nu6"/>
+                <outlet property="title" destination="nU7-8B-Goq" id="taa-rl-DNf"/>
+                <outlet property="topView" destination="e9Z-JJ-yHn" id="cYO-Ym-J5M"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="572" height="207"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hTB-02-HvD">
+                    <rect key="frame" x="0.0" y="55" width="572" height="60"/>
+                    <subviews>
+                        <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="fuh-qf-b4c">
+                            <rect key="frame" x="20" y="5" width="502" height="50"/>
+                            <subviews>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ClC-G6-J4S">
+                                    <rect key="frame" x="0.0" y="0.0" width="3" height="50"/>
+                                    <color key="backgroundColor" systemColor="systemFillColor"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="3" id="yC6-UD-Azk"/>
+                                    </constraints>
+                                </view>
+                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="JgR-SV-9yO">
+                                    <rect key="frame" x="13" y="2" width="489" height="46"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nU7-8B-Goq">
+                                            <rect key="frame" x="0.0" y="0.0" width="489" height="20.5"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gTh-Jb-6gz">
+                                            <rect key="frame" x="0.0" y="25.5" width="489" height="20.5"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </stackView>
+                            </subviews>
+                        </stackView>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6De-m6-eaZ">
+                            <rect key="frame" x="532" y="10" width="20" height="20"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="20" id="F8s-lZ-TbU"/>
+                                <constraint firstAttribute="width" constant="20" id="xye-mR-dEh"/>
+                            </constraints>
+                            <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <buttonConfiguration key="configuration" style="plain" image="button:6De-m6-eaZ:image"/>
+                            <connections>
+                                <action selector="onCloseClick:" destination="-1" eventType="touchUpInside" id="Sep-Gd-kg4"/>
+                            </connections>
+                        </button>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YB8-Aa-LwW">
+                            <rect key="frame" x="0.0" y="0.0" width="572" height="1"/>
+                            <color key="backgroundColor" systemColor="systemFillColor"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="1" id="xs6-RX-bbj"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="60" id="6N0-0E-6gc"/>
+                        <constraint firstAttribute="trailing" secondItem="6De-m6-eaZ" secondAttribute="trailing" constant="20" id="78x-tV-sog"/>
+                        <constraint firstItem="fuh-qf-b4c" firstAttribute="leading" secondItem="hTB-02-HvD" secondAttribute="leading" constant="20" id="eB4-Ln-K2d"/>
+                        <constraint firstItem="6De-m6-eaZ" firstAttribute="leading" secondItem="fuh-qf-b4c" secondAttribute="trailing" constant="10" id="lcx-fn-J4g"/>
+                        <constraint firstItem="YB8-Aa-LwW" firstAttribute="leading" secondItem="hTB-02-HvD" secondAttribute="leading" id="lnF-GW-kDh"/>
+                        <constraint firstItem="6De-m6-eaZ" firstAttribute="top" secondItem="hTB-02-HvD" secondAttribute="top" constant="10" id="oG5-NN-SlC"/>
+                        <constraint firstItem="YB8-Aa-LwW" firstAttribute="top" secondItem="hTB-02-HvD" secondAttribute="top" id="vEx-94-pJH"/>
+                        <constraint firstAttribute="trailing" secondItem="YB8-Aa-LwW" secondAttribute="trailing" id="wyg-rx-f6y"/>
+                        <constraint firstItem="fuh-qf-b4c" firstAttribute="centerY" secondItem="hTB-02-HvD" secondAttribute="centerY" id="y2t-UB-joA"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0zE-kA-sqy" customClass="CometChatGradientView" customModule="CometChatUIKit">
+                    <rect key="frame" x="0.0" y="115" width="572" height="92"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="A6a-N7-Dvn">
+                            <rect key="frame" x="20" y="36" width="532" height="1"/>
+                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="1" id="4VG-72-Nf6"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AJO-Oc-Byf">
+                            <rect key="frame" x="20" y="37" width="532" height="45"/>
+                            <subviews>
+                                <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wys-dO-xKt">
+                                    <rect key="frame" x="10" y="7.5" width="25" height="30"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="30" id="MFl-jB-bJS"/>
+                                    </constraints>
+                                    <color key="tintColor" systemColor="labelColor"/>
+                                    <state key="normal" image="message-composer-plus.png"/>
+                                    <connections>
+                                        <action selector="onAttachmentClick:" destination="-1" eventType="touchUpInside" id="3CN-1O-RqD"/>
+                                    </connections>
+                                </button>
+                                <stackView opaque="NO" contentMode="scaleToFill" alignment="bottom" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="8v2-gN-9d6">
+                                    <rect key="frame" x="425" y="10.5" width="97" height="24"/>
+                                    <subviews>
+                                        <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9v3-Ip-RWQ">
+                                            <rect key="frame" x="0.0" y="0.0" width="0.0" height="24"/>
+                                            <state key="normal" image="messages-emoji.png"/>
+                                            <connections>
+                                                <action selector="onEmojiClick:" destination="-1" eventType="touchUpInside" id="hBR-TL-Cyz"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ORh-Zk-wqH">
+                                            <rect key="frame" x="0.0" y="0.0" width="24" height="24"/>
+                                            <state key="normal" image="message-composer-sticker.png"/>
+                                            <connections>
+                                                <action selector="onStickerClick:" destination="-1" eventType="touchUpInside" id="fPS-Sn-TSW"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ltt-ZF-V8j">
+                                            <rect key="frame" x="36" y="0.0" width="25" height="24"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="24" id="ncO-HY-g52"/>
+                                            </constraints>
+                                            <state key="normal" image="message-composer-heart.png"/>
+                                            <connections>
+                                                <action selector="onLiveReactionClick:" destination="-1" eventType="touchUpInside" id="Gjy-dU-zBb"/>
+                                            </connections>
+                                        </button>
+                                        <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rhO-YJ-UHF">
+                                            <rect key="frame" x="73" y="0.0" width="24" height="24"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <state key="normal" image="message-composer-send.png"/>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="setCornerRadius">
+                                                    <real key="value" value="0.0"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
+                                            <connections>
+                                                <action selector="onSendClick:" destination="-1" eventType="touchUpInside" id="niw-dY-Ilp"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                </stackView>
+                            </subviews>
+                            <color key="backgroundColor" systemColor="secondarySystemFillColor"/>
+                            <constraints>
+                                <constraint firstAttribute="trailing" secondItem="8v2-gN-9d6" secondAttribute="trailing" constant="10" id="EZ3-Tx-Wqr"/>
+                                <constraint firstAttribute="height" constant="45" id="aGJ-R7-zTJ"/>
+                                <constraint firstItem="8v2-gN-9d6" firstAttribute="centerY" secondItem="AJO-Oc-Byf" secondAttribute="centerY" id="bIr-WK-khe"/>
+                                <constraint firstItem="wys-dO-xKt" firstAttribute="centerY" secondItem="AJO-Oc-Byf" secondAttribute="centerY" id="i8n-cy-UgK"/>
+                                <constraint firstItem="wys-dO-xKt" firstAttribute="leading" secondItem="AJO-Oc-Byf" secondAttribute="leading" constant="10" id="zzh-up-89G"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e9Z-JJ-yHn">
+                            <rect key="frame" x="20" y="8" width="532" height="28"/>
+                            <subviews>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="W8h-8y-bPT" customClass="GrowingTextView" customModule="CometChatUIKit">
+                                    <rect key="frame" x="5" y="0.0" width="522" height="28"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </view>
+                            </subviews>
+                            <color key="backgroundColor" systemColor="systemFillColor"/>
+                            <constraints>
+                                <constraint firstAttribute="bottom" secondItem="W8h-8y-bPT" secondAttribute="bottom" id="5fb-nq-deO"/>
+                                <constraint firstAttribute="height" constant="28" id="ES4-is-eXh"/>
+                                <constraint firstItem="W8h-8y-bPT" firstAttribute="top" secondItem="e9Z-JJ-yHn" secondAttribute="top" id="Pte-So-RUm"/>
+                                <constraint firstAttribute="trailing" secondItem="W8h-8y-bPT" secondAttribute="trailing" constant="5" id="ZT5-IQ-8yr"/>
+                                <constraint firstItem="W8h-8y-bPT" firstAttribute="leading" secondItem="e9Z-JJ-yHn" secondAttribute="leading" constant="5" id="jhB-dy-yCT"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="A6a-N7-Dvn" secondAttribute="trailing" constant="20" symbolic="YES" id="2Ir-hO-PmR"/>
+                        <constraint firstItem="A6a-N7-Dvn" firstAttribute="top" secondItem="e9Z-JJ-yHn" secondAttribute="bottom" id="5LH-hK-1To"/>
+                        <constraint firstItem="e9Z-JJ-yHn" firstAttribute="leading" secondItem="0zE-kA-sqy" secondAttribute="leading" constant="20" symbolic="YES" id="GYr-CV-Scf"/>
+                        <constraint firstItem="AJO-Oc-Byf" firstAttribute="leading" secondItem="0zE-kA-sqy" secondAttribute="leading" constant="20" id="JHg-Zf-nND"/>
+                        <constraint firstAttribute="bottom" secondItem="AJO-Oc-Byf" secondAttribute="bottom" constant="10" id="JVQ-DK-L5F"/>
+                        <constraint firstAttribute="trailing" secondItem="AJO-Oc-Byf" secondAttribute="trailing" constant="20" id="Oyh-Tj-S6H"/>
+                        <constraint firstItem="A6a-N7-Dvn" firstAttribute="leading" secondItem="0zE-kA-sqy" secondAttribute="leading" constant="20" symbolic="YES" id="f42-DX-EW5"/>
+                        <constraint firstAttribute="trailing" secondItem="e9Z-JJ-yHn" secondAttribute="trailing" constant="20" symbolic="YES" id="toi-kx-5AZ"/>
+                        <constraint firstItem="AJO-Oc-Byf" firstAttribute="top" secondItem="A6a-N7-Dvn" secondAttribute="bottom" id="wad-CI-Afq"/>
+                        <constraint firstItem="e9Z-JJ-yHn" firstAttribute="top" secondItem="0zE-kA-sqy" secondAttribute="top" constant="8" id="xxZ-ER-ZGO"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <constraints>
+                <constraint firstItem="hTB-02-HvD" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="2FR-ac-7Gk"/>
+                <constraint firstAttribute="trailing" secondItem="hTB-02-HvD" secondAttribute="trailing" id="ENC-SH-P3F"/>
+                <constraint firstAttribute="trailing" secondItem="0zE-kA-sqy" secondAttribute="trailing" id="Pn5-2y-Udk"/>
+                <constraint firstItem="0zE-kA-sqy" firstAttribute="top" secondItem="hTB-02-HvD" secondAttribute="bottom" id="SgU-7R-W4h"/>
+                <constraint firstAttribute="bottom" secondItem="0zE-kA-sqy" secondAttribute="bottom" id="TCU-zI-w8f"/>
+                <constraint firstItem="0zE-kA-sqy" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="mEO-P1-Ht4"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="334.78260869565219" y="-278.23660714285711"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="button:6De-m6-eaZ:image" width="15" height="15">
+            <mutableData key="keyedArchiveRepresentation">
+YnBsaXN0MDDUAQIDBAUGBwpYJHZlcnNpb25ZJGFyY2hpdmVyVCR0b3BYJG9iamVjdHMSAAGGoF8QD05T
+S2V5ZWRBcmNoaXZlctEICVRyb290gAGvEBALDBccEyEmJy4xND5GR0tOVSRudWxs1Q0ODxAREhMUFRZW
+JGNsYXNzXk5TUmVzaXppbmdNb2RlXE5TSW1hZ2VGbGFnc1ZOU1JlcHNXTlNDb2xvcoAPEAASAMAAAIAC
+gArSGA0ZG1pOUy5vYmplY3RzoRqAA4AJ0hgNHSCiHh+ABIAFgAjTDSIjJCUTXxAUTlNUSUZGUmVwcmVz
+ZW50YXRpb25fEBlOU0ludGVybmFsTGF5b3V0RGlyZWN0aW9ugAeABk8RETpNTQAqAAAOGP///wEVFRVK
+FRUVSv///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8BFRUVShUVFUr///8BAAAAABUVFUoUFBT/
+FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///wEVFRWdFBQU/xQUFP8VFRVKAAAAABUVFUoUFBT/
+FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////ARUVFZ0UFBT/FBQU/xQUFP8VFRVKAAAAAP///wEVFRWd
+FBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAD///8BFRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAAAAAAD///8B
+FRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAP///wEVFRWdFBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAAAAAAA
+////ARUVFZ0UFBT/FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAA////ARUVFZ0UFBT/FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAP///wEVFRWdFBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAD///8BFRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAD///8BFRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAP///wEVFRWdFBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAA////ARUVFZ0UFBT/FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAA
+////ARUVFZ0UFBT/FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAP///wEVFRWdFBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAD///8B
+FRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAD///8BFRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAP///wEVFRWd
+FBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////ARUVFZ0UFBT/FBQU/xQUFP8VFRWd////ARUVFZ0UFBT/
+FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///wEVFRWdFBQU/xQUFP8UFBT/FBQU2RQUFP8UFBT/
+FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8BFRUVnRQUFP8UFBT/FBQU/xQUFP8UFBT/
+FRUVnf///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////ARQUFNkUFBT/FBQU/xQUFP8UFBTZ
+////AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8BFRUVnRQUFP8UFBT/FBQU/xQUFP8UFBT/
+FRUVnf///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///wEVFRWdFBQU/xQUFP8UFBT/FBQU2RQUFP8UFBT/
+FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////ARUVFZ0UFBT/FBQU/xQUFP8VFRWd////ARUVFZ0UFBT/
+FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAD///8BFRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAP///wEVFRWd
+FBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAP///wEVFRWdFBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAD///8B
+FRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAA////ARUVFZ0UFBT/FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAA
+////ARUVFZ0UFBT/FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAD///8BFRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAP///wEVFRWdFBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAP///wEVFRWdFBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAD///8BFRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+////ARUVFZ0UFBT/FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAA////ARUVFZ0UFBT/FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAD///8B
+FRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAP///wEVFRWdFBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAP///wEVFRWd
+FBQU/xQUFP8UFBT/FRUVnf///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAD///8BFRUVnRQUFP8UFBT/FBQU/xUVFZ3///8BAAAAABUVFUoUFBT/
+FBQU/xQUFP8VFRWd////AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////ARUVFZ0UFBT/FBQU/xQUFP8VFRVKAAAAABUVFUoUFBT/
+FBQU/xUVFZ3///8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///wEVFRWdFBQU/xQUFP8VFRVKAAAAAP///wEVFRVK
+FRUVSv///wEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8BFRUVShUVFUr///8BAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASAQAAAwAA
+AAEAHgAAAQEAAwAAAAEAHgAAAQIAAwAAAAQAAA8GAQMAAwAAAAEAAQAAAQYAAwAAAAEAAgAAAQoAAwAA
+AAEAAQAAAREABAAAAAEAAAAIARIAAwAAAAEAAQAAARUAAwAAAAEABAAAARYAAwAAAAEAHgAAARcABAAA
+AAEAAA4QARoABQAAAAEAAA72ARsABQAAAAEAAA7+ARwAAwAAAAEAAQAAASgAAwAAAAEAAgAAAVIAAwAA
+AAEAAgAAAVMAAwAAAAQAAA8Oh3MABwAAAiQAAA8WAAAAAAAAAJAAAAABAAAAkAAAAAEACAAIAAgACAAB
+AAEAAQABAAACJGFwcGwEAAAAbW50clJHQiBYWVogB+EABwAHAA0AFgAgYWNzcEFQUEwAAAAAQVBQTAAA
+AAAAAAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1hcHBsyhqVgiV/EE04mRPV0eoVggAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAKZGVzYwAAAPwAAABlY3BydAAAAWQAAAAjd3RwdAAAAYgAAAAUclhZWgAA
+AZwAAAAUZ1hZWgAAAbAAAAAUYlhZWgAAAcQAAAAUclRSQwAAAdgAAAAgY2hhZAAAAfgAAAAsYlRSQwAA
+AdgAAAAgZ1RSQwAAAdgAAAAgZGVzYwAAAAAAAAALRGlzcGxheSBQMwAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAB0ZXh0AAAAAENvcHlyaWdodCBBcHBsZSBJbmMuLCAyMDE3AABYWVogAAAAAAAA81EAAQAAAAEWzFhZ
+WiAAAAAAAACD3wAAPb////+7WFlaIAAAAAAAAEq/AACxNwAACrlYWVogAAAAAAAAKDgAABELAADIuXBh
+cmEAAAAAAAMAAAACZmYAAPKnAAANWQAAE9AAAApbc2YzMgAAAAAAAQxCAAAF3v//8yYAAAeTAAD9kP//
++6L///2jAAAD3AAAwG7SKCkqK1okY2xhc3NuYW1lWCRjbGFzc2VzXxAQTlNCaXRtYXBJbWFnZVJlcKMq
+LC1aTlNJbWFnZVJlcFhOU09iamVjdNIoKS8wV05TQXJyYXmiLy3SKCkyM15OU011dGFibGVBcnJheaMy
+Ly3VNTY3OA05Ojs8PVdOU1doaXRlXE5TQ29tcG9uZW50c1xOU0NvbG9yU3BhY2VfEBJOU0N1c3RvbUNv
+bG9yU3BhY2VEMCAwAEMwIDAQA4ALgA7UP0BBDUJDREVUTlNJRFVOU0lDQ1dOU01vZGVsEAmADBAAgA1P
+ERGcAAARnGFwcGwCAAAAbW50ckdSQVlYWVogB9wACAAXAA8ALgAPYWNzcEFQUEwAAAAAbm9uZQAAAAAA
+AAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1hcHBsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAFZGVzYwAAAMAAAAB5ZHNjbQAAATwAAAgaY3BydAAACVgAAAAjd3RwdAAACXwA
+AAAUa1RSQwAACZAAAAgMZGVzYwAAAAAAAAAfR2VuZXJpYyBHcmF5IEdhbW1hIDIuMiBQcm9maWxlAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAG1sdWMAAAAAAAAAHwAAAAxza1NLAAAALgAAAYRkYURLAAAAOgAAAbJj
+YUVTAAAAOAAAAex2aVZOAAAAQAAAAiRwdEJSAAAASgAAAmR1a1VBAAAALAAAAq5mckZVAAAAPgAAAtpo
+dUhVAAAANAAAAxh6aFRXAAAAGgAAA0xrb0tSAAAAIgAAA2ZuYk5PAAAAOgAAA4hjc0NaAAAAKAAAA8Jo
+ZUlMAAAAJAAAA+pyb1JPAAAAKgAABA5kZURFAAAATgAABDhpdElUAAAATgAABIZzdlNFAAAAOAAABNR6
+aENOAAAAGgAABQxqYUpQAAAAJgAABSZlbEdSAAAAKgAABUxwdFBPAAAAUgAABXZubE5MAAAAQAAABchl
+c0VTAAAATAAABgh0aFRIAAAAMgAABlR0clRSAAAAJAAABoZmaUZJAAAARgAABqpockhSAAAAPgAABvBw
+bFBMAAAASgAABy5hckVHAAAALAAAB3hydVJVAAAAOgAAB6RlblVTAAAAPAAAB94AVgFhAGUAbwBiAGUA
+YwBuAOEAIABzAGkAdgDhACAAZwBhAG0AYQAgADIALAAyAEcAZQBuAGUAcgBpAHMAawAgAGcAcgDlACAA
+MgAsADIAIABnAGEAbQBtAGEALQBwAHIAbwBmAGkAbABHAGEAbQBtAGEAIABkAGUAIABnAHIAaQBzAG8A
+cwAgAGcAZQBuAOgAcgBpAGMAYQAgADIALgAyAEMepQB1ACAAaADsAG4AaAAgAE0A4AB1ACAAeADhAG0A
+IABDAGgAdQBuAGcAIABHAGEAbQBtAGEAIAAyAC4AMgBQAGUAcgBmAGkAbAAgAEcAZQBuAOkAcgBpAGMA
+bwAgAGQAYQAgAEcAYQBtAGEAIABkAGUAIABDAGkAbgB6AGEAcwAgADIALAAyBBcEMAQzBDAEOwRMBD0E
+MAAgAEcAcgBhAHkALQQzBDAEPAQwACAAMgAuADIAUAByAG8AZgBpAGwAIABnAOkAbgDpAHIAaQBxAHUA
+ZQAgAGcAcgBpAHMAIABnAGEAbQBtAGEAIAAyACwAMgDBAGwAdABhAGwA4QBuAG8AcwAgAHMAegD8AHIA
+awBlACAAZwBhAG0AbQBhACAAMgAuADKQGnUocHCWjlFJXqYAMgAuADKCcl9pY8+P8Md8vBgAINaMwMkA
+IKwQucgAIAAyAC4AMgAg1QS4XNMMx3wARwBlAG4AZQByAGkAcwBrACAAZwByAOUAIABnAGEAbQBtAGEA
+IAAyACwAMgAtAHAAcgBvAGYAaQBsAE8AYgBlAGMAbgDhACABYQBlAGQA4QAgAGcAYQBtAGEAIAAyAC4A
+MgXSBdAF3gXUACAF0AXkBdUF6AAgBdsF3AXcBdkAIAAyAC4AMgBHAGEAbQBhACAAZwByAGkAIABnAGUA
+bgBlAHIAaQBjAQMAIAAyACwAMgBBAGwAbABnAGUAbQBlAGkAbgBlAHMAIABHAHIAYQB1AHMAdAB1AGYA
+ZQBuAC0AUAByAG8AZgBpAGwAIABHAGEAbQBtAGEAIAAyACwAMgBQAHIAbwBmAGkAbABvACAAZwByAGkA
+ZwBpAG8AIABnAGUAbgBlAHIAaQBjAG8AIABkAGUAbABsAGEAIABnAGEAbQBtAGEAIAAyACwAMgBHAGUA
+bgBlAHIAaQBzAGsAIABnAHIA5QAgADIALAAyACAAZwBhAG0AbQBhAHAAcgBvAGYAaQBsZm6QGnBwXqZ8
++2VwADIALgAyY8+P8GWHTvZOAIIsMLAw7DCkMKww8zDeACAAMgAuADIAIDDXMO0w1TChMKQw6wOTA7UD
+vQO5A7oDzAAgA5MDugPBA7kAIAOTA6wDvAO8A7EAIAAyAC4AMgBQAGUAcgBmAGkAbAAgAGcAZQBuAOkA
+cgBpAGMAbwAgAGQAZQAgAGMAaQBuAHoAZQBuAHQAbwBzACAAZABhACAARwBhAG0AbQBhACAAMgAsADIA
+QQBsAGcAZQBtAGUAZQBuACAAZwByAGkAagBzACAAZwBhAG0AbQBhACAAMgAsADIALQBwAHIAbwBmAGkA
+ZQBsAFAAZQByAGYAaQBsACAAZwBlAG4A6QByAGkAYwBvACAAZABlACAAZwBhAG0AbQBhACAAZABlACAA
+ZwByAGkAcwBlAHMAIAAyACwAMg4jDjEOBw4qDjUOQQ4BDiEOIQ4yDkAOAQ4jDiIOTA4XDjEOSA4nDkQO
+GwAgADIALgAyAEcAZQBuAGUAbAAgAEcAcgBpACAARwBhAG0AYQAgADIALAAyAFkAbABlAGkAbgBlAG4A
+IABoAGEAcgBtAGEAYQBuACAAZwBhAG0AbQBhACAAMgAsADIAIAAtAHAAcgBvAGYAaQBpAGwAaQBHAGUA
+bgBlAHIAaQENAGsAaQAgAEcAcgBhAHkAIABHAGEAbQBtAGEAIAAyAC4AMgAgAHAAcgBvAGYAaQBsAFUA
+bgBpAHcAZQByAHMAYQBsAG4AeQAgAHAAcgBvAGYAaQBsACAAcwB6AGEAcgBvAVsAYwBpACAAZwBhAG0A
+bQBhACAAMgAsADIGOgYnBkUGJwAgADIALgAyACAGRAZIBkYAIAYxBkUGJwYvBkoAIAY5BicGRQQeBDEE
+SQQwBE8AIARBBDUEQAQwBE8AIAQzBDAEPAQ8BDAAIAAyACwAMgAtBD8EQAQ+BEQEOAQ7BEwARwBlAG4A
+ZQByAGkAYwAgAEcAcgBhAHkAIABHAGEAbQBtAGEAIAAyAC4AMgAgAFAAcgBvAGYAaQBsAGUAAHRleHQA
+AAAAQ29weXJpZ2h0IEFwcGxlIEluYy4sIDIwMTIAAFhZWiAAAAAAAADzUQABAAAAARbMY3VydgAAAAAA
+AAQAAAAABQAKAA8AFAAZAB4AIwAoAC0AMgA3ADsAQABFAEoATwBUAFkAXgBjAGgAbQByAHcAfACBAIYA
+iwCQAJUAmgCfAKQAqQCuALIAtwC8AMEAxgDLANAA1QDbAOAA5QDrAPAA9gD7AQEBBwENARMBGQEfASUB
+KwEyATgBPgFFAUwBUgFZAWABZwFuAXUBfAGDAYsBkgGaAaEBqQGxAbkBwQHJAdEB2QHhAekB8gH6AgMC
+DAIUAh0CJgIvAjgCQQJLAlQCXQJnAnECegKEAo4CmAKiAqwCtgLBAssC1QLgAusC9QMAAwsDFgMhAy0D
+OANDA08DWgNmA3IDfgOKA5YDogOuA7oDxwPTA+AD7AP5BAYEEwQgBC0EOwRIBFUEYwRxBH4EjASaBKgE
+tgTEBNME4QTwBP4FDQUcBSsFOgVJBVgFZwV3BYYFlgWmBbUFxQXVBeUF9gYGBhYGJwY3BkgGWQZqBnsG
+jAadBq8GwAbRBuMG9QcHBxkHKwc9B08HYQd0B4YHmQesB78H0gflB/gICwgfCDIIRghaCG4IggiWCKoI
+vgjSCOcI+wkQCSUJOglPCWQJeQmPCaQJugnPCeUJ+woRCicKPQpUCmoKgQqYCq4KxQrcCvMLCwsiCzkL
+UQtpC4ALmAuwC8gL4Qv5DBIMKgxDDFwMdQyODKcMwAzZDPMNDQ0mDUANWg10DY4NqQ3DDd4N+A4TDi4O
+SQ5kDn8Omw62DtIO7g8JDyUPQQ9eD3oPlg+zD88P7BAJECYQQxBhEH4QmxC5ENcQ9RETETERTxFtEYwR
+qhHJEegSBxImEkUSZBKEEqMSwxLjEwMTIxNDE2MTgxOkE8UT5RQGFCcUSRRqFIsUrRTOFPAVEhU0FVYV
+eBWbFb0V4BYDFiYWSRZsFo8WshbWFvoXHRdBF2UXiReuF9IX9xgbGEAYZRiKGK8Y1Rj6GSAZRRlrGZEZ
+txndGgQaKhpRGncanhrFGuwbFBs7G2MbihuyG9ocAhwqHFIcexyjHMwc9R0eHUcdcB2ZHcMd7B4WHkAe
+ah6UHr4e6R8THz4faR+UH78f6iAVIEEgbCCYIMQg8CEcIUghdSGhIc4h+yInIlUigiKvIt0jCiM4I2Yj
+lCPCI/AkHyRNJHwkqyTaJQklOCVoJZclxyX3JicmVyaHJrcm6CcYJ0kneierJ9woDSg/KHEooijUKQYp
+OClrKZ0p0CoCKjUqaCqbKs8rAis2K2krnSvRLAUsOSxuLKIs1y0MLUEtdi2rLeEuFi5MLoIuty7uLyQv
+Wi+RL8cv/jA1MGwwpDDbMRIxSjGCMbox8jIqMmMymzLUMw0zRjN/M7gz8TQrNGU0njTYNRM1TTWHNcI1
+/TY3NnI2rjbpNyQ3YDecN9c4FDhQOIw4yDkFOUI5fzm8Ofk6Njp0OrI67zstO2s7qjvoPCc8ZTykPOM9
+Ij1hPaE94D4gPmA+oD7gPyE/YT+iP+JAI0BkQKZA50EpQWpBrEHuQjBCckK1QvdDOkN9Q8BEA0RHRIpE
+zkUSRVVFmkXeRiJGZ0arRvBHNUd7R8BIBUhLSJFI10kdSWNJqUnwSjdKfUrESwxLU0uaS+JMKkxyTLpN
+Ak1KTZNN3E4lTm5Ot08AT0lPk0/dUCdQcVC7UQZRUFGbUeZSMVJ8UsdTE1NfU6pT9lRCVI9U21UoVXVV
+wlYPVlxWqVb3V0RXklfgWC9YfVjLWRpZaVm4WgdaVlqmWvVbRVuVW+VcNVyGXNZdJ114XcleGl5sXr1f
+D19hX7NgBWBXYKpg/GFPYaJh9WJJYpxi8GNDY5dj62RAZJRk6WU9ZZJl52Y9ZpJm6Gc9Z5Nn6Wg/aJZo
+7GlDaZpp8WpIap9q92tPa6dr/2xXbK9tCG1gbbluEm5rbsRvHm94b9FwK3CGcOBxOnGVcfByS3KmcwFz
+XXO4dBR0cHTMdSh1hXXhdj52m3b4d1Z3s3gReG54zHkqeYl553pGeqV7BHtje8J8IXyBfOF9QX2hfgF+
+Yn7CfyN/hH/lgEeAqIEKgWuBzYIwgpKC9INXg7qEHYSAhOOFR4Wrhg6GcobXhzuHn4gEiGmIzokziZmJ
+/opkisqLMIuWi/yMY4zKjTGNmI3/jmaOzo82j56QBpBukNaRP5GokhGSepLjk02TtpQglIqU9JVflcmW
+NJaflwqXdZfgmEyYuJkkmZCZ/JpomtWbQpuvnByciZz3nWSd0p5Anq6fHZ+Ln/qgaaDYoUehtqImopaj
+BqN2o+akVqTHpTilqaYapoum/adup+CoUqjEqTepqaocqo+rAqt1q+msXKzQrUStuK4trqGvFq+LsACw
+dbDqsWCx1rJLssKzOLOutCW0nLUTtYq2AbZ5tvC3aLfguFm40blKucK6O7q1uy67p7whvJu9Fb2Pvgq+
+hL7/v3q/9cBwwOzBZ8Hjwl/C28NYw9TEUcTOxUvFyMZGxsPHQce/yD3IvMk6ybnKOMq3yzbLtsw1zLXN
+Nc21zjbOts83z7jQOdC60TzRvtI/0sHTRNPG1EnUy9VO1dHWVdbY11zX4Nhk2OjZbNnx2nba+9uA3AXc
+it0Q3ZbeHN6i3ynfr+A24L3hROHM4lPi2+Nj4+vkc+T85YTmDeaW5x/nqegy6LzpRunQ6lvq5etw6/vs
+hu0R7ZzuKO6070DvzPBY8OXxcvH/8ozzGfOn9DT0wvVQ9d72bfb794r4Gfio+Tj5x/pX+uf7d/wH/Jj9
+Kf26/kv+3P9t///SKClISVxOU0NvbG9yU3BhY2WiSi1cTlNDb2xvclNwYWNl0igpTE1XTlNDb2xvcqJM
+LdIoKU9QV05TSW1hZ2WiTy0ACAARABoAJAApADIANwBJAEwAUQBTAGYAbAB3AH4AjQCaAKEAqQCrAK0A
+sgC0ALYAuwDGAMgAygDMANEA1ADWANgA2gDhAPgBFAEWARgSVhJbEmYSbxKCEoYSkRKaEp8SpxKqEq8S
+vhLCEs0S1RLiEu8TBBMJEw0TDxMRExMTHBMhEycTLxMxEzMTNRM3JNck3CTpJOwk+ST+JQYlCSUOJRYA
+AAAAAAACAQAAAAAAAABRAAAAAAAAAAAAAAAAAAAlGQ
+</mutableData>
+        </image>
+        <image name="message-composer-heart.png" width="25" height="22"/>
+        <image name="message-composer-plus.png" width="25" height="25"/>
+        <image name="message-composer-send.png" width="24" height="24"/>
+        <image name="message-composer-sticker.png" width="24" height="24"/>
+        <image name="messages-emoji.png" width="24" height="24"/>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="secondarySystemFillColor">
+            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.16" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemFillColor">
+            <color red="0.47058823529411764" green="0.47058823529411764" blue="0.50196078431372548" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
