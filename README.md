@@ -18,7 +18,7 @@
 
 <a href=""><img src="https://img.shields.io/badge/Repo%20Size-11.1%20MB-brightgreen" /></a>
 <a href=""> <img src="https://img.shields.io/badge/Contributors-2-yellowgreen" /></a>
-<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.908--pluto.alpha.1.0-red" /></a>
+<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.908--pluto.beta.1-red" /></a>
 <a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-swift-chat-ui-kit?style=social"/></a>
 <a href=""> <img src="https://img.shields.io/twitter/follow/cometchat?style=social" /></a>
 
@@ -92,10 +92,16 @@ You can install UIKit for iOS through Swift Package Manager.
 
 1. Go to your Swift Package Manager's File tab and select Add Packages.
 
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIUnified.jpg)
 
-To add the package, select Version Rules, enter Up to Next Major, 3.0.0, and click Next.
+2.  Add CometChatProUIKit into your Package Repository as below:
 
+```swift
+
+https://github.com/cometchat-pro/ios-swift-chat-ui-kit.git
+
+```
+
+3. To add the package, select Version Rules, enter Up to Exact Version, 3.0.908-pluto.beta.1, and click Next.
 ___
 
 ### i. Initialize Client App

@@ -8,7 +8,7 @@
 import UIKit
 import CometChatPro
 
-class CometChatAudioBubble: UIView {
+public class CometChatAudioBubble: UIView {
 
     // MARK: - Properties
     

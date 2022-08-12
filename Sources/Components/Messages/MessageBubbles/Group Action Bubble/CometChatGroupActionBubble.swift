@@ -10,7 +10,7 @@ import CometChatPro
 
 /*  ----------------------------------------------------------------------------------------- */
 
-class CometChatGroupActionBubble: UITableViewCell {
+public class CometChatGroupActionBubble: UITableViewCell {
     
     // MARK: - Declaration of IBInspectable
     
@@ -153,7 +153,7 @@ class CometChatGroupActionBubble: UITableViewCell {
     
     // MARK: - Initialization of required Methods
     
-    override func awakeFromNib() {
+    public override func awakeFromNib() {
         super.awakeFromNib()
         self.selectionStyle = .none
         contentView.isUserInteractionEnabled = false
@@ -164,7 +164,7 @@ class CometChatGroupActionBubble: UITableViewCell {
         }
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
+    public override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
     
         // Configure the view for the selected state

@@ -6,7 +6,7 @@ enum LiveReaction {
     case thumbsup
 }
 
-@objc @IBDesignable  class CometChatLiveReaction: UIView {
+@objc @IBDesignable public class CometChatLiveReaction: UIView {
     
     var image1: UIImage?
     
@@ -102,7 +102,7 @@ enum LiveReaction {
         }
     }
     
-    override  func awakeFromNib() {
+    public override  func awakeFromNib() {
         super.awakeFromNib()
     }
     

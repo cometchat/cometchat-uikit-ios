@@ -44,7 +44,7 @@ struct MessageTypesBubble {
     }
 }
 
-class CometChatMessageBubble: UITableViewCell {
+public class CometChatMessageBubble: UITableViewCell {
     
     @IBOutlet weak var backgroundWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var backgroundHeightConstraint: NSLayoutConstraint!
@@ -331,13 +331,13 @@ class CometChatMessageBubble: UITableViewCell {
     }
     
     
-    override func awakeFromNib() {
+    public override func awakeFromNib() {
         super.awakeFromNib()
         selectionColor = CometChatTheme.palatte?.background ?? UIColor.systemBackground
         set(backgroundColor: [CometChatTheme.palatte?.background?.cgColor ?? UIColor.systemBackground.cgColor])
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
+    public override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         
         // Configure the view for the selected state
@@ -814,7 +814,7 @@ class CometChatMessageBubble: UITableViewCell {
         reactions.reactions.removeAll()
     }
     
-    override func prepareForReuse() {
+    public  override func prepareForReuse() {
         /// Remove subviews before resuing the cell.
         background.subviews.forEach({ $0.removeFromSuperview() })
         //containerStackView.addBackground(color: .clear)

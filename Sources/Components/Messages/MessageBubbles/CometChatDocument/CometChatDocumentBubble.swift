@@ -16,7 +16,7 @@ protocol CollaborativeDelegate: NSObject {
     func didLongPressedOnCollaborativeDocument(message: CustomMessage,cell: UITableViewCell)
 }
 
-class CometChatDocumentBubble: UIView {
+public class CometChatDocumentBubble: UIView {
     
     // MARK: - Properties
     @IBOutlet weak var containerView: UIView!

@@ -8,7 +8,7 @@
 import UIKit
 import CometChatPro
 
-class CometChatStickerBubble: UIView {
+public class CometChatStickerBubble: UIView {
     
     @IBOutlet weak var imageThumbnail: UIImageView!
     @IBOutlet weak var containerView: UIView!

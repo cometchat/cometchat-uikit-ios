@@ -10,7 +10,7 @@ import UIKit
 import MessageUI
 import CometChatPro
 
-class CometChatTextAutoSizeBubble: UITableViewCell, MFMailComposeViewControllerDelegate {
+public  class CometChatTextAutoSizeBubble: UITableViewCell, MFMailComposeViewControllerDelegate {
     
     @IBOutlet weak var alightmentStack: UIStackView!
     @IBOutlet weak var avatar: CometChatAvatar!
@@ -742,18 +742,18 @@ class CometChatTextAutoSizeBubble: UITableViewCell, MFMailComposeViewControllerD
         return self
     }
     
-    override func awakeFromNib() {
+    public override func awakeFromNib() {
         super.awakeFromNib()
         selectionColor = CometChatTheme.palatte?.background ?? .systemBackground
     }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
+    public override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
     }
     
-    override func prepareForReuse() {
+    public override func prepareForReuse() {
         containerStackView.subviews.forEach({ $0.backgroundColor = .clear })
         reactions.reactions.removeAll()
     }

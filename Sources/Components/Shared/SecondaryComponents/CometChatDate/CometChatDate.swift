@@ -3,7 +3,7 @@ import Foundation
 import  UIKit
 import CometChatPro
 
-@objc @IBDesignable  final class CometChatDate: UILabel {
+@objc @IBDesignable  public  final class CometChatDate: UILabel {
 
     @objc enum TimeFormat: Int {
         case ConversationListDate
@@ -32,7 +32,7 @@ import CometChatPro
         self.setup()
     }
     
-     override func drawText(in rect: CGRect) {
+    public override func drawText(in rect: CGRect) {
         super.drawText(in: rect)
         self.setup()
     }

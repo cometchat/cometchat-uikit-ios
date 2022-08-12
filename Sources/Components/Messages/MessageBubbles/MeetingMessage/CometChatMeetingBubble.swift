@@ -15,7 +15,7 @@ protocol  MeetingDelegate: NSObject {
     func didJoinMeeting(forMessage: CustomMessage, cell: UITableViewCell)
 }
 
-class CometChatMeetingBubble: UITableViewCell {
+public class CometChatMeetingBubble: UITableViewCell {
     
     @IBOutlet weak var alightmentStack: UIStackView!
     @IBOutlet weak var avatar: CometChatAvatar!
@@ -284,7 +284,7 @@ class CometChatMeetingBubble: UITableViewCell {
 //    }
     
   
-    override func awakeFromNib() {
+    public override func awakeFromNib() {
         super.awakeFromNib()
         if #available(iOS 13.0, *) {
             selectionColor = .systemBackground
@@ -299,7 +299,7 @@ class CometChatMeetingBubble: UITableViewCell {
 //        }
     }
     
-    override func setSelected(_ selected: Bool, animated: Bool) {
+    public override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
     }

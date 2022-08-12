@@ -9,7 +9,7 @@ import UIKit
 import CometChatPro
 
 
-class CometChatLinkPreviewBubble: UIView {
+public class CometChatLinkPreviewBubble: UIView {
     
     // MARK: - Properties
     

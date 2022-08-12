@@ -17,7 +17,7 @@ protocol CometChatEmojiKeyboardDelegate: AnyObject {
     func onEmojiClick(emoji: CometChatEmoji, message: BaseMessage?)
 }
 
-class CometChatEmojiKeyboard: UIViewController, PanModalPresentable {
+public class CometChatEmojiKeyboard: UIViewController, PanModalPresentable {
     
     // MARK: - Pan Model Presentable.
     var panScrollable: UIScrollView?
@@ -33,13 +33,13 @@ class CometChatEmojiKeyboard: UIViewController, PanModalPresentable {
     
     static var emojiKeyboardDelegate: CometChatEmojiKeyboardDelegate?
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupCollectionView()
         fetchEmojis()
     }
 
-    override func loadView() {
+    public override func loadView() {
         let loadedNib = Bundle.module.loadNibNamed(String(describing: type(of: self)), owner: self, options: nil)
         if let contentView = loadedNib?.first as? UIView  {
             contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -97,21 +97,21 @@ class CometChatEmojiKeyboard: UIViewController, PanModalPresentable {
 
 extension CometChatEmojiKeyboard: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
+    public func numberOfSections(in collectionView: UICollectionView) -> Int {
         if collectionView == emojiCollectionView {
             return emojiCategories.count
         }
         return 1
     }
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == emojiCollectionView {
             return emojiCategories[section].emojis.count
         }
         return emojiCategories.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == emojiCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CometChatEmojiKeyboardItem.idetifier, for: indexPath) as! CometChatEmojiKeyboardItem
             cell.emojiIcon.image = emojiCategories[indexPath.section].emojis[indexPath.row].emoji.textToImage()
@@ -125,7 +125,7 @@ extension CometChatEmojiKeyboard: UICollectionViewDelegate, UICollectionViewData
         return cell
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? CometChatEmojiKeyboardItem else { return }
         cell.backgroundColor = .lightGray.withAlphaComponent(0.2)
         defer {
@@ -143,21 +143,21 @@ extension CometChatEmojiKeyboard: UICollectionViewDelegate, UICollectionViewData
         
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == emojiCollectionView {
             return CGSize(width: 30, height: 30)
         }
         return CGSize(width: UIScreen.main.bounds.width / 8 * 0.75, height: 24)
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         if collectionView == emojiCollectionView {
            return UIEdgeInsets(top: 5, left: 15, bottom: 5, right: 15)
         }
         return UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
     }
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+    public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if collectionView == emojiCollectionView {
             switch kind {
             case UICollectionView.elementKindSectionHeader:
@@ -171,41 +171,41 @@ extension CometChatEmojiKeyboard: UICollectionViewDelegate, UICollectionViewData
         return UICollectionReusableView(frame: .zero)
     }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         if collectionView == emojiCollectionView {
             return CGSize(width: emojiCollectionView.frame.width, height: 30)
         }
         return CGSize()
     }
     
-    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    public func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         if collectionView == emojiCollectionView {
             self.emojiSetCollectionView.scrollToItem(at: IndexPath(row: indexPath.section, section: 0), at: .centeredHorizontally, animated: true)
         }
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
     }
     
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         
     }
     
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         
     }
     
-    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
+    public func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
         
     }
     
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
     }
     
     
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         /*
         if collectionView == emojiCollectionView {
             let section = indexPath.section

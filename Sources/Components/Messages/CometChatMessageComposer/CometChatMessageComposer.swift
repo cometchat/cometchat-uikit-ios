@@ -15,13 +15,13 @@ import CoreLocation
 import CoreLocationUI
 
 
-enum MessageComposerMode {
+public enum MessageComposerMode {
     case draft
     case edit
     case reply
 }
 
-@objc @IBDesignable class CometChatMessageComposer: UIView  {
+@objc @IBDesignable public class CometChatMessageComposer: UIView  {
 
     // MARK: - Declaration of IBInspectable
     @IBOutlet weak var messagePreview: UIView!

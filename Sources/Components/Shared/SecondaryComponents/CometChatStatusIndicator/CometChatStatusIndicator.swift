@@ -17,7 +17,7 @@ import CometChatPro
 
 /*  ----------------------------------------------------------------------------------------- */
 
-@objc @IBDesignable  class CometChatStatusIndicator: UIView {
+@objc @IBDesignable  public class CometChatStatusIndicator: UIView {
     
     // MARK: - Declaration of IBInspectable
     
@@ -25,7 +25,7 @@ import CometChatPro
     @IBInspectable var borderColor: UIColor = UIColor.black
     @IBInspectable var borderWidth: CGFloat = 0.0
     private var customBackgroundColor = UIColor.white
-    override  var backgroundColor: UIColor?{
+    public override  var backgroundColor: UIColor?{
         didSet {
             customBackgroundColor = backgroundColor!
             super.backgroundColor = UIColor.clear
@@ -47,7 +47,7 @@ import CometChatPro
         super.init(coder: aDecoder)
         self.setup() }
     
-    override  func draw(_ rect: CGRect) {
+    public override  func draw(_ rect: CGRect) {
         customBackgroundColor.setFill()
         UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).fill()
         let borderRect = bounds.insetBy(dx: borderWidth/2, dy: borderWidth/2)

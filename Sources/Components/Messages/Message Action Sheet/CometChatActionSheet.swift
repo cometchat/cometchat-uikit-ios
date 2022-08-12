@@ -14,7 +14,7 @@ struct CometChatDefaultAction {
     var writeboard = "writeboard"
  }
 
-enum LayoutMode {
+public enum LayoutMode {
     case listMode
     case gridMode
 }
@@ -29,14 +29,14 @@ enum LayoutMode {
  }
 
  
- class CometChatActionSheet: UITableViewController, PanModalPresentable {
+public  class CometChatActionSheet: UITableViewController, PanModalPresentable {
     
     var isShortFormEnabled = true
     var layoutMode: LayoutMode = .gridMode
      
      static var backgroundColor : UIColor =  CometChatTheme.palatte?.secondary ?? .systemFill
      
-    override var preferredStatusBarStyle: UIStatusBarStyle {
+    public override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
     
@@ -46,7 +46,7 @@ enum LayoutMode {
      
     let headerPresentable = UserGroupHeaderPresentable.init(handle: "Message Actions", description: "Select action to perform.", memberCount: 0)
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupTableView()
     }
@@ -80,7 +80,7 @@ enum LayoutMode {
      
     // MARK: - UITableViewDataSource
     
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch layoutMode {
         case .listMode:
             return actionItems?.count ?? 0
@@ -104,7 +104,7 @@ enum LayoutMode {
          return UITableViewCell()
      }
      
-     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
          let staticCell = UITableViewCell()
          switch layoutMode {
          case .listMode:
@@ -129,7 +129,7 @@ enum LayoutMode {
          return staticCell
      }
     
-     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    public override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
          switch layoutMode {
          case .listMode: return UITableView.automaticDimension
          case .gridMode: return CGFloat((actionItems?.count ?? 0/2) * 52)
@@ -139,7 +139,7 @@ enum LayoutMode {
     // MARK: - UITableViewDelegate
     
    
-    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    public override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let actionSheetHeaderView = ActionSheetHeaderView()
         switch layoutMode {
         case .listMode:
@@ -156,11 +156,11 @@ enum LayoutMode {
         return actionSheetHeaderView
     }
      
-     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    public override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
          return 55
      }
     
-     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
          tableView.deselectRow(at: indexPath, animated: true)
          if let currentAction = actionItems?[safe: indexPath.row] {
              self.dismiss(animated: true) {

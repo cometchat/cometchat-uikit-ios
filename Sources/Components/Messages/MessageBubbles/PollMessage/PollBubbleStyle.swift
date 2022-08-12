@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class PollBubbleStyle {
+public class PollBubbleStyle {
     
     let questionColor: UIColor?
     let questionFont: UIFont?

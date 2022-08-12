@@ -8,7 +8,7 @@
 import UIKit
 import CometChatPro
 
-class CometChatPollsBubble: UIView {
+public class CometChatPollsBubble: UIView {
 
     // MARK: - Properties
     
@@ -169,16 +169,16 @@ class CometChatPollsBubble: UIView {
 
 extension CometChatPollsBubble: UITableViewDelegate, UITableViewDataSource {
     
-    func numberOfSections(in tableView: UITableView) -> Int {
+    public func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let options = results["options"] as? [String: Any] else { return 0 }
         return options.count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as? CometChatPollBubbleCell else { print("Could not found CometChatPollBubbleCell"); return UITableViewCell() }
         cell.configure(isStandard: isStandard, results: results, indexPath: indexPath, isSender: isSender, voters: voters)
@@ -196,11 +196,11 @@ extension CometChatPollsBubble: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 40
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let message = customMessage, CometChat.getLoggedInUser()!.uid! != message.sender?.uid {
             Indicator.show()
             CometChat.callExtension(slug: ExtensionConstants.polls, type: .post, endPoint: "v2/vote", body: ["vote": indexPath.row + 1, "id": pollID]) { response in

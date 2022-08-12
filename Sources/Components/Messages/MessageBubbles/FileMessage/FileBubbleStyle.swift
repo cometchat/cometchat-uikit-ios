@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class FileBubbleStyle {
+public class FileBubbleStyle {
     
     let titleColor: UIColor?
     let titleFont: UIFont?

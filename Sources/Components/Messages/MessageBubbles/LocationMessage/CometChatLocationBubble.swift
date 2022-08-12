@@ -10,7 +10,7 @@ import CometChatPro
 import CoreLocation
 import MapKit
 
-class CometChatLocationBubble: UIView {
+public class CometChatLocationBubble: UIView {
 
    // MARK: - Property
     

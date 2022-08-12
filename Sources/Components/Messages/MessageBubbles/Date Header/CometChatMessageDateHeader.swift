@@ -12,7 +12,7 @@ import UIKit
 
 /*  ----------------------------------------------------------------------------------------- */
 
-class CometChatMessageDateHeader: UILabel {
+public class CometChatMessageDateHeader: UILabel {
     
     // MARK: - Initialization of required methods.
     
@@ -30,7 +30,7 @@ class CometChatMessageDateHeader: UILabel {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override var intrinsicContentSize: CGSize {
+    public override var intrinsicContentSize: CGSize {
         let originalContentSize = super.intrinsicContentSize
         let height = originalContentSize.height + 12
         layer.cornerRadius = height / 2

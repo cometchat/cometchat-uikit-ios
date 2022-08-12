@@ -10,7 +10,7 @@ import CometChatPro
 import QuickLook
 
 
-class CometChatImageBubble: UIView {
+public class CometChatImageBubble: UIView {
     
     // MARK: - Properties
     @IBOutlet weak var unsafeContent: UILabel!

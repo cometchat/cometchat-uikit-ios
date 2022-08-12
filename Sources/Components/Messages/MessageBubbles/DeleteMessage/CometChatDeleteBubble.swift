@@ -8,7 +8,7 @@ import Foundation
 import UIKit
 import CometChatPro
 
-class CometChatDeleteBubble: UIView {
+public class CometChatDeleteBubble: UIView {
     
   @IBOutlet weak var containerView: UIView!
   @IBOutlet weak var message: HyperlinkLabel!

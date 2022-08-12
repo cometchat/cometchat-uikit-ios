@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import CometChatPro
 
-@objc @IBDesignable class CometChatMessageHeader: UIView  {
+@objc @IBDesignable public class CometChatMessageHeader: UIView  {
     
     // MARK: - Declaration of IBInspectable
     @IBOutlet var contentView: UIView!
@@ -415,7 +415,7 @@ import CometChatPro
         commonInit()
     }
     
-    override func reloadInputViews() {
+    public override func reloadInputViews() {
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.configureMessageHeader()
@@ -478,7 +478,7 @@ import CometChatPro
 
 extension CometChatMessageHeader: CometChatMessageDelegate {
     
-    func onTypingStarted(_ typingDetails: TypingIndicator) {
+    public func onTypingStarted(_ typingDetails: TypingIndicator) {
         switch typingDetails.receiverType {
         case .user:
             if typingDetails.sender?.uid == currentUser?.uid {
@@ -494,7 +494,7 @@ extension CometChatMessageHeader: CometChatMessageDelegate {
         }
     }
     
-    func onTypingEnded(_ typingDetails: TypingIndicator) {
+    public func onTypingEnded(_ typingDetails: TypingIndicator) {
         switch typingDetails.receiverType {
         case .user:
             if typingDetails.sender?.uid == currentUser?.uid {
@@ -517,14 +517,14 @@ extension CometChatMessageHeader: CometChatMessageDelegate {
 
 extension CometChatMessageHeader: CometChatUserDelegate {
     
-    func onUserOnline(user: User) {
+    public func onUserOnline(user: User) {
         if user.uid == currentUser?.uid {
             self.set(subtitle: "ONLINE".localize())
             self.set(statusIndicator:  self.statusIndicator.set(status: user.status))
         }
     }
     
-    func onUserOffline(user: User) {
+    public func onUserOffline(user: User) {
         if user.uid == currentUser?.uid {
             self.set(subtitle: "OFFLINE".localize())
             self.set(statusIndicator:  self.statusIndicator.set(status: user.status))

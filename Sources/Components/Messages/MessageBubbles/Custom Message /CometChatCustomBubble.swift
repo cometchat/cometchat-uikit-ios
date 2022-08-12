@@ -13,7 +13,7 @@ protocol CustomDelegate: NSObject {
     func onLongPress(message: CustomMessage,cell: UITableViewCell)
 }
 
-class CometChatCustomBubble: UIView {
+public class CometChatCustomBubble: UIView {
 
     @IBOutlet weak var containerView: UIView!
     var controller: UIViewController?

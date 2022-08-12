@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class TextBubbleStyle {
+public class TextBubbleStyle {
     
     let titleFont: UIFont?
     let titleColor: UIColor?
@@ -20,7 +20,7 @@ class TextBubbleStyle {
     let linkPreviewMessageColor: UIColor?
     
     
-    init(titleColor: UIColor? = .gray, titleFont: UIFont? = UIFont.systemFont(ofSize: 15, weight: .regular), subTitleFont: UIFont? = UIFont.systemFont(ofSize: 13, weight: .regular), subTitleColor: UIColor? = .gray, messageTextFont: UIFont? = UIFont.systemFont(ofSize: 17, weight: .regular), messageTextColor: UIColor? = .gray, linkPreviewMessageFont: UIFont? = .systemFont(ofSize: 15), linkPreviewMessageColor: UIColor? = .gray) {
+    public init(titleColor: UIColor? = .gray, titleFont: UIFont? = UIFont.systemFont(ofSize: 15, weight: .regular), subTitleFont: UIFont? = UIFont.systemFont(ofSize: 13, weight: .regular), subTitleColor: UIColor? = .gray, messageTextFont: UIFont? = UIFont.systemFont(ofSize: 17, weight: .regular), messageTextColor: UIColor? = .gray, linkPreviewMessageFont: UIFont? = .systemFont(ofSize: 15), linkPreviewMessageColor: UIColor? = .gray) {
         self.titleColor = titleColor
         self.titleFont = titleFont
         self.subTitleFont = subTitleFont

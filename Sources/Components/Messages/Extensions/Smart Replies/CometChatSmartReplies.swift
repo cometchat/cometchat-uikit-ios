@@ -18,7 +18,7 @@ protocol CometChatSmartRepliesDelegate: class {
 
 /*  ----------------------------------------------------------------------------------------- */
 
-@IBDesignable class CometChatSmartReplies: UIView {
+@IBDesignable public  class CometChatSmartReplies: UIView {
     
     // MARK: - Declaration of Outlets
     @IBOutlet weak var collectionView: UICollectionView!
@@ -117,7 +117,7 @@ protocol CometChatSmartRepliesDelegate: class {
 
     }
     
-    override func draw(_ rect: CGRect) {
+    public override func draw(_ rect: CGRect) {
         collectionView.showsHorizontalScrollIndicator = false
         setupCollectionView()
     }
@@ -182,7 +182,7 @@ extension CometChatSmartReplies: UICollectionViewDataSource, UICollectionViewDel
     /// - Parameters:
     ///   - collectionView: An object that manages an ordered collection of data items and presents them using customizable layouts.
     ///   - section: A signed integer value type.
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return buttontitles.count
     }
     
@@ -191,7 +191,7 @@ extension CometChatSmartReplies: UICollectionViewDataSource, UICollectionViewDel
     /// - Parameters:
     ///   - collectionView: An object that manages an ordered collection of data items and presents them using customizable layouts.
     ///   - indexPath: A list of indexes that together represent the path to a specific location in a tree of nested arrays.
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
          let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CometChatSmartRepliesItem", for: indexPath) as! CometChatSmartRepliesItem
         cell.smartRepliesItemDelegate = self
         let title = buttontitles[safe: indexPath.row]

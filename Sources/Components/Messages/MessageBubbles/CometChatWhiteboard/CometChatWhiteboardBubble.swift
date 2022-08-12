@@ -8,7 +8,7 @@
 import UIKit
 import CometChatPro
 
-class CometChatWhiteboardBubble: UIView {
+public class CometChatWhiteboardBubble: UIView {
 
     // MARK: - Properties
     

@@ -9,7 +9,7 @@ import UIKit
 import CometChatPro
 
 
-@objc @IBDesignable class CometChatMessageList: UIView  {
+@objc @IBDesignable public class CometChatMessageList: UIView  {
     
     // MARK: - Declaration of IBInspectable
     @IBOutlet var contentView: UIView!
@@ -1055,43 +1055,43 @@ extension CometChatMessageList: CometChatEmojiKeyboardDelegate {
 
 extension CometChatMessageList: CometChatGroupDelegate {
     
-    func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
+    public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
         if action.receiverUid == currentGroup?.guid {
             self.add(message: action)
         }
     }
     
-    func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
+    public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
         if action.receiverUid == currentGroup?.guid {
             self.add(message: action)
         }
     }
     
-    func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
+    public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
         if action.receiverUid == currentGroup?.guid {
             self.add(message: action)
         }
     }
     
-    func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
+    public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
         if action.receiverUid == currentGroup?.guid {
             self.add(message: action)
         }
     }
     
-    func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
+    public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
         if action.receiverUid == currentGroup?.guid {
             self.add(message: action)
         }
     }
     
-    func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
+    public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
         if action.receiverUid == currentGroup?.guid {
             self.add(message: action)
         }
     }
     
-    func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
+    public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
         if action.receiverUid == currentGroup?.guid {
             self.add(message: action)
         }

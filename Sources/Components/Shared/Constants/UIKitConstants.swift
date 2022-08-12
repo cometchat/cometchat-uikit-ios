@@ -48,7 +48,7 @@ public struct UIKitConstants {
         static var forwardMessage = "forwardMessage"
     }
     
-    @objc enum MessageBubbleAlignmentConstants: Int {
+    @objc public enum MessageBubbleAlignmentConstants: Int {
         case left
         case right
         case center

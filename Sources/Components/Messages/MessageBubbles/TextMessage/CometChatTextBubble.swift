@@ -12,7 +12,7 @@ protocol CometChatTextBubbleProtocol: AnyObject {
     func onClick()
 }
 
-class CometChatTextBubble: UIView {
+public class CometChatTextBubble: UIView {
     
     // MARK: - Properties
     

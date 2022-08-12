@@ -8,7 +8,7 @@
 import UIKit
 import CometChatPro
 
-protocol  CometChatDataItemDelegate {
+protocol CometChatDataItemDelegate {
     
     func onItemClick(user: User)
     func onItemClick(group: Group)
@@ -17,7 +17,7 @@ protocol  CometChatDataItemDelegate {
 
 }
 
-class CometChatDataItem: UITableViewCell {
+@IBDesignable public class CometChatDataItem: UITableViewCell {
 
     @IBOutlet weak var background: CometChatGradientView!
     @IBOutlet weak var avatar: CometChatAvatar!
@@ -640,11 +640,11 @@ class CometChatDataItem: UITableViewCell {
         }
     }
     
-    override func awakeFromNib() {
+    public override func awakeFromNib() {
         super.awakeFromNib()
     }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
+    public override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         if selected{
             check.image = UIImage(named:"groups-check-active", in: CometChatUIKit.bundle, compatibleWith: nil)
@@ -654,7 +654,7 @@ class CometChatDataItem: UITableViewCell {
         }
     }
     
-    override func prepareForReuse() {
+    public override func prepareForReuse() {
         
     }
     

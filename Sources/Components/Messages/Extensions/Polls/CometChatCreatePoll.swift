@@ -11,7 +11,7 @@ import CometChatPro
 
 /*  ----------------------------------------------------------------------------------------- */
 
-class CometChatCreatePoll: CometChatListBase {
+public class CometChatCreatePoll: CometChatListBase {
     
     // MARK: - Declaration of Outlets
     var items:[Int] = [Int]()
@@ -38,7 +38,7 @@ class CometChatCreatePoll: CometChatListBase {
     }
     
     // MARK: - View controller lifecycle methods
-    override func loadView() {
+    public override func loadView() {
         let loadedNib = Bundle.module.loadNibNamed(String(describing: type(of: self)), owner: self, options: nil)
         if let contentView = loadedNib?.first as? UIView  {
             contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -46,7 +46,7 @@ class CometChatCreatePoll: CometChatListBase {
         }
     }
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupAppearance()
         setupTableView()
@@ -296,23 +296,23 @@ class CometChatCreatePoll: CometChatListBase {
 
 extension CometChatCreatePoll: UITableViewDataSource , UITableViewDelegate {
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return section == 0 ? 1 : items.count
     }
     
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return section == 1 ? 30 : 0
     }
     
-    func numberOfSections(in tableView: UITableView) -> Int {
+    public func numberOfSections(in tableView: UITableView) -> Int {
         2
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension 
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         if indexPath.section == 0 {
             
@@ -360,7 +360,7 @@ extension CometChatCreatePoll: UITableViewDataSource , UITableViewDelegate {
     
     //trailingSwipeActionsConfigurationForRowAt indexPath -->
     @available(iOS 11.0, *)
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    public func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         if indexPath.section == 1 && indexPath.row > 1 {
             let deleteAction =  UIContextualAction(style: .normal, title: "", handler: { (action,view,completionHandler ) in
@@ -388,7 +388,7 @@ extension CometChatCreatePoll: UITableViewDataSource , UITableViewDelegate {
         }
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
@@ -408,9 +408,9 @@ extension CometChatCreatePoll : AddNewOptionDelegate {
 
 extension CometChatCreatePoll : CometChatListBaseDelegate {
     
-    func onSearch(state: SearchState, text: String) {}
+    public func onSearch(state: SearchState, text: String) {}
     
-    func onBack() {
+    public func onBack() {
         self.dismiss(animated: true)
     }
 }

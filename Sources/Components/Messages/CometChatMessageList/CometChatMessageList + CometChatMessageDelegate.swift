@@ -10,7 +10,7 @@ import CometChatPro
 
 extension CometChatMessageList: CometChatMessageDelegate {
 
-    func onTextMessageReceived(textMessage: TextMessage) {
+    public func onTextMessageReceived(textMessage: TextMessage) {
         
         switch textMessage.receiverType {
         case .user:
@@ -32,7 +32,7 @@ extension CometChatMessageList: CometChatMessageDelegate {
        
     }
     
-    func onMediaMessageReceived(mediaMessage: MediaMessage) {
+    public  func onMediaMessageReceived(mediaMessage: MediaMessage) {
         switch mediaMessage.receiverType {
         case .user:
             if mediaMessage.sender?.uid == currentUser?.uid {
@@ -52,7 +52,7 @@ extension CometChatMessageList: CometChatMessageDelegate {
         }
     }
     
-    func onCustomMessageReceived(customMessage: CustomMessage) {
+    public func onCustomMessageReceived(customMessage: CustomMessage) {
         switch customMessage.receiverType {
         case .user:
             if customMessage.sender?.uid == currentUser?.uid || customMessage.sender?.uid == CometChat.getLoggedInUser()?.uid {
@@ -72,7 +72,7 @@ extension CometChatMessageList: CometChatMessageDelegate {
         }
     }
     
-    func onMessagesDelivered(receipt: MessageReceipt) {
+    public func onMessagesDelivered(receipt: MessageReceipt) {
         if let indexpath = self.chatMessages.indexPath(where: {$0.id == Int(receipt.messageId)}){
             let message = chatMessages[indexpath.section][indexpath.row]
             message.deliveredAt = receipt.deliveredAt
@@ -80,7 +80,7 @@ extension CometChatMessageList: CometChatMessageDelegate {
         }
     }
     
-    func onMessagesRead(receipt: MessageReceipt) {
+    public func onMessagesRead(receipt: MessageReceipt) {
         if let indexpath = self.chatMessages.indexPath(where: {$0.id == Int(receipt.messageId)}){
             let message = chatMessages[indexpath.section][indexpath.row]
             message.readAt = receipt.readAt
@@ -88,14 +88,14 @@ extension CometChatMessageList: CometChatMessageDelegate {
         }
     }
     
-    func onMessageEdited(message: BaseMessage) {
+    public func onMessageEdited(message: BaseMessage) {
         if enableSoundForMessages {
             CometChatSoundManager().play(sound: .incomingMessage, customSound: customIncomingMessageSound)
         }
         self.update(message: message)
     }
     
-    func onMessageDeleted(message: BaseMessage) {
+    public func onMessageDeleted(message: BaseMessage) {
         if enableSoundForMessages {
             CometChatSoundManager().play(sound: .incomingMessage, customSound: customIncomingMessageSound)
         }

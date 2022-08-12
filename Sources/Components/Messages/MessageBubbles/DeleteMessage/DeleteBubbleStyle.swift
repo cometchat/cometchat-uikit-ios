@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class DeleteBubbleStyle {
+public class DeleteBubbleStyle {
     
     let titleFont: UIFont?
     let titleColor: UIColor?

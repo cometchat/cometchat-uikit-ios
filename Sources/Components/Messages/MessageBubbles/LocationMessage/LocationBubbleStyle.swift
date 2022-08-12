@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class LocationBubbleStyle {
+public class LocationBubbleStyle {
     
     let titleFont: UIFont?
     let titleColor: UIColor?

@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class VideoBubbleStyle {
+public class VideoBubbleStyle {
     
     let playColor: UIColor?
     

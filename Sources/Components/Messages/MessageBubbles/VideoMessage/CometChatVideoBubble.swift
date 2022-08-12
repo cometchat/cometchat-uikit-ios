@@ -10,7 +10,7 @@ import CometChatPro
 import AVKit
 
 
-class CometChatVideoBubble: UIView {
+public class CometChatVideoBubble: UIView {
 
     // MARK: - Properties
     

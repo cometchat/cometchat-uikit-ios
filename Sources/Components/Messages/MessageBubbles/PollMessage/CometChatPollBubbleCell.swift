@@ -8,7 +8,7 @@
 import UIKit
 import CometChatPro
 
-class CometChatPollBubbleCell: UITableViewCell {
+public class CometChatPollBubbleCell: UITableViewCell {
 
     @IBOutlet weak var answer: UILabel!
     @IBOutlet weak var percentage: UILabel!
@@ -18,7 +18,7 @@ class CometChatPollBubbleCell: UITableViewCell {
     
     var callBack: () -> () = { print("") }
     
-    override func awakeFromNib() {
+    public override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
 
@@ -126,7 +126,7 @@ class CometChatPollBubbleCell: UITableViewCell {
         return self
     }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
+    public override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state

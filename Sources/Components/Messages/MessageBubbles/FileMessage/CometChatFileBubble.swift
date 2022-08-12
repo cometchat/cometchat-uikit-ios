@@ -11,7 +11,7 @@ import QuickLook
 
 
 
-class CometChatFileBubble: UIView {
+public  class CometChatFileBubble: UIView {
 
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var title: UILabel!
