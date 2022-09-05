@@ -314,7 +314,7 @@ import CometChatPro
         } else {
             activityIndicator = UIActivityIndicatorView(style: .gray)
         }
-        
+        activityIndicator?.color = CometChatTheme.palatte?.accent600
         
         self.tableView.delegate = self
         self.tableView.dataSource = self
@@ -424,11 +424,6 @@ import CometChatPro
         groups.removeAll()
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            if let emptyView = strongSelf.emptyView {
-                strongSelf.tableView.set(customView: emptyView)
-            }else{
-                strongSelf.tableView?.setEmptyMessage(strongSelf.emptyText , color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
-            }
             strongSelf.activityIndicator?.startAnimating()
             strongSelf.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: strongSelf.tableView.bounds.width, height: CGFloat(44))
             strongSelf.tableView.tableFooterView = strongSelf.activityIndicator
@@ -442,13 +437,21 @@ import CometChatPro
             guard let this = self else {
                 return
             }
-            if fetchedGroups.count != 0 {
-                this.groups = fetchedGroups
-                DispatchQueue.main.async {
-                    this.activityIndicator?.stopAnimating()
-                    this.tableView.tableFooterView?.isHidden = true
-                    this.tableView.reloadData()
+            this.groups = fetchedGroups
+            //            if fetchedGroups.count != 0 {
+            
+            DispatchQueue.main.async {
+                if this.groups.count < 1 {
+                    if let emptyView = this.emptyView {
+                        this.tableView.set(customView: emptyView)
+                    }else{
+                        this.tableView?.setEmptyMessage(this.emptyText , color: this.emptyStateTextColor, font: this.emptyStateTextFont)
+                    }
+                    
                 }
+                this.activityIndicator?.stopAnimating()
+                this.tableView.tableFooterView?.isHidden = true
+                this.tableView.reloadData()
             }
         }) { (error) in
             DispatchQueue.main.async {
@@ -532,11 +535,7 @@ extension CometChatGroupList: UITableViewDelegate, UITableViewDataSource {
     ///   - section: An index number identifying a section of tableView .
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if groups.isEmpty {
-            if let emptyView = self.emptyView {
-                self.tableView.set(customView: emptyView)
-            }else{
-                self.tableView?.setEmptyMessage(self.emptyText , color: self.emptyStateTextColor, font: self.emptyStateTextFont)
-            }
+            return 0
         } else{
             self.tableView.restore()
         }

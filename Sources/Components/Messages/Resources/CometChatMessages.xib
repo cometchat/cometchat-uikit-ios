@@ -13,7 +13,7 @@
             <connections>
                 <outlet property="messageComposer" destination="a93-Tz-O8A" id="h5R-Eo-xRm"/>
                 <outlet property="messageComposerBottomSpace" destination="YNl-Fe-ubm" id="dsm-yH-YhR"/>
-                <outlet property="messageComposerHeight" destination="7G2-1I-JHQ" id="5vd-CU-siZ"/>
+                <outlet property="messageComposerHeight" destination="OTY-kS-njD" id="XST-qq-4fP"/>
                 <outlet property="messageHeader" destination="e3c-UY-N9N" id="aWV-Ue-hsk"/>
                 <outlet property="messageList" destination="JAn-Aj-jOl" id="w9w-I4-Xya"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
@@ -32,14 +32,14 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JAn-Aj-jOl" customClass="CometChatMessageList" customModule="CometChatUIKit">
-                    <rect key="frame" x="0.0" y="104" width="414" height="658"/>
+                    <rect key="frame" x="0.0" y="104" width="414" height="652"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="a93-Tz-O8A" customClass="CometChatMessageComposer" customModule="CometChatUIKit">
                     <rect key="frame" x="0.0" y="762" width="414" height="100"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="100" id="7G2-1I-JHQ"/>
+                        <constraint firstAttribute="height" constant="100" id="OTY-kS-njD"/>
                     </constraints>
                 </view>
             </subviews>
@@ -52,7 +52,7 @@
                 <constraint firstItem="e3c-UY-N9N" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="bZu-qJ-Pvg"/>
                 <constraint firstItem="a93-Tz-O8A" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="h1w-PK-NFT"/>
                 <constraint firstItem="e3c-UY-N9N" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="hGz-WM-tHf"/>
-                <constraint firstItem="a93-Tz-O8A" firstAttribute="top" secondItem="JAn-Aj-jOl" secondAttribute="bottom" id="kqp-hw-uaf"/>
+                <constraint firstItem="a93-Tz-O8A" firstAttribute="top" secondItem="JAn-Aj-jOl" secondAttribute="bottom" constant="6" id="kqp-hw-uaf"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="a93-Tz-O8A" secondAttribute="trailing" id="rXI-hx-PQR"/>
                 <constraint firstItem="JAn-Aj-jOl" firstAttribute="top" secondItem="e3c-UY-N9N" secondAttribute="bottom" id="sCw-Hq-Ozv"/>
                 <constraint firstItem="JAn-Aj-jOl" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="yBf-qm-VTa"/>

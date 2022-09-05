@@ -611,7 +611,8 @@ import CometChatPro
         print("message types: \(messageTypes)")
         
 
-        switch type {        case .user:
+        switch type {
+        case .user:
             
             self.messageRequest = MessagesRequest.MessageRequestBuilder().set(uid: forID).set(categories: messageCategories).set(types: messageTypes).hideReplies(hide: true).hideDeletedMessages(hide: hideDeletedMessages).set(unread: onlyUnreadMessages).hideMessagesFromBlockedUsers(hideMessagesFromBlockedUsers).setTags(tags).set(limit: limit).build()
             
@@ -767,6 +768,7 @@ import CometChatPro
                 lastSection = (self.tableView?.numberOfSections ?? 0) - 1
             }
         }
+        self.smartReplies.set(message: message)
         switch message.receiverType {
         case .user:
             CometChat.markAsRead(baseMessage: message)

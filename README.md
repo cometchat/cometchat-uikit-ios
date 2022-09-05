@@ -18,7 +18,7 @@
 
 <a href=""><img src="https://img.shields.io/badge/Repo%20Size-11.1%20MB-brightgreen" /></a>
 <a href=""> <img src="https://img.shields.io/badge/Contributors-2-yellowgreen" /></a>
-<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.908--pluto.beta.1-red" /></a>
+<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.909--pluto.beta.1.1-red" /></a>
 <a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-swift-chat-ui-kit?style=social"/></a>
 <a href=""> <img src="https://img.shields.io/twitter/follow/cometchat?style=social" /></a>
 

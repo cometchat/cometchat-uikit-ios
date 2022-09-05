@@ -53,15 +53,15 @@
                             </constraints>
                         </view>
                     </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                             <integer key="value" value="10"/>
                         </userDefinedRuntimeAttribute>
                     </userDefinedRuntimeAttributes>
                 </stackView>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="caption" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dt1-HO-nrR">
-                    <rect key="frame" x="40" y="122" width="45.5" height="16"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="caption" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dt1-HO-nrR">
+                    <rect key="frame" x="40" y="122" width="354" height="16"/>
                     <fontDescription key="fontDescription" type="system" pointSize="13"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
@@ -72,6 +72,7 @@
             <constraints>
                 <constraint firstItem="jf1-Yz-x6n" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="20" id="3qf-cd-fuJ"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="jf1-Yz-x6n" secondAttribute="trailing" constant="20" id="8GY-ne-05Y"/>
+                <constraint firstItem="dt1-HO-nrR" firstAttribute="trailing" secondItem="jf1-Yz-x6n" secondAttribute="trailing" id="XYL-nW-l8j"/>
                 <constraint firstItem="dt1-HO-nrR" firstAttribute="leading" secondItem="96i-Lr-XE1" secondAttribute="leading" id="b6Y-aQ-5vk"/>
                 <constraint firstItem="dt1-HO-nrR" firstAttribute="top" secondItem="jf1-Yz-x6n" secondAttribute="bottom" constant="10" id="lLS-6a-Pij"/>
                 <constraint firstItem="jf1-Yz-x6n" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="20" id="udh-jf-lpG"/>

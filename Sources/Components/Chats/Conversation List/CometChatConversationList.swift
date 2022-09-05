@@ -246,12 +246,17 @@ import CometChatPro
             }
             if let row = strongSelf.conversations.firstIndex(where: {$0.conversationId == conversation.conversationId}),   let indexPath = IndexPath(row: row, section: 0) as? IndexPath, let cell = strongSelf.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem {
                 
-                conversation.unreadMessageCount = cell.unreadCount.getCount + 1
+                if let lastMessage = conversation.lastMessage {
+                    if lastMessage.sender?.uid != CometChat.getLoggedInUser()?.uid {
+                        conversation.unreadMessageCount = cell.unreadCount.getCount + 1
+                    }
+                }
                 
                 if let textMessage = conversation.lastMessage as? TextMessage, textMessage.sender?.uid != CometChat.getLoggedInUser()?.uid {
                     cell.parseProfanityFilter(forMessage: textMessage)
                     cell.parseMaskedData(forMessage: textMessage)
                     cell.parseSentimentAnalysis(forMessage: textMessage)
+                    conversation.unreadMessageCount = cell.unreadCount.getCount + 1
                 }
                 
                 strongSelf.conversations[row] = conversation
@@ -393,6 +398,7 @@ import CometChatPro
         } else {
             activityIndicator = UIActivityIndicatorView(style: .gray)
         }
+        activityIndicator?.color = CometChatTheme.palatte?.accent600
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.tableView.backgroundColor = .clear
@@ -428,13 +434,7 @@ import CometChatPro
         
         DispatchQueue.main.async { [weak self] in
             guard let strongSelf = self else { return }
-            if let emptyView = strongSelf.emptyView {
-                strongSelf.tableView.set(customView: emptyView)
-            }else{
-                strongSelf.tableView?.setEmptyMessage(strongSelf.emptyStateText , color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
-            }
             strongSelf.activityIndicator?.startAnimating()
-            strongSelf.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: strongSelf.tableView.bounds.width, height: CGFloat(44))
             strongSelf.tableView.tableFooterView = strongSelf.activityIndicator
             strongSelf.tableView.tableFooterView = strongSelf.activityIndicator
             strongSelf.tableView.tableFooterView?.isHidden = false
@@ -445,7 +445,14 @@ import CometChatPro
         conversationRequest?.fetchNext(onSuccess: { (fetchedConversations) in
             self.conversations = fetchedConversations
             DispatchQueue.main.async {
-               
+                if self.conversations.count < 1 {
+                    if let emptyView = self.emptyView {
+                        self.tableView.set(customView: emptyView)
+                    }else {
+                        self.tableView?.setEmptyMessage(self.emptyStateText , color: self.emptyStateTextColor, font: self.emptyStateTextFont)
+                    }
+                }
+
                 self.activityIndicator?.stopAnimating()
                 self.tableView.tableFooterView?.isHidden = true
                 self.tableView.reloadData()
@@ -552,12 +559,8 @@ extension CometChatConversationList: UITableViewDelegate, UITableViewDataSource 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if conversations.isEmpty {
-            if let emptyView = self.emptyView {
-                self.tableView.set(customView: emptyView)
-            }else{
-                self.tableView?.setEmptyMessage(self.emptyStateText , color: self.emptyStateTextColor, font: self.emptyStateTextFont)
-            }
-        } else{
+            return 0
+        }else {
             self.tableView.restore()
         }
         if isSearching {

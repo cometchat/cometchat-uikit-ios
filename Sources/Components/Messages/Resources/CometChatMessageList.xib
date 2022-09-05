@@ -25,40 +25,45 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lZp-CI-ue7" customClass="CometChatGradientView" customModule="CometChatUIKit">
                     <rect key="frame" x="0.0" y="0.0" width="572" height="988"/>
                     <subviews>
-                        <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" estimatedSectionHeaderHeight="-1" sectionFooterHeight="28" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="kAs-PR-aIa">
+                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="FxL-hD-ITY">
                             <rect key="frame" x="0.0" y="0.0" width="572" height="988"/>
-                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        </tableView>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rkO-nR-CXO" customClass="CometChatSmartReplies" customModule="CometChatUIKit">
-                            <rect key="frame" x="0.0" y="908" width="572" height="80"/>
                             <subviews>
-                                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="FEQ-9J-ypB">
-                                    <rect key="frame" x="5" y="10" width="562" height="60"/>
+                                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" estimatedSectionHeaderHeight="-1" sectionFooterHeight="28" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="kAs-PR-aIa">
+                                    <rect key="frame" x="0.0" y="0.0" width="572" height="908"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </tableView>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rkO-nR-CXO" customClass="CometChatSmartReplies" customModule="CometChatUIKit">
+                                    <rect key="frame" x="0.0" y="908" width="572" height="80"/>
+                                    <subviews>
+                                        <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="FEQ-9J-ypB">
+                                            <rect key="frame" x="5" y="10" width="562" height="60"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="60" id="ILg-wC-UFm"/>
+                                            </constraints>
+                                            <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Tf9-6G-c6E">
+                                                <size key="itemSize" width="128" height="128"/>
+                                                <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                                <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                                <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                            </collectionViewFlowLayout>
+                                            <cells/>
+                                        </collectionView>
+                                    </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
-                                        <constraint firstAttribute="height" constant="60" id="ILg-wC-UFm"/>
+                                        <constraint firstAttribute="bottom" secondItem="FEQ-9J-ypB" secondAttribute="bottom" constant="10" id="3UU-hs-WWV"/>
+                                        <constraint firstItem="FEQ-9J-ypB" firstAttribute="top" secondItem="rkO-nR-CXO" secondAttribute="top" constant="10" id="P7E-jF-alG"/>
+                                        <constraint firstAttribute="trailing" secondItem="FEQ-9J-ypB" secondAttribute="trailing" constant="5" id="qwv-Bk-SRn"/>
+                                        <constraint firstItem="FEQ-9J-ypB" firstAttribute="leading" secondItem="rkO-nR-CXO" secondAttribute="leading" constant="5" id="xHb-Cj-YF2"/>
                                     </constraints>
-                                    <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Tf9-6G-c6E">
-                                        <size key="itemSize" width="128" height="128"/>
-                                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
-                                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                    </collectionViewFlowLayout>
-                                    <cells/>
-                                </collectionView>
+                                    <connections>
+                                        <outlet property="collectionLayout" destination="Tf9-6G-c6E" id="aWk-FV-NsR"/>
+                                        <outlet property="collectionView" destination="FEQ-9J-ypB" id="fE2-YF-uYQ"/>
+                                    </connections>
+                                </view>
                             </subviews>
-                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <constraints>
-                                <constraint firstAttribute="bottom" secondItem="FEQ-9J-ypB" secondAttribute="bottom" constant="10" id="3UU-hs-WWV"/>
-                                <constraint firstItem="FEQ-9J-ypB" firstAttribute="top" secondItem="rkO-nR-CXO" secondAttribute="top" constant="10" id="P7E-jF-alG"/>
-                                <constraint firstAttribute="trailing" secondItem="FEQ-9J-ypB" secondAttribute="trailing" constant="5" id="qwv-Bk-SRn"/>
-                                <constraint firstItem="FEQ-9J-ypB" firstAttribute="leading" secondItem="rkO-nR-CXO" secondAttribute="leading" constant="5" id="xHb-Cj-YF2"/>
-                            </constraints>
-                            <connections>
-                                <outlet property="collectionLayout" destination="Tf9-6G-c6E" id="aWk-FV-NsR"/>
-                                <outlet property="collectionView" destination="FEQ-9J-ypB" id="fE2-YF-uYQ"/>
-                            </connections>
-                        </view>
+                        </stackView>
                         <view hidden="YES" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="QhJ-w9-3GY" customClass="CometChatLiveReaction" customModule="CometChatUIKit">
                             <rect key="frame" x="472" y="700" width="90" height="248"/>
                             <constraints>
@@ -107,15 +112,12 @@
                     </subviews>
                     <color key="backgroundColor" systemColor="tintColor"/>
                     <constraints>
-                        <constraint firstAttribute="trailing" secondItem="kAs-PR-aIa" secondAttribute="trailing" id="1hd-OZ-BG0"/>
-                        <constraint firstItem="kAs-PR-aIa" firstAttribute="leading" secondItem="lZp-CI-ue7" secondAttribute="leading" id="ELO-Ni-Q8b"/>
-                        <constraint firstItem="kAs-PR-aIa" firstAttribute="top" secondItem="lZp-CI-ue7" secondAttribute="top" id="IZC-6C-Y66"/>
+                        <constraint firstItem="FxL-hD-ITY" firstAttribute="top" secondItem="lZp-CI-ue7" secondAttribute="top" id="C2I-DT-8cl"/>
                         <constraint firstAttribute="trailing" secondItem="QhJ-w9-3GY" secondAttribute="trailing" constant="10" id="Mjg-SM-2aJ"/>
-                        <constraint firstAttribute="trailing" secondItem="rkO-nR-CXO" secondAttribute="trailing" id="Snr-h3-fCj"/>
+                        <constraint firstItem="FxL-hD-ITY" firstAttribute="leading" secondItem="lZp-CI-ue7" secondAttribute="leading" id="NkP-HW-aiI"/>
                         <constraint firstAttribute="bottom" secondItem="QhJ-w9-3GY" secondAttribute="bottom" constant="40" id="aah-6Y-U4o"/>
-                        <constraint firstAttribute="bottom" secondItem="kAs-PR-aIa" secondAttribute="bottom" id="jWN-cW-osa"/>
-                        <constraint firstItem="rkO-nR-CXO" firstAttribute="leading" secondItem="lZp-CI-ue7" secondAttribute="leading" id="nvl-VI-c8U"/>
-                        <constraint firstAttribute="bottom" secondItem="rkO-nR-CXO" secondAttribute="bottom" id="wKP-BC-IQf"/>
+                        <constraint firstAttribute="bottom" secondItem="FxL-hD-ITY" secondAttribute="bottom" id="mVM-Fb-i2d"/>
+                        <constraint firstAttribute="trailing" secondItem="FxL-hD-ITY" secondAttribute="trailing" id="vkg-rD-sLg"/>
                     </constraints>
                 </view>
             </subviews>
@@ -127,7 +129,7 @@
                 <constraint firstItem="lZp-CI-ue7" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="xze-JZ-aMK"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="333.33333333333337" y="93.080357142857139"/>
+            <point key="canvasLocation" x="-945" y="74"/>
         </view>
     </objects>
     <resources>

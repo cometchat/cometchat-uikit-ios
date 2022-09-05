@@ -70,7 +70,7 @@ open class CometChatListBase: UIViewController {
     private var backButtonFont: UIFont = CometChatTheme.typography?.Title2 ?? UIFont.systemFont(ofSize: 17, weight: .semibold)
     private var backButtonColor: UIColor = CometChatTheme.palatte?.primary ?? .blue
    // static private var observer = [String: CometChatListBaseEvents]()
-    weak var cometChatListBaseDelegate: CometChatListBaseDelegate?
+    public weak var cometChatListBaseDelegate: CometChatListBaseDelegate?
     
     
     open override func loadView() {

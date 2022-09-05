@@ -386,6 +386,7 @@ import CometChatPro
         } else {
             activityIndicator = UIActivityIndicatorView(style: .gray)
         }
+        activityIndicator?.color = CometChatTheme.palatte?.accent600
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.tableView.backgroundColor = CometChatTheme.palatte?.secondary
@@ -494,19 +495,6 @@ import CometChatPro
     }
     
     private func groupUsers(users: [User]){
-        DispatchQueue.main.async {  [weak self] in
-            guard let strongSelf = self else { return }
-            if strongSelf.users.isEmpty {
-                if let emptyView = strongSelf.emptyView {
-                    strongSelf.tableView.set(customView: emptyView)
-                }else{
-                    strongSelf.tableView?.setEmptyMessage(strongSelf.emptyStateText , color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
-                }
-            }else{
-                strongSelf.tableView?.restore()
-            }
-        }
-        
         let groupedUsers = Dictionary(grouping: users) { (element) -> String in
             guard let name = element.name?.capitalized.trimmingCharacters(in: .whitespacesAndNewlines) else {return ""}
             return (name as NSString).substring(to: 1)
@@ -524,9 +512,18 @@ import CometChatPro
         }
         DispatchQueue.main.async {
             self.users = staticUsers
+            if self.users.isEmpty {
+                if let emptyView = self.emptyView {
+                    self.tableView.set(customView: emptyView)
+                }else{
+                    self.tableView?.setEmptyMessage(self.emptyStateText , color: self.emptyStateTextColor, font: self.emptyStateTextFont)
+                }
+            }else{
+                self.tableView?.restore()
+            }
             self.activityIndicator?.stopAnimating()
             self.tableView.tableFooterView?.isHidden = true
-            self.tableView?.restore()
+           // self.tableView?.restore()
             self.tableView.reloadData()
         }
     }
@@ -556,7 +553,7 @@ import CometChatPro
         userRequest?.fetchNext(onSuccess: { (users) in
             if users.count != 0 {
                 self.groupUsers(users: users)
-            }else{
+            }else {
                
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
@@ -566,7 +563,7 @@ import CometChatPro
                     if let emptyView = strongSelf.emptyView {
                         strongSelf.tableView.set(customView: emptyView)
                     }else{
-                        strongSelf.tableView?.setEmptyMessage(strongSelf.emptyStateText ?? "", color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
+                        strongSelf.tableView?.setEmptyMessage(strongSelf.emptyStateText , color: strongSelf.emptyStateTextColor, font: strongSelf.emptyStateTextFont)
                     }
                 }
                

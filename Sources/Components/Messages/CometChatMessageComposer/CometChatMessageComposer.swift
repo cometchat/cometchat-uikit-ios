@@ -21,6 +21,10 @@ public enum MessageComposerMode {
     case reply
 }
 
+public protocol MessageComposerHeightDelegate {
+    func manageComposerHeight(increaseHeight: Bool , decreaseHeight: Bool)
+}
+
 @objc @IBDesignable public class CometChatMessageComposer: UIView  {
 
     // MARK: - Declaration of IBInspectable
@@ -41,6 +45,10 @@ public enum MessageComposerMode {
     @IBOutlet weak var send: UIButton!
     @IBOutlet weak var liveReaction: UIButton!
     @IBOutlet weak var heightConstant: NSLayoutConstraint!
+    @IBOutlet weak var editLineIndicator: UIView!
+    
+    var composerHeightDelegate : MessageComposerHeightDelegate?
+    
 
 
     // MARK: - Declaration of Variables
@@ -225,6 +233,11 @@ public enum MessageComposerMode {
     @discardableResult
     public func show(sendButton: Bool) ->  CometChatMessageComposer {
         self.showSendButton = sendButton
+        if self.showSendButton {
+            self.textView.isUserInteractionEnabled = true
+        }else {
+            self.textView.isUserInteractionEnabled = false
+        }
         return self
     }
 
@@ -479,6 +492,8 @@ public enum MessageComposerMode {
             set(title: "EDIT_MESSAGE".localize())
             set(subTitle: message.text)
             set(text: message.text)
+            
+            self.composerHeightDelegate?.manageComposerHeight(increaseHeight: true, decreaseHeight: false)
 
             UIView.transition(with: messagePreview, duration: 0.4,
                               options: .transitionCrossDissolve,
@@ -605,6 +620,7 @@ public enum MessageComposerMode {
         topView.backgroundColor = CometChatTheme.palatte?.accent100
         bottomView.backgroundColor = CometChatTheme.palatte?.accent100
         seperator.backgroundColor = CometChatTheme.palatte?.accent200
+        editLineIndicator.backgroundColor = CometChatTheme.palatte?.accent600
 
         set(titleFont: CometChatTheme.typography?.Caption1 ?? UIFont.systemFont(ofSize: 13))
         set(titleColor: CometChatTheme.palatte?.accent600 ?? UIColor.gray)
@@ -631,7 +647,6 @@ public enum MessageComposerMode {
     }
 
     fileprivate func configureMessageComposer() {
-
         textView.layer.cornerRadius = 20
         textView.delegate = self
         send.isHidden = true
@@ -642,6 +657,7 @@ public enum MessageComposerMode {
             let sendImage = UIImage(named: "message-composer-send.png", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             send.setImage(sendImage, for: .normal)
             send.tintColor = CometChatTheme.palatte?.primary
+            self.contentView.backgroundColor = CometChatTheme.palatte?.background
         } else {}
 
         print("excludeMessageTypes 111: \(excludeMessageTypes)")
@@ -740,6 +756,7 @@ public enum MessageComposerMode {
         case .edit:
             if let currentMessage = currentMessage as? TextMessage {
                 editTextMessage(textMessage: currentMessage)
+                composerHeightDelegate?.manageComposerHeight(increaseHeight: false, decreaseHeight: true)
             }
         case .reply: break
 
@@ -769,14 +786,17 @@ public enum MessageComposerMode {
         }
     }
 
-    @IBAction func onCloseClick(_ sender: Any) {
+    @IBAction func onCloseClick(_ sender: UIButton) {
+        
         UIView.transition(with: messagePreview, duration: 0.4,
                           options: .transitionCrossDissolve,
                           animations: {
+
             self.messagePreview.isHidden = true
             self.textView.text = ""
             self.messageComposerMode = .draft
             self.heightConstant.constant = 100
+            self.composerHeightDelegate?.manageComposerHeight(increaseHeight: false, decreaseHeight: true)
         })
 
     }
@@ -787,6 +807,15 @@ extension CometChatMessageComposer: GrowingTextViewDelegate {
 
     public func growingTextView(_ growingTextView: GrowingTextView, willChangeHeight height: CGFloat, difference: CGFloat) {
         self.heightConstant.constant = height
+        if self.heightConstant.constant > 49 {
+
+            self.composerHeightDelegate?.manageComposerHeight(increaseHeight: true, decreaseHeight: false)
+        }else {
+
+            self.composerHeightDelegate?.manageComposerHeight(increaseHeight: false, decreaseHeight: true)
+        }
+
+        
     }
 
     public func growingTextView(_ growingTextView: GrowingTextView, didChangeHeight height: CGFloat, difference: CGFloat) {

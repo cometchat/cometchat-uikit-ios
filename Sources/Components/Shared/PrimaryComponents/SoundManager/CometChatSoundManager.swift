@@ -56,7 +56,7 @@ var otherAudioPlaying = AVAudioSession.sharedInstance().isOtherAudioPlaying
  - Author: CometChat Team
  - Copyright:  ©  2022 CometChat Inc.
  */
-public  class CometChatSoundManager: NSObject {
+public class CometChatSoundManager: NSObject {
     
     /**
      This method is used for playing the sound for a particular state as mentioned in the enum cases.
@@ -68,7 +68,7 @@ public  class CometChatSoundManager: NSObject {
      - Copyright:  ©  2022 CometChat Inc.
      */
     @discardableResult
-    func play(sound: Sound, customSound: URL? = nil) -> CometChatSoundManager {
+    public func play(sound: Sound, customSound: URL? = nil) -> CometChatSoundManager {
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
@@ -126,7 +126,7 @@ public  class CometChatSoundManager: NSObject {
      - Copyright:  ©  2022 CometChat Inc.
      */
     @discardableResult
-    func pause() -> CometChatSoundManager {
+    public func pause() -> CometChatSoundManager {
         if audioPlayer?.isPlaying == true {
             audioPlayer?.pause()
         }

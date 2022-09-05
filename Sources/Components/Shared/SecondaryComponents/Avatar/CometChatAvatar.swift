@@ -69,6 +69,7 @@ import AVFAudio
     @objc public func set(cornerRadius : CGFloat) -> CometChatAvatar {
         self.cornerRadius = cornerRadius
         self.clipsToBounds = true
+        self.setNeedsLayout()
         return self
     }
     
@@ -83,18 +84,21 @@ import AVFAudio
     @discardableResult
     @objc public func set(borderColor : UIColor) -> CometChatAvatar {
         self.borderColor = borderColor
+        self.setNeedsLayout()
         return self
     }
     
     @discardableResult
     @objc public func set(font : UIFont) -> CometChatAvatar {
         self.setFont = font
+        self.setNeedsLayout()
         return self
     }
     
     @discardableResult
     @objc public func set(fontColor: UIColor) -> CometChatAvatar {
         self.setFontColor = fontColor
+        self.setNeedsLayout()
         return self
     }
     
@@ -110,6 +114,7 @@ import AVFAudio
     @discardableResult
     @objc public func set(backgroundColor : UIColor) -> CometChatAvatar {
         self.setBackgroundColor = backgroundColor
+        self.setNeedsLayout()
         return self
     }
     
@@ -124,6 +129,7 @@ import AVFAudio
     @discardableResult
     @objc public func set(borderWidth : CGFloat) -> CometChatAvatar {
         self.borderWidth = borderWidth
+        self.setNeedsLayout()
         return self
     }
     

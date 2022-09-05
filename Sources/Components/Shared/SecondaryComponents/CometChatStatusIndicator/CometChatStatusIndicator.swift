@@ -68,7 +68,7 @@ import CometChatPro
      [CometChatStatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
      */
     @discardableResult
-    @objc  func set(cornerRadius: CGFloat) -> CometChatStatusIndicator {
+    @objc public func set(cornerRadius: CGFloat) -> CometChatStatusIndicator {
         self.cornerRadius = cornerRadius
         return self
     }
@@ -82,7 +82,7 @@ import CometChatPro
      [CometChatStatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
      */
     @discardableResult
-    @objc  func set(borderColor: UIColor) -> CometChatStatusIndicator {
+    @objc public func set(borderColor: UIColor) -> CometChatStatusIndicator {
         self.borderColor = borderColor
         return self
     }
@@ -96,7 +96,7 @@ import CometChatPro
      [CometChatStatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
      */
     @discardableResult
-    @objc  func set(borderWidth: CGFloat) -> CometChatStatusIndicator {
+    @objc public func set(borderWidth: CGFloat) -> CometChatStatusIndicator {
         self.borderWidth = borderWidth
         return self
     }
@@ -110,7 +110,7 @@ import CometChatPro
      [CometChatStatusIndicator Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-2-status-indicator)
      */
     @discardableResult
-    @objc  func set(backgroundColor: UIColor) -> CometChatStatusIndicator {
+    @objc public func set(backgroundColor: UIColor) -> CometChatStatusIndicator {
         self.backgroundColor = backgroundColor
         return self
     }

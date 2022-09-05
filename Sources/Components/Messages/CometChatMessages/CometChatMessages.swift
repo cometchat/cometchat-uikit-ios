@@ -109,6 +109,7 @@ open class CometChatMessages: UIViewController {
     
 
     private func addObservers() {
+        messageComposer.composerHeightDelegate = self
         CometChatMessageOption.messageOptionDelegate = self
         CometChatMessageEvents.addListener("messages-message-listner", self as CometChatMessageEventListner)
         CometChatGroupEvents.addListener("messages-group-listner", self as CometChatGroupEventListner)
@@ -156,6 +157,7 @@ open class CometChatMessages: UIViewController {
         }
         self.view.backgroundColor = CometChatTheme.palatte?.background
         self.messageList.backgroundColor = CometChatTheme.palatte?.background
+        self.messageComposer.messagePreview.backgroundColor = CometChatTheme.palatte?.background
         messageList.set(controller: self)
         messageList.enableSoundForMessages(bool: enableSoundForMessages)
         if let customIncomingMessageSound = customIncomingMessageSound {
@@ -225,6 +227,7 @@ extension CometChatMessages: CometChatMessageOptionDelegate {
             case UIKitConstants.MessageOptionConstants.editMessage :
                 if messageOption.onClick == nil {
                     messageComposer.preview(message: message, mode: .edit)
+                    messageList.smartReplies.isHidden = true
                 }else{
                     if let forMessage = forMessage {
                         messageOption.onClick?(forMessage)
@@ -500,4 +503,31 @@ extension CometChatMessages: CometChatMessageEventListner {
     public func onMessageReact(message: BaseMessage, reaction: CometChatMessageReaction) {
         
     }
+}
+
+
+extension CometChatMessages : MessageComposerHeightDelegate {
+    public func manageComposerHeight(increaseHeight: Bool, decreaseHeight: Bool) {
+        if increaseHeight {
+            UIView.transition(with: messageComposer, duration: 0.4,
+                              options: .transitionCrossDissolve,
+                              animations: {
+                if self.messageComposer.messageComposerMode == .edit {
+                    self.messageComposerHeight.constant = 110 + self.messageComposer.heightConstant.constant
+                  
+                }else {
+                    self.messageComposerHeight.constant = 100
+                }
+
+            })
+        } else if decreaseHeight {
+            UIView.transition(with: messageComposer, duration: 0.4,
+                              options: .transitionCrossDissolve,
+                              animations: {
+                self.messageComposerHeight.constant = 100
+            })
+            
+        }
+    }
+    
 }

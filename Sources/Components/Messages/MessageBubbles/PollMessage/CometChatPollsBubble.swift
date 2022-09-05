@@ -224,6 +224,7 @@ class Indicator {
         loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = UIActivityIndicatorView.Style.medium
+        loadingIndicator?.color = CometChatTheme.palatte?.accent600
         loadingIndicator.startAnimating()
         alert = UIAlertController(title: nil, message: "VOTING".localize(), preferredStyle: .alert)
         alert.view.addSubview(loadingIndicator)

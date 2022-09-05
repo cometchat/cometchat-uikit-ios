@@ -196,8 +196,6 @@ open class CometChatCreateGroup: CometChatListBase {
         hide(create: false)
         
         self.view.backgroundColor = CometChatTheme.palatte?.secondary
-        self.name.placeholder = "NAME".localize()
-        self.password.placeholder = "PASSWORD".localize()
         self.groupType.setTitle("PUBLIC".localize(), forSegmentAt: 0)
         self.groupType.setTitle("PRIVATE".localize(), forSegmentAt: 1)
         self.groupType.setTitle("PROTECTED".localize(), forSegmentAt: 2)
@@ -205,6 +203,10 @@ open class CometChatCreateGroup: CometChatListBase {
         groupType.setTitleTextAttributes([NSAttributedString.Key.font: CometChatTheme.typography?.Caption1 ?? .systemFont(ofSize: 17), NSAttributedString.Key.foregroundColor: CometChatTheme.palatte?.accent], for: .normal)
         name.font = CometChatTheme.typography?.Body ?? .systemFont(ofSize: 17)
         password.font = CometChatTheme.typography?.Body ?? .systemFont(ofSize: 17)
+        name.textColor = CometChatTheme.palatte?.primary ?? .black
+        name.attributedPlaceholder = NSAttributedString(string:"NAME".localize(), attributes: [NSAttributedString.Key.foregroundColor: CometChatTheme.palatte?.accent500 ?? .black])
+        self.password.textColor = CometChatTheme.palatte?.primary ?? .black
+        self.password.attributedPlaceholder = NSAttributedString(string:"PASSWORD".localize(), attributes: [NSAttributedString.Key.foregroundColor: CometChatTheme.palatte?.accent500 ?? .black])
         containerView.addBackground(color: CometChatTheme.palatte?.background ?? .white)
     }
     

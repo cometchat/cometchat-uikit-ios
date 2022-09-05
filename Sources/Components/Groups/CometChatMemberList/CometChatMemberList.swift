@@ -328,6 +328,7 @@ import CometChatPro
         } else {
             activityIndicator = UIActivityIndicatorView(style: .gray)
         }
+        activityIndicator?.color = CometChatTheme.palatte?.accent600
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.tableView.backgroundColor = .clear

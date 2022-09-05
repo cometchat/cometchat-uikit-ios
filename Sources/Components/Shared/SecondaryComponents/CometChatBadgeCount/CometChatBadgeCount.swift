@@ -71,7 +71,7 @@ import CometChatPro
      [CometChatBadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
     @discardableResult
-    @objc  func set(borderColor : UIColor) -> CometChatBadgeCount {
+    @objc public func set(borderColor : UIColor) -> CometChatBadgeCount {
         self.borderColor = borderColor
         return self
     }
@@ -85,7 +85,7 @@ import CometChatPro
      [CometChatBadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
     @discardableResult
-    @objc  func set(borderWidth : CGFloat) -> CometChatBadgeCount {
+    @objc public func set(borderWidth : CGFloat) -> CometChatBadgeCount {
         self.borderWidth = borderWidth
         return self
     }
@@ -99,19 +99,19 @@ import CometChatPro
      [CometChatBadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
     @discardableResult
-    @objc  func set(backgroundColor : UIColor) -> CometChatBadgeCount {
+    @objc public func set(backgroundColor : UIColor) -> CometChatBadgeCount {
         self.backgroundColor  = backgroundColor
         return self
     }
     
     @discardableResult
-    @objc  func set(textColor : UIColor) -> CometChatBadgeCount {
+    @objc public func set(textColor : UIColor) -> CometChatBadgeCount {
         self.textColor  = textColor
         return self
     }
     
     @discardableResult
-    @objc  func set(textFont : UIFont) -> CometChatBadgeCount {
+    @objc public func set(textFont : UIFont) -> CometChatBadgeCount {
         self.font  = textFont
         return self
     }
@@ -127,7 +127,7 @@ import CometChatPro
      [CometChatBadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
     @discardableResult
-    @objc  func set(cornerRadius : CGFloat) -> CometChatBadgeCount {
+    @objc public func set(cornerRadius : CGFloat) -> CometChatBadgeCount {
         self.radius = cornerRadius
         return self
     }
@@ -141,7 +141,7 @@ import CometChatPro
      [CometChatBadgeCount Documentation](https://prodocs.cometchat.com/docs/ios-ui-components#section-3-badge-count)
      */
     @discardableResult
-    @objc  func set(count : Int) -> CometChatBadgeCount {
+    @objc public func set(count : Int) -> CometChatBadgeCount {
         if count >=  1 && count < 999 {
             self.isHidden = false
             self.text = "\(count)"

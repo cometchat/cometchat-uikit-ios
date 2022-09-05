@@ -136,6 +136,7 @@ public class CometChatCreatePoll: CometChatListBase {
                 let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
                 loadingIndicator.hidesWhenStopped = true
                 loadingIndicator.style = UIActivityIndicatorView.Style.gray
+                loadingIndicator.color = CometChatTheme.palatte?.accent600
                 loadingIndicator.startAnimating()
                 alert.view.addSubview(loadingIndicator)
                 self.present(alert, animated: true, completion: nil)

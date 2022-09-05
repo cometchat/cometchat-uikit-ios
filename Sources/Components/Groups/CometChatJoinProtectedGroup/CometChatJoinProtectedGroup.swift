@@ -139,7 +139,6 @@ open class CometChatJoinProtectedGroup: CometChatListBase {
         hide(continueButton: false)
         
         self.view.backgroundColor = CometChatTheme.palatte?.secondary
-        password.placeholder = "PASSWORD".localize()
         if let group = group, let name = group.name {
             self.set(caption: "ENTER_PASSWORD_TO_ACCESS".localize() + name + "GROUP_WITH_DOT".localize())
                 .set(captionFont: CometChatTheme.typography?.Subtitle2 ?? UIFont.systemFont(ofSize: 13))
@@ -151,6 +150,9 @@ open class CometChatJoinProtectedGroup: CometChatListBase {
         }
         containerView.addBackground(color: CometChatTheme.palatte?.background ?? .white)
         password.font = CometChatTheme.typography?.Body ?? .systemFont(ofSize: 17)
+        self.password.textColor = CometChatTheme.palatte?.primary ?? .black
+        self.password.attributedPlaceholder = NSAttributedString(string:"PASSWORD".localize(), attributes: [NSAttributedString.Key.foregroundColor: CometChatTheme.palatte?.accent500 ?? .black])
+        
     }
     
 }

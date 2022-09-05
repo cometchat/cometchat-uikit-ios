@@ -56,6 +56,7 @@ open class CometChatStickerKeyboard: UIViewController {
         } else {
             activityIndicator = UIActivityIndicatorView(style: .gray)
         }
+        activityIndicator?.color = CometChatTheme.palatte?.accent600
         stickersCollectionView.showsVerticalScrollIndicator = false
         stickersCollectionView.showsHorizontalScrollIndicator = false
         stickersCollectionView.isPagingEnabled = true

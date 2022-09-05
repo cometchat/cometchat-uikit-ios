@@ -104,4 +104,63 @@ public struct Palette {
         return self
     }
     
+//    @discardableResult
+//    public mutating func set(accent50: UIColor) -> Palette {
+//        self.accent50 = accent
+//        return self
+//    }
+//    
+//    @discardableResult
+//    public mutating func set(accent100: UIColor) -> Palette {
+//        self.accent100 = accent
+//        return self
+//    }
+//    
+//    @discardableResult
+//    public mutating func set(accent200: UIColor) -> Palette {
+//        self.accent200 = accent
+//        return self
+//    }
+//    
+//    @discardableResult
+//    public mutating func set(accent300: UIColor) -> Palette {
+//        self.accent300 = accent
+//        return self
+//    }
+//    
+//    @discardableResult
+//    public mutating func set(accent400: UIColor) -> Palette {
+//        self.accent400 = accent
+//        return self
+//    }
+//    
+//    @discardableResult
+//    public mutating func set(accent500: UIColor) -> Palette {
+//        self.accent500 = accent
+//        return self
+//    }
+//    
+//    @discardableResult
+//    public mutating func set(accent600: UIColor) -> Palette {
+//        self.accent600 = accent
+//        return self
+//    }
+//    
+//    @discardableResult
+//    public mutating func set(accent700: UIColor) -> Palette {
+//        self.accent700 = accent
+//        return self
+//    }
+//    
+//    @discardableResult
+//    public mutating func set(accent800: UIColor) -> Palette {
+//        self.accent800 = accent
+//        return self
+//    }
+//    
+//    @discardableResult
+//    public mutating func set(accent900: UIColor) -> Palette {
+//        self.accent900 = accent
+//        return self
+//    }
 }
