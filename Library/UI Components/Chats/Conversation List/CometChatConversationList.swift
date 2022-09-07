@@ -18,7 +18,7 @@ import CometChatPro
 
 // MARK: - Declaring Protocol.
 
-public protocol ConversationListDelegate : AnyObject{
+public protocol ConversationListDelegate : AnyObject {
     /**
      This method triggers when user taps perticular conversation in CometChatConversationList
      - Parameters:
@@ -84,6 +84,7 @@ public final class CometChatConversationList: UIViewController {
         self.setupDelegates()
         refreshConversations()
     }
+    
     
     deinit {
     }
@@ -600,7 +601,6 @@ extension CometChatConversationList : UISearchBarDelegate, UISearchResultsUpdati
                 // If dataItem matches the searchText, return true to include it
                 self.searchedText = text
                 return (((conversation.conversationWith as? User)?.name?.lowercased().contains(text.lowercased()) ?? false) || ((conversation.conversationWith as? Group)?.name?.lowercased().contains(text.lowercased()) ?? false) || ((conversation.lastMessage as? TextMessage)?.text.lowercased().contains(text.lowercased()) ?? false) || ((conversation.lastMessage as? ActionMessage)?.message?.lowercased().contains(text.lowercased()) ?? false))
-                
             }
             self.tableView.reloadData()
         }
@@ -611,7 +611,7 @@ extension CometChatConversationList : UISearchBarDelegate, UISearchResultsUpdati
 
 // MARK: - CometChatMessageDelegate Delegate
 
-extension CometChatConversationList : CometChatMessageDelegate{
+extension CometChatConversationList : CometChatMessageDelegate {
     
     /**
      This method triggers when real time text message message arrives from CometChat Pro SDK
@@ -624,7 +624,6 @@ extension CometChatConversationList : CometChatMessageDelegate{
     public func onTextMessageReceived(textMessage: TextMessage) {
         CometChat.markAsDelivered(baseMessage: textMessage)
         switch  UIKitSettings.chatListMode {
-       
         case .user:
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == textMessage.sender?.uid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {

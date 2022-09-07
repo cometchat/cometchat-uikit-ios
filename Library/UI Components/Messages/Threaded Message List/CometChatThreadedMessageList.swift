@@ -3200,7 +3200,7 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                     textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
                     textMessage?.sender?.uid = LoggedInUser.uid
                     textMessage?.senderUid = LoggedInUser.uid
-                    textMessage?.metaData = ["reply-message": selectedMessage?.rawMessage ]
+                    textMessage?.metaData = ["reply-message": selectedMessage?.rawMessage]
                     textMessage?.parentMessageId = currentMessage?.id ?? 0
                     
                     if chatMessages.count == 0 {

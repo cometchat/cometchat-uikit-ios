@@ -186,7 +186,6 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
              if let message = mediaMessage, let indexpath = indexPath {
                  CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
              }
-
     }
     
     
