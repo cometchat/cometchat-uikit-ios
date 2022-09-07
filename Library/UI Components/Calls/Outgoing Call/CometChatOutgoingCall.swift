@@ -176,6 +176,8 @@ extension CometChatOutgoingCall: OutgoingCallDelegate {
                         
                         self.callSetting = CallSettings.CallSettingsBuilder(callView: self.view, sessionId: session).build()
                     }
+<<<<<<< HEAD
+=======
             
                     CometChat.startCall(callSettings: self.callSetting!, onUserJoined: { (userJoined) in
                         DispatchQueue.main.async {
@@ -213,11 +215,46 @@ extension CometChatOutgoingCall: OutgoingCallDelegate {
                     }) { (ended) in
                         DispatchQueue.main.async {
                             self.dismiss()
+>>>>>>> 91debbb8038eb4c13dea70adc39799fb5cb8219e
 
-                                CometChatSnackBoard.display(message:  "CALL_ENDED".localized(), mode: .info, duration: .short)
-                            
-                        }
-                    }
+                     
+                     CometChat.startCall(callSettings: self.callSetting!) { userJoined in
+                         DispatchQueue.main.async {
+                             if let name = userJoined?.name {
+                                 CometChatSnackBoard.display(message: "\(name) " + "JOINED".localized(), mode: .info, duration: .short)
+                             }
+                         }
+                     } onUserLeft: { onUserLeft in
+                         DispatchQueue.main.async {
+                             if let name = onUserLeft?.name {
+                                 CometChatSnackBoard.display(message: "\(name) " + "LEFT_THE_CALL".localized(), mode: .info, duration: .short)
+                             }
+                         }
+                     } onUserListUpdated: { onUserListUpdated in
+                         
+                     } onAudioModesUpdated: { onAudioModesUpdated in
+                         
+                     } onUserMuted: { onUserMuted in
+                         
+                     } onCallSwitchedToVideo: { onCallSwitchedToVideo in
+                         
+                     } onRecordingStarted: { onRecordingStarted in
+                         
+                     } onRecordingStopped: { onRecordingStopped in
+                         
+                     } onError: { onError in
+                         DispatchQueue.main.async {
+                             if let error = onError {
+                                 CometChatSnackBoard.showErrorMessage(for: error)
+                             }
+                         }
+                     } onCallEnded: { onCallEnded in
+                         DispatchQueue.main.async {
+                             self.dismiss()
+                             CometChatSnackBoard.display(message:  "CALL_ENDED".localized(), mode: .info, duration: .short)
+                             
+                         }
+                     }
                 }
             }
         }

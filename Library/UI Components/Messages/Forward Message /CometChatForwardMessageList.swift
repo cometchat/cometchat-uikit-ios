@@ -265,10 +265,27 @@ public class CometChatForwardMessageList: UIViewController {
                                 }
                             case .image, .video , .audio, .file:
                                 if let message = message as? MediaMessage {
-                                    CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
-                                    let message = MediaMessage(receiverUid: (conversation.conversationWith as? User)?.uid ?? "", fileurl: message.attachment?.fileUrl ?? "", messageType: message.messageType, receiverType: message.receiverType)
+                                    let message = MediaMessage(receiverUid: (conversation.conversationWith as? User)?.uid ?? "", fileurl: message.attachment?.fileUrl ?? "", messageType: message.messageType, receiverType: .user)
                                     message.receiverType = .user
                                     CometChat.sendMediaMessage(message: message, onSuccess: { (message) in
+                                        DispatchQueue.main.async {
+                                            self.navigationController?.popToRootViewController(animated: true)
+                                        }
+                                    }) { (error) in
+                                        DispatchQueue.main.async {
+                                            if let name = (conversation.conversationWith as? User)?.name {
+                                               CometChatSnackBoard.display(message:  "UNABLE_TO_FORWARD" .localized() + name, mode: .error, duration: .short)
+                                             
+                                            }
+                                        }
+                                    }
+                                }
+                            case .custom:
+                                if let message = message as? CustomMessage, let customData = message.customData {
+                                    let message = CustomMessage(receiverUid: (conversation.conversationWith as? User)?.uid ?? "", receiverType: .user, customData: customData, type: message.type)
+                                    message.receiverType = .user
+                                    
+                                    CometChat.sendCustomMessage(message: message, onSuccess: { (message) in
                                         DispatchQueue.main.async {
                                             self.navigationController?.popToRootViewController(animated: true)
                                         }
@@ -282,13 +299,30 @@ public class CometChatForwardMessageList: UIViewController {
                                         }
                                     }
                                 }
-                            case .custom: break
                             case .groupMember:break
                             @unknown default: break
                             }
                         case .action: break
                         case .call: break
-                        case .custom: break
+                        case .custom:
+                            if let message = message as? CustomMessage, let customData = message.customData {
+                               let message = CustomMessage(receiverUid: (conversation.conversationWith as? User)?.uid ?? "", receiverType: .user, customData: customData, type: message.type)
+                                message.receiverType = .user
+                                
+                                CometChat.sendCustomMessage(message: message, onSuccess: { (message) in
+                                    DispatchQueue.main.async {
+                                        self.navigationController?.popToRootViewController(animated: true)
+                                    }
+                                }) { (error) in
+                                    DispatchQueue.main.async {
+                                        if let name = (conversation.conversationWith as? User)?.name {
+                                           
+                                                CometChatSnackBoard.display(message:  "UNABLE_TO_FORWARD" .localized() + name, mode: .error, duration: .short)
+                                         
+                                        }
+                                    }
+                                }
+                            }
                         @unknown default: break }
                         
                     case .group:
@@ -313,7 +347,7 @@ public class CometChatForwardMessageList: UIViewController {
                                 }
                             case .image, .video , .audio, .file:
                                 if let message = message as? MediaMessage {
-                                    let message = MediaMessage(receiverUid: (conversation.conversationWith as? Group)?.guid ?? "", fileurl: message.attachment?.fileUrl ?? "", messageType: message.messageType, receiverType: message.receiverType)
+                                    let message = MediaMessage(receiverUid: (conversation.conversationWith as? Group)?.guid ?? "", fileurl: message.attachment?.fileUrl ?? "", messageType: message.messageType, receiverType: .group)
                                     message.receiverType = .group
                                     CometChat.sendMediaMessage(message: message, onSuccess: { (message) in
                                       DispatchQueue.main.async {
@@ -327,13 +361,46 @@ public class CometChatForwardMessageList: UIViewController {
                                         }
                                     }
                                 }
-                            case .custom: break
+                            case .custom:
+                                if let message = message as? CustomMessage, let customData = message.customData  {
+                                    let message = CustomMessage(receiverUid: (conversation.conversationWith as? Group)?.guid ?? "", receiverType: .group, customData: customData, type: message.type)
+                                    message.receiverType = .group
+                                    CometChat.sendCustomMessage(message: message, onSuccess: { (message) in
+                                      DispatchQueue.main.async {
+                                            self.navigationController?.popToRootViewController(animated: true)
+                                        }
+                                    }) { (error) in
+                                        DispatchQueue.main.async {
+                                            if let name = (conversation.conversationWith as? Group)?.name {
+                                                CometChatSnackBoard.display(message:  "UNABLE_TO_FORWARD" .localized() + name, mode: .error, duration: .short)
+                                            }
+                                        }
+                                    }
+                                }
+                                
                             case .groupMember:break
                             @unknown default: break
                             }
                         case .action: break
                         case .call: break
-                        case .custom: break
+                        case .custom:
+                            
+                            if let message = message as? CustomMessage, let customData = message.customData  {
+                                let message = CustomMessage(receiverUid: (conversation.conversationWith as? Group)?.guid ?? "", receiverType: .group, customData: customData, type: message.type)
+                                message.receiverType = .group
+                                CometChat.sendCustomMessage(message: message, onSuccess: { (message) in
+                                  DispatchQueue.main.async {
+                                        self.navigationController?.popToRootViewController(animated: true)
+                                    }
+                                }) { (error) in
+                                    DispatchQueue.main.async {
+                                        if let name = (conversation.conversationWith as? Group)?.name {
+                                            CometChatSnackBoard.display(message:  "UNABLE_TO_FORWARD" .localized() + name, mode: .error, duration: .short)
+                                        }
+                                    }
+                                }
+                            }
+                            
                         @unknown default: break }
                     case .none: break
                     @unknown default: break

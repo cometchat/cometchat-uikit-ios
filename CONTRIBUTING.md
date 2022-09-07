@@ -6,9 +6,12 @@ email, or any other method with the owners of this repository before making a ch
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
 
+<<<<<<< HEAD
+=======
 
 
 
+>>>>>>> 91debbb8038eb4c13dea70adc39799fb5cb8219e
 ## Pull Request Process
 
 1. Ensure any install or build dependencies are removed before the end of the layer when doing a 
@@ -94,3 +97,4 @@ available at [http://contributor-covenant.org/version/1/4][version]
 
 [homepage]: http://contributor-covenant.org
 [version]: http://contributor-covenant.org/version/1/4/
+

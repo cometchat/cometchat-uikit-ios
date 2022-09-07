@@ -21,7 +21,7 @@ enum Sound {
 // MARK: - Declaration of Public variable
 
 public var audioPlayer: AVAudioPlayer?
-var otherAudioPlaying = AVAudioSession.sharedInstance().isOtherAudioPlaying
+var otherAudioPlaying = AVAudioSession.sharedInstance().secondaryAudioShouldBeSilencedHint
 /*  ----------------------------------------------------------------------------------------- */
 
 public final class CometChatSoundManager: NSObject {

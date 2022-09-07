@@ -41,26 +41,37 @@ class CometChatMeetingView: UIViewController {
                 guard let strongSelf = self else { return }
 
                 let callSettings = CallSettings.CallSettingsBuilder(callView: strongSelf.customView, sessionId: sessionID).setAudioOnlyCall(audioOnly: false).startWithAudioMuted(audioMuted: false).build()
+                 
                 
-                CometChat.startCall(callSettings: callSettings, onUserJoined: { (userJoined) in
+                CometChat.startCall(callSettings: callSettings) { userJoined in
                     DispatchQueue.main.async {
                         if let name = userJoined?.name {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "JOINED".localized(), duration: .short)
                             snackbar.show()
                         }
                     }
-                }, onUserLeft: { (userLeft) in
+                } onUserLeft: { onUserLeft in
                     DispatchQueue.main.async {
-                        if let name = userLeft?.name {
+                        if let name = onUserLeft?.name {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "LEFT_THE_CALL".localized(), duration: .short)
                             snackbar.show()
                         }
                     }
+                } onUserListUpdated: { onUserListUpdated in
                     
-                },onUserListUpdated: {(userListUpdated) in
+                } onAudioModesUpdated: { onAudioModesUpdated in
                     
-                }, onAudioModesUpdated: {(userListUpdated) in
+                } onUserMuted: { onUserMuted in
                     
+<<<<<<< HEAD
+                } onCallSwitchedToVideo: { onCallSwitchedToVideo in
+                    
+                } onRecordingStarted: { onRecordingStarted in
+                    
+                } onRecordingStopped: { onRecordingStopped in
+                    
+                } onError: { onError in
+=======
                 }, onUserMuted: { onUserMuted in
                     
                 }, onCallSwitchedToVideo: { onCallSwitchedToVideo in
@@ -71,13 +82,13 @@ class CometChatMeetingView: UIViewController {
                     
                 }, onError: { (error) in
 
+>>>>>>> 91debbb8038eb4c13dea70adc39799fb5cb8219e
                     DispatchQueue.main.async {
-                        if let error = error {
+                        if let error = onError {
                             CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
-
-                }) { (ended) in
+                } onCallEnded: { onCallEnded in
                     DispatchQueue.main.async {
                         strongSelf.dismiss(animated: true) {
                             CometChatSnackBoard.display(message: "CALL_ENDED".localized(), mode: .info, duration: .short)
@@ -90,24 +101,36 @@ class CometChatMeetingView: UIViewController {
                 guard let strongSelf = self else { return }
                 
                 let callSettings = CallSettings.CallSettingsBuilder(callView: strongSelf.customView, sessionId: sessionID).setAudioOnlyCall(audioOnly: false).startWithVideoMuted(videoMuted: false).startWithAudioMuted(audioMuted: false).build()
-                
-                CometChat.startCall(callSettings: callSettings, onUserJoined: { (userJoined) in
+
+                CometChat.startCall(callSettings: callSettings) { userJoined in
                     DispatchQueue.main.async {
                         if let name = userJoined?.name {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "JOINED".localized(), duration: .short)
                             snackbar.show()
                         }
                     }
-                }, onUserLeft: { (userLeft) in
+                } onUserLeft: { onUserLeft in
                     DispatchQueue.main.async {
-                        if let name = userLeft?.name {
+                        if let name = onUserLeft?.name {
                             let snackbar: CometChatSnackbar = CometChatSnackbar.init(message: "\(name) " + "LEFT_THE_CALL".localized(), duration: .short)
                             snackbar.show()
                         }
                     }
-                }, onUserListUpdated: {(userListUpdated) in
+                } onUserListUpdated: { onUserListUpdated in
                     
+                } onAudioModesUpdated: { onAudioModesUpdated in
                     
+<<<<<<< HEAD
+                } onUserMuted: { onUserMuted in
+                    
+                } onCallSwitchedToVideo: { onCallSwitchedToVideo in
+                    
+                } onRecordingStarted: { onRecordingStarted in
+                    
+                } onRecordingStopped: { onRecordingStopped in
+                    
+                } onError: { onError in
+=======
                 }, onAudioModesUpdated: {(audioModesUpdated) in
 
                 
@@ -120,15 +143,16 @@ class CometChatMeetingView: UIViewController {
                 }, onRecordingStopped: { onRecordingStopped in
                     
                 }, onError: { (error) in
+>>>>>>> 91debbb8038eb4c13dea70adc39799fb5cb8219e
 
                     DispatchQueue.main.async {
                         strongSelf.view.removeFromSuperview()
                         strongSelf.dismiss(animated: true, completion: nil)
-                        if let error = error {
+                        if let error = onError {
                             CometChatSnackBoard.showErrorMessage(for: error)
                         }
                     }
-                }) { (callEnded) in
+                } onCallEnded: { onCallEnded in
                     DispatchQueue.main.async {
                        
                         strongSelf.view.removeFromSuperview()

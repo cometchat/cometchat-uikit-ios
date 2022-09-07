@@ -623,14 +623,6 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     private func didExtensionDetected(message: BaseMessage) -> CometChatExtension {
         var detectedExtension: CometChatExtension?
         
-        if let metaData = message.metaData {
-            if metaData["reply-message"] as? [String : Any] != nil {
-                detectedExtension = .reply
-            }else{
-                detectedExtension = .none
-            }
-        }
-        
         if let stickerMessage = message as? CustomMessage , let type = stickerMessage.type {
             if type == "extension_sticker" {
                 detectedExtension = .sticker
@@ -676,6 +668,14 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             
             detectedExtension = .imageModeration
             
+        }
+        
+        if let metaData = message.metaData {
+            if metaData["reply-message"] as? [String : Any] != nil {
+                detectedExtension = .reply
+            }else{
+                detectedExtension = .none
+            }
         }
         return detectedExtension ?? .none
     }
@@ -900,9 +900,9 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             if strongSelf.navigationController != nil {
                 strongSelf.addBackButton(bool: true)
                 strongSelf.navigationItem.largeTitleDisplayMode = .never
-                strongSelf.titleView = UIView(frame: CGRect(x: 0, y: 0, width: (strongSelf.navigationController?.navigationBar.bounds.size.width)! - 200, height: 50))
-                let buddyName = UILabel(frame: CGRect(x:0,y: 3,width: 200 ,height: 21))
-                strongSelf.buddyStatus = UILabel(frame: CGRect(x:0,y: (strongSelf.titleView?.frame.origin.y ?? 0.0) + 22,width: 200,height: 21))
+                strongSelf.titleView = UIView(frame: CGRect(x: 0, y: 0, width: (strongSelf.navigationController?.navigationBar.bounds.size.width)! - 160, height: 50))
+                let buddyName = UILabel(frame: CGRect(x:0,y: 3,width: 160 ,height: 21))
+                strongSelf.buddyStatus = UILabel(frame: CGRect(x:0,y: (strongSelf.titleView?.frame.origin.y ?? 0.0) + 22,width: 160, height: 21))
                 strongSelf.buddyStatus?.textColor = UIKitSettings.primaryColor
                 strongSelf.buddyStatus?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
                 strongSelf.buddyStatus?.textAlignment = NSTextAlignment.left
@@ -1167,7 +1167,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         DispatchQueue.main.async {
             self.navigationItem.rightBarButtonItem = nil
             let videoCall = UIButton(type: .custom)
-            videoCall.frame = CGRect(x: 0, y: 0, width: 35, height: 30)
+            videoCall.frame = CGRect(x: 0, y: 0, width: 32, height: 30)
             var videoCallIcon = UIImage(named: "messages-video-call.png", in: UIKitSettings.bundle, compatibleWith: nil)
             if #available(iOS 13.0, *) {
                 videoCallIcon = videoCallIcon?.withRenderingMode(.alwaysTemplate)
@@ -1178,7 +1178,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             videoCall.addTarget(self, action: #selector(self.didPressedOnVideoCall), for: .touchUpInside)
             
             let audioCall = UIButton(type: .custom)
-            audioCall.frame = CGRect(x: 10, y: 0, width: 35, height: 30)
+            audioCall.frame = CGRect(x: 8, y: 0, width: 32, height: 30)
             var audioCallIcon = UIImage(named: "messages-audio-call.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             if #available(iOS 13.0, *) {
                 audioCallIcon = audioCallIcon?.withRenderingMode(.alwaysTemplate)
@@ -1189,7 +1189,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             
             
             let infoButton = UIButton(type: .custom)
-            infoButton.frame = CGRect(x: 10, y: 0, width: 35, height: 30)
+            infoButton.frame = CGRect(x: 8, y: 0, width: 32, height: 30)
             var infoIcon = UIImage(named: "messages-info.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             if #available(iOS 13.0, *) {
                 infoIcon = infoIcon?.withRenderingMode(.alwaysTemplate)
@@ -3504,24 +3504,25 @@ extension CometChatMessageList: GrowingTextViewDelegate {
                 CometChat.endTyping(indicator: indicator)
             }
         }
-        
-        FeatureRestriction.isVoiceNotesEnabled { (success) in
-            switch success {
-            case .enabled: self.microphone.isHidden = false
-            case .disabled: self.microphone.isHidden = true
+        if growingTextView.text?.count == 0 {
+            FeatureRestriction.isVoiceNotesEnabled { (success) in
+                switch success {
+                case .enabled: self.microphone.isHidden = false
+                case .disabled: self.microphone.isHidden = true
+                }
             }
-        }
-        send.isHidden = true
-        FeatureRestriction.isLiveReactionsEnabled { (success) in
-            switch success {
-            case .enabled:
-                self.reaction.isHidden = false
-                self.reactionButtonWidth.constant = 30
-                self.reactionButtonSpace.constant = 15
-            case .disabled:
-                self.reaction.isHidden = true
-                self.reactionButtonWidth.constant = 0
-                self.reactionButtonSpace.constant = 0
+            send.isHidden = true
+            FeatureRestriction.isLiveReactionsEnabled { (success) in
+                switch success {
+                case .enabled:
+                    self.reaction.isHidden = false
+                    self.reactionButtonWidth.constant = 30
+                    self.reactionButtonSpace.constant = 15
+                case .disabled:
+                    self.reaction.isHidden = true
+                    self.reactionButtonWidth.constant = 0
+                    self.reactionButtonSpace.constant = 0
+                }
             }
         }
     }
