@@ -23,7 +23,6 @@
 <a href=" "> <img src="https://img.shields.io/badge/Version-3.0.9--1-red" /></a>
 =======
 <a href=" "> <img src="https://img.shields.io/badge/Version-3.0.905--1-red" /></a>
->>>>>>> 91debbb8038eb4c13dea70adc39799fb5cb8219e
 <a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-swift-chat-ui-kit?style=social"/></a>
 <a href=""> <img src="https://img.shields.io/twitter/follow/cometchat?style=social" /></a>
 
