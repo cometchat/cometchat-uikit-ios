@@ -168,21 +168,9 @@ public class CometChatIncomingCall: UIViewController {
                             
                         } onRecordingStarted: { onRecordingStarted in
                             
-<<<<<<< HEAD
                         } onRecordingStopped: { onRecordingStopped in
                             
                         } onError: { onError in
-=======
-                        }, onUserMuted: { onUserMuted in
-                            
-                        }, onCallSwitchedToVideo: { onCallSwitchedToVideo in
-                            
-                        }, onRecordingStarted: { onRecordingStarted in
-                            
-                        }, onRecordingStopped: { onRecordingStopped in
-                            
-                        }, onError: { (error) in
->>>>>>> 91debbb8038eb4c13dea70adc39799fb5cb8219e
 
                             DispatchQueue.main.async {
                                 if (onError?.errorDescription) != nil {

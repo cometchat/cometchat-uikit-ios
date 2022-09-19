@@ -176,46 +176,6 @@ extension CometChatOutgoingCall: OutgoingCallDelegate {
                         
                         self.callSetting = CallSettings.CallSettingsBuilder(callView: self.view, sessionId: session).build()
                     }
-<<<<<<< HEAD
-=======
-            
-                    CometChat.startCall(callSettings: self.callSetting!, onUserJoined: { (userJoined) in
-                        DispatchQueue.main.async {
-                            if let name = userJoined?.name {
-                                CometChatSnackBoard.display(message: "\(name) " + "JOINED".localized(), mode: .info, duration: .short)
-                            }
-                        }
-                    }, onUserLeft: { (userLeft) in
-                        DispatchQueue.main.async {
-                            if let name = userLeft?.name {
-                                CometChatSnackBoard.display(message: "\(name) " + "LEFT_THE_CALL".localized(), mode: .info, duration: .short)
-                            }
-                        }
-                        
-                        
-                    }, onUserListUpdated: {(userListUpdated) in
-                        
-                    }, onAudioModesUpdated: {(userListUpdated) in
-                        
-                    }, onUserMuted: { onUserMuted in
-                        
-                    }, onCallSwitchedToVideo: { onCallSwitchedToVideo in
-                        
-                    }, onRecordingStarted: { onRecordingStarted in
-                        
-                    }, onRecordingStopped: { onRecordingStopped in
-                        
-                    }, onError: { (error) in
-
-                        DispatchQueue.main.async {
-                            if let error = error {
-                                CometChatSnackBoard.showErrorMessage(for: error)
-                            }
-                        }
-                    }) { (ended) in
-                        DispatchQueue.main.async {
-                            self.dismiss()
->>>>>>> 91debbb8038eb4c13dea70adc39799fb5cb8219e
 
                      
                      CometChat.startCall(callSettings: self.callSetting!) { userJoined in

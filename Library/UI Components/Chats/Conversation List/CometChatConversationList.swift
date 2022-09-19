@@ -611,7 +611,7 @@ extension CometChatConversationList : UISearchBarDelegate, UISearchResultsUpdati
 
 // MARK: - CometChatMessageDelegate Delegate
 
-extension CometChatConversationList : CometChatMessageDelegate{
+extension CometChatConversationList : CometChatMessageDelegate {
     
     /**
      This method triggers when real time text message message arrives from CometChat Pro SDK

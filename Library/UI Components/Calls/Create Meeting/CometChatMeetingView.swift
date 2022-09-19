@@ -63,7 +63,6 @@ class CometChatMeetingView: UIViewController {
                     
                 } onUserMuted: { onUserMuted in
                     
-<<<<<<< HEAD
                 } onCallSwitchedToVideo: { onCallSwitchedToVideo in
                     
                 } onRecordingStarted: { onRecordingStarted in
@@ -71,18 +70,6 @@ class CometChatMeetingView: UIViewController {
                 } onRecordingStopped: { onRecordingStopped in
                     
                 } onError: { onError in
-=======
-                }, onUserMuted: { onUserMuted in
-                    
-                }, onCallSwitchedToVideo: { onCallSwitchedToVideo in
-                    
-                }, onRecordingStarted: { onRecordingStarted in
-                    
-                }, onRecordingStopped: { onRecordingStopped in
-                    
-                }, onError: { (error) in
-
->>>>>>> 91debbb8038eb4c13dea70adc39799fb5cb8219e
                     DispatchQueue.main.async {
                         if let error = onError {
                             CometChatSnackBoard.showErrorMessage(for: error)
@@ -120,7 +107,6 @@ class CometChatMeetingView: UIViewController {
                     
                 } onAudioModesUpdated: { onAudioModesUpdated in
                     
-<<<<<<< HEAD
                 } onUserMuted: { onUserMuted in
                     
                 } onCallSwitchedToVideo: { onCallSwitchedToVideo in
@@ -130,20 +116,6 @@ class CometChatMeetingView: UIViewController {
                 } onRecordingStopped: { onRecordingStopped in
                     
                 } onError: { onError in
-=======
-                }, onAudioModesUpdated: {(audioModesUpdated) in
-
-                
-                }, onUserMuted: { onUserMuted in
-                    
-                }, onCallSwitchedToVideo: { onCallSwitchedToVideo in
-                    
-                }, onRecordingStarted: { onRecordingStarted in
-                    
-                }, onRecordingStopped: { onRecordingStopped in
-                    
-                }, onError: { (error) in
->>>>>>> 91debbb8038eb4c13dea70adc39799fb5cb8219e
 
                     DispatchQueue.main.async {
                         strongSelf.view.removeFromSuperview()
