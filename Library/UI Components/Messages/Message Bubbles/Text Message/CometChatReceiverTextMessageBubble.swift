@@ -22,6 +22,7 @@ class CometChatReceiverTextMessageBubble: UITableViewCell {
     // MARK: - Declaration of IBOutlets
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var name: UILabel!
@@ -132,8 +133,9 @@ class CometChatReceiverTextMessageBubble: UITableViewCell {
                     label.customColor[emailParser] = UIKitSettings.EmailIDColor
                     label.customSelectedColor[emailParser] = UIKitSettings.EmailIDColor
                 }
-                
+                calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
             }
+           
         }
     }
     
@@ -289,6 +291,7 @@ class CometChatReceiverTextMessageBubble: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+        reactionView.reactions.removeAll()
         textMessage = nil
         deletedMessage = nil
     }

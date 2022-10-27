@@ -23,6 +23,7 @@ class CometChatSenderMeetingMessageBubble: UITableViewCell {
     @IBOutlet weak var meetingTitle: UILabel!
     @IBOutlet weak var seperator: UIView!
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var replyButton: UIButton!
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var icon: UIImageView!
@@ -119,6 +120,7 @@ class CometChatSenderMeetingMessageBubble: UITableViewCell {
             }
             messageView.backgroundColor = UIKitSettings.primaryColor
             replyButton.tintColor = UIKitSettings.primaryColor
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -171,7 +173,10 @@ class CometChatSenderMeetingMessageBubble: UITableViewCell {
             messageView.backgroundColor =  UIKitSettings.primaryColor
         }
     }
-     
+    
+    override func prepareForReuse() {
+        reactionView.reactions.removeAll()
+    }
 }
 
 /*  ----------------------------------------------------------------------------------------- */

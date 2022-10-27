@@ -477,7 +477,7 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         
-        if let selectedConversation = tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, let conversation = selectedConversation.conversation ,let user = conversation.conversationWith as? User  {
+        if let selectedConversation = tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, let conversation = selectedConversation.conversation ,let user = conversation.conversationWith as? CometChatPro.User  {
             
             selectedConversation.unreadBadgeCount.removeCount()
             let messageList: CometChatMessageList = CometChatMessageList()
@@ -488,7 +488,7 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
             conversationlistdelegate?.didSelectConversationAtIndexPath(conversation: conversation, indexPath: indexPath)
             tableView.deselectRow(at: indexPath, animated: true)
             
-        }else if let selectedConversation = tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, let conversation = selectedConversation.conversation ,let group = conversation.conversationWith as? Group  {
+        }else if let selectedConversation = tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, let conversation = selectedConversation.conversation ,let group = conversation.conversationWith as? CometChatPro.Group  {
             
             selectedConversation.unreadBadgeCount.removeCount()
             let messageList: CometChatMessageList = CometChatMessageList()
@@ -518,7 +518,7 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
                    
                     case .user:
                         
-                        CometChat.deleteConversation(conversationWith: (conversationWith as? User)?.uid ?? "" , conversationType: .user) { (success) in
+                        CometChat.deleteConversation(conversationWith: (conversationWith as? CometChatPro.User)?.uid ?? "" , conversationType: .user) { (success) in
                             self.conversations.remove(at: indexPath.row)
                             DispatchQueue.main.async {
                                 if !self.conversations.isEmpty{
@@ -536,7 +536,7 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
 
                     case .group:
                         
-                        CometChat.deleteConversation(conversationWith: (conversationWith as? Group)?.guid ?? "" , conversationType: .group) { (success) in
+                        CometChat.deleteConversation(conversationWith: (conversationWith as? CometChatPro.Group)?.guid ?? "" , conversationType: .group) { (success) in
                             self.conversations.remove(at: indexPath.row)
                             DispatchQueue.main.async {
                                 if !self.conversations.isEmpty{
@@ -600,7 +600,7 @@ extension CometChatConversationList : UISearchBarDelegate, UISearchResultsUpdati
             filteredConversations = conversations.filter { (conversation: Conversation) -> Bool in
                 // If dataItem matches the searchText, return true to include it
                 self.searchedText = text
-                return (((conversation.conversationWith as? User)?.name?.lowercased().contains(text.lowercased()) ?? false) || ((conversation.conversationWith as? Group)?.name?.lowercased().contains(text.lowercased()) ?? false) || ((conversation.lastMessage as? TextMessage)?.text.lowercased().contains(text.lowercased()) ?? false) || ((conversation.lastMessage as? ActionMessage)?.message?.lowercased().contains(text.lowercased()) ?? false))
+                return (((conversation.conversationWith as? CometChatPro.User)?.name?.lowercased().contains(text.lowercased()) ?? false) || ((conversation.conversationWith as? CometChatPro.Group)?.name?.lowercased().contains(text.lowercased()) ?? false) || ((conversation.lastMessage as? TextMessage)?.text.lowercased().contains(text.lowercased()) ?? false) || ((conversation.lastMessage as? ActionMessage)?.message?.lowercased().contains(text.lowercased()) ?? false))
             }
             self.tableView.reloadData()
         }
@@ -626,10 +626,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
         switch  UIKitSettings.chatListMode {
         case .user:
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
-            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == textMessage.sender?.uid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
+            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.User)?.uid == textMessage.sender?.uid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? User)?.uid == textMessage.sender?.uid {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? CometChatPro.User)?.uid == textMessage.sender?.uid {
                         DispatchQueue.main.async {
                             self.tableView.beginUpdates()
                             cell.parseProfanityFilter(forMessage: textMessage)
@@ -645,10 +645,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
             }
         case .group:
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
-            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == textMessage.receiverUid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
+            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.Group)?.guid == textMessage.receiverUid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? Group)?.guid == textMessage.receiverUid {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? CometChatPro.Group)?.guid == textMessage.receiverUid {
                         DispatchQueue.main.async {
                             self.tableView.beginUpdates()
                             cell.parseProfanityFilter(forMessage: textMessage)
@@ -664,10 +664,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
             }
         case .both:
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
-            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == textMessage.sender?.uid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
+            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.User)?.uid == textMessage.sender?.uid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? User)?.uid == textMessage.sender?.uid {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? CometChatPro.User)?.uid == textMessage.sender?.uid {
                         DispatchQueue.main.async {
                             self.tableView.beginUpdates()
                             cell.parseProfanityFilter(forMessage: textMessage)
@@ -678,10 +678,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
                         }
                     }
                 }
-            }else if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == textMessage.receiverUid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
+            }else if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.Group)?.guid == textMessage.receiverUid && $0.conversationType.rawValue == textMessage.receiverType.rawValue }) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? Group)?.guid == textMessage.receiverUid {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? CometChatPro.Group)?.guid == textMessage.receiverUid {
                         DispatchQueue.main.async {
                             self.tableView.beginUpdates()
                             cell.parseProfanityFilter(forMessage: textMessage)
@@ -712,10 +712,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
        
         case .user:
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
-            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == mediaMessage.sender?.uid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
+            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.User)?.uid == mediaMessage.sender?.uid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? User)?.uid == mediaMessage.sender?.uid {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? CometChatPro.User)?.uid == mediaMessage.sender?.uid {
                         DispatchQueue.main.async {
                             self.tableView.beginUpdates()
                             switch mediaMessage.messageType {
@@ -738,10 +738,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
             }
         case .group:
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
-            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == mediaMessage.receiverUid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
+            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.Group)?.guid == mediaMessage.receiverUid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? Group)?.guid == mediaMessage.receiverUid {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? CometChatPro.Group)?.guid == mediaMessage.receiverUid {
                         DispatchQueue.main.async {
                             self.tableView.beginUpdates()
                             if let senderName = mediaMessage.sender?.name {
@@ -767,10 +767,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
             }
         case .both:
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
-            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == mediaMessage.sender?.uid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
+            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.User)?.uid == mediaMessage.sender?.uid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? User)?.uid == mediaMessage.sender?.uid {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? CometChatPro.User)?.uid == mediaMessage.sender?.uid {
                         DispatchQueue.main.async {
                             self.tableView.beginUpdates()
                             switch mediaMessage.messageType {
@@ -788,10 +788,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
                         }
                     }
                 }
-            }else if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == mediaMessage.receiverUid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
+            }else if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.Group)?.guid == mediaMessage.receiverUid && $0.conversationType.rawValue == mediaMessage.receiverType.rawValue }) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? Group)?.guid == mediaMessage.receiverUid {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? CometChatPro.Group)?.guid == mediaMessage.receiverUid {
                         DispatchQueue.main.async {
                             self.tableView.beginUpdates()
                             if let senderName = mediaMessage.sender?.name {
@@ -846,10 +846,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
             
         }else{
             
-            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == typingDetails.sender?.uid && $0.conversationType.rawValue == typingDetails.receiverType.rawValue }) {
+            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.User)?.uid == typingDetails.sender?.uid && $0.conversationType.rawValue == typingDetails.receiverType.rawValue }) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? User)?.uid == typingDetails.sender?.uid {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? CometChatPro.User)?.uid == typingDetails.sender?.uid {
                         if cell.message.isHidden == false {
                             cell.typing.isHidden = false
                             cell.message.isHidden = true
@@ -858,7 +858,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
                     }
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? User)?.uid == typingDetails.sender?.uid {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? CometChatPro.User)?.uid == typingDetails.sender?.uid {
                         if cell.typing.isHidden == false {
                             cell.typing.isHidden = true
                             cell.message.isHidden = false
@@ -867,10 +867,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
                     }
                 }
             }
-            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == typingDetails.receiverID && $0.conversationType.rawValue == typingDetails.receiverType.rawValue}) {
+            if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.Group)?.guid == typingDetails.receiverID && $0.conversationType.rawValue == typingDetails.receiverType.rawValue}) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? CometChatPro.Group)?.guid == typingDetails.receiverID {
                         let user = typingDetails.sender?.name
                         cell.typing.text = user! + " " + "IS_TYPING".localized()
                         if cell.message.isHidden == false{
@@ -881,7 +881,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
                     }
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? Group)?.guid == typingDetails.receiverID {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem, (cell.conversation?.conversationWith as? CometChatPro.Group)?.guid == typingDetails.receiverID {
                         let user = typingDetails.sender?.name
                         cell.typing.text = user! + " " + "IS_TYPING".localized()
                         if cell.typing.isHidden == false{
@@ -904,7 +904,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onTypingEnded(_ typingDetails: TypingIndicator) {
-        if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == typingDetails.sender?.uid && $0.conversationType.rawValue == typingDetails.receiverType.rawValue}) {
+        if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.User)?.uid == typingDetails.sender?.uid && $0.conversationType.rawValue == typingDetails.receiverType.rawValue}) {
             let indexPath = IndexPath(row: row, section: 0)
             DispatchQueue.main.async {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem {
@@ -916,7 +916,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
                 }
             }
         }
-        if let row = self.conversations.firstIndex(where: {($0.conversationWith as? Group)?.guid == typingDetails.receiverID && $0.conversationType.rawValue == typingDetails.receiverType.rawValue}) {
+        if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.Group)?.guid == typingDetails.receiverID && $0.conversationType.rawValue == typingDetails.receiverType.rawValue}) {
             let indexPath = IndexPath(row: row, section: 0)
             DispatchQueue.main.async {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem {
@@ -944,9 +944,9 @@ extension CometChatConversationList : CometChatUserDelegate {
      - See Also:
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
-    public func onUserOnline(user: User) {
+    public func onUserOnline(user: CometChatPro.User) {
         if UIKitSettings.chatListMode == .user || UIKitSettings.chatListMode == .both {
-        if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == user.uid}) {
+        if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.User)?.uid == user.uid}) {
             let indexPath = IndexPath(row: row, section: 0)
             DispatchQueue.main.async {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem {
@@ -966,9 +966,9 @@ extension CometChatConversationList : CometChatUserDelegate {
      - See Also:
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
-    public func onUserOffline(user: User) {
+    public func onUserOffline(user: CometChatPro.User) {
         if UIKitSettings.chatListMode == .user || UIKitSettings.chatListMode == .both {
-        if let row = self.conversations.firstIndex(where: {($0.conversationWith as? User)?.uid == user.uid}) {
+        if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.User)?.uid == user.uid}) {
             let indexPath = IndexPath(row: row, section: 0)
             DispatchQueue.main.async {
                 if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem {
@@ -998,7 +998,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      - See Also:
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
-    public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
+    public func onGroupMemberJoined(action: ActionMessage, joinedUser: CometChatPro.User, joinedGroup: CometChatPro.Group) {
         CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
@@ -1017,7 +1017,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      - See Also:
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
-    public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
+    public func onGroupMemberLeft(action: ActionMessage, leftUser: CometChatPro.User, leftGroup: CometChatPro.Group) {
         CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
@@ -1037,7 +1037,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      - See Also:
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
-    public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
+    public func onGroupMemberKicked(action: ActionMessage, kickedUser: CometChatPro.User, kickedBy: CometChatPro.User, kickedFrom: CometChatPro.Group) {
         CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
@@ -1057,7 +1057,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      - See Also:
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
-    public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
+    public func onGroupMemberBanned(action: ActionMessage, bannedUser: CometChatPro.User, bannedBy: CometChatPro.User, bannedFrom: CometChatPro.Group) {
         CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
@@ -1077,7 +1077,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      - See Also:
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
-    public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
+    public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: CometChatPro.User, unbannedBy: CometChatPro.User, unbannedFrom: CometChatPro.Group) {
         CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
@@ -1099,7 +1099,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
      - See Also:
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
-    public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
+    public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: CometChatPro.User, scopeChangedBy: CometChatPro.User, scopeChangedTo: String, scopeChangedFrom: String, group: CometChatPro.Group) {
         CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
@@ -1119,7 +1119,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
     ///- See Also:
     ///[CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
    
-    public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
+    public func onMemberAddedToGroup(action: ActionMessage, addedBy: CometChatPro.User, addedUser: CometChatPro.User, addedTo: CometChatPro.Group) {
         CometChat.markAsDelivered(baseMessage: action)
         if UIKitSettings.chatListMode == .group || UIKitSettings.chatListMode == .both {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }

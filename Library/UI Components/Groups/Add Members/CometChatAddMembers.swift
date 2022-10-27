@@ -19,17 +19,17 @@ public class CometChatAddMembers: UIViewController {
     var memberRequest: GroupMembersRequest?
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
-    var users: [[User]] = [[User]]()
-    var members: [User] = [User]()
-    var filteredUsers: [User] = [User]()
+    var users: [[CometChatPro.User]] = [[CometChatPro.User]]()
+    var members: [CometChatPro.User] = [CometChatPro.User]()
+    var filteredUsers: [CometChatPro.User] = [CometChatPro.User]()
     var activityIndicator:UIActivityIndicatorView?
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
     var sectionTitle : UILabel?
     var sections = [String]()
     var sectionsArray = [String]()
-    var currentGroup: Group?
+    var currentGroup: CometChatPro.Group?
     var sortedKeys = [String]()
-    var globalGroupedUsers: [String : [User]] = [:]
+    var globalGroupedUsers: [String : [CometChatPro.User]] = [:]
     
     // MARK: - View controller lifecycle methods
     
@@ -51,7 +51,7 @@ public class CometChatAddMembers: UIViewController {
        - Author: CometChat Team
        - Copyright:  ©  2020 CometChat Inc.
        */
-    public func set(group: Group){
+    public func set(group: CometChatPro.Group){
         
         guard group != nil else {
             return
@@ -267,7 +267,7 @@ public class CometChatAddMembers: UIViewController {
          }
     }
     
-    private func groupUsers(users: [User]){
+    private func groupUsers(users: [CometChatPro.User]){
         DispatchQueue.main.async {  [weak self] in
             guard let strongSelf = self else { return }
             if strongSelf.users.isEmpty { strongSelf.tableView?.setEmptyMessage("NO_USERS_FOUND".localized())
@@ -283,7 +283,7 @@ public class CometChatAddMembers: UIViewController {
             if !sortedKeys.contains(key) { sortedKeys.append(key) }
         }
         sortedKeys = sortedKeys.sorted{ $0.lowercased() < $1.lowercased()}
-        var staticUsers: [[User]] = [[User]]()
+        var staticUsers: [[CometChatPro.User]] = [[CometChatPro.User]]()
         sortedKeys.forEach { (key) in
             if let value = globalGroupedUsers[key] {
                 staticUsers.append(value)
@@ -352,7 +352,7 @@ public class CometChatAddMembers: UIViewController {
     - Author: CometChat Team
     - Copyright:  ©  2020 CometChat Inc.
     */
-    private func fetchGroupMembers(group: Group){
+    private func fetchGroupMembers(group: CometChatPro.Group){
         memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: group.guid).set(limit: 100).build()
         memberRequest?.fetchNext(onSuccess: { (groupMember) in
             self.members = groupMember

@@ -23,8 +23,8 @@ class CometChatMembersItem: UITableViewCell {
     
     // MARK: - Declaration of Variables
     
-    var group: Group?
-    weak var member: GroupMember? {
+    var group: CometChatPro.Group?
+    weak var member: CometChatPro.GroupMember? {
         didSet {
             if let currentMember = member {
                 if currentMember.uid == LoggedInUser.uid {

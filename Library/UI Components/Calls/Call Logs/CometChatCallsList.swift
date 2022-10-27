@@ -119,11 +119,11 @@ public class CometChatCallsList: UIViewController {
         
         callsRequest?.fetchPrevious(onSuccess: { (fetchedCalls) in
             guard let filteredCalls = fetchedCalls?.filter({
-                ($0 as? Call != nil && ($0 as? Call)?.callStatus == .initiated)  ||
-                    ($0 as? Call != nil && ($0 as? Call)?.callStatus == .unanswered)
+                ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .initiated)  ||
+                    ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .unanswered)
             }) else { return }
             self.calls = filteredCalls.reversed()
-            let currentMissedCalls = self.calls.filter({ ($0 as? Call != nil && ($0 as? Call)?.callStatus == .unanswered)})
+            let currentMissedCalls = self.calls.filter({ ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .unanswered)})
             self.missedCalls = currentMissedCalls
             DispatchQueue.main.async {
                 self.activityIndicator?.stopAnimating()
@@ -157,11 +157,11 @@ public class CometChatCallsList: UIViewController {
         callsRequest?.fetchPrevious(onSuccess: { (fetchedCalls) in
             if fetchedCalls?.count != 0 {
                 guard let filteredCalls = fetchedCalls?.filter({
-                    ($0 as? Call != nil && ($0 as? Call)?.callStatus == .initiated)  ||
-                        ($0 as? Call != nil && ($0 as? Call)?.callStatus == .unanswered)
+                    ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .initiated)  ||
+                        ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .unanswered)
                 }) else { return }
                 self.calls.append(contentsOf: filteredCalls.reversed())
-                let currentMissedCalls = self.calls.filter({ ($0 as? Call != nil && ($0 as? Call)?.callStatus == .unanswered)})
+                let currentMissedCalls = self.calls.filter({ ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .unanswered)})
                 for missCall in currentMissedCalls {
                     if !self.missedCalls.contains(missCall) {
                         self.missedCalls.append(missCall)
@@ -465,15 +465,15 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
         }
         switch selectedCall.call.receiverType {
         case .user:
-            if ((selectedCall.call as? Call)?.callInitiator as? User)?.uid == LoggedInUser.uid {
-                if let user = ((selectedCall.call as? Call)?.callReceiver as? User) {
+            if ((selectedCall.call as? CometChatPro.Call)?.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid {
+                if let user = ((selectedCall.call as? CometChatPro.Call)?.callReceiver as? CometChatPro.User) {
                     let callDetail = CometChatCallDetails()
                     callDetail.set(title: "", mode: .never)
                     callDetail.set(user: user)
                     self.navigationController?.pushViewController(callDetail, animated: true)
                 }
             }else{
-                if let user = ((selectedCall.call as? Call)?.callInitiator as? User) {
+                if let user = ((selectedCall.call as? CometChatPro.Call)?.callInitiator as? CometChatPro.User) {
                     let callDetail = CometChatCallDetails()
                     callDetail.set(title: "", mode: .never)
                     callDetail.set(user: user)
@@ -481,7 +481,7 @@ extension CometChatCallsList: UITableViewDelegate , UITableViewDataSource {
                 }
             }
         case .group:
-            if let group = selectedCall.call.receiver as? Group {
+            if let group = selectedCall.call.receiver as? CometChatPro.Group {
                 let callDetail = CometChatCallDetails()
                 callDetail.set(title: "", mode: .never)
                 callDetail.set(group: group)

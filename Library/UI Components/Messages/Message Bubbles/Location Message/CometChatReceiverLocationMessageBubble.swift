@@ -19,6 +19,7 @@ class CometChatReceiverLocationMessageBubble: UITableViewCell {
     @IBOutlet weak var nameView: UIView!
     @IBOutlet weak var userName: UILabel!
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var map: UIImageView!
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var subTitle: UILabel!
@@ -94,6 +95,7 @@ class CometChatReceiverLocationMessageBubble: UITableViewCell {
             receiptStack.isHidden = true
             timeStamp.text = String().setMessageTime(time: locationMessage.sentAt)
             messageView.clipsToBounds = true
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
     }
     }
         
@@ -138,6 +140,7 @@ class CometChatReceiverLocationMessageBubble: UITableViewCell {
     
     override func prepareForReuse() {
         imageRequest?.cancel()
+        reactionView.reactions.removeAll()
     }
     
     func getMapFromLocatLon(from latitude: Double ,and longitude: Double, googleApiKey: String) -> URL? {
@@ -199,6 +202,7 @@ class CometChatReceiverLocationMessageBubble: UITableViewCell {
                                         }
                                     })
     }
+    
 }
 
 /*  ----------------------------------------------------------------------------------------- */

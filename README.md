@@ -18,7 +18,7 @@
 
 <a href=""><img src="https://img.shields.io/badge/Repo%20Size-13.3%20MB-brightgreen" /></a>
 <a href=""> <img src="https://img.shields.io/badge/Contributors-2-yellowgreen" /></a>
-<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.9--1-red" /></a>
+<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.910--1-red" /></a>
 <a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-swift-chat-ui-kit?style=social"/></a>
 <a href=""> <img src="https://img.shields.io/twitter/follow/cometchat?style=social" /></a>
 
@@ -105,7 +105,7 @@ platform :ios, '11.0'
 use_frameworks!
 
 target 'YourApp' do
-     pod 'CometChatPro', '3.0.9'
+     pod 'CometChatPro', '3.0.910'
      pod 'CometChatCalls', '2.2.0'
 end
 ________________________________________________________________
@@ -265,7 +265,8 @@ Visit our [Objective-C sample app](https://github.com/cometchat-pro-samples/ios-
 Thanks to the following people who have contributed to this project:
 
 [@pushpsenairekar2911 👨‍💻](https://github.com/pushpsenairekar2911) <br>
-[@yadavmangesh 📝](https://github.com/yadavmangesh)
+[@AbdullahAnsarri 👨‍💻](https://github.com/AbdullahAnsarri) <br>
+[@ajayv-cometchat 👨‍💻](https://github.com/ajayv-cometchat) 
 
 ---
 

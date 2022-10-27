@@ -15,6 +15,7 @@ class CometChatSenderFileMessageBubble: UITableViewCell {
 
     // MARK: - Declaration of IBOutlets
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var type: UILabel!
@@ -98,6 +99,7 @@ class CometChatSenderFileMessageBubble: UITableViewCell {
             replybutton.tintColor = UIKitSettings.primaryColor
             icon.image = UIImage(named: "messages-file-upload.png", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
             icon.tintColor = .white
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -140,6 +142,10 @@ class CometChatSenderFileMessageBubble: UITableViewCell {
         }
     }
      
+    override func prepareForReuse() {
+        reactionView.reactions.removeAll()
+    }
+ 
 }
 
 /*  ----------------------------------------------------------------------------------------- */

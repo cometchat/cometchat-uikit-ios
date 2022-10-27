@@ -13,8 +13,7 @@ class AddReactionsCell: UITableViewCell {
         super.awakeFromNib()
         collectionView.showsHorizontalScrollIndicator = false
         setupCollectionView()
-        reactionTitles = ["😊","☹️","😂","😍","😭","🎉","👍","🚀","❤️", "✅"]
-        
+        reactionTitles = ["😊","☹️","😂","🤣","😇","😍","🥰","😘","😭","🎉","👍","👎","👏","🙌","🚀","❤️", "❌","✅", "💯"]
         collectionView.reloadData()
     }
 

@@ -16,6 +16,7 @@ class CometChatReceiverAudioMessageBubble: UITableViewCell {
     // MARK: - Declaration of IBOutlets
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var fileName: UILabel!
@@ -90,6 +91,7 @@ class CometChatReceiverAudioMessageBubble: UITableViewCell {
                 case .disabled, .enabled : self.replybutton.isHidden = true
                 }
             }
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -182,6 +184,9 @@ class CometChatReceiverAudioMessageBubble: UITableViewCell {
         
     }
     
+    override func prepareForReuse() {
+        reactionView.reactions.removeAll()
+    }
 }
 
 /*  ----------------------------------------------------------------------------------------- */

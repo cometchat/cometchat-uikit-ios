@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -11,11 +11,11 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell contentMode="scaleToFill" restorationIdentifier="CometChatReceiverImageMessageBubble" selectionStyle="default" indentationWidth="10" reuseIdentifier="CometChatReceiverImageMessageBubble" rowHeight="219" id="KGk-i7-Jjw" customClass="CometChatReceiverImageMessageBubble" customModule="CometChat_KitchenSink" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="392" height="219"/>
+        <tableViewCell contentMode="scaleToFill" restorationIdentifier="CometChatReceiverImageMessageBubble" selectionStyle="default" indentationWidth="10" reuseIdentifier="CometChatReceiverImageMessageBubble" rowHeight="247" id="KGk-i7-Jjw" customClass="CometChatReceiverImageMessageBubble" customModule="CometChat_KitchenSink" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="392" height="247"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="392" height="219"/>
+                <rect key="frame" x="0.0" y="0.0" width="392" height="247"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvatar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="nh5-Fy-nN1" customClass="CometChatAvatar" customModule="CometChat_KitchenSink" customModuleProvider="target">
@@ -35,7 +35,7 @@
                         </userDefinedRuntimeAttributes>
                     </imageView>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="dqz-0h-F2f">
-                        <rect key="frame" x="38" y="3" width="354" height="243.5"/>
+                        <rect key="frame" x="38" y="3" width="354" height="241"/>
                         <subviews>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y4Z-7A-O2m">
                                 <rect key="frame" x="0.0" y="-15" width="240" height="15"/>
@@ -70,13 +70,13 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </imageView>
-                            <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="W27-Ip-x5F" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="180" width="354" height="50"/>
+                            <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="T3y-vA-5sO" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="183" width="250" height="43"/>
                                 <subviews>
-                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceLeftToRight" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="gcc-1t-tor">
-                                        <rect key="frame" x="0.0" y="0.0" width="354" height="50"/>
+                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceLeftToRight" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="pJl-ih-Rpp">
+                                        <rect key="frame" x="5" y="5" width="245" height="38"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="DED-qT-LLA">
+                                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="DZO-5J-jg6">
                                             <size key="itemSize" width="128" height="128"/>
                                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -86,22 +86,22 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="7pA-aY-ee8"/>
-                                    <constraint firstItem="gcc-1t-tor" firstAttribute="leading" secondItem="W27-Ip-x5F" secondAttribute="leading" id="DwY-E4-kqs"/>
-                                    <constraint firstAttribute="bottom" secondItem="gcc-1t-tor" secondAttribute="bottom" id="ISs-BT-8Xt"/>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="50" id="ImQ-aJ-f7z"/>
-                                    <constraint firstItem="gcc-1t-tor" firstAttribute="top" secondItem="W27-Ip-x5F" secondAttribute="top" id="fjf-IV-bKA"/>
-                                    <constraint firstAttribute="trailing" secondItem="gcc-1t-tor" secondAttribute="trailing" id="uiY-HZ-9XR"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="35" id="8wR-ML-51u"/>
+                                    <constraint firstAttribute="width" constant="250" id="KxP-wG-k4a"/>
+                                    <constraint firstAttribute="trailing" secondItem="pJl-ih-Rpp" secondAttribute="trailing" id="Ok8-93-XMF"/>
+                                    <constraint firstItem="pJl-ih-Rpp" firstAttribute="top" secondItem="T3y-vA-5sO" secondAttribute="top" constant="5" id="aoH-mt-EoL"/>
+                                    <constraint firstItem="pJl-ih-Rpp" firstAttribute="leading" secondItem="T3y-vA-5sO" secondAttribute="leading" constant="5" id="bLi-Zg-sp0"/>
+                                    <constraint firstAttribute="bottom" secondItem="pJl-ih-Rpp" secondAttribute="bottom" id="fo3-lj-9nT"/>
                                 </constraints>
                                 <connections>
-                                    <outlet property="collectionView" destination="gcc-1t-tor" id="eth-4h-f80"/>
+                                    <outlet property="collectionView" destination="pJl-ih-Rpp" id="UUN-io-Hbg"/>
                                 </connections>
                             </view>
                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="aEX-q6-p6s">
-                                <rect key="frame" x="0.0" y="230" width="30" height="13.5"/>
+                                <rect key="frame" x="0.0" y="229" width="30" height="12"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10:43" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="klY-Bu-y4G">
-                                        <rect key="frame" x="0.0" y="0.0" width="30" height="13.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="30" height="12"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="12" id="jIh-1f-sDt"/>
                                         </constraints>
@@ -112,12 +112,6 @@
                                 </subviews>
                             </stackView>
                         </subviews>
-                        <constraints>
-                            <constraint firstItem="W27-Ip-x5F" firstAttribute="top" secondItem="44x-Mi-r94" secondAttribute="bottom" id="2H9-9Y-qJg"/>
-                            <constraint firstAttribute="trailing" secondItem="W27-Ip-x5F" secondAttribute="trailing" id="MFX-KH-OOf"/>
-                            <constraint firstItem="aEX-q6-p6s" firstAttribute="top" secondItem="W27-Ip-x5F" secondAttribute="bottom" id="YdL-AZ-E5O"/>
-                            <constraint firstItem="W27-Ip-x5F" firstAttribute="leading" secondItem="dqz-0h-F2f" secondAttribute="leading" id="dMc-3T-Sej"/>
-                        </constraints>
                     </stackView>
                     <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="98G-Zi-rpU">
                         <rect key="frame" x="38" y="3" width="250" height="180"/>
@@ -160,17 +154,18 @@
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="avatar" destination="nh5-Fy-nN1" id="v46-Qe-UGf"/>
+                <outlet property="heightReactions" destination="8wR-ML-51u" id="SrB-k8-XAQ"/>
                 <outlet property="imageMessage" destination="44x-Mi-r94" id="Wqv-nj-7z7"/>
                 <outlet property="imageModerationView" destination="98G-Zi-rpU" id="c5h-7b-WOH"/>
                 <outlet property="name" destination="CnF-KW-ZEF" id="mPU-5q-xI2"/>
                 <outlet property="nameView" destination="Y4Z-7A-O2m" id="2jN-KJ-ljf"/>
-                <outlet property="reactionView" destination="W27-Ip-x5F" id="7vJ-Xz-uBM"/>
+                <outlet property="reactionView" destination="T3y-vA-5sO" id="WEp-oh-7cY"/>
                 <outlet property="receiptStack" destination="aEX-q6-p6s" id="YbZ-dq-TMl"/>
                 <outlet property="replybutton" destination="S9F-LR-9j4" id="CJv-6Y-MSv"/>
                 <outlet property="timeStamp" destination="klY-Bu-y4G" id="tTe-Zj-CEX"/>
                 <outlet property="unsafeContentView" destination="LeB-qK-hMr" id="neM-Qe-u6i"/>
             </connections>
-            <point key="canvasLocation" x="276.81159420289856" y="159.70982142857142"/>
+            <point key="canvasLocation" x="276.81159420289856" y="169.08482142857142"/>
         </tableViewCell>
     </objects>
     <designables>

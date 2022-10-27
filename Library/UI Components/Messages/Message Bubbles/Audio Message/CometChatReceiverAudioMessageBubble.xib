@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -11,11 +11,11 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell contentMode="scaleToFill" restorationIdentifier="CometChatReceiverAudioMessageBubble" selectionStyle="default" indentationWidth="10" reuseIdentifier="CometChatReceiverAudioMessageBubble" rowHeight="102" id="KGk-i7-Jjw" customClass="CometChatReceiverAudioMessageBubble" customModule="CometChat_KitchenSink" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="417" height="102"/>
+        <tableViewCell contentMode="scaleToFill" restorationIdentifier="CometChatReceiverAudioMessageBubble" selectionStyle="default" indentationWidth="10" reuseIdentifier="CometChatReceiverAudioMessageBubble" rowHeight="248" id="KGk-i7-Jjw" customClass="CometChatReceiverAudioMessageBubble" customModule="CometChat_KitchenSink" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="417" height="248"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="417" height="102"/>
+                <rect key="frame" x="0.0" y="0.0" width="417" height="248"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultAvatar.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="HpJ-Zw-5Ia" customClass="CometChatAvatar" customModule="CometChat_KitchenSink" customModuleProvider="target">
@@ -35,7 +35,7 @@
                         </userDefinedRuntimeAttributes>
                     </imageView>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="xr8-WX-XFr">
-                        <rect key="frame" x="38" y="3" width="379" height="123.5"/>
+                        <rect key="frame" x="38" y="3" width="379" height="242"/>
                         <subviews>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="37s-1Q-vOQ">
                                 <rect key="frame" x="0.0" y="-15" width="240" height="15"/>
@@ -131,16 +131,13 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </view>
-                            <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="EI2-CB-MJf" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="60" width="379" height="50"/>
+                            <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="Bnd-Qn-OKO" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="63" width="250" height="164"/>
                                 <subviews>
-                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceLeftToRight" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="QeQ-wa-CKt">
-                                        <rect key="frame" x="0.0" y="0.0" width="379" height="50"/>
+                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceLeftToRight" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Y7p-OX-6fr">
+                                        <rect key="frame" x="5" y="5" width="245" height="159"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="50" id="Wi5-IU-yoz"/>
-                                        </constraints>
-                                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="4nb-bi-dPv">
+                                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="6J4-rs-bTD">
                                             <size key="itemSize" width="128" height="128"/>
                                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -150,21 +147,22 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="GFe-d6-oQc"/>
-                                    <constraint firstItem="QeQ-wa-CKt" firstAttribute="top" secondItem="EI2-CB-MJf" secondAttribute="top" id="VtM-5v-BD8"/>
-                                    <constraint firstAttribute="trailing" secondItem="QeQ-wa-CKt" secondAttribute="trailing" id="kJ1-uW-5bv"/>
-                                    <constraint firstItem="QeQ-wa-CKt" firstAttribute="leading" secondItem="EI2-CB-MJf" secondAttribute="leading" id="vhp-jf-yja"/>
-                                    <constraint firstAttribute="bottom" secondItem="QeQ-wa-CKt" secondAttribute="bottom" id="w3a-0z-Mlm"/>
+                                    <constraint firstItem="Y7p-OX-6fr" firstAttribute="top" secondItem="Bnd-Qn-OKO" secondAttribute="top" constant="5" id="4J5-V3-pJ2"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="35" id="6ne-nG-NDi"/>
+                                    <constraint firstAttribute="trailing" secondItem="Y7p-OX-6fr" secondAttribute="trailing" id="FlI-nq-vWW"/>
+                                    <constraint firstItem="Y7p-OX-6fr" firstAttribute="leading" secondItem="Bnd-Qn-OKO" secondAttribute="leading" constant="5" id="anr-JP-1pP"/>
+                                    <constraint firstAttribute="width" constant="250" id="j0g-Ws-N2q"/>
+                                    <constraint firstAttribute="bottom" secondItem="Y7p-OX-6fr" secondAttribute="bottom" id="ve7-Ai-Rel"/>
                                 </constraints>
                                 <connections>
-                                    <outlet property="collectionView" destination="QeQ-wa-CKt" id="g1M-hQ-Idq"/>
+                                    <outlet property="collectionView" destination="Y7p-OX-6fr" id="IAV-Ac-ein"/>
                                 </connections>
                             </view>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="my9-lq-kIb">
-                                <rect key="frame" x="0.0" y="110" width="30" height="13.5"/>
+                                <rect key="frame" x="0.0" y="230" width="30" height="12"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10:43" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Wah-8E-4Bd">
-                                        <rect key="frame" x="0.0" y="0.0" width="30" height="13.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="30" height="12"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="12" id="5uY-fj-ffr"/>
                                         </constraints>
@@ -175,12 +173,6 @@
                                 </subviews>
                             </stackView>
                         </subviews>
-                        <constraints>
-                            <constraint firstItem="EI2-CB-MJf" firstAttribute="leading" secondItem="xr8-WX-XFr" secondAttribute="leading" id="C2U-O0-B7H"/>
-                            <constraint firstAttribute="trailing" secondItem="EI2-CB-MJf" secondAttribute="trailing" id="CuE-fT-m2o"/>
-                            <constraint firstItem="my9-lq-kIb" firstAttribute="top" secondItem="EI2-CB-MJf" secondAttribute="bottom" id="XYk-4L-rW4"/>
-                            <constraint firstItem="EI2-CB-MJf" firstAttribute="top" secondItem="alw-MY-xmy" secondAttribute="bottom" id="g3U-ia-SO2"/>
-                        </constraints>
                     </stackView>
                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NQq-dg-iQ9">
                         <rect key="frame" x="293" y="35" width="35" height="28"/>
@@ -206,17 +198,18 @@
             <connections>
                 <outlet property="avatar" destination="HpJ-Zw-5Ia" id="Emq-iT-UBg"/>
                 <outlet property="fileName" destination="CQU-tj-KLP" id="xXu-EB-nUt"/>
+                <outlet property="heightReactions" destination="6ne-nG-NDi" id="U5p-v9-BhE"/>
                 <outlet property="icon" destination="Urt-0t-CMY" id="fMh-y2-YYz"/>
                 <outlet property="messageView" destination="alw-MY-xmy" id="K5D-HM-JYY"/>
                 <outlet property="name" destination="7xJ-40-Hrv" id="i38-fL-KaY"/>
                 <outlet property="nameView" destination="37s-1Q-vOQ" id="g25-Mw-fz4"/>
-                <outlet property="reactionView" destination="EI2-CB-MJf" id="qup-vt-yDM"/>
+                <outlet property="reactionView" destination="Bnd-Qn-OKO" id="2vf-Ol-w8D"/>
                 <outlet property="receiptStack" destination="my9-lq-kIb" id="HrI-xf-ypq"/>
                 <outlet property="replybutton" destination="NQq-dg-iQ9" id="SKD-nG-Phf"/>
                 <outlet property="size" destination="QiW-xb-O4J" id="VOk-Nw-pMT"/>
                 <outlet property="timeStamp" destination="Wah-8E-4Bd" id="YOg-ED-bSB"/>
             </connections>
-            <point key="canvasLocation" x="199.27536231884059" y="113.83928571428571"/>
+            <point key="canvasLocation" x="199.27536231884059" y="162.72321428571428"/>
         </tableViewCell>
     </objects>
     <designables>

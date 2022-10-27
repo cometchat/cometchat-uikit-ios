@@ -2,7 +2,7 @@
 //  CometChatMessageComposer.swift
 //  CometChatUIKit
 //  Created by CometChat Inc. on 20/09/19.
-//  Copyright ©  2020 CometChat Inc. All rights reserved.
+//  Copyright ©  2022 CometChat Inc. All rights reserved.
 
 // MARK: - Importing Frameworks.
 
@@ -24,10 +24,12 @@ import CometChatPro
 @IBDesignable open class CometChatMessageReactions: UIView {
     
       // MARK: - Declaration of Variables
+    var message: BaseMessage?
+    weak var controller: UIViewController?
     
     var view:UIView!
     var reactions = [CometChatMessageReaction]()
-
+    
     @IBOutlet weak var collectionView: UICollectionView!
      // MARK: - Declaration of IBOutlet
     
@@ -37,21 +39,31 @@ import CometChatPro
         super.init(frame: frame)
     }
     
-   
     required  public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-     
-        
     }
     
-    open override func draw(_ rect: CGRect) {
+    public override func draw(_ rect: CGRect) {
         collectionView.showsHorizontalScrollIndicator = false
         setupCollectionView()
+    }
+    
+    @discardableResult
+    public func set(messageObject: BaseMessage) -> Self {
+        self.message = messageObject
+        return self
+    }
+    
+    @discardableResult
+    public func set(controller: UIViewController) -> Self {
+        self.controller = controller
+        return self
     }
     
     private func setupCollectionView() {
         collectionView.dataSource = self
         collectionView.delegate = self
+        collectionView.isScrollEnabled = false
         let reactionIndicatorCell = UINib(nibName: "ReactionCountCell", bundle: UIKitSettings.bundle)
         collectionView.register(reactionIndicatorCell, forCellWithReuseIdentifier: "reactionCountCell")
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPressed))
@@ -88,7 +100,6 @@ import CometChatPro
     }else{
         handler(false)
     }
-    
     }
     
     @objc func didLongPressed(sender: UILongPressGestureRecognizer) {
@@ -121,6 +132,8 @@ extension CometChatMessageReactions: UICollectionViewDataSource, UICollectionVie
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "reactionCountCell", for: indexPath) as! ReactionCountCell
         let reaction = reactions[safe: indexPath.row]
+        cell.addReactionsIcon.isHidden = true
+        cell.reactionLabel.isHidden = false
         cell.reaction = reaction
        return cell
     }
@@ -134,7 +147,7 @@ extension CometChatMessageReactions: UICollectionViewDataSource, UICollectionVie
 
 extension CometChatMessageReactions: UICollectionViewDelegateFlowLayout {
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 65, height: 45)
+        return CGSize(width: 44, height: 30)
     }
 }
 

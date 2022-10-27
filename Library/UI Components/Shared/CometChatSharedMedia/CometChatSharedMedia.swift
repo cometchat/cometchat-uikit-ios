@@ -91,7 +91,7 @@ class CometChatSharedMedia: UITableViewCell {
         }
         switch type {
         case .user:
-            if let user = entity as? User {
+            if let user = entity as? CometChatPro.User {
                 switch mediaSelection.selectedSegmentIndex {
                 case 0:
                     mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(uid: user.uid ?? "").set(limit:  20).set(categories: ["message"]).set(types: ["image"]).build()
@@ -130,7 +130,7 @@ class CometChatSharedMedia: UITableViewCell {
                 })
             }
         case .group:
-            if let group = entity as? Group {
+            if let group = entity as? CometChatPro.Group {
                 switch mediaSelection.selectedSegmentIndex {
                 case 0:
                     mediaMessageRequest = MessagesRequest.MessageRequestBuilder().set(guid: group.guid ).set(limit: 20).set(categories: ["message"]).set(types: ["image"]).build()
@@ -266,10 +266,10 @@ class CometChatSharedMedia: UITableViewCell {
      */
     @IBAction func didMediaSelectionPressed(_ sender: UISegmentedControl) {
         if let entity = entity {
-            if let user = entity as? User {
+            if let user = entity as? CometChatPro.User {
                 refreshMediaMessages(for: user, type: .user)
             }
-            if let group = entity as? Group {
+            if let group = entity as? CometChatPro.Group {
                 refreshMediaMessages(for: group, type: .group)
             }
         }
@@ -367,10 +367,10 @@ extension CometChatSharedMedia : UICollectionViewDelegate , UICollectionViewData
         let lastSectionIndex = collectionView.numberOfSections - 1
         let lastRowIndex = collectionView.numberOfItems(inSection: lastSectionIndex)  - 1
         if indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex {
-            if let user = entity as? User {
+            if let user = entity as? CometChatPro.User {
                 self.fetchMediaMessages(for: user, type: .user)
             }
-            if let group = entity as? Group {
+            if let group = entity as? CometChatPro.Group {
                 self.fetchMediaMessages(for: group, type: .group)
             }
         }

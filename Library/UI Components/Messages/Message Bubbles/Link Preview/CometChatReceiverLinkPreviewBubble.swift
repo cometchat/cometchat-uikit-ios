@@ -24,6 +24,7 @@ class CometChatReceiverLinkPreviewBubble: UITableViewCell, WKNavigationDelegate 
     // MARK: - Declaration of IBOutlets
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var avatar: CometChatAvatar!
     @IBOutlet weak var icon: UIImageView!
     @IBOutlet weak var title: UILabel!
@@ -154,7 +155,7 @@ class CometChatReceiverLinkPreviewBubble: UITableViewCell, WKNavigationDelegate 
                 label.customColor[emailParser] = UIKitSettings.EmailIDColor
                 label.customSelectedColor[emailParser] = UIKitSettings.EmailIDColor
             }
-           
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -311,15 +312,20 @@ class CometChatReceiverLinkPreviewBubble: UITableViewCell, WKNavigationDelegate 
                 linkDescription.text = description
             }
             
-            if let thumbnail = linkPreview["image"] as? String,  let url = URL(string: thumbnail) {
-                self.icon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+            self.icon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+            
+            if let thumbnail = linkPreview["image"] as? String , let url = URL(string: thumbnail) {
                 imageRequest = imageService.image(for: url) { [weak self] image in
                     guard let strongSelf = self else { return }
-                    // Update Thumbnail Image View
                     if let image = image {
                         strongSelf.icon.image = image
-                    }else{
-                        strongSelf.icon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
+            }else if let favIcon = linkPreview["favicon"] as? String , let url = URL(string: favIcon) {
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    if let image = image {
+                        strongSelf.icon.image = image
                     }
                 }
             }
@@ -379,8 +385,9 @@ class CometChatReceiverLinkPreviewBubble: UITableViewCell, WKNavigationDelegate 
        }
     
     override func prepareForReuse() {
-                imageRequest?.cancel()
-        }
+        imageRequest?.cancel()
+        reactionView.reactions.removeAll()
+    }
 }
 
 

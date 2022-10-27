@@ -135,7 +135,7 @@ import  CometChatPro
     
     @objc func set(entity: AppEntity) {
         
-        if let user = entity as? User {
+        if let user = entity as? CometChatPro.User {
             setImage(string: user.name?.uppercased() ?? "")
             if  let url = URL(string: user.avatar ?? "") {
                 /// This method will fetch the image from remote.
@@ -151,7 +151,7 @@ import  CometChatPro
             }
         }
         
-        if let group = entity as? Group {
+        if let group = entity as? CometChatPro.Group {
             setImage(string: group.name?.uppercased() ?? "")
             if let url = URL(string: group.icon ?? "") {
                 /// This method will fetch the image from remote.

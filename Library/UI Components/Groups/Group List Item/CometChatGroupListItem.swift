@@ -28,7 +28,7 @@ class CometChatGroupListItem: UITableViewCell {
     
     // MARK: - Declaration of Variables
     
-    weak var group: Group? {
+    weak var group: CometChatPro.Group? {
         didSet {
             
             if let currentGroup = group {

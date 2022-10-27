@@ -37,7 +37,7 @@ class CometChatUserListItem: UITableViewCell {
     // MARK: - Declaration of Variables
     weak var delegate: CometChatUserListItemDelegate?
     
-    var user: User? {
+    var user: CometChatPro.User? {
         didSet {
             userName.text = user?.name
             /// Set the avatar for user.

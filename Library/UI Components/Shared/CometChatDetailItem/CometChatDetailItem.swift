@@ -36,7 +36,7 @@ class CometChatDetailItem: UITableViewCell {
     
     // MARK: - Declaration of Variables
     weak var detailViewDelegate: DetailViewDelegate?
-    weak var user: User? {
+    weak var user: CometChatPro.User? {
        didSet {
         if let currentUser = user {
             name.text = currentUser.name
@@ -84,7 +84,7 @@ class CometChatDetailItem: UITableViewCell {
     }
     }
     
-    weak var group: Group? {
+    weak var group: CometChatPro.Group? {
         didSet {
             if let currentGroup = group {
                 name.text = currentGroup.name

@@ -49,7 +49,7 @@ class CometChatConversationListItem: UITableViewCell {
                 unreadBadgeCount.backgroundColor = UIKitSettings.primaryColor
                 switch currentConversation.conversationType {
                 case .user:
-                    guard let user =  currentConversation.conversationWith as? User else {
+                    guard let user =  currentConversation.conversationWith as? CometChatPro.User else {
                         return
                     }
                     name.attributedText = addBoldText(fullString: user.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont)
@@ -65,7 +65,7 @@ class CometChatConversationListItem: UITableViewCell {
                         }
                     }
                 case .group:
-                    guard let group =  currentConversation.conversationWith as? Group else {
+                    guard let group =  currentConversation.conversationWith as? CometChatPro.Group else {
                         return
                     }
                     name.attributedText = addBoldText(fullString: group.name! as NSString, boldPartOfString: searchedText as NSString, font: normalTitlefont, boldFont: boldTitlefont)

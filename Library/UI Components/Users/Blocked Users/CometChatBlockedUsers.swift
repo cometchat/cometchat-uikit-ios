@@ -15,7 +15,7 @@ class CometChatBlockedUsers: UIViewController {
     
     // MARK: - Declaration of Variables
     
-    var blockedUsers:[User] = [User]()
+    var blockedUsers:[CometChatPro.User] = [CometChatPro.User]()
     var blockedUserRequest = BlockedUserRequest.BlockedUserRequestBuilder(limit: 20).build()
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!

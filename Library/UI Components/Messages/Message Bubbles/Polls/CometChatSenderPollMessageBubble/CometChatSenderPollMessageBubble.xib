@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -259,13 +259,13 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </view>
-                            <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="B66-r0-ecI" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="401" width="305" height="50"/>
+                            <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="qKr-hm-wLY" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                                <rect key="frame" x="55" y="401" width="250" height="50"/>
                                 <subviews>
-                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceRightToLeft" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="z27-UM-uW6">
-                                        <rect key="frame" x="0.0" y="0.0" width="305" height="50"/>
+                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceRightToLeft" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Oya-ws-goj">
+                                        <rect key="frame" x="5" y="5" width="245" height="45"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="ae8-jd-zM4">
+                                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="SPJ-xD-gbt">
                                             <size key="itemSize" width="128" height="128"/>
                                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -275,14 +275,15 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="z27-UM-uW6" secondAttribute="bottom" id="1IW-ZF-mNC"/>
-                                    <constraint firstItem="z27-UM-uW6" firstAttribute="leading" secondItem="B66-r0-ecI" secondAttribute="leading" id="CjN-7H-yYc"/>
-                                    <constraint firstAttribute="height" constant="50" id="JeJ-PC-69I"/>
-                                    <constraint firstItem="z27-UM-uW6" firstAttribute="top" secondItem="B66-r0-ecI" secondAttribute="top" id="Y1r-f2-nus"/>
-                                    <constraint firstAttribute="trailing" secondItem="z27-UM-uW6" secondAttribute="trailing" id="oYu-0d-kQ1"/>
+                                    <constraint firstAttribute="bottom" secondItem="Oya-ws-goj" secondAttribute="bottom" id="Egt-zW-rwx"/>
+                                    <constraint firstItem="Oya-ws-goj" firstAttribute="top" secondItem="qKr-hm-wLY" secondAttribute="top" constant="5" id="SEA-4a-Ve9"/>
+                                    <constraint firstItem="Oya-ws-goj" firstAttribute="leading" secondItem="qKr-hm-wLY" secondAttribute="leading" constant="5" id="eYf-1I-FZw"/>
+                                    <constraint firstAttribute="trailing" secondItem="Oya-ws-goj" secondAttribute="trailing" id="iQO-Bj-XRE"/>
+                                    <constraint firstAttribute="width" constant="250" id="pBt-5m-ZBI"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="35" id="s0d-w0-Rjt"/>
                                 </constraints>
                                 <connections>
-                                    <outlet property="collectionView" destination="z27-UM-uW6" id="d9d-G9-Kdb"/>
+                                    <outlet property="collectionView" destination="Oya-ws-goj" id="WWI-3g-bmp"/>
                                 </connections>
                             </view>
                             <stackView opaque="NO" contentMode="scaleAspectFit" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="77X-Zz-7Yf">
@@ -308,11 +309,6 @@
                                 </constraints>
                             </stackView>
                         </subviews>
-                        <constraints>
-                            <constraint firstItem="B66-r0-ecI" firstAttribute="top" secondItem="QY8-ls-DSt" secondAttribute="bottom" id="4YJ-J3-brp"/>
-                            <constraint firstItem="B66-r0-ecI" firstAttribute="leading" secondItem="21j-sM-Sct" secondAttribute="leading" id="6sc-rR-Lvq"/>
-                            <constraint firstAttribute="trailing" secondItem="B66-r0-ecI" secondAttribute="trailing" id="bxS-Xt-kdN"/>
-                        </constraints>
                         <userDefinedRuntimeAttributes>
                             <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                 <integer key="value" value="12"/>
@@ -329,6 +325,7 @@
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
+                <outlet property="heightReactions" destination="s0d-w0-Rjt" id="pRc-Np-wXI"/>
                 <outlet property="messageView" destination="QY8-ls-DSt" id="I9y-j1-2il"/>
                 <outlet property="option1" destination="boh-N5-puD" id="JqV-6A-R9u"/>
                 <outlet property="option1Count" destination="2vJ-jH-nKO" id="3v4-sJ-Oq2"/>
@@ -346,7 +343,7 @@
                 <outlet property="option5Count" destination="qCZ-SW-aqG" id="KOP-92-z0b"/>
                 <outlet property="option5Text" destination="Z70-7B-1hT" id="a4a-jm-src"/>
                 <outlet property="question" destination="Gwg-Y7-UL4" id="11o-PO-II6"/>
-                <outlet property="reactionView" destination="B66-r0-ecI" id="7Md-Ed-zNb"/>
+                <outlet property="reactionView" destination="qKr-hm-wLY" id="50m-i8-7yr"/>
                 <outlet property="receipt" destination="9vt-mH-ZKr" id="DpE-Cj-4FC"/>
                 <outlet property="receiptStack" destination="77X-Zz-7Yf" id="7EG-Vk-shl"/>
                 <outlet property="timeStamp" destination="c7w-MC-Szd" id="IPI-c4-06m"/>

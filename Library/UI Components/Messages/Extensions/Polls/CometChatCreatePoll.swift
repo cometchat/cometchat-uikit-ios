@@ -27,8 +27,8 @@ class CometChatCreatePoll: UIViewController {
     // MARK: - Declaration of Variables
     
     let modelName = UIDevice.modelName
-    var user : User?
-    var group : Group?
+    var user : CometChatPro.User?
+    var group : CometChatPro.Group?
     var documentsUrl: URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }

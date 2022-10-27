@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -27,7 +27,7 @@
                         </connections>
                     </button>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" alignment="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="chB-ix-hEc">
-                        <rect key="frame" x="0.0" y="3" width="576" height="188"/>
+                        <rect key="frame" x="0.0" y="3" width="576" height="205"/>
                         <subviews>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q6r-Il-FVP">
                                 <rect key="frame" x="456" y="0.0" width="120" height="120"/>
@@ -50,16 +50,13 @@
                                     <constraint firstAttribute="trailing" secondItem="xEA-H6-jk8" secondAttribute="trailing" id="wyN-mA-ioJ"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="Wlt-ep-Ua0" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="120" width="576" height="50"/>
+                            <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="MZz-Y8-PKS" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                                <rect key="frame" x="326" y="120" width="250" height="67"/>
                                 <subviews>
-                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceRightToLeft" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="tSU-I7-Uhb">
-                                        <rect key="frame" x="0.0" y="0.0" width="576" height="50"/>
+                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceRightToLeft" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="g2T-up-gIO">
+                                        <rect key="frame" x="5" y="5" width="245" height="62"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="50" id="XOE-Gd-QrE"/>
-                                        </constraints>
-                                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="5eD-Kt-BD4">
+                                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="Mrc-fO-LPQ">
                                             <size key="itemSize" width="128" height="128"/>
                                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -69,18 +66,19 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="tSU-I7-Uhb" secondAttribute="bottom" id="C8K-BY-phe"/>
-                                    <constraint firstItem="tSU-I7-Uhb" firstAttribute="top" secondItem="Wlt-ep-Ua0" secondAttribute="top" id="CFy-pS-h8g"/>
-                                    <constraint firstAttribute="trailing" secondItem="tSU-I7-Uhb" secondAttribute="trailing" id="DuD-Be-gAA"/>
-                                    <constraint firstAttribute="height" constant="50" id="O1E-Ys-XrK"/>
-                                    <constraint firstItem="tSU-I7-Uhb" firstAttribute="leading" secondItem="Wlt-ep-Ua0" secondAttribute="leading" id="cPS-LI-fcr"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="35" id="Gc0-T7-pdi"/>
+                                    <constraint firstAttribute="width" constant="250" id="PsQ-tv-Yc2"/>
+                                    <constraint firstAttribute="trailing" secondItem="g2T-up-gIO" secondAttribute="trailing" id="TCV-zt-DYh"/>
+                                    <constraint firstAttribute="bottom" secondItem="g2T-up-gIO" secondAttribute="bottom" id="dVP-12-IyI"/>
+                                    <constraint firstItem="g2T-up-gIO" firstAttribute="top" secondItem="MZz-Y8-PKS" secondAttribute="top" constant="5" id="gWA-Fh-hhh"/>
+                                    <constraint firstItem="g2T-up-gIO" firstAttribute="leading" secondItem="MZz-Y8-PKS" secondAttribute="leading" constant="5" id="yDU-sv-0Pp"/>
                                 </constraints>
                                 <connections>
-                                    <outlet property="collectionView" destination="tSU-I7-Uhb" id="0YW-dR-hOK"/>
+                                    <outlet property="collectionView" destination="g2T-up-gIO" id="Mnm-QK-dZW"/>
                                 </connections>
                             </view>
                             <stackView opaque="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="QFW-D7-Jho">
-                                <rect key="frame" x="528" y="170" width="48" height="18"/>
+                                <rect key="frame" x="528" y="187" width="48" height="18"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10:43" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cDA-gL-hf8">
                                         <rect key="frame" x="0.0" y="0.0" width="30" height="18"/>
@@ -102,12 +100,6 @@
                                 </constraints>
                             </stackView>
                         </subviews>
-                        <constraints>
-                            <constraint firstItem="Wlt-ep-Ua0" firstAttribute="top" secondItem="q6r-Il-FVP" secondAttribute="bottom" id="QMR-Mu-29w"/>
-                            <constraint firstItem="QFW-D7-Jho" firstAttribute="top" secondItem="Wlt-ep-Ua0" secondAttribute="bottom" id="ffL-gg-Xhl"/>
-                            <constraint firstAttribute="trailing" secondItem="Wlt-ep-Ua0" secondAttribute="trailing" id="rAZ-KA-0ba"/>
-                            <constraint firstItem="Wlt-ep-Ua0" firstAttribute="leading" secondItem="chB-ix-hEc" secondAttribute="leading" id="sWd-Gp-m7o"/>
-                        </constraints>
                     </stackView>
                 </subviews>
                 <constraints>
@@ -121,8 +113,9 @@
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
+                <outlet property="heightReactions" destination="Gc0-T7-pdi" id="0W5-MM-B51"/>
                 <outlet property="imageMessage" destination="xEA-H6-jk8" id="dLR-ga-5eq"/>
-                <outlet property="reactionView" destination="Wlt-ep-Ua0" id="Zm7-xa-0UT"/>
+                <outlet property="reactionView" destination="MZz-Y8-PKS" id="K7X-1O-o3v"/>
                 <outlet property="receipt" destination="g59-Wr-ft0" id="dgs-TX-UrW"/>
                 <outlet property="receiptStack" destination="QFW-D7-Jho" id="FAS-xc-d1O"/>
                 <outlet property="replybutton" destination="ngZ-4g-SAC" id="5Bj-KX-hIo"/>
