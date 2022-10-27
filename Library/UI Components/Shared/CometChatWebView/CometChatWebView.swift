@@ -23,7 +23,7 @@ class CometChatWebView: UIViewController , WKNavigationDelegate {
     
      var url: String?
      var webViewType: WebViewType = .whiteboard
-     var user: User?
+     var user: CometChatPro.User?
     
     override func viewDidLoad() {
         super.viewDidLoad()

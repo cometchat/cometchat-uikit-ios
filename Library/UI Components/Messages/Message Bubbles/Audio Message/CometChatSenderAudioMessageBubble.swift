@@ -16,6 +16,7 @@ class CometChatSenderAudioMessageBubble: UITableViewCell {
     // MARK: - Declaration of IBOutlets
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var name: UILabel!
@@ -101,7 +102,7 @@ class CometChatSenderAudioMessageBubble: UITableViewCell {
             }
             messageView.backgroundColor = UIKitSettings.primaryColor
             replybutton.tintColor = UIKitSettings.primaryColor
-            
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -141,6 +142,10 @@ class CometChatSenderAudioMessageBubble: UITableViewCell {
         } else {
             messageView.backgroundColor =  UIKitSettings.primaryColor
         }
+    }
+    
+    override func prepareForReuse() {
+        reactionView.reactions.removeAll()
     }
     
 }

@@ -26,49 +26,49 @@ class CometChatCallDetailsLogItem: UITableViewCell {
     var call: BaseMessage! {
         didSet {
             
-            if let call = call as? Call {
+            if let call = call as? CometChatPro.Call {
                 time.text =  String().setMessageDateHeader(time: Int(call.initiatedAt))
                 duration.text = String().setCallsTime(time: Int(call.initiatedAt))
                 switch call.callStatus  {
-                case .initiated where call.callType == .audio && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
+                case .initiated where call.callType == .audio && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
                     self.callStatus.text = "OUTGOING_AUDIO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "outgoing-audio-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     
-                case .initiated where call.callType == .audio && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
+                case .initiated where call.callType == .audio && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
                     
                     self.callStatus.text = "INCOMING_AUDIO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "incoming-audio-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     
                     
-                case .initiated where call.callType == .video  && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
+                case .initiated where call.callType == .video  && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
                     
                     self.callStatus.text = "INCOMING_VIDEO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "incoming-video-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     
                     
-                case .initiated where call.callType == .video && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
+                case .initiated where call.callType == .video && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
                     
                     // This case satisfies the condition where loggedIn user sends  audio call in a group.
                     self.callStatus.text = "OUTGOING_VIDEO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "outgoing-video-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     
                     
-                case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
+                case .unanswered where call.callType == .audio  && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
                     
                     self.callStatus.text = "UNANSWERED_AUDIO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     
-                case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
+                case .unanswered where call.callType == .audio  && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
                     
                     self.callStatus.text = "MISSED_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     
-                case .unanswered where call.callType == .video   && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
+                case .unanswered where call.callType == .video   && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
                     
                     self.callStatus.text = "UNANSWERED_VIDEO_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)
                     
-                case .unanswered where call.callType == .video  && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
+                case .unanswered where call.callType == .video  && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
     
                     self.callStatus.text = "MISSED_CALL".localized()
                     self.callStatusIcon.image = UIImage(named: "end-call", in: UIKitSettings.bundle, compatibleWith: nil)

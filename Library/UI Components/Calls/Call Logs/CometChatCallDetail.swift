@@ -24,10 +24,10 @@ class CometChatCallDetails: UIViewController {
     var actionsItems:[Int] = [Int]()
     var supportItems:[Int] = [Int]()
     var isPresentedFromMessageList: Bool?
-    var currentUser: User?
-    var currentGroup: Group?
+    var currentUser: CometChatPro.User?
+    var currentGroup: CometChatPro.Group?
     var callsRequest: MessagesRequest?
-    var calls = [Call]()
+    var calls = [CometChatPro.Call]()
     static let CALL_INFO_CELL = 0
     static let SEND_MESSAGE_CELL = 1
     static let CALL_LOG_CELL = 2
@@ -53,7 +53,7 @@ class CometChatCallDetails: UIViewController {
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
-    public func set(user: User){
+    public func set(user: CometChatPro.User){
         currentUser = user
         CometChat.getUser(UID: user.uid ?? "", onSuccess: { (updatedUser) in
             self.currentUser = updatedUser
@@ -74,7 +74,7 @@ class CometChatCallDetails: UIViewController {
        - Author: CometChat Team
        - Copyright:  ©  2020 CometChat Inc.
        */
-    public func set(group: Group){
+    public func set(group: CometChatPro.Group){
         guard  group != nil else {
             return
         }
@@ -121,10 +121,10 @@ class CometChatCallDetails: UIViewController {
      - Copyright:  ©  2020 CometChat Inc.
      */
     public func fetchCalls(forEntity: AppEntity) {
-        if let user = forEntity as? User {
+        if let user = forEntity as? CometChatPro.User {
             callsRequest = MessagesRequest.MessageRequestBuilder().set(limit: 10).hideMessagesFromBlockedUsers(true).set(uid: user.uid ?? "").set(categories: ["call"]).build()
         }
-        if let group = forEntity as? Group {
+        if let group = forEntity as? CometChatPro.Group {
             callsRequest = MessagesRequest.MessageRequestBuilder().set(limit: 10).hideMessagesFromBlockedUsers(true).set(guid: group.guid ).set(categories: ["call"]).build()
         }
         callsRequest?.fetchPrevious(onSuccess: { (fetchedCalls) in
@@ -139,10 +139,10 @@ class CometChatCallDetails: UIViewController {
                 }
             }else{
                 guard let filteredCalls = fetchedCalls?.filter({
-                    ($0 as? Call != nil && ($0 as? Call)?.callStatus == .initiated)  ||
-                        ($0 as? Call != nil && ($0 as? Call)?.callStatus == .unanswered)
+                    ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .initiated)  ||
+                        ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .unanswered)
                 }) else { return }
-                self.calls = (filteredCalls as? [Call])?.reversed() ?? []
+                self.calls = (filteredCalls as? [CometChatPro.Call])?.reversed() ?? []
                 DispatchQueue.main.async { [weak self] in
                     self?.tableView.reloadData()
                 }

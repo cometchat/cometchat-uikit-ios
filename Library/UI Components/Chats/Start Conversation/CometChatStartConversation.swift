@@ -30,8 +30,8 @@ public protocol StartConversationDelegate: AnyObject {
      - See Also:
      [CometChatStartConversation Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-1-comet-chat-user-list)
      */
-    func didSelectUserAtIndexPath(user: User, indexPath: IndexPath)
-    func didSelectGroupAtIndexPath(group: Group, indexPath: IndexPath)
+    func didSelectUserAtIndexPath(user: CometChatPro.User, indexPath: IndexPath)
+    func didSelectGroupAtIndexPath(group: CometChatPro.Group, indexPath: IndexPath)
 }
 
 /*  ----------------------------------------------------------------------------------------- */
@@ -45,17 +45,17 @@ public class CometChatStartConversation: UIViewController {
     var groupRequest : GroupsRequest?
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
-    var users: [[User]] = [[User]]()
-    var filteredUsers: [User] = [User]()
-    var groups: [Group] = [Group]()
-    var filteredGroups:  [Group] = [Group]()
+    var users: [[CometChatPro.User]] = [[CometChatPro.User]]()
+    var filteredUsers: [CometChatPro.User] = [CometChatPro.User]()
+    var groups: [CometChatPro.Group] = [CometChatPro.Group]()
+    var filteredGroups:  [CometChatPro.Group] = [CometChatPro.Group]()
     weak var delegate : StartConversationDelegate?
     var activityIndicator:UIActivityIndicatorView?
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
     var sectionTitle : UILabel?
     var sections = [String]()
     var sortedKeys = [String]()
-    var globalGroupedUsers: [String : [User]] = [:]
+    var globalGroupedUsers: [String : [CometChatPro.User]] = [:]
     
     // MARK: - View controller lifecycle methods
     
@@ -194,7 +194,7 @@ public class CometChatStartConversation: UIViewController {
          }
     }
     
-    private func groupUsers(users: [User]){
+    private func groupUsers(users: [CometChatPro.User]){
         DispatchQueue.main.async {  [weak self] in
             guard let strongSelf = self else { return }
             if strongSelf.users.isEmpty { strongSelf.tableView?.setEmptyMessage("NO_USERS_FOUND".localized())
@@ -209,7 +209,7 @@ public class CometChatStartConversation: UIViewController {
             if !sortedKeys.contains(key) { sortedKeys.append(key) }
         }
         sortedKeys = sortedKeys.sorted{ $0.lowercased() < $1.lowercased()}
-        var staticUsers: [[User]] = [[User]]()
+        var staticUsers: [[CometChatPro.User]] = [[CometChatPro.User]]()
         sortedKeys.forEach { (key) in
             if let value = globalGroupedUsers[key] {
                 staticUsers.append(value)
@@ -606,7 +606,7 @@ extension CometChatStartConversation: UITableViewDelegate , UITableViewDataSourc
             
         }else{
             let cell = tableView.dequeueReusableCell(withIdentifier: "CometChatGroupListItem", for: indexPath) as! CometChatGroupListItem
-            let group: Group?
+            let group: CometChatPro.Group?
             
             if  groups.count != 0 {
                 if isSearching() {

@@ -22,19 +22,19 @@ class CometChatCallListItem: UITableViewCell {
     
      // MARK: - Declaration of Variables
     
-    var currentUser: User?
-    var currentGroup: Group?
+    var currentUser: CometChatPro.User?
+    var currentGroup: CometChatPro.Group?
     
     var call: BaseMessage! {
         didSet {
-            if let call = call as? Call {
+            if let call = call as? CometChatPro.Call {
                 time.text = String().setMessageDateHeader(time: Int(call.initiatedAt))
                 self.tintColor = UIKitSettings.primaryColor
                 switch call.callStatus  {
-                case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
+                case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
                     
                     // This case satisfies the condition where loggedIn Users makes audio call to another user.
-                    if let user = call.callReceiver as? User {
+                    if let user = call.callReceiver as? CometChatPro.User {
                         self.currentUser = user
                         self.name.text = user.name
                         /// Set the image for the user.
@@ -48,10 +48,10 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .black
                     }
                     
-                case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
+                case .initiated where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
                     
                     // This case satisfies the condition where other users sends incoming audio call to loggedIn user.
-                    if let user = call.callInitiator as? User {
+                    if let user = call.callInitiator as? CometChatPro.User {
                         self.currentUser = user
                         self.name.text = user.name
                         /// Set the avatar for the user.
@@ -65,10 +65,10 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .black
                     }
                     
-                case .initiated where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
+                case .initiated where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
                     
                     // This case satisfies the condition where other user sends incoming audio call in a  group.
-                    if let group = call.callReceiver as? Group {
+                    if let group = call.callReceiver as? CometChatPro.Group {
                         self.currentGroup = group
                         self.name.text = group.name
                         /// Set the avatar for the group.
@@ -82,10 +82,10 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .black
                     }
                     
-                case .initiated where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
+                case .initiated where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
                     
                     // This case satisfies the condition where loggedIn user sends  audio call in a group.
-                    if let group = call.callReceiver as? Group {
+                    if let group = call.callReceiver as? CometChatPro.Group {
                         self.currentGroup = group
                         self.name.text = group.name
                         /// Set the avatar for the group.
@@ -100,8 +100,8 @@ class CometChatCallListItem: UITableViewCell {
                     }
                     
                     
-                case .initiated where call.callType == .video && call.receiverType == .user  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
-                    if let user = call.callReceiver as? User {
+                case .initiated where call.callType == .video && call.receiverType == .user  && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
+                    if let user = call.callReceiver as? CometChatPro.User {
                         self.currentUser = user
                         self.name.text = user.name
                         /// Set the avatar for the user.
@@ -116,8 +116,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .black
                     }
                     
-                case .initiated where call.callType == .video && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
-                    if let user = call.callInitiator as? User {
+                case .initiated where call.callType == .video && call.receiverType == .user && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
+                    if let user = call.callInitiator as? CometChatPro.User {
                         self.currentUser = user
                         self.name.text = user.name
                         /// Set the avatar for the user.
@@ -131,8 +131,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .black
                     }
                     
-                case .initiated where call.callType == .video && call.receiverType == .group  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
-                    if let group = call.callReceiver as? Group {
+                case .initiated where call.callType == .video && call.receiverType == .group  && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
+                    if let group = call.callReceiver as? CometChatPro.Group {
                         self.currentGroup = group
                         self.name.text = group.name
                         /// Set the avatar for the group.
@@ -146,8 +146,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .black
                     }
                     
-                case .initiated where call.callType == .video && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
-                    if let group = call.callReceiver as? Group {
+                case .initiated where call.callType == .video && call.receiverType == .group && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
+                    if let group = call.callReceiver as? CometChatPro.Group {
                         self.currentGroup = group
                         self.name.text = group.name
                         /// Set the avatar for the group.
@@ -161,8 +161,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .black
                     }
                     
-                case .unanswered where call.callType == .audio && call.receiverType == .user  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
-                    if let user = call.callReceiver as? User {
+                case .unanswered where call.callType == .audio && call.receiverType == .user  && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
+                    if let user = call.callReceiver as? CometChatPro.User {
                         self.currentUser = user
                         self.name.text = user.name
                         /// Set the avatar for the user.
@@ -176,8 +176,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .red
                     }
                     
-                case .unanswered where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
-                    if let user = call.callInitiator as? User {
+                case .unanswered where call.callType == .audio && call.receiverType == .user && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
+                    if let user = call.callInitiator as? CometChatPro.User {
                         self.currentUser = user
                         self.name.text = user.name
                         /// Set the avatar for the user.
@@ -191,8 +191,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .red
                     }
                     
-                case .unanswered where call.callType == .audio && call.receiverType == .group  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
-                    if let group = call.callReceiver as? Group {
+                case .unanswered where call.callType == .audio && call.receiverType == .group  && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
+                    if let group = call.callReceiver as? CometChatPro.Group {
                         self.currentGroup = group
                         self.name.text = group.name
                         /// Set the avatar for the group.
@@ -206,8 +206,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .red
                     }
                     
-                case .unanswered where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
-                    if let group = call.callReceiver as? Group {
+                case .unanswered where call.callType == .audio && call.receiverType == .group && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
+                    if let group = call.callReceiver as? CometChatPro.Group {
                         self.currentGroup = group
                         self.name.text = group.name
                         /// Set the avatar for the group.
@@ -221,8 +221,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .red
                     }
                     
-                case .unanswered where call.callType == .video && call.receiverType == .user  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
-                    if let user = call.callReceiver as? User {
+                case .unanswered where call.callType == .video && call.receiverType == .user  && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
+                    if let user = call.callReceiver as? CometChatPro.User {
                         self.currentUser = user
                         self.name.text = user.name
                         /// Set the avatar for the user.
@@ -236,8 +236,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .red
                     }
                     
-                case .unanswered where call.callType == .video && call.receiverType == .user && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
-                    if let user = call.callInitiator as? User {
+                case .unanswered where call.callType == .video && call.receiverType == .user && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
+                    if let user = call.callInitiator as? CometChatPro.User {
                         self.currentUser = user
                         self.name.text = user.name
                         /// Set the avatar for the user.
@@ -251,8 +251,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .red
                     }
                     
-                case .unanswered where call.callType == .video && call.receiverType == .group  && (call.callInitiator as? User)?.uid == LoggedInUser.uid:
-                    if let group = call.callReceiver as? Group {
+                case .unanswered where call.callType == .video && call.receiverType == .group  && (call.callInitiator as? CometChatPro.User)?.uid == LoggedInUser.uid:
+                    if let group = call.callReceiver as? CometChatPro.Group {
                         self.currentGroup = group
                         self.name.text = group.name
                         /// Set the avatar for the group.
@@ -266,8 +266,8 @@ class CometChatCallListItem: UITableViewCell {
                         name.textColor = .red
                     }
                     
-                case .unanswered where call.callType == .video && call.receiverType == .group && (call.callInitiator as? User)?.uid != LoggedInUser.uid:
-                    if let group = call.callReceiver as? Group {
+                case .unanswered where call.callType == .video && call.receiverType == .group && (call.callInitiator as? CometChatPro.User)?.uid != LoggedInUser.uid:
+                    if let group = call.callReceiver as? CometChatPro.Group {
                         self.currentGroup = group
                         self.name.text = group.name
                         /// Set the avatar for the group.

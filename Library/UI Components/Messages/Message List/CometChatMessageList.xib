@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -39,7 +39,6 @@
                 <outlet property="send" destination="As0-zr-DC2" id="ThE-9P-F2u"/>
                 <outlet property="smartRepliesView" destination="XBg-nj-c30" id="bL5-Lo-lfR"/>
                 <outlet property="tableView" destination="NJW-Ea-LuH" id="cg0-6P-R3R"/>
-                <outlet property="tableViewBottomConstraint" destination="7Ky-Cy-erG" id="uHz-26-q0Q"/>
                 <outlet property="textView" destination="685-zy-w75" id="cX4-Nk-u8Z"/>
             </connections>
         </placeholder>
@@ -49,43 +48,50 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="A6q-xQ-QZJ">
-                    <rect key="frame" x="0.0" y="44" width="414" height="1"/>
+                    <rect key="frame" x="0.0" y="48" width="414" height="1"/>
                     <color key="backgroundColor" systemColor="systemFillColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="1" id="KlU-Xy-aVW"/>
                     </constraints>
                 </view>
-                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="NJW-Ea-LuH">
-                    <rect key="frame" x="0.0" y="45" width="414" height="777"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                </tableView>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XBg-nj-c30" customClass="CometChatSmartRepliesPreview" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="764" width="414" height="58"/>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="doG-3v-0JC">
+                    <rect key="frame" x="0.0" y="49" width="414" height="773"/>
                     <subviews>
-                        <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="CPG-ZL-nDc">
-                            <rect key="frame" x="5" y="1.5" width="404" height="55"/>
+                        <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="NJW-Ea-LuH">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="773"/>
+                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        </tableView>
+                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XBg-nj-c30" customClass="CometChatSmartRepliesPreview" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="50"/>
+                            <subviews>
+                                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="CPG-ZL-nDc">
+                                    <rect key="frame" x="5" y="-2.5" width="404" height="55"/>
+                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="55" id="irm-Cb-p6U"/>
+                                    </constraints>
+                                    <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="For-ov-rBg">
+                                        <size key="itemSize" width="50" height="50"/>
+                                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                    </collectionViewFlowLayout>
+                                </collectionView>
+                            </subviews>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             <constraints>
-                                <constraint firstAttribute="height" constant="55" id="irm-Cb-p6U"/>
+                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="50" id="Fto-rf-hJt"/>
+                                <constraint firstItem="CPG-ZL-nDc" firstAttribute="centerY" secondItem="XBg-nj-c30" secondAttribute="centerY" id="J5h-N3-SIO"/>
+                                <constraint firstAttribute="trailing" secondItem="CPG-ZL-nDc" secondAttribute="trailing" constant="5" id="RKV-kB-zuI"/>
+                                <constraint firstItem="CPG-ZL-nDc" firstAttribute="leading" secondItem="XBg-nj-c30" secondAttribute="leading" constant="5" id="S7h-lE-mPy"/>
+                                <constraint firstAttribute="height" constant="50" id="Ujc-rT-YDE"/>
                             </constraints>
-                            <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="For-ov-rBg">
-                                <size key="itemSize" width="50" height="50"/>
-                                <size key="headerReferenceSize" width="0.0" height="0.0"/>
-                                <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                                <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                            </collectionViewFlowLayout>
-                        </collectionView>
+                            <connections>
+                                <outlet property="collectionView" destination="CPG-ZL-nDc" id="F83-Oc-Kt1"/>
+                            </connections>
+                        </view>
                     </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    <constraints>
-                        <constraint firstItem="CPG-ZL-nDc" firstAttribute="centerY" secondItem="XBg-nj-c30" secondAttribute="centerY" id="J5h-N3-SIO"/>
-                        <constraint firstAttribute="trailing" secondItem="CPG-ZL-nDc" secondAttribute="trailing" constant="5" id="RKV-kB-zuI"/>
-                        <constraint firstItem="CPG-ZL-nDc" firstAttribute="leading" secondItem="XBg-nj-c30" secondAttribute="leading" constant="5" id="S7h-lE-mPy"/>
-                    </constraints>
-                    <connections>
-                        <outlet property="collectionView" destination="CPG-ZL-nDc" id="F83-Oc-Kt1"/>
-                    </connections>
-                </view>
+                </stackView>
                 <view hidden="YES" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="nLo-uN-P4v" customClass="CometChatLiveReaction" customModule="CometChat_KitchenSink" customModuleProvider="target">
                     <rect key="frame" x="314" y="554" width="90" height="248"/>
                     <constraints>
@@ -469,35 +475,29 @@
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstItem="aOW-hx-amp" firstAttribute="trailing" secondItem="qtD-Ii-Ra0" secondAttribute="trailing" id="0YJ-nL-7Hm"/>
+                <constraint firstItem="doG-3v-0JC" firstAttribute="leading" secondItem="Xbf-dS-u0p" secondAttribute="leading" id="0oA-EP-MVE"/>
                 <constraint firstItem="aOW-hx-amp" firstAttribute="top" secondItem="qtD-Ii-Ra0" secondAttribute="top" id="2co-h0-dwD"/>
                 <constraint firstItem="qtD-Ii-Ra0" firstAttribute="top" secondItem="fmw-KX-M2d" secondAttribute="bottom" id="3uZ-N5-nLC"/>
+                <constraint firstItem="doG-3v-0JC" firstAttribute="top" secondItem="A6q-xQ-QZJ" secondAttribute="bottom" id="4Q5-f4-fvS"/>
                 <constraint firstItem="r85-EN-byq" firstAttribute="bottom" secondItem="Vjf-AE-Wg2" secondAttribute="bottom" id="59x-3a-pOz"/>
                 <constraint firstItem="Xbf-dS-u0p" firstAttribute="bottom" secondItem="qtD-Ii-Ra0" secondAttribute="bottom" id="63x-dg-FpM"/>
-                <constraint firstItem="qtD-Ii-Ra0" firstAttribute="top" secondItem="NJW-Ea-LuH" secondAttribute="bottom" id="7Ky-Cy-erG"/>
-                <constraint firstItem="qtD-Ii-Ra0" firstAttribute="top" secondItem="XBg-nj-c30" secondAttribute="bottom" id="BU0-tB-CyU"/>
                 <constraint firstItem="aOW-hx-amp" firstAttribute="leading" secondItem="qtD-Ii-Ra0" secondAttribute="leading" id="CDN-1W-6Hz"/>
                 <constraint firstItem="A6q-xQ-QZJ" firstAttribute="top" secondItem="Xbf-dS-u0p" secondAttribute="top" id="CHZ-RO-0JY"/>
                 <constraint firstItem="Lza-5y-AJY" firstAttribute="bottom" secondItem="3kv-Cr-K8Y" secondAttribute="bottom" id="HT3-qi-tuX"/>
-                <constraint firstItem="NJW-Ea-LuH" firstAttribute="leading" secondItem="Xbf-dS-u0p" secondAttribute="leading" id="IsU-kH-itm"/>
                 <constraint firstItem="Xbf-dS-u0p" firstAttribute="trailing" secondItem="nLo-uN-P4v" secondAttribute="trailing" constant="10" id="Izv-fB-Cfi"/>
                 <constraint firstItem="r85-EN-byq" firstAttribute="leading" secondItem="Xbf-dS-u0p" secondAttribute="leading" id="KjT-1T-u0O"/>
                 <constraint firstItem="Xbf-dS-u0p" firstAttribute="trailing" secondItem="Lza-5y-AJY" secondAttribute="trailing" constant="5" id="LCn-HP-MeK"/>
                 <constraint firstItem="Xbf-dS-u0p" firstAttribute="trailing" secondItem="A6q-xQ-QZJ" secondAttribute="trailing" id="MML-f2-7fM"/>
-                <constraint firstItem="XBg-nj-c30" firstAttribute="top" secondItem="fmw-KX-M2d" secondAttribute="top" id="OYG-nW-ljo"/>
-                <constraint firstItem="NJW-Ea-LuH" firstAttribute="trailing" secondItem="Xbf-dS-u0p" secondAttribute="trailing" id="QSD-IC-yOw"/>
                 <constraint firstItem="qtD-Ii-Ra0" firstAttribute="top" secondItem="nLo-uN-P4v" secondAttribute="bottom" constant="20" id="Qbb-nf-u9q"/>
                 <constraint firstItem="fmw-KX-M2d" firstAttribute="leading" secondItem="Vjf-AE-Wg2" secondAttribute="leading" id="Shr-gt-WTl"/>
                 <constraint firstAttribute="trailing" secondItem="fmw-KX-M2d" secondAttribute="trailing" id="TGJ-ZJ-Jc9"/>
+                <constraint firstItem="qtD-Ii-Ra0" firstAttribute="top" secondItem="doG-3v-0JC" secondAttribute="bottom" id="TUR-Nu-aeX"/>
                 <constraint firstItem="Xbf-dS-u0p" firstAttribute="trailing" secondItem="qtD-Ii-Ra0" secondAttribute="trailing" id="X9I-jm-uAx"/>
                 <constraint firstItem="r85-EN-byq" firstAttribute="trailing" secondItem="Xbf-dS-u0p" secondAttribute="trailing" id="YJX-pS-CHq"/>
+                <constraint firstItem="doG-3v-0JC" firstAttribute="trailing" secondItem="Xbf-dS-u0p" secondAttribute="trailing" id="Zov-Bn-EFC"/>
                 <constraint firstItem="aOW-hx-amp" firstAttribute="bottom" secondItem="qtD-Ii-Ra0" secondAttribute="bottom" id="a6h-U9-veI"/>
-                <constraint firstItem="NJW-Ea-LuH" firstAttribute="leading" secondItem="Xbf-dS-u0p" secondAttribute="leading" id="aQv-q3-ef3"/>
                 <constraint firstItem="qtD-Ii-Ra0" firstAttribute="leading" secondItem="Vjf-AE-Wg2" secondAttribute="leading" id="bzD-n4-QSj"/>
-                <constraint firstItem="XBg-nj-c30" firstAttribute="leading" secondItem="Xbf-dS-u0p" secondAttribute="leading" id="fZE-K5-4T0"/>
-                <constraint firstItem="Xbf-dS-u0p" firstAttribute="trailing" secondItem="NJW-Ea-LuH" secondAttribute="trailing" id="hQL-nV-Pyk"/>
-                <constraint firstItem="XBg-nj-c30" firstAttribute="trailing" secondItem="Xbf-dS-u0p" secondAttribute="trailing" id="pQM-Nn-vvz"/>
                 <constraint firstItem="A6q-xQ-QZJ" firstAttribute="leading" secondItem="Xbf-dS-u0p" secondAttribute="leading" id="qEo-8y-RXe"/>
-                <constraint firstItem="NJW-Ea-LuH" firstAttribute="top" secondItem="A6q-xQ-QZJ" secondAttribute="bottom" id="thg-rc-uEQ"/>
             </constraints>
             <point key="canvasLocation" x="186.95652173913044" y="-544.41964285714278"/>
         </view>
@@ -508,10 +508,10 @@
         <image name="messages-close-circle.png" width="24" height="24"/>
         <image name="messages-delete.png" width="24" height="24"/>
         <image name="microphone-circle.png" width="28" height="28"/>
-        <image name="pause.fill" catalog="system" width="116" height="128"/>
+        <image name="pause.fill" catalog="system" width="117" height="128"/>
         <image name="send-message-filled.png" width="27" height="27"/>
         <systemColor name="labelColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondarySystemBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

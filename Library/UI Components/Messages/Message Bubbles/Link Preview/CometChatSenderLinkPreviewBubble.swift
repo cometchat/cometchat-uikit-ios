@@ -16,6 +16,7 @@ class CometChatSenderLinkPreviewBubble: UITableViewCell {
     // MARK: - Declaration of IBOutlets
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var icon: UIImageView!
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var linkDescription: UILabel!
@@ -138,6 +139,7 @@ class CometChatSenderLinkPreviewBubble: UITableViewCell {
                 label.customColor[emailParser] = UIKitSettings.EmailIDColor
                 label.customSelectedColor[emailParser] = UIKitSettings.EmailIDColor
             }
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -150,6 +152,7 @@ class CometChatSenderLinkPreviewBubble: UITableViewCell {
      - Copyright:  ©  2020 CometChat Inc.
      */
     private func parseLinkPreviewForMessage(message: TextMessage){
+
         if let metaData = message.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let linkPreviewDictionary = cometChatExtension["link-preview"] as? [String : Any], let linkArray = linkPreviewDictionary["links"] as? [[String: Any]] {
             
             guard let linkPreview = linkArray[safe: 0] else {
@@ -164,19 +167,25 @@ class CometChatSenderLinkPreviewBubble: UITableViewCell {
                 linkDescription.text = description
             }
             
-            if let thumbnail = linkPreview["image"] as? String , let url = URL(string: thumbnail){
-                
-                self.icon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+            self.icon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+            
+            if let thumbnail = linkPreview["image"] as? String , let url = URL(string: thumbnail) {
+              
                 imageRequest = imageService.image(for: url) { [weak self] image in
                     guard let strongSelf = self else { return }
-                    // Update Thumbnail Image View
                     if let image = image {
                         strongSelf.icon.image = image
-                    }else{
-                        strongSelf.icon.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    }
+                }
+            }else if let favIcon = linkPreview["favicon"] as? String , let url = URL(string: favIcon) {
+                imageRequest = imageService.image(for: url) { [weak self] image in
+                    guard let strongSelf = self else { return }
+                    if let image = image {
+                        strongSelf.icon.image = image
                     }
                 }
             }
+
             
             if let linkURL = linkPreview["url"] as? String {
                 self.url = linkURL
@@ -268,8 +277,32 @@ class CometChatSenderLinkPreviewBubble: UITableViewCell {
        }
     
     override func prepareForReuse() {
-                imageRequest?.cancel()
+        imageRequest?.cancel()
+        reactionView.reactions.removeAll()
+    }
+}
+
+
+extension UITableViewCell {
+    
+    public func calculateHeightForReactions(reactionView: CometChatMessageReactions, heightReactions: NSLayoutConstraint) {
+        /// Count the number of reactions.
+        let count = reactionView.reactions.count
+        /// numberOfItemInARow. MaxWidth is 228 and one item width is 45.
+        let numberOfItemInRow = Int(250 / 44)
+        if count > 0 {
+            /// calculate the number of rows.
+            let row = count % numberOfItemInRow != 0 ? count / numberOfItemInRow + 1 : count / numberOfItemInRow
+            reactionView.isHidden = false
+            /// Calculate the height of the message reactions, and one row height is 32.
+            heightReactions.constant = CGFloat(row * 32)
+        } else {
+            /// when reactions count is zero.
+            heightReactions.constant = 0
+            reactionView.isHidden = true
         }
+    }
+    
 }
 
 /*  ----------------------------------------------------------------------------------------- */

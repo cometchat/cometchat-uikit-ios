@@ -16,6 +16,7 @@ class CometChatSenderStickerMessageBubble: UITableViewCell {
      // MARK: - Declaration of IBInspectable
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var imageMessage: UIImageView!
@@ -95,6 +96,7 @@ class CometChatSenderStickerMessageBubble: UITableViewCell {
                 case .disabled: self.receipt.isHidden = true
                 }
             }
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -123,7 +125,7 @@ class CometChatSenderStickerMessageBubble: UITableViewCell {
     
     override func prepareForReuse() {
         imageRequest?.cancel()
+        reactionView.reactions.removeAll()
     }
   
-   
 }

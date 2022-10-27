@@ -16,6 +16,7 @@ protocol PollExtensionDelegate: NSObject {
 class CometChatReceiverPollMessageBubble: UITableViewCell {
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var messgeView: UIView!
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var nameView: UIView!
@@ -90,7 +91,7 @@ class CometChatReceiverPollMessageBubble: UITableViewCell {
                 avatar.set(image: "", with: pollMessage.sender?.name ?? "")
             }
             time.text = String().setMessageTime(time: Int(pollMessage?.sentAt ?? 0))
-            
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -753,6 +754,10 @@ class CometChatReceiverPollMessageBubble: UITableViewCell {
         } else {
             messgeView.backgroundColor =  .lightGray
         }
+    }
+    
+    override func prepareForReuse() {
+        reactionView.reactions.removeAll()
     }
     
 }

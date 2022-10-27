@@ -30,7 +30,7 @@ class CometChatCreateGroup: UIViewController {
     // MARK: - Declaration of Variables
     
     let modelName = UIDevice.modelName
-    var group : Group?
+    var group : CometChatPro.Group?
     var groupType : CometChat.groupType = .public
     var documentsUrl: URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -312,17 +312,17 @@ class CometChatCreateGroup: UIViewController {
             }
             
             if groupType == .public {
-                group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .public, password: nil)
+                group = CometChatPro.Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .public, password: nil)
             }else if groupType == .password {
-                group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .password, password: password.text)
+                group = CometChatPro.Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .password, password: password.text)
             }else if groupType == .private {
-                group = Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .private, password: nil)
+                group = CometChatPro.Group(guid: "group_\(Int(Date().timeIntervalSince1970 * 100))", name: name, groupType: .private, password: nil)
             }
             
             if let group = group {
                 CometChat.createGroup(group: group, onSuccess: { (group) in
                     DispatchQueue.main.async {
-                        let data:[String: Group] = ["group": group]
+                        let data:[String: CometChatPro.Group] = ["group": group]
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "didGroupCreated"), object: nil, userInfo: data)
                         self.dismiss(animated: true, completion: nil)
                     }

@@ -11,6 +11,7 @@ import CometChatPro
 class CometChatSenderPollMessageBubble: UITableViewCell {
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var question: UILabel!
     @IBOutlet weak var option1: UIView!
     @IBOutlet weak var option2: UIView!
@@ -73,6 +74,7 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
                 receipt.image = UIImage(named: "messages-wait", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
                 timeStamp.text = "SENDING".localized()
             }
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
   
@@ -462,5 +464,8 @@ class CometChatSenderPollMessageBubble: UITableViewCell {
         }
     }
     
-    
+    override func prepareForReuse() {
+        reactionView.reactions.removeAll()
+    }
+   
 }

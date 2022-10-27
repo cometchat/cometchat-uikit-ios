@@ -123,8 +123,8 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
     
     // MARK: - Declaration of Variables
     
-    var currentUser: User?
-    var currentGroup: Group?
+    var currentUser: CometChatPro.User?
+    var currentGroup: CometChatPro.Group?
     var currentMessage: BaseMessage?
     var currentReaction: LiveReaction = .thumbsup
     var currentEntity: CometChat.ReceiverType?
@@ -235,13 +235,13 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         switch type {
         case .user:
             isGroupIs = false
-            guard let user = conversationWith as? User else{ return }
+            guard let user = conversationWith as? CometChatPro.User else{ return }
             currentUser = user
             currentEntity = .user
             currentMessage = message
             fetchUserInfo(user: user)
             
-            switch (conversationWith as? User)!.status {
+            switch (conversationWith as? CometChatPro.User)!.status {
             case .online:
                 setupNavigationBar(withTitle: "Thread")
                 setupNavigationBar(withSubtitle: user.name?.capitalized ?? "")
@@ -256,7 +256,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
             
         case .group:
             isGroupIs = true
-            guard let group = conversationWith as? Group else{
+            guard let group = conversationWith as? CometChatPro.Group else{
                 return
             }
             currentGroup = group
@@ -665,7 +665,7 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
      - See Also:
      [CometChatThreadedMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    private func fetchUserInfo(user: User){
+    private func fetchUserInfo(user: CometChatPro.User){
         CometChat.getUser(UID: user.uid ?? "", onSuccess: { [weak self] (user) in
             guard let strongSelf = self else { return }
             if  user?.blockedByMe == true {
@@ -2246,7 +2246,7 @@ extension CometChatThreadedMessageList: UITableViewDelegate , UITableViewDataSou
                 return actionMessageCell
             }else if message.messageCategory == .call {
                 //  CallMessage Cell
-               if let call = message as? Call {
+               if let call = message as? CometChatPro.Call {
                     let  actionMessageCell = tableView.dequeueReusableCell(withIdentifier: "CometChatActionMessageBubble", for: indexPath) as! CometChatActionMessageBubble
                     actionMessageCell.call = call
                     return actionMessageCell
@@ -3714,7 +3714,7 @@ extension CometChatThreadedMessageList : CometChatUserDelegate {
      - See Also:
      [CometChatThreadedMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    public func onUserOnline(user: User) {
+    public func onUserOnline(user: CometChatPro.User) {
         if user.uid == currentUser?.uid{
             if user.status == .online {
                 DispatchQueue.main.async { [weak self] in
@@ -3733,7 +3733,7 @@ extension CometChatThreadedMessageList : CometChatUserDelegate {
      - See Also:
      [CometChatThreadedMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    public func onUserOffline(user: User) {
+    public func onUserOffline(user: CometChatPro.User) {
         if user.uid == currentUser?.uid {
             if user.status == .offline {
                 DispatchQueue.main.async {  [weak self] in

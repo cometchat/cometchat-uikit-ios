@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -338,13 +338,13 @@
                                     <constraint firstAttribute="width" constant="250" id="kFQ-L4-X0j"/>
                                 </constraints>
                             </stackView>
-                            <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="vg9-pu-fTB" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="416" width="393" height="50"/>
+                            <view contentMode="scaleToFill" restorationIdentifier="reactionView" translatesAutoresizingMaskIntoConstraints="NO" id="Ngt-3u-cHt" customClass="CometChatMessageReactions" customModule="CometChat_KitchenSink" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="416" width="250" height="50"/>
                                 <subviews>
-                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceLeftToRight" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="TWZ-zb-aBq">
-                                        <rect key="frame" x="0.0" y="0.0" width="393" height="50"/>
+                                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" semanticContentAttribute="forceLeftToRight" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="SNe-9N-SZY">
+                                        <rect key="frame" x="5" y="5" width="245" height="45"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="nok-Ym-df1">
+                                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="GT9-Nz-vJR">
                                             <size key="itemSize" width="128" height="128"/>
                                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -354,14 +354,15 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="JFk-xo-SWa"/>
-                                    <constraint firstAttribute="bottom" secondItem="TWZ-zb-aBq" secondAttribute="bottom" id="PfP-hN-5k4"/>
-                                    <constraint firstAttribute="trailing" secondItem="TWZ-zb-aBq" secondAttribute="trailing" id="YU4-Fp-xif"/>
-                                    <constraint firstItem="TWZ-zb-aBq" firstAttribute="leading" secondItem="vg9-pu-fTB" secondAttribute="leading" id="nLR-2D-qfW"/>
-                                    <constraint firstItem="TWZ-zb-aBq" firstAttribute="top" secondItem="vg9-pu-fTB" secondAttribute="top" id="yJh-D1-byP"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="35" id="6zR-tK-lV0"/>
+                                    <constraint firstAttribute="trailing" secondItem="SNe-9N-SZY" secondAttribute="trailing" id="ECX-xw-4bk"/>
+                                    <constraint firstAttribute="width" constant="250" id="I0L-Lh-jcc"/>
+                                    <constraint firstItem="SNe-9N-SZY" firstAttribute="leading" secondItem="Ngt-3u-cHt" secondAttribute="leading" constant="5" id="PxS-up-Jka"/>
+                                    <constraint firstItem="SNe-9N-SZY" firstAttribute="top" secondItem="Ngt-3u-cHt" secondAttribute="top" constant="5" id="TFJ-if-4qP"/>
+                                    <constraint firstAttribute="bottom" secondItem="SNe-9N-SZY" secondAttribute="bottom" id="lGi-JR-4yw"/>
                                 </constraints>
                                 <connections>
-                                    <outlet property="collectionView" destination="TWZ-zb-aBq" id="1XJ-b1-BTe"/>
+                                    <outlet property="collectionView" destination="SNe-9N-SZY" id="nlp-k7-9eV"/>
                                 </connections>
                             </view>
                             <stackView opaque="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="2EI-XN-HCK">
@@ -379,12 +380,6 @@
                                 </constraints>
                             </stackView>
                         </subviews>
-                        <constraints>
-                            <constraint firstItem="vg9-pu-fTB" firstAttribute="top" secondItem="KmO-l1-ceN" secondAttribute="bottom" id="BX2-jM-Xfx"/>
-                            <constraint firstItem="vg9-pu-fTB" firstAttribute="leading" secondItem="DTe-zC-8sp" secondAttribute="leading" id="F0c-Pm-QVU"/>
-                            <constraint firstAttribute="trailing" secondItem="vg9-pu-fTB" secondAttribute="trailing" id="QNe-8a-Zux"/>
-                            <constraint firstItem="2EI-XN-HCK" firstAttribute="top" secondItem="vg9-pu-fTB" secondAttribute="bottom" id="jMx-Fy-0m9"/>
-                        </constraints>
                     </stackView>
                 </subviews>
                 <constraints>
@@ -399,6 +394,7 @@
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="avatar" destination="uj8-UC-FUM" id="TSP-55-WLE"/>
+                <outlet property="heightReactions" destination="6zR-tK-lV0" id="SiZ-pA-TIz"/>
                 <outlet property="messgeView" destination="66e-Hc-irm" id="RcQ-rc-diT"/>
                 <outlet property="name" destination="4bD-rL-Jcc" id="uZy-jz-ohC"/>
                 <outlet property="nameView" destination="ZoQ-w5-QbC" id="ag3-Ww-Y6j"/>
@@ -424,7 +420,7 @@
                 <outlet property="option5Tick" destination="dEN-w2-mng" id="D7Q-qk-fiO"/>
                 <outlet property="optionStack" destination="Xf7-Io-xZK" id="VQN-4d-3Td"/>
                 <outlet property="question" destination="bDs-AU-uNw" id="ybj-Nv-vus"/>
-                <outlet property="reactionView" destination="vg9-pu-fTB" id="GZ4-UC-K2W"/>
+                <outlet property="reactionView" destination="Ngt-3u-cHt" id="arf-sb-fja"/>
                 <outlet property="receiptStack" destination="2EI-XN-HCK" id="vdf-AE-TW6"/>
                 <outlet property="time" destination="zNj-M1-ZSb" id="9uh-KE-eYo"/>
                 <outlet property="votes" destination="Pjj-tF-fKb" id="4S3-tF-1fJ"/>
@@ -438,7 +434,7 @@
         </designable>
     </designables>
     <resources>
-        <image name="checkmark.circle.fill" catalog="system" width="128" height="121"/>
+        <image name="checkmark.circle.fill" catalog="system" width="128" height="123"/>
         <image name="defaultAvatar.jpg" width="240" height="240"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

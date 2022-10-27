@@ -19,6 +19,7 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
     // MARK: - Declaration of IBInspectable
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var messageView: UIView!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var tintedView: UIView!
@@ -153,6 +154,8 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
                 label.customColor[emailParser] = UIKitSettings.EmailIDColor
                 label.customSelectedColor[emailParser] = UIKitSettings.EmailIDColor
             }
+            
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -390,6 +393,10 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
              CometChatThreadedMessageList.threadDelegate?.startThread(forMessage: message, indexPath: indexpath)
          }
      }
+    
+    override func prepareForReuse() {
+        reactionView.reactions.removeAll()
+    }
     
 }
 

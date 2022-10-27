@@ -23,13 +23,13 @@ class CometChatGroupDetail: UIViewController {
     var safeArea: UILayoutGuide!
     var settingsItems:[Int] = [Int]()
     var supportItems:[Int] = [Int]()
-    var members:[GroupMember] = [GroupMember]()
-    var administrators:[GroupMember] = [GroupMember]()
-    var moderators:[GroupMember] = [GroupMember]()
-    var bannedMembers:[GroupMember] = [GroupMember]()
+    var members:[CometChatPro.GroupMember] = [CometChatPro.GroupMember]()
+    var administrators:[CometChatPro.GroupMember] = [CometChatPro.GroupMember]()
+    var moderators:[CometChatPro.GroupMember] = [CometChatPro.GroupMember]()
+    var bannedMembers:[CometChatPro.GroupMember] = [CometChatPro.GroupMember]()
     var bannedMemberRequest: BannedGroupMembersRequest?
     var memberRequest: GroupMembersRequest?
-    var currentGroup: Group?
+    var currentGroup: CometChatPro.Group?
     lazy var previewItem = NSURL()
     var quickLook = QLPreviewController()
     
@@ -71,7 +71,7 @@ class CometChatGroupDetail: UIViewController {
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
-    public func set(group: Group){
+    public func set(group: CometChatPro.Group){
         currentGroup = group
         self.getGroup(group: group)
         if members.isEmpty {
@@ -251,7 +251,7 @@ class CometChatGroupDetail: UIViewController {
     
     
     
-    private func getGroup(group: Group){
+    private func getGroup(group: CometChatPro.Group){
         CometChat.getGroup(GUID: group.guid, onSuccess: { (group) in
             self.currentGroup = group
             self.setupItems(for: group.scope)
@@ -271,7 +271,7 @@ class CometChatGroupDetail: UIViewController {
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
-    public func fetchGroupMembers(group: Group){
+    public func fetchGroupMembers(group: CometChatPro.Group){
         memberRequest = GroupMembersRequest.GroupMembersRequestBuilder(guid: group.guid).set(limit: 100).build()
         memberRequest?.fetchNext(onSuccess: { (groupMember) in
             self.members = groupMember
@@ -287,7 +287,7 @@ class CometChatGroupDetail: UIViewController {
         })
     }
     
-    private func fetchBannedMembers(for group: Group){
+    private func fetchBannedMembers(for group: CometChatPro.Group){
         bannedMemberRequest = BannedGroupMembersRequest.BannedGroupMembersRequestBuilder(guid: currentGroup?.guid ?? "").set(limit: 100).build()
         bannedMemberRequest?.fetchNext(onSuccess: { (groupMembers) in
             self.bannedMembers = groupMembers
@@ -857,7 +857,7 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
-    public func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
+    public func onGroupMemberJoined(action: ActionMessage, joinedUser: CometChatPro.User, joinedGroup: CometChatPro.Group) {
         if let group = currentGroup {
             if group == joinedGroup {
                 fetchGroupMembers(group: group)
@@ -875,7 +875,7 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
      - Copyright:  ©  2020 CometChat Inc.
      
      */
-    public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
+    public func onGroupMemberLeft(action: ActionMessage, leftUser: CometChatPro.User, leftGroup: CometChatPro.Group) {
         if let group = currentGroup {
             if group == leftGroup {
                 getGroup(group: group)
@@ -895,7 +895,7 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
      - Copyright:  ©  2020 CometChat Inc.
      
      */
-    public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
+    public func onGroupMemberKicked(action: ActionMessage, kickedUser: CometChatPro.User, kickedBy: CometChatPro.User, kickedFrom: CometChatPro.Group) {
         if let group = currentGroup {
             if group == kickedFrom {
                 getGroup(group: group)
@@ -916,7 +916,7 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
      - See Also:
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
-    public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
+    public func onGroupMemberBanned(action: ActionMessage, bannedUser: CometChatPro.User, bannedBy: CometChatPro.User, bannedFrom: CometChatPro.Group) {
         if let group = currentGroup {
             if group == bannedFrom {
                 getGroup(group: group)
@@ -935,7 +935,7 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
-    public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
+    public func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: CometChatPro.User, unbannedBy: CometChatPro.User, unbannedFrom: CometChatPro.Group) {
         if let group = currentGroup {
             if group == unbannedFrom {
                 getGroup(group: group)
@@ -956,7 +956,7 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
-    public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: User, scopeChangedBy: User, scopeChangedTo: String, scopeChangedFrom: String, group: Group) {
+    public func onGroupMemberScopeChanged(action: ActionMessage, scopeChangeduser: CometChatPro.User, scopeChangedBy: CometChatPro.User, scopeChangedTo: String, scopeChangedFrom: String, group: CometChatPro.Group) {
         if let group = currentGroup {
             if group == group {
                 getGroup(group: group)
@@ -976,7 +976,7 @@ extension CometChatGroupDetail: CometChatGroupDelegate {
      - Author: CometChat Team
      - Copyright:  ©  2020 CometChat Inc.
      */
-    public func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
+    public func onMemberAddedToGroup(action: ActionMessage, addedBy: CometChatPro.User, addedUser: CometChatPro.User, addedTo: CometChatPro.Group) {
         if let group = currentGroup {
             if group == group {
                 getGroup(group: group)

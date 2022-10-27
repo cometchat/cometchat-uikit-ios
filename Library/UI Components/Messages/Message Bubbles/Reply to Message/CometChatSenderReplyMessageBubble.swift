@@ -21,6 +21,7 @@ class CometChatSenderReplyMessageBubble: UITableViewCell {
     @IBOutlet weak var replyMessage: UILabel!
     @IBOutlet weak var replyMessageUserName: UILabel!
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var message: HyperlinkLabel!
     @IBOutlet weak var timeStamp: UILabel!
@@ -262,6 +263,7 @@ class CometChatSenderReplyMessageBubble: UITableViewCell {
                 label.customColor[emailParser] = UIKitSettings.EmailIDColor
                 label.customSelectedColor[emailParser] = UIKitSettings.EmailIDColor
             }
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -465,6 +467,7 @@ class CometChatSenderReplyMessageBubble: UITableViewCell {
     
     override func prepareForReuse() {
         imageRequest?.cancel()
+        reactionView.reactions.removeAll()
     }
     
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
@@ -485,7 +488,7 @@ class CometChatSenderReplyMessageBubble: UITableViewCell {
                  messageView.backgroundColor =  UIKitSettings.primaryColor
              }
          }
-    
+  
 }
 
 /*  ----------------------------------------------------------------------------------------- */

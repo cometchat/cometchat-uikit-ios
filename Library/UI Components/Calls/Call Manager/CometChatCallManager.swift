@@ -41,7 +41,7 @@ import CometChatPro
     - Copyright:  ©  2020 CometChat Inc.
     */
     @objc public func makeCall(call: CometChat.CallType, to: AppEntity){
-        if let user = to as? User {
+        if let user = to as? CometChatPro.User {
             if user.blockedByMe == true {
                 CometChatSnackBoard.display(message: "UNBLOCK_USER_MESSAGE".localized(), mode: .error, duration: .short)
                     
@@ -60,7 +60,7 @@ import CometChatPro
                 }
             }
         }
-        if let group = to as? Group {
+        if let group = to as? CometChatPro.Group {
             DispatchQueue.main.async {
                 let outgoingCall = CometChatOutgoingCall()
                 outgoingCall.makeCall(call: call, to: group)
@@ -82,13 +82,13 @@ import CometChatPro
  // MARK: - Declaration of Protocols
 
 @objc public protocol IncomingCallDelegate: AnyObject {
-    @objc func onIncomingCallReceived(incomingCall: Call, error: CometChatException?)
-    @objc func onIncomingCallCancelled(canceledCall: Call, error: CometChatException?)
+    @objc func onIncomingCallReceived(incomingCall: CometChatPro.Call, error: CometChatException?)
+    @objc func onIncomingCallCancelled(canceledCall: CometChatPro.Call, error: CometChatException?)
 }
 
 @objc public protocol OutgoingCallDelegate: AnyObject {
-    @objc func onOutgoingCallAccepted(acceptedCall: Call, error: CometChatException?)
-    @objc func onOutgoingCallRejected(rejectedCall: Call, error: CometChatException?)
+    @objc func onOutgoingCallAccepted(acceptedCall: CometChatPro.Call, error: CometChatException?)
+    @objc func onOutgoingCallRejected(rejectedCall: CometChatPro.Call, error: CometChatException?)
 }
 
 ///*  ----------------------------------------------------------------------------------------- */
@@ -107,7 +107,7 @@ extension AppDelegate : CometChatCallDelegate {
     - Author: CometChat Team
     - Copyright:  ©  2020 CometChat Inc.
     */
-    func onIncomingCallReceived(incomingCall: Call?, error: CometChatException?) {
+    func onIncomingCallReceived(incomingCall: CometChatPro.Call?, error: CometChatException?) {
         print(#function)
         if let currentCall = incomingCall {
             DispatchQueue.main.async {
@@ -137,7 +137,7 @@ extension AppDelegate : CometChatCallDelegate {
     - Author: CometChat Team
     - Copyright:  ©  2020 CometChat Inc.
     */
-    func onOutgoingCallAccepted(acceptedCall: Call?, error: CometChatException?) {
+    func onOutgoingCallAccepted(acceptedCall: CometChatPro.Call?, error: CometChatException?) {
         print(#function)
         if let call = acceptedCall {
             CometChatCallManager.outgoingCallDelegate?.onOutgoingCallAccepted(acceptedCall: call, error: error)
@@ -152,7 +152,7 @@ extension AppDelegate : CometChatCallDelegate {
     - Author: CometChat Team
     - Copyright:  ©  2020 CometChat Inc.
     */
-    func onOutgoingCallRejected(rejectedCall: Call?, error: CometChatException?) {
+    func onOutgoingCallRejected(rejectedCall: CometChatPro.Call?, error: CometChatException?) {
         print(#function)
         if let call = rejectedCall {
             CometChatCallManager.outgoingCallDelegate?.onOutgoingCallRejected(rejectedCall: call, error: error)
@@ -167,7 +167,7 @@ extension AppDelegate : CometChatCallDelegate {
     - Author: CometChat Team
     - Copyright:  ©  2020 CometChat Inc.
     */
-    func onIncomingCallCancelled(canceledCall: Call?, error: CometChatException?) {
+    func onIncomingCallCancelled(canceledCall: CometChatPro.Call?, error: CometChatException?) {
         print(#function)
         if let call = canceledCall {
             CometChatCallManager.incomingCallDelegate?.onIncomingCallCancelled(canceledCall: call, error: error)

@@ -34,7 +34,7 @@ public protocol UserListDelegate: AnyObject {
      - See Also:
      [CometChatUserList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-1-comet-chat-user-list)
      */
-    func didSelectUserAtIndexPath(user: User, indexPath: IndexPath)
+    func didSelectUserAtIndexPath(user: CometChatPro.User, indexPath: IndexPath)
 }
 
 /*  ----------------------------------------------------------------------------------------- */
@@ -47,15 +47,15 @@ public class CometChatUserList: UIViewController {
     var userRequest : UsersRequest?
     var tableView: UITableView! = nil
     var safeArea: UILayoutGuide!
-    var users: [[User]] = [[User]]()
-    var filteredUsers: [User] = [User]()
+    var users: [[CometChatPro.User]] = [[CometChatPro.User]]()
+    var filteredUsers: [CometChatPro.User] = [CometChatPro.User]()
     weak var delegate : UserListDelegate?
     var activityIndicator:UIActivityIndicatorView?
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
     var sectionTitle : UILabel?
     var sections = [String]()
     var sortedKeys = [String]()
-    var globalGroupedUsers: [String : [User]] = [:]
+    var globalGroupedUsers: [String : [CometChatPro.User]] = [:]
     
     // MARK: - View controller lifecycle methods
     
@@ -191,7 +191,7 @@ public class CometChatUserList: UIViewController {
          }
     }
     
-    private func groupUsers(users: [User]){
+    private func groupUsers(users: [CometChatPro.User]){
         DispatchQueue.main.async {  [weak self] in
             guard let strongSelf = self else { return }
             if strongSelf.users.isEmpty { strongSelf.tableView?.setEmptyMessage("NO_USERS_FOUND".localized())
@@ -215,7 +215,7 @@ public class CometChatUserList: UIViewController {
             if !sortedKeys.contains(key) { sortedKeys.append(key) }
         }
         sortedKeys = sortedKeys.sorted{ $0.lowercased() < $1.lowercased()}
-        var staticUsers: [[User]] = [[User]]()
+        var staticUsers: [[CometChatPro.User]] = [[CometChatPro.User]]()
         sortedKeys.forEach { (key) in
             if let value = globalGroupedUsers[key] {
                 staticUsers.append(value)

@@ -21,6 +21,7 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
      // MARK: - Declaration of IBInspectable
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var imageMessage: UIImageView!
@@ -136,6 +137,7 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
             self.imageModerationView.addGestureRecognizer(tapOnImageMessage2)
             self.unsafeContentView.isUserInteractionEnabled = true
             self.unsafeContentView.addGestureRecognizer(tapOnImageMessage3)
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -164,6 +166,7 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
     
     override func prepareForReuse() {
         imageRequest?.cancel()
+        reactionView.reactions.removeAll()
     }
     
      override func setSelected(_ selected: Bool, animated: Bool) {
@@ -217,4 +220,5 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
             }
         }
     }
+    
 }

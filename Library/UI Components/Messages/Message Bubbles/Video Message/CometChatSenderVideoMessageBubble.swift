@@ -18,6 +18,7 @@ class CometChatSenderVideoMessageBubble: UITableViewCell {
      // MARK: - Declaration of IBInspectable
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var replybutton: UIButton!
     @IBOutlet weak var timeStamp: UILabel!
     @IBOutlet weak var imageMessage: UIImageView!
@@ -103,6 +104,7 @@ class CometChatSenderVideoMessageBubble: UITableViewCell {
             self.imageMessage.addGestureRecognizer(tapOnVideoMessage)
             self.videoView.isUserInteractionEnabled = true
             self.videoView.addGestureRecognizer(tapOnVideoMessage)
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
     
@@ -143,6 +145,7 @@ class CometChatSenderVideoMessageBubble: UITableViewCell {
     
     override func prepareForReuse() {
         imageRequest?.cancel()
+        reactionView.reactions.removeAll()
     }
 
     private func parseThumbnailForVideo(forMessage: MediaMessage?) {
@@ -163,4 +166,5 @@ class CometChatSenderVideoMessageBubble: UITableViewCell {
             imageMessage.image = UIImage(color: #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1))
            }
        }
+   
 }

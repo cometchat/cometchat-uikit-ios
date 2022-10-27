@@ -51,8 +51,9 @@ extension UIViewController: PanModalPresenter {
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             viewControllerToPresent.modalPresentationStyle = .popover
-            viewControllerToPresent.popoverPresentationController?.sourceRect = sourceRect
+            viewControllerToPresent.popoverPresentationController?.sourceRect = CGRect(x: self.view.center.x, y: self.view.center.y, width: 0, height: 0)
             viewControllerToPresent.popoverPresentationController?.sourceView = sourceView ?? view
+            viewControllerToPresent.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection()
             viewControllerToPresent.popoverPresentationController?.delegate = PanModalPresentationDelegate.default1
         } else {
             viewControllerToPresent.modalPresentationStyle = .custom

@@ -23,6 +23,7 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
     // MARK: - Declaration of IBOutlets
     
     @IBOutlet weak var reactionView: CometChatMessageReactions!
+    @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var locationTitle: UILabel!
     @IBOutlet weak var subtitle: UILabel!
     @IBOutlet weak var timeStamp: UILabel!
@@ -53,14 +54,14 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
             receiptStack.isHidden = true
             messageView.backgroundColor = UIKitSettings.primaryColor
             if let data = locationMessage.customData {
-
-                    self.reactionView.parseMessageReactionForMessage(message: locationMessage) { (success) in
-                        if success == true {
-                            self.reactionView.isHidden = false
-                        }else{
-                            self.reactionView.isHidden = true
-                        }
+                
+                self.reactionView.parseMessageReactionForMessage(message: locationMessage) { (success) in
+                    if success == true {
+                        self.reactionView.isHidden = false
+                    }else{
+                        self.reactionView.isHidden = true
                     }
+                }
                 if let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double{
                     
                     if let url = self.getMapFromLocatLon(from: latitude, and: longitude, googleApiKey: UIKitSettings.googleApiKey) {
@@ -82,8 +83,8 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
                 }
                 
                 
-            receiptStack.isHidden = true
-            timeStamp.text = String().setMessageTime(time: locationMessage.sentAt)
+                receiptStack.isHidden = true
+                timeStamp.text = String().setMessageTime(time: locationMessage.sentAt)
                 messageView.layer.cornerRadius = 12
                 messageView.clipsToBounds = true
                 
@@ -106,10 +107,11 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
                 self.messageView.isUserInteractionEnabled = true
                 self.messageView.addGestureRecognizer(tapOnMapView)
                 
+            }
+            calculateHeightForReactions(reactionView: reactionView, heightReactions: heightReactions)
         }
     }
-    }
-
+    
     
     @objc func didNavigatePressed() {
         if let data = locationMessage.customData , let latitude = data["latitude"] as? Double, let longitude =  data["longitude"] as? Double {
@@ -121,9 +123,9 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-       
+        
         if #available(iOS 13.0, *) {
-           selectionColor = .systemBackground
+            selectionColor = .systemBackground
         } else {
             selectionColor = .white
         }
@@ -132,7 +134,9 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
     
     override func prepareForReuse() {
         imageRequest?.cancel()
+        reactionView.reactions.removeAll()
     }
+    
     
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
         super.setHighlighted(highlighted, animated: animated)
@@ -143,7 +147,7 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
         }
         
     }
-
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         if #available(iOS 13.0, *) {
@@ -152,7 +156,7 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
             messageView.backgroundColor =  .lightGray
         }
     }
-
+    
     func getMapFromLocatLon(from latitude: Double ,and longitude: Double, googleApiKey: String) -> URL? {
         
         if googleApiKey == "" ||   googleApiKey == "ENTER YOUR GOOGLE API KEY HERE" {
@@ -162,7 +166,7 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
             let url = URL(string: "https://maps.googleapis.com/maps/api/staticmap?center=\(latitude),\(longitude)&markers=color:red%7Clabel:S%7C\(latitude),\(longitude)&zoom=14&size=230x150&key=\(googleApiKey.trimmingCharacters(in: .whitespacesAndNewlines))")
             return url
         }
-      
+        
     }
     
     func getAddressFromLocatLon(from latitude: Double ,and longitude: Double, googleApiKey: String, handler: @escaping (String) -> ()) {
@@ -177,40 +181,40 @@ class CometChatSenderLocationMessageBubble: UITableViewCell {
         
         ceo.reverseGeocodeLocation(loc, completionHandler:
                                     {(placemarks, error) in
-                                        if error != nil {
-                                            handler("UNKNOWN_LOCATION".localized())
-                                        }else if let placemarks = placemarks {
-                                            if   let pm = placemarks as? [CLPlacemark] {
-                                                if pm.count > 0 {
-                                                    let place = pm[0]
-                                                    var addressString : String = ""
-                                                    if place.subLocality != nil {
-                                                        addressString = addressString + place.subLocality! + ", "
-                                                    }
-                                                    if place.thoroughfare != nil {
-                                                        addressString = addressString + place.thoroughfare! + ", "
-                                                    }
-                                                    if place.locality != nil {
-                                                        addressString = addressString + place.locality! + ", "
-                                                    }
-                                                    if place.country != nil {
-                                                        addressString = addressString + place.country! + ", "
-                                                    }
-                                                    if place.postalCode != nil {
-                                                        addressString = addressString + place.postalCode! + " "
-                                                    }
-                                                    
-                                                    handler(addressString)
-                                                }else{
-                                                    handler("UNKNOWN_LOCATION".localized())
-                                                }
-                                                
-                                            }
-                                            
-                                        }else{
-                                            handler("UNKNOWN_LOCATION".localized())
-                                        }
-                                    })
+            if error != nil {
+                handler("UNKNOWN_LOCATION".localized())
+            }else if let placemarks = placemarks {
+                if   let pm = placemarks as? [CLPlacemark] {
+                    if pm.count > 0 {
+                        let place = pm[0]
+                        var addressString : String = ""
+                        if place.subLocality != nil {
+                            addressString = addressString + place.subLocality! + ", "
+                        }
+                        if place.thoroughfare != nil {
+                            addressString = addressString + place.thoroughfare! + ", "
+                        }
+                        if place.locality != nil {
+                            addressString = addressString + place.locality! + ", "
+                        }
+                        if place.country != nil {
+                            addressString = addressString + place.country! + ", "
+                        }
+                        if place.postalCode != nil {
+                            addressString = addressString + place.postalCode! + " "
+                        }
+                        
+                        handler(addressString)
+                    }else{
+                        handler("UNKNOWN_LOCATION".localized())
+                    }
+                    
+                }
+                
+            }else{
+                handler("UNKNOWN_LOCATION".localized())
+            }
+        })
     }
 }
 
