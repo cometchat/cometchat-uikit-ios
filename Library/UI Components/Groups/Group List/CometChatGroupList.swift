@@ -111,8 +111,7 @@ public class CometChatGroupList: UIViewController {
         tableView.tableFooterView?.isHidden = false
         groupRequest.fetchNext(onSuccess: { (groups) in
             if groups.count != 0{
-                let joinedGroups = groups.filter({$0.hasJoined == true})
-                self.groups.append(contentsOf: joinedGroups)
+                self.groups.append(contentsOf: groups)
                 DispatchQueue.main.async {
                     self.activityIndicator?.stopAnimating()
                     self.tableView.tableFooterView?.isHidden = true

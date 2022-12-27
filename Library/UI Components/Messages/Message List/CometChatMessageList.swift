@@ -154,8 +154,9 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     var curentLocation: CLLocation?
     var isMessageInPrivateEnabled: Bool = false
     let locationManager = CLLocationManager()
+    let calendar = Calendar.current
     var lastMessage: BaseMessage?
-    
+    var newSectionMessages = [BaseMessage]()
     private var currentState: AudioRecodingState = .ready {
         didSet {
             self.audioNotePauseButton.setImage(self.currentState.buttonImage, for: .normal)
@@ -177,6 +178,8 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         setupKeyboard()
         setupRecorder()
         self.addObsevers()
+        LoggedInUser.uid = CometChat.getLoggedInUser()?.uid ?? ""
+        LoggedInUser.name = CometChat.getLoggedInUser()?.name ?? ""
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -364,18 +367,29 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
      - See Also:
      [CometChatMessageList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-4-comet-chat-message-list)
      */
+    
     private func groupPreviousMessages(messages: [BaseMessage]){
         let groupedMessages = Dictionary(grouping: messages) { (element) -> Date in
             let date = Date(timeIntervalSince1970: TimeInterval(element.sentAt))
             return date.reduceToMonthDayYear()
         }
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/yyyy"
         var sortedKeys = groupedMessages.keys.sorted()
         sortedKeys = sortedKeys.reversed()
         sortedKeys.forEach { (key) in
-            let values = groupedMessages[key]
-            self.chatMessages.insert(values ?? [], at: 0)
+            var values = groupedMessages[key]
+            values = values?.reversed()
+            values?.forEach { (baseMessage) in
+                if let firstMessage = self.chatMessages[0].first {
+                    if String().compareDates(newTimeInterval: firstMessage.sentAt, currentTimeInterval: baseMessage.sentAt)   {
+                        self.chatMessages[0].insert( baseMessage , at: 0)
+                    } else {
+                        newSectionMessages.append(baseMessage)
+                        self.chatMessages.insert( newSectionMessages  , at: 0)
+                        newSectionMessages.removeAll()
+                    }
+                }
+            }
+
             DispatchQueue.main.async{ [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.tableView?.reloadData()
@@ -2645,15 +2659,9 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if let firstMessageInSection = chatMessages[safe:section]?.first {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "d MMM, yyyy"
             let dateString = String().setMessageDateHeader(time: Int(firstMessageInSection.sentAt))
             let label = CometChatMessageDateHeader()
-            if dateString == "1 Jan, 1970" {
-                label.text = "TODAY".localized()
-            }else{
                 label.text = dateString
-            }
             let containerView = UIView()
             containerView.addSubview(label)
             label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
@@ -3788,7 +3796,7 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
         presentPanModal(group.rowVC, sourceView: messageComposer.attachment.inputView)
     }
     
-    private func sendMedia(withURL: String, type: CometChat.MessageType){
+    private func sendMedia(withURL: String, type: CometChat.MessageType) {
         var lastSection = 0
         if chatMessages.count == 0 {
             lastSection = (self.tableView?.numberOfSections ?? 0)
@@ -3797,93 +3805,69 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
         }
         CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
         var mediaMessage: MediaMessage?
-        switch self.isGroupIs {
-        case true:
-            mediaMessage = MediaMessage(receiverUid: self.currentGroup?.guid ?? "", fileurl: withURL, messageType: type, receiverType: .group)
-            mediaMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-            mediaMessage?.sender?.uid = LoggedInUser.uid
-            mediaMessage?.senderUid = LoggedInUser.uid
-            mediaMessage?.metaData = ["fileURL":withURL]
-            if self.chatMessages.count == 0 {
-                self.addNewGroupedMessage(messages: [mediaMessage!])
-                self.filteredMessages.append(mediaMessage!)
-            }else{
-                self.chatMessages[lastSection].append(mediaMessage!)
-                self.filteredMessages.append(mediaMessage!)
-                DispatchQueue.main.async { [weak self] in
-                    guard let strongSelf = self else { return }
-                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                    strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
-                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                    strongSelf.tableView?.scrollToBottomRow()
-                }
-            }
-            CometChat.sendMediaMessage(message: mediaMessage!, onSuccess: { (message) in
-                if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
-                    self.chatMessages[lastSection][row] = message
-                }
-                self.lastMessage = message
-                DispatchQueue.main.async{ [weak self] in
-                    guard let strongSelf = self else { return }
-                    if message.messageType == .audio || message.messageType == .file {
-                        do {
-                            try strongSelf.viewModel.resetRecording()
-                            strongSelf.audioVisualizationView.reset()
-                            strongSelf.currentState = .ready
-                        } catch {
-                            strongSelf.showAlert(with: error)
-                        }
+        mediaMessage = MediaMessage(receiverUid: self.isGroupIs ? self.currentGroup?.guid ?? "" : self.currentUser?.uid ?? "", fileurl: withURL, messageType: type, receiverType: isGroupIs ? .group : .user)
+        mediaMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
+        mediaMessage?.sender?.uid = LoggedInUser.uid
+        mediaMessage?.senderUid = LoggedInUser.uid
+        mediaMessage?.metaData = ["fileURL":withURL]
+        if self.chatMessages.count == 0 {
+            self.addNewGroupedMessage(messages: [mediaMessage!])
+            self.filteredMessages.append(mediaMessage!)
+        } else {
+            if let lastMessage = self.chatMessages[lastSection].last , let mediaMessage = mediaMessage {
+                let currentDate = Date(timeIntervalSince1970: TimeInterval(lastMessage.sentAt))
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "d MMM, yyyy"
+                let dateString = String().checkNewMessageDate(time: mediaMessage.sentAt)
+                
+                if (String().compareDates(newTimeInterval: mediaMessage.sentAt, currentTimeInterval: lastMessage.sentAt) ) || (self.calendar.isDateInToday(currentDate)) && (dateString == "1 Jan, 1970") {
+                    self.chatMessages[lastSection].append(mediaMessage)
+                    self.filteredMessages.append(mediaMessage)
+                    DispatchQueue.main.async { [weak self] in
+                        guard let strongSelf = self else { return }
+                        let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                        strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                        strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
+                        strongSelf.tableView?.scrollToBottomRow()
                     }
-                    strongSelf.tableView?.reloadData()}
-            }) { (error) in
-                DispatchQueue.main.async {
-                    if let error = error {
-                        CometChatSnackBoard.showErrorMessage(for: error)
+                } else {
+                    self.chatMessages.append([mediaMessage])
+                    lastSection = self.chatMessages.count - 1
+                    self.filteredMessages.append(mediaMessage)
+                    DispatchQueue.main.async { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.tableView?.beginUpdates()
+                        strongSelf.tableView?.insertSections([lastSection], with: .top)
+                        lastSection = strongSelf.tableView?.numberOfSections ?? 0
+                        let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                        strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                        strongSelf.tableView?.scrollToBottomRow()
+                        strongSelf.tableView?.endUpdates()
                     }
                 }
             }
-        case false:
-            mediaMessage = MediaMessage(receiverUid: self.currentUser?.uid ?? "", fileurl: withURL, messageType: type, receiverType: .user)
-            mediaMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-            mediaMessage?.sender?.uid = LoggedInUser.uid
-            mediaMessage?.senderUid = LoggedInUser.uid
-            mediaMessage?.metaData = ["fileURL":withURL]
-            if self.chatMessages.count == 0 {
-                self.addNewGroupedMessage(messages: [mediaMessage!])
-                self.filteredMessages.append(mediaMessage!)
-            }else{
-                self.chatMessages[lastSection].append(mediaMessage!)
-                self.filteredMessages.append(mediaMessage!)
-                DispatchQueue.main.async { [weak self] in
-                    guard let strongSelf = self else { return }
-                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                    strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
-                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                    strongSelf.tableView?.scrollToBottomRow()
-                }
+        }
+        CometChat.sendMediaMessage(message: mediaMessage!, onSuccess: { (message) in
+            if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
+                self.chatMessages[lastSection][row] = message
             }
-            CometChat.sendMediaMessage(message: mediaMessage!, onSuccess: { (message) in
-                if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
-                    self.chatMessages[lastSection][row] = message
+            self.lastMessage = message
+            DispatchQueue.main.async{ [weak self] in
+                guard let strongSelf = self else { return }
+                if message.messageType == .audio || message.messageType == .file {
+                    do {
+                        try strongSelf.viewModel.resetRecording()
+                        strongSelf.audioVisualizationView.reset()
+                        strongSelf.currentState = .ready
+                    } catch {
+                        strongSelf.showAlert(with: error)
+                    }
                 }
-                self.lastMessage = message
-                DispatchQueue.main.async{  [weak self] in
-                    guard let strongSelf = self else { return }
-                    if message.messageType == .audio || message.messageType == .file {
-                        do {
-                            try strongSelf.viewModel.resetRecording()
-                            strongSelf.audioVisualizationView.reset()
-                            strongSelf.currentState = .ready
-                        } catch {
-                            strongSelf.showAlert(with: error)
-                        }
-                    }
-                    strongSelf.tableView?.reloadData()}
-            }) { (error) in
-                DispatchQueue.main.async {
-                    if let error = error {
-                        CometChatSnackBoard.showErrorMessage(for: error)
-                    }
+                strongSelf.tableView?.reloadData()}
+        }) { (error) in
+            DispatchQueue.main.async {
+                if let error = error {
+                    CometChatSnackBoard.showErrorMessage(for: error)
                 }
             }
         }
@@ -3899,86 +3883,68 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
         }
         CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
         var stickerMessage: CustomMessage?
-        switch self.isGroupIs {
-        case true:
-            stickerMessage = CustomMessage(receiverUid: self.currentGroup?.guid ?? "", receiverType: .group, customData: ["sticker_url": withURL], type: "extension_sticker")
-            stickerMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-            stickerMessage?.sender?.uid = LoggedInUser.uid
-            stickerMessage?.senderUid = LoggedInUser.uid
-            stickerMessage?.metaData = ["incrementUnreadCount":true]
-            if self.chatMessages.count == 0 {
-                self.addNewGroupedMessage(messages: [stickerMessage!])
-                self.filteredMessages.append(stickerMessage!)
-            }else{
-                self.chatMessages[lastSection].append(stickerMessage!)
-                self.filteredMessages.append(stickerMessage!)
-                DispatchQueue.main.async { [weak self] in
-                    guard let strongSelf = self else { return }
-                    strongSelf.tableViewBottomConstraint.constant = 300
-                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                    strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
-                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                    strongSelf.tableView?.scrollToBottomRow()
-                }
-            }
-            if let stickerMessage = stickerMessage {
-                CometChat.sendCustomMessage(message: stickerMessage, onSuccess: { (message) in
-                    if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
-                        self.chatMessages[lastSection][row] = message
-                    }
-                    self.lastMessage = message
-                    DispatchQueue.main.async{ [weak self] in
+        stickerMessage = CustomMessage(receiverUid: self.isGroupIs ? self.currentGroup?.guid ?? "" : self.currentUser?.uid ?? "", receiverType: self.isGroupIs ? .group : .user, customData: ["sticker_url": withURL], type: "extension_sticker")
+        stickerMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
+        stickerMessage?.sender?.uid = LoggedInUser.uid
+        stickerMessage?.senderUid = LoggedInUser.uid
+        stickerMessage?.metaData = ["incrementUnreadCount":true]
+        if self.chatMessages.count == 0 {
+            self.addNewGroupedMessage(messages: [stickerMessage!])
+            self.filteredMessages.append(stickerMessage!)
+        } else {
+            
+            if let lastMessage = self.chatMessages[lastSection].last , let stickerMessage = stickerMessage {
+                let currentDate = Date(timeIntervalSince1970: TimeInterval(lastMessage.sentAt))
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "d MMM, yyyy"
+                let dateString = String().checkNewMessageDate(time: stickerMessage.sentAt)
+                
+                if (String().compareDates(newTimeInterval: stickerMessage.sentAt, currentTimeInterval: lastMessage.sentAt) ) || (self.calendar.isDateInToday(currentDate)) && (dateString == "1 Jan, 1970") {
+                    self.chatMessages[lastSection].append(stickerMessage)
+                    self.filteredMessages.append(stickerMessage)
+                    DispatchQueue.main.async { [weak self] in
                         guard let strongSelf = self else { return }
-                        strongSelf.tableView?.reloadData()}
-                }) { (error) in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            CometChatSnackBoard.showErrorMessage(for: error)
-                        }
+                        strongSelf.tableViewBottomConstraint.constant = 300
+                        let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                        strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                        strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
+                        strongSelf.tableView?.scrollToBottomRow()
                     }
-                }
-            }
-        case false:
-            stickerMessage = CustomMessage(receiverUid: self.currentUser?.uid ?? "", receiverType: .user, customData: ["sticker_url": withURL], type: "extension_sticker")
-            stickerMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-            stickerMessage?.sender?.uid = LoggedInUser.uid
-            stickerMessage?.senderUid = LoggedInUser.uid
-            stickerMessage?.metaData = ["incrementUnreadCount":true]
-            if self.chatMessages.count == 0 {
-                self.addNewGroupedMessage(messages: [stickerMessage!])
-                self.filteredMessages.append(stickerMessage!)
-            }else{
-                self.chatMessages[lastSection].append(stickerMessage!)
-                self.filteredMessages.append(stickerMessage!)
-                DispatchQueue.main.async { [weak self] in
-                    guard let strongSelf = self else { return }
-                    strongSelf.tableViewBottomConstraint.constant = 300
-                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                    strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
-                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                    strongSelf.tableView?.scrollToBottomRow()
-                }
-            }
-            if let stickerMessage = stickerMessage {
-                CometChat.sendCustomMessage(message: stickerMessage, onSuccess: { (message) in
-                    if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
-                        self.chatMessages[lastSection][row] = message
-                    }
-                    self.lastMessage = message
-                    DispatchQueue.main.async{  [weak self] in
+                } else {
+                    self.chatMessages.append([stickerMessage])
+                    lastSection = self.chatMessages.count - 1
+                    self.filteredMessages.append(stickerMessage)
+                    DispatchQueue.main.async { [weak self] in
                         guard let strongSelf = self else { return }
-                        strongSelf.tableView?.reloadData()}
-                }) { (error) in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            CometChatSnackBoard.showErrorMessage(for: error)
-                        }
+                        strongSelf.tableViewBottomConstraint.constant = 300
+                        strongSelf.tableView?.beginUpdates()
+                        strongSelf.tableView?.insertSections([lastSection], with: .top)
+                        lastSection = strongSelf.tableView?.numberOfSections ?? 0
+                        strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .automatic)
+                        strongSelf.tableView?.scrollToBottomRow()
+                        strongSelf.tableView?.endUpdates()
+                    }
+                }
+            }
+        }
+        if let stickerMessage = stickerMessage {
+            CometChat.sendCustomMessage(message: stickerMessage, onSuccess: { (message) in
+                if let row = self.chatMessages[lastSection].firstIndex(where: {$0.muid == message.muid}) {
+                    self.chatMessages[lastSection][row] = message
+                }
+                self.lastMessage = message
+                DispatchQueue.main.async{ [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.tableView?.reloadData()}
+            }) { (error) in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
         }
     }
-    
     
     /**
      This method triggers when user pressed sticker  button in Chat View.
@@ -4055,244 +4021,189 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                     }
                 }
             }
-        }else if messageMode == .reply {
+        } else if messageMode == .reply {
             var textMessage: TextMessage?
             let message:String = textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             if(message.count == 0){
                 
-            }else{
+            } else {
                 CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
-                switch self.isGroupIs {
-                case true:
-                    textMessage = TextMessage(receiverUid: currentGroup?.guid ?? "", text: message, receiverType: .group)
-                    textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-                    textMessage?.sender?.uid = LoggedInUser.uid
-                    textMessage?.senderUid = LoggedInUser.uid
-                    textMessage?.metaData = ["reply-message": selectedMessage?.rawMessage ]
+                textMessage = TextMessage(receiverUid: isGroupIs ? currentGroup?.guid ?? "" : currentUser?.uid ?? "", text: message, receiverType: isGroupIs ? .group : .user)
+                textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
+                textMessage?.sender?.uid = LoggedInUser.uid
+                textMessage?.senderUid = LoggedInUser.uid
+                textMessage?.metaData = ["reply-message": selectedMessage?.rawMessage ]
+                
+                if chatMessages.count == 0 {
+                    self.addNewGroupedMessage(messages: [textMessage!])
+                    self.filteredMessages.append(textMessage!)
+                    guard let indicator = typingIndicator else {
+                        return
+                    }
+                    CometChat.endTyping(indicator: indicator)
+                } else {
                     
-                    if chatMessages.count == 0 {
-                        self.addNewGroupedMessage(messages: [textMessage!])
-                        self.filteredMessages.append(textMessage!)
-                        guard let indicator = typingIndicator else {
-                            return
-                        }
-                        CometChat.endTyping(indicator: indicator)
-                    }else{
-                        self.chatMessages[lastSection].append(textMessage!)
-                        self.filteredMessages.append(textMessage!)
-                        guard let indicator = typingIndicator else {
-                            return
-                        }
-                        CometChat.endTyping(indicator: indicator)
-                        DispatchQueue.main.async {[weak self] in
-                            guard let strongSelf = self else { return }
-                            strongSelf.hide(view: .editMessageView, true)
-                            strongSelf.hide(view: .smartRepliesView, true)
-                            let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                            strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
-                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                            strongSelf.tableView?.scrollToBottomRow()
-                            strongSelf.textView.text = ""
-                            
-                        }
-                    }
-                    CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
-                        DispatchQueue.main.async{ [weak self] in
-                            guard let strongSelf = self else { return }
-                            strongSelf.lastMessage = message
-                            if let indexpath = strongSelf.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
-                                DispatchQueue.main.async {  [weak self] in
-                                    guard let strongSelf = self else { return }
-                                    strongSelf.chatMessages[section][row] = message
-                                    strongSelf.tableView?.reloadRows(at:[IndexPath(row: row - 1, section: section)], with: .none)
-                                    strongSelf.messageMode = .send
-                                    strongSelf.didPreformCancel()
-                                    strongSelf.send.isEnabled = true
-                                    textMessage = nil
-                                }
+                    if let firstMessage = self.chatMessages[lastSection].last , let textMessage = textMessage {
+                        let currentDate = Date(timeIntervalSince1970: TimeInterval(firstMessage.sentAt))
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "d MMM, yyyy"
+                        let dateString = String().checkNewMessageDate(time: textMessage.sentAt)
+                        if String().compareDates(newTimeInterval: textMessage.sentAt, currentTimeInterval: firstMessage.sentAt) || (calendar.isDateInToday(currentDate) && dateString == "1 Jan, 1970") {
+                            self.chatMessages[lastSection].append(textMessage)
+                            self.filteredMessages.append(textMessage)
+                            guard let indicator = typingIndicator else {
+                                return
                             }
-                        }
-                    }) { (error) in
-                        DispatchQueue.main.async {
-                            if let error = error {
-                                CometChatSnackBoard.showErrorMessage(for: error)
+                            CometChat.endTyping(indicator: indicator)
+                            DispatchQueue.main.async { [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.hide(view: .editMessageView, true)
+                                strongSelf.hide(view: .smartRepliesView, true)
+                                let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                                strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                                strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
+                                strongSelf.tableView?.scrollToBottomRow()
+                                strongSelf.textView.text = ""
                             }
-                        }
-                    }
-                case false:
-                    
-                    textMessage = TextMessage(receiverUid: currentUser?.uid ?? "", text: message, receiverType: .user)
-                    textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-                    textMessage?.sender?.uid = LoggedInUser.uid
-                    textMessage?.senderUid = LoggedInUser.uid
-                    textMessage?.metaData = ["reply-message": selectedMessage?.rawMessage ]
-                    if chatMessages.count == 0 {
-                        self.addNewGroupedMessage(messages: [textMessage!])
-                        guard let indicator = typingIndicator else {
-                            return
-                        }
-                        CometChat.endTyping(indicator: indicator)
-                    }else{
-                        self.chatMessages[lastSection].append(textMessage!)
-                        self.filteredMessages.append(textMessage!)
-                        guard let indicator = typingIndicator else {
-                            return
-                        }
-                        CometChat.endTyping(indicator: indicator)
-                        DispatchQueue.main.async {  [weak self] in
-                            guard let strongSelf = self else { return }
-                            strongSelf.hide(view: .editMessageView, true)
-                            strongSelf.hide(view: .smartRepliesView, true)
-                            let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                            strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
-                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                            strongSelf.tableView?.scrollToBottomRow()
-                            strongSelf.textView.text = ""
-                        }
-                    }
-                    CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
-                        DispatchQueue.main.async{ [weak self] in
-                            guard let strongSelf = self else { return }
-                            strongSelf.lastMessage = message
-                            if let indexpath = strongSelf.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
-                                DispatchQueue.main.async {  [weak self] in
-                                    guard let strongSelf = self else { return }
-                                    strongSelf.chatMessages[section][row] = message
-                                    strongSelf.tableView?.reloadRows(at:[IndexPath(row: row - 1, section: section)], with: .none)
-                                    strongSelf.messageMode = .send
-                                    strongSelf.didPreformCancel()
-                                    strongSelf.send.isEnabled = true
-                                    textMessage = nil
-                                }
+                        } else {
+                            self.filteredMessages.append(textMessage)
+                            guard let indicator = self.typingIndicator else {
+                                return
                             }
-                        }
-                    }) { (error) in
-                        DispatchQueue.main.async {
-                            if let error = error {
-                                CometChatSnackBoard.showErrorMessage(for: error)
+                            CometChat.endTyping(indicator: indicator)
+                            DispatchQueue.main.async { [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.tableView?.beginUpdates()
+                                strongSelf.hide(view: .editMessageView, true)
+                                strongSelf.hide(view: .smartRepliesView, true)
+                                strongSelf.chatMessages.append([textMessage])
+                                lastSection = strongSelf.chatMessages.count - 1
+                                strongSelf.tableView?.insertSections([lastSection], with: .top)
+                                lastSection = strongSelf.tableView?.numberOfSections ?? 0
+                                strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .automatic)
+                                strongSelf.tableView?.scrollToBottomRow()
+                                strongSelf.tableView?.endUpdates()
+                                strongSelf.textView.text = ""
                             }
                         }
                     }
                 }
+                CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
+                    DispatchQueue.main.async{ [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.lastMessage = message
+                        if let indexpath = strongSelf.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
+                            DispatchQueue.main.async {  [weak self] in
+                                guard let strongSelf = self else { return }
+                                strongSelf.chatMessages[section][row] = message
+                                strongSelf.tableView?.reloadRows(at:[IndexPath(row: row , section: section)], with: .none)
+                                strongSelf.messageMode = .send
+                                strongSelf.didPreformCancel()
+                                strongSelf.send.isEnabled = true
+                                textMessage = nil
+                            }
+                        }
+                    }
+                }) { (error) in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            CometChatSnackBoard.showErrorMessage(for: error)
+                        }
+                    }
+                }
             }
-        }else{
+        } else {
             var textMessage: TextMessage?
             let message:String = textView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             if(message.count == 0){
                 
             }else{
                 CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
-                switch self.isGroupIs {
-                case true:
-                    textMessage = TextMessage(receiverUid: currentGroup?.guid ?? "", text: message, receiverType: .group)
-                    textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-                    textMessage?.sender?.uid = LoggedInUser.uid
-                    textMessage?.senderUid = LoggedInUser.uid
-                    
-                    if chatMessages.count == 0 {
-                        self.addNewGroupedMessage(messages: [textMessage!])
-                        self.filteredMessages.append(textMessage!)
-                        guard let indicator = typingIndicator else {
-                            return
-                        }
-                        CometChat.endTyping(indicator: indicator)
-                    }else{
-                        self.chatMessages[lastSection].append(textMessage!)
-                        self.filteredMessages.append(textMessage!)
-                        guard let indicator = typingIndicator else {
-                            return
-                        }
-                        CometChat.endTyping(indicator: indicator)
-                        DispatchQueue.main.async {[weak self] in
-                            guard let strongSelf = self else { return }
-                            strongSelf.hide(view: .smartRepliesView, true)
-                            let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                            strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
-                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                            strongSelf.tableView?.scrollToBottomRow()
-                            strongSelf.send.isEnabled = false
-                            strongSelf.textView.text = ""
-                        }
+                textMessage = TextMessage(receiverUid: isGroupIs ? currentGroup?.guid ?? "" : currentUser?.uid ?? "", text: message, receiverType: isGroupIs ? .group : .user)
+                textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
+                textMessage?.sender?.uid = LoggedInUser.uid
+                textMessage?.senderUid = LoggedInUser.uid
+                if chatMessages.count == 0 {
+                    self.addNewGroupedMessage(messages: [textMessage!])
+                    guard let indicator = typingIndicator else {
+                        return
                     }
-                    CometChat.sendTextMessage(message: textMessage!, onSuccess: { (message) in
-                        if let indexpath = self.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
+                    CometChat.endTyping(indicator: indicator)
+                } else {
+                    
+                    if let firstMessage = self.chatMessages[lastSection].last , let textMessage = textMessage {
+                        let currentDate = Date(timeIntervalSince1970: TimeInterval(firstMessage.sentAt))
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "d MMM, yyyy"
+                        let dateString = String().checkNewMessageDate(time: textMessage.sentAt)
+                        if String().compareDates(newTimeInterval: textMessage.sentAt, currentTimeInterval: firstMessage.sentAt) || (calendar.isDateInToday(currentDate) && dateString == "1 Jan, 1970") {
+                            self.chatMessages[lastSection].append(textMessage)
+                            self.filteredMessages.append(textMessage)
+                            guard let indicator = typingIndicator else {
+                                return
+                            }
+                            CometChat.endTyping(indicator: indicator)
                             DispatchQueue.main.async {  [weak self] in
                                 guard let strongSelf = self else { return }
-                                strongSelf.lastMessage = message
-                                strongSelf.chatMessages[section][row] = message
-                                strongSelf.hideReceiptForCell(at: IndexPath(row: row - 1, section: section), bool: true, message: message)
-                                strongSelf.hideReceiptForCell(at: IndexPath(row: row, section: section), bool: false, message: message)
-                                /// Reload the last row 
+                                strongSelf.hide(view: .smartRepliesView, true)
+                                let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                                strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
                                 strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                                strongSelf.send.isEnabled = true
-                                textMessage = nil
+                                strongSelf.tableView?.scrollToBottomRow()
+                                strongSelf.textView.text = ""
+                                strongSelf.send.isEnabled = false
                             }
-                        }
-                    }) { (error) in
-                        DispatchQueue.main.async {
-                            if let error = error {
-                                CometChatSnackBoard.showErrorMessage(for: error)
+                        } else {
+                            self.chatMessages.append([textMessage])
+                            lastSection = self.chatMessages.count - 1
+                            self.tableView?.beginUpdates()
+                            self.hide(view: .smartRepliesView, true)
+                            self.tableView?.insertSections([lastSection], with: .top)
+                            lastSection = self.tableView?.numberOfSections ?? 0
+                            self.tableView?.insertRows(at: [IndexPath.init(row: self.chatMessages[lastSection].count - 1, section: lastSection)], with: .automatic)
+                            self.tableView?.endUpdates()
+                            self.filteredMessages.append(textMessage)
+                            guard let indicator = typingIndicator else {
+                                return
                             }
-                        }
-                    }
-                case false:
-                    textMessage = TextMessage(receiverUid: currentUser?.uid ?? "", text: message, receiverType: .user)
-                    textMessage?.muid = "\(Int(Date().timeIntervalSince1970 * 1000))"
-                    textMessage?.sender?.uid = LoggedInUser.uid
-                    textMessage?.senderUid = LoggedInUser.uid
-                    
-                    if chatMessages.count == 0 {
-                        self.addNewGroupedMessage(messages: [textMessage!])
-                        guard let indicator = typingIndicator else {
-                            return
-                        }
-                        CometChat.endTyping(indicator: indicator)
-                    }else{
-                        self.chatMessages[lastSection].append(textMessage!)
-                        self.filteredMessages.append(textMessage!)
-                        guard let indicator = typingIndicator else {
-                            return
-                        }
-                        CometChat.endTyping(indicator: indicator)
-                        DispatchQueue.main.async {  [weak self] in
-                            guard let strongSelf = self else { return }
-                            strongSelf.hide(view: .smartRepliesView, true)
-                            let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                            strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
-                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                            strongSelf.tableView?.scrollToBottomRow()
-                            strongSelf.textView.text = ""
-                            strongSelf.send.isEnabled = false
-                        }
-                    }
-                    guard let message = textMessage else { return }
-                    CometChat.sendTextMessage(message: message, onSuccess: { (message) in
-                        
-                        if let indexpath = self.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
+                            CometChat.endTyping(indicator: indicator)
                             DispatchQueue.main.async {  [weak self] in
                                 guard let strongSelf = self else { return }
-                                strongSelf.lastMessage = message
-                                strongSelf.chatMessages[section][row] = message
-                                strongSelf.hideReceiptForCell(at: IndexPath(row: row - 1, section: section), bool: true, message: message)
-                                strongSelf.hideReceiptForCell(at: IndexPath(row: row, section: section), bool: false, message: message)
-                                strongSelf.tableView?.reloadRows(at: [indexpath], with: .none)
-                                strongSelf.send.isEnabled = true
-                                textMessage = nil
-                                
+                                strongSelf.tableView?.scrollToBottomRow()
+                                strongSelf.textView.text = ""
+                                strongSelf.send.isEnabled = false
                             }
+                            
                         }
-                    }) { (error) in
-                        DispatchQueue.main.async {
-                            if let error = error {
-                                CometChatSnackBoard.showErrorMessage(for: error)
-                            }
-                        }
+                    }
+                }
+            }
+            guard let message = textMessage else { return }
+            CometChat.sendTextMessage(message: message, onSuccess: { (message) in
+                
+                if let indexpath = self.chatMessages.indexPath(where: {$0.muid == message.muid}), let section = indexpath.section as? Int, let row = indexpath.row as? Int{
+                    DispatchQueue.main.async {  [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.lastMessage = message
+                        strongSelf.chatMessages[section][row] = message
+                        strongSelf.hideReceiptForCell(at: IndexPath(row: row - 1, section: section), bool: true, message: message)
+                        strongSelf.hideReceiptForCell(at: IndexPath(row: row, section: section), bool: false, message: message)
+                        strongSelf.tableView?.reloadRows(at: [indexpath], with: .none)
+                        strongSelf.send.isEnabled = true
+                        textMessage = nil
+                    }
+                }
+            }) { (error) in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        CometChatSnackBoard.showErrorMessage(for: error)
                     }
                 }
             }
         }
     }
 }
+    
 
 /*  ----------------------------------------------------------------------------------------- */
 
@@ -4324,14 +4235,32 @@ extension CometChatMessageList : CometChatMessageDelegate {
             CometChat.markAsRead(baseMessage: message)
             if chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [message])
-            }else{
+            } else {
                 DispatchQueue.main.async{ [weak self] in
                     if let strongSelf = self {
-                        strongSelf.tableView?.beginUpdates()
-                        strongSelf.chatMessages[lastSection].append(message)
-                        strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .automatic)
-                        strongSelf.tableView?.endUpdates()
-                        strongSelf.tableView?.scrollToBottomRow()
+                        if let lastMessage = strongSelf.chatMessages[lastSection].last   {
+                            let currentDate = Date(timeIntervalSince1970: TimeInterval(lastMessage.sentAt))
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "d MMM, yyyy"
+                            let dateString = String().checkNewMessageDate(time: message.sentAt)
+                            
+                            if (String().compareDates(newTimeInterval: message.sentAt, currentTimeInterval: lastMessage.sentAt) ) || (strongSelf.calendar.isDateInToday(currentDate)) && (dateString == "1 Jan, 1970") {
+                                strongSelf.tableView?.beginUpdates()
+                                strongSelf.chatMessages[lastSection].append(message)
+                                strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .automatic)
+                                strongSelf.tableView?.endUpdates()
+                                strongSelf.tableView?.scrollToBottomRow()
+                            } else {
+                                strongSelf.tableView?.beginUpdates()
+                                strongSelf.chatMessages.append([message])
+                                lastSection = strongSelf.chatMessages.count - 1
+                                strongSelf.tableView?.insertSections([lastSection], with: .top)
+                                lastSection = strongSelf.tableView?.numberOfSections ?? 0
+                                strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .automatic)
+                                strongSelf.tableView?.endUpdates()
+                                strongSelf.tableView?.scrollToBottomRow()
+                            }
+                        }
                     }
                 }
             }
@@ -4341,15 +4270,32 @@ extension CometChatMessageList : CometChatMessageDelegate {
             CometChat.markAsRead(baseMessage: message)
             if chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [message])
-            }else{
+            } else {
                 DispatchQueue.main.async{ [weak self] in
                     if let strongSelf = self {
-                        
-                        strongSelf.tableView?.beginUpdates()
-                        strongSelf.chatMessages[lastSection].append(message)
-                        strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .automatic)
-                        strongSelf.tableView?.endUpdates()
-                        strongSelf.tableView?.scrollToBottomRow()
+                        if let lastMessage = strongSelf.chatMessages[lastSection].last   {
+                            let currentDate = Date(timeIntervalSince1970: TimeInterval(lastMessage.sentAt))
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "d MMM, yyyy"
+                            let dateString = String().checkNewMessageDate(time: message.sentAt)
+                            
+                            if (String().compareDates(newTimeInterval: message.sentAt, currentTimeInterval: lastMessage.sentAt) ) || (strongSelf.calendar.isDateInToday(currentDate)) && (dateString == "1 Jan, 1970") {
+                                strongSelf.tableView?.beginUpdates()
+                                strongSelf.chatMessages[lastSection].append(message)
+                                strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .automatic)
+                                strongSelf.tableView?.endUpdates()
+                                strongSelf.tableView?.scrollToBottomRow()
+                            } else {
+                                strongSelf.tableView?.beginUpdates()
+                                strongSelf.chatMessages.append([message])
+                                lastSection = strongSelf.chatMessages.count - 1
+                                strongSelf.tableView?.insertSections([lastSection], with: .top)
+                                lastSection = strongSelf.tableView?.numberOfSections ?? 0
+                                strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .automatic)
+                                strongSelf.tableView?.endUpdates()
+                                strongSelf.tableView?.scrollToBottomRow()
+                            }
+                        }
                     }
                 }
             }
@@ -5475,123 +5421,83 @@ extension CometChatMessageList : MessageActionsDelegate {
     }
     
     func shareLocationPressed() {
-        let lastSection = (self.tableView?.numberOfSections ?? 0) - 1
+        var lastSection = (self.tableView?.numberOfSections ?? 0) - 1
         
-        switch self.isGroupIs {
-        case true:
+        let alert = UIAlertController(title: "" , message: "SHARE_LOCATION_CONFIRMATION_MESSAGE".localized(), preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "SHARE".localized(), style: .default, handler: { action in
             
-            let alert = UIAlertController(title: "" , message: "SHARE_LOCATION_CONFIRMATION_MESSAGE".localized(), preferredStyle: .alert)
-            
-            alert.addAction(UIAlertAction(title: "SHARE".localized(), style: .default, handler: { action in
-                
-                if let location = self.curentLocation {
-                    DispatchQueue.main.async { [weak self] in
-                        guard let strongSelf = self else { return }
-                        let pushtitle = (CometChat.getLoggedInUser()?.name ?? "") + " has shared his location"
-                        let locationData = ["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude] as [String : Any]
-                        guard let group = strongSelf.currentGroup else { return  }
-                        let locationMessage = CustomMessage(receiverUid: group.guid , receiverType: .group, customData: locationData, type: "location")
-                        locationMessage.metaData = ["pushNotification": pushtitle, "incrementUnreadCount":true]
-                        DispatchQueue.main.async {
-                            let alert = UIAlertController(title: nil, message: "SENDING_LOCATION".localized(), preferredStyle: .alert)
-                            let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-                            loadingIndicator.hidesWhenStopped = true
-                            loadingIndicator.style = UIActivityIndicatorView.Style.gray
-                            loadingIndicator.startAnimating()
-                            alert.view.addSubview(loadingIndicator)
-                            strongSelf.present(alert, animated: true, completion: nil)
-                        }
-                        CometChat.sendCustomMessage(message: locationMessage, onSuccess: { (message) in
-                            DispatchQueue.main.async { [weak self] in
-                                guard let strongSelf = self else { return }
-                                strongSelf.lastMessage = message
-                                strongSelf.dismiss(animated: true, completion: nil)
-                                CometChatSnackBoard.display(message: "LOCATION_SENT_SUCCESSFULLY".localized(), mode: .success, duration: .short)
+            if let location = self.curentLocation {
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    let pushtitle = (CometChat.getLoggedInUser()?.name ?? "") + " has shared his location"
+                    let locationData = ["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude] as [String : Any]
+                    let locationMessage = CustomMessage(receiverUid: strongSelf.isGroupIs ? strongSelf.currentGroup?.guid ?? "" : strongSelf.currentUser?.uid ?? "" , receiverType: strongSelf.isGroupIs ? .group : .user, customData: locationData, type: "location")
+                    locationMessage.metaData = ["pushNotification": pushtitle, "incrementUnreadCount":true]
+                    DispatchQueue.main.async {
+                        let alert = UIAlertController(title: nil, message: "SENDING_LOCATION".localized(), preferredStyle: .alert)
+                        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+                        loadingIndicator.hidesWhenStopped = true
+                        loadingIndicator.style = UIActivityIndicatorView.Style.gray
+                        loadingIndicator.startAnimating()
+                        alert.view.addSubview(loadingIndicator)
+                        strongSelf.present(alert, animated: true, completion: nil)
+                    }
+                    CometChat.sendCustomMessage(message: locationMessage, onSuccess: { (message) in
+                        DispatchQueue.main.async { [weak self] in
+                            guard let strongSelf = self else { return }
+                            strongSelf.lastMessage = message
+                            strongSelf.dismiss(animated: true, completion: nil)
+                            CometChatSnackBoard.display(message: "LOCATION_SENT_SUCCESSFULLY".localized(), mode: .success, duration: .short)
+                            
+                            if strongSelf.chatMessages.count == 0 {
+                                strongSelf.addNewGroupedMessage(messages: [message])
+                                strongSelf.filteredMessages.append(message)
+                            } else {
                                 
-                                if strongSelf.chatMessages.count == 0 {
-                                    strongSelf.addNewGroupedMessage(messages: [message])
-                                    strongSelf.filteredMessages.append(message)
-                                }else{
-                                    strongSelf.chatMessages[lastSection].append(message)
-                                    strongSelf.filteredMessages.append(message)
-                                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                                    strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
-                                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                                    strongSelf.tableView?.scrollToBottomRow()
-                                    CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
+                                if let lastMessage = strongSelf.chatMessages[lastSection].last   {
+                                    let currentDate = Date(timeIntervalSince1970: TimeInterval(lastMessage.sentAt))
+                                    let dateFormatter = DateFormatter()
+                                    dateFormatter.dateFormat = "d MMM, yyyy"
+                                    let dateString = String().checkNewMessageDate(time: message.sentAt)
+                                    
+                                    if (String().compareDates(newTimeInterval: message.sentAt, currentTimeInterval: lastMessage.sentAt) ) || (strongSelf.calendar.isDateInToday(currentDate)) && (dateString == "1 Jan, 1970") {
+                                        strongSelf.chatMessages[lastSection].append(message)
+                                        strongSelf.filteredMessages.append(message)
+                                        let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                                        strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
+                                        strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
+                                        strongSelf.tableView?.scrollToBottomRow()
+                                        CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
+                                    } else {
+                                        strongSelf.chatMessages.append([message])
+                                        lastSection = strongSelf.chatMessages.count - 1
+                                        strongSelf.tableView?.beginUpdates()
+                                        strongSelf.tableView?.insertSections([lastSection], with: .top)
+                                        lastSection = strongSelf.tableView?.numberOfSections ?? 0
+                                        let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
+                                        strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
+                                        strongSelf.tableView?.endUpdates()
+                                        strongSelf.tableView?.scrollToBottomRow()
+                                        CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
+                                    }
                                 }
+                                
                             }
-                        }) { (error) in
-                            DispatchQueue.main.async {
-                                CometChatSnackBoard.display(message: "UNABLE_TO_SEND_LOCATON_MESSAGE".localized(), mode: .error, duration: .short)
-                            }
+                        }
+                    }) { (error) in
+                        DispatchQueue.main.async {
+                            CometChatSnackBoard.display(message: "UNABLE_TO_SEND_LOCATON_MESSAGE".localized(), mode: .error, duration: .short)
                         }
                     }
                 }
-            }))
-            alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
-                
-            }))
-            alert.view.tintColor = UIKitSettings.primaryColor
-            self.present(alert, animated: true)
-        case false:
+            }
+        }))
+        alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
             
-            let alert = UIAlertController(title: "" , message: "SHARE_LOCATION_CONFIRMATION_MESSAGE".localized(), preferredStyle: .alert)
-            
-            alert.addAction(UIAlertAction(title: "SHARE".localized(), style: .default, handler: { action in
-                
-                if let location = self.curentLocation {
-                    DispatchQueue.main.async { [weak self] in
-                        guard let strongSelf = self else { return }
-                        let pushtitle = (CometChat.getLoggedInUser()?.name ?? "") + " has shared his location"
-                        let locationData = ["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude] as [String : Any]
-                        
-                        guard let user = strongSelf.currentUser else { return  }
-                        let locationMessage = CustomMessage(receiverUid: user.uid ?? "", receiverType: .user, customData: locationData, type: "location")
-                        locationMessage.metaData = ["pushNotification": pushtitle, "incrementUnreadCount":true]
-                        DispatchQueue.main.async {
-                            let alert = UIAlertController(title: nil, message: "SENDING_LOCATION".localized(), preferredStyle: .alert)
-                            let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
-                            loadingIndicator.hidesWhenStopped = true
-                            loadingIndicator.style = UIActivityIndicatorView.Style.gray
-                            loadingIndicator.startAnimating()
-                            alert.view.addSubview(loadingIndicator)
-                            strongSelf.present(alert, animated: true, completion: nil)
-                        }
-                        CometChat.sendCustomMessage(message: locationMessage, onSuccess: { (message) in
-                            DispatchQueue.main.async { [weak self] in
-                                guard let strongSelf = self else { return }
-                                strongSelf.lastMessage = message
-                                strongSelf.dismiss(animated: true, completion: nil)
-                                CometChatSnackBoard.display(message: "LOCATION_SENT_SUCCESSFULLY".localized(), mode: .success, duration: .short)
-                                
-                                if strongSelf.chatMessages.count == 0 {
-                                    strongSelf.addNewGroupedMessage(messages: [message])
-                                    strongSelf.filteredMessages.append(message)
-                                }else{
-                                    strongSelf.chatMessages[lastSection].append(message)
-                                    strongSelf.filteredMessages.append(message)
-                                    let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                                    strongSelf.tableView?.insertRows(at: [indexpath], with: .right)
-                                    strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                                    strongSelf.tableView?.scrollToBottomRow()
-                                    CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
-                                }
-                            }
-                        }) { (error) in
-                            DispatchQueue.main.async {
-                                CometChatSnackBoard.display(message: "UNABLE_TO_SEND_LOCATON_MESSAGE".localized(), mode: .error, duration: .short)
-                            }
-                        }
-                    }
-                }
-            }))
-            alert.addAction(UIAlertAction(title: "CANCEL".localized(), style: .cancel, handler: { action in
-                
-            }))
-            alert.view.tintColor = UIKitSettings.primaryColor
-            self.present(alert, animated: true)
-        }
+        }))
+        alert.view.tintColor = UIKitSettings.primaryColor
+        self.present(alert, animated: true)
     }
     
     func createAPollPressed() {
