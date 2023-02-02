@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -274,6 +274,9 @@
                             </constraints>
                             <color key="tintColor" systemColor="labelColor"/>
                             <state key="normal" image="messages-delete.png"/>
+                            <connections>
+                                <action selector="didAudioNoteDeletePressed:" destination="-1" eventType="touchUpInside" id="uuK-bz-2A4"/>
+                            </connections>
                         </button>
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -372,6 +375,9 @@
                                             <real key="value" value="12"/>
                                         </userDefinedRuntimeAttribute>
                                     </userDefinedRuntimeAttributes>
+                                    <connections>
+                                        <action selector="didAudioNoteSendPressed:" destination="-1" eventType="touchUpInside" id="dfq-HL-Eft"/>
+                                    </connections>
                                 </button>
                                 <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nif-zK-2HQ">
                                     <rect key="frame" x="0.0" y="45" width="35" height="35"/>
@@ -462,7 +468,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="394" height="40"/>
                                     <subviews>
                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="v87-MD-pkT" customClass="CometChatAvatar" customModule="CometChat_KitchenSink" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="0.0" width="198" height="40"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="315" height="40"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="40" id="F8z-mT-IFj"/>
                                                 <constraint firstAttribute="height" constant="40" id="cf6-iN-pLk"/>
@@ -474,16 +480,16 @@
                                             </userDefinedRuntimeAttributes>
                                         </imageView>
                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="sis-0y-qpb">
-                                            <rect key="frame" x="206" y="0.0" width="188" height="40"/>
+                                            <rect key="frame" x="323" y="0.0" width="71" height="40"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hn4-w6-jw9">
-                                                    <rect key="frame" x="0.0" y="0.0" width="188" height="20.5"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="71" height="20.5"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="93b-Wx-xEi">
-                                                    <rect key="frame" x="0.0" y="23.5" width="188" height="16.5"/>
+                                                    <rect key="frame" x="0.0" y="23.5" width="71" height="16.5"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <color key="textColor" systemColor="systemGrayColor"/>
                                                     <nil key="highlightedColor"/>

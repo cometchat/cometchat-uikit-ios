@@ -13,13 +13,10 @@ protocol MediaDelegate: NSObject {
     func didOpenMedia(forMessage: MediaMessage, cell: UITableViewCell)
 }
 
-
 /*  ----------------------------------------------------------------------------------------- */
-
 class CometChatSenderImageMessageBubble: UITableViewCell {
     
      // MARK: - Declaration of IBInspectable
-    
     @IBOutlet weak var reactionView: CometChatMessageReactions!
     @IBOutlet weak var heightReactions: NSLayoutConstraint!
     @IBOutlet weak var replybutton: UIButton!
@@ -32,12 +29,13 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
     @IBOutlet weak var unsafeContentView: UIImageView!
     @IBOutlet weak var imageContainer: UIView!
     
-    
     // MARK: - Declaration of Variables
     var indexPath: IndexPath?
     private var imageRequest: Cancellable?
     private lazy var imageService = ImageService()
     weak var mediaDelegate: MediaDelegate?
+    private var image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+    
     var selectionColor: UIColor {
         set {
             let view = UIView()
@@ -165,6 +163,7 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
     }
     
     override func prepareForReuse() {
+        imageMessage.image = image
         imageRequest?.cancel()
         reactionView.reactions.removeAll()
     }
@@ -173,10 +172,7 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
            super.setSelected(selected, animated: animated)
        }
     
-
-    
     private func parseThumbnailForImage(forMessage: MediaMessage?) {
-        imageMessage.image = nil
         if let metaData = forMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let thumbnailGenerationDictionary = cometChatExtension["thumbnail-generation"] as? [String : Any] {
             if let url = URL(string: thumbnailGenerationDictionary["url_medium"] as? String ?? "") {
                 imageRequest = imageService.image(for: url) { [weak self] image in
@@ -185,19 +181,19 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
                     if let image = image {
                         strongSelf.imageMessage.image = image
                     }else{
-                        strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                        strongSelf.imageMessage.image = strongSelf.image
                     }
                 }
             }
-        }else{
+        } else {
             if let url = URL(string: mediaMessage.attachment?.fileUrl ?? "") {
                 imageRequest = imageService.image(for: url) { [weak self] image in
                     guard let strongSelf = self else { return }
                     // Update Thumbnail Image View
                     if let image = image {
                         strongSelf.imageMessage.image = image
-                    }else{
-                        strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                    } else {
+                        strongSelf.imageMessage.image = strongSelf.image
                     }
                 }
             }
@@ -222,3 +218,4 @@ class CometChatSenderImageMessageBubble: UITableViewCell {
     }
     
 }
+

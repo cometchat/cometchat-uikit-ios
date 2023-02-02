@@ -2,7 +2,6 @@
 
 This document outlines the Responsible Disclosure Program for CometChat Pro
 
-
 ## Responsible Disclosure Policy
 
 At CometChat we take security seriously and consider it a top priority. Since a

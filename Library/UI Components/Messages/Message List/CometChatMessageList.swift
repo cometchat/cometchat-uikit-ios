@@ -1355,7 +1355,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             }
             
             FeatureRestriction.isThreadedMessagesEnabled { (success) in
-                if success == .enabled && self.currentGroup != nil {
+                if success == .enabled {
                     actions.append(.thread)
                 }
             }
@@ -2656,7 +2656,6 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
         }
     }
     
-    
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if let firstMessageInSection = chatMessages[safe:section]?.first {
             let dateString = String().setMessageDateHeader(time: Int(firstMessageInSection.sentAt))
@@ -3507,7 +3506,6 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
 
 extension CometChatMessageList: GrowingTextViewDelegate {
     public func growingTextView(_ growingTextView: GrowingTextView, willChangeHeight height: CGFloat, difference: CGFloat) {
-        
         inputBarHeight.constant = height
     }
     
@@ -6044,7 +6042,7 @@ extension CometChatMessageList: MediaDelegate {
         switch forMessage.messageType {
         case .text: break
         case .image:
-            
+            print("selected media message", forMessage.stringValue())
             if  let selectedCell = cell as? CometChatReceiverImageMessageBubble {
                 selectedCell.receiptStack.isHidden = false
                 if tableView?.isEditing == true{
@@ -6085,27 +6083,39 @@ extension CometChatMessageList: MediaDelegate {
             if  let selectedCell = cell as? CometChatSenderVideoMessageBubble {
                 selectedCell.receiptStack.isHidden = false
                 
-                if tableView?.isEditing == true{
+                if tableView?.isEditing == true {
                     if !self.selectedMessages.contains(selectedCell.mediaMessage) {
                         self.selectedMessages.append(selectedCell.mediaMessage)
                     }
-                }else{
-                    self.previewMediaMessage(url: selectedCell.mediaMessage?.attachment?.fileUrl ?? "", completion: {(success, fileURL) in
-                        if success {
-                            var player = AVPlayer()
-                            if let videoURL = fileURL,
-                               let url = URL(string: videoURL.absoluteString) {
-                                player = AVPlayer(url: url)
-                            }
-                            DispatchQueue.main.async{[weak self] in
-                                let playerViewController = AVPlayerViewController()
-                                playerViewController.player = player
-                                self?.present(playerViewController, animated: true) {
-                                    playerViewController.player!.play()
-                                }
+                } else {
+                    if let attachment = selectedCell.mediaMessage.metaData?["fileURL"] as? String , let fileUrl = URL(string: attachment), fileUrl.checkFileExist() {
+                        var player = AVPlayer()
+                        player = AVPlayer(url: fileUrl)
+                        DispatchQueue.main.async{[weak self] in
+                            let playerViewController = AVPlayerViewController()
+                            playerViewController.player = player
+                            self?.present(playerViewController, animated: true) {
+                                playerViewController.player!.play()
                             }
                         }
-                    })
+                    } else {
+                        self.previewMediaMessage(url: selectedCell.mediaMessage?.attachment?.fileUrl ?? "", completion: {(success, fileURL) in
+                            if success {
+                                var player = AVPlayer()
+                                if let videoURL = fileURL,
+                                   let url = URL(string: videoURL.absoluteString) {
+                                    player = AVPlayer(url: url)
+                                }
+                                DispatchQueue.main.async{[weak self] in
+                                    let playerViewController = AVPlayerViewController()
+                                    playerViewController.player = player
+                                    self?.present(playerViewController, animated: true) {
+                                        playerViewController.player!.play()
+                                    }
+                                }
+                            }
+                        })
+                    }
                 }
             }
             

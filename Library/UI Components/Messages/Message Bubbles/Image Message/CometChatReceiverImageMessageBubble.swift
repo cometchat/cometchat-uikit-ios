@@ -32,6 +32,7 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
     // MARK: - Declaration of Variables
     private var imageRequest: Cancellable?
     private lazy var imageService = ImageService()
+    private var image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
     
     var indexPath: IndexPath?
     weak var mediaDelegate: MediaDelegate?
@@ -136,6 +137,11 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
                     self.reactionView.isHidden = true
                 }
             }
+            
+            if let userName = mediaMessageInThread.sender?.name {
+                name.text = userName + ":"
+            }
+            
             if mediaMessageInThread.sentAt == 0 {
                 timeStamp.text = "SENDING".localized()
             }else{
@@ -190,7 +196,6 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
              }
     }
     
-    
     override func awakeFromNib() {
         super.awakeFromNib()
         
@@ -205,12 +210,11 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
     
      override func setSelected(_ selected: Bool, animated: Bool) {
            super.setSelected(selected, animated: animated)
-
        }
     
     
     private func parseThumbnailForImage(forMessage: MediaMessage?) {
-         imageMessage.image = nil
+         //imageMessage.image = nil
          if let metaData = forMessage?.metaData , let injected = metaData["@injected"] as? [String : Any], let cometChatExtension =  injected["extensions"] as? [String : Any], let thumbnailGenerationDictionary = cometChatExtension["thumbnail-generation"] as? [String : Any] {
              if let url = URL(string: thumbnailGenerationDictionary["url_medium"] as? String ?? "") {
                  self.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
@@ -219,12 +223,13 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
                      // Update Thumbnail Image View
                      if let image = image {
                          strongSelf.imageMessage.image = image
+
                      }else{
-                         strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                         strongSelf.imageMessage.image = strongSelf.image
                      }
                  }
              }
-         }else{
+         } else {
              if let url = URL(string: mediaMessage.attachment?.fileUrl ?? "") {
                  self.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
                  imageRequest = imageService.image(for: url) { [weak self] image in
@@ -233,7 +238,7 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
                      if let image = image {
                          strongSelf.imageMessage.image = image
                      }else{
-                         strongSelf.imageMessage.image = UIImage(named: "default-image.png", in: UIKitSettings.bundle, compatibleWith: nil)
+                         strongSelf.imageMessage.image = strongSelf.image
                      }
                  }
              }
@@ -259,6 +264,7 @@ class CometChatReceiverImageMessageBubble: UITableViewCell {
     
     override func prepareForReuse() {
         imageRequest?.cancel()
+        imageMessage.image = image
         reactionView.reactions.removeAll()
     }
     

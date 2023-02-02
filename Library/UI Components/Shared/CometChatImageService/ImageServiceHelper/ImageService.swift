@@ -8,13 +8,23 @@
 
 import Foundation
 import UIKit
+import AVKit
 
 final class ImageService {
+    static var imageCache = NSCache<AnyObject, AnyObject>()
 
     // MARK: - Public API
-
     func image(for url: URL, completion: @escaping (UIImage?) -> Void) -> Cancellable {
-        let dataTask = URLSession.shared.dataTask(with: url) { data, _, _ in
+      
+            if let cacheImage = ImageService.imageCache.object(forKey: url as AnyObject) as? UIImage {
+                debugPrint("image downloaded from cache...")
+                DispatchQueue.main.async {
+                completion(cacheImage)
+                }
+            }
+      
+        
+        let dataTask = URLSession.shared.dataTask(with: url) { data, result, error in
             // Helper
             var image: UIImage?
 
@@ -22,7 +32,10 @@ final class ImageService {
                 // Execute Handler on Main Thread
                 DispatchQueue.main.async {
                     // Execute Handler
-                    completion(image)
+                    if let image = image {
+                        ImageService.imageCache.setObject(image, forKey: url as AnyObject)
+                        completion(image)
+                    }
                 }
             }
 
@@ -37,5 +50,5 @@ final class ImageService {
 
         return dataTask
     }
-
+    
 }

@@ -17,7 +17,7 @@
 
 <a href=""><img src="https://img.shields.io/badge/Repo%20Size-13.3%20MB-brightgreen" /></a>
 <a href=""> <img src="https://img.shields.io/badge/Contributors-2-yellowgreen" /></a>
-<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.910--2-red" /></a>
+<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.911--1-red" /></a>
 <a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-swift-chat-ui-kit?style=social"/></a>
 <a href=""> <img src="https://img.shields.io/twitter/follow/cometchat?style=social" /></a>
 
@@ -104,7 +104,7 @@ platform :ios, '11.0'
 use_frameworks!
 
 target 'YourApp' do
-     pod 'CometChatPro', '3.0.910'
+     pod 'CometChatPro', '3.0.911'
      pod 'CometChatCalls', '2.2.0'
 end
 ________________________________________________________________

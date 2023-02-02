@@ -137,7 +137,6 @@ extension String {
         }
     }
     
-    
     func fetchMessageDateHeader(for date : Date) -> String {
         
         var secondsAgo = Int(Date().timeIntervalSince(date))
