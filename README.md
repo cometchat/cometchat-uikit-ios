@@ -27,17 +27,21 @@ ___
 
 Before you begin, ensure you have met the following requirements:
 
-✅ &nbsp; You have installed the latest version of Xcode. (Above Xcode 12 Recommended)
+✅ &nbsp; macOS
 
-✅ &nbsp; iOS Chat SDK works for the iOS devices from iOS 11 and above.
+✅ &nbsp; Xcode
+
+✅ &nbsp; iOS 13.0 and later
+
+✅ &nbsp; Swift 4.0+
 
 ___
 
-## Installing iOS Chat SDK 
+## Installing UI Kit
 
 ## 1. Setup  :wrench:
 
-To install iOS Chat SDK, you  need to first register on CometChat Dashboard. [Click here to sign up](https://app.cometchat.com/login).
+To install iOS Chat UIKit, you  need to first register on CometChat Dashboard. [Click here to sign up](https://app.cometchat.com/login).
 
 ### i. Get your Application Keys :key:
 
@@ -45,68 +49,31 @@ To install iOS Chat SDK, you  need to first register on CometChat Dashboard. [Cl
 * Head over to the Quick Start or API & Auth Keys section and note the `App ID`, `Auth Key`,  and  `Region`.
 ---
 
-### ii. Add the CometChatPro Dependency
+### ii. You can install UIKit for iOS through Swift Package Manager.
 
+* Go to your Swift Package Manager's File tab and select Add Packages.
 
-We recommend using CocoaPods, as they are the most advanced way of managing iOS project dependencies. Open a terminal window, move to your project directory, and then create a Podfile by running the following command
-
-
-Create podfile using below command.
-
-```bash
-$ pod init
-```
-Add the following lines to the Podfile.
-
-```bash
-________________________________________________________________
-
-For Xcode 12 and above:
-
-platform :ios, '11.0'
-use_frameworks!
-
-target 'YourApp' do
-     pod 'CometChatPro', '3.0.900'
-end
-________________________________________________________________
-
-
-```
-v3.0.1+ onwards, Voice & Video Calling functionality has been moved to a separate framework. Please add the following pod to your app Podfile in case you plan on using the Voice and Video Calling feature.   
-
-```bash
-________________________________________________________________
-
-For Xcode 12 and above:
-
-platform :ios, '11.0'
-use_frameworks!
-
-target 'YourApp' do
-     pod 'CometChatPro', '3.0.900'
-     pod 'CometChatCalls', '2.1.1'
-end
-________________________________________________________________
-
-
-```
-And then install the `CometChatPro` framework through CocoaPods.
-
-```bash
-pod install
-```
-
-If you're facing any issues while installing pods then use below command. 
-
-
-```bash
-pod install --repo-update
-```
+* Add CometChatProUIKit into your Package Repository as below:
+  * https://github.com/cometchat-pro/ios-swift-chat-ui-kit.git
+  
+* To add the package, select Version Rules, enter Up to Exact Version, [3.0.912-pluto.beta.2.0](https://github.com/cometchat-pro/ios-swift-chat-ui-kit/tree/pluto), and click Next
 
 ___
 
-## 2. Configure CometChat inside your app
+## 2. Calling Functionality
+If you want calling functionality inside your application then you need to install calling SDK additionally inside your project. You can install CometChatProCalls Calling SDK for iOS through Swift Package Manager.
+
+* Go to your Swift Package Manager's File tab and select Add Packages
+
+* Add CometChatProCalls into your Package Repository as below:
+
+  * https://github.com/cometchat-pro/ios-calls-sdk.git
+
+* To add the package, select Version Rules, enter Up to Exact Version, 3.0.0, and click Next.
+
+___
+
+## 3. Configure CometChat inside your app
 
 ### i. Initialize CometChat :star2:
 
