@@ -107,7 +107,7 @@
 "OK" = "OK";
 "AS_A_MODERATOR" = "as a moderator";
 "AS_A_ADMIN" = "as an admin";
-"ADD_MEMBERS" = "Add members";
+"ADD_MEMBERS" = "Add Members";
 "ACTIONS" = "ACTIONS";
 "PRIVACY_&_SUPPORT" = "PRIVACY & SUPPORT";
 "SEND_MESSAGE" = "Send Message";
@@ -142,6 +142,8 @@
 "HISTORY" =  "HISTORY";
 "VIDEO_CALL" =  "Video Call";
 "AUDIO_CALL" =  "Audio Call";
+"VIDEO" = "Video";
+"CALL" = "Call";
 "WHITEBOARD" = "Whiteboard";
 "LOADING" = "Loading...";
 "ONE_REPLY" = "1 reply";
@@ -189,16 +191,14 @@
 "NO_GROUPS_FOUND" = "No groups found";
 "NO_CHATS_FOUND" = "No chats found";
 "MEDIA_MESSAGE" = "Media Message";
-"INCOMING_AUDIO_CALL" = "Incoming Audio Call";
-"INCOMING_VIDEO_CALL" = "Incoming Video Call";
+"INCOMING_CALL" = "Incoming call";
 "DECLINE" = "Decline";
 "ACCEPT" = "Accept";
 "CALL_INITIATED" = "Call Initiated";
-"OUTGOING_AUDIO_CALL" = "Outgoing Audio Call";
-"OUTGOING_VIDEO_CALL" = "Outgoing Video Call";
+"OUTGOING_CALL" = "Outgoing call";
 "CALL_REJECTED" = "Call Rejected";
 "REJECTED_CALL" = "Rejected Call";
-"CALL_ACCEPTED" = "Call Accepted";
+"CALL_ACCEPTED" = "Call accepted";
 "JOINED" = "Joined";
 "LEFT_THE_CALL" = "has left the call";
 "UNANSWERED_AUDIO_CALL" = "Unanswered Audio Call";
@@ -223,6 +223,7 @@
 "ADD_NEW_OPTION" = "Add new option";
 "VIEW_MEMBERS" = "View Members";
 "DETAILS" = "Details";
+"CALL_DETAILS" = "Call Details";
 "NOTIFICATIONS" = "Notifications";
 "OTHER" = "Other";
 "HELP" = "Help";
@@ -282,7 +283,7 @@
 "USER_REMOVED_FROM_GROUP" = "Has been removed from";
 "KICKED_ERROR" = "Group member kicked unsuccessfully";
 "LEAVE_GROUP_MESSAGE" = "Would you like to leave the group?";
-"DELETE_GROUP" = "Delete group";
+"DELETE_GROUP" = "Delete and Exit";
 "DELETE_GROUP_MESSAGE" = "Delete group";
 "GROUP_DELETE_ERROR" = "Group delete failed";
 "CANNOT_REMOVE_MEMBER" = "Cannot be removed";
@@ -344,9 +345,7 @@
 "ALL" = "All";
 "MISSED" = "Missed";
 "NEW_CALL" = "New call";
-"INCOMING_AUDIO_CALL" = "Incoming audio call";
-"INCOMING_VIDEO_CALL" = "Incoming video call";
-"MISSED_CALL" = "Missed";
+"MISSED_CALL" = "Missed Call";
 "REJECTED_CALL" = "Rejected";
 "ONGOING_CALL" = "Call in progress";
 "ONGOING_CALL_MESSAGE" = "Call is already running. Would you like to join?";
@@ -546,4 +545,9 @@
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
 "TAP_TO_START_CONVERSATION" = "Tap to start conversation";
 "IN_A_THREAD" = "In a thread ⤵";
-
+"NEW_MESSAGE" = "new message";
+"NEW_MESSAGES" = "new messages";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";
+"ACCEPTED" = "Accepted";

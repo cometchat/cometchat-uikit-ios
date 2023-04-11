@@ -128,6 +128,8 @@
 "HISTORY" = "História";
 "VIDEO_CALL" = "Chamada de vídeo";
 "AUDIO_CALL" = "Chamada de áudio";
+"VIDEO" = "Vídeo";
+"CALL" = "Chamar";
 "WHITEBOARD" = "Quadro branco";
 "LOADING" = "Carregando...";
 "ONE_REPLY" = "1 resposta";
@@ -175,13 +177,11 @@
 "NO_GROUPS_FOUND" = "Nenhum grupo encontrado";
 "NO_CHATS_FOUND" = "Não foram encontrados chats";
 "MEDIA_MESSAGE" = "Mensagem de Mídia";
-"INCOMING_AUDIO_CALL" = "Chamada de áudio recebida";
-"INCOMING_VIDEO_CALL" = "Chamada de vídeo recebida";
+"INCOMING_CALL" = "Chamada recebida";
 "DECLINE" = "Declínio";
 "ACCEPT" = "Aceitar";
 "CALL_INITIATED" = "Chamada iniciada";
-"OUTGOING_AUDIO_CALL" = "Chamada de áudio de saída";
-"OUTGOING_VIDEO_CALL" = "Chamada de áudio de saída";
+"OUTGOING_CALL" = "Chamada de saída";
 "CALL_REJECTED" = "Chamada rejeitada";
 "REJECTED_CALL" = "Chamada rejeitada";
 "CALL_ACCEPTED" = "Chamada Aceita";
@@ -209,6 +209,7 @@
 "ADD_NEW_OPTION" = "Adicionar nova opção";
 "VIEW_MEMBERS" = "Ver Membros";
 "DETAILS" = "Detalhes";
+"CALL_DETAILS" = "detalhes da chamada";
 "NOTIFICATIONS" = "Notificações";
 "OTHER" = "Outros";
 "HELP" = "Ajuda";
@@ -331,9 +332,7 @@
 "ALL" = "Todos";
 "MISSED" = "Perdida";
 "NEW_CALL" = "Nova chamada";
-"INCOMING_AUDIO_CALL" = "Chamada de áudio recebida";
-"INCOMING_VIDEO_CALL" = "Chamada de vídeo recebida";
-"MISSED_CALL" = "Perdida";
+"MISSED_CALL" = "Chamada Perdida";
 "REJECTED_CALL" = "Rejeitado";
 "ONGOING_CALL" = "Chamada em andamento";
 "ONGOING_CALL_MESSAGE" = "Chamada já está em execução. Gostaria de se juntar?";
@@ -521,3 +520,8 @@
 "TRANSLATED_MESSAGE" = "Translated message";
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "nova mensagem";
+"NEW_MESSAGES" = "novas mensagens";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";

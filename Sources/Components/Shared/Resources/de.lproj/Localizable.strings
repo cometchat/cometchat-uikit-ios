@@ -3,6 +3,8 @@
 "CHATS" = "Chats";
 "USERS" = "Nutzer";
 "CALLS" = "Anrufe";
+"VIDEO" = "Video";
+"CALL_DETAILS" = "Anrufdetails";
 "GROUPS" = "Gruppen";
 "MORE" = "mehr";
 "SENDING" = "Senden...";
@@ -130,6 +132,7 @@
 "HISTORY" = "Geschichte";
 "VIDEO_CALL" = "Videoanruf";
 "AUDIO_CALL" = "Audio-Anruf";
+"CALL" = "Rufen";
 "WHITEBOARD" = "Whiteboard";
 "LOADING" = "Wird geladen...";
 "ONE_REPLY" = "1 antwort";
@@ -177,13 +180,11 @@
 "NO_GROUPS_FOUND" = "Keine Gruppen gefunden";
 "NO_CHATS_FOUND" = "Keine Chats gefunden";
 "MEDIA_MESSAGE" = "Medien-Message";
-"INCOMING_AUDIO_CALL" = "Eingehender Audioanruf";
-"INCOMING_VIDEO_CALL" = "Eingehender Videoanruf";
+"INCOMING_CALL" = "Eingehender Anruf";
 "DECLINE" = "Rückgang";
 "ACCEPT" = "Akzeptieren";
 "CALL_INITIATED" = "Anruf initiiert";
-"OUTGOING_AUDIO_CALL" = "Ausgehender Audioanruf";
-"OUTGOING_VIDEO_CALL" = "Ausgehender Audioanruf";
+"OUTGOING_CALL" = "Ausgehender Anruf";
 "CALL_REJECTED" = "Anruf abgelehnt";
 "REJECTED_CALL" = "Anruf abgelehnt";
 "CALL_ACCEPTED" = "Anruf Akzeptiert";
@@ -333,9 +334,8 @@
 "ALL" = "Alle";
 "MISSED" = "Verpasst";
 "NEW_CALL" = "Neuer Anruf";
-"INCOMING_AUDIO_CALL" = "Eingehender Audioanruf";
-"INCOMING_VIDEO_CALL" = "Eingehender Videoanruf";
-"MISSED_CALL" = "Verpasst";
+"INCOMING_CALL" = "Eingehender Anruf";
+"MISSED_CALL" = "Verpasster Anruf";
 "REJECTED_CALL" = "Abgelehnt";
 "ONGOING_CALL" = "Anruf läuft";
 "ONGOING_CALL_MESSAGE" = "Der Anruf läuft bereits. Möchtest du mitmachen?";
@@ -520,3 +520,8 @@
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "neue Nachricht";
+"NEW_MESSAGES" = "neue Nachrichten";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";

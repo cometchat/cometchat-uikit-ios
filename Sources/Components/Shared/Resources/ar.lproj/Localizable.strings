@@ -1,6 +1,8 @@
 "CHATS" = "دردشات";
 "USERS" = "المستخدمون";
 "CALLS" = "المكالمات";
+"VIDEO" = "فيديو";
+"CALL_DETAILS" = "تفاصيل المكالمة";
 "GROUPS" = "المجموعات";
 "MORE" = "المزيد";
 "SENDING" = "إرسال...";
@@ -128,6 +130,7 @@
 "HISTORY" = "التاريخ";
 "VIDEO_CALL" = "مكالمة فيديو";
 "AUDIO_CALL" = "مكالمة صوتية";
+"CALL" = "هاتف";
 "WHITEBOARD" = "السبورة";
 "LOADING" = "التحميل...";
 "ONE_REPLY" = "1 الرد";
@@ -175,13 +178,11 @@
 "NO_GROUPS_FOUND" = "لم يتم العثور على مجموعات";
 "NO_CHATS_FOUND" = "لم يتم العثور على دردشات";
 "MEDIA_MESSAGE" = "رسالة وسائل الإعلام";
-"INCOMING_AUDIO_CALL" = "مكالمة صوتية واردة";
-"INCOMING_VIDEO_CALL" = "مكالمة فيديو واردة";
+"INCOMING_CALL" = "مكالمة صوتية واردة";
 "DECLINE" = "انخفاض";
 "ACCEPT" = "قبول";
 "CALL_INITIATED" = "بدأ الاتصال";
-"OUTGOING_AUDIO_CALL" = "مكالمة صوتية صادرة";
-"OUTGOING_VIDEO_CALL" = "مكالمة صوتية صادرة";
+"OUTGOING_CALL" = "مكالمة صوتية صادرة";
 "CALL_REJECTED" = "تم رفض المكالمة";
 "REJECTED_CALL" = "مكالمة مرفوضة";
 "CALL_ACCEPTED" = "تم قبول المكالمة";
@@ -331,9 +332,8 @@
 "ALL" = "الكل";
 "MISSED" = "غاب";
 "NEW_CALL" = "مكالمة جديدة";
-"INCOMING_AUDIO_CALL" = "مكالمة صوتية واردة";
-"INCOMING_VIDEO_CALL" = "مكالمة فيديو واردة";
-"MISSED_CALL" = "غاب";
+"INCOMING_CALL" = "مكالمة صوتية واردة";
+"MISSED_CALL" = "غابمكالمة فائتة";
 "REJECTED_CALL" = "مرفوض";
 "ONGOING_CALL" = "الدعوة في التقدم";
 "ONGOING_CALL_MESSAGE" = "المكالمة قيد التشغيل بالفعل هل ترغب في الانضمام؟";
@@ -518,3 +518,8 @@
 "TRANSLATED_MESSAGE" = "Translated message";
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "رسالة جديدة";
+"NEW_MESSAGES" = "رسائل جديدة";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";

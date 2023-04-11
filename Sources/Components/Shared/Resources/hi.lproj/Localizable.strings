@@ -128,6 +128,8 @@
 "HISTORY" = "इतिहास";
 "VIDEO_CALL" = "वीडियो कॉल";
 "AUDIO_CALL" = "ऑडियो कॉल";
+"VIDEO" = "वीडियो";
+"CALL" = "कॉल";
 "WHITEBOARD" = "व्हाइटबोर्ड";
 "LOADING" = "लोड हो रहा है...";
 "ONE_REPLY" = "1 प्रत्युत्तर";
@@ -175,13 +177,11 @@
 "NO_GROUPS_FOUND" = "कोई समूह नहीं मिला";
 "NO_CHATS_FOUND" = "कोई चैट नहीं मिला";
 "MEDIA_MESSAGE" = "मीडिया संदेश";
-"INCOMING_AUDIO_CALL" = "आवक ऑडियो कॉल";
-"INCOMING_VIDEO_CALL" = "आने वाली वीडियो कॉल";
+"INCOMING_CALL" = "आवक कॉल";
 "DECLINE" = "अस्वीकार";
 "ACCEPT" = "स्वीकार करें";
 "CALL_INITIATED" = "कॉल शुरू";
-"OUTGOING_AUDIO_CALL" = "जावक ऑडियो कॉल";
-"OUTGOING_VIDEO_CALL" = "जावक ऑडियो कॉल";
+"OUTGOING_CALL" = "जावक कॉल";
 "CALL_REJECTED" = "कॉल अस्वीकृत";
 "REJECTED_CALL" = "अस्वीकृत कॉल";
 "CALL_ACCEPTED" = "कॉल स्वीकृत";
@@ -209,6 +209,7 @@
 "ADD_NEW_OPTION" = "नया विकल्प जोड़ें";
 "VIEW_MEMBERS" = "सदस्य देखें";
 "DETAILS" = "विवरण";
+"CALL_DETAILS" = "कॉल विवरण";
 "NOTIFICATIONS" = "सूचनाएँ";
 "OTHER" = "अन्य";
 "HELP" = "मदद";
@@ -331,9 +332,7 @@
 "ALL" = "सब";
 "MISSED" = "मिस्ड";
 "NEW_CALL" = "नया कॉल";
-"INCOMING_AUDIO_CALL" = "आवक ऑडियो कॉल";
-"INCOMING_VIDEO_CALL" = "आने वाली वीडियो कॉल";
-"MISSED_CALL" = "मिस्ड";
+"MISSED_CALL" = "मिस कॉल";
 "REJECTED_CALL" = "अस्वीकृत";
 "ONGOING_CALL" = "कॉल प्रगति पर";
 "ONGOING_CALL_MESSAGE" = "कॉल पहले से ही चल रहा है। क्या आप शामिल होना चाहेंगे?";
@@ -518,3 +517,8 @@
 "TRANSLATED_MESSAGE" = "Translated message";
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "नया संदेश";
+"NEW_MESSAGES" = "नए संदेश";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";

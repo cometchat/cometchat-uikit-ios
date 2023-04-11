@@ -14,15 +14,17 @@ let package = Package(
     ],
     
     dependencies: [
-        
         .package(name: "CometChatPro",
             url: "https://github.com/cometchat-pro/ios-chat-sdk.git",
-            .exact("3.0.909")
-        )
+            .exact("3.0.912")
+        ),
     ],
     targets: [
-        .target(name: "CometChatUIKit", dependencies: ["CometChatPro"], path:  "./Sources/Components" ,
-                resources: [.process("Chats/Resources"), .process("Groups/Resources"), .process("Messages/Resources"), .process("Shared/Resources"), .process("Users/Resources") ])
+        .target(name: "CometChatUIKit", dependencies: ["CometChatPro"],
+                path:  "./Sources/Components" ,
+                resources: [.process("Resources"),
+                            .process("Shared/Resources"),
+                            .process("Calls/Resources")])
        ,
     ]
 )

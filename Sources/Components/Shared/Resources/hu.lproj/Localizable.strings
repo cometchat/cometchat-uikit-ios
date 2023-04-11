@@ -128,6 +128,8 @@
 "HISTORY" = "Történelem";
 "VIDEO_CALL" = "Videóhívás";
 "AUDIO_CALL" = "Hanghívás";
+"VIDEO" = "Videó";
+"CALL" = "Hívás";
 "WHITEBOARD" = "Tábla";
 "LOADING" = "Betöltés...";
 "ONE_REPLY" = "1 válasz";
@@ -174,13 +176,11 @@
 "NO_GROUPS_FOUND" = "Nem található csoport";
 "NO_CHATS_FOUND" = "Nem található csevegés";
 "MEDIA_MESSAGE" = "Média üzenet";
-"INCOMING_AUDIO_CALL" = "Bejövő hanghívás";
-"INCOMING_VIDEO_CALL" = "Bejövő videohívás";
+"INCOMING_CALL" = "Bejövő hívás";
 "DECLINE" = "Elutasítás";
 "ACCEPT" = "Elfogadja";
 "CALL_INITIATED" = "Hívás kezdeményezése";
-"OUTGOING_AUDIO_CALL" = "Kimenő hanghívás";
-"OUTGOING_VIDEO_CALL" = "Kimenő hanghívás";
+"OUTGOING_CALL" = "kimenő hívás";
 "CALL_REJECTED" = "Hívás elutasítva";
 "REJECTED_CALL" = "Elutasított hívás";
 "CALL_ACCEPTED" = "Hívás elfogadva";
@@ -208,6 +208,7 @@
 "ADD_NEW_OPTION" = "Új lehetőség hozzáadása";
 "VIEW_MEMBERS" = "Tagok megtekintése";
 "DETAILS" = "Részletek";
+"CALL_DETAILS" = "Hívás részletei";
 "NOTIFICATIONS" = "Értesítések";
 "OTHER" = "Egyéb";
 "HELP" = "Segítség";
@@ -330,9 +331,7 @@
 "ALL" = "Minden";
 "MISSED" = "Kihagyott";
 "NEW_CALL" = "Új hívás";
-"INCOMING_AUDIO_CALL" = "Bejövő hanghívás";
-"INCOMING_VIDEO_CALL" = "Bejövő videohívás";
-"MISSED_CALL" = "Kihagyott";
+"MISSED_CALL" = "Nem fogadott hívás";
 "REJECTED_CALL" = "elutasítva";
 "ONGOING_CALL" = "Folyamatban lévő hívás";
 "ONGOING_CALL_MESSAGE" = "Már fut a hívás. Szeretnél csatlakozni?";
@@ -518,3 +517,8 @@
 "TRANSLATED_MESSAGE" = "Translated message";
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "új üzenet";
+"NEW_MESSAGES" = "új üzenetek";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";

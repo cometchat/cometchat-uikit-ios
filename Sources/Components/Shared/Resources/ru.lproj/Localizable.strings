@@ -128,6 +128,8 @@
 "HISTORY" = "История";
 "VIDEO_CALL" = "Видеозвонок";
 "AUDIO_CALL" = "Аудиовызов";
+"VIDEO" = "видео";
+"CALL" = "Вызов";
 "WHITEBOARD" = "Доска";
 "LOADING" = "Загрузка...";
 "ONE_REPLY" = "1 ответить";
@@ -175,13 +177,11 @@
 "NO_GROUPS_FOUND" =  "Группы не найдены";
 "NO_CHATS_FOUND" =  "Чатов не найдено";
 "MEDIA_MESSAGE" =  "Сообщение СМИ";
-"INCOMING_AUDIO_CALL" =  "Входящий аудиовызов";
-"INCOMING_VIDEO_CALL" =  "Входящий видеозвонок";
+"INCOMING_CALL" =  "Входящий звонок";
 "DECLINE" =  "Отклонить";
 "ACCEPT" =  "Принять";
 "CALL_INITIATED" =  "Вызов инициирован";
-"OUTGOING_AUDIO_CALL" =  "Исходящий аудиовызов";
-"OUTGOING_VIDEO_CALL" =  "Исходящий видеозвонок";
+"OUTGOING_CALL" =  "Исходящий вызов";
 "CALL_REJECTED" =  "Вызов отклонен";
 "REJECTED_CALL" =  "отклоненный вызов";
 "CALL_ACCEPTED" =  "Вызов принят";
@@ -209,6 +209,7 @@
 "ADD_NEW_OPTION" =  "Добавить новый вариант";
 "VIEW_MEMBERS" =  "Просмотр участников";
 "DETAILS" =  "Подробности";
+"CALL_DETAILS" = "детали звонка";
 "NOTIFICATIONS" =  "Уведомления";
 "OTHER" =  "Другое";
 "HELP" =  "Помощь";
@@ -331,9 +332,7 @@
 "ALL" = "Все";
 "MISSED" = "Пропустил";
 "NEW_CALL" = "Новый звонок";
-"INCOMING_AUDIO_CALL" = "Входящий аудиовызов";
-"INCOMING_VIDEO_CALL" = "Входящий видеозвонок";
-"MISSED_CALL" = "Пропустил";
+"MISSED_CALL" = "Пропущенный звонок";
 "REJECTED_CALL" = "Отклонен";
 "ONGOING_CALL" = "Вызов в процессе";
 "ONGOING_CALL_MESSAGE" = "Звонок уже запущен. Хотите присоединиться?";
@@ -522,3 +521,8 @@
 "TRANSLATED_MESSAGE" = "Translated message";
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "новое сообщение";
+"NEW_MESSAGES" = "новые сообщения";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";

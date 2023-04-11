@@ -128,6 +128,8 @@
 "HISTORY" = "Istorija";
 "VIDEO_CALL" = "Vaizdo skambutis";
 "AUDIO_CALL" = "Garso skambutis";
+"VIDEO" = "video";
+"CALL" = "Chiamata";
 "WHITEBOARD" = "Lenta";
 "LOADING" = "Kraunasi...";
 "ONE_REPLY" = "1 atsakymas";
@@ -175,13 +177,11 @@
 "NO_GROUPS_FOUND" = "Grupės nerasta";
 "NO_CHATS_FOUND" = "Pokalbių nerasta";
 "MEDIA_MESSAGE" = "Žiniasklaidos pranešimas";
-"INCOMING_AUDIO_CALL" = "Įeinantis garso skambutis";
-"INCOMING_VIDEO_CALL" = "Įeinantis vaizdo skambutis";
+"INCOMING_CALL" = "Chiamata in arrivo";
 "DECLINE" = "Mažėjimas";
 "ACCEPT" = "Priimti";
 "CALL_INITIATED" = "Skambutis";
-"OUTGOING_AUDIO_CALL" = "Išeinantis garso skambutis";
-"OUTGOING_VIDEO_CALL" = "Išeinantis garso skambutis";
+"OUTGOING_CALL" = "chiamata in uscita";
 "CALL_REJECTED" = "Skambinti atmestas";
 "REJECTED_CALL" = "Atmestas skambu";
 "CALL_ACCEPTED" = "Skambinti priimta";
@@ -209,6 +209,7 @@
 "ADD_NEW_OPTION" = "Pridėti naują parinktį";
 "VIEW_MEMBERS" = "Peržiūrėti narius";
 "DETAILS" = "Detalės";
+"CALL_DETAILS" = "Skambinimo informacija";
 "NOTIFICATIONS" = "Pranešimai";
 "OTHER" = "Kitas";
 "HELP" = "Pagalba";
@@ -331,9 +332,7 @@
 "ALL" = "Visi";
 "MISSED" = "praleista";
 "NEW_CALL" = "Naujas skambutis";
-"INCOMING_AUDIO_CALL" = "Įeinantis garso skambutis";
-"INCOMING_VIDEO_CALL" = "Įeinantis vaizdo skambutis";
-"MISSED_CALL" = "praleista";
+"MISSED_CALL" = "Chiamata persa";
 "REJECTED_CALL" = "Atmesti";
 "ONGOING_CALL" = "Vykdomas kvietimas";
 "ONGOING_CALL_MESSAGE" = "Skambutis jau veikia. Ar norėtumėte prisijungti?";
@@ -522,3 +521,8 @@
 "TRANSLATED_MESSAGE" = "Translated message";
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "nuovo messaggio";
+"NEW_MESSAGES" = "nuovo messaggio";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";

@@ -1,8 +1,7 @@
-
 <div style="width:100%">
     <div style="width:50%; display:inline-block">
         <p align="center">
-        <img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-swift-chat-ui-kit/blob/master/Screenshots/logo.png">    
+        <img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-swift-chat-app/blob/master/Screenshots/logo.png">    
         </p>    
     </div>    
 </div>
@@ -10,102 +9,106 @@
 
 </br>
 
+# CometChat iOS Chat SDK
 
-
-
-# iOS Chat UI Kit
-
-<p align="left">
-
-<a href=""><img src="https://img.shields.io/badge/Repo%20Size-11.1%20MB-brightgreen" /></a>
-<a href=""> <img src="https://img.shields.io/badge/Contributors-2-yellowgreen" /></a>
-<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.909--pluto.beta.1.1-red" /></a>
-<a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-swift-chat-ui-kit?style=social"/></a>
-<a href=""> <img src="https://img.shields.io/twitter/follow/cometchat?style=social" /></a>
+<a href="https://cocoapods.org/pods/CometChatPro"><img src="https://img.shields.io/badge/platform-iOS-orange.svg" /></a>
+<a href=""><img src="https://img.shields.io/badge/language-Objective--C%20%7C%20Swift-orange.svg" /></a>
+<a href=""> <img src="https://img.shields.io/badge/Contributors-4-yellowgreen" /></a>
+<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.900-red" /></a>
+<a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-chat-sdk?style=social" /></a>
 
 </p>
 </br></br>
 
-<div style="width:100%">
-    <div style="width:50%; display:inline-block">
-        <p align="center">
-        <img align="left" src="https://github.com/cometchat-pro/ios-swift-chat-ui-kit/blob/master/Screenshots/MainScreenshot1.png">    
-        </p>    
-    </div>    
-</div>
-
-The **UI Kit** library is collection of custom **UI Components** and **UI Screens** design to build chat application within few minutes. **UI kit** is designed to avoid boilerplate code for building UI,it has three different ways to build a chat application with fully customizable UI. It will help developers to build a chat application within using various **UI Components**.
-
+CometChat enables you to add voice, video & text chat for your website & app.
 ___
 
-
-## Prerequisites
+## Prerequisites :star:
 
 Before you begin, ensure you have met the following requirements:
 
-- You have installed the latest version of Xcode. (Above Xcode 12 Recommended)
+✅ &nbsp; You have installed the latest version of Xcode. (Above Xcode 12 Recommended)
 
-- iOS Chat UI Kit works for the iOS devices from iOS 13 and above.
+✅ &nbsp; iOS Chat SDK works for the iOS devices from iOS 11 and above.
 
-NOTE: Please install the latest pod version on your Mac to avoid integration issues
+___
+
+## Installing iOS Chat SDK 
+
+## 1. Setup  :wrench:
+
+To install iOS Chat SDK, you  need to first register on CometChat Dashboard. [Click here to sign up](https://app.cometchat.com/login).
+
+### i. Get your Application Keys :key:
+
+* Create a new app
+* Head over to the Quick Start or API & Auth Keys section and note the `App ID`, `Auth Key`,  and  `Region`.
+---
+
+### ii. Add the CometChatPro Dependency
+
+
+We recommend using CocoaPods, as they are the most advanced way of managing iOS project dependencies. Open a terminal window, move to your project directory, and then create a Podfile by running the following command
+
+
+Create podfile using below command.
 
 ```bash
-Please follow the below steps:
-
-sudo gem update cocoapods --pre
-pod update
-clean
-build
-
+$ pod init
 ```
-NOTE: If you're building the new project, the please add below line in **AppDelegate.swift**
+Add the following lines to the Podfile.
 
 ```bash
-@UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
-    
- var window: UIWindow?
+________________________________________________________________
 
-}
+For Xcode 12 and above:
 
+platform :ios, '11.0'
+use_frameworks!
+
+target 'YourApp' do
+     pod 'CometChatPro', '3.0.900'
+end
+________________________________________________________________
+
+
+```
+v3.0.1+ onwards, Voice & Video Calling functionality has been moved to a separate framework. Please add the following pod to your app Podfile in case you plan on using the Voice and Video Calling feature.   
+
+```bash
+________________________________________________________________
+
+For Xcode 12 and above:
+
+platform :ios, '11.0'
+use_frameworks!
+
+target 'YourApp' do
+     pod 'CometChatPro', '3.0.900'
+     pod 'CometChatCalls', '2.1.1'
+end
+________________________________________________________________
+
+
+```
+And then install the `CometChatPro` framework through CocoaPods.
+
+```bash
+pod install
+```
+
+If you're facing any issues while installing pods then use below command. 
+
+
+```bash
+pod install --repo-update
 ```
 
 ___
 
-## Get Started
+## 2. Configure CometChat inside your app
 
-You can start building a modern messaging experience in your app by installing Pluto UIKit. This developer kit is an add-on feature to CometChatPro iOS SDK so installing it will also install the core Chat SDK.
-
-## Step 1 : Create a project
-
-To get started, open Xcode and create a new project.
-
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIUnified.jpg)
-
-Enter name, identifier and proceed.
-
-![Studio Guide](https://github.com/cometchat-pro/ios-chat-uikit/blob/master/Screenshots/UIUnified.jpg)
-___
-
-## Step 2 : Install UI Kit
-
-You can install UIKit for iOS through Swift Package Manager.
-
-1. Go to your Swift Package Manager's File tab and select Add Packages.
-
-
-2.  Add CometChatProUIKit into your Package Repository as below:
-
-```swift
-
-https://github.com/cometchat-pro/ios-swift-chat-ui-kit.git
-
-```
-
-3. To add the package, select Version Rules, enter Up to Exact Version, 3.0.908-pluto.beta.1, and click Next.
-___
-
-### i. Initialize Client App
+### i. Initialize CometChat :star2:
 
 The `init()` method initializes the settings required for CometChat. We suggest calling the `init()` method on app startup, preferably in the `didFinishLaunchingWithOptions()` method of the Application class.
 
@@ -136,7 +139,25 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 Make sure you replace the APP_ID with your CometChat `appId` and `region` with your app region in the above code.
 
 ___
-### ii.Log in your User
+
+### ii.Create User :bust_in_silhouette:
+
+Once initialisation is successful, you will need to create a user. To create users on the fly, you can use the `createUser()` method. This method takes an `User` object and the `Auth Key` as input parameters and returns the created User object if the request is successful.
+
+```swift
+
+let newUser : User = User(uid: "user1", name: "Kevin") // Replace with your uid and the name for the user to be created.
+let authKey = "authKey" // Replace with your Auth Key.
+CometChat.createUser(user: newUser, apiKey: authKey, onSuccess: { (User) in
+      print("User created successfully. \(User.stringValue())")
+  }) { (error) in
+     print("The error is \(String(describing: error?.description))")
+}
+
+```
+___
+
+### iii.Log in your User :bust_in_silhouette:
 
 The `login()` method returns the User object containing all the information of the logged-in user.
 
@@ -158,22 +179,29 @@ CometChat.login(UID: uid, apiKey: authKey, onSuccess: { (user) in
 * Make sure you replace the `authKey` with your CometChat Auth Key in the above code.
 
 * We have setup 5 users for testing having UIDs: `SUPERHERO1`, `SUPERHERO2`, `SUPERHERO3`,`SUPERHERO4` and `SUPERHERO5`.
-___
+---
+
+# Checkout our iOS UI Kit
+
+Visit our [iOS Chat UI Kit](https://github.com/cometchat-pro/ios-chat-ui-kit) repo to integrate it inside your app.
 
 
-## 3. Launch UI Components
+---
 
-The UIKit is a set of prebuilt UI components that allows you to easily build beautiful in-app chat with all the essential messaging features.
+# Checkout our sample apps
 
-UIKit for iOS manages the lifecycle of its ViewController along with various views and data from the Chat SDK for iOS. It provides the following components:
+## Swift: 
+Visit our [Swift sample app](https://github.com/cometchat-pro-samples/ios-swift-chat-app) repo to run the swift sample app.
 
- To read the full dcoumentation on UI Kit Compoenents visit our [Documentation](https://app.developerhub.io/cometchat-documentation/v3/swift-chat-ui-kit/pluto-ui-components)  .
+## Objective C: 
+Visit our [Objective-C sample app](https://github.com/cometchat-pro-samples/ios-objective-c-chat-app) repo to run the objective-c sample app.
 
-___
+---
+
 
 # Troubleshooting
 
-- To read the full dcoumentation on UI Kit integration visit our [Documentation](https://prodocs.cometchat.com/docs/ios-ui-kit)  .
+- To read the full dcoumentation on CometChat integration visit our [Documentation](https://prodocs.cometchat.com/docs/ios-quick-start).
 
 - Facing any issues while integrating or installing the UI Kit please <a href="https://app.cometchat.io/"> connect with us via real time support present in CometChat Dashboard.</a>.
 
@@ -185,11 +213,13 @@ ___
 Thanks to the following people who have contributed to this project:
 
 [@pushpsenairekar2911 👨‍💻](https://github.com/pushpsenairekar2911) <br>
-[@AbdullahAnsarri 👨‍💻](https://github.com/AbdullahAnsarri)
+[@ghanshyammansata 👨‍💻](https://github.com/ghanshyammansata) <br>
+[@jeetkapadia 👨‍💻](https://github.com/jeetkapadia) <br>
+[@NishantTiwarins 👨‍💻](https://github.com/NishantTiwarins) <br>
 
 ---
 
-# Contact
+# Contact :mailbox:
 
 Contact us via real time support present in [CometChat Dashboard.](https://app.cometchat.io/)
 
@@ -197,6 +227,7 @@ Contact us via real time support present in [CometChat Dashboard.](https://app.c
 
 # License
 
----
-
 This project uses the following [license](https://github.com/cometchat-pro/ios-swift-chat-ui-kit/blob/master/License.md).
+
+
+# CometChatWorkspace

@@ -128,6 +128,8 @@
 "HISTORY" = "Sejarah";
 "VIDEO_CALL" = "Panggilan Video";
 "AUDIO_CALL" = "Panggilan Audio";
+"VIDEO" = "Video";
+"CALL" = "Panggil";
 "WHITEBOARD" = "Papan Putih";
 "LOADING" = "Memuatkan...";
 "ONE_REPLY" = "1 balasan";
@@ -175,13 +177,11 @@
 "NO_GROUPS_FOUND" = "Tiada kumpulan ditemui";
 "NO_CHATS_FOUND" = "Tiada sembang ditemui";
 "MEDIA_MESSAGE" = "Mesej Media";
-"INCOMING_AUDIO_CALL" = "Panggilan Audio Masuk";
-"INCOMING_VIDEO_CALL" = "Panggilan Video Masuk";
+"INCOMING_CALL" = "Panggilan masuk";
 "DECLINE" = "Tolak";
 "ACCEPT" = "Terima";
 "CALL_INITIATED" = "Panggilan Dimulakan";
-"OUTGOING_AUDIO_CALL" = "Panggilan Audio Keluar";
-"OUTGOING_VIDEO_CALL" = "Panggilan Audio Keluar";
+"OUTGOING_CALL" = "Panggilan keluar";
 "CALL_REJECTED" = "Panggilan Ditolak";
 "REJECTED_CALL" = "Panggilan Ditolak";
 "CALL_ACCEPTED" = "Panggilan Diterima";
@@ -209,6 +209,7 @@
 "ADD_NEW_OPTION" = "Tambah pilihan baru";
 "VIEW_MEMBERS" = "Lihat Ahli";
 "DETAILS" = "Butiran";
+"CALL_DETAILS" = "Butiran Panggilan";
 "NOTIFICATIONS" = "Pemberitahuan";
 "OTHER" = "Lain-lain";
 "HELP" = "Bantuan";
@@ -331,8 +332,6 @@
 "ALL" = "Semua";
 "MISSED" = "Tidak dijawab";
 "NEW_CALL" = "Panggilan baru";
-"INCOMING_AUDIO_CALL" = "Panggilan audio masuk";
-"INCOMING_VIDEO_CALL" = "Panggilan video masuk";
 "MISSED_CALL" = "Tidak dijawab";
 "REJECTED_CALL" = "Ditolak";
 "ONGOING_CALL" = "Panggilan sedang dijalankan";
@@ -521,3 +520,8 @@
 "TRANSLATED_MESSAGE" = "Translated message";
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "mesej baru";
+"NEW_MESSAGES" = "mesej baru";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";

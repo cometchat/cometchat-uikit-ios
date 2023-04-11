@@ -138,6 +138,8 @@
 "HISTORY" = "歷史";
 "VIDEO_CALL" = "視訊通話";
 "AUDIO_CALL" = "音訊通話";
+"VIDEO" = "视频";
+"CALL" = "称呼";
 "WHITEBOARD" = "白板";
 "LOADING" = "正在載入中...";
 "ONE_REPLY" = "1 個回覆";
@@ -185,13 +187,11 @@
 "NO_GROUPS_FOUND" = "找不到群組";
 "NO_CHATS_FOUND" = "找不到對話";
 "MEDIA_MESSAGE" = "媒體訊息";
-"INCOMING_AUDIO_CALL" = "來電語音通話";
-"INCOMING_VIDEO_CALL" = "來電視訊通話";
+"INCOMING_CALL" = "来电";
 "DECLINE" = "拒絕";
 "ACCEPT" = "接受";
 "CALL_INITIATED" = "呼叫已啟動";
-"OUTGOING_AUDIO_CALL" = "撥出音訊通話";
-"OUTGOING_VIDEO_CALL" = "撥出音訊通話";
+"OUTGOING_CALL" = "去电";
 "CALL_REJECTED" = "電話拒絕";
 "REJECTED_CALL" = "拒絕的呼叫";
 "CALL_ACCEPTED" = "已接聽電話";
@@ -341,9 +341,7 @@
 "ALL" = "全部";
 "MISSED" = "錯過";
 "NEW_CALL" = "新呼叫";
-"INCOMING_AUDIO_CALL" = "來電音訊通話";
-"INCOMING_VIDEO_CALL" = "來電視訊通話";
-"MISSED_CALL" = "錯過";
+"MISSED_CALL" = "未接来电";
 "REJECTED_CALL" = "已拒絕";
 "ONGOING_CALL" = "呼叫進行中";
 "ONGOING_CALL_MESSAGE" = "呼叫已在執行中。你想加入嗎？";
@@ -528,3 +526,8 @@
 "TRANSLATED_MESSAGE" = "Translated message";
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "新消息";
+"NEW_MESSAGES" = "新消息";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";

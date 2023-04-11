@@ -128,6 +128,8 @@
 "HISTORY" = "Historia";
 "VIDEO_CALL" = "Video Samtal";
 "AUDIO_CALL" = "Ljud Samtal";
+"VIDEO" = "Video";
+"CALL" = "Ring upp";
 "WHITEBOARD" = "Whiteboard";
 "LOADING" = "Laddar...";
 "ONE_REPLY" = "1 svar";
@@ -175,13 +177,11 @@
 "NO_GROUPS_FOUND" = "Inga grupper hittades";
 "NO_CHATS_FOUND" = "Inga chattar hittades";
 "MEDIA_MESSAGE" = "Meddelande från media";
-"INCOMING_AUDIO_CALL" = "Inkommande ljudsamtal";
-"INCOMING_VIDEO_CALL" = "Inkommande videosamtal";
+"INCOMING_CALL" = "Inkommande samtal";
 "DECLINE" = "Nedgång";
 "ACCEPT" = "Ta emot";
 "CALL_INITIATED" = "Samtal initierat";
-"OUTGOING_AUDIO_CALL" = "Utgående ljudsamtal";
-"OUTGOING_VIDEO_CALL" = "Utgående ljudsamtal";
+"OUTGOING_CALL" = "Utgående samtal";
 "CALL_REJECTED" = "Samtal avvisade";
 "REJECTED_CALL" = "Avvisade samtal";
 "CALL_ACCEPTED" = "Samtal accepteras";
@@ -209,6 +209,7 @@
 "ADD_NEW_OPTION" = "Lägg till nytt alternativ";
 "VIEW_MEMBERS" = "Visa medlemmar";
 "DETAILS" = "Detaljer";
+"CALL_DETAILS" = "Samtalsuppgifter";
 "NOTIFICATIONS" = "Meddelanden";
 "OTHER" = "Annat";
 "HELP" = "Hjälp";
@@ -331,9 +332,7 @@
 "ALL" = "Alla";
 "MISSED" = "Missade";
 "NEW_CALL" = "Nytt samtal";
-"INCOMING_AUDIO_CALL" = "Inkommande ljudsamtal";
-"INCOMING_VIDEO_CALL" = "Inkommande videosamtal";
-"MISSED_CALL" = "Missade";
+"MISSED_CALL" = "Missat samtal";
 "REJECTED_CALL" = "Avvisade";
 "ONGOING_CALL" = "Anrop pågår";
 "ONGOING_CALL_MESSAGE" = "Samtalet är redan igång. Vill du gå med?";
@@ -518,3 +517,8 @@
 "TRANSLATED_MESSAGE" = "Translated message";
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "nytt meddelande";
+"NEW_MESSAGES" = "nya meddelanden";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";

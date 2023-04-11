@@ -128,6 +128,8 @@
 "HISTORY" = "Historia";
 "VIDEO_CALL" = "Videollamada";
 "AUDIO_CALL" = "Llamada de audio";
+"VIDEO" = "Video";
+"CALL" = "Llamar";
 "WHITEBOARD" = "Pizarra blanca";
 "LOADING" = "Cargando...";
 "ONE_REPLY" = "1 respuesta";
@@ -175,13 +177,11 @@
 "NO_GROUPS_FOUND" = "No se han encontrado grupos";
 "NO_CHATS_FOUND" = "No se encontraron chats";
 "MEDIA_MESSAGE" = "Mensaje multimedia";
-"INCOMING_AUDIO_CALL" = "Llamada de audio entrante";
-"INCOMING_VIDEO_CALL" = "Videollamada entrante";
+"INCOMING_CALL" = "Llamada entrante";
 "DECLINE" = "Declive";
 "ACCEPT" = "Aceptar";
 "CALL_INITIATED" = "Llamada iniciada";
-"OUTGOING_AUDIO_CALL" = "Llamada de audio saliente";
-"OUTGOING_VIDEO_CALL" = "Llamada de audio saliente";
+"OUTGOING_CALL" = "Llamada saliente";
 "CALL_REJECTED" = "Llamada rechazada";
 "REJECTED_CALL" = "Llamada rechazada";
 "CALL_ACCEPTED" = "Llamada aceptada";
@@ -209,6 +209,7 @@
 "ADD_NEW_OPTION" = "Agregar nueva opción";
 "VIEW_MEMBERS" = "Ver miembros";
 "DETAILS" = "Detalles";
+"CALL_DETAILS" = "Detalles de la llamada";
 "NOTIFICATIONS" = "Notificaciones";
 "OTHER" = "Otro";
 "HELP" = "Ayudar";
@@ -331,9 +332,7 @@
 "ALL" = "Todos";
 "MISSED" = "Perdida";
 "NEW_CALL" = "Nueva llamada";
-"INCOMING_AUDIO_CALL" = "Llamada de audio entrante";
-"INCOMING_VIDEO_CALL" = "Videollamada entrante";
-"MISSED_CALL" = "Perdida";
+"MISSED_CALL" = "Llamada perdida";
 "REJECTED_CALL" = "Rechazado";
 "ONGOING_CALL" = "Llamada en curso";
 "ONGOING_CALL_MESSAGE" = "La llamada ya se está ejecutando. ¿Te gustaría unirte?";
@@ -518,3 +517,8 @@
 "TRANSLATED_MESSAGE" = "Translated message";
 "DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
 "THIS_MAY_CONTAIN_UNSAFE_CONTENT_MESSAGE" = "Are you surely want to see this unsafe content?";
+"NEW_MESSAGE" = "nuevo mensaje";
+"NEW_MESSAGES" = "nuevos mensajes";
+"NO_MEMBERS_FOUND" = "No Members Found";
+"WRONG_PASSWORD" = "Wrong Password";
+"NO_CALLS_HISTORY" = "No Calls History";
