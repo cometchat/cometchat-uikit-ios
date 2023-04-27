@@ -4500,27 +4500,240 @@ extension CometChatMessageList : CometChatMessageDelegate {
             }
         }
     }
-    
-    
+        
     fileprivate func updateReceiptForCell(at indexPath: IndexPath, receipt: MessageReceipt) {
-        if let cell = tableView?.cellForRow(at: indexPath), let textMessageCell = cell as? CometChatSenderTextMessageBubble {
-            if textMessageCell.textMessage?.id == Int(receipt.messageId)   {
-                UIView.transition(with: textMessageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
-                    textMessageCell.textMessage?.receipts = [receipt]
+        if let cell = tableView?.cellForRow(at: indexPath) {
+           
+            if let messageCell = cell as? CometChatSenderTextMessageBubble {
+                
+                if messageCell.textMessage?.id == Int(receipt.messageId)   {
+                    UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                        messageCell.textMessage?.receipts = [receipt]
+                        
+                        switch receipt.receiptType {
+                        case .delivered:
+                            messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                            messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                        case .read:
+                            messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                            messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                        @unknown default:
+                            messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                            messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                        }
+                    })
+                }
+                
                     
-                    switch receipt.receiptType {
-                    case .delivered:
-                        textMessageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                        textMessageCell.receipt.tintColor = UIKitSettings.secondaryColor
-                    case .read:
-                        textMessageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                        textMessageCell.receipt.tintColor = UIKitSettings.primaryColor
-                    @unknown default:
-                        textMessageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-                        textMessageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                } else if let messageCell = cell as? CometChatSenderImageMessageBubble {
+                    
+                    if messageCell.mediaMessage?.id == Int(receipt.messageId)   {
+                        UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                            messageCell.mediaMessage?.receipts = [receipt]
+                            
+                            switch receipt.receiptType {
+                            case .delivered:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            case .read:
+                                messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                            @unknown default:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            }
+                        })
                     }
-                })
-            }
+                   
+                    
+                } else if let messageCell = cell as? CometChatSenderFileMessageBubble {
+                    
+                    if messageCell.fileMessage?.id == Int(receipt.messageId)   {
+                        UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                            messageCell.fileMessage?.receipts = [receipt]
+                            
+                            switch receipt.receiptType {
+                            case .delivered:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            case .read:
+                                messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                            @unknown default:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            }
+                        })
+                    }
+                  
+                    
+                } else if let messageCell = cell as? CometChatSenderStickerMessageBubble {
+                    
+                    if messageCell.stickerMessage?.id == Int(receipt.messageId)   {
+                        UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                            messageCell.stickerMessage?.receipts = [receipt]
+                            
+                            switch receipt.receiptType {
+                            case .delivered:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            case .read:
+                                messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                            @unknown default:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            }
+                        })
+                    }
+                  
+                    
+                } else if let messageCell = cell as? CometChatSenderPollMessageBubble {
+                    
+                    if messageCell.pollMessage?.id == Int(receipt.messageId)   {
+                        UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                            messageCell.pollMessage?.receipts = [receipt]
+                            
+                            switch receipt.receiptType {
+                            case .delivered:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            case .read:
+                                messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                            @unknown default:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            }
+                        })
+                    }
+                    
+                    
+                } else if let messageCell = cell as? CometChatSenderLinkPreviewBubble {
+                    
+                    if messageCell.linkPreviewMessage?.id == Int(receipt.messageId)   {
+                        UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                            messageCell.linkPreviewMessage?.receipts = [receipt]
+                            
+                            switch receipt.receiptType {
+                            case .delivered:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            case .read:
+                                messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                            @unknown default:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            }
+                        })
+                    }
+                    
+                    
+                } else if let messageCell = cell as? CometChatSenderVideoMessageBubble {
+                    
+                    if messageCell.mediaMessage?.id == Int(receipt.messageId)   {
+                        UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                            messageCell.mediaMessage?.receipts = [receipt]
+                            
+                            switch receipt.receiptType {
+                            case .delivered:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            case .read:
+                                messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                            @unknown default:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            }
+                        })
+                    }
+                   
+                    
+                } else if let messageCell = cell as? CometChatSenderAudioMessageBubble {
+                    
+                    if messageCell.audioMessage?.id == Int(receipt.messageId) {
+                        UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                            messageCell.audioMessage?.receipts = [receipt]
+                            
+                            switch receipt.receiptType {
+                            case .delivered:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            case .read:
+                                messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                            @unknown default:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            }
+                        })
+                    }
+                   
+                    
+                } else if let messageCell = cell as? CometChatSenderReplyMessageBubble {
+                    
+                    if messageCell.textMessage?.id == Int(receipt.messageId)   {
+                        UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                            messageCell.textMessage?.receipts = [receipt]
+                            
+                            switch receipt.receiptType {
+                            case .delivered:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            case .read:
+                                messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                            @unknown default:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            }
+                        })
+                    }
+                   
+                    
+                } else if let messageCell = cell as? CometChatSenderLocationMessageBubble {
+                    
+                    if messageCell.locationMessage?.id == Int(receipt.messageId)   {
+                        UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                            messageCell.locationMessage?.receipts = [receipt]
+                            
+                            switch receipt.receiptType {
+                            case .delivered:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            case .read:
+                                messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                            @unknown default:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            }
+                        })
+                    }
+                    
+                    
+                } else if let messageCell = cell as? CometChatSenderCollaborativeMessageBubble {
+                    if messageCell.whiteboardMessage?.id == Int(receipt.messageId)   {
+                        UIView.transition(with: messageCell.receiptStack, duration: 0.4, options: .transitionCrossDissolve,animations: {
+                            messageCell.whiteboardMessage?.receipts = [receipt]
+                            
+                            switch receipt.receiptType {
+                            case .delivered:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            case .read:
+                                messageCell.receipt.image = UIImage(named: "message-read", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.primaryColor
+                            @unknown default:
+                                messageCell.receipt.image = UIImage(named: "message-delivered", in: UIKitSettings.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+                                messageCell.receipt.tintColor = UIKitSettings.secondaryColor
+                            }
+                        })
+                    }
+                    
+                }
         }
     }
     

@@ -17,18 +17,18 @@ enum WebViewType {
 }
 
 class CometChatWebView: UIViewController , WKNavigationDelegate {
+
     
     @IBOutlet weak var webView: WKWebView!
-    var url: String?
-    var webViewType: WebViewType = .whiteboard
-    var user: User?
-    var activityIndicator: ActivityIndicator = ActivityIndicator()
+    
+     var url: String?
+     var webViewType: WebViewType = .whiteboard
+     var user: CometChatPro.User?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupNavigationBar()
-        addIndicatorView()
         switch webViewType {
         case .whiteboard:
             self.set(title: "WHITEBOARD".localized(), mode: .never)
@@ -39,51 +39,32 @@ class CometChatWebView: UIViewController , WKNavigationDelegate {
                 self.set(title: name, mode: .never)
             }
         }
+        
         switch webViewType {
         case .whiteboard:
-            DispatchQueue.global(qos: .userInitiated).async {
-                if let url = self.url {
-                    let link = URL(string: url)!
-                    let request = URLRequest(url: link)
-                    DispatchQueue.main.async {
-                        self.webView.load(request)
-                    }
-                }
+            if let url = url {
+                let link = URL(string: url)!
+                let request = URLRequest(url: link)
+                webView.load(request)
             }
         case .writeboard:
-            DispatchQueue.global(qos: .userInitiated).async {
-                if let url = self.url {
-                    let link = URL(string: url)!
-                    let request = URLRequest(url: link)
-                    DispatchQueue.main.async {
-                        self.webView.load(request)
-                    }
-                }
+            if let url = url {
+                let link = URL(string: url)!
+                let request = URLRequest(url: link)
+                webView.load(request)
             }
         case .profile:
-            DispatchQueue.global(qos: .userInitiated).async {
-                if let currentLink = self.user?.link {
-                    let link = URL(string: currentLink)!
-                    let request = URLRequest(url: link)
-                    DispatchQueue.main.async {
-                        self.webView.load(request)
-                    }
-                }
+            if let currentLink = user?.link {
+                let link = URL(string: currentLink)!
+                let request = URLRequest(url: link)
+                webView.load(request)
             }
         }
-        
+      
         webView.navigationDelegate = self
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         self.webView.scrollView.zoomScale = 5.0
-    }
-    
-    /// IndicatorView.
-    private func addIndicatorView() {
-        webView.addSubview(activityIndicator.view)
-        activityIndicator.view.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.view.centerXAnchor.constraint(equalTo: webView.centerXAnchor).isActive = true
-        activityIndicator.view.centerYAnchor.constraint(equalTo: webView.centerYAnchor).isActive = true
-        activityIndicator.startAnimatingView()
+
     }
     
     override func loadView() {
@@ -106,11 +87,11 @@ class CometChatWebView: UIViewController , WKNavigationDelegate {
                 navigationController?.navigationBar.prefersLargeTitles = true
             case .never:
                 navigationController?.navigationBar.prefersLargeTitles = false
-                @unknown default:break }
+            @unknown default:break }
         }
     }
-    
-    private func setupNavigationBar() {
+
+    private func setupNavigationBar(){
         if navigationController != nil{
             // NavigationBar Appearance
             if #available(iOS 13.0, *) {
@@ -123,26 +104,24 @@ class CometChatWebView: UIViewController , WKNavigationDelegate {
                 navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
                 self.navigationController?.navigationBar.isTranslucent = true
             }
-        }
-    }
+        }}
     
-    // MARK:- delegate methods for WKWebView.
+    
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         
         CometChatSnackBoard.display(message: error.localizedDescription, mode: .error, duration: .short)
-        self.activityIndicator.stopAnimatingView()
         self.dismiss(animated: true, completion: nil)
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        
-        CometChatSnackBoard.display(message: error.localizedDescription , mode: .error, duration: .short)
-        self.activityIndicator.stopAnimatingView()
-        self.dismiss(animated: true, completion: nil)
+     
+      CometChatSnackBoard.display(message: error.localizedDescription , mode: .error, duration: .short)
+//      self.dismiss(animated: true, completion: nil)
     }
     
-    func webView(_: WKWebView, didFinish _: WKNavigation!) {
-        self.activityIndicator.stopAnimatingView()
+    func webView(_: WKWebView, didStartProvisionalNavigation _: WKNavigation!) {
+//        self.dismiss(animated: true, completion: nil)
     }
     
+    func webView(_: WKWebView, didFinish _: WKNavigation!) {}
 }
