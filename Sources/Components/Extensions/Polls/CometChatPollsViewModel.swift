@@ -79,7 +79,7 @@ public class CometChatPollsViewModel : DataSourceDecorator {
     
     public func getAttachmentOption(controller: UIViewController?, user: User?, group: Group?) -> CometChatMessageComposerAction? {
 
-        return CometChatMessageComposerAction(id: ExtensionConstants.whiteboard, text: "CREATE_A_POLL".localize(), startIcon: UIImage(named: "polls.png", in: CometChatUIKit.bundle, compatibleWith: nil) ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil) {
+        return CometChatMessageComposerAction(id: ExtensionConstants.polls, text: "CREATE_A_POLL".localize(), startIcon: UIImage(named: "polls.png", in: CometChatUIKit.bundle, compatibleWith: nil) ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil) {
             self.presentCreatePoll(user: user, group: group, controller: controller)
         }
     }

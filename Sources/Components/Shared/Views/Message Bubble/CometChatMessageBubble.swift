@@ -148,7 +148,7 @@ public class CometChatMessageBubble: UITableViewCell {
 
 
     func set(backgroundColor: UIColor) {
-        self.set(backgroundColor: backgroundColor)
+        background.backgroundColor = backgroundColor
     }
     
     func set(cornerRadius: CometChatCornerStyle) {

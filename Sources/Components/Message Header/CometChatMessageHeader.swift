@@ -145,7 +145,7 @@ import CometChatPro
                 }else{
                     label.text = String(group.membersCount) + " " + MessageHeaderConstants.members
                 }
-                label.textColor = messageHeaderStyle.subtitleTextColorForOffline
+                label.textColor = messageHeaderStyle.subtitleTextColor
                 label.font = messageHeaderStyle.subtitleTextFont
                 listItemView.set(subtitle: label)
             }
@@ -251,8 +251,13 @@ import CometChatPro
     
     @IBAction func didBackIconPressed(_ sender: Any) {
         if self.controller?.navigationController != nil {
-            controller?.navigationController?.navigationBar.isHidden = false
-            controller?.navigationController?.popViewController(animated: true)
+            if self.controller?.navigationController?.viewControllers.first == self.controller {
+                controller?.dismiss(animated: true, completion: nil)
+            } else {
+                controller?.navigationController?.navigationBar.isHidden = false
+                controller?.navigationController?.popViewController(animated: true)
+            }
+          
         }else{
             controller?.dismiss(animated: true, completion: nil)
         }
@@ -268,8 +273,8 @@ extension CometChatMessageHeader {
     }
     
     @discardableResult
-    public func setAuxiliaryHeaderMenu(auxiliaryHeaderMenu: ((_ user: User?, _ group: Group?) -> UIView)?) -> Self {
-        self.menus = auxiliaryHeaderMenu
+    public func setMenus(menu: ((_ user: User?, _ group: Group?) -> UIView)?) -> Self {
+        self.menus = menu
         return self
     }
     
@@ -324,14 +329,14 @@ extension CometChatMessageHeader {
     }
     
     @discardableResult
-    public func set(disableUsersPresence: Bool) -> Self {
-        self.disableUsersPresence = disableUsersPresence
+    public func disable(userPresence: Bool) -> Self {
+        self.disableUsersPresence = userPresence
         return self
     }
     
     @discardableResult
-    public func set(disableTyping: Bool) -> Self {
-        self.disableTyping = disableTyping
+    public func disable(typing: Bool) -> Self {
+        self.disableTyping = typing
         return self
     }
     
@@ -365,6 +370,16 @@ extension CometChatMessageHeader {
         self.messageHeaderStyle = messageHeaderStyle
         return self
     }
+    
+    @discardableResult
+    public func set(customMessageHeader: UIView) -> Self {
+        for view in listItemContainer.subviews {
+            view.removeFromSuperview()
+        }
+        customMessageHeader.frame = listItemContainer.bounds
+        listItemContainer.addSubview(customMessageHeader)
+        return self
+    }
 }
 
 extension CometChatMessageHeader {
@@ -375,27 +390,5 @@ extension CometChatMessageHeader {
         label.textColor = messageHeaderStyle.subtitleTextColor
         label.font = messageHeaderStyle.subtitleTextFont
         return label
-    }
-    
-    public func configureMenus() -> UIView {
-        
-        let style = ButtonStyle()
-        style.set(iconBackground: .clear)
-            .set(iconTint: CometChatTheme.palatte.primary)
-        
-        let detailButton = CometChatButton(width: 35, height: 35)
-        let infoIcon: UIImage = UIImage(named: "messages-info.png", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
-        detailButton.set(icon: infoIcon)
-        detailButton.set(style: style)
-        detailButton.set(controller: controller)
-        detailButton.setOnClick {
-            if let user = self.viewModel?.user {
-                CometChatMessageEvents.emitOnViewInformation(user: user)
-            }
-            if let group = self.viewModel?.group {
-                CometChatMessageEvents.emitOnViewInformation(group: group)
-            }
-        }
-        return detailButton
     }
 }

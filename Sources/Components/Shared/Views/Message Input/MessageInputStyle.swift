@@ -12,8 +12,7 @@ public class MessageInputStyle : BaseStyle {
     private(set) var placeHolderTextFont = CometChatTheme.typography.text1
     private(set) var placeHolderTextColor = CometChatTheme.palatte.accent500
     private(set) var dividerColor = CometChatTheme.palatte.accent200
-    private(set) var topViewBackgroundColor = CometChatTheme.palatte.accent100
-    private(set) var bottomViewBackgroundColor = CometChatTheme.palatte.accent100
+    private(set) var inputBackground = CometChatTheme.palatte.accent100
     
     @discardableResult
     public func set(textColor: UIColor) -> Self {
@@ -46,14 +45,8 @@ public class MessageInputStyle : BaseStyle {
     }
     
     @discardableResult
-    public func set(topViewBackgroundColor: UIColor) -> Self {
-        self.topViewBackgroundColor = topViewBackgroundColor
-        return self
-    }
-    
-    @discardableResult
-    public func set(bottomViewBackgroundColor: UIColor) -> Self {
-        self.bottomViewBackgroundColor = bottomViewBackgroundColor
+    public func set(inputBackgroundColor: UIColor) -> Self {
+        self.inputBackground = dividerColor
         return self
     }
     

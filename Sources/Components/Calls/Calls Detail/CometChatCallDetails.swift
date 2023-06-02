@@ -8,7 +8,7 @@
 import Foundation
 import CometChatPro
 
-public class CometChatCallDetails : CometChatListBase {
+internal class CometChatCallDetails : CometChatListBase {
     
     //MARK: VARIABLE DECLARATION
     private var closeButtonIconL: UIImage?

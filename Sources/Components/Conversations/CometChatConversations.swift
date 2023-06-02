@@ -30,6 +30,8 @@ open class CometChatConversations: CometChatListBase {
         }
     }
     
+    private var noChatFound = true
+    
     private var conversationsStyle: ConversationsStyle
     private var avatarStyle: AvatarStyle
     private var statusIndicatorStyle: StatusIndicatorStyle
@@ -145,11 +147,16 @@ open class CometChatConversations: CometChatListBase {
         viewModel.reload = { [weak self] in
             guard let this = self else { return }
             DispatchQueue.main.async {
-                if this.viewModel.size() == 0 {
+                if this.viewModel.size() == 0 && this.noChatFound {
                     if let emptyView = this.emptyView {
                         this.tableView.set(customView: emptyView)
                     } else {
                         this.tableView.setEmptyMessage(this.emptyStateText, color: this.emptyStateTextColor, font: this.emptyStateTextFont)
+                    }
+                } else {
+                    this.tableView.setEmptyMessage("", color: this.emptyStateTextColor, font: this.emptyStateTextFont)
+                    if this.viewModel.conversations.count > 0{
+                        this.noChatFound = false
                     }
                 }
                 this.reload()

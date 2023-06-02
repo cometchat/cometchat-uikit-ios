@@ -27,10 +27,10 @@ public struct MessageReceiptUtils {
             return .read
         } else if message.deliveredAt > 0 {
             return .delivered
-        } else if message.sentAt > 0 {
-            return  .sent
-        } else if message.sentAt == 0 {
+        } else if message.id == 0 {
             return .inProgress
+        } else if message.id > 0 {
+            return  .sent
         }
         return .failed
     }

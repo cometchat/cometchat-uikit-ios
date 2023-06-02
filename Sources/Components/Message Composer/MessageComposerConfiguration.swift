@@ -17,7 +17,7 @@ public class MessageComposerConfiguration {
     private(set) var onChange: (() -> Void)?
     private(set) var maxLine: Int?
     private(set) var attachmentIcon: UIImage?
-    private(set) var attachmentOptions: [CometChatMessageComposerAction]?
+    private(set) var attachmentOptions: ((_ user: User?, _ group: Group?, _ controller: UIViewController?) -> [CometChatMessageComposerAction])?
     private(set) var secondaryButtonView: ((_ user: User?, _ group: Group?) -> UIView)?
     private(set) var auxilaryButtonView: ((_ user: User?, _ group: Group?) -> UIView)?
     private(set) var auxiliaryButtonsAlignment: AuxilaryButtonAlignment?
@@ -68,7 +68,7 @@ public class MessageComposerConfiguration {
     }
     
     @discardableResult
-    public func set(attachmentOptions: [CometChatMessageComposerAction]) -> Self {
+    public func setAttachmentOptions(attachmentOptions:  @escaping ((_ user: User?, _ group: Group?, _ controller: UIViewController?) -> [CometChatMessageComposerAction])) -> Self {
         self.attachmentOptions = attachmentOptions
         return self
     }

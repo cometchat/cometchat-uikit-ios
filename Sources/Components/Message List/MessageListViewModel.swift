@@ -8,6 +8,7 @@
 import Foundation
 import CometChatPro
 
+
 protocol MessageListViewModelProtocol {
     var user: CometChatPro.User? { get set }
     var group: CometChatPro.Group? { get set }
@@ -168,96 +169,95 @@ extension MessageListViewModel {
     
     @discardableResult
     public func add(message: BaseMessage) -> Self {
-        if message.deliveredAt == 0.0 {
-            self.markAsDelivered(message: message)
-        }
-        switch message.receiverType {
-        case .user:
-            if (CometChat.getLoggedInUser()?.uid == message.sender?.uid && message.receiverUid == user?.uid)  || (CometChat.getLoggedInUser()?.uid != message.sender?.uid && message.sender?.uid == user?.uid) {
-                if message.readAt == 0.0 {
-                    self.markAsRead(message: message)
+        DispatchQueue.main.async {
+            if message.deliveredAt == 0.0 {
+                self.markAsDelivered(message: message)
+            }
+            switch message.receiverType {
+            case .user:
+                if (CometChat.getLoggedInUser()?.uid == message.sender?.uid && message.receiverUid == self.user?.uid)  || (CometChat.getLoggedInUser()?.uid != message.sender?.uid && message.sender?.uid == self.user?.uid) {
+                    if message.readAt == 0.0 {
+                        self.markAsRead(message: message)
+                    }
+                    if let lastMessage = self.messages.last?.messages.last {
+                        if String().compareDates(newTimeInterval: Double(message.muid) ?? 0.0, currentTimeInterval: Double(lastMessage.muid) ?? 0.0)  || Calendar.current.isDateInToday(Date(timeIntervalSince1970: TimeInterval(lastMessage.sentAt))) {
+                            
+                            self.messages[self.messages.count - 1].messages.append(message)
+                            self.appendAtIndex?(self.messages.count - 1, self.messages[self.messages.count - 1].messages.count, message)
+                        } else {
+                            self.messages.append((date: Date(timeIntervalSince1970: TimeInterval( Double(message.muid) ?? 0.0)), messages: [message]))
+                            self.appendAtIndex?(self.messages.count, ((self.messages.last?.messages.count ?? 0)), message)
+                        }
+                    } else {
+                        self.messages.append((date: Date(timeIntervalSince1970: TimeInterval((Double(message.muid) ?? 0.0))), messages: [message]))
+                        self.appendAtIndex?(self.messages.count, ((self.messages.last?.messages.count ?? 0)), message)
+                    }
                 }
-                if let lastMessage = self.messages.last?.messages.last {
-                    if String().compareDates(newTimeInterval: Double(message.muid) ?? 0.0 , currentTimeInterval: Double(lastMessage.muid) ?? 0.0) || Calendar.current.isDateInToday(Date(timeIntervalSince1970: TimeInterval(lastMessage.sentAt))) {
-                        self.messages[self.messages.count - 1].messages.append(message)
-                        self.appendAtIndex?(self.messages.count - 1, self.messages[self.messages.count - 1].messages.count, message)
+                
+            case .group:
+                if message.receiverUid == self.group?.guid {
+                    if message.readAt == 0.0 {
+                        self.markAsRead(message: message)
+                    }
+                    if let lastMessage = self.messages.last?.messages.last {
+                        if String().compareDates(newTimeInterval: Double(message.muid) ?? 0.0 , currentTimeInterval: Double(lastMessage.muid) ?? 0.0) || Calendar.current.isDateInToday(Date(timeIntervalSince1970: TimeInterval(lastMessage.sentAt))) {
+                            self.messages[self.messages.count - 1].messages.append(message)
+                            self.appendAtIndex?(self.messages.count - 1, self.messages[self.messages.count - 1].messages.count, message)
+                        } else {
+                            self.messages.append((date: Date(timeIntervalSince1970: TimeInterval(Double(message.muid) ?? 0.0)), messages: [message]))
+                            self.appendAtIndex?(self.messages.count, ((self.messages.last?.messages.count ?? 0)), message)
+                        }
                     } else {
                         self.messages.append((date: Date(timeIntervalSince1970: TimeInterval(Double(message.muid) ?? 0.0)), messages: [message]))
                         self.appendAtIndex?(self.messages.count, ((self.messages.last?.messages.count ?? 0)), message)
                     }
-                } else {
-                    self.messages.append((date: Date(timeIntervalSince1970: TimeInterval(Double(message.muid) ?? 0.0)), messages: [message]))
-                    self.appendAtIndex?(self.messages.count, ((self.messages.last?.messages.count ?? 0)), message)
                 }
+            @unknown default: break
             }
             
-        case .group:
-            if message.receiverUid == group?.guid {
-                if message.readAt == 0.0 {
-                    self.markAsRead(message: message)
-                }
-                if let lastMessage = self.messages.last?.messages.last {
-                    if String().compareDates(newTimeInterval: Double(message.muid) ?? 0.0 , currentTimeInterval: Double(lastMessage.muid) ?? 0.0) || Calendar.current.isDateInToday(Date(timeIntervalSince1970: TimeInterval(lastMessage.sentAt))) {
-                        self.messages[self.messages.count - 1].messages.append(message)
-                        self.appendAtIndex?(self.messages.count - 1, self.messages[self.messages.count - 1].messages.count, message)
-                    } else {
-                        self.messages.append((date: Date(timeIntervalSince1970: TimeInterval(Double(message.muid) ?? 0.0)), messages: [message]))
-                        self.appendAtIndex?(self.messages.count, ((self.messages.last?.messages.count ?? 0)), message)
-                    }
-                } else {
-                    self.messages.append((date: Date(timeIntervalSince1970: TimeInterval(Double(message.muid) ?? 0.0)), messages: [message]))
-                    self.appendAtIndex?(self.messages.count, ((self.messages.last?.messages.count ?? 0)), message)
-                }
-            }
-        @unknown default: break
         }
-        
         return self
     }
     
     @discardableResult
     public func update(message: BaseMessage) -> Self {
-        if let section = messages.firstIndex(where: { (date: Date, messages: [BaseMessage]) in
-            if message.deletedAt != 0 {
-                return String().compareDates(newTimeInterval: date.timeIntervalSince1970, currentTimeInterval: Double(message.sentAt)) ? true : false
-            } else {
+            if let section = self.messages.firstIndex(where: { (date: Date, messages: [BaseMessage]) in
                 if let muid = Double(message.muid), muid != 0.0 {
-                    return String().compareDates(newTimeInterval: date.timeIntervalSince1970, currentTimeInterval: muid) ? true : false
-                } else{
-                    return String().compareDates(newTimeInterval: date.timeIntervalSince1970, currentTimeInterval: Double(message.sentAt)) ? true : false
+                    if date.timeIntervalSince1970 == 0.0 {
+                        return true
+                    } else {
+                        return String().compareDates(newTimeInterval:  muid, currentTimeInterval:  date.timeIntervalSince1970) ? true : false
+                    }
+                   
+                } else {
+                    return String().compareDates(newTimeInterval: Double(message.sentAt), currentTimeInterval: date.timeIntervalSince1970) ? true : false
                 }
-            }
-        }), let row = messages[section].messages.firstIndex(where: {
-            if message.deletedAt != 0 {
-                return $0.id == message.id
-            } else {
+            }), let row = self.messages[section].messages.firstIndex(where: {
                 if message.muid != "" {
                     return $0.muid == message.muid
+                    
                 } else {
                     return $0.id == message.id
                 }
+            }) {
+                self.messages[section].messages[row] = message
+                self.updateAtIndex?(section, row, message)
             }
-        }) {
-            messages[section].messages[row] = message
-            self.updateAtIndex?(section, row, message)
-        }
+        
         return self
     }
     
     @discardableResult
     public func update(receipt: MessageReceipt) -> Self {
         if !disableReceipt {
-            let finalMessages = messages.reversed().filter { (date: Date, messages: [BaseMessage]) in
-                return messages.last?.readAt == 0 || messages.last?.deliveredAt == 0
-            }
-            for (section, currentMessages) in finalMessages.reversed().enumerated() {
-                for (row, message) in currentMessages.messages.reversed().enumerated() {
-                    if receipt.deliveredAt != 0.0 && message.deliveredAt == 0.0 {
-                        messages[section].messages[row].deliveredAt = receipt.deliveredAt
-                        self.updateAtIndex?(section, row, messages[section].messages[row])
-                    }
+            for (section, currentMessages) in messages.enumerated() {
+                for (row, message) in currentMessages.messages.enumerated() {
                     if receipt.readAt != 0.0 && message.readAt == 0.0 {
                         messages[section].messages[row].readAt = receipt.readAt
+                        self.updateAtIndex?(section, row, messages[section].messages[row])
+                        
+                    } else if receipt.deliveredAt != 0.0 && message.deliveredAt == 0.0 {
+                        messages[section].messages[row].deliveredAt = receipt.deliveredAt
                         self.updateAtIndex?(section, row, messages[section].messages[row])
                     }
                 }
@@ -380,17 +380,10 @@ extension MessageListViewModel: CometChatMessageDelegate {
     
     public func onMessagesDelivered(receipt: MessageReceipt) {
       self.update(receipt: receipt)
-        
-        print("MessageListViewModel - sdk - onMessagesDelivered")
     }
     
     public func onMessagesRead(receipt: MessageReceipt) {
-        /*
-         update the message.
-         */
         self.update(receipt: receipt)
-        
-        print("MessageListViewModel - sdk - onMessagesRead")
     }
     
     public func onMessageEdited(message: BaseMessage) {
@@ -471,14 +464,8 @@ extension MessageListViewModel: CometChatGroupDelegate {
     }
     
     public func onMemberAddedToGroup(action: CometChatPro.ActionMessage, addedBy: CometChatPro.User, addedUser: CometChatPro.User, addedTo: CometChatPro.Group) {
-        /*
-         
-         update group
-         
-         */
         self.newMessageReceived?(action)
         self.add(message: action)
-        print("MessageListViewModel - sdk - onMemberAddedToGroup")
     }
 }
 
@@ -755,3 +742,6 @@ extension MessageListViewModel:  CometChatCallEventListener {
     }
     
 }
+
+
+

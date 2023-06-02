@@ -11,7 +11,6 @@ import CometChatPro
 final public class UIKitSettings {
     
     var region = ""
-    var apiKey = ""
     var authKey = ""
     var appID = ""
     var deviceToken = ""
@@ -19,6 +18,7 @@ final public class UIKitSettings {
     var fcmKey = ""
     var googleApiKey = ""
     var stripeKey = ""
+    var isCallingDisabled: Bool = false
     var appSettingsBuilder:  AppSettings.AppSettingsBuilder!
     var extensions:  [ExtensionDataSource]?
     
@@ -42,12 +42,6 @@ final public class UIKitSettings {
     @discardableResult
     public func set(region: String) -> Self {
         self.region = region
-        return self
-    }
-    
-    @discardableResult
-    public func set(apiKey: String) -> Self {
-        self.apiKey = apiKey
         return self
     }
     
@@ -88,6 +82,12 @@ final public class UIKitSettings {
     }
     
     @discardableResult
+    public func disableCalling() -> Self {
+        self.isCallingDisabled = true
+       return self
+    }
+    
+    @discardableResult
     public func subscribePresenceForAllUsers() -> Self {
         appSettingsBuilder.subscribePresenceForAllUsers()
         return self
@@ -121,7 +121,6 @@ final public class UIKitSettings {
     
     func clear() {
         region = ""
-        apiKey = ""
         authKey = ""
         appID = ""
         deviceToken = ""

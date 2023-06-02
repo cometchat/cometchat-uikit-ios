@@ -8,7 +8,7 @@
 import UIKit
 import QuickLook
 
-class CometChatImageBubble: UIStackView {
+public class CometChatImageBubble: UIStackView {
    
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet var contentView: UIView!
@@ -43,6 +43,7 @@ class CometChatImageBubble: UIStackView {
         set(width: 228, height: 168)
        // set(style: ImageBubbleStyle())
         activityIndicator.isHidden = false
+        self.imageView.image = UIImage(named: "default-image.png", in: CometChatUIKit.bundle, compatibleWith: nil)
     }
     
     @discardableResult
@@ -78,40 +79,17 @@ class CometChatImageBubble: UIStackView {
     }
     
     public func set(imageUrl: String, sentAt: Double? = nil) {
-        if let time = sentAt {
-            self.imageURL = imageUrl
-            let date = Date(timeIntervalSince1970: TimeInterval(time))
-            let secondsAgo = Int(Date().timeIntervalSince(date))
-            var timeinterval = 0.0
-            _ = Timer.scheduledTimer(withTimeInterval: timeinterval, repeats: secondsAgo > 5 ? false : true) { [weak self] (timer) in
-                guard let this  = self else { return }
-                if let url = URL(string: imageUrl) {
-                    this.imageRequest = this.imageService.image(for: url) { [weak self] image in
-                        guard let strongSelf = self else { return }
-                        if let image = image {
-                            strongSelf.imageView.image = image
-                            timer.invalidate()
-                            this.activityIndicator.isHidden = true
-                        } else {
-                            timeinterval = 1.0
-                        }
-                    }
+        self.imageURL = imageUrl
+        if let url = URL(string: imageUrl) {
+            imageRequest = imageService.image(for: url) { [weak self] image in
+                guard let this = self else { return }
+                // Update Thumbnail Image View
+                if let image = image {
+                    this.imageView.image = image
+                } else {
+                    this.imageView.isHidden = true
                 }
-            }
-        } else {
-            self.imageURL = imageUrl
-            if let url = URL(string: imageUrl) {
-                self.imageView.image = UIImage(named: "default-image.png", in: CometChatUIKit.bundle, compatibleWith: nil)
-                imageRequest = imageService.image(for: url) { [weak self] image in
-                    guard let this = self else { return }
-                    // Update Thumbnail Image View
-                    if let image = image {
-                        this.imageView.image = image
-                    } else {
-                        this.imageView.isHidden = true
-                    }
-                    this.activityIndicator.isHidden = true
-                }
+                this.activityIndicator.isHidden = true
             }
         }
     }
@@ -229,11 +207,11 @@ class CometChatImageBubble: UIStackView {
 
 extension CometChatImageBubble: QLPreviewControllerDelegate, QLPreviewControllerDataSource {
     
-    func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+   public func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
         return 1
     }
     
-    func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+    public func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
         return previewItemURL as QLPreviewItem
     }
     

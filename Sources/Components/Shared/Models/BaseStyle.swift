@@ -10,14 +10,7 @@ import UIKit
 public class BaseStyle {
     
     var background: UIColor = CometChatTheme.palatte.background
-    var cornerRadius: CometChatCornerStyle  {
-        get {
-            CometChatCornerStyle(cornerRadius: 0)
-        }
-        set {
-            self.cornerRadius = newValue
-        }
-    }
+    var cornerRadius: CometChatCornerStyle = CometChatCornerStyle(cornerRadius: 0)
     var borderWidth: CGFloat = 0
     private(set) var borderColor: UIColor = .systemFill
     

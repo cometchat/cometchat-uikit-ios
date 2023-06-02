@@ -282,7 +282,7 @@ extension String {
         let formattedNewDate = dateFormatter.string(from: tempNewDate)
         let formattedCurrentDate = dateFormatter.string(from: tempCurrentDate)
         if let previousDate = dateFormatter.date(from: formattedNewDate) , let currentDate = dateFormatter.date(from: formattedCurrentDate) {
-            return previousDate.compare(currentDate) == .orderedSame
+                return previousDate.compare(currentDate) == .orderedSame
         }
         return false
     }

@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import AVKit
 
-class CometChatAudioBubble: UIStackView {
+public class CometChatAudioBubble: UIStackView {
     
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var subTitle: UILabel!

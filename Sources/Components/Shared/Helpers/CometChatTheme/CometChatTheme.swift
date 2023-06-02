@@ -22,7 +22,7 @@ public class CometChatTheme {
     }
     
     public static func defaultAppearance() {
-        CometChatTheme.init(typography: typography, palatte: palatte)
+        CometChatTheme.init(typography: Typography(), palatte: Palette())
     }
     
     public static func set(mode: UIUserInterfaceStyle, for window: UIWindow?) {

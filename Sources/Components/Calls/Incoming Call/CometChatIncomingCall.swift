@@ -19,13 +19,17 @@ public class CometChatIncomingCall: UIViewController {
     private (set) var call: Call?
     private (set) var user: User?
     private (set) var group: Group?
-    private (set) var declineButtonText: String?
-    private (set) var declineButtonIcon: String?
-    private (set) var acceptButtonText: String?
-    private (set) var acceptButtonIcon: String?
+    private (set) var declineButtonText: String = "decline".localize()
+    private (set) var declineButtonIcon: UIImage = UIImage(systemName: "xmark") ?? UIImage()
+    private (set) var acceptButtonText: String = "accept".localize()
+    private (set) var acceptButtonIcon: UIImage = UIImage(named: "voice-call", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     private (set) var fullscreenView: UIView?
-    private (set) var style = IncomingCallStyle()
+    private (set) var acceptButtonStyle = ButtonStyle()
+    private (set) var declineButtonStyle = ButtonStyle()
+    private (set) var incomingCallStyle = IncomingCallStyle()
     private (set) var avatarStyle: AvatarStyle?
+    private (set) var disableSoundForCalls: Bool = false
+    private (set) var customSoundForCalls: URL?
     private (set) var onCancelClick: ((_ call: Call?, _ controller: UIViewController?) -> Void)?
     private (set) var onAcceptClick: ((_ call: Call?, _ controller: UIViewController?) -> Void)?
     private (set) var viewModel =  IncomingCallViewModel()
@@ -41,7 +45,9 @@ public class CometChatIncomingCall: UIViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         setupAppearance()
-        CometChatSoundManager().play(sound: .incomingCall)
+        if !disableSoundForCalls {
+            CometChatSoundManager().play(sound: .incomingCall, customSound: customSoundForCalls)
+        }
         let ongoingCall = CometChatOngoingCall()
         ongoingCall.modalPresentationStyle = .fullScreen
         
@@ -94,39 +100,47 @@ public class CometChatIncomingCall: UIViewController {
     private func setupAppearance() {
         if let user = call?.sender as? User {
             titleLabel.text = user.name?.capitalized
-            titleLabel.textColor = style.titleColor
-            titleLabel.font = style.titleFont
+            titleLabel.textColor = incomingCallStyle.titleColor
+            titleLabel.font = incomingCallStyle.titleFont
             avatar.setAvatar(avatarUrl: user.avatar, with: user.name)
         }
         
         if let group = group {
             titleLabel.text = group.name?.capitalized
-            titleLabel.textColor = style.titleColor
-            titleLabel.font = style.titleFont
+            titleLabel.textColor = incomingCallStyle.titleColor
+            titleLabel.font = incomingCallStyle.titleFont
             avatar.setAvatar(avatarUrl: group.icon, with: group.name)
         }
         
         if let user = user {
             titleLabel.text = user.name?.capitalized
-            titleLabel.textColor = style.titleColor
-            titleLabel.font = style.titleFont
+            titleLabel.textColor = incomingCallStyle.titleColor
+            titleLabel.font = incomingCallStyle.titleFont
             avatar.setAvatar(avatarUrl: user.avatar, with: user.name)
         }
         
+        if let avatarStyle = avatarStyle {
+            avatar.set(backgroundColor: avatarStyle.background)
+            avatar.set(font: avatarStyle.textFont)
+            avatar.set(fontColor: avatarStyle.textColor)
+            avatar.set(borderColor: avatarStyle.borderColor)
+            avatar.set(borderWidth: avatarStyle.borderWidth)
+            avatar.set(cornerRadius: avatarStyle.cornerRadius)
+        }
+        
         subtitle.text = "incoming call".localize()
-        subtitle.textColor = style.subtitleColor
-        subtitle.font = style.subtitleFont
+        subtitle.textColor = incomingCallStyle.subtitleColor
+        subtitle.font = incomingCallStyle.subtitleFont
         
         let rejectButton = CometChatButton(width: 200, height:200)
-        rejectButton.set(icon: UIImage(systemName: "xmark") ?? UIImage())
-        rejectButton.set(text: "decline".localize())
-        let rejectButtonStyle = ButtonStyle()
-        rejectButtonStyle.set(iconBackground: CometChatTheme.palatte.error)
+        rejectButton.set(icon: declineButtonIcon)
+        rejectButton.set(text: declineButtonText)
+        declineButtonStyle.set(iconBackground: CometChatTheme.palatte.error)
             .set(iconTint: .white)
             .set(textColor: CometChatTheme.palatte.accent700)
             .set(textFont: CometChatTheme.typography.caption1)
             .set(iconCornerRadius: 30)
-        rejectButton.set(style: rejectButtonStyle)
+        rejectButton.set(style: declineButtonStyle)
         self.declineButton.addArrangedSubview(rejectButton)
 
         rejectButton.setOnClick {
@@ -137,9 +151,8 @@ public class CometChatIncomingCall: UIViewController {
         }
 
         let acceptButton = CometChatButton(width: 200, height:200)
-        acceptButton.set(icon: UIImage(named: "voice-call", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage())
-        acceptButton.set(text: "accept".localize())
-        let acceptButtonStyle = ButtonStyle()
+        acceptButton.set(icon: acceptButtonIcon)
+        acceptButton.set(text: acceptButtonText)
         acceptButtonStyle.set(iconBackground: CometChatTheme.palatte.primary)
             .set(iconTint: .white)
             .set(textColor: CometChatTheme.palatte.accent700)
@@ -178,14 +191,50 @@ extension CometChatIncomingCall {
     }
     
     @discardableResult
+    public func set(acceptButtonIcon: UIImage) -> Self {
+        self.acceptButtonIcon = acceptButtonIcon
+        return self
+    }
+    
+    @discardableResult
+    public func set(declineButtonIcon: UIImage) -> Self {
+        self.declineButtonIcon = declineButtonIcon
+        return self
+    }
+    
+    @discardableResult
+    public func disable(soundForCalls: Bool) -> Self {
+        self.disableSoundForCalls = soundForCalls
+        return self
+    }
+    
+    @discardableResult
+    public func set(customSoundForCalls: URL?) -> Self {
+        self.customSoundForCalls = customSoundForCalls
+        return self
+    }
+    
+    @discardableResult
     public func set(avatarStyle: AvatarStyle) -> Self {
         self.avatarStyle = avatarStyle
         return self
     }
     
     @discardableResult
-    public func set(style: IncomingCallStyle) -> Self {
-        self.style = style
+    public func set(acceptButtonStyle: ButtonStyle) -> Self {
+        self.acceptButtonStyle = acceptButtonStyle
+        return self
+    }
+    
+    @discardableResult
+    public func set(declineButtonStyle: ButtonStyle) -> Self {
+        self.declineButtonStyle = declineButtonStyle
+        return self
+    }
+    
+    @discardableResult
+    public func set(incomingCallStyle: IncomingCallStyle) -> Self {
+        self.incomingCallStyle = incomingCallStyle
         return self
     }
     

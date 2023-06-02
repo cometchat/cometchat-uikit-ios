@@ -8,7 +8,7 @@
 import Foundation
 import CometChatPro
 
-public class CometChatCallHistoryWithDetails: CometChatCallsHistory {
+internal class CometChatCallHistoryWithDetails: CometChatCallsHistory {
     
     public override func viewDidLoad() {
         super.viewDidLoad()

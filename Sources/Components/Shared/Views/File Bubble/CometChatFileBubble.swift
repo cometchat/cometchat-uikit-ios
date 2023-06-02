@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import QuickLook
 
-class CometChatFileBubble: UIStackView {
+public class CometChatFileBubble: UIStackView {
     
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var subTitle: UILabel!
@@ -179,11 +179,11 @@ class CometChatFileBubble: UIStackView {
 
 extension CometChatFileBubble: QLPreviewControllerDelegate, QLPreviewControllerDataSource {
     
-    func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+   public func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
         return 1
     }
     
-    func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+    public func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
         return previewItemURL as QLPreviewItem
     }
 }

@@ -20,7 +20,6 @@ public class UsersConfiguration {
     private(set) var statusIndicatorStyle: StatusIndicatorStyle?
     private(set) var listItemStyle: ListItemStyle?
     private(set) var disableUsersPresence: Bool = false
-    private(set) var searchPlaceholderText: String?
     private(set) var backButton: UIView?
     private(set) var showBackButton: Bool?
     private(set) var searchBoxIcon: UIImage?
@@ -43,6 +42,7 @@ public class UsersConfiguration {
     private(set) var errorStateText: String?
     private(set) var title: String?
     private(set) var titleMode: UINavigationItem.LargeTitleDisplayMode = .automatic
+    private(set) var showSectionHeader: Bool?
     
     public init() {}
     
@@ -73,12 +73,6 @@ public class UsersConfiguration {
     @discardableResult
     public func disable(userPresence: Bool) -> Self {
         self.disableUsersPresence = userPresence
-        return self
-    }
-    
-    @discardableResult
-    public func set(searchPlaceholderText: String) -> Self {
-        self.searchPlaceholderText = searchPlaceholderText
         return self
     }
     
@@ -127,6 +121,12 @@ public class UsersConfiguration {
     @discardableResult
     public func hide(search: Bool) -> Self {
         self.hideSearch = search
+        return self
+    }
+    
+    @discardableResult
+    public func hide(separator: Bool) -> Self {
+        self.hideSeparator = separator
         return self
     }
     
@@ -223,6 +223,12 @@ public class UsersConfiguration {
     @discardableResult
     public func set(onBack: () -> ()) -> Self {
         self.onBack = self.onBack
+        return self
+    }
+    
+    @discardableResult
+    public func show(sectionHeader: Bool) -> Self {
+        self.showSectionHeader = sectionHeader
         return self
     }
     

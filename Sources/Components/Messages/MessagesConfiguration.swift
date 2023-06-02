@@ -27,6 +27,8 @@ public class MessagesConfiguration {
     private(set) var messageHeaderView: ((_ user: User?, _ group: Group? ) -> UIView)?
     private(set) var messageComposerView: ((_ user: User?, _ group: Group? ) -> UIView)?
     private(set) var messageListView: ((_ user: User?, _ group: Group? ) -> UIView)?
+    private(set) var auxiliaryMenu: ((_ user: User?, _ group: Group?, _ id: [String: Any]?) -> UIStackView)?
+    private(set) var hideDetails = false
 
     public init() {}
     
@@ -124,6 +126,18 @@ public class MessagesConfiguration {
     @discardableResult
     public func set(threadedMessageConfiguration: ThreadedMessageConfiguration) -> Self {
         self.threadedMessageConfiguration = threadedMessageConfiguration
+        return self
+    }
+    
+    @discardableResult
+    public func setAuxiliaryMenu(auxiliaryMenu: ((_ user: User?, _ group: Group?, _ id: [String: Any]?) -> UIStackView)?) -> Self {
+        self.auxiliaryMenu = auxiliaryMenu
+        return self
+    }
+    
+    @discardableResult
+    @objc public func hide(details: Bool) -> Self {
+        self.hideDetails = details
         return self
     }
     

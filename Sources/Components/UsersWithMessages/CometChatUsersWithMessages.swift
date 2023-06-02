@@ -66,6 +66,10 @@ public class CometChatUsersWithMessages: CometChatUsers {
             cometChatMessages.setMessageHeaderView(messageHeaderView: messagesConfiguration.messageHeaderView)
             cometChatMessages.setMessageComposerView(messageComposerView: messagesConfiguration.messageComposerView)
             
+            if let auxiliaryMenu = messagesConfiguration.auxiliaryMenu {
+                cometChatMessages.setAuxiliaryMenu(auxiliaryMenu: auxiliaryMenu)
+            }
+            
             if let hideMessageHeader = messagesConfiguration.hideMessageHeader {
                 cometChatMessages.hide(messageHeader: hideMessageHeader)
             }
@@ -139,12 +143,12 @@ public class CometChatUsersWithMessages: CometChatUsers {
                 set(backButtonIcon: backIcon)
             }
             
-            if let searchPlaceholderText = usersConfiguration.searchPlaceholderText {
-                set(searchPlaceholder: searchPlaceholderText)
-            }
-            
             if let emptyStateView = usersConfiguration.emptyStateView {
                 set(emptyView: emptyStateView )
+            }
+            
+            if let showSectionHeader = usersConfiguration.showSectionHeader {
+                show(sectionHeader: showSectionHeader)
             }
             
             if let errorStateView = usersConfiguration.errorStateView {

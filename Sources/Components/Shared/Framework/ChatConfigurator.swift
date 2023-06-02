@@ -14,7 +14,7 @@ public class ChatConfigurator {
     static func enable(_ fun: (_ dataSource: DataSource) -> DataSource) {
         let oldSource = self.dataSource
         let newSource = fun(oldSource)
-        
+
         if names.contains(obj: newSource.getId()) {
             debugPrint("Already added")
         } else {

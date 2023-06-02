@@ -57,7 +57,8 @@ public enum MessageComposerMode {
     private(set) var messageComposerStyle = MessageComposerStyle()
     private(set) var messagePreviewStyle = MessagePreviewStyle()
     private(set) var actionItems: [ActionItem] = [ActionItem]()
-    private(set) var attachmentOptions: [CometChatMessageComposerAction] = MessageUtils.getDefaultAttachmentOptions()
+    private(set) var attachmentOptions: [CometChatMessageComposerAction] = []
+    private(set) var attachmentOptionsClosure: ((_ user: User?, _ group: Group?, _ controller: UIViewController?) -> [CometChatMessageComposerAction])?
     private(set) var viewModel:  MessageComposerViewModel?
     private(set) var primaryButtonsView = UIStackView()
     private(set) var onSendButtonClick: ((BaseMessage) -> Void)?
@@ -108,7 +109,7 @@ public enum MessageComposerMode {
     
     ///Setup MessageComposer Appearance
     fileprivate func setupMessageComposer() {
-        set(attachmentOptions: attachmentOptions)
+       
         set(closeButtonIcon: closeIcon)
         set(auxilaryButtonAignment: auxiliaryButtonsAlignment)
         set(composerStyle: messageComposerStyle)
@@ -130,7 +131,9 @@ public enum MessageComposerMode {
                 onSendButtonClick(message)
             }
         } else {
-            didDefaultSendButonClicked()
+            if ((self.primaryButtonsView.subviews.last?.isUserInteractionEnabled) != nil) {
+                didDefaultSendButonClicked()
+            }
         }
     }
     
@@ -205,14 +208,14 @@ public enum MessageComposerMode {
     @objc func didDefaultSendButonClicked() {
         switch messageComposerMode {
         case .draft:
-            if let _ = viewModel?.user {
-                viewModel?.sendTextMessageToUser(message: self.text ?? "")
-            } else if let _ = viewModel?.group {
-                viewModel?.sendTextMessageToGroup(message: self.text ?? "")
+            if let _ = viewModel?.user, let messageText =  self.text {
+                viewModel?.sendTextMessageToUser(message: messageText)
+            } else if let _ = viewModel?.group, let messageText =  self.text {
+                viewModel?.sendTextMessageToGroup(message: messageText)
             }
         case .edit:
-            if let currentMessage = self.viewModel?.message as? TextMessage {
-                viewModel?.editTextMessage(textMessage: currentMessage, message: self.text ?? "")
+            if let currentMessage = self.viewModel?.message as? TextMessage, let messageText =  self.text {
+                viewModel?.editTextMessage(textMessage: currentMessage, message: messageText)
             }
         case .reply: break
             
@@ -220,6 +223,21 @@ public enum MessageComposerMode {
     }
     
     @objc func attachmentButtonClicked() {
+        self.attachmentOptions.removeAll()
+        self.attachmentOptions.append(contentsOf: ChatConfigurator.getDataSource().getAttachmentOptions(controller: controller!, user: viewModel?.user, group: viewModel?.group) ?? MessageUtils.getDefaultAttachmentOptions())
+        if let attachmentOptions = attachmentOptionsClosure?(viewModel?.user, viewModel?.group, controller) {
+            self.attachmentOptions.append(contentsOf: attachmentOptions)
+        }
+        messageAttachmentOptions(attachmentOptions: self.attachmentOptions)
+        AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+        let group: CometChatActionPresentable = CometChatMessageActionsGroup()
+        (group.rowVC as? CometChatActionSheet)?.set(layoutMode: .listMode).set(actionItems: actionItems)
+        if let controller = controller {
+            controller.presentPanModal(group.rowVC, backgroundColor:  CometChatTheme.palatte.secondary)
+        }
+    }
+    
+    private func messageAttachmentOptions(attachmentOptions: [CometChatMessageComposerAction]) {
         self.actionItems.removeAll()
         if !attachmentOptions.isEmpty {
             for  options in attachmentOptions {
@@ -231,12 +249,6 @@ public enum MessageComposerMode {
                 let actionItem = ActionItem(id: options.id ?? "", text: options.text ?? "", leadingIcon: options.startIcon ?? UIImage(), style: style, onActionClick: options.onActionClick)
                 actionItems.append(actionItem)
             }
-        }
-        AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
-        let group: CometChatActionPresentable = CometChatMessageActionsGroup()
-        (group.rowVC as? CometChatActionSheet)?.set(layoutMode: .listMode).set(actionItems: actionItems)
-        if let controller = controller {
-            controller.presentPanModal(group.rowVC, backgroundColor:  CometChatTheme.palatte.secondary)
         }
     }
     
@@ -288,11 +300,11 @@ extension CometChatMessageComposer {
         set(placeHolderTextColor: composerStyle.placeHolderTextColor)
         set(inputBorderWidth: composerStyle.inputBorderWidth)
         set(inputBorderColor: composerStyle.inputBorderColor)
-        set(inputBoxPlaceholderFont: composerStyle.inputBoxPlaceholderFont)
         set(attachmentIconTint: composerStyle.attachmentIconTint)
         set(sendIconTint: composerStyle.sendIconTint)
         set(dividerTint: composerStyle.dividerTint)
         set(inputBorderColor: composerStyle.inputBorderColor)
+        set(inputCornerRadius: composerStyle.inputCornerRadius )
         return self
     }
     
@@ -300,8 +312,8 @@ extension CometChatMessageComposer {
     @objc public func set(user: User) -> Self {
         viewModel = MessageComposerViewModel(user: user)
         DispatchQueue.main.async {
-            self.checkSoundForMessage()
             self.reset()
+            self.checkSoundForMessage()
             self.updateComposerLayout()
         }
         return self
@@ -446,12 +458,10 @@ extension CometChatMessageComposer {
     }
     
     @discardableResult
-    public func set(attachmentOptions: [CometChatMessageComposerAction]) -> Self {
-        self.attachmentOptions = attachmentOptions
+    public func setAttachmentOptions(attachmentOptions: @escaping ((_ user: User?, _ group: Group?, _ controller: UIViewController?) -> [CometChatMessageComposerAction])) -> Self {
+        self.attachmentOptionsClosure = attachmentOptions
         return self
     }
-    
-  
     
     @discardableResult
     public func set(headerView: UIView?) ->  Self {
@@ -471,9 +481,10 @@ extension CometChatMessageComposer {
     @discardableResult
     public func hide(headerView: Bool) ->  Self {
         self.hideHeaderView = headerView
-        self.headerContainer.isHidden = true
-        headerContainer.subviews.forEach({ $0.removeFromSuperview() })
-        self.headerContainer.isHidden = true
+        if (self.headerContainer != nil) && (!self.headerContainer.subviews.isEmpty) {
+            headerContainer.subviews.forEach({ $0.removeFromSuperview() })
+            self.headerContainer.isHidden = true
+        }
         return self
     }
     
@@ -493,10 +504,12 @@ extension CometChatMessageComposer {
     @discardableResult
     public func hide(footerView: Bool) ->  Self {
         self.hideFooterView = footerView
-        self.footerContainer.isHidden = true
-        footerContainer.subviews.forEach({ $0.removeFromSuperview() })
-        self.footerView = nil
-        self.layoutIfNeeded()
+        if (self.footerContainer != nil) && (!self.footerContainer.subviews.isEmpty) {
+            footerContainer.subviews.forEach({ $0.removeFromSuperview() })
+            self.footerContainer.isHidden = true
+            self.footerView = nil
+            self.layoutIfNeeded()
+        }
         return self
     }
     
@@ -615,7 +628,7 @@ extension CometChatMessageComposer {
     //Style Related Methods
     @discardableResult
     public func set(inputBackground: UIColor) -> Self {
-        self.messageInput.backgroundColor = inputBackground
+        messageInput.set(inputBackgroundColor: inputBackground)
         return self
     }
     
@@ -632,26 +645,26 @@ extension CometChatMessageComposer {
     }
     
     @discardableResult
-    public func set(inputBoxPlaceholderFont: UIFont) -> Self {
-        messageInput.set(placeHolderTextFont: inputBoxPlaceholderFont)
+    public func set(inputCornerRadius: CometChatCornerStyle) -> Self {
+        messageInput.set(cornerRadius: inputCornerRadius)
         return self
     }
-    
-    @discardableResult
-    public func set(inputBoxPlaceholderColor: UIColor) -> Self {
-        messageInput.set(placeHolderTextColor: inputBoxPlaceholderColor)
-        return self
-    }
-    
+        
     @discardableResult
     public func set(attachmentIconTint: UIColor) -> Self {
-        self.attachmentIcon.withTintColor(attachmentIconTint, renderingMode: .alwaysTemplate)
+        messageComposerStyle.set(attachmentIconTint: attachmentIconTint)
+        let attachmentButton = setupDefaultSecondaryButton()
+        messageInput.set(secondaryButtonView: attachmentButton)
         return self
     }
     
     @discardableResult
     public func set(sendIconTint: UIColor) -> Self {
-        self.sendIcon.withTintColor(sendIconTint, renderingMode: .alwaysTemplate)
+        messageComposerStyle.set(sendIconTint: sendIconTint)
+        let primaryButtons = setupDefaultPrimaryButtons()
+        primaryButtonsView.subviews.last?.isHidden = true
+        primaryButtonsView.subviews.first?.isHidden = hideLiveReaction
+        messageInput.set(primaryButtonView: primaryButtons)
         return self
     }
     
@@ -701,8 +714,8 @@ extension CometChatMessageComposer {
     private func reset() {
         viewModel?.reset  = { [weak self] status in
             guard let this = self else { return}
-            this.messageComposerMode = .draft
             this.messageInput.set(text: "")
+            this.messageComposerMode = .draft
             if !this.messagePreview.isHidden {
                 this.messagePreview.isHidden = true
             }
@@ -725,28 +738,33 @@ extension CometChatMessageComposer {
         
         messageInput.onChange = { [weak self] (text) in
             guard let this = self else { return }
-            this.text = text
-            if  !this.disableTypingEvents {
-                this.viewModel?.startTyping()
-            }
-            
-            if text.isEmpty {
-                this.viewModel?.endTyping()
-                switch this.hideLiveReaction {
-                case true :
-                    this.primaryButtonsView.subviews.first?.isHidden = true
-                    if let _ = this.viewModel?.parentMessageId {
-                        this.primaryButtonsView.subviews.last?.isHidden = true
-                    } else {
-                        this.primaryButtonsView.subviews.last?.isHidden = false
-                    }
-                case false:
-                    this.primaryButtonsView.subviews.first?.isHidden = false
-                    this.primaryButtonsView.subviews.last?.isHidden = true
+            DispatchQueue.main.async {
+                this.text = text
+                if  !this.disableTypingEvents {
+                    this.viewModel?.startTyping()
                 }
-            } else {
-                this.primaryButtonsView.subviews.first?.isHidden = true
-                this.primaryButtonsView.subviews.last?.isHidden = false
+                
+                if text.isEmpty {
+                    this.viewModel?.endTyping()
+                    switch this.hideLiveReaction {
+                    case true :
+                        this.primaryButtonsView.subviews.first?.isHidden = true
+                        if let _ = this.viewModel?.parentMessageId {
+                            this.primaryButtonsView.subviews.last?.isHidden = true
+                        } else {
+                            this.primaryButtonsView.subviews.last?.isHidden = false
+                        }
+                    case false:
+                        this.primaryButtonsView.subviews.last?.isUserInteractionEnabled = false
+                        this.primaryButtonsView.subviews.first?.isHidden = false
+                        this.primaryButtonsView.subviews.last?.isHidden = true
+                    }
+                } else {
+                    this.primaryButtonsView.subviews.last?.isUserInteractionEnabled = true
+                    this.primaryButtonsView.subviews.first?.isHidden = true
+                    this.primaryButtonsView.subviews.last?.isHidden = false
+          
+                }
             }
         }
     }

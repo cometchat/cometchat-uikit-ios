@@ -140,6 +140,10 @@ public class CometChatGroupsWithMessages: CometChatGroups {
                     cometChatMessages.set(messagesStyle: messageStyle)
                 }
                 
+                if let auxiliaryMenu = messagesConfiguration.auxiliaryMenu {
+                    cometChatMessages.setAuxiliaryMenu(auxiliaryMenu: auxiliaryMenu)
+                }
+                
                 if let disableSoundForMessages = messagesConfiguration.disableSoundForMessages {
                     cometChatMessages.disable(soundForMessages: disableSoundForMessages)
                 }
@@ -158,6 +162,7 @@ public class CometChatGroupsWithMessages: CometChatGroups {
             }
             
             if this.navigationController != nil {
+                cometChatMessages.hidesBottomBarWhenPushed = true
                 this.navigationController?.pushViewController(cometChatMessages, animated: true)
             } else {
                 this.present(cometChatMessages, animated: true)

@@ -34,7 +34,7 @@ public class CometChatMessageDateHeader: CometChatDate {
         let height = originalContentSize.height + 12
         self.set(borderWidth: 1)
         self.set(borderColor:  borderColor != .clear ? borderColor : UIColor.systemFill)
-        self.set(cornerRadius: height / 2)
+        self.set(cornerRadius: 14)
         layer.masksToBounds = true
         return CGSize(width: originalContentSize.width + 20, height: height)
     }

@@ -26,6 +26,9 @@ protocol UsersViewModelProtocol {
 
 public class UsersViewModel: UsersViewModelProtocol {
     
+    var sectionUsers: [[User]] = [[User]]()
+    var sortedKeys = [String]()
+    var globalGroupedUsers: [String : [User]] = [:]
     var reload: (() -> Void)?
     var reloadAtIndex: ((Int) -> Void)?
     var failure: ((CometChatPro.CometChatException) -> Void)?
@@ -50,15 +53,49 @@ public class UsersViewModel: UsersViewModelProtocol {
     }
     
     func fetchUsers() {
+        self.globalGroupedUsers.removeAll()
         guard let userRequest = userRequest else { return }
         UsersBuilder.fetchUsers(userRequest: userRequest) { [weak self] result in
             guard let this = self else { return }
             switch result {
             case .success(let fetchedUsers):
                 this.users += fetchedUsers
+                this.groupUsers(users: this.users)
             case .failure(let error):
                 this.failure?(error)
             }
+        }
+    }
+    
+   
+    private func groupUsers(users: [User]){
+        let groupedUsers = Dictionary(grouping: users) { (element) -> String in
+            guard let name = element.name?.capitalized.trimmingCharacters(in: .whitespacesAndNewlines) else {return ""}
+            if name.count > 0 {
+                if let string = (name as? NSString)?.substring(to: 1) {
+                    return  string
+                }else{
+                    return ""
+                }
+            }else {
+                return ""
+            }
+        }
+        globalGroupedUsers.merge(groupedUsers, uniquingKeysWith: +)
+        for key in groupedUsers.keys {
+            if !sortedKeys.contains(key) { sortedKeys.append(key) }
+        }
+        sortedKeys = sortedKeys.sorted{ $0.lowercased() < $1.lowercased()}
+        var staticUsers: [[User]] = [[User]]()
+        sortedKeys.forEach { (key) in
+            if let value = globalGroupedUsers[key] {
+                staticUsers.append(value)
+            }
+        }
+        DispatchQueue.main.async {
+            self.sectionUsers.removeAll()
+            self.sectionUsers = staticUsers
+            self.reload?()
         }
     }
     

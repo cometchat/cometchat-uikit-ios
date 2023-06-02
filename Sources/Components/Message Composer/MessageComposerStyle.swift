@@ -12,8 +12,6 @@ public final class MessageComposerStyle: BaseStyle {
     private(set) var inputBackground = CometChatTheme.palatte.accent100
     private(set) var textColor = CometChatTheme.palatte.accent
     private(set) var textFont = CometChatTheme.typography.text1
-    private(set) var inputBoxPlaceholderFont = CometChatTheme.typography.text1
-    private(set) var inputBoxPlaceholderColor = CometChatTheme.palatte.accent500
     private(set) var attachmentIconTint = CometChatTheme.palatte.accent700
     private(set) var sendIconTint = CometChatTheme.palatte.primary
     private(set) var dividerTint = CometChatTheme.palatte.accent100
@@ -26,10 +24,17 @@ public final class MessageComposerStyle: BaseStyle {
     private(set) var actionSheetLayoutModelIconTint = CometChatTheme.palatte.primary
     private(set) var actionSheetCancelButtonIconTint = CometChatTheme.palatte.primary
     private(set) var actionSheetCancelButtonIconFont = CometChatTheme.typography.text1
+    private(set) var inputCornerRadius: CometChatCornerStyle = CometChatCornerStyle(cornerRadius: 18)
   
     @discardableResult
     public func set(inputBackground: UIColor) -> Self {
         self.inputBackground = inputBackground
+        return self
+    }
+    
+    @discardableResult
+    public func set(inputCornerRadius: CometChatCornerStyle) -> Self {
+        self.inputCornerRadius = inputCornerRadius
         return self
     }
     
@@ -44,19 +49,7 @@ public final class MessageComposerStyle: BaseStyle {
         self.textFont = textFont
         return self
     }
-    
-    @discardableResult
-    public func set(inputBoxPlaceholderFont: UIFont) -> Self {
-        self.inputBoxPlaceholderFont = inputBoxPlaceholderFont
-        return self
-    }
-    
-    @discardableResult
-    public func set(inputBoxPlaceholderColor: UIColor) -> Self {
-        self.inputBoxPlaceholderColor = inputBoxPlaceholderColor
-        return self
-    }
-    
+        
     @discardableResult
     public func set(attachmentIconTint: UIColor) -> Self {
         self.attachmentIconTint = attachmentIconTint

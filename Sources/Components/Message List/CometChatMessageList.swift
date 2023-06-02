@@ -9,9 +9,12 @@ import CometChatPro
 
 @MainActor @IBDesignable open class CometChatMessageList: UIView {
     
+ 
     @IBOutlet weak var background: CometChatGradientView!
     @IBOutlet weak var container: UIStackView!
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var headerViewContainer: UIStackView!
+    @IBOutlet weak var footerViewContainer: UIStackView!
     
     private (set) var emptyStateText: String = "NO_MESSAGES_FOUND".localize()
     private (set) var emptyStateTextColor: UIColor = CometChatTheme.palatte.accent500
@@ -49,6 +52,10 @@ import CometChatPro
     private (set) var viewModel: MessageListViewModel?
     private (set) var baseMessage: BaseMessage?
     private (set) var cell: CometChatMessageBubble?
+    private (set) var headerView: UIView?
+    private (set) var hideHeaderView = true
+    private (set) var footerView: UIView?
+    private (set) var hideFooterView = true
     private (set) var messagesRequestBuilder: MessagesRequest.MessageRequestBuilder? = nil
     
     public override init(frame: CGRect) {
@@ -97,8 +104,7 @@ import CometChatPro
         self.templates = templates
         return self
     }
-
-
+    
     private func setupTableView() {
         tableView.backgroundColor = messageListStyle.background
         tableView.delegate = self
@@ -231,25 +237,24 @@ import CometChatPro
         
         viewModel.appendAtIndex = { [weak self] section , row, message in
             guard let this = self else { return }
-            DispatchQueue.main.async {
                 this.tableView.beginUpdates()
                 if section == 0 {
                     if row == 1 {
-                        this.tableView.insertSections([0], with: .top)
+                        this.tableView.insertSections([0], with: .bottom)
                         this.tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
                     } else {
                         this.tableView.insertRows(at: [IndexPath(row: row - 1, section: 0)], with: .automatic)
                     }
                 } else {
                     if row == 1 {
-                        this.tableView.insertSections([section - 1], with: .top)
+                        this.tableView.insertSections([section - 1], with: .bottom)
                         this.tableView.insertRows(at: [IndexPath(row: row - 1, section: section - 1)], with: .automatic)
+                        
                     } else {
-                        this.tableView.insertRows(at: [IndexPath(row: row - 1, section: section)], with: .automatic)
+                        this.tableView.insertRows(at: [IndexPath(row: row  - 1, section: section)], with: .automatic)
                     }
                 }
                 this.tableView.endUpdates()
-                
                 if viewModel.messages.isEmpty {
                     if let emptyView = this.emptyStateView {
                         this.tableView.set(customView: emptyView)
@@ -263,7 +268,6 @@ import CometChatPro
                 if this.scrollToBottomOnNewMessages {
                     this.scrollToBottom()
                 }
-            }
         }
         
         viewModel.updateAtIndex = { [weak self] section , row, message in
@@ -339,6 +343,21 @@ import CometChatPro
         self.tableView.register(cell, forCellReuseIdentifier: title)
     }
     
+    fileprivate func isForThisView(id: [String:Any]?) -> Bool {
+        guard let id = id , !id.isEmpty else { return false }
+        if (id["uid"] != nil && id["uid"] as? String ==
+            viewModel?.user?.uid) || (id["guid"] != nil && id["guid"] as? String ==
+                                      viewModel?.group?.guid) {
+            if (id["parentMessageId"] != nil &&
+                id["parentMessageId"] as? Int != viewModel?.parentMessage?.id) {
+                return false
+            }else{
+                return true
+            }
+        }
+        return false
+    }
+    
 }
 
 extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
@@ -348,14 +367,13 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if let date = viewModel?.messages[safe: section]?.date {
-            let timestamp = Int(date.timeIntervalSince1970)
+        if let date = viewModel?.messages[safe: section]?.messages.last?.sentAt {
             let dateHeader = CometChatMessageDateHeader()
-            if let time = dateSeparatorPattern?(timestamp) {
+            if let time = dateSeparatorPattern?(date) {
                 dateHeader.text = time
             } else {
                 dateHeader.set(pattern: .dayDate)
-                dateHeader.set(timestamp: timestamp)
+                dateHeader.set(timestamp: date)
             }
             let view = UIView()
             view.addSubview(dateHeader)
@@ -368,7 +386,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
     }
     
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 30
+        return 40
     }
     
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -438,12 +456,8 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                             }
                             
                             let date = CometChatDate()
-                            if let time = datePattern?(message.sentAt) {
-                                date.text = time
-                            } else {
-                                date.set(pattern: .time)
-                                date.text = date.setTime(for: message.sentAt)
-                            }
+                            date.set(pattern: .time)
+                            date.set(timestamp: message.sentAt)
                             date.set(timeFont: messageListStyle.timestampTextFont).set(timeColor: messageListStyle.timestampTextColor)
                             if timeAlignment == .top {
                                 cell.headerView.addArrangedSubview(date)
@@ -461,14 +475,11 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                             
                             reciept.heightAnchor.constraint(equalToConstant: 20).isActive = true
                             reciept.widthAnchor.constraint(equalToConstant: 20).isActive = true
-                            reciept.set(receipt: MessageReceiptUtils.get(receiptStatus: message))
+                            message.receiverType == .group ?  reciept.set(receipt: .sent) : reciept.set(receipt: MessageReceiptUtils.get(receiptStatus: message))
+
                             let date = CometChatDate()
-                            if let time = datePattern?(message.sentAt) {
-                                date.text = time
-                            } else {
-                                date.set(pattern: .time)
-                                date.text = date.setTime(for: message.sentAt)
-                            }
+                            date.set(pattern: .time)
+                            date.set(timestamp: message.sentAt)
                             date.set(timeFont: messageListStyle.timestampTextFont).set(timeColor: messageListStyle.timestampTextColor)
                             if timeAlignment == .bottom {
                                 footerStackView.addArrangedSubview(date)
@@ -482,7 +493,6 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                         }
                         
                         if let contentView = template.contentView?(message, cell.alignment, controller) {
-                            
                             cell.containerView.addArrangedSubview(contentView)
                             self.getRepliesView(forMessage: message, cell: cell, isLoggedInUser: isLoggedInUser)
                         }
@@ -530,9 +540,9 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 return cell
             }
         }
-    
+        
         return UITableViewCell()
-      }
+    }
     
     public  func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
@@ -562,7 +572,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         footerView.backgroundColor = messageListStyle.background
         return footerView
     }
-
+    
     public func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 0
     }
@@ -688,7 +698,7 @@ extension CometChatMessageList {
         self.dateSeparatorPattern = dateSeparatorPattern
         return self
     }
-        
+    
     @discardableResult
     public func set(newMessageIndicatorText: String) -> Self {
         self.newMessageIndicatorText = newMessageIndicatorText
@@ -720,14 +730,48 @@ extension CometChatMessageList {
     }
     
     @discardableResult
-    public func set(headerView: UIView) -> Self {
-        self.container.insertArrangedSubview(headerView, at: 0)
+    public func set(headerView: UIView?) ->  Self {
+        self.headerView = headerView
+        headerViewContainer.subviews.forEach({ $0.removeFromSuperview() })
+        if headerView != nil {
+            self.headerViewContainer.isHidden = false
+            if let headerView = headerView {
+                self.headerViewContainer.addArrangedSubview(headerView)
+            }
+        }else{
+            self.headerViewContainer.isHidden = true
+        }
         return self
     }
     
     @discardableResult
-    public func set(footerView: UIView) -> Self {
-        self.container.insertArrangedSubview(footerView, at: container.subviews.count - 1)
+    public func hide(headerView: Bool) ->  Self {
+        self.hideHeaderView = headerView
+        headerViewContainer.subviews.forEach({ $0.removeFromSuperview() })
+        self.headerViewContainer.isHidden = true
+        return self
+    }
+    
+    @discardableResult
+    public func set(footerView: UIView) ->  Self {
+        self.footerView = footerView
+        footerViewContainer.subviews.forEach({ $0.removeFromSuperview() })
+        if self.footerView != nil {
+            self.footerViewContainer.isHidden = false
+            self.footerViewContainer.addArrangedSubview(footerView)
+        }else{
+            self.footerViewContainer.isHidden = true
+        }
+        return self
+    }
+    
+    @discardableResult
+    public func hide(footerView: Bool) ->  Self {
+        self.hideFooterView = footerView
+        self.footerViewContainer.isHidden = true
+        footerViewContainer.subviews.forEach({ $0.removeFromSuperview() })
+        self.footerView = nil
+        self.layoutIfNeeded()
         return self
     }
     
@@ -740,12 +784,14 @@ extension CometChatMessageList {
     @discardableResult
     public func connect() -> Self {
         viewModel?.connect()
+        CometChatUIEvents.addListener("message-list-event-listener", self as CometChatUIEventListener)
         return self
     }
     
     @discardableResult
     public func disconnect() -> Self {
         viewModel?.disconnect()
+        CometChatUIEvents.removeListener("message-list-event-listener")
         return self
     }
     
@@ -754,13 +800,13 @@ extension CometChatMessageList {
         viewModel?.add(message: message)
         return self
     }
-
+    
     @discardableResult
     public func update(message: BaseMessage) -> Self {
         viewModel?.update(message: message)
         return self
     }
-
+    
     @discardableResult
     public func remove(message: BaseMessage) -> Self {
         viewModel?.remove(message: message)
@@ -772,7 +818,7 @@ extension CometChatMessageList {
         viewModel?.delete(message: message)
         return self
     }
-
+    
     @discardableResult
     public func clearList() -> Self {
         viewModel?.clearList()
@@ -805,7 +851,7 @@ extension CometChatMessageList {
 
 extension CometChatMessageList {
     
-     func configureParentView(template: CometChatMessageTemplate, message: BaseMessage) -> UIView? {
+    func configureParentView(template: CometChatMessageTemplate, message: BaseMessage) -> UIView? {
         if let cell =  Bundle.module.loadNibNamed(CometChatMessageBubble.identifier, owner: self, options: nil)![0]  as? CometChatMessageBubble {
             guard let sender = message.sender, let uid = sender.uid else { return nil }
             let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: uid)
@@ -849,12 +895,9 @@ extension CometChatMessageList {
                         nameLabel.heightAnchor.constraint(equalToConstant: 18).isActive = true
                     }
                     let date = CometChatDate()
-                    if let time = self.datePattern?(message.sentAt) {
-                        date.text = time
-                    } else {
-                        date.set(pattern: .time)
-                        date.text = date.setTime(for: message.sentAt)
-                    }
+                    date.set(pattern: .time)
+                    date.set(timestamp: message.sentAt)
+                    
                     date.set(timeFont: self.messageListStyle.timestampTextFont).set(timeColor: self.messageListStyle.timestampTextColor)
                     if self.timeAlignment == .top {
                         cell.headerView.addArrangedSubview(date)
@@ -872,12 +915,8 @@ extension CometChatMessageList {
                     reciept.widthAnchor.constraint(equalToConstant: 20).isActive = true
                     reciept.set(receipt: MessageReceiptUtils.get(receiptStatus: message))
                     let date = CometChatDate()
-                    if let time = self.datePattern?(message.sentAt) {
-                        date.text = time
-                    } else {
-                        date.set(pattern: .time)
-                        date.text = date.setTime(for: message.sentAt)
-                    }
+                    date.set(pattern: .time)
+                    date.set(timestamp: message.sentAt)
                     date.set(timeFont: self.messageListStyle.timestampTextFont).set(timeColor: self.messageListStyle.timestampTextColor)
                     if self.timeAlignment == .bottom {
                         footerStackView.addArrangedSubview(date)
@@ -929,7 +968,7 @@ extension CometChatMessageList {
         }
         return nil
     }
-
+    
     private func getRepliesView(forMessage: BaseMessage, cell: CometChatMessageBubble, isLoggedInUser: Bool) {
         if forMessage.replyCount != 0 {
             let stackView = UIStackView()
@@ -1000,5 +1039,37 @@ extension CometChatMessageList {
             }
         }
     }
+}
+
+extension CometChatMessageList: CometChatUIEventListener {
     
+    public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatPro.BaseMessage?, user: CometChatPro.User?, group: CometChatPro.Group?) {
+    }
+    
+    public func showPanel(id: [String : Any]?, alignment: UIAlignment, view: UIView?) {
+        if !isForThisView(id: id) { return }
+        if let view = view {
+            switch alignment {
+            case .messageListTop:
+                set(headerView: view)
+            case .messageListBottom:
+                set(footerView: view)
+            case .composerTop, .composerBottom: break
+            }
+        } else {
+            hide(headerView: true)
+            hide(footerView: true)
+        }
+    }
+    
+    public func hidePanel(id: [String : Any]?, alignment: UIAlignment) {
+        if !isForThisView(id: id) { return }
+        switch alignment {
+        case .messageListTop:
+            hide(headerView: true)
+        case .messageListBottom:
+            hide(footerView: true)
+        case .composerTop, .composerBottom: break
+        }
+    }
 }

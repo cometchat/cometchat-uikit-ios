@@ -82,7 +82,7 @@ class SmartReplyExtensionDecorator: DataSourceDecorator {
             smartRepliesView.set(titles: replies)
             smartRepliesView.setOnClick { title in
                 if title == "" {
-                    CometChatUIEvents.emitShowPanel(id: id, alignment: .composerTop, view: nil)
+                    CometChatUIEvents.emitShowPanel(id: id, alignment: .messageListBottom, view: nil)
                 } else {
                     let newMessage: TextMessage?
                     if textMessage.receiverType == .user {
@@ -98,13 +98,13 @@ class SmartReplyExtensionDecorator: DataSourceDecorator {
                         newMessage.sender = CometChat.getLoggedInUser()
                         newMessage.parentMessageId = textMessage.parentMessageId
                         CometChatUIKit.sendTextMessage(message: newMessage)
-                        CometChatUIEvents.emitShowPanel(id: id, alignment: .composerTop, view: nil)
+                        CometChatUIEvents.emitShowPanel(id: id, alignment: .messageListBottom, view: nil)
                     }
                 }
             }
-            CometChatUIEvents.emitShowPanel(id: id, alignment: .composerTop, view: smartRepliesView)
+            CometChatUIEvents.emitShowPanel(id: id, alignment: .messageListBottom, view: smartRepliesView)
         }else{
-            CometChatUIEvents.emitShowPanel(id: id, alignment: .composerTop, view: nil)
+            CometChatUIEvents.emitShowPanel(id: id, alignment: .messageListBottom, view: nil)
         }
     }
 }

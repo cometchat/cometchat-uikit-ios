@@ -13,6 +13,7 @@ public final class MessageHeaderConfiguration {
 
     private(set) var subtitleView: ((_ user: User?, _ group: Group?) -> UIView)?
     private(set) var disableUsersPresence: Bool = false
+    private(set) var disableTyping: Bool = false
     private(set) var privateGroupIcon: UIImage?
     private(set) var protectedGroupIcon: UIImage?
     private(set) var menus: ((_ user: User?, _ group: Group?) -> UIView)?
@@ -47,8 +48,14 @@ public final class MessageHeaderConfiguration {
     }
     
     @discardableResult
-    public func set(disableUsersPresence: Bool) -> Self {
-        self.disableUsersPresence = disableUsersPresence
+    public func disable(userPresence: Bool) -> Self {
+        self.disableUsersPresence = userPresence
+        return self
+    }
+    
+    @discardableResult
+    public func disable(typing: Bool) -> Self {
+        self.disableTyping = typing
         return self
     }
     

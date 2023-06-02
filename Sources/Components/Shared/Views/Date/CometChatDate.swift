@@ -151,7 +151,7 @@ extension Date {
 extension CometChatDate {
     
     func setTime(for time: Int) -> String {
-        let date = Date(timeIntervalSinceNow: TimeInterval(time))
+        let date = Date(timeIntervalSince1970: TimeInterval(time))
         let str = fetchMessagePastTime(for: date)
         return str
     }
@@ -162,51 +162,22 @@ extension CometChatDate {
         formatter.locale = Locale(identifier: "en_US")
         let strDate: String = formatter.string(from: date)
         return strDate
-        
     }
     
     func setDayDate(for time: Int) -> String {
-        let date       = Date(timeIntervalSince1970: TimeInterval(time))
-        var secondsAgo = Int(Date().timeIntervalSince(date))
-        if secondsAgo < 0 {
-            secondsAgo = secondsAgo * (-1)
-        }
-        
-        let minute = 60
-        let hour = 60 * minute
-        let day = 24 * hour
-        let twoDays = 2 * day
-        let sevenDays = 7 * day
-        
-        
-        if secondsAgo < day {
-            let strDate = "TODAY".localize()
-            return strDate
-            
-        }else if secondsAgo < twoDays {
-            let day = secondsAgo/day
-            if day == 1 {
-                return "YESTERDAY".localize()
-             } else {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "EEE"
-                formatter.locale = Locale(identifier: "en_US")
-                let strDate: String = formatter.string(from: date)
-                return strDate.capitalized
-            }
-        } else if secondsAgo < sevenDays {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "EEEE"
-            formatter.locale = Locale(identifier: "en_US")
-            let strDate: String = formatter.string(from: date)
-            return strDate.capitalized
-        } else {
+        let interval = TimeInterval(time)
+        let calendar = Calendar.current
+        let date = Date(timeIntervalSince1970: interval)
+        if (interval == 0.0) || (interval == -1) || (calendar.isDateInToday(date)) { return "TODAY".localize() }
+        else if calendar.isDateInYesterday(date) { return "YESTERDAY".localize() }
+        else {
             let formatter = DateFormatter()
             formatter.dateFormat = "d MMM, yyyy"
             formatter.locale = Locale(identifier: "en_US")
             let strDate: String = formatter.string(from: date)
-            return strDate.capitalized
+            return strDate
         }
+        
     }
     
     

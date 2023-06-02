@@ -38,6 +38,7 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
     var conversations: [Conversation] = [] { didSet { reload?() }}
     var filteredConversations: [Conversation] = [] { didSet { reload?() }}
     var selectedConversations: [Conversation] = []
+    var originalConversations: [Conversation] = []
     private var conversationRequest: ConversationRequest?
     private var refereshConversationRequest: ConversationRequest?
     var updateStatus: ((Int, CometChatUserStatus) -> Void)?
@@ -66,18 +67,35 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
     
     // AMRK:- fetchConversation
     func fetchConversations() {
-        guard let conversationRequest = conversationRequest else { return }
         if isRefresh {
             refereshConversationRequest = conversationRequestBuilder.build()
+            self.conversationRequest = refereshConversationRequest
         }
-        ConversationsBuilder.fetchConversation(conversationRequest: isRefresh ? refereshConversationRequest ?? conversationRequest : conversationRequest) { [weak self] result in
+        ConversationsBuilder.fetchConversation(conversationRequest: conversationRequest!) { [weak self] result in
             guard let this = self else { return }
+            this.refereshConversationRequest = CometChatPro.ConversationRequest.ConversationRequestBuilder(limit: 30).build()
             switch result {
             case .success(let conversations):
-                this.conversations += conversations
+                if this.isRefresh {
+                    this.conversations = conversations
+                } else {
+//                    if !this.conversations.contains(obj: {conversations}) {
+//                        this.conversations += conversations
+//                    }
+                    for conversation in conversations {
+                        if this.conversations.contains(where: { $0.conversationId == conversation.conversationId
+                        }) {
+                            this.update(conversation: conversation)
+                        } else {
+                            this.conversations.append(conversation)
+                        }
+                    }
+                }
+                
                 for conversation in this.conversations {
                     this.markAsDelivered(conversation: conversation)
                 }
+                    
                 this.reload?()
             case .failure(let error):
                 this.failure?(error)

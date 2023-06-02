@@ -51,7 +51,7 @@ extension MessageComposerViewModel {
             } else if let guid = self.group?.guid {
                 textMessage = TextMessage(receiverUid: guid, text: message, receiverType: .group)
             }
-            textMessage?.muid = "\(Int(Date().timeIntervalSince1970))"
+            textMessage?.muid = "\(NSDate().timeIntervalSince1970)"
             textMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
             textMessage?.sender = CometChat.getLoggedInUser()
             if let parentMessageId = parentMessageId {
@@ -65,18 +65,19 @@ extension MessageComposerViewModel {
     }
     
     public func sendTextMessageToUser(message: String) {
+        self.reset?(true)
         let message: String = message.trimmingCharacters(in: .whitespacesAndNewlines)
         if !message.isEmpty {
             guard let uid = self.user?.uid else { return }
             let textMessage = TextMessage(receiverUid: uid, text: message, receiverType: .user)
-            textMessage.muid = "\(Int(Date().timeIntervalSince1970))"
+            textMessage.muid =  "\(NSDate().timeIntervalSince1970)"
+            textMessage.sentAt = Int(Date().timeIntervalSince1970)
             textMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
             textMessage.sender = CometChat.getLoggedInUser()
-            if let parentMessageId = parentMessageId {
+            if let parentMessageId = self.parentMessageId {
                 textMessage.parentMessageId = parentMessageId
             }
-            isSoundForMessageEnabled?()
-            reset?(true)
+            self.isSoundForMessageEnabled?()
             CometChatMessageEvents.emitOnMessageSent(message: textMessage, status: .inProgress)
             MessageComposerBuilder.textMessage(message: textMessage) { result in
                 switch result {
@@ -91,18 +92,19 @@ extension MessageComposerViewModel {
     }
     
     public func sendTextMessageToGroup(message: String) {
+        reset?(true)
         let message: String = message.trimmingCharacters(in: .whitespacesAndNewlines)
         if !message.isEmpty {
             guard let guid = self.group?.guid else { return }
             let textMessage = TextMessage(receiverUid: guid, text: message, receiverType: .group)
-            textMessage.muid = "\(Int(Date().timeIntervalSince1970))"
+            textMessage.muid = "\(NSDate().timeIntervalSince1970)"
+            textMessage.sentAt = Int(Date().timeIntervalSince1970)
             textMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
             textMessage.sender = CometChat.getLoggedInUser()
             if let parentMessageId = parentMessageId {
                 textMessage.parentMessageId = parentMessageId
             }
             isSoundForMessageEnabled?()
-            reset?(true)
             // Broadcasting the message sent's event with inProgress status.
             CometChatMessageEvents.emitOnMessageSent(message: textMessage, status: .inProgress)
             MessageComposerBuilder.textMessage(message: textMessage) { result in
@@ -123,7 +125,8 @@ extension MessageComposerViewModel {
     public func sendMediaMessageToUser(url: String, type: CometChat.MessageType) {
         guard let uid =  self.user?.uid else { return }
         let mediaMessage = MediaMessage(receiverUid: uid, fileurl: url, messageType: type, receiverType: .user)
-        mediaMessage.muid = "\(Int(Date().timeIntervalSince1970))"
+        mediaMessage.muid = "\(NSDate().timeIntervalSince1970)"
+        mediaMessage.sentAt = Int(Date().timeIntervalSince1970)
         mediaMessage.sender = CometChat.getLoggedInUser()
         mediaMessage.metaData = ["fileURL": url]
         mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
@@ -149,7 +152,8 @@ extension MessageComposerViewModel {
         if let parentMessageId = parentMessageId {
             mediaMessage.parentMessageId = parentMessageId
         }
-        mediaMessage.muid = "\(Int(Date().timeIntervalSince1970))"
+        mediaMessage.muid = "\(NSDate().timeIntervalSince1970)"
+        mediaMessage.sentAt = Int(Date().timeIntervalSince1970)
         mediaMessage.sender = CometChat.getLoggedInUser()
         mediaMessage.metaData = ["fileURL": url]
         mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""

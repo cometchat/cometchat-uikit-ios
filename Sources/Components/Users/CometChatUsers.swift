@@ -8,6 +8,11 @@
 import UIKit
 import CometChatPro
 
+public enum titleAlignment {
+    case left
+    case center
+}
+
 @MainActor
 open class CometChatUsers: CometChatListBase {
     
@@ -22,6 +27,7 @@ open class CometChatUsers: CometChatListBase {
     private var avatarStyle: AvatarStyle
     private var statusIndicatorStyle: StatusIndicatorStyle
     private var listItemStyle: ListItemStyle
+    private var showSectionHeader: Bool = true
     override var emptyStateText: String {
         get { return "NO_USERS_FOUND".localize() }
         set { super.emptyStateText = newValue }
@@ -212,6 +218,12 @@ open class CometChatUsers: CometChatListBase {
     }
     
     @discardableResult
+    public func show(sectionHeader: Bool) -> Self {
+        self.showSectionHeader = sectionHeader
+        return self
+    }
+    
+    @discardableResult
     public func set(listItemStyle: ListItemStyle) -> Self {
         self.listItemStyle = listItemStyle
         return self
@@ -277,14 +289,14 @@ extension CometChatUsers {
     
     // MARK: - TableView delegate and datasource method that inherited from the CometChatListBase.
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
+        guard let section = indexPath.section as? Int else { return UITableViewCell() }
         if let listItem = tableView.dequeueReusableCell(withIdentifier: CometChatListItem.identifier, for: indexPath) as? CometChatListItem  {
-            let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.users[indexPath.row]
-            if let name = user.name {
+            let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.sectionUsers[safe: section]?[safe: indexPath.row]
+            if let name = user?.name {
                 listItem.set(title: name.capitalized)
                 listItem.set(avatarName: name.capitalized)
             }
-            if let avatarURL = user.avatar {
+            if let avatarURL = user?.avatar {
                 listItem.set(avatarURL: avatarURL)
             }
             if let subTitleView = subtitle?(user) {
@@ -295,7 +307,7 @@ extension CometChatUsers {
             }
             
             if !disableUsersPresence {
-                switch user.status {
+                switch user?.status {
                 case .offline:
                     listItem.statusIndicator.isHidden = true
                 case .online:
@@ -315,7 +327,10 @@ extension CometChatUsers {
             }
             listItem.onItemLongClick = { [weak self] in
                 guard let this = self else { return }
-                this.onItemLongClick?(user, indexPath)
+                if let user = user {
+                    this.onItemLongClick?(user, indexPath)
+                }
+               
             }
             listItem.build()
             return listItem
@@ -323,12 +338,34 @@ extension CometChatUsers {
         return UITableViewCell()
     }
     
+    public override func numberOfSections(in tableView: UITableView) -> Int {
+        if viewModel.isSearching {
+            return 1
+        }else{
+            return viewModel.sectionUsers.count
+        }
+    }
+    
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.isSearching ? viewModel.filteredUsers.count : viewModel.users.count
+        return viewModel.isSearching ? viewModel.filteredUsers.count : viewModel.sectionUsers[safe: section]?.count ?? 0
     }
     
     public override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
+    }
+    
+    public  func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if showSectionHeader {
+            if viewModel.isSearching {
+                return  nil
+            } else {
+                if let title = ((viewModel.sectionUsers[safe: section]?.first?.name?.capitalized ?? "") as? NSString)?.substring(to: 1) {
+                    return  title
+                }
+                return nil
+            }
+        }
+        return nil
     }
     
     public override func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
@@ -343,14 +380,15 @@ extension CometChatUsers {
     }
     
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.users[indexPath.row]
-        if let onItemClick = onItemClick {
-            onItemClick(user, indexPath)
-        } else {
-            onDidSelect?(user, indexPath)
-        }
+
+        let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.sectionUsers[indexPath.section][indexPath.row]
+       
         if selectionMode == .none {
-            tableView.deselectRow(at: indexPath, animated: true)
+            if let onItemClick = onItemClick {
+                onItemClick(user, indexPath)
+            } else {
+                onDidSelect?(user, indexPath)
+            }
         } else {
             if !viewModel.selectedUsers.contains(user) {
                 self.viewModel.selectedUsers.append(user)
@@ -359,7 +397,7 @@ extension CometChatUsers {
     }
     
     public override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.users[indexPath.row]
+        let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.sectionUsers[indexPath.section][indexPath.row]
         if let foundUser = viewModel.selectedUsers.firstIndex(of: user) {
             viewModel.selectedUsers.remove(at: foundUser)
         }

@@ -9,7 +9,7 @@ import UIKit
 import CometChatPro
 
 @MainActor
-open class CometChatCallsHistory: CometChatListBase {
+internal class CometChatCallsHistory: CometChatListBase {
     
     // MARK: - Declaration of View Model
     private var viewModel: CallHistoryViewModel

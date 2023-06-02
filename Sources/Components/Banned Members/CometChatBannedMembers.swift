@@ -179,7 +179,12 @@ open class CometChatBannedMembers: CometChatListBase {
             onBack()
         } else {
             if self.navigationController != nil {
-                self.navigationController?.popViewController(animated: true)
+                if self.navigationController?.viewControllers.first == self {
+                    self.dismiss(animated: true, completion: nil)
+                } else {
+                    self.navigationController?.popViewController(animated: true)
+                }
+               
             }else{
                 self.dismiss(animated: true, completion: nil)
             }

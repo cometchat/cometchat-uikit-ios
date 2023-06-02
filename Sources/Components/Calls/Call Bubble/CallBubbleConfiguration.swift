@@ -11,6 +11,7 @@ public class CallBubbleConfiguration {
     
     private(set) var icon: UIImage?
     private(set) var style: CallBubbleStyle?
+    private(set) var onClick: (() -> Void)?
     
     @discardableResult
     public func set(style: CallBubbleStyle) -> Self {
@@ -24,4 +25,9 @@ public class CallBubbleConfiguration {
         return self
     }
     
+    @discardableResult
+    public func setOnClick(onClick: @escaping (() -> Void)) -> Self {
+        self.onClick = onClick
+        return self
+    }
 }

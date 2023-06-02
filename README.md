@@ -14,7 +14,7 @@
 <a href="https://cocoapods.org/pods/CometChatPro"><img src="https://img.shields.io/badge/platform-iOS-orange.svg" /></a>
 <a href=""><img src="https://img.shields.io/badge/language-Objective--C%20%7C%20Swift-orange.svg" /></a>
 <a href=""> <img src="https://img.shields.io/badge/Contributors-4-yellowgreen" /></a>
-<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.900-red" /></a>
+<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.914-red" /></a>
 <a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-chat-sdk?style=social" /></a>
 
 </p>
@@ -56,7 +56,7 @@ To install iOS Chat UIKit, you  need to first register on CometChat Dashboard. [
 * Add CometChatProUIKit into your Package Repository as below:
   * https://github.com/cometchat-pro/ios-swift-chat-ui-kit.git
   
-* To add the package, select Version Rules, enter Up to Exact Version, [3.0.912-pluto.beta.2.0](https://github.com/cometchat-pro/ios-swift-chat-ui-kit/tree/pluto), and click Next
+* To add the package, select Version Rules, enter Up to Exact Version, [3.0.914-pluto.beta.2.1](https://github.com/cometchat-pro/ios-swift-chat-ui-kit/tree/pluto), and click Next
 
 ___
 

@@ -9,7 +9,7 @@ import UIKit
 import SafariServices
 import MessageUI
 
-class CometChatTextBubble: UIStackView {
+public class CometChatTextBubble: UIStackView {
     @IBOutlet weak var label: HyperlinkLabel!
     @IBOutlet var contentView: UIView!
     @IBOutlet weak var contentStackView: UIStackView!
@@ -109,39 +109,39 @@ class CometChatTextBubble: UIStackView {
     }
     
     
-    func set(text: String) {
+   public func set(text: String) {
         label.text = text
     }
     
-    func set(attributedText: NSAttributedString) {
+   public func set(attributedText: NSAttributedString) {
         label.attributedText = attributedText
     }
     
-    func set(textColor: UIColor) {
+   public func set(textColor: UIColor) {
         label.textColor = textColor
     }
     
-    func set(textFont: UIFont) {
+   public func set(textFont: UIFont) {
         label.font = textFont
     }
     
-    func set(backgroundColor: UIColor) {
+   public func set(backgroundColor: UIColor) {
         contentView.backgroundColor = backgroundColor
     }
     
-    func set(cornerRadius: CometChatCornerStyle) {
+   public func set(cornerRadius: CometChatCornerStyle) {
         contentView.roundViewCorners(corner: cornerRadius)
     }
     
-    func set(borderWidth: CGFloat) {
+   public func set(borderWidth: CGFloat) {
         contentView.borderWith(width: borderWidth)
     }
     
-    func set(borderColor: UIColor) {
+  public func set(borderColor: UIColor) {
         contentView.borderColor(color: borderColor)
     }
     
-    func set(style: TextBubbleStyle = TextBubbleStyle()) {
+   public func set(style: TextBubbleStyle = TextBubbleStyle()) {
         set(textColor: style.titleColor)
         set(textFont: style.titleFont)
         set(borderColor: style.borderColor)

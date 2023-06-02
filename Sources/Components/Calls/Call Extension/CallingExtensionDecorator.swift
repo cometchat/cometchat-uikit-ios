@@ -14,8 +14,9 @@ class CallingExtensionDecorator: DataSourceDecorator {
     var audioCallTypeConstant = "audio"
     var videoCallTypeConstant = "video"
     var conferenceCallTypeConstant = "meeting"
-    var configuration : CallingConfiguration?
+    var callingConfiguration : CallingConfiguration?
     var anInterface : DataSource?
+    var spacer: String = "       "
     
     public override init(dataSource: DataSource) {
         super.init(dataSource: dataSource)
@@ -25,7 +26,7 @@ class CallingExtensionDecorator: DataSourceDecorator {
     public init(dataSource: DataSource, configuration: CallingConfiguration?) {
         super.init(dataSource: dataSource)
         self.anInterface = dataSource
-        self.configuration = configuration
+        self.callingConfiguration = configuration
         disconnect()
         connect()
     }
@@ -101,13 +102,13 @@ class CallingExtensionDecorator: DataSourceDecorator {
         switch call.callStatus  {
         case .initiated where call.receiverType == .user:
             let callStatus: String = isLoggedInUser ? "OUTGOING_CALL".localize() : "INCOMING_CALL".localize()
-            view.text = String(repeating: " ", count: Int(8)) + callStatus
+            view.text = spacer + callStatus
             view.textColor = CometChatTheme.palatte.accent900
             icon.tintColor = CometChatTheme.palatte.accent500
                         
         case .unanswered where  call.receiverType == .user:
             let callStatus: String = isLoggedInUser ? "CALL_UNANSWERED".localize() : "MISSED_CALL".localize()
-            view.text = String(repeating: " ", count: Int(8)) + callStatus
+            view.text = spacer + callStatus
             view.textColor =  isLoggedInUser ? CometChatTheme.palatte.accent900 : CometChatTheme.palatte.error
             icon.tintColor =  isLoggedInUser ? CometChatTheme.palatte.accent500 : CometChatTheme.palatte.error
             view.set(borderColor: isLoggedInUser ? .clear : CometChatTheme.palatte.error)
@@ -115,35 +116,35 @@ class CallingExtensionDecorator: DataSourceDecorator {
 
         case .rejected where call.receiverType == .user:
             let callStatus: String = isLoggedInUser ? "CALL_REJECTED".localize() : "MISSED_CALL".localize()
-            view.text = String(repeating: " ", count: Int(8)) + callStatus
+            view.text = spacer + callStatus
             view.textColor =  isLoggedInUser ? CometChatTheme.palatte.accent900 : CometChatTheme.palatte.error
             icon.tintColor =  isLoggedInUser ? CometChatTheme.palatte.accent500 : CometChatTheme.palatte.error
             view.set(borderColor: isLoggedInUser ? .clear : CometChatTheme.palatte.error)
             
         case .cancelled where call.receiverType == .user:
             let callStatus: String = isLoggedInUser ? "CALL_CANCELLED".localize() : "MISSED_CALL".localize()
-            view.text = String(repeating: " ", count: Int(8)) + callStatus
+            view.text = spacer + callStatus
             view.textColor =  isLoggedInUser ? CometChatTheme.palatte.accent900 : CometChatTheme.palatte.error
             icon.tintColor =  isLoggedInUser ? CometChatTheme.palatte.accent500 : CometChatTheme.palatte.error
             view.set(borderColor: isLoggedInUser ? .clear : CometChatTheme.palatte.error)
             
         case .busy where call.receiverType == .user:
             let callStatus: String = isLoggedInUser ? "CALL_REJECTED".localize() : "MISSED_CALL".localize()
-            view.text = String(repeating: " ", count: Int(8)) + callStatus
+            view.text = spacer + callStatus
             view.textColor =  isLoggedInUser ? CometChatTheme.palatte.accent900 : CometChatTheme.palatte.error
             icon.tintColor =  isLoggedInUser ? CometChatTheme.palatte.accent500 : CometChatTheme.palatte.error
             view.set(borderColor: isLoggedInUser ? .clear : CometChatTheme.palatte.error)
             
-        case .ended:  view.text = String(repeating: " ", count: Int(8)) + "CALL_ENDED".localize()
+        case .ended:  view.text = spacer + "CALL_ENDED".localize()
             view.textColor = CometChatTheme.palatte.accent900
             icon.tintColor = CometChatTheme.palatte.accent500
             
-        case .ongoing: view.text = String(repeating: " ", count: Int(8)) + "CALL_ACCEPTED".localize()
+        case .ongoing: view.text = spacer + "CALL_ACCEPTED".localize()
             view.textColor = CometChatTheme.palatte.accent900
             icon.tintColor = CometChatTheme.palatte.accent500
             
-        case .unanswered:  view.text = String(repeating: " ", count: Int(8)) + "CALL_UNANSWERED".localize()
-        @unknown default: view.text =  String(repeating: " ", count: Int(8)) + "CALL_CANCELLED".localize()
+        case .unanswered:  view.text = spacer + "CALL_UNANSWERED".localize()
+        @unknown default: view.text =  spacer + "CALL_CANCELLED".localize()
         }
         
         view.addSubview(icon)
@@ -176,21 +177,33 @@ class CallingExtensionDecorator: DataSourceDecorator {
             }
             let callBubble = CometChatCallBubble(frame: CGRect(x: 0, y: 0, width: 228, height: 130))
             callBubble.set(title: "Conference Call")
-            callBubble.set(icon: UIImage(named: "video-call", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage())
+            if let icon = self.callingConfiguration?.callBubbleConfiguration?.icon {
+                callBubble.set(icon: icon)
+            } else {
+                callBubble.set(icon: UIImage(named: "video-call", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage())
+            }
             if message?.sender?.uid == CometChat.getLoggedInUser()?.uid {
                 callBubble.set(subTitle: "YOU_INITIATED_GROUP_VIDEO_CALL".localize())
             } else {
                 callBubble.set(subTitle: "\(call.sender?.name?.capitalized ?? "") " + "HAS_INITIATED_GROUP_AUDIO_CALL".localize())
             }
-            callBubble.set(style: CallBubbleStyle())
+            if let callBubbleStyle = self.callingConfiguration?.callBubbleConfiguration?.style {
+                callBubble.set(style: callBubbleStyle)
+            } else {
+                callBubble.set(style: CallBubbleStyle())
+            }
             callBubble.set(joinButtonText: "JOIN".localize())
             callBubble.setOnClick {
-                if let customData = call.customData, let sessionID = customData["sessionID"] as? String {
-                    DispatchQueue.main.async {
-                        let ongoingCall = CometChatOngoingCall()
-                        ongoingCall.set(sessionId: sessionID)
-                        ongoingCall.modalPresentationStyle = .fullScreen
-                        controller?.present(ongoingCall, animated: true)
+                if let onClick = self.callingConfiguration?.callBubbleConfiguration?.onClick {
+                    onClick()
+                } else {
+                    if let customData = call.customData, let sessionID = customData["sessionID"] as? String {
+                        DispatchQueue.main.async {
+                            let ongoingCall = CometChatOngoingCall()
+                            ongoingCall.set(sessionId: sessionID)
+                            ongoingCall.modalPresentationStyle = .fullScreen
+                            controller?.present(ongoingCall, animated: true)
+                        }
                     }
                 }
             }
@@ -220,7 +233,6 @@ class CallingExtensionDecorator: DataSourceDecorator {
             @unknown default: break
             }
         } else if let lastMessage = conversation.lastMessage as? CustomMessage, lastMessage.type == conferenceCallTypeConstant {
-            
             return "Conference Call"
         }
         return super.getLastConversationMessage(conversation: conversation, isDeletedMessagesHidden: isDeletedMessagesHidden)
@@ -228,18 +240,52 @@ class CallingExtensionDecorator: DataSourceDecorator {
     
     override func getAuxiliaryHeaderMenu(user: User?, group: Group?, controller: UIViewController?, id: [String: Any]?) -> UIStackView? {
         if let user = user {
-            let callButton = CometChatCallButton(width: 75, height: 40)
+            let callButton = CometChatCallButtons(width: 75, height: 40)
             callButton.set(controller: controller)
-            callButton.set(user: user )
+            callButton.set(user: user)
+            setupConfigurationFor(callButton: callButton)
             return callButton
         }
         if let group = group {
-            let callButton = CometChatCallButton(width: 75, height: 40)
+            let callButton = CometChatCallButtons(width: 75, height: 40)
             callButton.set(controller: controller)
             callButton.set(group: group)
+            setupConfigurationFor(callButton: callButton)
             return callButton
         }
         return nil
+    }
+    
+    private func setupConfigurationFor(callButton: CometChatCallButtons) {
+        if let callButtonConfiguration = self.callingConfiguration?.callButtonConfiguration {
+            if let videoCallIcon = callButtonConfiguration.videoCallIcon {
+                callButton.set(videoCallIcon: videoCallIcon)
+            }
+            if let voiceCallIcon = callButtonConfiguration.voiceCallIcon {
+                callButton.set(voiceCallIcon: voiceCallIcon)
+            }
+            if let hideVideoCall = callButtonConfiguration.hideVideoCall {
+                callButton.hide(videoCall: hideVideoCall)
+            }
+            if let hideVoiceCall = callButtonConfiguration.hideVoiceCall {
+                callButton.hide(videoCall: hideVoiceCall)
+            }
+            if let callButtonsStyle = callButtonConfiguration.callButtonsStyle {
+                callButton.set(callButtonsStyle: callButtonsStyle)
+            }
+            if let onVideoCallClick = callButtonConfiguration.onVideoCallClick {
+                callButton.setOnVideoCallClick(onVideoCallClick: onVideoCallClick)
+            }
+            if let onVoiceCallClick = callButtonConfiguration.onVoiceCallClick {
+                callButton.setOnVoiceCallClick(onVoiceCallClick: onVoiceCallClick)
+            }
+            if let onError = callButtonConfiguration.onError {
+                callButton.setOnError(onError: onError)
+            }
+        }
+        if let outgoingCallConfiguration = self.callingConfiguration?.outgoingCallConfiguration {
+            callButton.set(outgoingCallConfiguration: outgoingCallConfiguration)
+        }
     }
     
 }
@@ -251,6 +297,34 @@ extension CallingExtensionDecorator: CometChatCallDelegate {
             
             if let call = incomingCall {
                 let incomingCall = CometChatIncomingCall().set(call: call)
+                if let incomingCallConfiguration = self.callingConfiguration?.incomingCallConfiguration {
+                    
+                    if let declineButtonIcon = incomingCallConfiguration.declineButtonIcon {
+                        incomingCall.set(declineButtonIcon: declineButtonIcon)
+                    }
+                    if let acceptButtonIcon = incomingCallConfiguration.acceptButtonIcon {
+                        incomingCall.set(acceptButtonIcon: acceptButtonIcon)
+                    }
+                    if let disableSoundForCalls = incomingCallConfiguration.disableSoundForCalls {
+                        incomingCall.disable(soundForCalls: disableSoundForCalls)
+                    }
+                    if let customSoundForCalls = incomingCallConfiguration.customSoundForCalls {
+                        incomingCall.set(customSoundForCalls: customSoundForCalls)
+                    }
+                    if let avatarStyle = incomingCallConfiguration.avatarStyle {
+                        incomingCall.set(avatarStyle: avatarStyle)
+                    }
+                    if let acceptButtonStyle = incomingCallConfiguration.acceptButtonStyle {
+                        incomingCall.set(acceptButtonStyle: acceptButtonStyle)
+                    }
+                    if let declineButtonStyle = incomingCallConfiguration.declineButtonStyle {
+                        incomingCall.set(declineButtonStyle: declineButtonStyle)
+                    }
+                    if let incomingCallStyle = incomingCallConfiguration.incomingCallStyle {
+                        incomingCall.set(incomingCallStyle: incomingCallStyle)
+                    }
+                }
+                
                 incomingCall.modalPresentationStyle = .fullScreen
                 if let window = UIApplication.shared.windows.first , let rootViewController = window.rootViewController {
                     var currentController = rootViewController

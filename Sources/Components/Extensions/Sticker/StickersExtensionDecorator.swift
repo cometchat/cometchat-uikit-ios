@@ -140,5 +140,4 @@ class StickersExtensionDecorator: DataSourceDecorator {
         }
         return stickerKeyboard
     }
-    
 }

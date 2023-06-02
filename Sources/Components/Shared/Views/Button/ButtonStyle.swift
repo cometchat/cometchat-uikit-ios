@@ -10,7 +10,7 @@ import UIKit
 
 public class ButtonStyle : BaseStyle {
     
-    private (set) var iconTint: UIColor?
+    private (set) var iconTint = CometChatTheme.palatte.primary
     private (set) var textFont = CometChatTheme.typography.subtitle2
     private (set) var textColor = CometChatTheme.palatte.primary
     private (set) var iconBackground: UIColor?
@@ -18,7 +18,7 @@ public class ButtonStyle : BaseStyle {
     private (set) var iconBorder: CGFloat?
     
     @discardableResult
-    public func set(iconTint: UIColor?) -> Self {
+    public func set(iconTint: UIColor) -> Self {
         self.iconTint = iconTint
         return self
     }

@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 import AVKit
 
-class CometChatVideoBubble: UIStackView {
+public class CometChatVideoBubble: UIStackView {
     
     @IBOutlet var contentView: UIView!
     @IBOutlet weak var placeholderImage: UIImageView!
@@ -44,6 +44,7 @@ class CometChatVideoBubble: UIStackView {
             heightAnchor.constraint(equalToConstant: 168)
         ])
         set(style: VideoBubbleStyle())
+        self.placeholderImage.image = UIImage(named: "default-image.png", in: CometChatUIKit.bundle, compatibleWith: nil)
     }
     
     public func set(thumbnailImage: UIImage) {
@@ -51,34 +52,13 @@ class CometChatVideoBubble: UIStackView {
     }
     
     public func set(thumnailImageUrl: String, sentAt: Double? = nil) {
-        if let time = sentAt {
-            let date = Date(timeIntervalSince1970: TimeInterval(time))
-            let secondsAgo = Int(Date().timeIntervalSince(date))
-            var timeinterval = 0.0
-            _ = Timer.scheduledTimer(withTimeInterval: timeinterval, repeats: secondsAgo > 5 ? false : true) { [weak self] (timer) in
-                guard let this  = self else { return }
-                if let url = URL(string: thumnailImageUrl) {
-                    this.imageRequest = this.imageService.image(for: url) { [weak self] image in
-                        guard let strongSelf = self else { return }
-                        if let image = image {
-                            strongSelf.placeholderImage.image = image
-                            timer.invalidate()
-                        } else {
-                            timeinterval = 1.0
-                        }
-                    }
-                }
-            }
-        } else {
-            if let url = URL(string: thumnailImageUrl) {
-                self.placeholderImage.image = UIImage(named: "default-image.png", in: CometChatUIKit.bundle, compatibleWith: nil)
-                imageRequest = imageService.image(for: url) { [weak self] image in
-                    guard let this = self else { return }
-                    if let image = image {
-                        this.placeholderImage.image = image
-                    } else {
-                        this.placeholderImage.isHidden = true
-                    }
+        if let url = URL(string: thumnailImageUrl) {
+            imageRequest = imageService.image(for: url) { [weak self] image in
+                guard let this = self else { return }
+                if let image = image {
+                    this.placeholderImage.image = image
+                } else {
+                    this.placeholderImage.isHidden = true
                 }
             }
         }

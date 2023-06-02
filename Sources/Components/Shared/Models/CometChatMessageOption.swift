@@ -23,6 +23,13 @@ public struct  CometChatMessageOption: Hashable {
     var onItemClick: ((_ message: BaseMessage?) -> Void)?
     static var messageOptionDelegate: CometChatMessageOptionDelegate?
     
+    public init(id: String, title: String, icon: UIImage?, onItemClick: ( (_: BaseMessage?) -> Void)? = nil) {
+        self.id = id
+        self.title = title
+        self.icon = icon
+        self.onItemClick = onItemClick
+    }
+    
     public static func == (lhs: CometChatMessageOption, rhs: CometChatMessageOption) -> Bool {
         return lhs.id == rhs.id
     }

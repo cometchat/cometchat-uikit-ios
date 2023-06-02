@@ -170,6 +170,7 @@ public class CometChatThreadedMessages: CometChatListBase {
             messageList.set(templates: templates)
         }
         
+        set(messageList: messageList, messageListConfiguration: messageListConfiguration)
         if let user = user, let uid = user.uid , let parentMessage = parentMessage {
             if let messageListConfiguration = messageListConfiguration, let requestBuilder = messageListConfiguration.messagesRequestBuilder {
                 messageList.set(messagesRequestBuilder: requestBuilder.set(types: types).set(categories: categories))
@@ -194,7 +195,6 @@ public class CometChatThreadedMessages: CometChatListBase {
         if let messageList = messageList {
             messageList.set(controller: self)
             messageList.disable(soundForMessages: !enableSoundForMessages)
-            set(messageList: messageList, messageListConfiguration: messageListConfiguration)
             if let customIncomingMessageSound = customIncomingMessageSound {
                 messageList.set(customSoundForMessages: customIncomingMessageSound)
             }
@@ -280,7 +280,7 @@ public class CometChatThreadedMessages: CometChatListBase {
                 messageComposer.setSendButtonView(sendButtonView: sendButtonView)
             }
             if let attachmentOptions = messageComposerConfiguration.attachmentOptions {
-                messageComposer.set(attachmentOptions: attachmentOptions)
+                messageComposer.setAttachmentOptions(attachmentOptions: attachmentOptions)
             }
             if let attachmentIcon = messageComposerConfiguration.attachmentIcon {
                 messageComposer.set(attachmentIcon: attachmentIcon)

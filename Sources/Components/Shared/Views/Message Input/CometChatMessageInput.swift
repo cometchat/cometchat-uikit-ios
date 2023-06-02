@@ -36,15 +36,8 @@ public enum AuxilaryButtonAlignment {
     private(set) var primaryButtonView: UIView?
     private(set) var placeholderText: String = "TYPE_A_MESSAGE".localize()
     private(set) var messageInputStyle = MessageInputStyle()
-    private(set) var textFont: UIFont?
-    private(set) var textColor: UIColor?
-    private(set) var placeHolderTextColor: UIColor?
-    private(set) var placeHolderTextFont: UIFont?
-    private(set) var dividerColor: UIColor?
-    private(set) var topViewBackgroundColor: UIColor?
-    private(set) var bottomViewBackgroundColor: UIColor?
 
-        
+
     // MARK: - Initialization of required Methods
     override init(frame: CGRect) {
         super.init(frame: UIScreen.main.bounds)
@@ -108,8 +101,7 @@ extension CometChatMessageInput {
         set(placeHolderTextColor: messageInputStyle.placeHolderTextColor)
         set(placeHolderTextFont: messageInputStyle.placeHolderTextFont)
         set(dividerColor: messageInputStyle.dividerColor)
-        set(topViewBackgroundColor: messageInputStyle.topViewBackgroundColor)
-        set(bottomViewBackgroundColor: messageInputStyle.bottomViewBackgroundColor)
+        set(inputBackgroundColor: messageInputStyle.inputBackground)
         return self
     }
     
@@ -173,62 +165,63 @@ extension CometChatMessageInput {
     @discardableResult
     public func set(placeholderText: String) -> Self {
         self.placeholderText = placeholderText
+        self.textView.placeholder = NSAttributedString(string:  self.placeholderText, attributes: [.foregroundColor: messageInputStyle.placeHolderTextColor,.font:  messageInputStyle.placeHolderTextFont])
         return self
     }
     
     @discardableResult
     public func set(textFont: UIFont) -> Self {
-        self.textFont = textFont
+        self.textView.font = messageInputStyle.textFont
         return self
     }
     
+    @discardableResult
+    public func set(cornerRadius: CometChatCornerStyle) -> Self {
+        self.topView.roundViewCorners(corner: CometChatCornerStyle(topLeft: true, topRight:  true, bottomLeft: false, bottomRight:false, cornerRadius: cornerRadius.cornerRadius))
+        self.bottomView.roundViewCorners(corner: CometChatCornerStyle(topLeft: false, topRight:  false, bottomLeft: true, bottomRight: true, cornerRadius: cornerRadius.cornerRadius))
+        return self
+    }
+
     @discardableResult
     public func set(textColor: UIColor) -> Self {
-        self.textColor = textColor
+        self.textView.textColor = textColor
         return self
     }
-    
+
     @discardableResult
     public func set(placeHolderTextColor: UIColor) -> Self {
-        self.placeHolderTextColor = placeHolderTextColor
+        self.textView.placeholder = NSAttributedString(string:  placeholderText, attributes: [.foregroundColor: placeHolderTextColor,.font:  messageInputStyle.placeHolderTextFont])
         return self
     }
-    
+
     @discardableResult
     public func set(placeHolderTextFont: UIFont) -> Self {
-        self.placeHolderTextFont = placeHolderTextFont
+        self.textView.placeholder = NSAttributedString(string:  placeholderText, attributes: [.foregroundColor: messageInputStyle.placeHolderTextColor,.font:  messageInputStyle.placeHolderTextFont])
         return self
     }
-    
+
     @discardableResult
     public func set(dividerColor: UIColor) -> Self {
-        self.dividerColor = dividerColor
-        return self
-    }
-    
-    @discardableResult
-    public func set(topViewBackgroundColor: UIColor) -> Self {
-        self.topViewBackgroundColor = topViewBackgroundColor
-        return self
-    }
-    
-    @discardableResult
-    public func set(bottomViewBackgroundColor: UIColor) -> Self {
-        self.bottomViewBackgroundColor = bottomViewBackgroundColor
-        return self
-    }
-    
-    public func build() {
-        set(messageInputStyle: messageInputStyle)
-        self.textView.font = textFont
-        self.textView.textColor = textColor
         self.divider.backgroundColor = dividerColor
-        self.bottomView.backgroundColor = bottomViewBackgroundColor
-        self.topView.backgroundColor = topViewBackgroundColor
-        self.textView.placeholder = NSAttributedString(string:  placeholderText, attributes: [.foregroundColor: placeHolderTextColor,.font:  placeHolderTextFont])
+        return self
+    }
+
+    @discardableResult
+    public func set(inputBackgroundColor: UIColor) -> Self {
+        self.bottomView.backgroundColor = inputBackgroundColor
+        self.topView.backgroundColor = inputBackgroundColor
+        return self
+    }
+
+    public func build() {
+        self.textView.font = messageInputStyle.textFont
+        self.textView.textColor = messageInputStyle.textColor
+        self.divider.backgroundColor = messageInputStyle.dividerColor
+        self.bottomView.backgroundColor = messageInputStyle.inputBackground
+        self.topView.backgroundColor = messageInputStyle.inputBackground
+        self.textView.placeholder = NSAttributedString(string:  placeholderText, attributes: [.foregroundColor: messageInputStyle.placeHolderTextColor,.font:  messageInputStyle.placeHolderTextFont])
         self.textView.maxNumberOfLines = self.maxLine
     }
-    
     
 }
 

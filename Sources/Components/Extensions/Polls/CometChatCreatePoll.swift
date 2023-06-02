@@ -20,6 +20,7 @@ public class CometChatCreatePoll: CometChatListBase {
     static let ADD_NEW_OPTION_CELL = 2
     
     private var sendButton: UIBarButtonItem?
+    private var isAddNewAnswerPressed: Bool = false
     @IBOutlet var backgroundView: UIView!
     var sectionTitle : UILabel?
     var headerBackground: UIColor = CometChatTheme.palatte.secondary
@@ -243,6 +244,7 @@ public class CometChatCreatePoll: CometChatListBase {
      - Copyright:  ©  2020 CometChat Inc.
      */
     private func hideKeyboardWhenTappedArround() {
+        isAddNewAnswerPressed = false
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tap)
         tableView.addGestureRecognizer(tap)
@@ -305,6 +307,7 @@ extension CometChatCreatePoll {
         if indexPath.section == 0 {
             
             if  let  questionView = tableView.dequeueReusableCell(withIdentifier: "CometChatCreatePollQuestions", for: indexPath) as? CometChatCreatePollQuestions {
+                questionView.question.becomeFirstResponder()
                 return questionView
             }
             
@@ -317,6 +320,7 @@ extension CometChatCreatePoll {
                 
                 if  let  optionView = tableView.dequeueReusableCell(withIdentifier: "CometChatCreatePollOptions", for: indexPath) as? CometChatCreatePollOptions {
                     optionView.options.placeholder = "ANSWER".localize()
+                    isAddNewAnswerPressed ? optionView.options.becomeFirstResponder() :  optionView.options.resignFirstResponder()
                     return optionView
                 }
                 
@@ -383,10 +387,11 @@ extension CometChatCreatePoll {
 extension CometChatCreatePoll : AddNewOptionDelegate {
     
     func didNewOptionPressed() {
-            tableView.beginUpdates()
-            items.insert(CometChatCreatePoll.OPTION_CELL, at: items.count - 1)
-            tableView.insertRows(at: [IndexPath(row: items.count - 2, section: 1)], with: .automatic)
-            tableView.endUpdates()
+        isAddNewAnswerPressed = true
+        tableView.beginUpdates()
+        items.insert(CometChatCreatePoll.OPTION_CELL, at: items.count - 1)
+        tableView.insertRows(at: [IndexPath(row: items.count - 2, section: 1)], with: .automatic)
+        tableView.endUpdates()
     }
     
 }

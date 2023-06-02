@@ -240,6 +240,10 @@ public class CometChatConversationsWithMessages: CometChatConversations {
                 cometChatMessages.set(messageHeaderConfiguration: messageHeaderConfiguration)
             }
             
+            if let auxiliaryMenu = messagesConfiguration.auxiliaryMenu {
+                cometChatMessages.setAuxiliaryMenu(auxiliaryMenu: auxiliaryMenu)
+            }
+            
             if let threadedMessageConfiguration = messagesConfiguration.threadedMessageConfiguration {
                 cometChatMessages.set(threadedMessageConfiguration: threadedMessageConfiguration)
             }
@@ -287,6 +291,9 @@ public class CometChatConversationsWithMessages: CometChatConversations {
             
             if let hideMessageHeader = messagesConfiguration.hideMessageHeader {
                 cometChatMessages.hide(messageHeader: hideMessageHeader)
+            }
+            if let auxiliaryMenu = messagesConfiguration.auxiliaryMenu {
+                cometChatMessages.setAuxiliaryMenu(auxiliaryMenu: auxiliaryMenu)
             }
            
             if let hideMessageComposer = messagesConfiguration.hideMessageComposer {

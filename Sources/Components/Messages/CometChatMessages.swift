@@ -8,6 +8,7 @@
 import UIKit
 import CometChatPro
 
+
 public class CometChatMessages: UIViewController {
     
     @IBOutlet weak var liveReactions: CometChatLiveReaction!
@@ -30,6 +31,7 @@ public class CometChatMessages: UIViewController {
     private(set) var messageHeaderView: ((_ user: User?, _ group: Group?) -> UIView)?
     private(set) var messageListView: ((_ user: User?, _ group: Group?) -> UIView)?
     private(set) var messageComposerView: ((_ user: User?, _ group: Group?) -> UIView)?
+    private(set) var auxiliaryMenu: ((_ user: User?, _ group: Group?, _ id: [String: Any]?) -> UIStackView)?
     private(set) var messageHeaderConfiguration: MessageHeaderConfiguration?
     private(set) var messageListConfiguration: MessageListConfiguration?
     private(set) var messageComposerConfiguration: MessageComposerConfiguration?
@@ -57,6 +59,8 @@ public class CometChatMessages: UIViewController {
     public override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.navigationBar.isHidden = true
         messageList.disconnect()
+        removeObserverForMessageEvents()
+        addObserForMessageEvents()
         addObservers()
         setupKeyboard()
         
@@ -83,15 +87,15 @@ public class CometChatMessages: UIViewController {
     
     public override func viewWillDisappear(_ animated: Bool) {
         removeObervers()
-        //TODO: Need 
-       // messageComposer.removeContainerStaView()
+        //TODO: Need
+        // messageComposer.removeContainerStaView()
     }
     
     deinit {
         print("Calling Denit")
     }
     
-   
+    
     public override func viewDidAppear(_ animated: Bool) {
         
         messageList.setOnThreadRepliesClick { [weak self] message, messageBubbleView in
@@ -115,11 +119,11 @@ public class CometChatMessages: UIViewController {
                     if let messageListConfiguration = threadedMessageConfiguration.messageListConfiguration {
                         threadedMessages.set(messageListConfiguration: messageListConfiguration)
                     }
-
+                    
                     if let messageActionView = threadedMessageConfiguration.messageActionView {
                         threadedMessages.setCustomMessageActionView(customMessageActionView: messageActionView)
                     }
-
+                    
                     if let messageComposerConfiguration = threadedMessageConfiguration.messageComposerConfiguration {
                         threadedMessages.set(messageComposerConfiguration: messageComposerConfiguration)
                     }
@@ -158,13 +162,20 @@ public class CometChatMessages: UIViewController {
         return self
     }
     
+    private func addObserForMessageEvents() {
+        CometChatMessageEvents.addListener("messages-message-listener", self as CometChatMessageEventListener)
+    }
+    
+    private func removeObserverForMessageEvents() {
+        CometChatMessageEvents.removeListener("messages-message-listener")
+    }
+    
     private func addObservers() {
         CometChatUserEvents.addListener("users-with-messages", self as CometChatUserEventListener)
         messageHeader.connect()
         messageList.connect()
         messageComposer.connect()
         CometChatMessageOption.messageOptionDelegate = self
-        CometChatMessageEvents.addListener("messages-message-listener", self as CometChatMessageEventListener)
         CometChat.addGroupListener("messages-groups-sdk-listener", self)
         CometChatGroupEvents.addListener("messages-groups-event-listener", self)
         CometChatUIEvents.addListener("messages-ui-event-listener", self)
@@ -174,19 +185,12 @@ public class CometChatMessages: UIViewController {
         messageHeader.disconnect()
         messageComposer.disconnect()
         CometChatGroupEvents.removeListener("messages-group-listener")
-        CometChatMessageEvents.removeListener("messages-message-listener")
         CometChat.removeGroupListener("messages-groups-sdk-listener")
         CometChatGroupEvents.removeListener("messages-groups-event-listener")
     }
     
     private func setupMessageHeader() {
         self.navigationController?.navigationBar.isHidden = true
-        if let user = user {
-            messageHeader.set(user: user)
-        }else if let group = group {
-            messageHeader.set(group: group)
-        }
-        messageHeader.set(controller: self)
         if let messageHeaderConfiguration = messageHeaderConfiguration {
             messageHeader.set(subtitle: messageHeaderConfiguration.subtitleView)
             if let backButtonIcon = messageHeaderConfiguration.backButtonIcon {
@@ -202,22 +206,49 @@ public class CometChatMessages: UIViewController {
                 messageHeader.set(messageHeaderStyle: messageHeaderStyle)
             }
             messageHeader.hide(backButton: messageHeaderConfiguration.hideBackIcon)
-            // messageHeader.setMenus(menus: messageHeaderConfiguration.menus)
-            messageHeader.set(disableUsersPresence: messageHeaderConfiguration.disableUsersPresence)
+            messageHeader.disable(userPresence: messageHeaderConfiguration.disableUsersPresence)
+            messageHeader.disable(typing: messageHeaderConfiguration.disableTyping)
         }
-        messageHeader.setAuxiliaryHeaderMenu { user, group in
-            if let headerMenus = ChatConfigurator.getDataSource().getAuxiliaryHeaderMenu(user: user, group: group, controller: self, id: self.id) {
-                headerMenus.spacing = 3
-                if !self.hideDetails {
-                    headerMenus.addArrangedSubview(self.messageHeader.configureMenus())
+        
+        if let menu = messageHeaderConfiguration?.menus {
+            messageHeader.setMenus(menu: menu)
+        } else  {
+            messageHeader.setMenus { user, group in
+                if let auxiliaryMenu = self.auxiliaryMenu?(user, group, self.id) {
+                    auxiliaryMenu.spacing = 3
+                    if !self.hideDetails {
+                        auxiliaryMenu.addArrangedSubview(self.configureHeaderMenu())
+                    }
+                    return auxiliaryMenu
                 }
-                return headerMenus
+                
+                if let headerMenus = ChatConfigurator.getDataSource().getAuxiliaryHeaderMenu(user: user, group: group, controller: self, id: self.id) {
+                    headerMenus.spacing = 3
+                    if !self.hideDetails {
+                        headerMenus.addArrangedSubview(self.configureHeaderMenu())
+                    }
+                    return headerMenus
+                }
+                
+                let stackView = UIStackView(arrangedSubviews: [UIView(), self.configureHeaderMenu()])
+                stackView.translatesAutoresizingMaskIntoConstraints = false
+                stackView.heightAnchor.constraint(equalToConstant: 75).isActive = true
+                return stackView
             }
-            let stackView = UIStackView(arrangedSubviews: [UIView(), self.messageHeader.configureMenus()])
-            stackView.translatesAutoresizingMaskIntoConstraints = false
-            stackView.heightAnchor.constraint(equalToConstant: 75).isActive = true
-            return stackView
         }
+        
+        if let user = user {
+            if let messageHeaderView = messageHeaderView?(user, nil) {
+                messageHeader.set(customMessageHeader: messageHeaderView)
+            }
+            messageHeader.set(user: user)
+        }else if let group = group {
+            if let messageHeaderView = messageHeaderView?(nil, group) {
+                messageHeader.set(customMessageHeader: messageHeaderView)
+            }
+            messageHeader.set(group: group)
+        }
+        messageHeader.set(controller: self)
     }
     
     private func setupMessageList() {
@@ -249,9 +280,10 @@ public class CometChatMessages: UIViewController {
                 }
                 templates.append((type: template.type, template: template))
             }
-            messageList.set(templates: templates)  
+            messageList.set(templates: templates)
         }
         
+        set(messageList: messageList, messageListConfiguration: messageListConfiguration)
         if let user = user {
             if let messageListConfiguration = messageListConfiguration, let requestBuilder = messageListConfiguration.messagesRequestBuilder {
                 messageList.set(messagesRequestBuilder: requestBuilder)
@@ -273,7 +305,6 @@ public class CometChatMessages: UIViewController {
         
         container.addSubview(messageList)
         messageList.set(controller: self)
-        set(messageList: messageList, messageListConfiguration: messageListConfiguration)
         messageList.disable(soundForMessages: disableSoundForMessages)
         if let customSoundForIncomingMessages = customSoundForIncomingMessages {
             messageList.set(customSoundForMessages: customSoundForIncomingMessages)
@@ -324,6 +355,7 @@ public class CometChatMessages: UIViewController {
         if hideMessageComposer {
             messageComposer.isHidden = true
         } else {
+            messageComposer.set(controller: self)
             set(messageComposer: messageComposer, messageComposerConfiguration: messageComposerConfiguration)
             messageComposer.isHidden = false
             if let user = user {
@@ -331,23 +363,18 @@ public class CometChatMessages: UIViewController {
                     messageComposer.set(customComposer: messageComposerView)
                 }
                 messageComposer.set(user: user)
+                
             } else if let group = group {
                 if let messageComposerView = messageComposerView?(nil, group) {
                     messageComposer.set(customComposer: messageComposerView)
                 }
                 messageComposer.set(group: group)
             }
-            
-            if let attachmentOptions = ChatConfigurator.getDataSource().getAttachmentOptions(controller: self, user: user, group: group) {
-                messageComposer.set(attachmentOptions: attachmentOptions)
-            }
             if let auxillaryView = ChatConfigurator.getDataSource().getAuxiliaryOptions(user: user, group: group, controller: self, id: id) {
                 messageComposer.setAuxilaryButtonView { user, group in
                     return auxillaryView
                 }
             }
-            messageComposer.set(controller: self)
-            
         }
     }
     
@@ -372,7 +399,7 @@ public class CometChatMessages: UIViewController {
                 messageComposer.setSendButtonView(sendButtonView: sendButtonView)
             }
             if let attachmentOptions = messageComposerConfiguration.attachmentOptions {
-                messageComposer.set(attachmentOptions: attachmentOptions)
+                messageComposer.setAttachmentOptions(attachmentOptions: attachmentOptions)
             }
             if let attachmentIcon = messageComposerConfiguration.attachmentIcon {
                 messageComposer.set(attachmentIcon: attachmentIcon)
@@ -435,7 +462,7 @@ public class CometChatMessages: UIViewController {
                     self.messageList.scrollToLastVisibleCell()
                     self.view.layoutIfNeeded()
                 }
-
+                
             } else {
                 UIView.animate(withDuration: 0.2) {
                     self.messageComposerBottomSpace.constant = 0.0
@@ -473,11 +500,33 @@ public class CometChatMessages: UIViewController {
         }
     }
     
-    /// update the user.
     private func update(user: User) {
         guard let user = self.user else { print("user not found."); return }
         self.user = user
     }
+    
+    private func configureHeaderMenu() -> UIStackView {
+        let style = ButtonStyle()
+        style.set(iconBackground: .clear)
+            .set(iconTint: CometChatTheme.palatte.primary)
+        
+        let detailButton = CometChatButton(width: 40, height: 40)
+        let infoIcon: UIImage = UIImage(named: "messages-info.png", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+        detailButton.set(icon: infoIcon)
+        detailButton.set(style: style)
+        detailButton.set(controller: self)
+        detailButton.setOnClick {
+            if let user = self.user {
+                CometChatMessageEvents.emitOnViewInformation(user: user)
+            }
+            if let group = self.group {
+                CometChatMessageEvents.emitOnViewInformation(group: group)
+            }
+        }
+        
+        return detailButton
+    }
+    
 }
 
 extension CometChatMessages {
@@ -485,6 +534,12 @@ extension CometChatMessages {
     @discardableResult
     @objc public func hide(details: Bool) -> Self {
         self.hideDetails = details
+        return self
+    }
+    
+    @discardableResult
+    public func setAuxiliaryMenu(auxiliaryMenu: ((_ user: User?, _ group: Group?, _ id: [String: Any]?) -> UIStackView)?) -> Self {
+        self.auxiliaryMenu = auxiliaryMenu
         return self
     }
     
@@ -499,7 +554,7 @@ extension CometChatMessages {
         self.group = group
         return self
     }
-        
+    
     @discardableResult
     public func disable(disableTyping: Bool)  ->  Self {
         self.disableTyping = disableTyping
@@ -514,6 +569,7 @@ extension CometChatMessages {
     
     @discardableResult
     public func set(messagesStyle: MessagesStyle) -> Self {
+        self.messagesStyle = messagesStyle
         set(background: messagesStyle.background)
         set(corner: messagesStyle.cornerRadius)
         set(borderWidth: messagesStyle.borderWidth)
@@ -771,7 +827,7 @@ extension CometChatMessages: CometChatMessageEventListener {
     public func onMessageRead(message: BaseMessage) {
         
     }
-
+    
     public func onLiveReaction(reaction message: TransientMessage) {
         /*
          
@@ -945,7 +1001,7 @@ extension CometChatMessages: CometChatGroupEventListener {
         
         print("CometChatMessages - Events - onItemClick")
     }
-        
+    
     public func onItemLongClick(group: Group, index: IndexPath?) {
         
         print("CometChatMessages - Events - onItemLongClick")
@@ -1035,7 +1091,7 @@ extension CometChatMessages: CometChatGroupEventListener {
     }
     
 }
- 
+
 extension CometChatMessages: CometChatGroupDelegate {
     
     public func onGroupMemberJoined(action: CometChatPro.ActionMessage, joinedUser: CometChatPro.User, joinedGroup: CometChatPro.Group) {

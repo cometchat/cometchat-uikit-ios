@@ -15,9 +15,9 @@ import AVKit
 
 public class CallingExtension: NSObject {
     
-    public static func enable(_ configuration: CallingConfiguration? = nil) {
+    public static func enable() {
         ChatConfigurator.enable { dataSource in
-            return CallingExtensionDecorator(dataSource: dataSource, configuration: configuration)
+            return CallingExtensionDecorator(dataSource: dataSource,configuration: nil)
         }
     }
   

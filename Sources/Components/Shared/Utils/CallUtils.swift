@@ -103,7 +103,7 @@ public class CallUtils {
     func getDefaultTemplate(user: User? , group: Group?, controller: UIViewController, isFromCallDetail: Bool? = false) -> [CometChatDetailsTemplate] {
         var templates = [CometChatDetailsTemplate]()
         if let user = user {
-            let callingButton = CometChatCallButton(width: 0, height: 0)
+            let callingButton = CometChatCallButtons(width: 0, height: 0)
             callingButton.set(controller: controller)
             callingButton.set(voiceCallIconText: "CALL".localize())
             callingButton.set(videoCallIconText: "VIDEO".localize())
@@ -120,7 +120,7 @@ public class CallUtils {
         }
         
         if let group = group {
-            let callingButton = CometChatCallButton(width: 0, height: 0)
+            let callingButton = CometChatCallButtons(width: 0, height: 0)
             callingButton.set(controller: controller)
             callingButton.set(videoCallIconText: "VIDEO".localize())
             callingButton.check(isFromCallDetail: isFromCallDetail ?? false)
