@@ -1,6 +1,6 @@
 //
 //  CometChatThemeNew.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Pushpsen Airekar on 15/03/22.
 //

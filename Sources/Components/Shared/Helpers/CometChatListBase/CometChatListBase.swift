@@ -1,6 +1,6 @@
 //
 //  CometChatListBase.swift
-//  CometChatUIKit
+ 
 //  Created by CometChat Inc. on 22/12/21.
 //  Copyright ©  2022 CometChat Inc. All rights reserved.
 

@@ -1,6 +1,6 @@
 //
 //  CometChatDocumentBubble.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Abdullah Ansari on 16/05/22.
 //

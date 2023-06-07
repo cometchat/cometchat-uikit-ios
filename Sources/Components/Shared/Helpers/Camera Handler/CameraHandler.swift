@@ -1,6 +1,6 @@
 //
 //  CameraHandler.swift
-//  CometChatUIKit
+ 
 //
 //  Created by CometChat Inc. on 23/10/19.
 //  Copyright © 2022 CometChat Inc. All rights reserved.

@@ -1,6 +1,6 @@
 //
 //  CometChatCreateGroup.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Pushpsen Airekar on 10/05/22.
 //

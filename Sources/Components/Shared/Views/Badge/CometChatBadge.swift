@@ -1,5 +1,5 @@
 //  CometChatBadge.swift
-//  CometChatUIKit
+ 
 //  Created by CometChat Inc. on 20/09/19.
 //  Copyright ©  2022 CometChat Inc. All rights reserved.
 

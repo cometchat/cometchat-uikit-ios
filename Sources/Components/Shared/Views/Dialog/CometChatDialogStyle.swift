@@ -1,6 +1,6 @@
 //
 //  CometChatDialogStyle.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Abdullah Ansari on 30/05/22.
 //

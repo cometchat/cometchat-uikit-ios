@@ -1,6 +1,6 @@
 //
 //  CometChatSettings.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Pushpsen Airekar on 28/12/21.
 //

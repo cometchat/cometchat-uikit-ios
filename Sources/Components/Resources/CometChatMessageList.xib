@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatMessageList" customModule="CometChatUIKit">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatMessageList" customModule="CometChatUIKitSwift">
             <connections>
                 <outlet property="background" destination="lZp-CI-ue7" id="6hF-VK-dRi"/>
                 <outlet property="container" destination="FxL-hD-ITY" id="9Vf-d2-QhH"/>
@@ -22,7 +22,7 @@
             <rect key="frame" x="0.0" y="0.0" width="572" height="988"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lZp-CI-ue7" customClass="CometChatGradientView" customModule="CometChatUIKit">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lZp-CI-ue7" customClass="CometChatGradientView" customModule="CometChatUIKitSwift">
                     <rect key="frame" x="0.0" y="0.0" width="572" height="988"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="FxL-hD-ITY">

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatMessageComposer" customModule="CometChatUIKit">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatMessageComposer" customModule="CometChatUIKitSwift">
             <connections>
                 <outlet property="close" destination="yPe-RC-J2u" id="q2H-6B-yfC"/>
                 <outlet property="containerStackView" destination="Ntj-lc-Yka" id="Scn-2A-Xp4"/>
@@ -115,7 +116,7 @@
                                 <constraint firstItem="Wq8-G4-cCJ" firstAttribute="leading" secondItem="oOj-gx-ywN" secondAttribute="leading" id="zHc-Yy-YFs"/>
                             </constraints>
                         </view>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0zE-kA-sqy" customClass="CometChatMessageInput" customModule="CometChatUIKit">
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0zE-kA-sqy" customClass="CometChatMessageInput" customModule="CometChatUIKitSwift">
                             <rect key="frame" x="0.0" y="0.0" width="532" height="223"/>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             <constraints>

@@ -1,6 +1,6 @@
 //
 //  VideoBubbleStyle.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Abdullah Ansari on 23/05/22.
 //

@@ -1,6 +1,6 @@
 //
 //  GroupsConfiguration.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Abdullah Ansari on 19/08/22.
 //

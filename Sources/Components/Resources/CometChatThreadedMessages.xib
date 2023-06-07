@@ -25,7 +25,7 @@
             <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qbb-bX-WQi" customClass="CometChatMessageComposer" customModule="CometChatUIKit">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qbb-bX-WQi" customClass="CometChatMessageComposer" customModule="CometChatUIKitSwift">
                     <rect key="frame" x="0.0" y="752" width="393" height="100"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
@@ -60,7 +60,7 @@
                         </view>
                     </subviews>
                 </stackView>
-                <view tag="2" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oUu-7G-F8X" customClass="CometChatMessageList" customModule="CometChatUIKit">
+                <view tag="2" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oUu-7G-F8X" customClass="CometChatMessageList" customModule="CometChatUIKitSwift">
                     <rect key="frame" x="0.0" y="258" width="393" height="494"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>

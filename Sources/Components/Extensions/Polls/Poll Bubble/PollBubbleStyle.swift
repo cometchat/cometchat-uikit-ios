@@ -1,6 +1,6 @@
 //
 //  PollBubbleStyle.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Abdullah Ansari on 20/05/22.
 //

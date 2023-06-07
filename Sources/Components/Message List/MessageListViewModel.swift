@@ -1,6 +1,6 @@
 //
 //  MessageListViewModel.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Pushpsen Airekar on 01/12/22.
 //

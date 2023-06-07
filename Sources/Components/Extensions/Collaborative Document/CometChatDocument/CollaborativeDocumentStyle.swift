@@ -1,6 +1,6 @@
 //
 //  CollaborativeDocumentStyle.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Abdullah Ansari on 19/05/22.
 //

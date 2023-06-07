@@ -1,6 +1,6 @@
 //
 //  MessageReceiptConfiguration.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Pushpsen Airekar on 10/01/22.
 //

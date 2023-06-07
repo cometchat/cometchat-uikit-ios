@@ -1,6 +1,6 @@
 
 //  CometChatCreatePoll.swift
-//  CometChatUIKit
+ 
 //  Created by CometChat Inc. on 20/09/19.
 //  Copyright ©  2020 CometChat Inc. All rights reserved.
 

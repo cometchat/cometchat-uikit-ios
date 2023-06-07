@@ -1,6 +1,6 @@
 //
 //  MessageComposerConfiguration.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Pushpsen Airekar on 07/02/22.
 //

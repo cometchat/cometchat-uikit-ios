@@ -1,6 +1,6 @@
 //
 //  CreateGroupStyle.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Abdullah Ansari on 01/09/22.
 

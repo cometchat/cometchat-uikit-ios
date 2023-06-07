@@ -1,7 +1,5 @@
 //
 //  CometChatMessages.swift
-//  CometChatUIKit
-//
 //  Created by Pushpsen Airekar on 25/11/21.
 //
 
@@ -280,6 +278,7 @@ public class CometChatMessages: UIViewController {
                 }
                 templates.append((type: template.type, template: template))
             }
+            
             messageList.set(templates: templates)
         }
         

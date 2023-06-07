@@ -1,6 +1,5 @@
 //
 // DeleteMessage.swift
-// CometChatUIKit
 //
 // Created by Abdullah Ansari on 25/05/22.
 //

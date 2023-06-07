@@ -1,7 +1,4 @@
 //
-//  CometChatUIKit.swift
-//  CometChatUIKit
-//
 //  Created by Pushpsen Airekar on 01/02/22.
 //
 

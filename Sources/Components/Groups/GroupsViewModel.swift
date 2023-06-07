@@ -1,6 +1,6 @@
 //
 //  GroupsViewModel.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Pushpsen Airekar on 17/11/22.
 //

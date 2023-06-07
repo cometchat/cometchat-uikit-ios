@@ -1,7 +1,5 @@
 //
 //  "cometChatEmojiKeyboardJSON.swift
-//  "cometChatUIKit
-//
 //  "created by abdullah ansari on 08/06/22.
 //
 

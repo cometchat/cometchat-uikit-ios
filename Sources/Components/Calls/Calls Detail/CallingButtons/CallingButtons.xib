@@ -8,7 +8,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CallingButtons" customModule="CometChatUIKit">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CallingButtons" customModule="CometChatUIKitSwift">
             <connections>
                 <outlet property="audioImage" destination="e42-L5-ep8" id="eXz-O2-HII"/>
                 <outlet property="audioLabel" destination="yKU-BN-PjA" id="Tlv-M7-gok"/>

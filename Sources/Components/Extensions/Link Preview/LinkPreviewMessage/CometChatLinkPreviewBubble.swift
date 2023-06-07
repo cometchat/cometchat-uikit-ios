@@ -1,6 +1,6 @@
 //
 //  CometChatLinkPreviewBubble.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Abdullah Ansari on 12/05/22.
 //

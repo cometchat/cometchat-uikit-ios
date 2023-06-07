@@ -8,7 +8,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatBannedMemberList" customModule="CometChatUIKit">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatBannedMemberList" customModule="CometChatUIKitSwift">
             <connections>
                 <outlet property="background" destination="SC3-Sz-Eao" id="vxo-Dt-ccw"/>
                 <outlet property="contentView" destination="iN0-l3-epB" id="DdI-eM-8bw"/>
@@ -20,7 +20,7 @@
             <rect key="frame" x="0.0" y="0.0" width="572" height="988"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SC3-Sz-Eao" customClass="CometChatGradientView" customModule="CometChatUIKit">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SC3-Sz-Eao" customClass="CometChatGradientView" customModule="CometChatUIKitSwift">
                     <rect key="frame" x="0.0" y="0.0" width="572" height="988"/>
                     <subviews>
                         <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="insetGrouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="kAs-PR-aIa">

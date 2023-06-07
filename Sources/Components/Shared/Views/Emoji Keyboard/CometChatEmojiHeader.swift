@@ -1,6 +1,6 @@
 //
 //  CometChatEmojiHeader.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Abdullah Ansari on 09/06/22.
 //

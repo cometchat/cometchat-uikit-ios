@@ -1,6 +1,6 @@
 //
 //  DataSourceDecorator.swift
-//  CometChatUIKit
+ 
 //
 //  Created by Pushpsen Airekar on 14/02/23.
 //
