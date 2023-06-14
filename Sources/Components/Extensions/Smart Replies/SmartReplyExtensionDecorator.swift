@@ -23,6 +23,10 @@ class SmartReplyExtensionDecorator: DataSourceDecorator {
         connect()
     }
     
+    public override func getId() -> String {
+        return "smartReplies"
+    }
+    
     public func connect() {
         if let _messageListenerId = _messageListenerId {
             CometChat.addMessageListener(_messageListenerId, self)

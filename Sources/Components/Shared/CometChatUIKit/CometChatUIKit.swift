@@ -13,36 +13,34 @@ import CometChatProCalls
 
 final public class CometChatUIKit {
     
-    public enum LoginResult {
+    public enum ApiStatus {
         case success(User)
-        case failure(CometChatException)
+        case onError(CometChatException)
     }
     
-    var isInitialised = false
     public static var bundle =  Bundle.module
-    static var authSettings: UIKitSettings?
+    static var uiKitSettings: UIKitSettings?
+    static var uiKitError: CometChatException = CometChatException(errorCode: "Err_101", errorDescription: "UIKit Settings are not initialised, Try calling CometChatUIKit.init method first.")
     
     @discardableResult
-    public init(authSettings: UIKitSettings, result: @escaping (Result<Bool, Error>) -> Void) {
-        CometChat.init(appId: authSettings.appID, appSettings: AppSettings(builder: authSettings.appSettingsBuilder)) { [weak self] isSuccess  in
-            guard let strongSelf = self else { return }
-            result(.success(isSuccess))
+    public init(uiKitSettings: UIKitSettings, result: @escaping (Result<Bool, Error>) -> Void) {
+        CometChat.init(appId: uiKitSettings.appID, appSettings: AppSettings(builder: uiKitSettings.appSettingsBuilder)) { [weak self] isSuccess  in
             if isSuccess {
                 CometChat.setSource(resource: "ui-kit", platform: "ios", language: "swift")
-                strongSelf.isInitialised = true
                 #if canImport(CometChatProCalls)
-                if !authSettings.isCallingDisabled {
+                if !uiKitSettings.isCallingDisabled {
                     CallingExtension.enable()
                 }
                 #endif
-                CometChatUIKit.configureExtensions(extensions: authSettings.extensions)
-                CometChatUIKit.registerForVOIP(with: authSettings.voipToken)
-                CometChatUIKit.registerForPushNotification(with: authSettings.deviceToken)
-                CometChatUIKit.registerForFCM(with: authSettings.fcmKey)
+                CometChatUIKit.configureExtensions(extensions: uiKitSettings.extensions)
+                CometChatUIKit.registerForVOIP(with: uiKitSettings.voipToken)
+                CometChatUIKit.registerForPushNotification(with: uiKitSettings.deviceToken)
+                CometChatUIKit.registerForFCM(with: uiKitSettings.fcmKey)
             }
-            CometChatUIKit.authSettings = authSettings
+            CometChatUIKit.uiKitSettings = uiKitSettings
+            result(.success(isSuccess))
         } onError: { error in
-            self.isInitialised = false
+            result(.failure(error as! Error))
         }
     }
     
@@ -76,20 +74,20 @@ final public class CometChatUIKit {
     }
     
     private static func registerNotificationAndVOIP() {
-        registerForVOIP(with: authSettings?.voipToken)
-        registerForPushNotification(with: authSettings?.deviceToken)
-        registerForFCM(with: authSettings?.fcmKey)
+        registerForVOIP(with: uiKitSettings?.voipToken)
+        registerForPushNotification(with: uiKitSettings?.deviceToken)
+        registerForFCM(with: uiKitSettings?.fcmKey)
     }
     
-    static public func login(authToken: String, result: @escaping (LoginResult) -> Void) {
-        let loggedInUser = getLoggedInUser()
-        if (loggedInUser == nil) {
+    static public func login(authToken: String, result: @escaping (ApiStatus) -> Void) {
+        if getLoggedInUser() != nil {
             CometChat.login(authToken: authToken) {  user in
                 registerNotificationAndVOIP()
                 result(.success(user))
                 
             } onError: { error in
-                result(.failure(error))
+                result(.onError(error))
+                debugPrint(error.description)
             }
         }
     }
@@ -105,46 +103,49 @@ final public class CometChatUIKit {
         }
     }
     
-    static public func login(uid: String, result: @escaping (LoginResult) -> Void) {
-        guard let authKey = CometChatUIKit.authSettings?.authKey else { return }
-        let loggedInUser = getLoggedInUser()
-        if (loggedInUser == nil) || (loggedInUser?.uid != uid) {
+    static public func login(uid: String, result: @escaping (ApiStatus) -> Void) {
+        guard let authKey = CometChatUIKit.uiKitSettings?.authKey else { return result(.onError(uiKitError))}
+        if (getLoggedInUser() == nil) || (getLoggedInUser()?.uid != uid) {
             CometChat.login(UID: uid, authKey: authKey) { user in
                 registerNotificationAndVOIP()
                 result(.success(user))
             } onError: { error in
-                result(.failure(error))
+                result(.onError(error))
+                debugPrint(error.description)
             }
         }
     }
     
-   static public func create(user: User, result: @escaping (LoginResult) -> Void) {
-        guard let authKey = CometChatUIKit.authSettings?.authKey else { return }
+   static public func create(user: User, result: @escaping (ApiStatus) -> Void) {
+        guard let authKey = CometChatUIKit.uiKitSettings?.authKey else { return result(.onError(uiKitError)) }
         CometChat.createUser(user: user, authKey: authKey) { user in
             result(.success(user))
         } onError: { error in
             if let error = error {
-                result(.failure(error))
+                result(.onError(error))
+                debugPrint(error.description)
             }
         }
     }
     
-    static public func update(user: User, result: @escaping (LoginResult) -> Void) {
-        guard let authKey = CometChatUIKit.authSettings?.authKey else { return }
+    static public func update(user: User, result: @escaping (ApiStatus) -> Void) {
+        guard let authKey = CometChatUIKit.uiKitSettings?.authKey else { return result(.onError(uiKitError)) }
         CometChat.updateUser(user: user, authKey: authKey) { user in
             result(.success(user))
         } onError: { error in
             if let error = error {
-                result(.failure(error))
+                result(.onError(error))
+                debugPrint(error.description)
             }
         }
     }
     
-    static public func logout(user: User, result: @escaping (LoginResult) -> Void) {
+    static public func logout(user: User, result: @escaping (ApiStatus) -> Void) {
         CometChat.logout { isSuccess in
             result(.success(user))
         } onError: { error in
-            result(.failure(error))
+            result(.onError(error))
+            debugPrint(error.description)
         }
     }
     
