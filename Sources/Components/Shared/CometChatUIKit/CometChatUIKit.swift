@@ -155,6 +155,7 @@ final public class CometChatUIKit {
     }
 }
 
+
 //Methods related to Sending of messages
 //=============================================
 extension CometChatUIKit {
