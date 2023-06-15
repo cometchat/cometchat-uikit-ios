@@ -2,16 +2,18 @@
 <div style="width:100%">
     <div style="width:50%; display:inline-block">
         <p align="center">
-        <img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-swift-chat-ui-kit/blob/master/Screenshots/logo.png">    
+        <img align="center" width="180" height="180" alt="" src="./Screenshots/logo.png">    
         </p>    
     </div>    
 </div>
 </div>
 
 </br></br>
-> Version 4 CometChat UI Kits
+> **Note**
 
-We’ve introduced a major update to CometChat UI kits. Version 4 features a modular architecture that give you enhanced flexibility to build and customize your web and mobile apps. Please switch to the branch [v4](https://github.com/cometchat-pro/cometchat-chat-uikit-ios-swift/tree/v4) to check out the UIKit based on this version. Read about this new and upgraded version [on our docs](https://www.cometchat.com/docs/ios-uikit-beta/overview).
+Version 4 CometChat UI Kits 
+
+We’ve introduced a major update to CometChat UI kits. Version 4 features a modular architecture that gives you enhanced flexibility to build and customize your web and mobile apps. [Visit our documentation](https://www.cometchat.com/docs/ios-uikit-beta/overview) to read more about this.
 <br/><br/>
 
 # iOS Chat UI Kit
