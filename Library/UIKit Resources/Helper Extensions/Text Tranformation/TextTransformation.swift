@@ -126,7 +126,7 @@ extension String {
     func fetchMessageHeaderDate(from interval : TimeInterval) -> String {
         let calendar = Calendar.current
         let date = Date(timeIntervalSince1970: interval)
-        if (interval == 0.0) || (calendar.isDateInToday(date)) { return "TODAY".localized() }
+        if (interval == 0.0) || (interval == -1) || (calendar.isDateInToday(date)) { return "TODAY".localized() }
         else if calendar.isDateInYesterday(date) { return "YESTERDAY".localized() }
         else {
             let formatter = DateFormatter()

@@ -285,3 +285,4 @@ Contact us via real time support present in [CometChat Dashboard.](https://app.c
 ---
 
 This project uses the following [license](https://github.com/cometchat-pro/ios-swift-chat-ui-kit/blob/master/License.md).
+
