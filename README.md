@@ -13,7 +13,7 @@
 
 Version 4 CometChat UI Kits 
 
-We’ve introduced a major update to CometChat UI kits. Version 4 features a modular architecture that gives you enhanced flexibility to build and customize your web and mobile apps. [Visit our documentation](https://www.cometchat.com/docs/ios-uikit-beta/overview) to read more about this.
+We’ve introduced a major update to CometChat UI kits. Version 4 features a modular architecture that gives you enhanced flexibility to build and customize your web and mobile apps. [Visit our documentation](https://www.cometchat.com/docs/ios-v4-uikit/overview) to read more about this.
 <br/><br/>
 
 # iOS Chat UI Kit
