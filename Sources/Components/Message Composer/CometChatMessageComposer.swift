@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 import AudioToolbox
 import AVFoundation
 import CoreLocation
@@ -61,9 +61,22 @@ public enum MessageComposerMode {
     private(set) var attachmentOptionsClosure: ((_ user: User?, _ group: Group?, _ controller: UIViewController?) -> [CometChatMessageComposerAction])?
     private(set) var viewModel:  MessageComposerViewModel?
     private(set) var primaryButtonsView = UIStackView()
+    private(set) var auxiliaryButton = UIButton()
     private(set) var onSendButtonClick: ((BaseMessage) -> Void)?
     
+    private(set) var pauseIconTint: UIColor?
+    private(set) var playIconTint: UIColor?
+    private(set) var deleteIconTint: UIColor?
+    private(set) var timerTextFont: UIFont?
+    private(set) var timerTextColor: UIColor?
+    private(set) var startIconTint: UIColor?
+    private(set) var stopIconTint: UIColor?
+    private(set) var submitIconTint: UIColor?
+    var background: UIColor?
+    
     private(set) var attachmentIcon = UIImage(named: "message-composer-plus", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+    private(set) var mediaRecordIcon = UIImage(named: "microphone", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+    private(set) var stickerIcon = UIImage(named: "sticker", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     private(set) var liveReactionIcon: UIImage = UIImage(named: "message-composer-heart.png", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal) ?? UIImage()
     private(set)var sendIcon: UIImage = UIImage(named: "message-composer-send.png", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     private(set) var closeIcon: UIImage = UIImage(named: "message-composer-close.png", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
@@ -148,6 +161,9 @@ public enum MessageComposerMode {
         let attachmentButton = setupDefaultSecondaryButton()
         messageInput.set(secondaryButtonView: attachmentButton)
         
+        let auxiliaryButton = setupDefaultAuxilaryButton()
+        messageInput.set(auxilaryButtonView: auxiliaryButton)
+        
         messageInput.set(placeholderText: placeholderText)
         messageInput.set(auxilaryButtonAignment: auxiliaryButtonsAlignment)
         if let maxLine = maxLine {
@@ -169,6 +185,15 @@ public enum MessageComposerMode {
     
     //MARK: Setting Up the default functionality
     //=========================================
+    
+    func setupDefaultAuxilaryButton() -> UIButton {
+        auxiliaryButton.setImage(mediaRecordIcon,  for: .normal)
+        auxiliaryButton.tintColor = messageComposerStyle.attachmentIconTint
+        auxiliaryButton.translatesAutoresizingMaskIntoConstraints = false
+        auxiliaryButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        auxiliaryButton.addTarget(self, action: #selector(didMediaRecorderClicked), for: .touchUpInside)
+        return auxiliaryButton
+    }
     
     func setupDefaultSecondaryButton() -> UIView {
         let attachmentButton = UIButton()
@@ -199,6 +224,41 @@ public enum MessageComposerMode {
         primaryButtonsView.alignment = .center
         primaryButtonsView.distribution = .fillEqually
         return primaryButtonsView
+    }
+    
+    @objc func didMediaRecorderClicked() {
+        let cometChatMediaRecorder = UIStoryboard(name: "CometChatMediaRecorder", bundle: Bundle.module).instantiateViewController(identifier: "CometChatMediaRecorder") as? CometChatMediaRecorder
+        
+        if let cometChatMediaRecorder = cometChatMediaRecorder {
+            cometChatMediaRecorder.modalPresentationStyle = .popover
+            if let user = viewModel?.user {
+                cometChatMediaRecorder.viewModel = MediaRecorderViewModel(user: user)
+            } else if let group = viewModel?.group {
+                cometChatMediaRecorder.viewModel = MediaRecorderViewModel(group: group)
+            }
+            
+            cometChatMediaRecorder.set(style: MediaRecorderStyle())
+            cometChatMediaRecorder.setSubmit(onSubmit: {url in
+                if self.onSendButtonClick != nil {
+                    self.onSendButtonClick?(self.viewModel?.setupBaseMessage(url: url) ?? BaseMessage(receiverUid: "", messageType: .audio, receiverType: .group))
+                } else {
+                    if self.viewModel?.user != nil {
+                        self.viewModel?.sendMediaMessageToUser(url: url, type: .audio)
+                    } else {
+                        self.viewModel?.sendMediaMessageToGroup(url: url, type: .audio)
+                    }
+                }
+            })
+            
+            if let cometChatMediaRecorder_ = cometChatMediaRecorder.popoverPresentationController {
+                cometChatMediaRecorder_.delegate = controller as? any UIPopoverPresentationControllerDelegate
+                cometChatMediaRecorder_.sourceView = controller?.view
+                cometChatMediaRecorder_.sourceRect = CGRect(x: (controller?.view.bounds.midX)!, y: (controller?.view.bounds.midY)!, width: (controller?.view.bounds.width)!, height: (controller?.view.bounds.height)!)
+                cometChatMediaRecorder_.permittedArrowDirections = []
+            }
+            
+            controller?.present(cometChatMediaRecorder, animated: true)
+        }
     }
     
     @objc func didLiveReactionClicked() {
@@ -416,7 +476,11 @@ extension CometChatMessageComposer {
     public func setAuxilaryButtonView(auxilaryButtonView: @escaping ((_ user: User?, _ group: Group?) -> UIView)) -> Self {
         self.auxilaryButtonView = auxilaryButtonView
         if let auxilaryButtonView =  self.auxilaryButtonView?(viewModel?.user, viewModel?.group) {
-            messageInput.set(auxilaryButtonView: auxilaryButtonView)
+            let mediaRecordButton = setupDefaultAuxilaryButton()
+            let stackView = UIStackView()
+            stackView.addArrangedSubview(auxilaryButtonView)
+            stackView.addArrangedSubview(mediaRecordButton)
+            messageInput.set(auxilaryButtonView: stackView)
         }
         return self
     }
@@ -424,6 +488,75 @@ extension CometChatMessageComposer {
     @discardableResult
     public func set(auxilaryButtonAignment: AuxilaryButtonAlignment) -> Self {
         self.auxiliaryButtonsAlignment = auxilaryButtonAignment
+        return self
+    }
+        
+    public func set(background: UIColor) -> Self {
+        self.background = background
+        return self
+    }
+    
+    @discardableResult
+    public func set(pauseIconTint: UIColor) -> Self {
+        self.pauseIconTint = pauseIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(playIconTint: UIColor) -> Self {
+        self.playIconTint = playIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(deleteIconTint: UIColor) -> Self {
+        self.deleteIconTint = deleteIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(timerTextFont: UIFont) -> Self {
+        self.timerTextFont = timerTextFont
+        return self
+    }
+    
+    @discardableResult
+    public func set(timerTextColor: UIColor) -> Self {
+        self.timerTextColor = timerTextColor
+        return self
+    }
+    
+    @discardableResult
+    public func set(submitIconTint: UIColor) -> Self {
+        self.submitIconTint = submitIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(startIconTint: UIColor) -> Self {
+        self.startIconTint = startIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(stopIconTint: UIColor) -> Self {
+        self.stopIconTint = stopIconTint
+        return self
+    }
+    
+    
+    @discardableResult
+    public func set(mediaRecorderIcon: UIImage) -> Self {
+        self.mediaRecordIcon = mediaRecordIcon.withRenderingMode(.alwaysTemplate)
+        let auxilaryButtons = setupDefaultAuxilaryButton()
+        auxilaryButtons.subviews.last?.isHidden = true
+        messageInput.set(auxilaryButtonView: auxilaryButtons)
+        return self
+    }
+    
+    @discardableResult
+    public func set(hideVoiceRecording: Bool) -> Self {
+        self.auxiliaryButton.isHidden = true
         return self
     }
     
@@ -444,7 +577,6 @@ extension CometChatMessageComposer {
     public func set(liveReactionIcon: UIImage) -> Self {
         self.liveReactionIcon = liveReactionIcon.withRenderingMode(.alwaysTemplate)
         let primaryButtons = setupDefaultPrimaryButtons()
-        primaryButtonsView.subviews.last?.isHidden = true
         messageInput.set(primaryButtonView: primaryButtons)
         return self
     }
@@ -794,7 +926,7 @@ extension CometChatMessageComposer {
 
 extension CometChatMessageComposer: CometChatUIEventListener {
     
-    public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatPro.BaseMessage?, user: CometChatPro.User?, group: CometChatPro.Group?) {
+    public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {
     }
     
     public func showPanel(id: [String : Any]?, alignment: UIAlignment, view: UIView?) {
@@ -822,4 +954,7 @@ extension CometChatMessageComposer: CometChatUIEventListener {
         case .messageListTop, .messageListBottom: break
         }
     }
+    
+    
+    public func openChat(user: CometChatSDK.User?, group: CometChatSDK.Group?) {}
 }

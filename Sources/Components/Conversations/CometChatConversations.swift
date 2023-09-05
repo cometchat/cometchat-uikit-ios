@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 import UIKit
 
 @MainActor
@@ -86,7 +86,7 @@ open class CometChatConversations: CometChatListBase {
     }
     
     // MARK: - Init
-    public init(conversationRequestBuilder: ConversationRequest.ConversationRequestBuilder = ConversationsBuilder.shared) {
+    public init(conversationRequestBuilder: ConversationRequest.ConversationRequestBuilder = ConversationsBuilder.getDefaultRequestBuilder()) {
         self.conversationRequestBuilder = conversationRequestBuilder
         conversationsStyle = ConversationsStyle()
         avatarStyle = AvatarStyle()
@@ -128,10 +128,12 @@ open class CometChatConversations: CometChatListBase {
     }
     
     public func connect() {
+        CometChat.addConnectionListener("conversations-sdk-listener", self)
         viewModel.connect()
     }
     
     public func disconnect() {
+        CometChat.removeConnectionListener("conversations-sdk-listener")
         viewModel.disconnect()
     }
     
@@ -664,3 +666,20 @@ extension CometChatConversations {
         }
     }
 }
+
+extension CometChatConversations: CometChatConnectionDelegate {
+    public func connected() {
+        viewModel.isRefresh = true
+        reloadData()
+        fetchData()
+    }
+    
+    public func connecting() {
+        
+    }
+    
+    public func disconnected() {
+        
+    }
+}
+

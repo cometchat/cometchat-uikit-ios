@@ -9,7 +9,7 @@
 import UIKit
 import AVFoundation
 import CoreMedia
-import CometChatPro
+import CometChatSDK
 
 /*  ----------------------------------------------------------------------------------------- */
 

@@ -7,7 +7,8 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
+#if canImport(CometChatCallsSDK)
 
 public class CometChatCallButtons: UIStackView {
     
@@ -29,6 +30,8 @@ public class CometChatCallButtons: UIStackView {
     private(set) var onVideoCallClick: ((_ user: User?, _ group: Group?) -> Void)?
     private(set) var onError: ((_ error: CometChatException?) -> Void)?
     
+    private var disabled = false
+    
     public init(width: CGFloat, height: CGFloat) {
         super.init(frame: CGRect(x: 0, y: 0, width: width, height: height))
         disconnect()
@@ -43,6 +46,7 @@ public class CometChatCallButtons: UIStackView {
     public func connect() -> Self {
         CometChatMessageEvents.addListener("call-button-message-event-listener", self)
         CometChat.addCallListener("call-button-call-listener", self)
+        CometChatCallEvents.addListener("call-button-call-event-listner", self)
         return self
     }
     
@@ -50,6 +54,7 @@ public class CometChatCallButtons: UIStackView {
     public func disconnect() -> Self {
         CometChatMessageEvents.removeListener("call-button-message-event-listener")
         CometChat.removeCallListener("call-button-call-listener")
+        CometChatCallEvents.removeListener("call-button-call-event-listner")
         return self
     }
     
@@ -161,52 +166,17 @@ public class CometChatCallButtons: UIStackView {
             voiceCallButton.set(text: voiceCallIconText ?? "")
             voiceCallButton.set(style: callButtonsStyle ?? style)
             voiceCallButton.set(cornerRadius: CometChatCornerStyle(cornerRadius: callButtonsStyle?.iconCornerRadius ?? 8.0))
+            guard let user = self.user, let uid = user.uid else { return }
+            
+            let call = Call(receiverId: uid, callType: .audio, receiverType: .user)
+
+            
             voiceCallButton.setOnClick {
                 if self.onVoiceCallClick != nil {
                     self.onVoiceCallClick?(forUser, nil)
-                } else {
-                    guard let user = self.user, let uid = user.uid else { return }
-                    let call = Call(receiverId: uid, callType: .audio, receiverType: .user)
-                    CometChat.initiateCall(call: call) { call in
-                        DispatchQueue.main.async {
-                            guard let call = call else { return }
-                            CometChatCallEvents.emitOnCallInitiated(call: call)
-                            let outgoingCall = CometChatOutgoingCall()
-                            outgoingCall.set(call: call)
-                            outgoingCall.modalPresentationStyle = .fullScreen
-                            self.setupOutgoingCallConfiguration(outgoingCall: outgoingCall)
-                            outgoingCall.setOnCancelClick { call, controller in
-                                CometChat.rejectCall(sessionID: call?.sessionID ?? "", status: .cancelled) { call in
-                                    if let call = call {
-                                        CometChatCallEvents.emitOnOutgoingCallRejected(call: call)
-                                    }
-                                    DispatchQueue.main.async {
-                                        controller?.dismiss(animated: true)
-                                    }
-                                } onError: { error in
-                                    self.onError?(error)
-                                    DispatchQueue.main.async {
-                                        controller?.dismiss(animated: true)
-                                    }
-                                }
-                            }
-                           
-                            self.controller?.present(outgoingCall, animated: true)
-                        }
-                    } onError: { error in
-                        self.onError?(error)
-                        DispatchQueue.main.async {
-                            let confirmDialog = CometChatDialog()
-                            confirmDialog.set(confirmButtonText: "OK".localize())
-                            confirmDialog.set(cancelButtonText: "CANCEL".localize())
-                            if let error = error {
-                                confirmDialog.set(error: CometChatServerError.get(error: error))
-                            }
-                            confirmDialog.open {
-                            }
-                        }
-                        
-                    }
+                } else if !self.disabled {
+                    self.disabled = true
+                    self.initiateDefaultAudioCall(call)
                 }
             }
             
@@ -224,50 +194,16 @@ public class CometChatCallButtons: UIStackView {
             videoCallButton.set(text: videoCallIconText ?? "")
             videoCallButton.set(style: callButtonsStyle ?? style)
             videoCallButton.set(cornerRadius: CometChatCornerStyle(cornerRadius: callButtonsStyle?.iconCornerRadius ?? 8.0))
+            guard let user = self.user, let uid = user.uid else { return }
+         
+            let call = Call(receiverId: uid, callType: .video, receiverType: .user)
+   
             videoCallButton.setOnClick {
                 if self.onVideoCallClick != nil {
                     self.onVideoCallClick?(forUser, nil)
-                } else {
-                    guard let user = self.user, let uid = user.uid else { return }
-                    let call = Call(receiverId: uid, callType: .video, receiverType: .user)
-                    CometChat.initiateCall(call: call) { call in
-                        DispatchQueue.main.async {
-                            guard let call = call else { return }
-                            CometChatCallEvents.emitOnCallInitiated(call: call)
-                            let outgoingCall = CometChatOutgoingCall()
-                            outgoingCall.set(call: call)
-                            outgoingCall.modalPresentationStyle = .fullScreen
-                            self.setupOutgoingCallConfiguration(outgoingCall: outgoingCall)
-                            outgoingCall.setOnCancelClick { call, controller in
-                                CometChat.rejectCall(sessionID: call?.sessionID ?? "", status: .cancelled) { call in
-                                    if let call = call {
-                                        CometChatCallEvents.emitOnOutgoingCallRejected(call: call)
-                                    }
-                                    DispatchQueue.main.async {
-                                        controller?.dismiss(animated: true)
-                                    }
-                                } onError: { error in
-                                    self.onError?(error)
-                                    DispatchQueue.main.async {
-                                        controller?.dismiss(animated: true)
-                                    }
-                                }
-                            }
-                            self.controller?.present(outgoingCall, animated: true)
-                        }
-                    } onError: { error in
-                        self.onError?(error)
-                        DispatchQueue.main.async {
-                            let confirmDialog = CometChatDialog()
-                            confirmDialog.set(confirmButtonText: "OK".localize())
-                            confirmDialog.set(cancelButtonText: "CANCEL".localize())
-                            if let error = error {
-                                confirmDialog.set(error: CometChatServerError.get(error: error))
-                            }
-                            confirmDialog.open {
-                            }
-                        }
-                    }
+                } else if !self.disabled {
+                    self.disabled = true
+                    self.initiateDefaultVideoCall(call)
                 }
             }
             if !hideVideoCall {
@@ -298,7 +234,9 @@ public class CometChatCallButtons: UIStackView {
         conferenceCallButton.setOnClick {
             if self.onVideoCallClick != nil {
                 self.onVideoCallClick?(nil, forGroup)
-            } else {
+            } else if !self.disabled {
+                self.disabled = true
+                
                 if let sessionID = self.group?.guid {
                     let videoMeeting = CustomMessage(receiverUid: self.group?.guid ?? "", receiverType: .group, customData: ["sessionID":sessionID, "callType":"video"], type: "meeting")
                     videoMeeting.metaData = ["pushNotification":"\(String(describing: CometChat.getLoggedInUser()?.name))" + "HAS_INITIATED_GROUP_VIDEO_CALL"]
@@ -343,68 +281,188 @@ public class CometChatCallButtons: UIStackView {
 
 extension CometChatCallButtons: CometChatMessageEventListener {
     
-    public func onMessageSent(message: CometChatPro.BaseMessage, status: MessageStatus) {
+    public func onMessageSent(message: CometChatSDK.BaseMessage, status: MessageStatus) {
         if let call = message as? CustomMessage, status == .success, call.type == "meeting", let customData = call.customData, let sessionID = customData["sessionID"] as? String {
             DispatchQueue.main.async {
                 let ongoingCall = CometChatOngoingCall()
                 ongoingCall.set(sessionId: sessionID)
+                ongoingCall.set(callSettingsBuilder: CallingDefaultBuilder.callSettingsBuilder)
+                ongoingCall.set(callWorkFlow: .directCalling)
                 ongoingCall.modalPresentationStyle = .fullScreen
                 self.controller?.present(ongoingCall, animated: true)
             }
         }
     }
     
-    public func onMessageEdit(message: CometChatPro.BaseMessage, status: MessageStatus) {}
+    public func onMessageEdit(message: CometChatSDK.BaseMessage, status: MessageStatus) {}
     
-    public func onMessageDelete(message: CometChatPro.BaseMessage) {}
+    public func onMessageDelete(message: CometChatSDK.BaseMessage) {}
     
-    public func onMessageReply(message: CometChatPro.BaseMessage, status: MessageStatus) {}
+    public func onMessageReply(message: CometChatSDK.BaseMessage, status: MessageStatus) {}
     
-    public func onMessageRead(message: CometChatPro.BaseMessage) {}
+    public func onMessageRead(message: CometChatSDK.BaseMessage) {}
     
-    public func onParentMessageUpdate(message: CometChatPro.BaseMessage) {}
+    public func onParentMessageUpdate(message: CometChatSDK.BaseMessage) {}
     
-    public func onLiveReaction(reaction: CometChatPro.TransientMessage) {}
+    public func onLiveReaction(reaction: CometChatSDK.TransientMessage) {}
     
-    public func onMessageError(error: CometChatPro.CometChatException) {}
+    public func onMessageError(error: CometChatSDK.CometChatException) {}
     
-    public func onVoiceCall(user: CometChatPro.User) {}
+    public func onVoiceCall(user: CometChatSDK.User) {}
     
-    public func onVoiceCall(group: CometChatPro.Group) {}
+    public func onVoiceCall(group: CometChatSDK.Group) {}
     
-    public func onVideoCall(user: CometChatPro.User) {}
+    public func onVideoCall(user: CometChatSDK.User) {}
     
-    public func onVideoCall(group: CometChatPro.Group) {}
+    public func onVideoCall(group: CometChatSDK.Group) {}
     
-    public func onViewInformation(user: CometChatPro.User) {}
+    public func onViewInformation(user: CometChatSDK.User) {}
     
-    public func onViewInformation(group: CometChatPro.Group) {}
+    public func onViewInformation(group: CometChatSDK.Group) {}
     
-    public func onError(message: CometChatPro.BaseMessage?, error: CometChatPro.CometChatException) {
+    public func onError(message: CometChatSDK.BaseMessage?, error: CometChatSDK.CometChatException) {
         
     }
     
-    public func onMessageReact(message: CometChatPro.BaseMessage, reaction: CometChatMessageReaction) {
+    public func onMessageReact(message: CometChatSDK.BaseMessage, reaction: CometChatMessageReaction) {
         
     }
 }
 
 extension CometChatCallButtons: CometChatCallDelegate {
     
-    public func onIncomingCallReceived(incomingCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
-        voiceCallButton?.disable(button: true)
-        videoCallButton?.disable(button: true)
+    public func onIncomingCallReceived(incomingCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
+
     }
     
-    public func onOutgoingCallAccepted(acceptedCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    public func onOutgoingCallAccepted(acceptedCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         
     }
     
-    public func onOutgoingCallRejected(rejectedCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    public func onOutgoingCallRejected(rejectedCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
+        disabled = false
+    }
+    
+    public func onIncomingCallCancelled(canceledCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         
     }
     
-    public func onIncomingCallCancelled(canceledCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
-        
+    public func onCallEndedMessageReceived(endedCall: Call?, error: CometChatException?) {
+        disabled = false
     }
 }
+
+extension CometChatCallButtons: CometChatCallEventListener {
+    public func onIncomingCallAccepted(call: CometChatSDK.Call) {
+        
+    }
+    
+    public func onIncomingCallRejected(call: CometChatSDK.Call) {
+        
+    }
+    
+    public func onCallEnded(call: CometChatSDK.Call) {
+        disabled = false
+    }
+    
+    public func onCallInitiated(call: CometChatSDK.Call) {
+        
+    }
+    
+    public func onOutgoingCallAccepted(call: CometChatSDK.Call) {
+        
+    }
+    
+    public func onOutgoingCallRejected(call: CometChatSDK.Call) {
+        disabled = false
+    }
+    
+    
+}
+
+extension CometChatCallButtons {
+    private func initiateDefaultAudioCall(_ call: Call){
+        CometChat.initiateCall(call: call) { call in
+            DispatchQueue.main.async {
+                guard let call = call else { return }
+                CometChatCallEvents.emitOnCallInitiated(call: call)
+                let outgoingCall = CometChatOutgoingCall()
+                outgoingCall.set(call: call)
+                outgoingCall.modalPresentationStyle = .fullScreen
+                self.setupOutgoingCallConfiguration(outgoingCall: outgoingCall)
+                outgoingCall.setOnCancelClick { call, controller in
+                    CometChat.rejectCall(sessionID: call?.sessionID ?? "", status: .cancelled) { call in
+                        if let call = call {
+                            CometChatCallEvents.emitOnOutgoingCallRejected(call: call)
+                        }
+                        DispatchQueue.main.async {
+                            controller?.dismiss(animated: true)
+                        }
+                    } onError: { error in
+                        self.onError?(error)
+                        DispatchQueue.main.async {
+                            controller?.dismiss(animated: true)
+                        }
+                    }
+                }
+               
+                self.controller?.present(outgoingCall, animated: true)
+            }
+        } onError: { error in
+            self.onError?(error)
+            DispatchQueue.main.async {
+                let confirmDialog = CometChatDialog()
+                confirmDialog.set(confirmButtonText: "OK".localize())
+                confirmDialog.set(cancelButtonText: "CANCEL".localize())
+                if let error = error {
+                    confirmDialog.set(error: CometChatServerError.get(error: error))
+                }
+                confirmDialog.open {
+                }
+            }
+            
+        }
+    }
+    
+    private func initiateDefaultVideoCall(_ call : Call){
+        CometChat.initiateCall(call: call) { call in
+            DispatchQueue.main.async {
+                guard let call = call else { return }
+                CometChatCallEvents.emitOnCallInitiated(call: call)
+                let outgoingCall = CometChatOutgoingCall()
+                outgoingCall.set(call: call)
+                outgoingCall.modalPresentationStyle = .fullScreen
+                self.setupOutgoingCallConfiguration(outgoingCall: outgoingCall)
+                outgoingCall.setOnCancelClick { call, controller in
+                    CometChat.rejectCall(sessionID: call?.sessionID ?? "", status: .cancelled) { call in
+                        if let call = call {
+                            CometChatCallEvents.emitOnOutgoingCallRejected(call: call)
+                        }
+                        DispatchQueue.main.async {
+                            controller?.dismiss(animated: true)
+                        }
+                    } onError: { error in
+                        self.onError?(error)
+                        DispatchQueue.main.async {
+                            controller?.dismiss(animated: true)
+                        }
+                    }
+                }
+                self.controller?.present(outgoingCall, animated: true)
+            }
+        } onError: { error in
+            self.onError?(error)
+            DispatchQueue.main.async {
+                let confirmDialog = CometChatDialog()
+                confirmDialog.set(confirmButtonText: "OK".localize())
+                confirmDialog.set(cancelButtonText: "CANCEL".localize())
+                if let error = error {
+                    confirmDialog.set(error: CometChatServerError.get(error: error))
+                }
+                confirmDialog.open {
+                }
+            }
+        }
+    }
+}
+#endif

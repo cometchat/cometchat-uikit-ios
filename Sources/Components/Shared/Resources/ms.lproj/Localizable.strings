@@ -373,7 +373,9 @@
 "SENTATTXT" = "hantar teks: %1$s";
 "CONNECTING_TO_CALL" = "Menyambung ke panggilan";
 "READ_AT" = "Baca di: %1$s";
+"READ" = "Baca";
 "DELIVERED_AT" = "Dihantar di: ";
+"DELIVERED" = "Dihantar";
 "NAVIGATE" = "Navigasi";
 "GRANT_LOCATION_PERMISSION" = "Berikan keizinan lokasi";
 "SEND_AUDIO_FILES" = "Hantar fail audio";
@@ -525,3 +527,6 @@
 "NO_MEMBERS_FOUND" = "No Members Found";
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
+"NEW_CHAT" = "Sembang Baru";
+"INCOMING_AUDIO_CALL" = "Panggilan audio masuk";
+"INCOMING_VIDEO_CALL" = "Panggilan video masuk";

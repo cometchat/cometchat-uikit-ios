@@ -6,12 +6,12 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 import UIKit
 
 protocol MessageHeaderViewModelProtocol {
-    var user: CometChatPro.User? { get set }
-    var group: CometChatPro.Group?  { get set }
+    var user: CometChatSDK.User? { get set }
+    var group: CometChatSDK.Group?  { get set }
     var name: String? { get set }
     var updateGroupCount: ((Bool) -> Void)? { get set }
     var updateTypingStatus: ((Bool) -> Void)? { get set }

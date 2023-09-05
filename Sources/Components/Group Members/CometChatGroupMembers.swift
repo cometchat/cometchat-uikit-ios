@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 @MainActor
 open class CometChatGroupMembers: CometChatListBase {
@@ -60,6 +60,7 @@ open class CometChatGroupMembers: CometChatListBase {
     }
     
     public override func viewWillAppear(_ animated: Bool) {
+        CometChat.addConnectionListener("group-members-sdk-listener", self)
         viewModel.connect()
         reloadData()
         fetchData()
@@ -67,6 +68,7 @@ open class CometChatGroupMembers: CometChatListBase {
     
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        CometChat.removeConnectionListener("group-members-sdk-listener")
         viewModel.disconnect()
     }
     
@@ -548,5 +550,20 @@ extension CometChatGroupMembers {
         @unknown default: break
         }
         return UIMenu()
+    }
+}
+
+extension CometChatGroupMembers: CometChatConnectionDelegate {
+    public func connected() {
+        reloadData()
+        fetchData()
+    }
+    
+    public func connecting() {
+        
+    }
+    
+    public func disconnected() {
+        
     }
 }

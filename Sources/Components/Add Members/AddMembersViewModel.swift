@@ -6,19 +6,19 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 protocol AddMembersViewModelProtocol {
     var group: Group { get set }
     var isMembersAdded: ((Bool) -> Void)? { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     
 }
 
 class AddMembersViewModel : AddMembersViewModelProtocol {
     var group: Group
     var isMembersAdded: ((Bool) -> Void)?
-    var failure: ((CometChatPro.CometChatException) -> Void)?
+    var failure: ((CometChatSDK.CometChatException) -> Void)?
    
     init(group: Group) {
         self.group = group

@@ -526,3 +526,7 @@
 "NO_MEMBERS_FOUND" = "No Members Found";
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
+"NEW_CHAT" = "Nuova chat";
+"INCOMING_AUDIO_CALL" = "Chiamata audio in arrivo";
+"INCOMING_VIDEO_CALL" = "Videochiamata in arrivo";
+

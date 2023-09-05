@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 public class LinkPreviewViewModel : DataSourceDecorator {
     
@@ -18,7 +18,7 @@ public class LinkPreviewViewModel : DataSourceDecorator {
     }
     
     public override func getId() -> String {
-        return "LinkPreview"
+        return "link-preview"
     }
     
     public override func getTextMessageContentView(message: TextMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?) -> UIView? {

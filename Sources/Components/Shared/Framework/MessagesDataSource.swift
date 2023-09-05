@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 import UIKit
 
 public class MessagesDataSource: DataSource {
@@ -25,6 +25,10 @@ public class MessagesDataSource: DataSource {
     
     public func getShareOption(controller: UIViewController?) -> CometChatMessageOption {
         return CometChatMessageOption(id: MessageOptionConstants.shareMessage, title: "SHARE_MESSAGE".localize(), icon: AssetConstants.share)
+    }
+    
+    public func getMessagePrivatelyOption(controller: UIViewController?) -> CometChatMessageOption {
+        return CometChatMessageOption(id: MessageOptionConstants.messagePrivately, title: "MESSAGE_IN_PRIVATE".localize(), icon: AssetConstants.privately)
     }
     
     public func getReplyInThreadOption(controller: UIViewController?) -> CometChatMessageOption {
@@ -47,43 +51,43 @@ public class MessagesDataSource: DataSource {
         return loggedInUser.uid == message.sender?.uid;
     }
     
-    public func getTextMessageOptions(loggedInUser: CometChatPro.User, messageObject: CometChatPro.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
+    public func getTextMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
         
         let isSentByMe = isSentByMe(loggedInUser: loggedInUser, message: messageObject)
         var messageOptions = [CometChatMessageOption]()
-        messageOptions.append(contentsOf: ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group))
         if isSentByMe {
             messageOptions.append(getEditOption(controller: controller))
         }
+        messageOptions.append(contentsOf: ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group))
         print("getting text options from message Utils2 \(messageOptions)")
         return messageOptions
     }
     
-    public func getImageMessageOptions(loggedInUser: CometChatPro.User, messageObject: CometChatPro.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
+    public func getImageMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
         var messageOptions = [CometChatMessageOption]()
         messageOptions.append(contentsOf: ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group))
         return messageOptions
     }
     
-    public func getVideoMessageOptions(loggedInUser: CometChatPro.User, messageObject: CometChatPro.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
+    public func getVideoMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
         var messageOptions = [CometChatMessageOption]()
         messageOptions.append(contentsOf: ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group))
         return messageOptions
     }
     
-    public func getAudioMessageOptions(loggedInUser: CometChatPro.User, messageObject: CometChatPro.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
+    public func getAudioMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
         var messageOptions = [CometChatMessageOption]()
         messageOptions.append(contentsOf: ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group))
         return messageOptions
     }
     
-    public func getFileMessageOptions(loggedInUser: CometChatPro.User, messageObject: CometChatPro.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
+    public func getFileMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
         var messageOptions = [CometChatMessageOption]()
         messageOptions.append(contentsOf: ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group))
         return messageOptions
     }
     
-    public func getDeleteMessageBubble(messageObject: CometChatPro.BaseMessage) -> UIView? {
+    public func getDeleteMessageBubble(messageObject: CometChatSDK.BaseMessage) -> UIView? {
         let deleteBubble = CometChatDeleteBubble()
         let deleteBubbleStyle = DeleteBubbleStyle()
         deleteBubbleStyle.set(background: CometChatTheme.palatte.background)
@@ -95,7 +99,7 @@ public class MessagesDataSource: DataSource {
         return deleteBubble
     }
     
-    public func getGroupActionBubble(messageObject: CometChatPro.BaseMessage) -> UIView? {
+    public func getGroupActionBubble(messageObject: CometChatSDK.BaseMessage) -> UIView? {
         let stackView = UIStackView()
         let view = CometChatMessageDateHeader()
         view.text = (messageObject as? ActionMessage)?.message ?? ""
@@ -107,7 +111,7 @@ public class MessagesDataSource: DataSource {
         return stackView
     }
     
-    public func getBottomView(message: CometChatPro.BaseMessage, controller: UIViewController?, alignment: MessageBubbleAlignment) -> UIView? {
+    public func getBottomView(message: CometChatSDK.BaseMessage, controller: UIViewController?, alignment: MessageBubbleAlignment) -> UIView? {
         return UIStackView()
     }
     
@@ -155,7 +159,7 @@ public class MessagesDataSource: DataSource {
 
     }
     
-    public func getAudioMessageContentView(message: CometChatPro.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AudioBubbleStyle?) -> UIView? {
+    public func getAudioMessageContentView(message: CometChatSDK.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AudioBubbleStyle?) -> UIView? {
         return ChatConfigurator.getDataSource().getAudioMessageBubble(audioUrl: message.attachment?.fileUrl, title: message.attachment?.fileName, message: message, controller: controller, style: style)
     }
     
@@ -178,7 +182,7 @@ public class MessagesDataSource: DataSource {
         }
     }
     
-    public func getVideoMessageContentView(message: CometChatPro.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: VideoBubbleStyle?) -> UIView? {
+    public func getVideoMessageContentView(message: CometChatSDK.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: VideoBubbleStyle?) -> UIView? {
         return ChatConfigurator.getDataSource().getVideoMessageBubble(videoUrl: message.attachment?.fileUrl, thumbnailUrl: nil, message: message, controller: controller, style: style)
     }
     
@@ -202,7 +206,7 @@ public class MessagesDataSource: DataSource {
 
     }
     
-    public func getImageMessageContentView(message: CometChatPro.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: ImageBubbleStyle?) -> UIView? {
+    public func getImageMessageContentView(message: CometChatSDK.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: ImageBubbleStyle?) -> UIView? {
         
         return ChatConfigurator.getDataSource().getImageMessageBubble(imageUrl: message.attachment?.fileUrl, caption: message.caption, message: message, controller: controller, style: style)
     }
@@ -239,7 +243,7 @@ public class MessagesDataSource: DataSource {
 
     }
     
-    public func getFileMessageContentView(message: CometChatPro.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: FileBubbleStyle?) -> UIView? {
+    public func getFileMessageContentView(message: CometChatSDK.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: FileBubbleStyle?) -> UIView? {
         return ChatConfigurator.getDataSource().getFileMessageBubble(fileUrl: message.attachment?.fileUrl, fileMimeType: message.attachment?.fileMimeType, title: message.attachment?.fileName, id: message.id, message: message, controller: controller, style: style)
     }
     
@@ -287,7 +291,7 @@ public class MessagesDataSource: DataSource {
         return template
     }
     
-    public func getMessageOptions(loggedInUser: CometChatPro.User, messageObject: CometChatPro.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
+    public func getMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption]? {
         var options = [CometChatMessageOption]()
         if (messageObject.messageCategory == .message) {
             switch messageObject.messageType {
@@ -312,14 +316,30 @@ public class MessagesDataSource: DataSource {
         return options
     }
     
-    public func getCommonOptions(loggedInUser: CometChatPro.User, messageObject: CometChatPro.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption] {
+    public func getCommonOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption] {
         var options = [CometChatMessageOption]()
-        if isSentByMe(loggedInUser: loggedInUser, message: messageObject) || group?.scope == .admin || group?.scope == .moderator  {
-            options.append(getDeleteOption(controller: controller))
-        }
+        let isSentByMe = isSentByMe(loggedInUser: loggedInUser, message: messageObject)
+        
         if (messageObject.parentMessageId == 0) {
             options.append(getReplyInThreadOption(controller: controller))
         }
+        
+        if isMessageCategory(message: messageObject) {
+            options.append(getShareOption(controller: controller))
+        }
+        
+        options.append(getInformationOption(controller: controller))
+        
+        if group != nil && !isSentByMe {
+            options.append(getMessagePrivatelyOption(controller: controller))
+        }
+        
+        if isSentByMe || group?.scope == .admin || group?.scope == .moderator  {
+            options.append(getDeleteOption(controller: controller))
+        }
+        
+        
+        
         return options
     }
     
@@ -354,7 +374,7 @@ public class MessagesDataSource: DataSource {
     }
     
     
-    public func getAttachmentOptions(controller: UIViewController, user: CometChatPro.User?, group: CometChatPro.Group?) -> [CometChatMessageComposerAction]? {
+    public func getAttachmentOptions(controller: UIViewController, user: CometChatSDK.User?, group: CometChatSDK.Group?) -> [CometChatMessageComposerAction]? {
         return [takePhotoOption(controller: controller),
                 photoAndVideoLibraryOption(controller: controller),
                 fileAttachmentOption(controller: controller)]
@@ -375,7 +395,7 @@ public class MessagesDataSource: DataSource {
         return [MessageCategoryConstants.message, MessageCategoryConstants.action]
     }
     
-    public func getAuxiliaryOptions(user: CometChatPro.User?, group: CometChatPro.Group?, controller: UIViewController?, id: [String : Any]?) -> UIView? {
+    public func getAuxiliaryOptions(user: CometChatSDK.User?, group: CometChatSDK.Group?, controller: UIViewController?, id: [String : Any]?) -> UIView? {
         return UIStackView()
     }
     
@@ -383,7 +403,7 @@ public class MessagesDataSource: DataSource {
         return "messageUtils";
     }
     
-    public func getVideoMessageBubble(videoUrl: String?, thumbnailUrl: String?, message: CometChatPro.MediaMessage?, controller: UIViewController?, style: VideoBubbleStyle?) -> UIView? {
+    public func getVideoMessageBubble(videoUrl: String?, thumbnailUrl: String?, message: CometChatSDK.MediaMessage?, controller: UIViewController?, style: VideoBubbleStyle?) -> UIView? {
         let videoBubble = CometChatVideoBubble()
         videoBubble.set(videoURL: message?.attachment?.fileUrl ?? "")
         if let thumbnailUrl = thumbnailUrl , let sentAt = Double(message?.sentAt ?? 0) as? Double {
@@ -395,7 +415,7 @@ public class MessagesDataSource: DataSource {
         return videoBubble
     }
     
-    public func getTextMessageBubble(messageText: String?, message: CometChatPro.TextMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?) -> UIView? {
+    public func getTextMessageBubble(messageText: String?, message: CometChatSDK.TextMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?) -> UIView? {
         let textBubble = CometChatTextBubble()
         textBubble.set(style: style ?? TextBubbleStyle())
         if let messageText = messageText {
@@ -426,7 +446,7 @@ public class MessagesDataSource: DataSource {
         return textBubble
     }
     
-    public func getImageMessageBubble(imageUrl: String?, caption: String?, message: CometChatPro.MediaMessage?, controller: UIViewController?, style: ImageBubbleStyle?) -> UIView? {
+    public func getImageMessageBubble(imageUrl: String?, caption: String?, message: CometChatSDK.MediaMessage?, controller: UIViewController?, style: ImageBubbleStyle?) -> UIView? {
         let imageBubble = CometChatImageBubble()
         if let imageUrl = imageUrl , let sentAt = Double(message?.sentAt ?? 0) as? Double {
             imageBubble.set(imageUrl: imageUrl, sentAt: sentAt)
@@ -453,7 +473,7 @@ public class MessagesDataSource: DataSource {
         return imageBubble
     }
     
-    public func getAudioMessageBubble(audioUrl: String?, title: String?, message: CometChatPro.MediaMessage?, controller: UIViewController?, style: AudioBubbleStyle?) -> UIView? {
+    public func getAudioMessageBubble(audioUrl: String?, title: String?, message: CometChatSDK.MediaMessage?, controller: UIViewController?, style: AudioBubbleStyle?) -> UIView? {
         let audioBubble = CometChatAudioBubble()
         audioBubble.set(title: message?.attachment?.fileName.capitalized ?? "")
         audioBubble.set(subTitle: message?.attachment?.fileExtension.capitalized ?? "")
@@ -467,7 +487,7 @@ public class MessagesDataSource: DataSource {
         return audioBubble
     }
     
-    public func getFileMessageBubble(fileUrl: String?, fileMimeType: String?, title: String?, id: Int?, message: CometChatPro.MediaMessage?, controller: UIViewController?, style: FileBubbleStyle?) -> UIView? {
+    public func getFileMessageBubble(fileUrl: String?, fileMimeType: String?, title: String?, id: Int?, message: CometChatSDK.MediaMessage?, controller: UIViewController?, style: FileBubbleStyle?) -> UIView? {
         let fileBubble = CometChatFileBubble()
         fileBubble.set(title: message?.attachment?.fileName.capitalized ?? "")
         fileBubble.set(subTitle: message?.attachment?.fileExtension.capitalized ?? "")
@@ -481,7 +501,7 @@ public class MessagesDataSource: DataSource {
         return fileBubble
     }
     
-    public func getLastConversationMessage(conversation: CometChatPro.Conversation, isDeletedMessagesHidden: Bool) -> String? {
+    public func getLastConversationMessage(conversation: CometChatSDK.Conversation, isDeletedMessagesHidden: Bool) -> String? {
         var lastMessage = ""
         
         if let currentMessage = conversation.lastMessage {
@@ -638,8 +658,12 @@ public class MessagesDataSource: DataSource {
         return lastMessage
     }
     
-    public func getAuxiliaryHeaderMenu(user: CometChatPro.User?, group: CometChatPro.Group?, controller: UIViewController?, id: [String: Any]?) -> UIStackView? {
+    public func getAuxiliaryHeaderMenu(user: CometChatSDK.User?, group: CometChatSDK.Group?, controller: UIViewController?, id: [String: Any]?) -> UIStackView? {
         return nil
+    }
+    
+    func isMessageCategory(message: CometChatSDK.BaseMessage) -> Bool {
+        return message.messageCategory == .message ? true : false
     }
     
 }

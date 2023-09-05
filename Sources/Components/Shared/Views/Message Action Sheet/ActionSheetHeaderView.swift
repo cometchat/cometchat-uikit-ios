@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 
 protocol ActionSheetHeaderViewDelegate: NSObject {

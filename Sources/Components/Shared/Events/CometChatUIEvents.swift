@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 import Foundation
 
 
@@ -25,6 +25,7 @@ public protocol CometChatUIEventListener {
     func showPanel(id: [String:Any]?, alignment: UIAlignment, view: UIView?)
     func hidePanel(id: [String:Any]?, alignment: UIAlignment)
     func onActiveChatChanged(id: [String:Any]?, lastMessage: BaseMessage?, user: User?, group: Group?)
+    func openChat(user:User?, group:Group?)
 }
 
 public class CometChatUIEvents : UIEventHandler {
@@ -57,6 +58,13 @@ public class CometChatUIEvents : UIEventHandler {
         self.observer.forEach({
             (key,observer) in
             observer.onActiveChatChanged(id: id, lastMessage: lastMessage, user: user, group: group)
+        })
+    }
+    
+    internal static  func emitOnOpenChat(user: User?, group: Group?) {
+        self.observer.forEach({
+            (key,observer) in
+            observer.openChat(user: user, group: group)
         })
     }
 }

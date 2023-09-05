@@ -382,7 +382,9 @@
 "SENTATTXT" = "傳送文字:%1$s";
 "CONNECTING_TO_CALL" = "連線至呼叫";
 "READ_AT" = "讀取位置：%1$s";
+"READ" = "读";
 "DELIVERED_AT" = "交貨地點： ";
+"DELIVERED" = "发表";
 "NAVIGATE" = "導覽";
 "GRANT_LOCATION_PERMISSION" = "授與位置權限";
 "SEND_AUDIO_FILES" = "傳送音訊檔案";
@@ -531,3 +533,6 @@
 "NO_MEMBERS_FOUND" = "No Members Found";
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
+"NEW_CHAT" = "新聊天";
+"INCOMING_AUDIO_CALL" = "來電音訊通話";
+"INCOMING_VIDEO_CALL" = "來電視訊通話";

@@ -372,7 +372,9 @@
 "SENTATTXT" = "szöveg küldése: %1$s";
 "CONNECTING_TO_CALL" = "Csatlakozás a híváshoz";
 "READ_AT" = "Olvasás itt: %1$s";
+"READ" = "Olvas";
 "DELIVERED_AT" = "Szállítva: ";
+"DELIVERED" = "Szállítva";
 "NAVIGATE" = "Navigálás";
 "GRANT_LOCATION_PERMISSION" = "Helyre vonatkozó engedély megadása";
 "SEND_AUDIO_FILES" = "Hangfájlok küldése";
@@ -522,3 +524,6 @@
 "NO_MEMBERS_FOUND" = "No Members Found";
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
+"NEW_CHAT" = "Új csevegés";
+"INCOMING_AUDIO_CALL" = "Bejövő hanghívás";
+"INCOMING_VIDEO_CALL" = "Bejövő videohívás";

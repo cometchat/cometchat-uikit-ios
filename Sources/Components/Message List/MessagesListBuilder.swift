@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 enum MessagesListBuilderResult {
     case success([BaseMessage])
@@ -20,9 +20,11 @@ enum MessageActionResult {
 
 public class MessagesListBuilder {
     
-    public static let shared: CometChatPro.MessagesRequest.MessageRequestBuilder = CometChatPro.MessagesRequest.MessageRequestBuilder()
+    public static func getDefaultRequestBuilder() -> CometChatSDK.MessagesRequest.MessageRequestBuilder {
+            return CometChatSDK.MessagesRequest.MessageRequestBuilder()
+        }
     
-    static func getSearchBuilder(searchText: String, messageRequestBuilder: CometChatPro.MessagesRequest.MessageRequestBuilder = shared) -> CometChatPro.MessagesRequest.MessageRequestBuilder {
+    static func getSearchBuilder(searchText: String, messageRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder = getDefaultRequestBuilder()) -> CometChatSDK.MessagesRequest.MessageRequestBuilder {
         return messageRequestBuilder.set(searchKeyword: searchText)
     }
     

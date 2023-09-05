@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 enum CallDetailsBuilderResult {
     case success([BaseMessage]?)
@@ -15,7 +15,9 @@ enum CallDetailsBuilderResult {
 
 public class CallDetailsBuilder {
     
-    public let shared: CometChatPro.MessagesRequest.MessageRequestBuilder = CometChatPro.MessagesRequest.MessageRequestBuilder().set(limit: 5).set(categories: [MessageCategoryConstants.call, MessageCategoryConstants.custom]).set(types: [MessageTypeConstants.audio, MessageTypeConstants.video, MessageTypeConstants.meeting])
+    public static func getDefaultRequestBuilder() -> CometChatSDK.MessagesRequest.MessageRequestBuilder {
+            return CometChatSDK.MessagesRequest.MessageRequestBuilder().set(limit: 5).set(categories: [MessageCategoryConstants.call, MessageCategoryConstants.custom]).set(types: [MessageTypeConstants.audio, MessageTypeConstants.video, MessageTypeConstants.meeting])
+        }
     
     static func fetchCalls(callsRequest: MessagesRequest,  completion: @escaping (CallDetailsBuilderResult) -> Void) {
         callsRequest.fetchPrevious { fetchedGroups in

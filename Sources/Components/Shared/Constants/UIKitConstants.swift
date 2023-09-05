@@ -45,6 +45,7 @@ public struct  MessageOptionConstants {
     static var messageInformation = "messageInformation"
     static var copyMessage = "copyMessage"
     static var shareMessage = "shareMessage"
+    static var messagePrivately = "messagePrivately"
     static var forwardMessage = "forwardMessage"
 }
 

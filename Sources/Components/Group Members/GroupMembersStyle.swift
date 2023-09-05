@@ -6,7 +6,7 @@
 //
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public final class GroupMembersStyle: BaseStyle {
     

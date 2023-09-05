@@ -6,8 +6,9 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
+#if canImport(CometChatCallsSDK)
 @MainActor
 open class CometChatOutgoingCall: UIViewController {
 
@@ -46,11 +47,15 @@ open class CometChatOutgoingCall: UIViewController {
         setupAppearance()
          
         let ongoingCall = CometChatOngoingCall()
+        let callSettingsBuilder = CallingDefaultBuilder.callSettingsBuilder
+        callSettingsBuilder.setIsAudioOnly(call?.callType == .audio)
+        ongoingCall.set(callSettingsBuilder: callSettingsBuilder)
         ongoingCall.modalPresentationStyle = .fullScreen
 
         viewModel.onOutgoingCallAccepted = { call in
             DispatchQueue.main.async {
                 ongoingCall.set(sessionId: call.sessionID ?? "")
+                ongoingCall.set(callWorkFlow: .defaultCalling)
                 CometChatSoundManager().pause()
                 weak var pvc = self.presentingViewController
                 self.dismiss(animated: false, completion: {
@@ -187,4 +192,4 @@ extension CometChatOutgoingCall {
         return self
     }
 }
-
+#endif

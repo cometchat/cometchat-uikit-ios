@@ -8,12 +8,16 @@ import Foundation
 
 public class CometChatSmartReplyExtension: ExtensionDataSource {
     
-    public init() {}
+    public override init() {}
     
-    public func enable() {
+    public override func addExtension() {
         ChatConfigurator.enable { dataSource in
-           return SmartReplyExtensionDecorator(dataSource: dataSource)
+            return SmartReplyExtensionDecorator(dataSource: dataSource)
         }
-  }
+    }
+    
+    public override func getExtensionId() -> String {
+        return ExtensionConstants.smartReply
+    }
 }
 

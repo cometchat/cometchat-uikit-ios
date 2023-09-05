@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 //MARK: Adding User Status Delegate Methods
 extension MessageHeaderViewModel: CometChatUserDelegate {
@@ -26,12 +26,12 @@ extension MessageHeaderViewModel: CometChatUserDelegate {
 
 extension MessageHeaderViewModel: CometChatUserEventListener {
     
-    public func onUserBlock(user: CometChatPro.User) {
+    public func onUserBlock(user: CometChatSDK.User) {
         
         print("MessageHeaderViewModel - onUserBlock")
     }
     
-    public func onUserUnblock(user: CometChatPro.User) {
+    public func onUserUnblock(user: CometChatSDK.User) {
         
         print("MessageHeaderViewModel - onUserUnblock")
     }

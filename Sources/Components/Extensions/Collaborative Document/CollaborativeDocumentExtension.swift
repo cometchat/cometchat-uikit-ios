@@ -9,12 +9,16 @@ import Foundation
 class CollaborativeDocumentConfiguration{}
 
 public class CollaborativeDocumentExtension: ExtensionDataSource {
+        
+    public override init() {}
     
-    public init() {}
-    
-    public func enable() {
+    public override func addExtension() {
         ChatConfigurator.enable { dataSource in
-           return CollaborativeDocumentViewModel(dataSource: dataSource)
+            return CollaborativeDocumentViewModel(dataSource: dataSource)
         }
-  }
+    }
+    
+    public override func getExtensionId() -> String {
+        return ExtensionConstants.document
+    }
 }

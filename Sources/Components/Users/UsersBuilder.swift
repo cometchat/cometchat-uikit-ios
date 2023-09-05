@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 enum UsersBuilderResult {
     case success([User])
@@ -16,10 +16,11 @@ enum UsersBuilderResult {
 public class UsersBuilder {
     
     // This is for fetching the users.
-    public static let shared: CometChatPro.UsersRequest.UsersRequestBuilder = CometChatPro.UsersRequest.UsersRequestBuilder().set(limit: 30)
+    public static func getDefaultRequestBuilder() -> CometChatSDK.UsersRequest.UsersRequestBuilder {
+        return CometChatSDK.UsersRequest.UsersRequestBuilder().set(limit: 30)
+    }
     
-    
-    static func getSearchBuilder(searchText: String, userRequestBuilder: CometChatPro.UsersRequest.UsersRequestBuilder = shared) -> CometChatPro.UsersRequest.UsersRequestBuilder {
+    static func getSearchBuilder(searchText: String, userRequestBuilder: CometChatSDK.UsersRequest.UsersRequestBuilder = getDefaultRequestBuilder()) -> CometChatSDK.UsersRequest.UsersRequestBuilder {
         return userRequestBuilder.set(searchKeyword: searchText)
     }
     

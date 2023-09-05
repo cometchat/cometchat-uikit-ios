@@ -9,12 +9,15 @@ import Foundation
 
 public class MessageTranslationExtension: ExtensionDataSource {
     
-    public init(){}
-    
-    public func enable() {
+    public override init(){}
+        
+    public override func addExtension() {
         ChatConfigurator.enable { dataSource in
-           return MessageTranslationViewModel(dataSource: dataSource)
+            return MessageTranslationViewModel(dataSource: dataSource)
         }
-  }
-
+    }
+    
+    public override func getExtensionId() -> String {
+        return ExtensionConstants.messageTranslation
+    }
 }

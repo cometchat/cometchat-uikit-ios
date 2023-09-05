@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 class ThumbnailGenerationConfiguration {}
 
@@ -21,7 +21,7 @@ public class ThumbnailGenerationViewModel : DataSourceDecorator {
     }
     
     public override func getId() -> String {
-        return "ThumbnailGeneration"
+        return "thumbnail-generator"
     }
 
     public override func getImageMessageBubble(imageUrl: String?, caption: String?, message: MediaMessage?, controller: UIViewController?, style: ImageBubbleStyle?) -> UIView? {

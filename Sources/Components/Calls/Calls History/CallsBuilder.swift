@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 
 enum CallsBuilderResult {
@@ -16,9 +16,11 @@ enum CallsBuilderResult {
 
 public class CallsBuilder {
     
-    public static let shared: CometChatPro.MessagesRequest.MessageRequestBuilder = CometChatPro.MessagesRequest.MessageRequestBuilder().set(limit: 30).set(categories: [MessageCategoryConstants.call, MessageCategoryConstants.custom]).set(types: [MessageTypeConstants.audio, MessageTypeConstants.video, MessageTypeConstants.meeting])
+    public static func getDefaultRequestBuilder() -> CometChatSDK.MessagesRequest.MessageRequestBuilder {
+        return CometChatSDK.MessagesRequest.MessageRequestBuilder().set(limit: 30).set(categories: [MessageCategoryConstants.call, MessageCategoryConstants.custom]).set(types: [MessageTypeConstants.audio, MessageTypeConstants.video, MessageTypeConstants.meeting])
+    }
     
-    static func getSearchBuilder(searchText: String, messageRequestBuilder: CometChatPro.MessagesRequest.MessageRequestBuilder = shared) -> CometChatPro.MessagesRequest.MessageRequestBuilder {
+    static func getSearchBuilder(searchText: String, messageRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder = getDefaultRequestBuilder()) -> CometChatSDK.MessagesRequest.MessageRequestBuilder {
         return messageRequestBuilder.set(searchKeyword: searchText)
     }
     

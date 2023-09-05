@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 @MainActor
 open class CometChatAddMembers: CometChatUsers {

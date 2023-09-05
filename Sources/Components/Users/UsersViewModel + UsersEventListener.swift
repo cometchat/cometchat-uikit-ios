@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 extension UsersViewModel: CometChatUserDelegate {
     
@@ -27,7 +27,7 @@ extension UsersViewModel: CometChatUserDelegate {
 
 extension UsersViewModel: CometChatUserEventListener {
     
-    public func onUserUnblock(user: CometChatPro.User) {
+    public func onUserUnblock(user: CometChatSDK.User) {
         // update user
         update(user: user)
         user.hasBlockedMe = false

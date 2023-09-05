@@ -10,11 +10,15 @@ class CollaborativeWhiteboardConfiguration{}
 
 public class CollaborativeWhiteboardExtension: ExtensionDataSource {
     
-    public init() {}
-    
-    public func enable() {
+    public override init() {}
+        
+    public override func addExtension() {
         ChatConfigurator.enable { dataSource in
-           return CollaborativeWhiteboardViewModel(dataSource: dataSource)
+            return CollaborativeWhiteboardViewModel(dataSource: dataSource)
         }
-  }
+    }
+    
+    public override func getExtensionId() -> String {
+        return ExtensionConstants.whiteboard
+    }
 }

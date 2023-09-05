@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 
 enum GroupsBuilderResult {
@@ -17,9 +17,12 @@ enum GroupsBuilderResult {
 
 public class GroupsBuilder {
     
-    public static let shared: CometChatPro.GroupsRequest.GroupsRequestBuilder = CometChatPro.GroupsRequest.GroupsRequestBuilder(limit: 30)
     
-    static func getSearchBuilder(searchText: String, groupRequestBuilder: CometChatPro.GroupsRequest.GroupsRequestBuilder = shared) -> CometChatPro.GroupsRequest.GroupsRequestBuilder {
+    public static func getDefaultRequestBuilder() -> CometChatSDK.GroupsRequest.GroupsRequestBuilder {
+        return CometChatSDK.GroupsRequest.GroupsRequestBuilder(limit: 30)
+    }
+    
+    static func getSearchBuilder(searchText: String, groupRequestBuilder: CometChatSDK.GroupsRequest.GroupsRequestBuilder = getDefaultRequestBuilder()) -> CometChatSDK.GroupsRequest.GroupsRequestBuilder {
         return groupRequestBuilder.set(searchKeyword: searchText)
     }
     

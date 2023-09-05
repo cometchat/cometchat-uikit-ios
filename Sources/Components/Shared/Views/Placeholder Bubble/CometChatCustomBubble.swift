@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 protocol CustomDelegate: NSObject {
     func onClick(forMessage: CustomMessage, cell: UITableViewCell)

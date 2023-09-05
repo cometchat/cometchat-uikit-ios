@@ -6,16 +6,16 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 protocol BannedMembersViewModelProtocol {
   
-    var bannedGroupMembers: [CometChatPro.GroupMember] { get set }
-    var filteredBannedGroupMembers: [CometChatPro.GroupMember] { get set }
-    var bannedGroupMembersRequestBuilder: CometChatPro.BannedGroupMembersRequest.BannedGroupMembersRequestBuilder? { get set }
-    var selectedBannedMembers: [CometChatPro.GroupMember] { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
-    var group: CometChatPro.Group { get set }
+    var bannedGroupMembers: [CometChatSDK.GroupMember] { get set }
+    var filteredBannedGroupMembers: [CometChatSDK.GroupMember] { get set }
+    var bannedGroupMembersRequestBuilder: CometChatSDK.BannedGroupMembersRequest.BannedGroupMembersRequestBuilder? { get set }
+    var selectedBannedMembers: [CometChatSDK.GroupMember] { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
+    var group: CometChatSDK.Group { get set }
     var row: Int { get set }
     
     func fetchBannedGroupMembers()
@@ -25,11 +25,11 @@ protocol BannedMembersViewModelProtocol {
 
 open class BannedMembersViewModel: NSObject, BannedMembersViewModelProtocol {
   
-    var group: CometChatPro.Group
+    var group: CometChatSDK.Group
     var isSearching: Bool = false
-    var bannedGroupMembersRequestBuilder: CometChatPro.BannedGroupMembersRequest.BannedGroupMembersRequestBuilder?
-    var selectedBannedMembers: [CometChatPro.GroupMember] = []
-    var failure: ((CometChatPro.CometChatException) -> Void)?
+    var bannedGroupMembersRequestBuilder: CometChatSDK.BannedGroupMembersRequest.BannedGroupMembersRequestBuilder?
+    var selectedBannedMembers: [CometChatSDK.GroupMember] = []
+    var failure: ((CometChatSDK.CometChatException) -> Void)?
     var reloadAtIndex: ((Int) -> Void)?
     var reload: (() -> Void)?
     private var bannedGroupMembersRequest:  BannedGroupMembersRequest?
@@ -40,19 +40,19 @@ open class BannedMembersViewModel: NSObject, BannedMembersViewModelProtocol {
         }
     }
     
-    var bannedGroupMembers: [CometChatPro.GroupMember] = [] {
+    var bannedGroupMembers: [CometChatSDK.GroupMember] = [] {
         didSet {
             reload?()
         }
     }
     
-    var filteredBannedGroupMembers: [CometChatPro.GroupMember] = [] {
+    var filteredBannedGroupMembers: [CometChatSDK.GroupMember] = [] {
         didSet {
             reload?()
         }
     }
     
-    init(group: Group, bannedGroupMembersRequestBuilder: CometChatPro.BannedGroupMembersRequest.BannedGroupMembersRequestBuilder?) {
+    init(group: Group, bannedGroupMembersRequestBuilder: CometChatSDK.BannedGroupMembersRequest.BannedGroupMembersRequestBuilder?) {
         self.group = group
         self.bannedGroupMembersRequestBuilder = bannedGroupMembersRequestBuilder ?? BannedMembersBuilder.getSharedBuilder(for: group)
         self.bannedGroupMembersRequest = self.bannedGroupMembersRequestBuilder?.build()

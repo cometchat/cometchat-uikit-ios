@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public class GroupsConfiguration {
     
@@ -30,7 +30,7 @@ public class GroupsConfiguration {
     private(set) var groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder?
     private(set) var onItemClick: ((_ group: Group, _ indexPath: IndexPath) -> Void)?
     private(set) var onItemLongClick: ((_ group: Group, _ indexPath: IndexPath) -> Void)?
-    private(set) var onError: ((_ group: Group?, _ error: CometChatException) -> Void)?
+    private(set) var onError: ((_ error: CometChatException) -> Void)?
     private(set) var onBack: (() -> ())?
     private(set) var emptyStateText: String?
     private(set) var errorStateText: String?
@@ -179,7 +179,7 @@ public class GroupsConfiguration {
     }
     
     @discardableResult
-    public func setOnError(onError: @escaping ((_ group: Group?, _ error: CometChatException) -> Void)) -> Self {
+    public func setOnError(onError: @escaping ((_ error: CometChatException) -> Void)) -> Self {
         self.onError = onError
         return self
     }

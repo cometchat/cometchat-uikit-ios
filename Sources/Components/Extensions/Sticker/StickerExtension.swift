@@ -16,10 +16,14 @@ public class CometChatStickerExtension: ExtensionDataSource {
         self.configuration = configuration
     }
     
-    public func enable() {
+    public override func addExtension() {
         ChatConfigurator.enable { dataSource in
             return StickersExtensionDecorator(dataSource: dataSource, configuration: configuration)
         }
+    }
+    
+    public override func getExtensionId() -> String {
+        return ExtensionConstants.stickers
     }
     
 }

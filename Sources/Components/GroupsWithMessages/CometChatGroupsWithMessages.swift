@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public class CometChatGroupsWithMessages: CometChatGroups {
     
@@ -106,11 +106,13 @@ public class CometChatGroupsWithMessages: CometChatGroups {
     private func addGroupsWithMessagesListener() {
         CometChatGroupEvents.addListener("group-with-messages-groups-events-listener", self as CometChatGroupEventListener)
         CometChat.addGroupListener("groups-with-messages-groups-sdk-listener", self)
+        CometChatUIEvents.addListener("group-with-message-ui-event-listener", self)
     }
     
     private func disconnect() {
         CometChatGroupEvents.removeListener("group-with-messages-groups-events-listener")
         CometChat.removeGroupListener("groups-with-messages-groups-sdk-listener")
+        CometChatUIEvents.removeListener("group-with-message-ui-event-listener")
     }
     
     private func navigateToMessages(group: Group) {
@@ -295,41 +297,105 @@ extension CometChatGroupsWithMessages: CometChatGroupEventListener {
 
 extension CometChatGroupsWithMessages: CometChatGroupDelegate {
     
-    public func onGroupMemberJoined(action: CometChatPro.ActionMessage, joinedUser: CometChatPro.User, joinedGroup: CometChatPro.Group) {
+    public func onGroupMemberJoined(action: CometChatSDK.ActionMessage, joinedUser: CometChatSDK.User, joinedGroup: CometChatSDK.Group) {
         self.update(group: joinedGroup)
         print("CometChatGroupsWithMessages - sdk - onGroupMemberJoined")
     }
     
-    public func onGroupMemberLeft(action: CometChatPro.ActionMessage, leftUser: CometChatPro.User, leftGroup: CometChatPro.Group) {
+    public func onGroupMemberLeft(action: CometChatSDK.ActionMessage, leftUser: CometChatSDK.User, leftGroup: CometChatSDK.Group) {
         self.update(group: leftGroup)
         print("CometChatGroupsWithMessages - sdk - onGroupMemberLeft")
     }
     
-    public func onGroupMemberKicked(action: CometChatPro.ActionMessage, kickedUser: CometChatPro.User, kickedBy: CometChatPro.User, kickedFrom: CometChatPro.Group) {
+    public func onGroupMemberKicked(action: CometChatSDK.ActionMessage, kickedUser: CometChatSDK.User, kickedBy: CometChatSDK.User, kickedFrom: CometChatSDK.Group) {
         self.update(group: kickedFrom)
         print("CometChatGroupsWithMessages - sdk - onGroupMemberKicked")
     }
     
-    public func onGroupMemberBanned(action: CometChatPro.ActionMessage, bannedUser: CometChatPro.User, bannedBy: CometChatPro.User, bannedFrom: CometChatPro.Group) {
+    public func onGroupMemberBanned(action: CometChatSDK.ActionMessage, bannedUser: CometChatSDK.User, bannedBy: CometChatSDK.User, bannedFrom: CometChatSDK.Group) {
         self.update(group: bannedFrom)
         print("CometChatGroupsWithMessages - sdk - onGroupMemberBanned")
     }
     
-    public func onGroupMemberUnbanned(action: CometChatPro.ActionMessage, unbannedUser: CometChatPro.User, unbannedBy: CometChatPro.User, unbannedFrom: CometChatPro.Group) {
+    public func onGroupMemberUnbanned(action: CometChatSDK.ActionMessage, unbannedUser: CometChatSDK.User, unbannedBy: CometChatSDK.User, unbannedFrom: CometChatSDK.Group) {
         self.update(group: unbannedFrom)
         print("CometChatGroupsWithMessages - sdk - onGroupMemberUnbanned")
     }
     
-    public func onGroupMemberScopeChanged(action: CometChatPro.ActionMessage, scopeChangeduser: CometChatPro.User, scopeChangedBy: CometChatPro.User, scopeChangedTo: String, scopeChangedFrom: String, group: CometChatPro.Group) {
+    public func onGroupMemberScopeChanged(action: CometChatSDK.ActionMessage, scopeChangeduser: CometChatSDK.User, scopeChangedBy: CometChatSDK.User, scopeChangedTo: String, scopeChangedFrom: String, group: CometChatSDK.Group) {
         /*
          Do Nothing as per figma
          */
         print("CometChatGroupsWithMessages - sdk - onGroupMemberScopeChanged")
     }
     
-    public func onMemberAddedToGroup(action: CometChatPro.ActionMessage, addedBy: CometChatPro.User, addedUser: CometChatPro.User, addedTo: CometChatPro.Group) {
+    public func onMemberAddedToGroup(action: CometChatSDK.ActionMessage, addedBy: CometChatSDK.User, addedUser: CometChatSDK.User, addedTo: CometChatSDK.Group) {
         self.update(group: addedTo)
         print("CometChatGroupsWithMessages - sdk - onMemberAddedToGroup")
     }
+}
+
+extension CometChatGroupsWithMessages: CometChatUIEventListener {
+    public func showPanel(id: [String : Any]?, alignment: UIAlignment, view: UIView?) {}
+    
+    public func hidePanel(id: [String : Any]?, alignment: UIAlignment) {}
+    
+    public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {}
+    
+    public func openChat(user: CometChatSDK.User?, group: CometChatSDK.Group?) {
+        if let user = user {
+            navigateToMessages(user: user)
+        }
+    }
+    
+    private func navigateToMessages(user: User) {
+        let cometChatMessages: CometChatMessages = CometChatMessages()
+        cometChatMessages.set(user: user)
+        if let messagesConfiguration = messagesConfiguration {
+            cometChatMessages.set(detailsConfiguration: messagesConfiguration.detailsConfiguration)
+            cometChatMessages.set(messageListConfiguration: messagesConfiguration.messageListConfiguration)
+            cometChatMessages.set(messageComposerConfiguration: messagesConfiguration.messageComposerConfiguration)
+            cometChatMessages.set(messageHeaderConfiguration: messagesConfiguration.messageHeaderConfiguration)
+            cometChatMessages.setMessageListView(messageListView: messagesConfiguration.messageListView)
+            cometChatMessages.setMessageHeaderView(messageHeaderView: messagesConfiguration.messageHeaderView)
+            cometChatMessages.setMessageComposerView(messageComposerView: messagesConfiguration.messageComposerView)
+            
+            if let auxiliaryMenu = messagesConfiguration.auxiliaryMenu {
+                cometChatMessages.setAuxiliaryMenu(auxiliaryMenu: auxiliaryMenu)
+            }
+            
+            if let hideMessageHeader = messagesConfiguration.hideMessageHeader {
+                cometChatMessages.hide(messageHeader: hideMessageHeader)
+            }
+            
+            if let hideMessageComposer = messagesConfiguration.hideMessageComposer {
+                cometChatMessages.hide(messageComposer: hideMessageComposer)
+            }
+            
+            if let messageStyle = messagesConfiguration.messagesStyle {
+                cometChatMessages.set(messagesStyle: messageStyle)
+            }
+            
+            if let disableSoundForMessages = messagesConfiguration.disableSoundForMessages {
+                cometChatMessages.disable(soundForMessages: disableSoundForMessages)
+            }
+            
+            if let customSoundForIncomingMessages = messagesConfiguration.customSoundForIncomingMessages {
+                cometChatMessages.set(customSoundForIncomingMessages: customSoundForIncomingMessages)
+            }
+            
+            if let customSoundForOutgoingMessages =  messagesConfiguration.customSoundForOutgoingMessages {
+                cometChatMessages.set(customSoundForOutgoingMessages: customSoundForOutgoingMessages)
+            }
+            
+            if let disableTyping = messagesConfiguration.disableTyping {
+                cometChatMessages.disable(disableTyping: disableTyping)
+            }
+        }
+        
+        cometChatMessages.hidesBottomBarWhenPushed = true
+        self.navigationController?.pushViewController(cometChatMessages, animated: true)
+    }
+    
     
 }

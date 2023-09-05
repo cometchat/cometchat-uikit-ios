@@ -8,7 +8,7 @@
 
 import UIKit
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 
 // MARK: - Declaration of Protocol

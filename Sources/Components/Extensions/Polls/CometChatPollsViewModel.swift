@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 public class CometChatPollsViewModel : DataSourceDecorator {
     
@@ -19,7 +19,7 @@ public class CometChatPollsViewModel : DataSourceDecorator {
     }
     
     public override func getId() -> String {
-        return "Polls"
+        return "polls"
     }
     
     public override func getAllMessageTypes() -> [String]? {

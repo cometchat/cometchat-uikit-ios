@@ -6,20 +6,20 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 protocol CallHistoryViewModelProtocol {
     
     var row: Int { get set }
     var isSearching: Bool { get set }
-    var calls: [CometChatPro.BaseMessage] { get set }
-    var filteredCalls: [CometChatPro.BaseMessage] { get set }
-    var selectedCalls: [CometChatPro.BaseMessage] { get set }
+    var calls: [CometChatSDK.BaseMessage] { get set }
+    var filteredCalls: [CometChatSDK.BaseMessage] { get set }
+    var selectedCalls: [CometChatSDK.BaseMessage] { get set }
     var callsRequestBuilder: MessagesRequest.MessageRequestBuilder { get set }
     
     var reload: (() -> Void)? { get set }
     var reloadAt: ((Int) -> Void)? { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     
     func fetchCalls()
     func filterCalls(text: String)
@@ -34,27 +34,27 @@ open class CallHistoryViewModel: NSObject, CallHistoryViewModelProtocol {
         }
     }
     
-    var calls: [CometChatPro.BaseMessage] = [] {
+    var calls: [CometChatSDK.BaseMessage] = [] {
         didSet {
             reload?()
         }
     }
     
-    var filteredCalls: [CometChatPro.BaseMessage] = [] {
+    var filteredCalls: [CometChatSDK.BaseMessage] = [] {
         didSet {
             reload?()
         }
     }
     
     var isSearching: Bool = false
-    var selectedCalls: [CometChatPro.BaseMessage] = []
-    var callsRequestBuilder: CometChatPro.MessagesRequest.MessageRequestBuilder
+    var selectedCalls: [CometChatSDK.BaseMessage] = []
+    var callsRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder
     private var callsRequest: MessagesRequest?
     private var filterCallsRequest: MessagesRequest?
     
     var reload: (() -> Void)?
     var reloadAt: ((Int) -> Void)?
-    var failure: ((CometChatPro.CometChatException) -> Void)?
+    var failure: ((CometChatSDK.CometChatException) -> Void)?
     
     init(callsRequestBuilder: MessagesRequest.MessageRequestBuilder) {
         self.callsRequestBuilder = callsRequestBuilder
@@ -68,8 +68,8 @@ open class CallHistoryViewModel: NSObject, CallHistoryViewModelProtocol {
             switch result {
             case .success(let fetchedCalls):
                 guard let filteredCalls = fetchedCalls?.filter({
-                    ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .initiated)  ||
-                    ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .unanswered) ||   ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .rejected)  ||  ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .cancelled) ||  ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .ended) ||  ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .ongoing) || ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .busy)   || ($0 as? CustomMessage != nil)
+                    ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .initiated)  ||
+                    ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .unanswered) ||   ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .rejected)  ||  ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .cancelled) ||  ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .ended) ||  ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .ongoing) || ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .busy)   || ($0 as? CustomMessage != nil)
                 }) else { return }
 
                 this.calls.insert(contentsOf: filteredCalls, at: 0)
@@ -89,8 +89,8 @@ open class CallHistoryViewModel: NSObject, CallHistoryViewModelProtocol {
             switch result {
             case .success(let filteredCalls):
                 guard let filteredCalls = filteredCalls?.filter({
-                    ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .initiated)  ||
-                    ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .unanswered) ||   ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .rejected)  ||  ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .cancelled) ||  ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .ended) ||  ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .ongoing) || ($0 as? CometChatPro.Call != nil && ($0 as? CometChatPro.Call)?.callStatus == .busy)   || ($0 as? CustomMessage != nil)
+                    ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .initiated)  ||
+                    ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .unanswered) ||   ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .rejected)  ||  ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .cancelled) ||  ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .ended) ||  ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .ongoing) || ($0 as? CometChatSDK.Call != nil && ($0 as? CometChatSDK.Call)?.callStatus == .busy)   || ($0 as? CustomMessage != nil)
                 }) else { return }
                 
                 this.filteredCalls = filteredCalls
@@ -155,25 +155,25 @@ open class CallHistoryViewModel: NSObject, CallHistoryViewModelProtocol {
 }
 
 extension  CallHistoryViewModel : CometChatCallDelegate {
-    public func onIncomingCallReceived(incomingCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    public func onIncomingCallReceived(incomingCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         if let incomingCall = incomingCall {
             self.add(call: incomingCall)
         }
     }
     
-    public func onOutgoingCallAccepted(acceptedCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    public func onOutgoingCallAccepted(acceptedCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         if let acceptedCall = acceptedCall {
             self.add(call: acceptedCall)
         }
     }
     
-    public func onOutgoingCallRejected(rejectedCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    public func onOutgoingCallRejected(rejectedCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         if let rejectedCall = rejectedCall {
             self.add(call: rejectedCall)
         }
     }
     
-    public func onIncomingCallCancelled(canceledCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    public func onIncomingCallCancelled(canceledCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         if let canceledCall = canceledCall {
             self.add(call: canceledCall)
         }
@@ -181,27 +181,27 @@ extension  CallHistoryViewModel : CometChatCallDelegate {
 }
 
 extension CallHistoryViewModel:  CometChatCallEventListener {
-    public func onIncomingCallAccepted(call: CometChatPro.Call) {
+    public func onIncomingCallAccepted(call: CometChatSDK.Call) {
         self.add(call: call)
     }
     
-    public func onIncomingCallRejected(call: CometChatPro.Call) {
+    public func onIncomingCallRejected(call: CometChatSDK.Call) {
         self.add(call: call)
     }
     
-    public func onCallEnded(call: CometChatPro.Call) {
+    public func onCallEnded(call: CometChatSDK.Call) {
         self.add(call: call)
     }
     
-    public func onCallInitiated(call: CometChatPro.Call) {
+    public func onCallInitiated(call: CometChatSDK.Call) {
         self.add(call: call)
     }
     
-    public func onOutgoingCallAccepted(call: CometChatPro.Call) {
+    public func onOutgoingCallAccepted(call: CometChatSDK.Call) {
         self.add(call: call)
     }
     
-    public func onOutgoingCallRejected(call: CometChatPro.Call) {
+    public func onOutgoingCallRejected(call: CometChatSDK.Call) {
         self.add(call: call)
     }
     

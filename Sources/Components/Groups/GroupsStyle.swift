@@ -34,7 +34,9 @@ public final class GroupsStyle: BaseStyle {
     private(set) var listItemStyle : ListItemStyle?
     private(set) var privateGroupIconBackgroundColor = #colorLiteral(red: 0, green: 0.7843137255, blue: 0.4352941176, alpha: 1)
     private(set) var protectedGroupIconBackgroundColor = #colorLiteral(red: 0.968627451, green: 0.6470588235, blue: 0, alpha: 1)
-   
+    private(set) var tableViewStyle : UITableView.Style = .plain
+    
+    
     @discardableResult
     public func set(titleColor: UIColor) -> Self {
         self.titleColor = titleColor
@@ -182,6 +184,12 @@ public final class GroupsStyle: BaseStyle {
     @discardableResult
     public func set(createGroupIconTint: UIColor) -> Self {
         self.createGroupIconTint = createGroupIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(tableViewStyle: UITableView.Style) -> Self {
+        self.tableViewStyle = tableViewStyle
         return self
     }
 }

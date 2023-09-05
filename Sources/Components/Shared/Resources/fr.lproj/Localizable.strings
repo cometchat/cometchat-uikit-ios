@@ -373,7 +373,9 @@
 "SENTATTXT" = "envoyer du texte :%1$s";
 "CONNECTING_TO_CALL" = "Connexion à l'appel";
 "READ_AT" = "Lire à :%1$s";
+"READ" = "Lire";
 "DELIVERED_AT" = "Livré à : ";
+"DELIVERED" = "Livré";
 "NAVIGATE" = "Naviguer";
 "GRANT_LOCATION_PERMISSION" = "Autorisation d'emplacement";
 "SEND_AUDIO_FILES" = "Envoyer des fichiers audio";
@@ -523,3 +525,6 @@
 "NO_MEMBERS_FOUND" = "No Members Found";
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
+"NEW_CHAT" = "Nouveau chat";
+"INCOMING_AUDIO_CALL" = "Appel audio entrant";
+"INCOMING_VIDEO_CALL" = "Appel vidéo entrant";

@@ -373,7 +373,9 @@
 "SENTATTXT" = "skicka text: %1$s";
 "CONNECTING_TO_CALL" = "Ansluta till samtal";
 "READ_AT" = "Läs på: %1$s";
+"READ" = "Läsa";
 "DELIVERED_AT" = "Levereras på: ";
+"DELIVERED" = "Levereras";
 "NAVIGATE" = "navigera";
 "GRANT_LOCATION_PERMISSION" = "Bevilja platsbehörighet";
 "SEND_AUDIO_FILES" = "Skicka ljudfiler";
@@ -522,3 +524,6 @@
 "NO_MEMBERS_FOUND" = "No Members Found";
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
+"NEW_CHAT" = "Ny chatt";
+"INCOMING_AUDIO_CALL" = "Inkommande ljudsamtal";
+"INCOMING_VIDEO_CALL" = "Inkommande videosamtal";

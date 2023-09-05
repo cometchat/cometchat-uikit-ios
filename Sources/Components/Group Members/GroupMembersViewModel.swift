@@ -6,21 +6,21 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 protocol GroupMembersViewModelProtocol {
     
     var row: Int { get set }
     var isSearching: Bool { get set }
-    var group: CometChatPro.Group { get set }
-    var groupMembers: [CometChatPro.GroupMember] { get set }
-    var filteredGroupMembers: [CometChatPro.GroupMember] { get set }
-    var selectedGroupMembers: [ CometChatPro.GroupMember] { get set }
-    var groupMembersRequestBuilder: CometChatPro.GroupMembersRequest.GroupMembersRequestBuilder { get set }
+    var group: CometChatSDK.Group { get set }
+    var groupMembers: [CometChatSDK.GroupMember] { get set }
+    var filteredGroupMembers: [CometChatSDK.GroupMember] { get set }
+    var selectedGroupMembers: [ CometChatSDK.GroupMember] { get set }
+    var groupMembersRequestBuilder: CometChatSDK.GroupMembersRequest.GroupMembersRequestBuilder { get set }
     
     var reload: (() -> Void)? { get set }
     var reloadAt: ((Int) -> Void)? { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     
     func fetchGroupsMembers()
     func filterGroupMembers(text: String)
@@ -35,31 +35,31 @@ open class GroupMembersViewModel: NSObject, GroupMembersViewModelProtocol {
         }
     }
     
-    var groupMembers: [CometChatPro.GroupMember] = [] {
+    var groupMembers: [CometChatSDK.GroupMember] = [] {
         didSet {
             reload?()
         }
     }
     
-    var filteredGroupMembers: [CometChatPro.GroupMember] = [] {
+    var filteredGroupMembers: [CometChatSDK.GroupMember] = [] {
         didSet {
             reload?()
         }
     }
     
-    var group: CometChatPro.Group
+    var group: CometChatSDK.Group
     var isSearching: Bool = false
-    var selectedGroupMembers: [CometChatPro.GroupMember] = []
-    var groupMembersRequestBuilder: CometChatPro.GroupMembersRequest.GroupMembersRequestBuilder
+    var selectedGroupMembers: [CometChatSDK.GroupMember] = []
+    var groupMembersRequestBuilder: CometChatSDK.GroupMembersRequest.GroupMembersRequestBuilder
     
     private var groupsMembersRequest: GroupMembersRequest?
     private var filterGroupMembersRequest: GroupMembersRequest?
     
     var reload: (() -> Void)?
     var reloadAt: ((Int) -> Void)?
-    var failure: ((CometChatPro.CometChatException) -> Void)?
+    var failure: ((CometChatSDK.CometChatException) -> Void)?
     
-    init(group: Group, groupMembersRequestBuilder: CometChatPro.GroupMembersRequest.GroupMembersRequestBuilder?) {
+    init(group: Group, groupMembersRequestBuilder: CometChatSDK.GroupMembersRequest.GroupMembersRequestBuilder?) {
         self.group = group
         self.groupMembersRequestBuilder = groupMembersRequestBuilder ?? GroupMembersBuilder.getSharedBuilder(for: group)
         self.groupsMembersRequest = self.groupMembersRequestBuilder.build()

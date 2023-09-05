@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 protocol CometChatEmojiKeyboardPresentable {
    var string: String { get }

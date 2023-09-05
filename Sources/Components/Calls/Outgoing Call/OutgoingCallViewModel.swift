@@ -6,22 +6,22 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 
 protocol OutgoingCallViewModelProtocol {
     
-    var onOutgoingCallAccepted: ((CometChatPro.Call) -> Void)? { get }
-    var onOutgoingCallRejected: ((CometChatPro.Call) -> Void)? { get }
-    var onError: ((CometChatPro.CometChatException) -> Void)? { get }
+    var onOutgoingCallAccepted: ((CometChatSDK.Call) -> Void)? { get }
+    var onOutgoingCallRejected: ((CometChatSDK.Call) -> Void)? { get }
+    var onError: ((CometChatSDK.CometChatException) -> Void)? { get }
 }
 
 class OutgoingCallViewModel: OutgoingCallViewModelProtocol {
    
     let listenerID = "outgoing-call-listener"
-    var onOutgoingCallAccepted: ((CometChatPro.Call) -> Void)?
-    var onOutgoingCallRejected: ((CometChatPro.Call) -> Void)?
-    var onError: ((CometChatPro.CometChatException) -> Void)?
+    var onOutgoingCallAccepted: ((CometChatSDK.Call) -> Void)?
+    var onOutgoingCallRejected: ((CometChatSDK.Call) -> Void)?
+    var onError: ((CometChatSDK.CometChatException) -> Void)?
    
     public init () { }
     
@@ -36,23 +36,23 @@ class OutgoingCallViewModel: OutgoingCallViewModelProtocol {
 
 extension OutgoingCallViewModel: CometChatCallDelegate {
     
-    func onIncomingCallReceived(incomingCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    func onIncomingCallReceived(incomingCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         
     }
     
-    func onOutgoingCallAccepted(acceptedCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    func onOutgoingCallAccepted(acceptedCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         if let call = acceptedCall {
             self.onOutgoingCallAccepted?(call)
         }
     }
     
-    func onOutgoingCallRejected(rejectedCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    func onOutgoingCallRejected(rejectedCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         if let call = rejectedCall {
             self.onOutgoingCallRejected?(call)
         }
     }
     
-    func onIncomingCallCancelled(canceledCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    func onIncomingCallCancelled(canceledCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         
     }
 }

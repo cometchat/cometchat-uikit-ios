@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 public class CollaborativeDocumentViewModel : DataSourceDecorator {
     
@@ -19,7 +19,7 @@ public class CollaborativeDocumentViewModel : DataSourceDecorator {
     }
     
     public override func getId() -> String {
-        return "CollaborativeDocument"
+        return "document"
     }
     
     public override func getAllMessageTypes() -> [String]? {

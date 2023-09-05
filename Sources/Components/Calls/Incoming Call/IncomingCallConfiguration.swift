@@ -7,10 +7,14 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public final class IncomingCallConfiguration {
     
+    private(set) var onAccept: ((BaseMessage) -> Void)?
+    private(set) var onDecline: ((BaseMessage) -> Void)?
+    private(set) var onError: ((_ error: CometChatException) -> Void)?
+    private(set) var call: Call?
     private(set) var declineButtonIcon: UIImage?
     private(set) var acceptButtonIcon: UIImage?
     private(set) var disableSoundForCalls: Bool?
@@ -21,6 +25,30 @@ public final class IncomingCallConfiguration {
     private(set) var incomingCallStyle: IncomingCallStyle?
     
     public init() {}
+    
+    @discardableResult
+    public func setOnAccept(onAccept: @escaping ((BaseMessage) -> Void)) -> Self {
+        self.onAccept = onAccept
+        return self
+    }
+    
+    @discardableResult
+    public func setOnDecline(onDecline: @escaping ((BaseMessage) -> Void)) -> Self {
+        self.onDecline = onDecline
+        return self
+    }
+    
+    @discardableResult
+    public func setOnError(onError: @escaping ((_ error: CometChatException) -> Void)) -> Self {
+        self.onError = onError
+        return self
+    }
+    
+    @discardableResult
+    public func set(call: Call?) -> Self {
+        self.call = call
+        return self
+    }
     
     @discardableResult
     public func set(acceptButtonIcon: UIImage?) -> Self {

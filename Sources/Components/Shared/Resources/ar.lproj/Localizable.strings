@@ -374,7 +374,9 @@
 "SENTATTXT" = "إرسال نص: %1$s";
 "CONNECTING_TO_CALL" = "الاتصال بالمكالمة";
 "READ_AT" = "قراءة في: %1$s";
+"READ" = "يقرأ";
 "DELIVERED_AT" = "سلمت في: ";
+"DELIVERED" = "تم التوصيل";
 "NAVIGATE" = "التنقل";
 "GRANT_LOCATION_PERMISSION" = "منح إذن الموقع";
 "SEND_AUDIO_FILES" = "إرسال ملفات صوتية";
@@ -523,3 +525,6 @@
 "NO_MEMBERS_FOUND" = "No Members Found";
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
+"NEW_CHAT" = "دردشة جديدة";
+"INCOMING_AUDIO_CALL" = "مكالمة صوتية واردة";
+"INCOMING_VIDEO_CALL" = "مكالمة فيديو واردة";

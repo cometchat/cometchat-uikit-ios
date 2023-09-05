@@ -5,17 +5,17 @@
 //  Created by Pushpsen Airekar on 13/01/23.
 //
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 protocol JoinProtectedGroupViewModelProtocol {
-    var success: ((CometChatPro.Group) -> Void)? { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
+    var success: ((CometChatSDK.Group) -> Void)? { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
 }
 
 class JoinProtectedGroupViewModel: JoinProtectedGroupViewModelProtocol {
    
-    var success: ((CometChatPro.Group) -> Void)?
-    var failure: ((CometChatPro.CometChatException) -> Void)?
+    var success: ((CometChatSDK.Group) -> Void)?
+    var failure: ((CometChatSDK.CometChatException) -> Void)?
     
     func joinGroup(group: Group, password: String) {
         CometChat.joinGroup(GUID: group.guid, groupType: .password, password: password) { [weak self] group in

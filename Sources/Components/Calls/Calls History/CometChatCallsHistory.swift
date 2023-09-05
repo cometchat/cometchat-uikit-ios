@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 @MainActor
 internal class CometChatCallsHistory: CometChatListBase {
@@ -70,7 +70,7 @@ internal class CometChatCallsHistory: CometChatListBase {
     }
     
     //MARK: - INIT
-    public init(callsRequestBuilder: MessagesRequest.MessageRequestBuilder = CallsBuilder.shared) {
+    public init(callsRequestBuilder: MessagesRequest.MessageRequestBuilder = CallsBuilder.getDefaultRequestBuilder()) {
         viewModel = CallHistoryViewModel(callsRequestBuilder: callsRequestBuilder)
         super.init(nibName: nil, bundle: nil)
     }

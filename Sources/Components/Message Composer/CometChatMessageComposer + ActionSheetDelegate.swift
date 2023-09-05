@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 extension CometChatMessageComposer : CometChatActionSheetDelegate {
     

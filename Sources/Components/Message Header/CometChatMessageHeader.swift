@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 @objc @IBDesignable public class CometChatMessageHeader: UIView  {
     
@@ -178,10 +178,12 @@ import CometChatPro
     }
     
     public func connect() {
+        CometChat.addConnectionListener("messages-header-sdk-listener", self)
         self.viewModel?.connect()
     }
     
     public func disconnect() {
+        CometChat.removeConnectionListener("messages-header-sdk-listener")
         self.viewModel?.disconnect()
     }
     
@@ -392,3 +394,20 @@ extension CometChatMessageHeader {
         return label
     }
 }
+
+extension CometChatMessageHeader: CometChatConnectionDelegate {
+    public func connected() {
+        updateTypingStatus()
+        updateUserStatus()
+        updateGroupCount()
+    }
+    
+    public func connecting() {
+        
+    }
+    
+    public func disconnected() {
+        
+    }
+}
+

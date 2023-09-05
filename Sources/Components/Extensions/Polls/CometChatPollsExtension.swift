@@ -8,11 +8,16 @@ import Foundation
 
 public class CometChatPollsExtension: ExtensionDataSource {
     
-    public init() {}
+    public override init() {}
     
-    public func enable() {
+    public override func addExtension() {
         ChatConfigurator.enable { dataSource in
-           return CometChatPollsViewModel(dataSource: dataSource)
+            return CometChatPollsViewModel(dataSource: dataSource)
         }
-  }
+    }
+    
+    public override func getExtensionId() -> String {
+        return ExtensionConstants.polls
+    }
+    
 }

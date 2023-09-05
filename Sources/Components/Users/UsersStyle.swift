@@ -27,6 +27,7 @@ public final class UsersStyle: BaseStyle {
     private(set) var searchCancelButtonTint = CometChatTheme.palatte.primary
     private(set) var searchBorderWidth = 0.0
     private(set) var onlineStatusColor = CometChatTheme.palatte.success
+    private(set) var tableViewStyle : UITableView.Style = .plain
     
     @discardableResult
     public func set(titleColor: UIColor) -> Self {
@@ -133,6 +134,12 @@ public final class UsersStyle: BaseStyle {
     @discardableResult
     public func set(onlineStatusColor: UIColor) -> Self {
         self.onlineStatusColor = onlineStatusColor
+        return self
+    }
+    
+    @discardableResult
+    public func set(tableViewStyle: UITableView.Style) -> Self {
+        self.tableViewStyle = tableViewStyle
         return self
     }
 

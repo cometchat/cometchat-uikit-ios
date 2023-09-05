@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 class SmartReplyExtensionDecorator: DataSourceDecorator {
     
@@ -23,8 +23,8 @@ class SmartReplyExtensionDecorator: DataSourceDecorator {
         connect()
     }
     
-    public override func getId() -> String {
-        return "smartReplies"
+    override func getId() -> String {
+        return "smart-reply"
     }
     
     public func connect() {
@@ -130,9 +130,12 @@ extension SmartReplyExtensionDecorator: CometChatUIEventListener {
         
     }
     
-    func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatPro.BaseMessage?, user: CometChatPro.User?, group: CometChatPro.Group?) {
+    func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {
         if let lastMessage = lastMessage {
             presentSmartReplies(for: lastMessage)
         }
     }
+    
+    
+    public func openChat(user: CometChatSDK.User?, group: CometChatSDK.Group?) {}
 }

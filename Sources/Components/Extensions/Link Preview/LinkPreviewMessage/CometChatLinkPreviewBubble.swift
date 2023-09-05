@@ -8,7 +8,7 @@
 import UIKit
 import SafariServices
 import MessageUI
-import CometChatPro
+import CometChatSDK
 
 
 public class CometChatLinkPreviewBubble: UIView {

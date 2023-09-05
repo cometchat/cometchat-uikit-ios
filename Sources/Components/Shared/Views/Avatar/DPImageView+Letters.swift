@@ -1,6 +1,6 @@
 //
 //  DPImageView+Letters.swift
-//  CometChatPro-CachingExtension-SampleApp
+//  CometChatSDK-CachingExtension-SampleApp
 //
 //  Created by CometChat Inc. on 09/07/19.
 //  Copyright © 2022 CometChat Inc. All rights reserved.
