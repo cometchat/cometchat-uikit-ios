@@ -6,20 +6,20 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 protocol GroupsViewModelProtocol {
     
     var row: Int { get set }
     var isSearching: Bool { get set }
-    var groups: [CometChatPro.Group] { get set }
-    var filteredGroups: [CometChatPro.Group] { get set }
-    var selectedGroups: [CometChatPro.Group] { get set }
+    var groups: [CometChatSDK.Group] { get set }
+    var filteredGroups: [CometChatSDK.Group] { get set }
+    var selectedGroups: [CometChatSDK.Group] { get set }
     var groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder { get set }
     
     var reload: (() -> Void)? { get set }
     var reloadAt: ((Int) -> Void)? { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     var hasJoined : ((Group) -> Void)?  { get set }
     
     func fetchGroups()
@@ -49,15 +49,15 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
     }
     
     var isSearching: Bool = false
-    var selectedGroups: [CometChatPro.Group] = []
+    var selectedGroups: [CometChatSDK.Group] = []
     var groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder
     private var groupsRequest: GroupsRequest?
     private var filterGroupsRequest: GroupsRequest?
     
     var reload: (() -> Void)?
     var reloadAt: ((Int) -> Void)?
-    var failure: ((CometChatPro.CometChatException) -> Void)?
-    var hasJoined: ((CometChatPro.Group) -> Void)?
+    var failure: ((CometChatSDK.CometChatException) -> Void)?
+    var hasJoined: ((CometChatSDK.Group) -> Void)?
     
     init(groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder) {
         self.groupsRequestBuilder = groupsRequestBuilder

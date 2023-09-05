@@ -6,13 +6,14 @@
 //
 
 import UIKit
-import CometChatPro
 import UserNotifications
 import PushKit
 import CallKit
 import AudioToolbox
 import AVKit
 
+
+#if canImport(CometChatCallsSDK)
 public class CallingExtension: NSObject {
     
     public static func enable() {
@@ -22,5 +23,6 @@ public class CallingExtension: NSObject {
     }
   
 }
+#endif
 
 

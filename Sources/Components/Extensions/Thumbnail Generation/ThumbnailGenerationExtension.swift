@@ -6,12 +6,16 @@ import Foundation
 
 public class ThumbnailGenerationExtension: ExtensionDataSource {
     
-    public init() {}
+    public override init() {}
     
-    public func enable() {
+    public override func addExtension() {
         ChatConfigurator.enable { dataSource in
             return ThumbnailGenerationViewModel(dataSource: dataSource)
         }
+    }
+    
+    public override func getExtensionId() -> String {
+        return ExtensionConstants.thumbnailGeneration
     }
 }
 

@@ -6,13 +6,13 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 protocol ConversationsViewModelProtocol {
     
     var reload: (() -> Void)? { get set }
     var reloadAtIndex: ((Int) -> Void)? { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     var newMessageReceived: ((_ message: BaseMessage) -> Void)? { get set }
     var row: Int { get set }
     var conversations: [Conversation] { get set }
@@ -73,7 +73,7 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
         }
         ConversationsBuilder.fetchConversation(conversationRequest: conversationRequest!) { [weak self] result in
             guard let this = self else { return }
-            this.refereshConversationRequest = CometChatPro.ConversationRequest.ConversationRequestBuilder(limit: 30).build()
+            this.refereshConversationRequest = CometChatSDK.ConversationRequest.ConversationRequestBuilder(limit: 30).build()
             switch result {
             case .success(let conversations):
                 if this.isRefresh {

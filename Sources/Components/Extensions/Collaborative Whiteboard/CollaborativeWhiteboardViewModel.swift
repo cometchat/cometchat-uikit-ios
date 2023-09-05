@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 public class CollaborativeWhiteboardViewModel : DataSourceDecorator {
     
@@ -19,7 +19,7 @@ public class CollaborativeWhiteboardViewModel : DataSourceDecorator {
     }
     
     public override func getId() -> String {
-        return "CollaborativeWhiteboard"
+        return "whiteboard"
     }
     
     public override func getAllMessageTypes() -> [String]? {

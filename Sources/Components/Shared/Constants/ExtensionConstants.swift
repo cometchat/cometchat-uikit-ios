@@ -29,6 +29,8 @@ public struct ExtensionConstants {
   static var  customStickers = "customStickers"
   static var  defaultStickers = "defaultStickers"
   static var  stickerUrl = "stickerUrl"
+  static var  emailReplies = "email-replies"
+  static var emojis = "emojis"
 }
 
 class ExtensionUrls {

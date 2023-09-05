@@ -376,7 +376,9 @@
 "SENTATTXT" = "Text senden: %1$s";
 "CONNECTING_TO_CALL" = "Verbindung mit Anruf";
 "READ_AT" = "Lesen Sie unter: %1$s";
+"READ" = "Lesen";
 "DELIVERED_AT" = "Geliefert bei: ";
+"DELIVERED" = "GELIEFERT";
 "NAVIGATE" = "Navigieren";
 "GRANT_LOCATION_PERMISSION" = "Standort-Berechtigung";
 "SEND_AUDIO_FILES" = "Senden von Audiodateien";
@@ -525,3 +527,6 @@
 "NO_MEMBERS_FOUND" = "No Members Found";
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
+"NEW_CHAT" = "Neuer Chat";
+"INCOMING_AUDIO_CALL" = "Eingehender Audioanruf";
+"INCOMING_VIDEO_CALL" = "Eingehender Videoanruf";

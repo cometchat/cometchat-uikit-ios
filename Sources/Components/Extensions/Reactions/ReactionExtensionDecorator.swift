@@ -5,7 +5,7 @@
 //  Created by Pushpsen Airekar on 21/02/23.
 //
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 public class ReactionExtensionDecorator: DataSourceDecorator {
     
@@ -70,7 +70,13 @@ public class ReactionExtensionDecorator: DataSourceDecorator {
     
     public override func getCommonOptions(loggedInUser: User, messageObject: BaseMessage, controller: UIViewController?, group: Group?) -> [CometChatMessageOption] {
         var messageOptions = super.getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group)
-        messageOptions.insert(getOption(controller: controller, message: messageObject), at: 0)
+        if let index = messageOptions.firstIndex(where: {$0.id ==  MessageOptionConstants.deleteMessage}) {
+            messageOptions.insert(getOption(controller: controller, message: messageObject), at: index + 1)
+        } else if let index = messageOptions.firstIndex(where: {$0.id ==  MessageOptionConstants.messagePrivately}) {
+            messageOptions.insert(getOption(controller: controller, message: messageObject), at: index + 1)
+        } else if let index = messageOptions.firstIndex(where: {$0.id ==  MessageOptionConstants.messageInformation}) {
+            messageOptions.insert(getOption(controller: controller, message: messageObject), at: index + 1)
+        }
         return messageOptions
     }
     

@@ -9,12 +9,15 @@ import Foundation
 
 public class CometChatLinkPreviewExtension: ExtensionDataSource {
     
-    public init(){}
+    public override init(){}
     
-    public func enable() {
+    public override func addExtension() {
         ChatConfigurator.enable { dataSource in
             return LinkPreviewViewModel(dataSource: dataSource)
         }
     }
     
+    public override func getExtensionId() -> String {
+        return ExtensionConstants.linkPreview
+    }
 }

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 class ImageModetationConfiguration {}
 
@@ -21,7 +21,7 @@ public class ImageModetarationViewModel : DataSourceDecorator {
     }
     
     public override func getId() -> String {
-        return "ImageModeration"
+        return "image-moderation"
     }
     
     public override func getImageMessageBubble(imageUrl: String?, caption: String?, message: MediaMessage?, controller: UIViewController?, style: ImageBubbleStyle?) -> UIView? {

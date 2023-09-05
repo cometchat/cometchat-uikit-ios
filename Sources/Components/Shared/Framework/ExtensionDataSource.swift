@@ -6,7 +6,25 @@
 //
 
 import Foundation
+import CometChatSDK
 
-public protocol ExtensionDataSource {
-    func enable()
+public class ExtensionDataSource {
+    public func enable() {
+        CometChat.isExtensionEnabled(extensionId: getExtensionId(), onSuccess: {
+            success in
+            if success {
+                self.addExtension()
+            }
+        }, onError: {
+            _ in
+        })
+    }
+    
+    public func addExtension() {
+        
+    }
+    
+    public func getExtensionId() -> String {
+        return ""
+    }
 }

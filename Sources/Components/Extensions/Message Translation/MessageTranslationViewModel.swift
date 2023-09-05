@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 public class MessageTranslationViewModel: DataSourceDecorator {
     
@@ -18,7 +18,7 @@ public class MessageTranslationViewModel: DataSourceDecorator {
     }
     
     public override func getId() -> String {
-        return "MessageTranslation"
+        return "message-translation"
     }
     
     public override func getTextMessageBubble(messageText: String?, message: TextMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?) -> UIView? {

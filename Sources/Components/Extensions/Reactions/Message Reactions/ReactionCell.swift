@@ -7,7 +7,7 @@
 
 // MARK: - Importing Frameworks.
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 // MARK: - Importing Protocols.
 

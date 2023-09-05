@@ -3,7 +3,7 @@
 //  Created by admin on 04/11/22.
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 protocol  StickerViewDelegate {
     func didStickerSelected(sticker: CometChatSticker)

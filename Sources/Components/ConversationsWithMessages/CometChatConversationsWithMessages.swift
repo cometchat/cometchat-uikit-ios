@@ -5,7 +5,7 @@
 //  Created by Pushpsen Airekar on 11/12/21.
 //
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public class CometChatConversationsWithMessages: CometChatConversations {
     
@@ -13,16 +13,59 @@ public class CometChatConversationsWithMessages: CometChatConversations {
     var conversationsConfiguration: ConversationsConfiguration?
     var user: User? = nil
     var group: Group? = nil
+    var cometChatMessages: CometChatMessages?
+    // MARK:- Created for to check CreateGroup Events.
+    var startConversationConfiguration: ContactsConfiguration?
+    var startConversationButton: UIBarButtonItem?
+    var startConversationIcon = UIImage(named: "groups-create.png", in: CometChatUIKit.bundle, compatibleWith: nil)
+    
     
     public override func viewDidLoad() {
         super.viewDidLoad()
         if let user = user {
-            navigateToMessagesForUser(user: user)
+            navigateToMessages(controller: nil, user: user, group: nil)
         } else if let group = group {
-            navigateToMessagesForGroup(group: group)
+            navigateToMessages(controller: nil, user: nil, group: group)
         }
+        
         connectListener()
         callbacks()
+        
+        startConversationButton = UIBarButtonItem(image: startConversationIcon, style: .plain, target: self, action: #selector(self.openStartConversation))
+        self.navigationItem.rightBarButtonItem = startConversationButton
+    }
+    
+    @objc func openStartConversation(){
+        let startConversation = CometChatContacts()
+
+        startConversation.setSelectionMode(selectionMode: startConversationConfiguration?.selectionMode ?? .none)
+            .setSelectionLimit(selectionLimit: startConversationConfiguration?.selectionLimit)
+            .setOnItemTap( onItemTap: startConversationConfiguration?.onItemTap ?? { controller, user, group in
+                self.navigateToMessages(controller: controller, user: user, group: group)
+            })
+            .setHideSubmitButton(hideSubmitButton: startConversationConfiguration?.hideSubmitButton ?? true)
+            .setOnClose(onClose: startConversationConfiguration?.onClose)
+            .setCloseIcon(closeIcon: startConversationConfiguration?.closeIcon)
+            .setContactsStyle(contactsStyle: startConversationConfiguration?.contactsStyle ?? ContactsStyle())
+            .setTabVisibility(tabVisibility: startConversationConfiguration?.tabVisibility ?? .usersAndGroups)
+            .setUsersConfiguration(usersConfiguration: startConversationConfiguration?.usersConfiguration)
+            .setGroupsConfiguration(groupsConfiguration: startConversationConfiguration?.groupsConfiguration)
+            .setUsersTabTitle(usersTabTitle: startConversationConfiguration?.usersTabTitle)
+            .setGroupsTabTitle(groupsTabTitle: startConversationConfiguration?.groupsTabTitle)
+            .setOnSubmitIconTap(onSubmitIconTap: startConversationConfiguration?.onSubmitIconTap)
+        
+        startConversation.title = startConversationConfiguration?.title
+        
+        let naviVC = UINavigationController(rootViewController: startConversation)
+        
+        self.present(naviVC, animated: true)
+    }
+    
+    public override func viewDidAppear(_ animated: Bool) {
+        if cometChatMessages != nil {
+            cometChatMessages?.messageList.disconnect()
+            cometChatMessages = nil
+        }
     }
     
     private func connectListener() {
@@ -32,6 +75,8 @@ public class CometChatConversationsWithMessages: CometChatConversations {
         // NEW
         CometChat.addGroupListener("conversations-with-messages-groups-sdk-listerner", self)
         CometChatGroupEvents.addListener("conversations-with-message-groups-events-listerner", self)
+        
+        CometChatUIEvents.addListener("conversations-with-message-ui-event-listener", self)
     }
     
     private func callbacks() {
@@ -40,9 +85,9 @@ public class CometChatConversationsWithMessages: CometChatConversations {
         onDidSelect = { [weak self] (conversation, indexPath) in
             guard let this = self else { return }
             if let user = conversation.conversationWith as? User  {
-                this.navigateToMessagesForUser(user: user)
+                this.navigateToMessages(controller: nil, user: user, group: nil)
             } else if let group = conversation.conversationWith as? Group {
-                this.navigateToMessagesForGroup(group: group)
+                this.navigateToMessages(controller: nil, user: nil, group: group)
             }
         }
     }
@@ -66,6 +111,12 @@ public class CometChatConversationsWithMessages: CometChatConversations {
     public func set(conversationsConfiguration: ConversationsConfiguration) -> Self {
         self.conversationsConfiguration = conversationsConfiguration
         setConverstionsConfiguration()
+        return self
+    }
+    
+    @discardableResult
+    public func set(startConversationConfiguration: ContactsConfiguration) -> Self {
+        self.startConversationConfiguration = startConversationConfiguration
         return self
     }
     
@@ -222,9 +273,13 @@ public class CometChatConversationsWithMessages: CometChatConversations {
         }
     }
     
-    private func navigateToMessagesForUser(user: User) {
+    private func navigateToMessages(controller:UIViewController?, user: User?, group: Group?) {
         let cometChatMessages: CometChatMessages = CometChatMessages()
-        cometChatMessages.set(user: user)
+        if user != nil {
+            cometChatMessages.set(user: user!)
+        } else if group != nil {
+            cometChatMessages.set(group: group!)
+        }
         
         if let messagesConfiguration =  messagesConfiguration {
             cometChatMessages.set(detailsConfiguration: messagesConfiguration.detailsConfiguration)
@@ -273,9 +328,15 @@ public class CometChatConversationsWithMessages: CometChatConversations {
         }
         
         cometChatMessages.hidesBottomBarWhenPushed = true
-        self.navigationController?.pushViewController(cometChatMessages, animated: true)
+        if controller != nil{
+            controller?.navigationController?.pushViewController(cometChatMessages, animated: true)
+        }else{
+            self.navigationController?.pushViewController(cometChatMessages, animated: true)
+        }
+        
     }
     
+    /*
     private func navigateToMessagesForGroup(group: Group) {
         let cometChatMessages: CometChatMessages = CometChatMessages()
         cometChatMessages.set(group: group)
@@ -315,5 +376,22 @@ public class CometChatConversationsWithMessages: CometChatConversations {
         
         cometChatMessages.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(cometChatMessages, animated: true)
+    }
+    */
+}
+
+extension CometChatConversationsWithMessages : CometChatUIEventListener {
+    public func showPanel(id: [String : Any]?, alignment: UIAlignment, view: UIView?) {}
+    
+    public func hidePanel(id: [String : Any]?, alignment: UIAlignment) {}
+    
+    public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {}
+    
+    public func openChat(user: CometChatSDK.User?, group: CometChatSDK.Group?) {
+        if let user = user {
+            navigateToMessages(controller: nil, user: user, group: nil)
+        } else if let group = group {
+            navigateToMessages(controller: nil, user: nil, group: group)
+        }
     }
 }

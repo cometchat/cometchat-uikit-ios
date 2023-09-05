@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public class CometChatCreateGroup: CometChatListBase {
     
@@ -112,16 +112,16 @@ public class CometChatCreateGroup: CometChatListBase {
         return self
     }
     
-    @discardableResult
-    public func hide(create: Bool) ->  Self {
-        if !create {
-            createButton = UIBarButtonItem(title: "CREATE".localize(), style: .done, target: self, action: #selector(self.didCreateGroupPressed))
-            set(createButtonFont: createGroupStyle.createButtonTextFont)
-            set(createButtonTint: createGroupStyle.createButtonTextColor)
-            self.navigationItem.rightBarButtonItem = createButton
-        }
-        return self
-    }
+//    @discardableResult
+//    public func hide(create: Bool) ->  Self {
+//        if !create {
+//            createButton = UIBarButtonItem(title: "CREATE".localize(), style: .done, target: self, action: #selector(self.didCreateGroupPressed))
+//            set(createButtonFont: createGroupStyle.createButtonTextFont)
+//            set(createButtonTint: createGroupStyle.createButtonTextColor)
+//            self.navigationItem.rightBarButtonItem = createButton
+//        }
+//        return self
+//    }
     
     private func set(createButtonTint: UIColor) {
         createButton?.tintColor = createButtonTint
@@ -261,7 +261,7 @@ public class CometChatCreateGroup: CometChatListBase {
             .set(titleFont: createGroupStyle.titleTextFont)
             .set(titleColor: createGroupStyle.titleTextColor)
             .show(backButton: true)
-        hide(create: false)
+//        hide(create: false)
         self.groupType.setTitle("PUBLIC".localize(), forSegmentAt: 0)
         self.groupType.setTitle("PRIVATE".localize(), forSegmentAt: 1)
         self.groupType.setTitle("PROTECTED".localize(), forSegmentAt: 2)

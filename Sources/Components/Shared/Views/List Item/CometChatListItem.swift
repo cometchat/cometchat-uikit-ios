@@ -167,6 +167,11 @@ open class CometChatListItem: UITableViewCell {
         self.background.borderColor(color: listItemStyle.borderColor)
         self.background.borderWith(width: listItemStyle.borderWidth)
         self.background.roundViewCorners(corner: listItemStyle.cornerRadius)
+        
+        self.backgroundColor = .clear
+        self.selectionStyle = .none
+
+        
         // Configuring title
         self.titleLabel.text = title
         self.titleLabel.font = listItemStyle.titleFont
@@ -185,7 +190,8 @@ open class CometChatListItem: UITableViewCell {
         self.statusIndicator.set(cornerRadius: statusIndicatorStyle.cornerRadius)
         self.statusIndicator.set(borderWidth: statusIndicatorStyle.borderWidth)
         self.statusIndicator.set(borderColor: statusIndicatorStyle.borderColor)
-        // Configuring subtitle
+
+//         Configuring subtitle
         if let subtitle = subtitle {
             
             self.subTitleView.isHidden = false
@@ -223,9 +229,9 @@ open class CometChatListItem: UITableViewCell {
     open override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         if selected{
-            check.image = UIImage(named:"groups-check-active", in: CometChatUIKit.bundle, compatibleWith: nil)
+            check.image = UIImage(named:"groups-check-active", in: CometChatUIKit.bundle, compatibleWith: nil)?.withTintColor(listItemStyle.selectionIconTint)
          } else {
-            check.image = UIImage(named:"groups-check-normal", in: CometChatUIKit.bundle, compatibleWith: nil)
+             check.image = UIImage(named:"groups-check-normal", in: CometChatUIKit.bundle, compatibleWith: nil)
         }
     }
     

@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 enum BannedGroupMembersBuilderResult {
     case success([GroupMember])

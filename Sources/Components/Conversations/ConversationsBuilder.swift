@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 enum ConverstionsBuilderResult {
     case success([Conversation])
@@ -15,7 +15,9 @@ enum ConverstionsBuilderResult {
 
 public class ConversationsBuilder {
     
-    public static let shared: CometChatPro.ConversationRequest.ConversationRequestBuilder = CometChatPro.ConversationRequest.ConversationRequestBuilder(limit: 30)
+    public static func getDefaultRequestBuilder() -> CometChatSDK.ConversationRequest.ConversationRequestBuilder {
+            return CometChatSDK.ConversationRequest.ConversationRequestBuilder(limit: 30)
+        }
     
     static func fetchConversation(conversationRequest: ConversationRequest, completion: @escaping (ConverstionsBuilderResult) -> Void) {
         conversationRequest.fetchNext { fetchedConversation in

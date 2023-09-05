@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 import UIKit
 
 public final class StatusIndicatorConfiguration: CometChatConfiguration {

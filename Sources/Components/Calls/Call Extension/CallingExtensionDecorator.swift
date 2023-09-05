@@ -4,9 +4,11 @@
 //
 //  Created by Pushpsen Airekar on 14/03/23.
 //
-import CometChatPro
+import CometChatSDK
 import UIKit
 import Foundation
+#if canImport(CometChatCallsSDK)
+import CometChatCallsSDK
 
 class CallingExtensionDecorator: DataSourceDecorator {
     
@@ -17,15 +19,21 @@ class CallingExtensionDecorator: DataSourceDecorator {
     var callingConfiguration : CallingConfiguration?
     var anInterface : DataSource?
     var spacer: String = "       "
+    private var call: Call?
     
-    public override init(dataSource: DataSource) {
+    private override init(dataSource: DataSource) {
         super.init(dataSource: dataSource)
         self.anInterface = dataSource
     }
     
-    public init(dataSource: DataSource, configuration: CallingConfiguration?) {
-        super.init(dataSource: dataSource)
-        self.anInterface = dataSource
+    public convenience init(dataSource: DataSource, configuration: CallingConfiguration?) {
+        self.init(dataSource: dataSource)
+        if let uiKitSettings = CometChatUIKit.uiKitSettings {
+            let callAppSettings = CallAppSettingsBuilder().setAppId(uiKitSettings.appID).setRegion(uiKitSettings.region).build()
+            CometChatCalls.init(callsAppSettings: callAppSettings) {_  in
+            } onError: {_ in
+            }
+        }
         self.callingConfiguration = configuration
         disconnect()
         connect()
@@ -86,7 +94,7 @@ class CallingExtensionDecorator: DataSourceDecorator {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         let view = CometChatMessageDateHeader()
-        
+        self.call = call
         let isLoggedInUser: Bool = (call.callInitiator as? User)?.uid == LoggedInUserInformation.getUID()
         let icon = UIImageView()
         icon.contentMode = .scaleAspectFit
@@ -201,6 +209,8 @@ class CallingExtensionDecorator: DataSourceDecorator {
                         DispatchQueue.main.async {
                             let ongoingCall = CometChatOngoingCall()
                             ongoingCall.set(sessionId: sessionID)
+                            ongoingCall.set(callSettingsBuilder: CallingDefaultBuilder.callSettingsBuilder)
+                            ongoingCall.set(callWorkFlow: .directCalling)
                             ongoingCall.modalPresentationStyle = .fullScreen
                             controller?.present(ongoingCall, animated: true)
                         }
@@ -292,7 +302,7 @@ class CallingExtensionDecorator: DataSourceDecorator {
 
 extension CallingExtensionDecorator: CometChatCallDelegate {
     
-    func onIncomingCallReceived(incomingCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    func onIncomingCallReceived(incomingCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         DispatchQueue.main.async {
             
             if let call = incomingCall {
@@ -337,9 +347,10 @@ extension CallingExtensionDecorator: CometChatCallDelegate {
         }
     }
     
-    func onOutgoingCallAccepted(acceptedCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {}
+    func onOutgoingCallAccepted(acceptedCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {}
     
-    func onOutgoingCallRejected(rejectedCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {}
+    func onOutgoingCallRejected(rejectedCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {}
     
-    func onIncomingCallCancelled(canceledCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {}
+    func onIncomingCallCancelled(canceledCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {}
 }
+#endif

@@ -8,11 +8,15 @@ import Foundation
 
 public class ReactionExtension: ExtensionDataSource {
     
-    public init(){}
+    public override init(){}
     
-    public func enable() {
+    public override func addExtension() {
         ChatConfigurator.enable { dataSource in
-           return ReactionExtensionDecorator(dataSource: dataSource)
+            return ReactionExtensionDecorator(dataSource: dataSource)
         }
-  }
+    }
+    
+    public override func getExtensionId() -> String {
+        return ExtensionConstants.reactions
+    }
 }

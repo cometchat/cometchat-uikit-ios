@@ -17,7 +17,7 @@ final class ViewModel {
     var audioVisualizationTimeInterval: TimeInterval = 0.05 // Time interval between each metering bar representation
 
     var currentAudioRecord: SoundRecord?
-    private var isPlaying = false
+    var isPlaying = false
 
     var audioMeteringLevelUpdate: ((Float) -> ())?
     var audioDidFinish: (() -> ())?

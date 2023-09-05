@@ -17,15 +17,8 @@ public final class ListItemStyle: BaseStyle {
 
     private(set) var titleColor = CometChatTheme.palatte.accent900
     private(set) var titleFont = CometChatTheme.typography.title2
+    private(set) var selectionIconTint = CometChatTheme.palatte.primary
     
-  ///TODO: - required to find better way because it will change the cornerRadius of listitem every where
-  override  var cornerRadius: CometChatCornerStyle  {
-        get {
-            CometChatCornerStyle(cornerRadius: 0)
-        }
-        set {}
-    }
-
   
     @discardableResult
     public func set(titleColor: UIColor) -> Self {
@@ -36,6 +29,12 @@ public final class ListItemStyle: BaseStyle {
     @discardableResult
     public func set(titleFont: UIFont) -> Self {
         self.titleFont = titleFont
+        return self
+    }
+    
+    @discardableResult
+    public func set(selectionIconTint: UIColor) -> Self {
+        self.selectionIconTint = selectionIconTint
         return self
     }
 }

@@ -6,7 +6,7 @@
 
 // MARK: - Importing Frameworks.
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 // MARK: - Declaration of Enum
 
@@ -86,12 +86,20 @@ open class CometChatListBase: UIViewController {
     
     func setupTableView(style: UITableView.Style) {
         if style != .plain {
-            tableView = UITableView(frame: view.bounds, style: style)
+            tableView = UITableView(frame: .zero, style: style)
         }
         tableView.delegate = self
         tableView.dataSource = self
+        
         view.addSubview(tableView)
-        tableView.frame = view.bounds
+
+        tableView.translatesAutoresizingMaskIntoConstraints=false
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
     }
     
     private func setGradientBackground(withColors: [CGColor]) {

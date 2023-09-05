@@ -6,11 +6,11 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 extension CometChatDetails: CometChatUserEventListener {
     
-    public func onUserBlock(user: CometChatPro.User) {
+    public func onUserBlock(user: CometChatSDK.User) {
         DispatchQueue.main.async {
             if let blockOption = DetailsUtils().getDefaultOption(id: UserOptionConstants.block), let unblockOption = DetailsUtils().getDefaultOption(id: UserOptionConstants.unblock) {
                 
@@ -19,7 +19,7 @@ extension CometChatDetails: CometChatUserEventListener {
         }
     }
     
-    public func onUserUnblock(user: CometChatPro.User) {
+    public func onUserUnblock(user: CometChatSDK.User) {
         DispatchQueue.main.async {
             if let blockOption = DetailsUtils().getDefaultOption(id: UserOptionConstants.block), let unblockOption = DetailsUtils().getDefaultOption(id: UserOptionConstants.unblock) {
                 

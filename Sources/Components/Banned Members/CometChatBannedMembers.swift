@@ -4,7 +4,7 @@
 
 import UIKit
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 @MainActor
 open class CometChatBannedMembers: CometChatListBase {
@@ -54,8 +54,13 @@ open class CometChatBannedMembers: CometChatListBase {
     }
     
     public override func viewWillAppear(_ animated: Bool) {
+        CometChat.addConnectionListener("banned-members-sdk-listener", self)
         fetchBannedMembers()
         reloadData()
+    }
+    
+    public override func viewWillDisappear(_ animated: Bool) {
+        CometChat.removeConnectionListener("group-members-sdk-listener")
     }
     
     private func fetchBannedMembers() {
@@ -439,5 +444,20 @@ extension CometChatBannedMembers {
                 return []
             }
         }
+    }
+}
+
+extension CometChatBannedMembers: CometChatConnectionDelegate {
+    public func connected() {
+        fetchBannedMembers()
+        reloadData()
+    }
+    
+    public func connecting() {
+        
+    }
+    
+    public func disconnected() {
+        
     }
 }

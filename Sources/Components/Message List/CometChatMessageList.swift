@@ -5,7 +5,7 @@
 //  Created by Pushpsen Airekar on 26/12/22.
 import UIKit
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 @MainActor @IBDesignable open class CometChatMessageList: UIView {
     
@@ -52,6 +52,7 @@ import CometChatPro
     private (set) var viewModel: MessageListViewModel?
     private (set) var baseMessage: BaseMessage?
     private (set) var cell: CometChatMessageBubble?
+    private (set) var messageInformationConfiguration: MessageInformationConfiguration?
     private (set) var headerView: UIView?
     private (set) var hideHeaderView = true
     private (set) var footerView: UIView?
@@ -498,6 +499,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                         }
                         if let bottomView = template.bottomView?(message, cell.alignment, controller) {
                             cell.containerView.addArrangedSubview(bottomView)
+                            bottomView.topAnchor.constraint(equalTo: cell.containerView.subviews.first!.bottomAnchor).isActive = true
                         }
                         
                         if message.deletedAt > 0 {
@@ -718,6 +720,12 @@ extension CometChatMessageList {
     }
     
     @discardableResult
+    public func set(messageInformationConfiguration: MessageInformationConfiguration)  ->  Self {
+        self.messageInformationConfiguration = messageInformationConfiguration
+        return self
+    }
+    
+    @discardableResult
     public func setOnThreadRepliesClick(onThreadRepliesClick: ((_ message: BaseMessage?, _ messageBubbleView: UIView?) -> ())?) -> Self {
         self.onThreadRepliesClick = onThreadRepliesClick
         return self
@@ -785,6 +793,7 @@ extension CometChatMessageList {
     public func connect() -> Self {
         viewModel?.connect()
         CometChatUIEvents.addListener("message-list-event-listener", self as CometChatUIEventListener)
+        CometChat.addConnectionListener("messages-connection-sdk-listener", self)
         return self
     }
     
@@ -792,6 +801,7 @@ extension CometChatMessageList {
     public func disconnect() -> Self {
         viewModel?.disconnect()
         CometChatUIEvents.removeListener("message-list-event-listener")
+        CometChat.removeConnectionListener("messages-connection-sdk-listener")
         return self
     }
     
@@ -816,6 +826,26 @@ extension CometChatMessageList {
     @discardableResult
     public func delete(message: BaseMessage) -> Self {
         viewModel?.delete(message: message)
+        return self
+    }
+    
+    @discardableResult
+    public func didMessageInformationClicked(message: BaseMessage) -> Self {
+        let messageInformationController = CometChatMessageInformation()
+        let navigationController = UINavigationController(rootViewController: messageInformationController)
+        
+        if let messageInformationConfiguration = self.messageInformationConfiguration {
+            configureMessageInformation(configuration: messageInformationConfiguration, messageInformation: messageInformationController)
+        }
+        
+        messageInformationController.set(message: message)
+        
+        if let template = templates?.filter({$0.template.type == MessageUtils.getDefaultMessageTypes(message: message) && $0.template.category == MessageUtils.getDefaultMessageCategories(message: message) }).first?.template {
+            messageInformationController.set(template: template)
+        }
+        
+        controller?.present(navigationController, animated: true)
+        
         return self
     }
     
@@ -850,6 +880,66 @@ extension CometChatMessageList {
 }
 
 extension CometChatMessageList {
+    
+    
+    private func configureMessageInformation(configuration: MessageInformationConfiguration, messageInformation: CometChatMessageInformation) {
+        if let backIcon = configuration.backIcon {
+            messageInformation.set(backIcon: backIcon)
+        }
+        
+        if let readIcon = configuration.readIcon {
+            messageInformation.set(readIcon: readIcon)
+        }
+        
+        if let deliveredIcon = configuration.deliveredIcon {
+            messageInformation.set(deliveredIcon: deliveredIcon)
+        }
+        
+        if let listItemView = configuration.listItemView {
+            messageInformation.setListItemView(listItemView: listItemView)
+        }
+        
+        if let onError = configuration.onError {
+            messageInformation.setOnError(onError: onError)
+        }
+        
+        if let onBack = configuration.onBack {
+            messageInformation.setOnBack(onBack: onBack)
+        }
+        
+        if let messageInformationStyle = configuration.messageInformationStyle {
+            messageInformation.set(messageInformationStyle: messageInformationStyle)
+        }
+        
+        if let emptyStateText = configuration.emptyStateText {
+            messageInformation.set(emptyStateText: emptyStateText)
+        }
+        
+        if let emptyStateView = configuration.emptyStateView {
+            messageInformation.set(emptyStateView: emptyStateView)
+        }
+        
+        if let loadingIcon = configuration.loadingIcon {
+            messageInformation.set(loadingIcon: loadingIcon)
+        }
+        
+        if let loadingStateView = configuration.loadingStateView {
+            messageInformation.set(loadingStateView: loadingStateView)
+        }
+        
+        if let errorStateText = configuration.errorStateText {
+            messageInformation.set(errorStateText: errorStateText)
+        }
+        
+        if let errorStateView = configuration.errorStateView {
+            messageInformation.set(loadingStateView: errorStateView)
+        }
+        
+        if let titleText = configuration.titleText {
+            messageInformation.set(titleText: titleText)
+        }
+        
+    }
     
     func configureParentView(template: CometChatMessageTemplate, message: BaseMessage) -> UIView? {
         if let cell =  Bundle.module.loadNibNamed(CometChatMessageBubble.identifier, owner: self, options: nil)![0]  as? CometChatMessageBubble {
@@ -1043,7 +1133,7 @@ extension CometChatMessageList {
 
 extension CometChatMessageList: CometChatUIEventListener {
     
-    public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatPro.BaseMessage?, user: CometChatPro.User?, group: CometChatPro.Group?) {
+    public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {
     }
     
     public func showPanel(id: [String : Any]?, alignment: UIAlignment, view: UIView?) {
@@ -1071,5 +1161,31 @@ extension CometChatMessageList: CometChatUIEventListener {
             hide(footerView: true)
         case .composerTop, .composerBottom: break
         }
+    }
+    
+    
+    public func openChat(user: CometChatSDK.User?, group: CometChatSDK.Group?) {}
+}
+
+extension CometChatMessageList: CometChatConnectionDelegate {
+    public func connected() {
+        guard let viewModel = viewModel else { return }
+        if viewModel.messages.isEmpty {
+            showIndicator()
+        }
+        viewModel.fetchActionMessages({
+            success in
+            if success {
+                viewModel.fetchMissedMessages()
+            }
+        })
+    }
+    
+    public func disconnected() {
+        
+    }
+    
+    public func connecting() {
+        
     }
 }

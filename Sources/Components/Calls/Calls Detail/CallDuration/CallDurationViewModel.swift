@@ -6,16 +6,16 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 protocol CallDurationViewModelProtocol {
     
     var user: User? { get set }
     var group: Group? { get set }
-    var calls:  [CometChatPro.BaseMessage]{ get set }
-    var groupedCalls:  [[CometChatPro.BaseMessage]] { get set }
+    var calls:  [CometChatSDK.BaseMessage]{ get set }
+    var groupedCalls:  [[CometChatSDK.BaseMessage]] { get set }
     var callsRequestBuilder: MessagesRequest.MessageRequestBuilder { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     var reload: (() -> Void)? { get set }
     func fetchCalls(completion: @escaping () -> ())
 }
@@ -24,15 +24,15 @@ public class CallDurationViewModel: NSObject, CallDurationViewModelProtocol {
     
     var user: User?
     var group: Group?
-    var calls:  [CometChatPro.BaseMessage] = []
-    var groupedCalls:  [[CometChatPro.BaseMessage]] = [[BaseMessage]]()
-    var callsRequestBuilder: CometChatPro.MessagesRequest.MessageRequestBuilder
-    var failure: ((CometChatPro.CometChatException) -> Void)?
+    var calls:  [CometChatSDK.BaseMessage] = []
+    var groupedCalls:  [[CometChatSDK.BaseMessage]] = [[BaseMessage]]()
+    var callsRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder
+    var failure: ((CometChatSDK.CometChatException) -> Void)?
     var reload: (() -> Void)?
     var updateTableViewHeight: (() -> Void)?
     private var callsRequest: MessagesRequest?
         
-    init(callsRequestBuilder: MessagesRequest.MessageRequestBuilder = CallDetailsBuilder().shared) {
+    init(callsRequestBuilder: MessagesRequest.MessageRequestBuilder = CallDetailsBuilder.getDefaultRequestBuilder()) {
         self.callsRequestBuilder = callsRequestBuilder
     }
     

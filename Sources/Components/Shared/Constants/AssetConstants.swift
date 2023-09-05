@@ -20,6 +20,7 @@ public struct AssetConstants {
     static let messageInfo = UIImage(named: "messages-info.png", in: CometChatUIKit.bundle, compatibleWith: nil)
     static let reply = UIImage(named: "reply-message.png", in: CometChatUIKit.bundle, compatibleWith: nil)
     static let thread = UIImage(named: "threaded-message.png", in: CometChatUIKit.bundle, compatibleWith: nil)
+    static let privately = UIImage(named: "send-message-in-private", in: CometChatUIKit.bundle, compatibleWith: nil)
     
     
 //      static let spinner = "assets/icons/spinner.png";

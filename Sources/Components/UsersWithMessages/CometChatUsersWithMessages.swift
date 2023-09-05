@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public class CometChatUsersWithMessages: CometChatUsers {
     
@@ -26,11 +26,13 @@ public class CometChatUsersWithMessages: CometChatUsers {
     private func addUsersWithMessagesListener() {
         CometChatUserEvents.addListener("users-with-messages-event-listener", self as CometChatUserEventListener)
         CometChat.addUserListener("users-with-messages-sdk-listener", self)
+        CometChatUIEvents.addListener("users-with-message-ui-event-listener", self)
     }
     
     func disconnect() {
         CometChatUserEvents.removeListener("users-with-messages-event-listener")
         CometChat.removeUserListener("users-with-messages-sdk-listener")
+        CometChatUIEvents.removeListener("users-with-message-ui-event-listener")
     }
     
     private func callbacks() {
@@ -204,27 +206,27 @@ extension CometChatUsersWithMessages {
 
 extension CometChatUsersWithMessages: CometChatUserEventListener {
     
-    public func onItemClick(user: CometChatPro.User, index: IndexPath?) {
+    public func onItemClick(user: CometChatSDK.User, index: IndexPath?) {
         navigateToMessages(user: user)
         print("CometChatUsersWithMessages - events - onItemClick")
     }
     
-    public func onItemLongClick(user: CometChatPro.User, index: IndexPath?) {
+    public func onItemLongClick(user: CometChatSDK.User, index: IndexPath?) {
         
         print("CometChatUsersWithMessages - events - onItemLongClick")
     }
     
-    public func onUserBlock(user: CometChatPro.User) {
+    public func onUserBlock(user: CometChatSDK.User) {
         
         print("CometChatUsersWithMessages - events - onUserBlock")
     }
     
-    public func onUserUnblock(user: CometChatPro.User) {
+    public func onUserUnblock(user: CometChatSDK.User) {
         
         print("CometChatUsersWithMessages - events - onUserUnblock")
     }
     
-    public func onError(user: CometChatPro.User?, error: CometChatPro.CometChatException) {
+    public func onError(user: CometChatSDK.User?, error: CometChatSDK.CometChatException) {
         
         print("CometChatUsersWithMessages - events - onError")
     }
@@ -241,5 +243,21 @@ extension CometChatUsersWithMessages : CometChatUserDelegate {
         
         print("CometChatUsersWithMessages - sdk - onUserOffline")
     }
+    
+}
+
+extension CometChatUsersWithMessages : CometChatUIEventListener {
+    public func showPanel(id: [String : Any]?, alignment: UIAlignment, view: UIView?) {}
+    
+    public func hidePanel(id: [String : Any]?, alignment: UIAlignment) {}
+    
+    public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {}
+    
+    public func openChat(user: CometChatSDK.User?, group: CometChatSDK.Group?) {
+        if let user = user {
+            navigateToMessages(user: user)
+        }
+    }
+    
     
 }

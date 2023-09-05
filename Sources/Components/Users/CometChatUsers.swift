@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public enum titleAlignment {
     case left
@@ -39,9 +39,12 @@ open class CometChatUsers: CometChatListBase {
     var onBack: (() -> Void)?
     var onDidSelect: ((_ user: User, _ indexPath: IndexPath) -> Void)?
     
+    private (set) var selectionLimit: Int?
+    
+    
     // MARK: - Init
-    public init(usersRequestBuilder: UsersRequest.UsersRequestBuilder? = UsersBuilder.shared) {
-        viewModel = UsersViewModel(userRequestBuilder: usersRequestBuilder ?? UsersBuilder.shared)
+    public init(usersRequestBuilder: UsersRequest.UsersRequestBuilder? = UsersBuilder.getDefaultRequestBuilder()) {
+        viewModel = UsersViewModel(userRequestBuilder: usersRequestBuilder ?? CometChatSDK.UsersRequest.UsersRequestBuilder().set(limit: 30))
         usersStyle = UsersStyle()
         avatarStyle = AvatarStyle()
         statusIndicatorStyle = StatusIndicatorStyle()
@@ -59,11 +62,12 @@ open class CometChatUsers: CometChatListBase {
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupAppearance()
-        setupTableView(style: .plain)
-        registerCells()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
+        CometChat.addConnectionListener("users-sdk-listener", self)
+        registerCells()
+        selectionMode(mode: selectionMode)
         viewModel.connect()
         reloadData()
         fetchData()
@@ -71,6 +75,7 @@ open class CometChatUsers: CometChatListBase {
     
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        CometChat.removeConnectionListener("users-sdk-listener")
         viewModel.disconnect()
     }
     
@@ -147,10 +152,10 @@ open class CometChatUsers: CometChatListBase {
     // set appearance
     func setupAppearance() {
         self.set(searchPlaceholder: searchPlaceholder)
-            .set(title: "USERS".localize(), mode: .automatic)
+            .set(title: self.title ?? "USERS".localize(), mode: .automatic)
             .hide(search: false)
             .show(backButton: false)
-        set(usersStyle: usersStyle)
+            .set(usersStyle: usersStyle)
     }
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -283,6 +288,11 @@ open class CometChatUsers: CometChatListBase {
         return self
     }
     
+    @discardableResult
+    public func setSelectionLimit(limit : Int) -> Self {
+        self.selectionLimit = limit
+        return self
+    }
 }
 
 extension CometChatUsers {
@@ -333,6 +343,17 @@ extension CometChatUsers {
                
             }
             listItem.build()
+            
+            if user != nil {
+               if let foundUser = viewModel.selectedUsers.firstIndex(of: user!) {
+                    listItem.isSelected = true
+                    tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+                }else {
+                    listItem.isSelected = false
+                    tableView.deselectRow(at: indexPath, animated: false)
+                }
+            }
+            
             return listItem
         }
         return UITableViewCell()
@@ -390,8 +411,10 @@ extension CometChatUsers {
                 onDidSelect?(user, indexPath)
             }
         } else {
-            if !viewModel.selectedUsers.contains(user) {
+            if !viewModel.selectedUsers.contains(user) && (selectionLimit == nil || (selectionLimit != nil && viewModel.selectedUsers.count <= selectionLimit!)) {
                 self.viewModel.selectedUsers.append(user)
+            } else {
+                tableView.allowsSelection = false
             }
         }
     }
@@ -401,6 +424,22 @@ extension CometChatUsers {
         if let foundUser = viewModel.selectedUsers.firstIndex(of: user) {
             viewModel.selectedUsers.remove(at: foundUser)
         }
+    }
+    
+    public func getSelectedUsers() -> [User]{
+        return viewModel.selectedUsers
+    }
+    
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        if selectionLimit != nil && viewModel.selectedUsers.count >= selectionLimit! {
+            return nil  // this disables selection beyond the limit
+        }
+        return indexPath
+    }
+    
+    func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
+        tableView.allowsSelection = true  // Enable selection when deselecting an item
+        return indexPath
     }
     
 }
@@ -428,5 +467,21 @@ extension CometChatUsers {
         set(searchCancelButtonTint: usersStyle.searchCancelButtonTint)
         set(searchPlaceholderColor: usersStyle.searchPlaceholderColor)
         set(corner: usersStyle.cornerRadius)
+        setupTableView(style: usersStyle.tableViewStyle)
+    }
+}
+
+extension CometChatUsers: CometChatConnectionDelegate {
+    public func connected() {
+        reloadData()
+        fetchData()
+    }
+    
+    public func connecting() {
+        
+    }
+    
+    public func disconnected() {
+        
     }
 }

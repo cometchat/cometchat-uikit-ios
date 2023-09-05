@@ -5,7 +5,7 @@
 //  Created by Pushpsen Airekar on 13/12/22.
 //
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 class TransferOwnerShipViewModel {
     

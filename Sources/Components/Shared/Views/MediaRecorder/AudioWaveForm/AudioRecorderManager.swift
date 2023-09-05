@@ -12,7 +12,7 @@ import AVFoundation
 let audioPercentageUserInfoKey = "percentage"
 
 final class AudioRecorderManager: NSObject {
-	let audioFileNamePrefix = "audio.m4a"
+	let audioFileNamePrefix = "audio-recording-"
 	let encoderBitRate: Int = 80000
 	let numberOfChannels: Int = 2
 	let sampleRate: Double = 44100.0
@@ -69,8 +69,11 @@ final class AudioRecorderManager: NSObject {
 			AVNumberOfChannelsKey: self.numberOfChannels,
 			AVSampleRateKey : self.sampleRate
 		] as [String : Any]
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMddHHmmss"
 		
-		guard let path = URL.documentsPath(forFileName: self.audioFileNamePrefix) else {
+		guard let path = URL.documentsPath(forFileName: "\(self.audioFileNamePrefix)\(dateFormatter.string(from: Date())).m4a") else {
 			print("Incorrect path for new audio file")
 			throw AudioErrorType.audioFileWrongPath
 		}

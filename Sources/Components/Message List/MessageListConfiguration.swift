@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public class  MessageListConfiguration {
     
@@ -29,6 +29,7 @@ public class  MessageListConfiguration {
     private (set) var onThreadRepliesClick: ((_ message: BaseMessage?, _ messageBubbleView: UIView?) -> ())?
     private (set) var messageListStyle: MessageListStyle?
     private (set) var templates: [CometChatMessageTemplate]?
+    private (set) var messageInformationConfiguration: MessageInformationConfiguration?
     private (set) var messagesRequestBuilder: MessagesRequest.MessageRequestBuilder?
    
     //TODO:- Needs to be asked weather it will a part or not.
@@ -91,6 +92,12 @@ public class  MessageListConfiguration {
     @discardableResult
     public func set(timeAlignment: MessageBubbleTimeAlignment) -> Self {
         self.timeAlignment = timeAlignment
+        return self
+    }
+    
+    @discardableResult
+    public func set(messageInformationConfiguration: MessageInformationConfiguration) -> Self {
+        self.messageInformationConfiguration = messageInformationConfiguration
         return self
     }
     

@@ -67,7 +67,7 @@
 "FORWARD_MESSAGE" = "Forward";
 "START_THREAD" = "Start Thread";
 "SHARE_MESSAGE" = "Share";
-"MESSAGE_INFORMATION" = "Information";
+"MESSAGE_INFORMATION" = "Message Informamtion";
 "COPY_MESSAGE" = "Copy Text";
 "CREATE_A_POLL" = "Create a Poll";
 "SEND_STICKER" = "Send Sticker";
@@ -386,7 +386,9 @@
 "SENTATTXT" = "send text: %1$s";
 "CONNECTING_TO_CALL" = "Connecting to call";
 "READ_AT" = "Read at: %1$s";
+"READ" = "Read";
 "DELIVERED_AT" = "Delivered at: ";
+"DELIVERED" = "Delivered";
 "NAVIGATE" = "Navigate";
 "GRANT_LOCATION_PERMISSION" = "Grant location permission";
 "SEND_AUDIO_FILES" = "Send audio files";
@@ -551,3 +553,6 @@
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
 "ACCEPTED" = "Accepted";
+"NEW_CHAT" = "New Chat";
+"INCOMING_AUDIO_CALL" = "Incoming audio call";
+"INCOMING_VIDEO_CALL" = "Incoming video call";

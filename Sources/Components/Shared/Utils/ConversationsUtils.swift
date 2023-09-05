@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public class ConversationsUtils {
     
@@ -174,11 +174,11 @@ public class ConversationsUtils {
                     switch currentMessage.messageType {
                     case .text where conversation.conversationType == .user:
                         if let textMessage = currentMessage as? TextMessage {
-                            lastMessage =  textMessage.text
+                            lastMessage =  ProfanityDataMaskingExtensionDecorator.getContentText(message: textMessage)
                         }
                     case .text where conversation.conversationType == .group:
                         if let textMessage = conversation.lastMessage as? TextMessage {
-                            lastMessage = textMessage.text
+                            lastMessage = ProfanityDataMaskingExtensionDecorator.getContentText(message: textMessage)
                         }
                     case .image where conversation.conversationType == .user:
                         lastMessage = ConversationConstants.messageImage

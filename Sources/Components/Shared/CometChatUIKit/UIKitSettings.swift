@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 final public class UIKitSettings {
     
@@ -108,6 +108,18 @@ final public class UIKitSettings {
     @discardableResult
     public func autoEstablishSocketConnection(bool: Bool) -> Self {
         appSettingsBuilder.autoEstablishSocketConnection(bool)
+        return self
+    }
+    
+    @discardableResult
+    public func overrideAdminHost(_ adminHost: String) -> Self {
+        appSettingsBuilder.overrideAdminHost(adminHost)
+        return self
+    }
+    
+    @discardableResult
+    public func overrideClientHost(_ clientHost: String) -> Self {
+        appSettingsBuilder.overrideClientHost(clientHost)
         return self
     }
     

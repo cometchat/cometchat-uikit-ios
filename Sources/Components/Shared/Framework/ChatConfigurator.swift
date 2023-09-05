@@ -24,7 +24,7 @@ public class ChatConfigurator {
         }
     }
     
-   public  static func getDataSource() -> DataSource {
+   static func getDataSource() -> DataSource {
         return dataSource
     }
 }

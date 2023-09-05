@@ -383,7 +383,9 @@
 "SENTATTXT" = "发送文本：%1$s";
 "CONNECTING_TO_CALL" = "正在连接来电";
 "READ_AT" = "阅读地点：%1$s";
+"READ" = "讀";
 "DELIVERED_AT" = "送达地点： ";
+"DELIVERED" = "發表";
 "NAVIGATE" = "导航";
 "GRANT_LOCATION_PERMISSION" = "授予位置权限";
 "SEND_AUDIO_FILES" = "发送音频文件";
@@ -531,3 +533,6 @@
 "NO_MEMBERS_FOUND" = "No Members Found";
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
+"NEW_CHAT" = "新聊天";
+"INCOMING_AUDIO_CALL" = "传入的音频通话";
+"INCOMING_VIDEO_CALL" = "来电视频通话";

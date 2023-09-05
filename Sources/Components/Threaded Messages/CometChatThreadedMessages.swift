@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public class CometChatThreadedMessages: CometChatListBase {
 
@@ -74,7 +74,26 @@ public class CometChatThreadedMessages: CometChatListBase {
             } else {
                 bubbleView.background.backgroundColor = (self.traitCollection.userInterfaceStyle == .dark) ? CometChatTheme.palatte.accent100 :  CometChatTheme.palatte.secondary
             }
-            parentMessageView.addArrangedSubview(bubbleView.contentView)
+            let scrollView = UIScrollView()
+            scrollView.addSubview(bubbleView.contentView)
+            NSLayoutConstraint.activate([
+                bubbleView.contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                bubbleView.contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 24),
+                bubbleView.contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+                bubbleView.contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                bubbleView.contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            ])
+            scrollView.translatesAutoresizingMaskIntoConstraints = false
+            parentMessageView.addArrangedSubview(scrollView)
+            parentMessageView.heightAnchor.constraint(equalToConstant: 150).isActive = true
+            scrollView.showsHorizontalScrollIndicator = false
+            NSLayoutConstraint.activate([
+                scrollView.topAnchor.constraint(equalTo: parentMessageView.topAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: parentMessageView.leadingAnchor, constant: 24),
+                scrollView.trailingAnchor.constraint(equalTo: parentMessageView.trailingAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: parentMessageView.bottomAnchor),
+                scrollView.widthAnchor.constraint(equalTo: parentMessageView.widthAnchor, constant: 100)
+            ])
         }
     }
     
@@ -212,6 +231,10 @@ public class CometChatThreadedMessages: CometChatListBase {
             messageList.setDateSeparatorPattern(dateSeparatorPattern: messageListConfiguration.dateSeparatorPattern)
             messageList.scrollToBottomOnNewMessages(messageListConfiguration.scrollToBottomOnNewMessages)
             messageList.setOnThreadRepliesClick(onThreadRepliesClick: messageListConfiguration.onThreadRepliesClick)
+            
+            if let messageInformationConfiguration = messageListConfiguration.messageInformationConfiguration {
+                messageList.set(messageInformationConfiguration: messageInformationConfiguration)
+            }
             if let waitIcon = messageListConfiguration.waitIcon {
                 messageList.set(waitIcon: waitIcon)
             }
@@ -445,7 +468,7 @@ public class CometChatThreadedMessages: CometChatListBase {
 extension CometChatThreadedMessages : CometChatMessageOptionDelegate {
  
     
-    func onItemClick(messageOption: CometChatMessageOption, forMessage: CometChatPro.BaseMessage?, indexPath: IndexPath?, view: UIView?) {
+    func onItemClick(messageOption: CometChatMessageOption, forMessage: CometChatSDK.BaseMessage?, indexPath: IndexPath?, view: UIView?) {
         if let message = forMessage {
             switch messageOption.id {
             case MessageOptionConstants.editMessage :
@@ -468,6 +491,15 @@ extension CometChatThreadedMessages : CometChatMessageOptionDelegate {
                 if messageOption.onItemClick == nil {
                     didMessageSharePressed(message: message)
                  } else {
+                    if let forMessage = forMessage {
+                        messageOption.onItemClick?(forMessage)
+                    }
+                }
+                
+            case MessageOptionConstants.messageInformation :
+                if messageOption.onItemClick == nil {
+                    messageList.didMessageInformationClicked(message: message)
+                } else {
                     if let forMessage = forMessage {
                         messageOption.onItemClick?(forMessage)
                     }
@@ -659,7 +691,7 @@ extension CometChatThreadedMessages: CometChatMessageEventListener {
 extension CometChatThreadedMessages: CometChatMessageDelegate {
     
     
-    public func onTextMessageReceived(textMessage: CometChatPro.TextMessage) {
+    public func onTextMessageReceived(textMessage: CometChatSDK.TextMessage) {
         if parentMessage?.id == textMessage.parentMessageId {
             self.incrementCount()
         }
@@ -668,37 +700,37 @@ extension CometChatThreadedMessages: CometChatMessageDelegate {
         
     }
 
-    public func onMediaMessageReceived(mediaMessage: CometChatPro.MediaMessage) {
+    public func onMediaMessageReceived(mediaMessage: CometChatSDK.MediaMessage) {
         
         print("CometChatThreadedMessages - sdk - onMediaMessageReceived")
     }
 
-    public func onCustomMessageReceived(customMessage: CometChatPro.CustomMessage) {
+    public func onCustomMessageReceived(customMessage: CometChatSDK.CustomMessage) {
         
         print("CometChatThreadedMessages - sdk - onCustomMessageReceived")
     }
 
-    public func onTypingStarted(_ typingDetails: CometChatPro.TypingIndicator) {
+    public func onTypingStarted(_ typingDetails: CometChatSDK.TypingIndicator) {
         
         print("CometChatThreadedMessages - sdk - onTypingStarted")
     }
 
-    public func onTypingEnded(_ typingDetails: CometChatPro.TypingIndicator) {
+    public func onTypingEnded(_ typingDetails: CometChatSDK.TypingIndicator) {
         
         print("CometChatThreadedMessages - sdk - onTypingEnded")
     }
 
-    public func onTransisentMessageReceived(_ message: CometChatPro.TransientMessage) {
+    public func onTransisentMessageReceived(_ message: CometChatSDK.TransientMessage) {
         
         print("CometChatThreadedMessages - sdk - onTransisentMessageReceived")
     }
 
-    public func onMessageEdited(message: CometChatPro.BaseMessage) {
+    public func onMessageEdited(message: CometChatSDK.BaseMessage) {
         
         print("CometChatThreadedMessages - sdk - onMessageEdited")
     }
 
-    public func onMessageDeleted(message: CometChatPro.BaseMessage) {
+    public func onMessageDeleted(message: CometChatSDK.BaseMessage) {
         /*
          if message is parentMessage
             { execure call backs. }
@@ -706,7 +738,7 @@ extension CometChatThreadedMessages: CometChatMessageDelegate {
         print("CometChatThreadedMessages - sdk - onMessageDeleted")
     }
 
-    public func onMessagesRead(receipt: CometChatPro.MessageReceipt) {
+    public func onMessagesRead(receipt: CometChatSDK.MessageReceipt) {
         /*
          
          - if message is ParentMessage {
@@ -718,13 +750,13 @@ extension CometChatThreadedMessages: CometChatMessageDelegate {
         print("CometChatThreadedMessages - sdk - onMessagesRead")
     }
 
-    public func onMessagesDelivered(receipt: CometChatPro.MessageReceipt) {
+    public func onMessagesDelivered(receipt: CometChatSDK.MessageReceipt) {
         
         print("CometChatThreadedMessages - sdk - onMessagesDelivered")
     }
 
     /*
-    func onMessageReadByAll(messageId: String, receiverId: String, receiverType: CometChatPro.CometChat.ReceiverType) {
+    func onMessageReadByAll(messageId: String, receiverId: String, receiverType: CometChatSDK.CometChat.ReceiverType) {
         
         print("CometChatThreadedMessages - sdk - onMessageReadByAll")
     }*/

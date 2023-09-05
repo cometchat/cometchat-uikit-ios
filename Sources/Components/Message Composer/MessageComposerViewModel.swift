@@ -4,15 +4,15 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 protocol MessageComposerViewModelProtocol {
-    var user: CometChatPro.User? { get set }
-    var group: CometChatPro.Group? { get set }
+    var user: CometChatSDK.User? { get set }
+    var group: CometChatSDK.Group? { get set }
     var message: BaseMessage? { get set }
     var parentMessageId: Int? { get set }
     var reset: ((Bool) -> ())? { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     var isSoundForMessageEnabled: (() -> ())? { get set }
     var typingIndicator: TypingIndicator? { get set }
 }
@@ -62,6 +62,27 @@ extension MessageComposerViewModel {
         isSoundForMessageEnabled?()
         reset?(true)
         return textMessage!
+    }
+    
+    public func setupBaseMessage(url: String) -> BaseMessage {
+        var mediaMessage: MediaMessage?
+        if !url.isEmpty {
+            if let uid = self.user?.uid {
+                mediaMessage = MediaMessage(receiverUid: uid, fileurl: url, messageType: .audio, receiverType: .user)
+            } else if let guid = self.group?.guid {
+                mediaMessage = MediaMessage(receiverUid: guid, fileurl: url, messageType: .audio, receiverType: .group)
+            }
+            mediaMessage?.muid = "\(NSDate().timeIntervalSince1970)"
+            mediaMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+            mediaMessage?.sender = CometChat.getLoggedInUser()
+            if let parentMessageId = parentMessageId {
+                mediaMessage?.parentMessageId = parentMessageId
+            }
+        }
+        
+        isSoundForMessageEnabled?()
+        reset?(true)
+        return mediaMessage!
     }
     
     public func sendTextMessageToUser(message: String) {

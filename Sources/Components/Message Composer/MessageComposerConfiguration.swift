@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public class MessageComposerConfiguration {
     
@@ -24,12 +24,75 @@ public class MessageComposerConfiguration {
     private(set) var sendButtonView: ((_ user: User?, _ group: Group?) -> UIView)?
     private(set) var hideLiveReaction: Bool?
     private(set) var liveReactionIcon: UIImage?
+    private(set) var mediaRecordIcon: UIImage?
     private(set) var messageComposerStyle: MessageComposerStyle?
     private(set) var onSendButtonClick: ((BaseMessage) -> Void)?
     private(set) var hideFooterView: Bool?
     private(set) var hideHeaderView: Bool?
+    private(set) var pauseIconTint: UIColor?
+    private(set) var playIconTint: UIColor?
+    private(set) var deleteIconTint: UIColor?
+    private(set) var timerTextFont: UIFont?
+    private(set) var timerTextColor: UIColor?
+    private(set) var startIconTint: UIColor?
+    private(set) var stopIconTint: UIColor?
+    private(set) var submitIconTint: UIColor?
+    var background: UIColor?
     
     public init() {}
+    
+    public func set(background: UIColor) -> Self {
+        self.background = background
+        return self
+    }
+    
+    @discardableResult
+    public func set(pauseIconTint: UIColor) -> Self {
+        self.pauseIconTint = pauseIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(playIconTint: UIColor) -> Self {
+        self.playIconTint = playIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(deleteIconTint: UIColor) -> Self {
+        self.deleteIconTint = deleteIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(timerTextFont: UIFont) -> Self {
+        self.timerTextFont = timerTextFont
+        return self
+    }
+    
+    @discardableResult
+    public func set(timerTextColor: UIColor) -> Self {
+        self.timerTextColor = timerTextColor
+        return self
+    }
+    
+    @discardableResult
+    public func set(submitIconTint: UIColor) -> Self {
+        self.submitIconTint = submitIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(startIconTint: UIColor) -> Self {
+        self.startIconTint = startIconTint
+        return self
+    }
+    
+    @discardableResult
+    public func set(stopIconTint: UIColor) -> Self {
+        self.stopIconTint = stopIconTint
+        return self
+    }
     
     @discardableResult
     public func set(placeholderText: String) -> Self {

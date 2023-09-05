@@ -6,8 +6,9 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
+#if canImport(CometChatCallsSDK)
 public class CometChatIncomingCall: UIViewController {
     
     @IBOutlet weak var titleLabel: UILabel!
@@ -54,6 +55,10 @@ public class CometChatIncomingCall: UIViewController {
         viewModel.onCallAccepted = { call in
             DispatchQueue.main.async {
                 ongoingCall.set(sessionId: call.sessionID ?? "")
+                let callSettingsBuilder = CallingDefaultBuilder.callSettingsBuilder
+                callSettingsBuilder.setIsAudioOnly(call.callType == .audio)
+                ongoingCall.set(callSettingsBuilder: callSettingsBuilder)
+                ongoingCall.set(callWorkFlow: .defaultCalling)
                 CometChatSoundManager().pause()
                 weak var pvc = self.presentingViewController
                 self.dismiss(animated: false, completion: {
@@ -128,9 +133,11 @@ public class CometChatIncomingCall: UIViewController {
             avatar.set(cornerRadius: avatarStyle.cornerRadius)
         }
         
-        subtitle.text = "incoming call".localize()
-        subtitle.textColor = incomingCallStyle.subtitleColor
-        subtitle.font = incomingCallStyle.subtitleFont
+        if let call = call {
+            subtitle.text = viewModel.getSubtitle(call: call)
+            subtitle.textColor = incomingCallStyle.subtitleColor
+            subtitle.font = incomingCallStyle.subtitleFont
+        }
         
         let rejectButton = CometChatButton(width: 200, height:200)
         rejectButton.set(icon: declineButtonIcon)
@@ -250,4 +257,4 @@ extension CometChatIncomingCall {
         return self
     }
 }
-
+#endif

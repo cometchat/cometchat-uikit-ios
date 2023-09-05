@@ -13,7 +13,7 @@
 
 import Foundation
 import  UIKit
-import CometChatPro
+import CometChatSDK
 
 /*  ----------------------------------------------------------------------------------------- */
 
@@ -136,7 +136,7 @@ import CometChatPro
      */
     
     @discardableResult
-    public func set(status: CometChatPro.UserStatus, backgroundColor: UIColor? = nil) -> Self {
+    public func set(status: CometChatSDK.UserStatus, backgroundColor: UIColor? = nil) -> Self {
         switch status {
         case .online, .available:
             self.isHidden = false

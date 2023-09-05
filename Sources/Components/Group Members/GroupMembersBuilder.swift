@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 enum GroupMembersBuilderResult {
     case success([GroupMember])

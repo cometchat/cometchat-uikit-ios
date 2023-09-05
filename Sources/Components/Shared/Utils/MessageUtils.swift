@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 import UIKit
 
 public class MessageUtils {
@@ -253,6 +253,15 @@ public class MessageUtils {
             CometChatMessageComposerAction(id: MessageTypeConstants.file, text: "DOCUMENT".localize(), startIcon: UIImage(named: "messages-file-upload.png", in: CometChatUIKit.bundle, compatibleWith: nil) ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil)
         ]
         return composerActions
+    }
+    
+    public static func bubbleBackgroundAppearance(bubbleView: UIView, senderUid: String, message: BaseMessage, controller: UIViewController ) {
+        if (senderUid == CometChat.getLoggedInUser()?.uid)  && (message.messageType == .text) {
+            bubbleView.backgroundColor =  CometChatTheme.palatte.primary
+        } else {
+            bubbleView.backgroundColor = (controller.traitCollection.userInterfaceStyle == .dark) ? CometChatTheme.palatte.accent100 :  CometChatTheme.palatte.secondary
+        }
+        
     }
     
 }

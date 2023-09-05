@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 // TODO: - Why whiteboard and document delegate's method are mixed up in one protocol?
 protocol CollaborativeDelegate: NSObject {

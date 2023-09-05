@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 
 public class CallUtils {
@@ -103,6 +103,7 @@ public class CallUtils {
     func getDefaultTemplate(user: User? , group: Group?, controller: UIViewController, isFromCallDetail: Bool? = false) -> [CometChatDetailsTemplate] {
         var templates = [CometChatDetailsTemplate]()
         if let user = user {
+            #if canImport(CometChatCallsSDK)
             let callingButton = CometChatCallButtons(width: 0, height: 0)
             callingButton.set(controller: controller)
             callingButton.set(voiceCallIconText: "CALL".localize())
@@ -111,27 +112,32 @@ public class CallUtils {
             callingButton.set(user: user)
             
             let callButtonTemplate = CometChatDetailsTemplate(id: "CallButtons", title: "", titleFont: nil, titleColor: nil, itemSeparatorColor: nil, hideItemSeparator: nil, customView: callingButton, options: nil)
+            templates.append(callButtonTemplate)
+            #endif
             
             let callDurationView = CallDuration()
             callDurationView.set(user: user)
             let callDurationTemplate = CometChatDetailsTemplate(id: "CallDuration", title: "", titleFont: nil, titleColor: nil, itemSeparatorColor: nil, hideItemSeparator: nil, customView: callDurationView, options: nil)
             
-            templates = [callButtonTemplate, callDurationTemplate]
+            templates.append(callDurationTemplate)
         }
         
         if let group = group {
+            #if canImport(CometChatCallsSDK)
             let callingButton = CometChatCallButtons(width: 0, height: 0)
             callingButton.set(controller: controller)
             callingButton.set(videoCallIconText: "VIDEO".localize())
             callingButton.check(isFromCallDetail: isFromCallDetail ?? false)
             callingButton.set(group: group)
             let callButtonTemplate = CometChatDetailsTemplate(id: "CallButtons", title: "", titleFont: nil, titleColor: nil, itemSeparatorColor: nil, hideItemSeparator: nil, customView: callingButton, options: nil)
+            templates.append(callButtonTemplate)
+            #endif
             
             let callDurationView = CallDuration()
             callDurationView.set(group: group)
             let callDurationTemplate = CometChatDetailsTemplate(id: "CallDuration", title: "", titleFont: nil, titleColor: nil, itemSeparatorColor: nil, hideItemSeparator: nil, customView: callDurationView, options: nil)
             
-            templates = [callButtonTemplate, callDurationTemplate]
+            templates.append(callDurationTemplate)
         }
       
         

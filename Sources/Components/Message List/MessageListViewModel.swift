@@ -6,15 +6,15 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 
 protocol MessageListViewModelProtocol {
-    var user: CometChatPro.User? { get set }
-    var group: CometChatPro.Group? { get set }
-    var parentMessage: CometChatPro.BaseMessage? { get set }
-    var selectedMessages: [CometChatPro.BaseMessage] { get set }
-    var messagesRequestBuilder: CometChatPro.MessagesRequest.MessageRequestBuilder { get set }
+    var user: CometChatSDK.User? { get set }
+    var group: CometChatSDK.Group? { get set }
+    var parentMessage: CometChatSDK.BaseMessage? { get set }
+    var selectedMessages: [CometChatSDK.BaseMessage] { get set }
+    var messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder { get set }
     var messages: [(date: Date, messages: [BaseMessage])] { get set }
     var reload: (() -> Void)? { get set }
     var refresh: (() -> Void)? { get set }
@@ -22,19 +22,21 @@ protocol MessageListViewModelProtocol {
     var appendAtIndex: ((Int, Int, BaseMessage) -> Void)? { get set }
     var updateAtIndex: ((Int, Int, BaseMessage) -> Void)? { get set }
     var deleteAtIndex: ((Int, Int, BaseMessage) -> Void)? { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     func fetchNextMessages()
     func fetchPreviousMessages()
 }
 
 open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
-    var group: CometChatPro.Group?
-    var user: CometChatPro.User?
-    var parentMessage: CometChatPro.BaseMessage?
-    var messages: [(date: Date, messages: [CometChatPro.BaseMessage])] = []
-    var selectedMessages: [CometChatPro.BaseMessage] = []
-    var messagesRequestBuilder: CometChatPro.MessagesRequest.MessageRequestBuilder
+    var group: CometChatSDK.Group?
+    var user: CometChatSDK.User?
+    var parentMessage: CometChatSDK.BaseMessage?
+    var messages: [(date: Date, messages: [CometChatSDK.BaseMessage])] = []
+    var selectedMessages: [CometChatSDK.BaseMessage] = []
+    var messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder
+    var messageActionRequestBuilder = MessagesRequest.MessageRequestBuilder().build()
+    var messageNextRequestBuilder = MessagesRequest.MessageRequestBuilder().build()
     private var messagesRequest: MessagesRequest?
     private var filterMessagesRequest: MessagesRequest?
     var reload: (() -> Void)?
@@ -43,21 +45,21 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     var appendAtIndex: ((Int, Int, BaseMessage) -> Void)?
     var updateAtIndex: ((Int, Int, BaseMessage) -> Void)?
     var deleteAtIndex: ((Int, Int, BaseMessage) -> Void)?
-    var failure: ((CometChatPro.CometChatException) -> Void)?
+    var failure: ((CometChatSDK.CometChatException) -> Void)?
     private var disableReceipt: Bool = false
     
     public override init() {
         messagesRequestBuilder = MessagesRequest.MessageRequestBuilder()
     }
     
-    init(group: Group, messagesRequestBuilder: CometChatPro.MessagesRequest.MessageRequestBuilder?, parentMessage: BaseMessage? = nil) {
+    init(group: Group, messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder?, parentMessage: BaseMessage? = nil) {
         self.group = group
         self.parentMessage = parentMessage
         self.messagesRequestBuilder = messagesRequestBuilder ?? MessagesRequest.MessageRequestBuilder().set(guid: group.guid)
         self.messagesRequest = self.messagesRequestBuilder.build()
     }
     
-    init(user: User, messagesRequestBuilder: CometChatPro.MessagesRequest.MessageRequestBuilder?, parentMessage: BaseMessage? = nil) {
+    init(user: User, messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder?, parentMessage: BaseMessage? = nil) {
         self.user = user
         self.parentMessage = parentMessage
         self.messagesRequestBuilder = messagesRequestBuilder ?? MessagesRequest.MessageRequestBuilder().set(uid: user.uid ?? "")
@@ -70,7 +72,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             guard let this = self else { return }
             switch result {
             case .success(let fetchedMessages):
-                this.groupNextMessages(messages: fetchedMessages, withRefresh: true)
+                this.groupMessages(messages: fetchedMessages, withRefresh: true)
             case .failure(let error):
                 this.failure?(error)
             }
@@ -95,31 +97,72 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         }
     }
     
-    private func groupMessages(messages: [BaseMessage], withRefresh: Bool){
-        if let lastMessage = messages.last {
-            if lastMessage.deliveredAt == 0.0 {
-                self.markAsDelivered(message: lastMessage)
+    func fetchMissedMessages() {
+        if let id = messages.last?.messages.last?.id {
+            if let user = self.user, let uid = user.uid {
+                messageNextRequestBuilder = MessagesRequest.MessageRequestBuilder().set(messageID: id).set(uid: uid).build()
+            } else if let group = self.group {
+                messageNextRequestBuilder = MessagesRequest.MessageRequestBuilder().set(messageID: id).set(guid: group.guid).build()
             }
-            if lastMessage.readAt == 0.0 {
-                self.markAsRead(message: lastMessage)
-            }
+            fetchNextMessagesFromLastMessage()
         }
-        let groupedMessages = Dictionary(grouping: messages) { (element) -> Date in
-            let date = Date(timeIntervalSince1970: TimeInterval(element.sentAt))
-            return date.reduceToMonthDayYear()
-        }
-        let _ = groupedMessages.map { (date: Date, messages: [BaseMessage]) in
-            if let index = self.messages.firstIndex(where: {$0.date == date}) {
-                self.messages[index].messages.insert(contentsOf: messages, at: 0)
-            } else {
-                self.messages.insert((date: date, messages: messages), at: 0)
-            }
-        }
-        self.messages = self.messages.sorted(by: { $0.date.compare($1.date) == .orderedAscending})
-        withRefresh ? self.refresh?() : self.reload?()
     }
     
-    private func groupNextMessages(messages: [BaseMessage], withRefresh: Bool){
+    func fetchNextMessagesFromLastMessage() {
+            MessagesListBuilder.fetchNextMessages(messageRequest: messageNextRequestBuilder) { [weak self] result in
+                guard let this = self else { return }
+                switch result {
+                case .success(let fetchedMessages):
+                    if fetchedMessages.count > 0 {
+                        this.groupNextMessages(messages: fetchedMessages, withRefresh: true)
+                        if this.messages.last?.messages.last?.id != fetchedMessages.last?.id { 
+                            this.fetchNextMessagesFromLastMessage()
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            var id = [String:Any]()
+                            if let user = this.user {
+                                id["uid"] = user.uid
+                            }
+                            if let group = this.group {
+                                id["guid"] = group.guid
+                            }
+                            if this.parentMessage?.id != 0 {
+                                id["parentMessageId"] = id
+                            }
+                            CometChatUIEvents.emitOnActiveChatChanged(id: id, lastMessage: this.messages.last?.messages.last, user: this.user, group: this.group)
+                        }
+                    }
+                case .failure(let error):
+                    this.failure?(error)
+                }
+            }
+    }
+    
+    func fetchActionMessages(_ success: @escaping (Bool) -> ()) {
+        if let id = messages.last?.messages.last?.id {
+            let messageActionRequest = MessagesRequest.MessageRequestBuilder().set(messageID: id)
+                .set(categories: ["action"]).set(types: ["message"])
+            if let user = self.user, let uid = user.uid {
+                messageActionRequestBuilder = messageActionRequest.set(uid: uid).build()
+            } else if let group = self.group {
+                messageActionRequestBuilder = messageActionRequest.set(guid: group.guid).build()
+            }
+            MessagesListBuilder.fetchNextMessages(messageRequest: messageActionRequestBuilder) { [weak self] result in
+                guard let this = self else { return }
+                switch result {
+                case .success(let fetchedMessages):
+                    this.groupActionMessages(messages: fetchedMessages, withRefresh: true)
+                    success(true)
+                case .failure(let error):
+                    this.failure?(error)
+                    success(true)
+                }
+            }
+        }
+    }
+    
+    private func groupMessages(messages: [BaseMessage], withRefresh: Bool){
         if let lastMessage = messages.last {
             if lastMessage.deliveredAt == 0.0 {
                 self.markAsDelivered(message: lastMessage)
@@ -137,6 +180,62 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
                 self.messages[index].messages.append(contentsOf: messages)
             } else {
                 self.messages.append((date: date, messages: messages))
+            }
+        }
+        self.messages = self.messages.sorted(by: { $0.date.compare($1.date) == .orderedAscending})
+        withRefresh ? self.refresh?() : self.reload?()
+    }
+    
+    private func groupNextMessages(messages: [BaseMessage], withRefresh: Bool){
+        var missedMessages = [BaseMessage]()
+        for message in messages {
+            if let _ = message as? ActionMessage {
+            } else {
+                missedMessages.append(message)
+            }
+        }
+        if let lastMessage = messages.last {
+            if lastMessage.deliveredAt == 0.0 {
+                self.markAsDelivered(message: lastMessage)
+            }
+            if lastMessage.readAt == 0.0 {
+                self.markAsRead(message: lastMessage)
+            }
+        }
+        let groupedMessages = Dictionary(grouping: missedMessages) { (element) -> Date in
+            let date = Date(timeIntervalSince1970: TimeInterval(element.sentAt))
+            return date.reduceToMonthDayYear()
+        }
+        let _ = groupedMessages.map { (date: Date, messages: [BaseMessage]) in
+            if let index = self.messages.firstIndex(where: {$0.date == date}) {
+                self.messages[index].messages.append(contentsOf: messages)
+            } else {
+                self.messages.append((date: date, messages: messages))
+            }
+        }
+        self.messages = self.messages.sorted(by: { $0.date.compare($1.date) == .orderedAscending})
+        withRefresh ? self.refresh?() : self.reload?()
+    }
+    
+    private func groupActionMessages(messages: [BaseMessage], withRefresh: Bool){
+        let groupedMessages = Dictionary(grouping: messages) { (element) -> Date in
+            let date = Date(timeIntervalSince1970: TimeInterval(element.sentAt))
+            return date.reduceToMonthDayYear()
+        }
+        for baseMessage in messages {
+            if baseMessage.messageCategory == .action, let actionMessage = baseMessage as? ActionMessage, let message = actionMessage.actionOn as? BaseMessage {
+                let _ = groupedMessages.map { (date: Date, messages: [BaseMessage]) in
+                    if let index = self.messages.firstIndex(where: {$0.date == date}) {
+                        if let index_ = self.messages[index].messages.firstIndex(where: {$0.id == message.id}) {
+                            self.messages[index].messages.remove(at: index_)
+                            self.messages[index].messages.insert(message, at: index_)
+                        } else {
+//                            self.messages[index].messages.append(message)
+                        }
+                    } else {
+//                        self.messages.append((date: date, messages: [message]))
+                    }
+                }
             }
         }
         self.messages = self.messages.sorted(by: { $0.date.compare($1.date) == .orderedAscending})
@@ -414,13 +513,13 @@ extension MessageListViewModel: CometChatMessageDelegate {
 
 extension MessageListViewModel: CometChatGroupDelegate {
     
-    public func onGroupMemberJoined(action: CometChatPro.ActionMessage, joinedUser: CometChatPro.User, joinedGroup: CometChatPro.Group) {
+    public func onGroupMemberJoined(action: CometChatSDK.ActionMessage, joinedUser: CometChatSDK.User, joinedGroup: CometChatSDK.Group) {
         self.newMessageReceived?(action)
         self.add(message: action)
         print("MessageListViewModel - sdk - onGroupMemberJoined")
     }
     
-    public func onGroupMemberLeft(action: CometChatPro.ActionMessage, leftUser: CometChatPro.User, leftGroup: CometChatPro.Group) {
+    public func onGroupMemberLeft(action: CometChatSDK.ActionMessage, leftUser: CometChatSDK.User, leftGroup: CometChatSDK.Group) {
         /*
          close detail
          */
@@ -429,7 +528,7 @@ extension MessageListViewModel: CometChatGroupDelegate {
         print("MessageListViewModel - sdk - onGroupMemberLeft")
     }
     
-    public func onGroupMemberKicked(action: CometChatPro.ActionMessage, kickedUser: CometChatPro.User, kickedBy: CometChatPro.User, kickedFrom: CometChatPro.Group) {
+    public func onGroupMemberKicked(action: CometChatSDK.ActionMessage, kickedUser: CometChatSDK.User, kickedBy: CometChatSDK.User, kickedFrom: CometChatSDK.Group) {
         /*
          // append to list.
          */
@@ -439,7 +538,7 @@ extension MessageListViewModel: CometChatGroupDelegate {
         
     }
     
-    public func onGroupMemberBanned(action: CometChatPro.ActionMessage, bannedUser: CometChatPro.User, bannedBy: CometChatPro.User, bannedFrom: CometChatPro.Group) {
+    public func onGroupMemberBanned(action: CometChatSDK.ActionMessage, bannedUser: CometChatSDK.User, bannedBy: CometChatSDK.User, bannedFrom: CometChatSDK.Group) {
         /*
          Append to the list.
          */
@@ -448,7 +547,7 @@ extension MessageListViewModel: CometChatGroupDelegate {
         print("MessageListViewModel - sdk - onGroupMemberBanned")
     }
     
-    public func onGroupMemberUnbanned(action: CometChatPro.ActionMessage, unbannedUser: CometChatPro.User, unbannedBy: CometChatPro.User, unbannedFrom: CometChatPro.Group) {
+    public func onGroupMemberUnbanned(action: CometChatSDK.ActionMessage, unbannedUser: CometChatSDK.User, unbannedBy: CometChatSDK.User, unbannedFrom: CometChatSDK.Group) {
         /*
          Do Nothing.
          */
@@ -457,13 +556,13 @@ extension MessageListViewModel: CometChatGroupDelegate {
         print("MessageListViewModel - sdk - onGroupMemberUnbanned")
     }
     
-    public func onGroupMemberScopeChanged(action: CometChatPro.ActionMessage, scopeChangeduser: CometChatPro.User, scopeChangedBy: CometChatPro.User, scopeChangedTo: String, scopeChangedFrom: String, group: CometChatPro.Group) {
+    public func onGroupMemberScopeChanged(action: CometChatSDK.ActionMessage, scopeChangeduser: CometChatSDK.User, scopeChangedBy: CometChatSDK.User, scopeChangedTo: String, scopeChangedFrom: String, group: CometChatSDK.Group) {
         self.newMessageReceived?(action)
         self.add(message: action)
         print("MessageListViewModel - sdk - onGroupMemberScopeChanged")
     }
     
-    public func onMemberAddedToGroup(action: CometChatPro.ActionMessage, addedBy: CometChatPro.User, addedUser: CometChatPro.User, addedTo: CometChatPro.Group) {
+    public func onMemberAddedToGroup(action: CometChatSDK.ActionMessage, addedBy: CometChatSDK.User, addedUser: CometChatSDK.User, addedTo: CometChatSDK.Group) {
         self.newMessageReceived?(action)
         self.add(message: action)
     }
@@ -471,7 +570,7 @@ extension MessageListViewModel: CometChatGroupDelegate {
 
 extension MessageListViewModel: CometChatMessageEventListener {
     
-    public func onMessageSent(message: CometChatPro.BaseMessage, status: MessageStatus) {
+    public func onMessageSent(message: CometChatSDK.BaseMessage, status: MessageStatus) {
         
        /*
         // if the status is inProgress when
@@ -516,72 +615,72 @@ extension MessageListViewModel: CometChatMessageEventListener {
         
     }
     
-    public func onMessageEdit(message: CometChatPro.BaseMessage, status: MessageStatus) {
+    public func onMessageEdit(message: CometChatSDK.BaseMessage, status: MessageStatus) {
         print("MessageListViewModel - events - onMessageEdit")
     }
     
-    public func onMessageDelete(message: CometChatPro.BaseMessage) {
+    public func onMessageDelete(message: CometChatSDK.BaseMessage) {
         print("MessageListViewModel - events - onMessageDelete")
     }
     
-    public func onMessageReply(message: CometChatPro.BaseMessage, status: MessageStatus) {
+    public func onMessageReply(message: CometChatSDK.BaseMessage, status: MessageStatus) {
         print("MessageListViewModel - events - onMessageReply")
             
     }
     
-    public func onMessageRead(message: CometChatPro.BaseMessage) {
+    public func onMessageRead(message: CometChatSDK.BaseMessage) {
         print("MessageListViewModel - events - onMessageRead")
     }
     
-    public func onParentMessageUpdate(message: CometChatPro.BaseMessage) {
+    public func onParentMessageUpdate(message: CometChatSDK.BaseMessage) {
         print("MessageListViewModel - events - onParentMessageUpdate")
     }
     
-    public func onLiveReaction(reaction: CometChatPro.TransientMessage) {
+    public func onLiveReaction(reaction: CometChatSDK.TransientMessage) {
         print("MessageListViewModel - events - onLiveReaction")
     }
     
-    public func onMessageError(error: CometChatPro.CometChatException) {
+    public func onMessageError(error: CometChatSDK.CometChatException) {
         
         print("MessageListViewModel - events - onMessageError")
     }
     
-    public func onVoiceCall(user: CometChatPro.User) {
+    public func onVoiceCall(user: CometChatSDK.User) {
         
         print("MessageListViewModel - events - onVoiceCall - User")
     }
     
-    public func onVoiceCall(group: CometChatPro.Group) {
+    public func onVoiceCall(group: CometChatSDK.Group) {
         
         print("MessageListViewModel - events - onVoiceCall - Group")
     }
     
-    public func onVideoCall(user: CometChatPro.User) {
+    public func onVideoCall(user: CometChatSDK.User) {
         
         print("MessageListViewModel - events - onMessageSent - User")
     }
     
-    public func onVideoCall(group: CometChatPro.Group) {
+    public func onVideoCall(group: CometChatSDK.Group) {
         
         print("MessageListViewModel - events - onMessageSent - Group")
     }
     
-    public func onViewInformation(user: CometChatPro.User) {
+    public func onViewInformation(user: CometChatSDK.User) {
         
         print("MessageListViewModel - events - onMessageSent - User")
     }
     
-    public func onViewInformation(group: CometChatPro.Group) {
+    public func onViewInformation(group: CometChatSDK.Group) {
         
         print("MessageListViewModel - events - onMessageSent - Group")
     }
     
-    public func onError(message: CometChatPro.BaseMessage?, error: CometChatPro.CometChatException) {
+    public func onError(message: CometChatSDK.BaseMessage?, error: CometChatSDK.CometChatException) {
         
         print("MessageListViewModel - events - onMessageSent ")
     }
     
-    public func onMessageReact(message: CometChatPro.BaseMessage, reaction: CometChatMessageReaction) {
+    public func onMessageReact(message: CometChatSDK.BaseMessage, reaction: CometChatMessageReaction) {
         
         print("MessageListViewModel - events - onMessageSent")
     }
@@ -688,25 +787,25 @@ extension MessageListViewModel: CometChatGroupEventListener {
 }
 
 extension MessageListViewModel: CometChatCallDelegate {
-    public func onIncomingCallReceived(incomingCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    public func onIncomingCallReceived(incomingCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         if let incomingCall = incomingCall {
             self.add(message: incomingCall)
         }
     }
     
-    public func onOutgoingCallAccepted(acceptedCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    public func onOutgoingCallAccepted(acceptedCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         if let acceptedCall = acceptedCall {
             self.add(message: acceptedCall)
         }
     }
     
-    public func onOutgoingCallRejected(rejectedCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    public func onOutgoingCallRejected(rejectedCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         if let rejectedCall = rejectedCall {
             self.add(message: rejectedCall)
         }
     }
     
-    public func onIncomingCallCancelled(canceledCall: CometChatPro.Call?, error: CometChatPro.CometChatException?) {
+    public func onIncomingCallCancelled(canceledCall: CometChatSDK.Call?, error: CometChatSDK.CometChatException?) {
         if let canceledCall = canceledCall {
             self.add(message: canceledCall)
         }
@@ -715,29 +814,29 @@ extension MessageListViewModel: CometChatCallDelegate {
 }
 
 extension MessageListViewModel:  CometChatCallEventListener {
-    public func onIncomingCallAccepted(call: CometChatPro.Call) {
+    public func onIncomingCallAccepted(call: CometChatSDK.Call) {
         self.add(message: call)
     }
     
-    public func onIncomingCallRejected(call: CometChatPro.Call) {
+    public func onIncomingCallRejected(call: CometChatSDK.Call) {
         self.add(message: call)
     }
     
-    public func onCallEnded(call: CometChatPro.Call) {
+    public func onCallEnded(call: CometChatSDK.Call) {
         if let _ =   (call.callReceiver as? User) {
             self.add(message: call)
         }
     }
     
-    public func onCallInitiated(call: CometChatPro.Call) {
+    public func onCallInitiated(call: CometChatSDK.Call) {
         self.add(message: call)
     }
     
-    public func onOutgoingCallAccepted(call: CometChatPro.Call) {
+    public func onOutgoingCallAccepted(call: CometChatSDK.Call) {
         self.add(message: call)
     }
     
-    public func onOutgoingCallRejected(call: CometChatPro.Call) {
+    public func onOutgoingCallRejected(call: CometChatSDK.Call) {
         self.add(message: call)
     }
     

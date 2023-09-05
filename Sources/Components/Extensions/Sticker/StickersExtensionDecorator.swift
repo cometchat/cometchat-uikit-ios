@@ -5,7 +5,7 @@
 //  Created by Pushpsen Airekar on 15/02/23.
 //
 
-import CometChatPro
+import CometChatSDK
 import UIKit
 import Foundation
 
@@ -81,7 +81,7 @@ class StickersExtensionDecorator: DataSourceDecorator {
         
     }
     
-    public func getStickerMessageBubble(stickerUrl: String?, message: CometChatPro.CustomMessage?, controller: UIViewController?, style: StickerBubbleStyle?) -> UIView? {
+    public func getStickerMessageBubble(stickerUrl: String?, message: CometChatSDK.CustomMessage?, controller: UIViewController?, style: StickerBubbleStyle?) -> UIView? {
         let imageBubble = CometChatImageBubble()
         imageBubble.set(imageUrl: stickerUrl ?? "")
         imageBubble.set(caption: "")
@@ -108,7 +108,7 @@ class StickersExtensionDecorator: DataSourceDecorator {
     }
 
     override func getId() -> String {
-        return "Sticker"
+        return "stickers"
     }
     
     public func getStickerKeyboard(user: User?, group: Group?, controller: UIViewController?, id: [String: Any]?) -> CometChatStickerKeyboard {

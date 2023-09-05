@@ -7,10 +7,13 @@
 
 import Foundation
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public final class OutgoingCallConfiguration {
     
+    private(set) var call: Call?
+    private(set) var onDeclineButtonClicked:(() -> Void)?
+    private(set) var onError:(() -> Void)?
     private(set) var declineButtonIcon: UIImage?
     private(set) var disableSoundForCalls: Bool?
     private(set) var customSoundForCalls: URL?
@@ -19,6 +22,24 @@ public final class OutgoingCallConfiguration {
     private(set) var outgoingCallStyle: OutgoingCallStyle?
     
     public init() {}
+    
+    @discardableResult
+    public func set(call: Call?) -> Self {
+        self.call = call
+        return self
+    }
+    
+    @discardableResult
+    public func setOnDeclineButtonClicked(onDeclineButtonClicked: @escaping (() -> Void)) -> Self {
+        self.onDeclineButtonClicked = onDeclineButtonClicked
+        return self
+    }
+    
+    @discardableResult
+    public func setOnError(onError: @escaping (() -> Void)) -> Self {
+        self.onError = onError
+        return self
+    }
     
     @discardableResult
     public func set(declineButtonIcon: UIImage?) -> Self {

@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 @MainActor
 open class CometChatGroups: CometChatListBase {
@@ -24,6 +24,8 @@ open class CometChatGroups: CometChatListBase {
     private var avatarStyle = AvatarStyle()
     private var statusIndicatorStyle = StatusIndicatorStyle()
     private var listItemStyle = ListItemStyle()
+    private (set) var selectionLimit: Int?
+
     override var emptyStateText: String {
         get {
             return "NO_GROUPS_FOUND".localize()
@@ -70,7 +72,7 @@ open class CometChatGroups: CometChatListBase {
     }
     
     //MARK: - INIT
-    public init(groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder = GroupsBuilder.shared) {
+    public init(groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder = GroupsBuilder.getDefaultRequestBuilder()) {
         viewModel = GroupsViewModel(groupsRequestBuilder: groupsRequestBuilder)
         super.init(nibName: nil, bundle: nil)
     }
@@ -82,11 +84,12 @@ open class CometChatGroups: CometChatListBase {
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupAppearance()
-        setupTableView(style: .plain)
-        registerCells()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
+        CometChat.addConnectionListener("groups-sdk-listener", self)
+        registerCells()
+        selectionMode(mode: selectionMode)
         viewModel.connect()
         reloadData()
         fetchData()
@@ -94,6 +97,7 @@ open class CometChatGroups: CometChatListBase {
     
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        CometChat.removeConnectionListener("groups-sdk-listener")
         viewModel.disconnect()
     }
     
@@ -187,6 +191,7 @@ open class CometChatGroups: CometChatListBase {
         set(avatarStyle: groupsStyle.avatarStyle ?? avatarStyle)
         set(listItemStyle: groupsStyle.listItemStyle ?? listItemStyle)
         set(statusIndicatorStyle: groupsStyle.statusIndicatorStyle ?? statusIndicatorStyle)
+        setupTableView(style: groupsStyle.tableViewStyle)
         return self
     }
     
@@ -216,7 +221,7 @@ open class CometChatGroups: CometChatListBase {
 
     private func setupAppearance() {
         self.set(searchPlaceholder: searchPlaceholder)
-            .set(title: "GROUPS".localize(), mode: .automatic)
+            .set(title: title ?? "GROUPS".localize(), mode: .automatic)
             .hide(search: false)
             .set(groupsStyle: groupsStyle)
             .show(backButton: false)
@@ -243,9 +248,9 @@ open class CometChatGroups: CometChatListBase {
     private func set(createGroup: CometChatCreateGroup, createGroupConfiguration: CreateGroupConfiguration?) {
         if let createGroupConfiguration = createGroupConfiguration {
             
-            if let hideCloseButton = createGroupConfiguration.hideCloseButton {
-                createGroup.hide(create: hideCloseButton)
-            }
+//            if let hideCloseButton = createGroupConfiguration.hideCloseButton {
+//                createGroup.hide(create: hideCloseButton)
+//            }
             
             if let closeButtonIcon = createGroupConfiguration.closeButtonIcon {
                 createGroup.set(backButtonIcon: closeButtonIcon)
@@ -272,6 +277,14 @@ open class CometChatGroups: CometChatListBase {
             }
         }
     }
+    
+
+    @discardableResult
+    public func setSelectionLimit(limit : Int) -> Self {
+        self.selectionLimit = limit
+        return self
+    }
+    
 }
 
 extension CometChatGroups {
@@ -386,9 +399,14 @@ extension CometChatGroups {
 
 extension CometChatGroups {
     
+    public func getSelectedGroups() -> [Group]{
+        return viewModel.selectedGroups
+    }
+    
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let listItem = tableView.dequeueReusableCell(withIdentifier: CometChatListItem.identifier, for: indexPath) as? CometChatListItem  {
             let group = viewModel.isSearching ? viewModel.filteredGroups[indexPath.row] : viewModel.groups[indexPath.row]
+            
             if let name = group.name {
                 listItem.set(title: name.capitalized)
                 listItem.set(avatarName: name.capitalized)
@@ -429,15 +447,28 @@ extension CometChatGroups {
             listItem.set(avatarStyle: avatarStyle)
             listItem.set(statusIndicatorStyle: statusIndicatorStyle)
             listItem.set(listItemStyle: listItemStyle)
+            
             switch selectionMode {
             case .single, .multiple: listItem.allow(selection: true)
             case .none:  listItem.allow(selection: false)
             }
+            
             listItem.onItemLongClick = { [weak self] in
                 guard let this = self else { return }
                 this.onItemLongClick?(group, indexPath)
             }
             listItem.build()
+           
+            if group != nil {
+                if let foundGroup = viewModel.selectedGroups.firstIndex(of: group) {
+                     listItem.isSelected = true
+                     tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+                 }else {
+                     listItem.isSelected = false
+                     tableView.deselectRow(at: indexPath, animated: false)
+                 }
+            }
+            
             return listItem
         }
         return UITableViewCell()
@@ -464,12 +495,14 @@ extension CometChatGroups {
     
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let group = viewModel.isSearching ? viewModel.filteredGroups[indexPath.row] : viewModel.groups[indexPath.row]
-        if let onItemClick = onItemClick {
-            onItemClick(group, indexPath)
-        } else {
-            onDidSelect?(group, indexPath)
-        }
+        
         if selectionMode == .none {
+            if let onItemClick = onItemClick {
+                onItemClick(group, indexPath)
+            } else {
+                onDidSelect?(group, indexPath)
+            }
+            
             tableView.deselectRow(at: indexPath, animated: true)
             if group.hasJoined == false {
                 if group.groupType == .public ||  group.groupType == .private {
@@ -482,7 +515,11 @@ extension CometChatGroups {
             }
         } else {
             if !viewModel.selectedGroups.contains(group) {
-                self.viewModel.selectedGroups.append(group)
+                if ( selectionLimit == nil || (selectionLimit != nil && viewModel.selectedGroups.count <= selectionLimit!)) {
+                    self.viewModel.selectedGroups.append(group)
+                } else {
+                    tableView.allowsSelection = false
+                }
             }
         }
     }
@@ -509,5 +546,32 @@ extension CometChatGroups {
         }
         return  UISwipeActionsConfiguration(actions: actions)
     }
+    
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        if selectionLimit != nil && viewModel.selectedGroups.count >= selectionLimit! {
+            return nil  // this disables selection beyond the limit
+        }
+        return indexPath
+    }
+    
+    func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
+        tableView.allowsSelection = true  // Enable selection when deselecting an item
+        return indexPath
+    }
+
 }
 
+extension CometChatGroups: CometChatConnectionDelegate {
+    public func connected() {
+        reloadData()
+        fetchData()
+    }
+    
+    public func connecting() {
+        
+    }
+    
+    public func disconnected() {
+        
+    }
+}

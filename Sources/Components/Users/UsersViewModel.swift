@@ -6,13 +6,13 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 
 protocol UsersViewModelProtocol {
     
     var reload: (() -> Void)? { get set }
     var reloadAtIndex: ((Int) -> Void)? { get set }
-    var failure: ((CometChatPro.CometChatException) -> Void)? { get set }
+    var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     var row: Int { get set }
     var users: [User] { get set }
     var filteredUsers: [User] { get set }
@@ -31,7 +31,7 @@ public class UsersViewModel: UsersViewModelProtocol {
     var globalGroupedUsers: [String : [User]] = [:]
     var reload: (() -> Void)?
     var reloadAtIndex: ((Int) -> Void)?
-    var failure: ((CometChatPro.CometChatException) -> Void)?
+    var failure: ((CometChatSDK.CometChatException) -> Void)?
     var row: Int = -1 {
         didSet { reloadAtIndex?(row) }
     }

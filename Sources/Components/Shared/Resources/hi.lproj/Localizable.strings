@@ -373,7 +373,9 @@
 "SENTATTXT" = "पाठ भेजें: %1$s";
 "CONNECTING_TO_CALL" = "कॉल से कनेक्ट हो रहा है";
 "READ_AT" = "पर पढ़ें: %1$s";
+"READ" = "पढ़ना";
 "DELIVERED_AT" = "यहां वितरित: ";
+"DELIVERED" = "पहुंचा दिया";
 "NAVIGATE" = "नेविगेट";
 "GRANT_LOCATION_PERMISSION" = "अनुदान स्थान की अनुमति";
 "SEND_AUDIO_FILES" = "ऑडियो फ़ाइलें भेजें";
@@ -522,3 +524,6 @@
 "NO_MEMBERS_FOUND" = "No Members Found";
 "WRONG_PASSWORD" = "Wrong Password";
 "NO_CALLS_HISTORY" = "No Calls History";
+"NEW_CHAT" = "नई चैट";
+"INCOMING_AUDIO_CALL" = "इनकमिंग ऑडियो कॉल";
+"INCOMING_VIDEO_CALL" = "इनकमिंग वीडियो कॉल";

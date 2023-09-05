@@ -73,12 +73,11 @@ import UIKit
 	}
 
 	static var audioVisualizationDefaultGradientStartColor: UIColor {
-        return CometChatTheme.palatte.primary
+       return CometChatTheme.palatte.primary
+
 	}
-    
 	static var audioVisualizationDefaultGradientEndColor: UIColor {
         return CometChatTheme.palatte.primary
-
 	}
 
 	@IBInspectable  var gradientStartColor: UIColor = AudioVisualizationView.audioVisualizationDefaultGradientStartColor {

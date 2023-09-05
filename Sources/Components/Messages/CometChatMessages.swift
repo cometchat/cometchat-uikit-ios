@@ -4,7 +4,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 
 public class CometChatMessages: UIViewController {
@@ -322,6 +322,11 @@ public class CometChatMessages: UIViewController {
             messageList.scrollToBottomOnNewMessages(messageListConfiguration.scrollToBottomOnNewMessages)
             messageList.setOnThreadRepliesClick(onThreadRepliesClick: messageListConfiguration.onThreadRepliesClick)
             messageList.disable(receipt: messageListConfiguration.disableReceipt)
+            
+            if let messageInformationConfiguration = messageListConfiguration.messageInformationConfiguration {
+                messageList.set(messageInformationConfiguration: messageInformationConfiguration)
+            }
+            
             if let waitIcon = messageListConfiguration.waitIcon {
                 messageList.set(waitIcon: waitIcon)
             }
@@ -717,6 +722,23 @@ extension CometChatMessages: CometChatMessageOptionDelegate {
                     }
                 }
                 
+            case MessageOptionConstants.messagePrivately :
+                if messageOption.onItemClick == nil {
+                    if let user = message.sender, let uid = user.uid {
+                        CometChat.getUser(UID: uid) {
+                            user in
+                            DispatchQueue.main.async {
+                                self.navigationController?.popViewController(animated: true)
+                                CometChatUIEvents.emitOnOpenChat(user: user, group: nil)
+                            }
+                        } onError: {_ in}
+                    }
+                } else {
+                    if let forMessage = forMessage {
+                        messageOption.onItemClick?(forMessage)
+                    }
+                }
+                
             case MessageOptionConstants.translateMessage :
                 if messageOption.onItemClick == nil {
                     if let indexPath = indexPath {
@@ -738,7 +760,14 @@ extension CometChatMessages: CometChatMessageOptionDelegate {
                         messageOption.onItemClick?(forMessage)
                     }
                 }
-            case MessageOptionConstants.messageInformation : break
+            case MessageOptionConstants.messageInformation :
+                if messageOption.onItemClick == nil {
+                    messageList.didMessageInformationClicked(message: message)
+                } else {
+                    if let forMessage = forMessage {
+                        messageOption.onItemClick?(forMessage)
+                    }
+                }
             default:
                 if let forMessage = forMessage {
                     messageOption.onItemClick?(forMessage)
@@ -764,22 +793,20 @@ extension CometChatMessages: CometChatMessageOptionDelegate {
     
     private func didMessageSharePressed(message: BaseMessage?) {
         if let message = message {
-            var textToShare = ""
             if message.messageType == .text {
                 
-                textToShare = (message as? TextMessage)?.text ?? ""
+                let textToShare = (message as? TextMessage)?.text ?? ""
+                copyMedia(textToShare)
                 
             }else if message.messageType == .audio ||  message.messageType == .file ||  message.messageType == .image || message.messageType == .video {
                 
-                textToShare = (message as? MediaMessage)?.attachment?.fileUrl ?? ""
-            }
-            let sendItems = [textToShare]
-            
-            if !sendItems.isEmpty {
-                let activityViewController = UIActivityViewController(activityItems: sendItems, applicationActivities: nil)
-                activityViewController.popoverPresentationController?.sourceView = self.view
-                activityViewController.excludedActivityTypes = [.airDrop]
-                self.present(activityViewController, animated: true, completion: nil)
+                if let fileUrlString = (message as? MediaMessage)?.attachment?.fileUrl, let fileUrl = URL(string: fileUrlString) {
+                    downloadMediaMessage(url: fileUrl, completion: {fileLocation in
+                        if let fileLocation = fileLocation {
+                            self.copyMedia(fileLocation)
+                        }
+                    })
+                }
             }
         }
     }
@@ -787,11 +814,41 @@ extension CometChatMessages: CometChatMessageOptionDelegate {
     private func didMessageTranslatePressed(message: BaseMessage, indexPath: IndexPath) {
         // messageList.translate(message: message)
     }
+    
+    func downloadMediaMessage(url: URL, completion: @escaping (_ fileLocation: URL?) -> Void){
+        
+        let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let destinationUrl = documentsDirectoryURL.appendingPathComponent(url.lastPathComponent ?? "")
+        if FileManager.default.fileExists(atPath: destinationUrl.path) {
+            completion(destinationUrl)
+        } else {
+            // CometChatSnackBoard.show(message: "Downloading...")
+            URLSession.shared.downloadTask(with: url, completionHandler: { (location, response, error) -> Void in
+                guard let tempLocation = location, error == nil else { return }
+                do {
+                   // CometChatSnackBoard.hide()
+                    try FileManager.default.moveItem(at: tempLocation, to: destinationUrl)
+                    completion(destinationUrl)
+                } catch let error as NSError {
+                    completion(nil)
+                }
+            }).resume()
+        }
+    }
+    
+    func copyMedia(_ item: Any) {
+        DispatchQueue.main.async {
+            let activityViewController = UIActivityViewController(activityItems: [item], applicationActivities: nil)
+            activityViewController.popoverPresentationController?.sourceView = self.view
+            activityViewController.excludedActivityTypes = [.airDrop]
+            self.present(activityViewController, animated: true, completion: nil)
+        }
+    }
 }
 
 extension CometChatMessages: CometChatMessageEventListener {
     
-    public func onParentMessageUpdate(message: CometChatPro.BaseMessage) {
+    public func onParentMessageUpdate(message: CometChatSDK.BaseMessage) {
         self.messageList.update(message: message)
     }
     
@@ -962,17 +1019,17 @@ extension CometChatMessages: CometChatMessageEventListener {
 
 extension CometChatMessages: CometChatUserEventListener {
     
-    public func onItemClick(user: CometChatPro.User, index: IndexPath?) {
+    public func onItemClick(user: CometChatSDK.User, index: IndexPath?) {
         
         print("CometChatMessages - event - onItemClick")
     }
     
-    public func onItemLongClick(user: CometChatPro.User, index: IndexPath?) {
+    public func onItemLongClick(user: CometChatSDK.User, index: IndexPath?) {
         
         print("CometChatMessages - event - onItemClick")
     }
     
-    public func onUserBlock(user: CometChatPro.User) {
+    public func onUserBlock(user: CometChatSDK.User) {
         // update the user
         update(user: user)
         // user.hasBlockedMe = true
@@ -980,13 +1037,13 @@ extension CometChatMessages: CometChatUserEventListener {
         print("CometChatMessages - event - onItemClick")
     }
     
-    public func onUserUnblock(user: CometChatPro.User) {
+    public func onUserUnblock(user: CometChatSDK.User) {
         update(user: user)
         
         print("CometChatMessages - event - onItemClick")
     }
     
-    public func onError(user: CometChatPro.User?, error: CometChatPro.CometChatException) {
+    public func onError(user: CometChatSDK.User?, error: CometChatSDK.CometChatException) {
         
         print("CometChatMessages - event - onItemClick")
     }
@@ -1093,46 +1150,50 @@ extension CometChatMessages: CometChatGroupEventListener {
 
 extension CometChatMessages: CometChatGroupDelegate {
     
-    public func onGroupMemberJoined(action: CometChatPro.ActionMessage, joinedUser: CometChatPro.User, joinedGroup: CometChatPro.Group) {
+    public func onGroupMemberJoined(action: CometChatSDK.ActionMessage, joinedUser: CometChatSDK.User, joinedGroup: CometChatSDK.Group) {
         
         print("CometChatMessages - sdk - onGroupMemberJoined")
     }
     
-    public func onGroupMemberLeft(action: CometChatPro.ActionMessage, leftUser: CometChatPro.User, leftGroup: CometChatPro.Group) {
+    public func onGroupMemberLeft(action: CometChatSDK.ActionMessage, leftUser: CometChatSDK.User, leftGroup: CometChatSDK.Group) {
         
         print("CometChatMessages - sdk - onGroupMemberLeft")
     }
     
-    public func onGroupMemberKicked(action: CometChatPro.ActionMessage, kickedUser: CometChatPro.User, kickedBy: CometChatPro.User, kickedFrom: CometChatPro.Group) {
+    public func onGroupMemberKicked(action: CometChatSDK.ActionMessage, kickedUser: CometChatSDK.User, kickedBy: CometChatSDK.User, kickedFrom: CometChatSDK.Group) {
         
         print("CometChatMessages - sdk - onGroupMemberKicked")
     }
     
-    public func onGroupMemberBanned(action: CometChatPro.ActionMessage, bannedUser: CometChatPro.User, bannedBy: CometChatPro.User, bannedFrom: CometChatPro.Group) {
+    public func onGroupMemberBanned(action: CometChatSDK.ActionMessage, bannedUser: CometChatSDK.User, bannedBy: CometChatSDK.User, bannedFrom: CometChatSDK.Group) {
         
         print("CometChatMessages - sdk - onGroupMemberBanned")
     }
     
-    public func onGroupMemberUnbanned(action: CometChatPro.ActionMessage, unbannedUser: CometChatPro.User, unbannedBy: CometChatPro.User, unbannedFrom: CometChatPro.Group) {
+    public func onGroupMemberUnbanned(action: CometChatSDK.ActionMessage, unbannedUser: CometChatSDK.User, unbannedBy: CometChatSDK.User, unbannedFrom: CometChatSDK.Group) {
         /*
          Do Nothing.
          */
         print("CometChatMessages - sdk - onGroupMemberUnbanned")
     }
     
-    public func onGroupMemberScopeChanged(action: CometChatPro.ActionMessage, scopeChangeduser: CometChatPro.User, scopeChangedBy: CometChatPro.User, scopeChangedTo: String, scopeChangedFrom: String, group: CometChatPro.Group) {
+    public func onGroupMemberScopeChanged(action: CometChatSDK.ActionMessage, scopeChangeduser: CometChatSDK.User, scopeChangedBy: CometChatSDK.User, scopeChangedTo: String, scopeChangedFrom: String, group: CometChatSDK.Group) {
         print("CometChatMessages - sdk - onGroupMemberScopeChanged")
     }
     
-    public func onMemberAddedToGroup(action: CometChatPro.ActionMessage, addedBy: CometChatPro.User, addedUser: CometChatPro.User, addedTo: CometChatPro.Group) {
+    public func onMemberAddedToGroup(action: CometChatSDK.ActionMessage, addedBy: CometChatSDK.User, addedUser: CometChatSDK.User, addedTo: CometChatSDK.Group) {
         
         print("CometChatMessages - sdk - onMemberAddedToGroup")
     }
 }
 
 extension CometChatMessages: CometChatUIEventListener {
+    public func openChat(user: CometChatSDK.User?, group: CometChatSDK.Group?) {
+        
+    }
     
-    public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatPro.BaseMessage?, user: CometChatPro.User?, group: CometChatPro.Group?) {
+    
+    public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {
         
     }
     

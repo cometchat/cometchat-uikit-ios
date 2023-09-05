@@ -110,7 +110,6 @@ public final class MessageComposerStyle: BaseStyle {
         return self
     }
     
-    
     @discardableResult
     public func set(actionSheetCancelButtonIconTint: UIColor) -> Self {
         self.actionSheetCancelButtonIconTint = actionSheetCancelButtonIconTint

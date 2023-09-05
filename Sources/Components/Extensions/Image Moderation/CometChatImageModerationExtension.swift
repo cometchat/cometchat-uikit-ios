@@ -7,15 +7,17 @@
 
 import Foundation
 
-import Foundation
-
 public class CometChatImageModerationExtension: ExtensionDataSource {
     
-    public init() {}
-    
-    public func enable() {
+    public override init() {}
+     
+    public override func addExtension() {
         ChatConfigurator.enable { dataSource in
             return ImageModetarationViewModel(dataSource: dataSource)
         }
+    }
+    
+    public override func getExtensionId() -> String {
+        return ExtensionConstants.imageModeration
     }
 }

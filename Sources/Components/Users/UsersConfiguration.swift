@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import CometChatPro
+import CometChatSDK
 
 public class UsersConfiguration {
     
@@ -35,7 +35,7 @@ public class UsersConfiguration {
     private(set) var backIcon: UIImage?
     private(set) var onItemClick: ((_ user: User, _ indexPath: IndexPath?) -> Void)?
     private(set) var onItemLongClick: ((_ user: User, _ indexPath: IndexPath) -> Void)?
-    private(set) var onError: ((_ user: User?, _ error: CometChatException) -> Void)?
+    private(set) var onError: ((_ error: CometChatException) -> Void)?
     private(set) var usersRequestBuilder: UsersRequest.UsersRequestBuilder?
     private(set) var onBack: (() -> ())?
     private(set) var emptyStateText: String?
@@ -215,7 +215,7 @@ public class UsersConfiguration {
     }
     
     @discardableResult
-    public func setOnError(onError: @escaping ((_ user: User?, _ error: CometChatException) -> Void)) -> Self {
+    public func setOnError(onError: @escaping ((_ error: CometChatException) -> Void)) -> Self {
         self.onError = onError
         return self
     }

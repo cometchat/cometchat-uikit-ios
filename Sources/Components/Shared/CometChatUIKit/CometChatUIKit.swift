@@ -3,11 +3,11 @@
 //
 
 import Foundation
-import CometChatPro
+import CometChatSDK
 import CoreMedia
 
-#if canImport(CometChatProCalls)
-import CometChatProCalls
+#if canImport(CometChatCallsSDK)
+import CometChatCallsSDK
 #endif
 
 
@@ -22,12 +22,15 @@ final public class CometChatUIKit {
     static var uiKitSettings: UIKitSettings?
     static var uiKitError: CometChatException = CometChatException(errorCode: "Err_101", errorDescription: "UIKit Settings are not initialised, Try calling CometChatUIKit.init method first.")
     
+    static public let soundManager = CometChatSoundManager()
+    
     @discardableResult
     public init(uiKitSettings: UIKitSettings, result: @escaping (Result<Bool, Error>) -> Void) {
         CometChat.init(appId: uiKitSettings.appID, appSettings: AppSettings(builder: uiKitSettings.appSettingsBuilder)) { [weak self] isSuccess  in
+            CometChatUIKit.uiKitSettings = uiKitSettings
             if isSuccess {
-                CometChat.setSource(resource: "ui-kit", platform: "ios", language: "swift")
-                #if canImport(CometChatProCalls)
+                CometChat.setSource(resource: "uikit-v4", platform: "ios", language: "swift")
+                #if canImport(CometChatCallsSDK)
                 if !uiKitSettings.isCallingDisabled {
                     CallingExtension.enable()
                 }
@@ -37,7 +40,6 @@ final public class CometChatUIKit {
                 CometChatUIKit.registerForPushNotification(with: uiKitSettings.deviceToken)
                 CometChatUIKit.registerForFCM(with: uiKitSettings.fcmKey)
             }
-            CometChatUIKit.uiKitSettings = uiKitSettings
             result(.success(isSuccess))
         } onError: { error in
             result(.failure(error as! Error))
@@ -109,6 +111,7 @@ final public class CometChatUIKit {
             CometChat.login(UID: uid, authKey: authKey) { user in
                 registerNotificationAndVOIP()
                 result(.success(user))
+                CometChatUIKit.configureExtensions(extensions: CometChatUIKit.uiKitSettings?.extensions)
             } onError: { error in
                 result(.onError(error))
                 debugPrint(error.description)
@@ -155,7 +158,6 @@ final public class CometChatUIKit {
     }
 }
 
-
 //Methods related to Sending of messages
 //=============================================
 extension CometChatUIKit {
@@ -191,5 +193,12 @@ extension CometChatUIKit {
                 CometChatMessageEvents.emitOnError(message: message, error: error)
             }
         }
+    }
+}
+
+
+extension CometChatUIKit {
+    static public func getDataSource() -> DataSource {
+        return ChatConfigurator.getDataSource()
     }
 }
