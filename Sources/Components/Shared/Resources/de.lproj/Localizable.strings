@@ -530,3 +530,6 @@
 "NEW_CHAT" = "Neuer Chat";
 "INCOMING_AUDIO_CALL" = "Eingehender Audioanruf";
 "INCOMING_VIDEO_CALL" = "Eingehender Videoanruf";
+"SUGGEST_A_REPLY" = "Schlage eine Antwort vor"
+"GENERATIONG_ICEBREAKER" = "Eisbrecher erzeugen";
+"GENERATING_REPLIES" = "Antworten generieren";

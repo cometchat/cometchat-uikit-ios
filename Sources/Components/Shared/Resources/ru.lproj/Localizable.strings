@@ -531,3 +531,7 @@
 "NEW_CHAT" = "Новый чат";
 "INCOMING_AUDIO_CALL" = "Входящий аудиозвонок";
 "INCOMING_VIDEO_CALL" = "Входящий видеозвонок";
+"SUGGEST_A_REPLY" = "Предложите ответ";
+"GENERATIONG_ICEBREAKER" = "Генерация ледоколов";
+"GENERATING_REPLIES" = "Генерация ответов";
+

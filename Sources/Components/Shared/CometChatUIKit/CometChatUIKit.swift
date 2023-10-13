@@ -29,12 +29,13 @@ final public class CometChatUIKit {
         CometChat.init(appId: uiKitSettings.appID, appSettings: AppSettings(builder: uiKitSettings.appSettingsBuilder)) { [weak self] isSuccess  in
             CometChatUIKit.uiKitSettings = uiKitSettings
             if isSuccess {
-                CometChat.setSource(resource: "uikit-v4", platform: "ios", language: "swift")
+                CometChat.setSource(resource: "uikit-v4", platform: "ios", language: "swift", version: UIKitConstants.version)
                 #if canImport(CometChatCallsSDK)
                 if !uiKitSettings.isCallingDisabled {
                     CallingExtension.enable()
                 }
                 #endif
+                CometChatUIKit.configureAI(aiEnabler: uiKitSettings.aiEnabler)
                 CometChatUIKit.configureExtensions(extensions: uiKitSettings.extensions)
                 CometChatUIKit.registerForVOIP(with: uiKitSettings.voipToken)
                 CometChatUIKit.registerForPushNotification(with: uiKitSettings.deviceToken)
@@ -48,7 +49,7 @@ final public class CometChatUIKit {
     
     // Registered Push Notification.
     private static func registerForPushNotification(with token: String?) {
-        guard let token = token else { return }
+        guard let token = token, token != "" else { return }
         register(with: token, VOIP: false)
     }
     
@@ -62,7 +63,7 @@ final public class CometChatUIKit {
     }
     
     private static func registerForFCM(with FCMToken: String?) {
-        guard let token = FCMToken else { return }
+        guard let token = FCMToken, token != "" else { return }
         CometChat.registerTokenForPushNotification(token: token, onSuccess: { (sucess) in
             print("token registered \(sucess)")
         }) { (error) in
@@ -71,7 +72,7 @@ final public class CometChatUIKit {
     }
     
     private static func registerForVOIP(with token: String?) {
-        guard let token = token, !token.isEmpty else { print("VOIP Token should not be empty."); return }
+        guard let token = token, !token.isEmpty else { return }
         register(with: token)
     }
     
@@ -94,6 +95,12 @@ final public class CometChatUIKit {
         }
     }
     
+    static private func configureAI(aiEnabler: CometChatAIEnabler?) {
+        if getLoggedInUser() != nil {
+            aiEnabler?.enable()
+        }
+    }
+    
     static private func configureExtensions(extensions: [ExtensionDataSource]?) {
         let extensions = extensions ?? DefaultExtensions.listOfExtensions()
         if  !extensions.isEmpty {
@@ -112,6 +119,7 @@ final public class CometChatUIKit {
                 registerNotificationAndVOIP()
                 result(.success(user))
                 CometChatUIKit.configureExtensions(extensions: CometChatUIKit.uiKitSettings?.extensions)
+                CometChatUIKit.configureAI(aiEnabler: CometChatUIKit.uiKitSettings?.aiEnabler)
             } onError: { error in
                 result(.onError(error))
                 debugPrint(error.description)

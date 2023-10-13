@@ -536,3 +536,6 @@
 "NEW_CHAT" = "新聊天";
 "INCOMING_AUDIO_CALL" = "來電音訊通話";
 "INCOMING_VIDEO_CALL" = "來電視訊通話";
+"SUGGEST_A_REPLY" = "提出回覆";
+"GENERATIONG_ICEBREAKER" = "生成破冰船";
+"GENERATING_REPLIES" = "生成回复";

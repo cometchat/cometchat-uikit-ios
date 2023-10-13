@@ -926,6 +926,14 @@ extension CometChatMessageComposer {
 
 extension CometChatMessageComposer: CometChatUIEventListener {
     
+    public func ccComposeMessage(id: [String : Any]?, message: BaseMessage) {
+        if !isForThisView(id: id) { return }
+        self.messageInput.textView.text = (message as? TextMessage)?.text
+        self.messageInput.set(text: (message as? TextMessage)?.text ?? "")
+        self.messageInput.build()
+        
+    }
+    
     public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {
     }
     

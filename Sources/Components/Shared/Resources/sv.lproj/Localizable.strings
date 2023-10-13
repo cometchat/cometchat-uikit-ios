@@ -527,3 +527,6 @@
 "NEW_CHAT" = "Ny chatt";
 "INCOMING_AUDIO_CALL" = "Inkommande ljudsamtal";
 "INCOMING_VIDEO_CALL" = "Inkommande videosamtal";
+"SUGGEST_A_REPLY" = "Föreslå ett svar";
+"GENERATIONG_ICEBREAKER" = "Generera isbrytare";
+"GENERATING_REPLIES" = "Generera svar";

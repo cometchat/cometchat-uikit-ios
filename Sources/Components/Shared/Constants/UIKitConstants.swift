@@ -5,6 +5,10 @@ public struct UIConstants {
     static var packageName = "ios_chat_ui_kit"
 }
 
+internal struct UIKitConstants {
+    static var version = "4.0.1"
+}
+
 public struct  MessageCategoryConstants {
     static var message = "message"
     static var custom = "custom"

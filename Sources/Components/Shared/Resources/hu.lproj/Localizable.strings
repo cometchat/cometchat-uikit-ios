@@ -527,3 +527,6 @@
 "NEW_CHAT" = "Új csevegés";
 "INCOMING_AUDIO_CALL" = "Bejövő hanghívás";
 "INCOMING_VIDEO_CALL" = "Bejövő videohívás";
+"SUGGEST_A_REPLY" = "Javasolj egy választ";
+"GENERATIONG_ICEBREAKER" = "Jégtörők generálása";
+"GENERATING_REPLIES" = "Válaszok generálása";

@@ -30,7 +30,10 @@ public struct ExtensionConstants {
   static var  defaultStickers = "defaultStickers"
   static var  stickerUrl = "stickerUrl"
   static var  emailReplies = "email-replies"
-  static var emojis = "emojis"
+  static var  emojis = "emojis"
+  static var  aiSmartReply = "smart-replies"
+  static var  aiExtension = "ai-extension"
+  static var aiConversationStarters = "conversation-starter"
 }
 
 class ExtensionUrls {
@@ -50,3 +53,24 @@ class ExtensionType {
   static var  document = "extension_document"
   static var  whiteboard = "extension_whiteboard"
 }
+
+public struct AIConstants {
+    static var smartRepliesID = "ai-smart-reply"
+    static var conversationStartersID = "ai-conversation-starters"
+    static var smartRepliesText = "SUGGEST_A_REPLY".localize()
+
+}
+
+enum AIExtension {
+    case smartReplies
+    
+    static func fromKey(_ key: String) -> AIExtension? {
+        switch key {
+        case AIConstants.smartRepliesText:
+            return .smartReplies
+        default:
+            return nil
+        }
+    }
+}
+

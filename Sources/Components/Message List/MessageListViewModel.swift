@@ -128,7 +128,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
                                 id["guid"] = group.guid
                             }
                             if this.parentMessage?.id != 0 {
-                                id["parentMessageId"] = id
+                                id["parentMessageId"] = this.parentMessage?.id
                             }
                             CometChatUIEvents.emitOnActiveChatChanged(id: id, lastMessage: this.messages.last?.messages.last, user: this.user, group: this.group)
                         }

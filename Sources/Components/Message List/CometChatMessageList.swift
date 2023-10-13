@@ -16,7 +16,7 @@ import CometChatSDK
     @IBOutlet weak var headerViewContainer: UIStackView!
     @IBOutlet weak var footerViewContainer: UIStackView!
     
-    private (set) var emptyStateText: String = "NO_MESSAGES_FOUND".localize()
+    private (set) var emptyStateText: String = ""
     private (set) var emptyStateTextColor: UIColor = CometChatTheme.palatte.accent500
     private (set) var emptyStateTextFont: UIFont = CometChatTheme.typography.largeHeading
     private (set) var errorStateText: String = ""
@@ -194,6 +194,20 @@ import CometChatSDK
             this.reload()
             DispatchQueue.main.async {
                 this.refreshControl?.endRefreshing()
+                
+                var id = [String:Any]()
+                if let user = viewModel.user {
+                    id["uid"] = user.uid
+                }
+                if let group = viewModel.group {
+                    id["guid"] = group.guid
+                }
+                if viewModel.parentMessage?.id != 0 {
+                    id["parentMessageId"] = viewModel.parentMessage?.id
+                }
+                
+                CometChatUIEvents.emitOnActiveChatChanged(id: id, lastMessage: viewModel.messages.last?.messages.last, user: viewModel.user, group: viewModel.group)
+                
                 if viewModel.messages.isEmpty {
                     if let emptyView = this.emptyStateView {
                         this.tableView.set(customView: emptyView)
@@ -201,17 +215,6 @@ import CometChatSDK
                         this.tableView.setEmptyMessage(this.emptyStateText, color: this.emptyStateTextColor, font: this.emptyStateTextFont)
                     }
                 } else {
-                    var id = [String:Any]()
-                    if let user = viewModel.user {
-                        id["uid"] = user.uid
-                    }
-                    if let group = viewModel.group {
-                        id["guid"] = group.guid
-                    }
-                    if viewModel.parentMessage?.id != 0 {
-                        id["parentMessageId"] = id
-                    }
-                    CometChatUIEvents.emitOnActiveChatChanged(id: id, lastMessage: viewModel.messages.last?.messages.last, user: viewModel.user, group: viewModel.group)
                     this.tableView.restore()
                 }
             }
@@ -1132,6 +1135,8 @@ extension CometChatMessageList {
 }
 
 extension CometChatMessageList: CometChatUIEventListener {
+    
+    public func ccComposeMessage(id: [String : Any]?, message: BaseMessage) { }
     
     public func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {
     }

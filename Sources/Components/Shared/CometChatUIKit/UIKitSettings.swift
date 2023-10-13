@@ -21,6 +21,7 @@ final public class UIKitSettings {
     var isCallingDisabled: Bool = false
     var appSettingsBuilder:  AppSettings.AppSettingsBuilder!
     var extensions:  [ExtensionDataSource]?
+    var aiEnabler: CometChatAIEnabler?
     
     
     public init() {
@@ -64,6 +65,12 @@ final public class UIKitSettings {
     }
     
     @discardableResult
+    public func set(aiEnabler: CometChatAIEnabler) -> Self {
+        self.aiEnabler = aiEnabler
+        return self
+    }
+    
+    @discardableResult
     public func set(fcmKey: String) -> Self {
         self.fcmKey = fcmKey
         return self
@@ -85,6 +92,18 @@ final public class UIKitSettings {
     public func disableCalling() -> Self {
         self.isCallingDisabled = true
        return self
+    }
+    
+    @discardableResult
+    public func setEnableAutoJoinForGroups(enableAutoJoinForGroups: Bool) -> Self {
+        appSettingsBuilder.setEnableAutoJoinForGroups(enableAutoJoinForGroups: enableAutoJoinForGroups)
+        return self
+    }
+    
+    @discardableResult
+    public func setExtensionGroupID(id: String) -> Self {
+        appSettingsBuilder.setExtensionGroupID(id: id)
+        return self
     }
     
     @discardableResult

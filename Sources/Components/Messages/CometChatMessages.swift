@@ -1188,6 +1188,10 @@ extension CometChatMessages: CometChatGroupDelegate {
 }
 
 extension CometChatMessages: CometChatUIEventListener {
+    public func ccComposeMessage(id: [String : Any]?, message: BaseMessage) {
+        
+    }
+    
     public func openChat(user: CometChatSDK.User?, group: CometChatSDK.Group?) {
         
     }
@@ -1205,7 +1209,9 @@ extension CometChatMessages: CometChatUIEventListener {
     
     public func hidePanel(id: [String : Any]?, alignment: UIAlignment) {
         if alignment == .composerBottom {
-            messageComposer.messageInput.textView.becomeFirstResponder()
+            DispatchQueue.main.async {
+                self.messageComposer.messageInput.textView.becomeFirstResponder()
+            }
         }
     }
 }

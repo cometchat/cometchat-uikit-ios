@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -24,33 +25,34 @@
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" id="iN0-l3-epB">
-            <rect key="frame" x="0.0" y="0.0" width="532" height="223"/>
+            <rect key="frame" x="0.0" y="0.0" width="1843" height="615"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="Ntj-lc-Yka">
-                    <rect key="frame" x="0.0" y="0.0" width="532" height="223"/>
+                    <rect key="frame" x="0.0" y="0.0" width="1843" height="615"/>
                     <subviews>
                         <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="o43-sO-h34">
-                            <rect key="frame" x="0.0" y="-60" width="532" height="60"/>
+                            <rect key="frame" x="0.0" y="0.0" width="1843" height="0.0"/>
+                            <color key="backgroundColor" name="background"/>
                             <constraints>
-                                <constraint firstAttribute="height" constant="60" id="dIU-QK-cVU"/>
+                                <constraint firstAttribute="height" relation="greaterThanOrEqual" priority="750" constant="40" id="dIU-QK-cVU"/>
                             </constraints>
                         </stackView>
                         <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oOj-gx-ywN">
-                            <rect key="frame" x="0.0" y="-60" width="532" height="60"/>
+                            <rect key="frame" x="0.0" y="-60" width="1843" height="60"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wq8-G4-cCJ">
-                                    <rect key="frame" x="0.0" y="0.0" width="532" height="60"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="1843" height="60"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6an-m9-ayO">
-                                            <rect key="frame" x="0.0" y="0.0" width="532" height="1"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="1843" height="1"/>
                                             <color key="backgroundColor" systemColor="systemFillColor"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="1" id="gMq-2F-rHW"/>
                                             </constraints>
                                         </view>
                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="wOy-y4-988">
-                                            <rect key="frame" x="20" y="5" width="452" height="50"/>
+                                            <rect key="frame" x="20" y="5" width="1763" height="50"/>
                                             <subviews>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OwC-gc-ipa">
                                                     <rect key="frame" x="0.0" y="0.0" width="3" height="50"/>
@@ -60,16 +62,16 @@
                                                     </constraints>
                                                 </view>
                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="eK2-AL-eFF">
-                                                    <rect key="frame" x="13" y="0.0" width="439" height="50"/>
+                                                    <rect key="frame" x="13" y="0.0" width="1750" height="50"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M5P-Wi-WKX">
-                                                            <rect key="frame" x="0.0" y="0.0" width="439" height="24.5"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="1750" height="24.5"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZBn-D0-Tb1">
-                                                            <rect key="frame" x="0.0" y="29.5" width="439" height="20.5"/>
+                                                            <rect key="frame" x="0.0" y="29.5" width="1750" height="20.5"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -81,7 +83,7 @@
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </stackView>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yPe-RC-J2u">
-                                            <rect key="frame" x="482" y="10" width="30" height="30"/>
+                                            <rect key="frame" x="1793" y="10" width="30" height="30"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="30" id="IBn-Qf-EaE"/>
                                                 <constraint firstAttribute="height" constant="30" id="VIl-cz-1eK"/>
@@ -117,14 +119,14 @@
                             </constraints>
                         </view>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0zE-kA-sqy" customClass="CometChatMessageInput" customModule="CometChatUIKitSwift">
-                            <rect key="frame" x="0.0" y="0.0" width="532" height="223"/>
+                            <rect key="frame" x="0.0" y="0.0" width="1843" height="615"/>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             <constraints>
                                 <constraint firstAttribute="height" relation="greaterThanOrEqual" priority="750" constant="100" id="CE5-ix-73u"/>
                             </constraints>
                         </view>
                         <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="WTP-fi-FT3">
-                            <rect key="frame" x="0.0" y="223" width="532" height="0.0"/>
+                            <rect key="frame" x="0.0" y="615" width="1843" height="0.0"/>
                             <constraints>
                                 <constraint firstAttribute="height" relation="greaterThanOrEqual" priority="750" constant="100" id="p38-Tv-aJI"/>
                             </constraints>
@@ -140,7 +142,7 @@
                 <constraint firstItem="Ntj-lc-Yka" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="sgw-Ds-eLw"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="415.94202898550731" y="-381.36160714285711"/>
+            <point key="canvasLocation" x="1365.9420289855072" y="-512.61160714285711"/>
         </view>
     </objects>
     <resources>
@@ -310,6 +312,9 @@ ygDMANEA1ADWANgA2gDhAPgBFAEWARgSShJPEloSYxJ2EnoShRKOEpMSmxKeEqMSshK2EsESyRLWEuMS
 AABRAAAAAAAAAAAAAAAAAAAlDQ
 </mutableData>
         </image>
+        <namedColor name="background">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
