@@ -528,3 +528,6 @@
 "NEW_CHAT" = "Nouveau chat";
 "INCOMING_AUDIO_CALL" = "Appel audio entrant";
 "INCOMING_VIDEO_CALL" = "Appel vidéo entrant";
+"SUGGEST_A_REPLY" = "Suggérer une réponse";
+"GENERATIONG_ICEBREAKER" = "Génération de brise-glaces";
+"GENERATING_REPLIES" = "Génération de réponses";

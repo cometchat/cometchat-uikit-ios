@@ -25,6 +25,7 @@ public protocol CometChatUIEventListener {
     func showPanel(id: [String:Any]?, alignment: UIAlignment, view: UIView?)
     func hidePanel(id: [String:Any]?, alignment: UIAlignment)
     func onActiveChatChanged(id: [String:Any]?, lastMessage: BaseMessage?, user: User?, group: Group?)
+    func ccComposeMessage(id: [String: Any]?, message: BaseMessage)
     func openChat(user:User?, group:Group?)
 }
 
@@ -51,6 +52,13 @@ public class CometChatUIEvents : UIEventHandler {
         self.observer.forEach({
             (key,observer) in
             observer.hidePanel(id: id, alignment: alignment)
+        })
+    }
+    
+    internal static func emitCCMessageEdited(id: [String:Any]?, message: BaseMessage) {
+        self.observer.forEach({
+            (key,observer) in
+            observer.ccComposeMessage(id: id, message: message)
         })
     }
     

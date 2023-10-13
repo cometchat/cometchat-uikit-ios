@@ -528,3 +528,6 @@
 "NEW_CHAT" = "دردشة جديدة";
 "INCOMING_AUDIO_CALL" = "مكالمة صوتية واردة";
 "INCOMING_VIDEO_CALL" = "مكالمة فيديو واردة";
+"SUGGEST_A_REPLY" = "اقترح ردًا";
+"GENERATIONG_ICEBREAKER" = "توليد كاسحات الجليد";
+"GENERATING_REPLIES" = "توليد الردود";

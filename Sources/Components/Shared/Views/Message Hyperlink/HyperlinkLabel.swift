@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public protocol HyperlinkLabelDelegate: AnyObject {
+public protocol HyperlinkLabelDelegate: class {
     func didSelect(_ text: String, type: HyperlinkType)
 }
 
@@ -158,11 +158,11 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
     }
     
     public override func drawText(in rect: CGRect) {
-        let range = NSRange(location: 0, length: textStorage.length + 100)
-
+        let range = NSRange(location: 0, length: textStorage.length)
+        
         textContainer.size = rect.size
         let newOrigin = textOrigin(inRect: rect)
-
+        
         layoutManager.drawBackground(forGlyphRange: range, at: newOrigin)
         layoutManager.drawGlyphs(forGlyphRange: range, at: newOrigin)
     }
@@ -268,7 +268,7 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
     
     fileprivate func updateTextStorage(parseText: Bool = true) {
         if _customizing { return }
-        // clean up previous Hyperlink elements
+        // clean up previous active elements
         guard let attributedText = attributedText, attributedText.length > 0 else {
             clearHyperlinkElements()
             textStorage.setAttributedString(NSAttributedString())
@@ -505,7 +505,7 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
         }
         urlHandler(url)
     }
-    
+        
     fileprivate func didTap(_ element: String, for type: HyperlinkType) {
         guard let elementHandler = customTapHandlers[type] else {
             delegate?.didSelect(element, type: type)

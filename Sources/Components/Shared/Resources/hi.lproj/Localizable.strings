@@ -527,3 +527,6 @@
 "NEW_CHAT" = "नई चैट";
 "INCOMING_AUDIO_CALL" = "इनकमिंग ऑडियो कॉल";
 "INCOMING_VIDEO_CALL" = "इनकमिंग वीडियो कॉल";
+"SUGGEST_A_REPLY" = "जवाब सुझाएं";
+"GENERATIONG_ICEBREAKER" = "आइसब्रेकर उत्पन्न करना";
+"GENERATING_REPLIES" = "जवाब जनरेट करना"

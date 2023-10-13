@@ -121,6 +121,8 @@ extension SmartReplyExtensionDecorator: CometChatMessageDelegate {
 }
 
 extension SmartReplyExtensionDecorator: CometChatUIEventListener {
+    func ccComposeMessage(id: [String : Any]?, message: BaseMessage) {}
+    
     
     func showPanel(id: [String : Any]?, alignment: UIAlignment, view: UIView?) {
         

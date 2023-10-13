@@ -15,7 +15,7 @@ let package = Package(
     
     dependencies: [
         .package(name: "CometChatSDK",
-            url: "https://github.com/cometchat-pro/ios-chat-sdk.git", .exact("4.0.1")
+            url: "https://github.com/cometchat-pro/ios-chat-sdk.git", .exact("4.0.2")
         ),
     ],
     targets: [

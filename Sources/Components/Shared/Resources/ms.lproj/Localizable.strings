@@ -530,3 +530,6 @@
 "NEW_CHAT" = "Sembang Baru";
 "INCOMING_AUDIO_CALL" = "Panggilan audio masuk";
 "INCOMING_VIDEO_CALL" = "Panggilan video masuk";
+"SUGGEST_A_REPLY" = "Cadangkan balasan";
+"GENERATIONG_ICEBREAKER" = "Menjana pemecah ais";
+"GENERATING_REPLIES" = "Menjana balasan";

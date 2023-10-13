@@ -247,6 +247,8 @@ extension CometChatUsersWithMessages : CometChatUserDelegate {
 }
 
 extension CometChatUsersWithMessages : CometChatUIEventListener {
+    public func ccComposeMessage(id: [String : Any]?, message: BaseMessage) { }
+    
     public func showPanel(id: [String : Any]?, alignment: UIAlignment, view: UIView?) {}
     
     public func hidePanel(id: [String : Any]?, alignment: UIAlignment) {}

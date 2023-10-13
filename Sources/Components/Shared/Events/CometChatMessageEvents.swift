@@ -42,6 +42,7 @@ public class CometChatMessageEvents {
     }
     
     internal static  func emitOnMessageSent(message: BaseMessage, status: MessageStatus) {
+        print("self.observer: \(self.observer)")
         self.observer.forEach({
             (key,observer) in
             observer.onMessageSent(message: message, status: status)

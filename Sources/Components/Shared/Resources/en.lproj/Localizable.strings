@@ -556,3 +556,6 @@
 "NEW_CHAT" = "New Chat";
 "INCOMING_AUDIO_CALL" = "Incoming audio call";
 "INCOMING_VIDEO_CALL" = "Incoming video call";
+"SUGGEST_A_REPLY" = "Suggest a reply";
+"GENERATIONG_ICEBREAKER" = "Generating Icebreakers";
+"GENERATING_REPLIES" = "Generating Replies";
