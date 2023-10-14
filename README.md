@@ -22,7 +22,7 @@ We’ve introduced a major update to CometChat UI kits. Version 4 features a mod
 
 <a href=""><img src="https://img.shields.io/badge/Repo%20Size-13.3%20MB-brightgreen" /></a>
 <a href=""> <img src="https://img.shields.io/badge/Contributors-2-yellowgreen" /></a>
-<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.914--1-red" /></a>
+<a href=" "> <img src="https://img.shields.io/badge/Version-3.0.918--1-red" /></a>
 <a href=""> <img src="https://img.shields.io/github/stars/cometchat-pro/ios-swift-chat-ui-kit?style=social"/></a>
 <a href=""> <img src="https://img.shields.io/twitter/follow/cometchat?style=social" /></a>
 
@@ -109,8 +109,8 @@ platform :ios, '11.0'
 use_frameworks!
 
 target 'YourApp' do
-     pod 'CometChatPro', '3.0.914'
-     pod 'CometChatCalls', '3.0.0'
+     pod 'CometChatPro', '3.0.918'
+     pod 'CometChatCalls', '3.0.2'
 end
 ________________________________________________________________
 
@@ -270,7 +270,8 @@ Thanks to the following people who have contributed to this project:
 
 [@pushpsenairekar2911 👨‍💻](https://github.com/pushpsenairekar2911) <br>
 [@AbdullahAnsarri 👨‍💻](https://github.com/AbdullahAnsarri) <br>
-[@ajayv-cometchat 👨‍💻](https://github.com/ajayv-cometchat) 
+[@ajayv-cometchat 👨‍💻](https://github.com/ajayv-cometchat) <br>
+[@Suryansh1191 👨‍💻](https://github.com/Suryansh1191) <br>
 
 ---
 
