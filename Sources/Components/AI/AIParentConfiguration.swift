@@ -11,13 +11,13 @@ import CometChatSDK
 
 public class AIParentConfiguration: NSObject {
     
-    var loadingView: UIView?
-    var emptyRepliesView: UIView?
-    var errorView: UIView?
+    private(set) var loadingView: UIView?
+    private(set) var emptyRepliesView: UIView?
+    private(set) var errorView: UIView?
     
-    var loadingIcon: UIImage?
-    var emptyIcon: UIImage?
-    var errorIcon: UIImage?
+    private(set) var loadingIcon: UIImage?
+    private(set) var emptyIcon: UIImage?
+    private(set) var errorIcon: UIImage?
 
     
     @discardableResult

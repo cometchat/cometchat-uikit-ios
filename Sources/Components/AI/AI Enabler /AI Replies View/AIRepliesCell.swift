@@ -13,7 +13,7 @@ class AIRepliesCell: UITableViewCell {
     @IBOutlet weak var contanierView: UIView!
     
     var smartRepliesStyle: AISmartRepliesStyle?
-    var conversationStartersStyle: AIConversationStartersStyle?
+    var conversationStarterStyle: AIConversationStarterStyle?
     var onButtonClicked: ((String) -> Void)?
     
     

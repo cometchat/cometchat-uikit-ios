@@ -58,7 +58,7 @@ public class AIAuxiliaryButton: UIStackView {
             self.setTintColour(tintColour: backgroundColour)
         }
         
-        if let icon = configuration?.style?.auxiliaryButtonIcon {
+        if let icon = configuration?.auxiliaryButtonIcon {
             self.setButtonIcon(icon: icon)
         }
     }

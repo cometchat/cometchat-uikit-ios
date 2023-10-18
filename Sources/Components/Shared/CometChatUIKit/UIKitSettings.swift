@@ -21,7 +21,7 @@ final public class UIKitSettings {
     var isCallingDisabled: Bool = false
     var appSettingsBuilder:  AppSettings.AppSettingsBuilder!
     var extensions:  [ExtensionDataSource]?
-    var aiEnabler: CometChatAIEnabler?
+    var aiEnabler: AIEnabler?
     
     
     public init() {
@@ -65,7 +65,7 @@ final public class UIKitSettings {
     }
     
     @discardableResult
-    public func set(aiEnabler: CometChatAIEnabler) -> Self {
+    public func set(aiFeatures: AIEnabler) -> Self {
         self.aiEnabler = aiEnabler
         return self
     }

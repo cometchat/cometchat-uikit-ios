@@ -30,8 +30,8 @@ public class AIRepliesListView: UIStackView {
     var aiMessagesList = [String]()
     var onAiMessageClicked: ((_ selectedReply: String) -> ())?
     var smartRepliesStyle: AISmartRepliesStyle?
-    var enablerStyle: AIEnableStyle?
-    var conversationStartersStyle: AIConversationStartersStyle?
+    var enablerStyle: AIEnablerStyle?
+    var conversationStarterStyle: AIConversationStarterStyle?
     var isPresentForEmptyMessages = false
     var estimatedCellHeight = 70
     var selfHeightAnchor: NSLayoutConstraint?
@@ -141,7 +141,7 @@ public class AIRepliesListView: UIStackView {
     }
     
     @discardableResult
-    public func set(enablerStyle: AIEnableStyle?) -> Self {
+    public func set(enablerStyle: AIEnablerStyle?) -> Self {
         self.enablerStyle = enablerStyle
         
         if let backgroundColor = enablerStyle?.repliesViewBackgroundColour {
@@ -156,14 +156,14 @@ public class AIRepliesListView: UIStackView {
     }
     
     @discardableResult
-    public func set(conversationStartersStyle: AIConversationStartersStyle?) -> Self {
-        self.conversationStartersStyle = conversationStartersStyle
+    public func set(conversationStarterStyle: AIConversationStarterStyle?) -> Self {
+        self.conversationStarterStyle = conversationStarterStyle
         
-        if let backgroundColor = conversationStartersStyle?.repliesViewBackgroundColour {
+        if let backgroundColor = conversationStarterStyle?.repliesViewBackgroundColour {
             set(backgroundColour: backgroundColor)
         }
         
-        if let separatorStyle = conversationStartersStyle?.repliesTableViewSeparatorStyle {
+        if let separatorStyle = conversationStarterStyle?.repliesTableViewSeparatorStyle {
             set(tableViewStyle: separatorStyle)
         }
         
@@ -197,8 +197,8 @@ extension AIRepliesListView: UITableViewDelegate, UITableViewDataSource {
                 cell.set(style: smartRepliesStyle)
             }
             
-            if conversationStartersStyle != nil {
-                cell.set(style: conversationStartersStyle)
+            if conversationStarterStyle != nil {
+                cell.set(style: conversationStarterStyle)
             }
             
             if isPresentForEmptyMessages {

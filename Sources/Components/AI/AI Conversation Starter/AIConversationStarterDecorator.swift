@@ -1,5 +1,5 @@
 //
-//  AIConversationStartersDecorator.swift
+//  AIConversationStarterDecorator.swift
 //  
 //
 //  Created by SuryanshBisen on 13/09/23.
@@ -10,17 +10,17 @@ import UIKit
 import CometChatSDK
 
 
-class AIConversationStartersDecorator: DataSourceDecorator {
+class AIConversationStarterDecorator: DataSourceDecorator {
     
-    let configuration: AIConversationStartersConfiguration?
+    let configuration: AIConversationStarterConfiguration?
     var enablerConfiguration: AIEnablerConfiguration?
     var uiEventID: [String: Any]?
     var eventID = "conversation-starters-helper"
-    var conversationStartersViewForEmptyChat: UIView?
+    var conversationStarterViewForEmptyChat: UIView?
     var isKeyBoardOpen = false
     var aiDelegate: AICommunicatorProtocol?
     
-    init(dataSource: DataSource, configuration: AIConversationStartersConfiguration? = nil, enablerConfiguration: AIEnablerConfiguration? = nil) {
+    init(dataSource: DataSource, configuration: AIConversationStarterConfiguration? = nil, enablerConfiguration: AIEnablerConfiguration? = nil) {
         
         self.configuration = configuration
         self.enablerConfiguration = enablerConfiguration
@@ -35,7 +35,7 @@ class AIConversationStartersDecorator: DataSourceDecorator {
     }
     
     override func getId() -> String {
-        return ExtensionConstants.aiConversationStarters
+        return ExtensionConstants.aiConversationStarter
     }
     
     func set(enablerConfiguration: AIEnablerConfiguration?){
@@ -64,19 +64,19 @@ class AIConversationStartersDecorator: DataSourceDecorator {
 
     @objc func keyBoardWillHide(notification: NSNotification) {
         isKeyBoardOpen = false
-        if let view = conversationStartersViewForEmptyChat {
+        if let view = conversationStarterViewForEmptyChat {
             DispatchQueue.main.async {
                 CometChatUIEvents.emitShowPanel(id: self.uiEventID, alignment: .composerTop, view: view)
             }
         }
     }
     
-    func getConversationStarters(id: [String: Any]?, receiverType: CometChat.ReceiverType, receiverId: String?, compilation: @escaping ([String]?) -> Void) {
+    func getConversationStarter(id: [String: Any]?, receiverType: CometChat.ReceiverType, receiverId: String?, compilation: @escaping ([String]?) -> Void) {
         
         guard let receiverId = receiverId else { return }
         
-        CometChat.getConversationStarter(receiverId: receiverId, receiverType: receiverType) { conversationStarters in
-            compilation(conversationStarters)
+        CometChat.getConversationStarter(receiverId: receiverId, receiverType: receiverType) { conversationStarter in
+            compilation(conversationStarter)
         } onError: { error in
             self.presentErrorView(id: id)
             compilation(nil)
@@ -97,10 +97,10 @@ class AIConversationStartersDecorator: DataSourceDecorator {
         DispatchQueue.main.async {
             CometChatUIEvents.emitHidePanel(id: self.uiEventID, alignment: .composerTop)
         }
-        conversationStartersViewForEmptyChat = nil
+        conversationStarterViewForEmptyChat = nil
     }
     
-    func presentConversationStartersForEmptyChat(id: [String : Any]?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {
+    func presentConversationStarterForEmptyChat(id: [String : Any]?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {
         
         uiEventID = id
         connectEvent()
@@ -130,7 +130,7 @@ class AIConversationStartersDecorator: DataSourceDecorator {
         
         presentLoadingViewForEmptyChat(id: id)
         
-        getConversationStarters(id: id, receiverType: receiverType, receiverId: receiverId) { replies in
+        getConversationStarter(id: id, receiverType: receiverType, receiverId: receiverId) { replies in
             guard let replies = replies else { return }
             
             if replies.count == 0 {
@@ -161,11 +161,11 @@ class AIConversationStartersDecorator: DataSourceDecorator {
                     .set(tableViewStyle: .none)
                     .set(aiMessageOptions: replies)
                     .set(enablerStyle: enablerConfiguration?.style)
-                    .set(conversationStartersStyle: configuration?.style)
+                    .set(conversationStarterStyle: configuration?.style)
                     .onMessageClicked { selectedMessage in
                         self.onMessageTapped(message: selectedMessage, receiverType: receiverType, receiverId: receiverId, id: id)
                     }
-                self.conversationStartersViewForEmptyChat = aiReplyView
+                self.conversationStarterViewForEmptyChat = aiReplyView
                 if self.isKeyBoardOpen == true { return }
                 CometChatUIEvents.emitShowPanel(id: id, alignment: .composerTop, view: aiReplyView)
                 
@@ -261,7 +261,7 @@ class AIConversationStartersDecorator: DataSourceDecorator {
     
 }
 
-extension AIConversationStartersDecorator: CometChatUIEventListener {
+extension AIConversationStarterDecorator: CometChatUIEventListener {
     func showPanel(id: [String : Any]?, alignment: UIAlignment, view: UIView?) { }
     
     func hidePanel(id: [String : Any]?, alignment: UIAlignment) {  }
@@ -269,7 +269,7 @@ extension AIConversationStartersDecorator: CometChatUIEventListener {
     func onActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {  
         
         if lastMessage == nil && id?["parentMessageId"] == nil {
-            presentConversationStartersForEmptyChat(id: id, user: user, group: group)
+            presentConversationStarterForEmptyChat(id: id, user: user, group: group)
         }
         
     }
@@ -282,7 +282,7 @@ extension AIConversationStartersDecorator: CometChatUIEventListener {
 }
 
 
-extension AIConversationStartersDecorator: CometChatMessageEventListener {
+extension AIConversationStarterDecorator: CometChatMessageEventListener {
     func onMessageSent(message: CometChatSDK.BaseMessage, status: MessageStatus) {
         hideEmptyChatView()
     }

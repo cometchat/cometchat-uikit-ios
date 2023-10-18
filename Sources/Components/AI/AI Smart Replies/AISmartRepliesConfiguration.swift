@@ -11,9 +11,9 @@ import CometChatSDK
 
 public class AISmartRepliesConfiguration: AIParentConfiguration {
     
-    var customView: ((_ reply: [String: String]) -> UIView?)?
-    var style: AISmartRepliesStyle?
-    var onClick: ((_ user: User?, _ group: Group?) -> UIView?)?
+    private(set) var customView: ((_ reply: [String: String]) -> UIView?)?
+    private(set) var style: AISmartRepliesStyle?
+    private(set) var onClick: ((_ user: User?, _ group: Group?) -> UIView?)?
     
     @discardableResult
     @objc public func set(customView: ((_ reply: [String: String]) -> UIView?)?) -> Self {

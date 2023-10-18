@@ -95,9 +95,9 @@ final public class CometChatUIKit {
         }
     }
     
-    static private func configureAI(aiEnabler: CometChatAIEnabler?) {
+    static private func configureAI(aiEnabler: AIEnabler?) {
         if getLoggedInUser() != nil {
-            (aiEnabler ?? CometChatAIEnabler())?.enable()
+            (aiEnabler ?? AIEnabler())?.enable()
         }
     }
     

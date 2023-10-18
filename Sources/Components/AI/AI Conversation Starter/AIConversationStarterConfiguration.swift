@@ -1,5 +1,5 @@
 //
-//  AIConversationStartersConfiguration.swift
+//  AIConversationStarterConfiguration.swift
 //  
 //
 //  Created by SuryanshBisen on 14/09/23.
@@ -10,11 +10,11 @@ import UIKit
 import CometChatSDK
 
 
-public class AIConversationStartersConfiguration: AIParentConfiguration {
+public class AIConversationStarterConfiguration: AIParentConfiguration {
     
-    var customView: ((_ reply: [String]) -> UIView?)?
-    var style: AIConversationStartersStyle?
-    var onLoad: ((_ user: User?, _ group: Group?) -> UIView?)?
+    private(set) var customView: ((_ reply: [String]) -> UIView?)?
+    private(set) var style: AIConversationStarterStyle?
+    private(set) var onLoad: ((_ user: User?, _ group: Group?) -> UIView?)?
     
     @discardableResult
     @objc public func set(customView: ((_ reply: [String]) -> UIView?)?) -> Self {
@@ -23,7 +23,7 @@ public class AIConversationStartersConfiguration: AIParentConfiguration {
     }
     
     @discardableResult
-    @objc public func set(style: AIConversationStartersStyle) -> Self {
+    @objc public func set(style: AIConversationStarterStyle) -> Self {
         self.style = style
         return self
     }

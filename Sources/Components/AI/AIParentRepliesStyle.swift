@@ -11,32 +11,32 @@ import UIKit
 
 public class AIParentRepliesStyle: NSObject {
     
-    var repliesTextFont: UIFont?
-    var repliesTextBorder: CGFloat?
-    var repliesTextBorderRadius: CGFloat?
-    var repliesTextColor: UIColor?
-    var repliesTextBackground: UIColor?
-    var repliesViewBackgroundColour: UIColor?
+    private(set) var repliesTextFont: UIFont?
+    private(set) var repliesTextBorder: CGFloat?
+    private(set) var repliesTextBorderRadius: CGFloat?
+    private(set) var repliesTextColor: UIColor?
+    private(set) var repliesTextBackground: UIColor?
+    private(set) var repliesViewBackgroundColour: UIColor?
     
-    var loadingViewTextFont: UIFont?
-    var loadingViewBorder: CGFloat?
-    var loadingViewBorderRadius: CGFloat?
-    var loadingViewTextColor: UIColor?
-    var loadingViewBackgroundColor: UIColor?
+    private(set) var loadingViewTextFont: UIFont?
+    private(set) var loadingViewBorder: CGFloat?
+    private(set) var loadingViewBorderRadius: CGFloat?
+    private(set) var loadingViewTextColor: UIColor?
+    private(set) var loadingViewBackgroundColor: UIColor?
     
-    var errorViewTextFont: UIFont?
-    var errorViewBorder: CGFloat?
-    var errorViewBorderRadius: CGFloat?
-    var errorViewTextColor: UIColor?
-    var errorViewBackgroundColor: UIColor?
+    private(set) var errorViewTextFont: UIFont?
+    private(set) var errorViewBorder: CGFloat?
+    private(set) var errorViewBorderRadius: CGFloat?
+    private(set) var errorViewTextColor: UIColor?
+    private(set) var errorViewBackgroundColor: UIColor?
 
-    var emptyViewTextFont: UIFont?
-    var emptyViewBorder: CGFloat?
-    var emptyViewBorderRadius: CGFloat?
-    var emptyViewTextColor: UIColor?
-    var emptyViewBackgroundColor: UIColor?
+    private(set) var emptyViewTextFont: UIFont?
+    private(set) var emptyViewBorder: CGFloat?
+    private(set) var emptyViewBorderRadius: CGFloat?
+    private(set) var emptyViewTextColor: UIColor?
+    private(set) var emptyViewBackgroundColor: UIColor?
 
-    var repliesTableViewSeparatorStyle: UITableViewCell.SeparatorStyle?
+    private(set) var repliesTableViewSeparatorStyle: UITableViewCell.SeparatorStyle?
     
     @discardableResult
     @objc public func set(repliesTextFont: UIFont) -> Self {

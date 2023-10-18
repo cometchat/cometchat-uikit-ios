@@ -8,10 +8,10 @@
 import Foundation
 
 
-public class CometChatAISmartRepliesExtension: ExtensionDataSource {
+public class AISmartRepliesExtension: ExtensionDataSource {
     
-    let configuration: AISmartRepliesConfiguration?
-    let extensionText = AIConstants.smartRepliesText
+    private let configuration: AISmartRepliesConfiguration?
+    private let extensionText = AIConstants.smartRepliesText
         
     public init(configuration: AISmartRepliesConfiguration? = nil) {
         self.configuration = configuration

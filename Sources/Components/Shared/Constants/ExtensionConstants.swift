@@ -33,7 +33,7 @@ public struct ExtensionConstants {
   static var  emojis = "emojis"
   static var  aiSmartReply = "smart-replies"
   static var  aiExtension = "ai-extension"
-  static var aiConversationStarters = "conversation-starter"
+  static var aiConversationStarter = "conversation-starter"
 }
 
 class ExtensionUrls {
@@ -55,10 +55,7 @@ class ExtensionType {
 }
 
 public struct AIConstants {
-    static var smartRepliesID = "ai-smart-reply"
-    static var conversationStartersID = "ai-conversation-starters"
     static var smartRepliesText = "SUGGEST_A_REPLY".localize()
-
 }
 
 enum AIExtension {

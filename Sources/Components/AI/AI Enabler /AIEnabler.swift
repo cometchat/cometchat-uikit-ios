@@ -8,15 +8,15 @@
 import Foundation
 import CometChatSDK
 
-public class CometChatAIEnabler: ExtensionDataSource {
+public class AIEnabler: ExtensionDataSource {
     
-    var aiList: [ExtensionDataSource]
-    var enabledAiExtensionList = [ExtensionDataSource]()
-    var configuration: AIEnablerConfiguration? 
+    private var aiList: [ExtensionDataSource]
+    private var enabledAiExtensionList = [ExtensionDataSource]()
+    private var configuration: AIEnablerConfiguration? 
     
-    public init(aiList: [ExtensionDataSource]? = nil, configuration: AIEnablerConfiguration? = nil) {
+    public init(aiFeatures: [ExtensionDataSource]? = nil, configuration: AIEnablerConfiguration? = nil) {
         
-        if let aiList = aiList {
+        if let aiList = aiFeatures {
             self.aiList = aiList
         }else {
             self.aiList = DefaultExtensions.listOfAIExtensions()
@@ -45,7 +45,7 @@ public class CometChatAIEnabler: ExtensionDataSource {
                 
                 if isEnabled {
                     
-                    if let aiExtension = aiExtension as? CometChatAIConversationStartersExtension {
+                    if let aiExtension = aiExtension as? AIConversationStarterExtension {
                         aiExtension.set(enablerConfiguration: self.configuration)
                         aiExtension.addExtension()
                         return
@@ -54,8 +54,6 @@ public class CometChatAIEnabler: ExtensionDataSource {
                     aiExtension.addExtension()
                     self.enabledAiExtensionList.append(aiExtension)
                 
-                } else {
-                    print("\(featureId): is not enabled from the dashboard")
                 }
                 
             } onError: { error in

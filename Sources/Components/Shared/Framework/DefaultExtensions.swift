@@ -10,8 +10,8 @@ public class DefaultExtensions {
     
     public static var listOfAIExtensions = {
         return [
-            CometChatAISmartRepliesExtension(),
-            CometChatAIConversationStartersExtension()
+            AISmartRepliesExtension(),
+            AIConversationStarterExtension()
         ]
     }
     

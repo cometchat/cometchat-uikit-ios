@@ -10,13 +10,13 @@ import UIKit
 
 public class AISmartRepliesStyle: AIParentRepliesStyle {
     
-    var buttonTextColor: UIColor?
-    var buttonTextFont: UIFont?
-    var buttonBorder: CGFloat?
-    var buttonBorderRadius: CGFloat?
-    var buttonHeight: CGFloat?
-    var buttonWidth: CGFloat?
-    var buttonBackground: UIColor?
+    private(set) var buttonTextColor: UIColor?
+    private(set) var buttonTextFont: UIFont?
+    private(set) var buttonBorder: CGFloat?
+    private(set) var buttonBorderRadius: CGFloat?
+    private(set) var buttonHeight: CGFloat?
+    private(set) var buttonWidth: CGFloat?
+    private(set) var buttonBackground: UIColor?
 
     @discardableResult
     @objc public func setButtonTextColor(colour: UIColor) -> Self {

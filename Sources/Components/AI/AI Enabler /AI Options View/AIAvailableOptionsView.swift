@@ -34,7 +34,7 @@ public class AIAvailableOptionsView: UIViewController {
     }
     
     @discardableResult
-    public func buildFrom(enablerStyle: AIEnableStyle?) -> Self {
+    public func buildFrom(enablerStyle: AIEnablerStyle?) -> Self {
         
         if let backgroundColour = enablerStyle?.bottomSheetBackgroundColour {
             self.setBackgroundColour(colour: backgroundColour)

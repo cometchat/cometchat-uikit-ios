@@ -36,7 +36,7 @@ class AIEnablerDecorator: DataSourceDecorator {
         
         for aiExtension in enabledAiOptions {
             
-            if let smartReplies = (aiExtension as? CometChatAISmartRepliesExtension) {
+            if let smartReplies = (aiExtension as? AISmartRepliesExtension) {
                 smartRepliesHelper.set(configuration: smartReplies.getConfiguration())
                 smartRepliesHelper.set(enablerConfiguration: configuration)
                 options.append((smartReplies.getExtensionText(), smartReplies.getConfiguration()?.style))
