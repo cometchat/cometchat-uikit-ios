@@ -138,9 +138,7 @@ class AIConversationStarterDecorator: DataSourceDecorator {
                 return
             }
             
-            DispatchQueue.main.async { [weak self] in
-                
-                guard let self = self else { return }
+            DispatchQueue.main.async {
                 
                 //Building from configuration
                 if let customView = self.configuration?.customView {
@@ -160,8 +158,8 @@ class AIConversationStarterDecorator: DataSourceDecorator {
                     .set(backgroundColour: CometChatTheme.palatte.background)
                     .set(tableViewStyle: .none)
                     .set(aiMessageOptions: replies)
-                    .set(enablerStyle: enablerConfiguration?.style)
-                    .set(conversationStarterStyle: configuration?.style)
+                    .set(enablerStyle: self.enablerConfiguration?.style)
+                    .set(conversationStarterStyle: self.configuration?.style)
                     .onMessageClicked { selectedMessage in
                         self.onMessageTapped(message: selectedMessage, receiverType: receiverType, receiverId: receiverId, id: id)
                     }
