@@ -19,7 +19,7 @@
 <a href="https://cocoapods.org/pods/CometChatSDK"><img src="https://img.shields.io/badge/platform-iOS-orange.svg" /></a>
 <a href=""><img src="https://img.shields.io/badge/language-%20Swift-orange.svg" /></a>
 <a href=""> <img src="https://img.shields.io/badge/Contributors-2-yellowgreen" /></a>
-<a href=" "> <img src="https://img.shields.io/badge/version-4.0.1-orange" /></a>
+<a href=" "> <img src="https://img.shields.io/badge/version-4.0.3-orange" /></a>
 ![Twitter Follow](https://img.shields.io/twitter/follow/cometchat?style=social)
 
 
@@ -66,7 +66,7 @@ Swift Chat UIKit handles all the Chat SDK related dependencies internally except
 
   * https://github.com/cometchat-pro/ios-calls-sdk.git
 
-* To add the package, select Version Rules, enter Up to Exact Version, 4.0.1, and click Next.
+* To add the package, select Version Rules, enter Up to Exact Version, 4.0.3, and click Next.
 
 
 ## Versioning
