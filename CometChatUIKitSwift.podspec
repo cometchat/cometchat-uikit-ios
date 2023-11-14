@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.homepage         = 'https://www.cometchat.com'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'abhisheksaralaya13' => 'abhishek.saralaya@cometchat.com' }
-  s.source           = { :http => 'https://library.cometchat.io/ios/v2.0/xcode12/CometChatUIKitSwift_4_0_3_.xcframework.zip'}
+  s.source           = { :http => 'https://library.cometchat.io/ios/v4.0/xcode15/CometChatUIKitSwift_4_0_3_1.xcframework.zip'}
   s.vendored_frameworks = 'CometChatUIKitSwift.xcframework'
 
   s.swift_version    = '5.0'
