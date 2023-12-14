@@ -36,104 +36,106 @@ public final class CometChatSoundManager: NSObject {
      */
     func play(sound: Sound, bool: Bool){
         
-        if bool == true {
-            switch sound {
-            case .incomingCall:
-                
-                FeatureRestriction.isCallsSoundEnabled { (success) in
-                    if success == .enabled {
-                        if otherAudioPlaying == false {
-                            guard let soundURL = UIKitSettings.bundle.url(forResource: "IncomingCall", withExtension: "wav") else { return }
-                            do {
-                                try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
-                                try AVAudioSession.sharedInstance().setActive(true)
-                                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
-                                audioPlayer?.numberOfLoops = -1
-                                audioPlayer?.prepareToPlay()
-                                audioPlayer?.play()
-                            } catch { }
-                        }else{
-                            AudioServicesPlayAlertSound(SystemSoundID(1519))
+        DispatchQueue.global().async {
+            if bool == true {
+                switch sound {
+                case .incomingCall:
+                    
+                    FeatureRestriction.isCallsSoundEnabled { (success) in
+                        if success == .enabled {
+                            if otherAudioPlaying == false {
+                                guard let soundURL = UIKitSettings.bundle.url(forResource: "IncomingCall", withExtension: "wav") else { return }
+                                do {
+                                    try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
+                                    try AVAudioSession.sharedInstance().setActive(true)
+                                    audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                                    audioPlayer?.numberOfLoops = -1
+                                    audioPlayer?.prepareToPlay()
+                                    audioPlayer?.play()
+                                } catch { }
+                            }else{
+                                AudioServicesPlayAlertSound(SystemSoundID(1519))
+                            }
+                        }
+                    }
+                    
+                case .incomingMessage:
+                    FeatureRestriction.isMessagesSoundEnabled { (success) in
+                        if success == .enabled {
+                            if otherAudioPlaying == false {
+                                guard let soundURL = UIKitSettings.bundle.url(forResource: "IncomingMessage", withExtension: "wav") else { return }
+                                do {
+                                    try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
+                                    try AVAudioSession.sharedInstance().setActive(true)
+                                    audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                                    audioPlayer?.prepareToPlay()
+                                    audioPlayer?.play()
+                                } catch { }
+                            }else{
+                                AudioServicesPlayAlertSound(SystemSoundID(1519))
+                            }
+                        }
+                    }
+                case .outgoingCall:
+                    
+                    FeatureRestriction.isCallsSoundEnabled { (success) in
+                        if success == .enabled {
+                            let session = AVAudioSession.sharedInstance()
+                            if otherAudioPlaying == false {
+                                guard let soundURL = UIKitSettings.bundle.url(forResource: "OutgoingCall", withExtension: "wav") else { return }
+                                do {
+                                    try session.setCategory(.playAndRecord)
+                                    try session.overrideOutputAudioPort(AVAudioSession.PortOverride.none)
+                                    try session.setActive(true)
+                                    audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                                    audioPlayer?.numberOfLoops = -1
+                                    audioPlayer?.prepareToPlay()
+                                    audioPlayer?.play()
+                                } catch { }
+                            }else{
+                                AudioServicesPlayAlertSound(SystemSoundID(1519))
+                            }
+                        }
+                    }
+                case .outgoingMessage:
+                    FeatureRestriction.isMessagesSoundEnabled { (success) in
+                        if success == .enabled {
+                            if otherAudioPlaying == false {
+                                guard let soundURL = UIKitSettings.bundle.url(forResource: "OutgoingMessege", withExtension: "wav") else { return }
+                                do {
+                                    try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
+                                    try AVAudioSession.sharedInstance().setActive(true)
+                                    audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                                    audioPlayer?.prepareToPlay()
+                                    audioPlayer?.play()
+                                } catch { }
+                            }else{
+                                AudioServicesPlayAlertSound(SystemSoundID(1519))
+                            }
+                        }
+                    }
+                case .incomingMessageForOther:
+                    FeatureRestriction.isMessagesSoundEnabled { (success) in
+                        if success == .enabled {
+                            if otherAudioPlaying == false {
+                                guard let soundURL = UIKitSettings.bundle.url(forResource: "IncomingMessageOther", withExtension: "wav") else { return }
+                                do {
+                                    try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
+                                    try AVAudioSession.sharedInstance().setActive(true)
+                                    audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
+                                    audioPlayer?.prepareToPlay()
+                                    audioPlayer?.play()
+                                } catch { }
+                            }else{
+                                AudioServicesPlayAlertSound(SystemSoundID(1519))
+                            }
                         }
                     }
                 }
-                
-            case .incomingMessage:
-                FeatureRestriction.isMessagesSoundEnabled { (success) in
-                    if success == .enabled {
-                        if otherAudioPlaying == false {
-                            guard let soundURL = UIKitSettings.bundle.url(forResource: "IncomingMessage", withExtension: "wav") else { return }
-                            do {
-                                try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
-                                try AVAudioSession.sharedInstance().setActive(true)
-                                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
-                                audioPlayer?.prepareToPlay()
-                                audioPlayer?.play()
-                            } catch { }
-                        }else{
-                            AudioServicesPlayAlertSound(SystemSoundID(1519))
-                        }
-                    }
+            }else{
+                if audioPlayer?.isPlaying == true {
+                    audioPlayer?.pause()
                 }
-            case .outgoingCall:
-                
-                FeatureRestriction.isCallsSoundEnabled { (success) in
-                    if success == .enabled {
-                        let session = AVAudioSession.sharedInstance()
-                        if otherAudioPlaying == false {
-                            guard let soundURL = UIKitSettings.bundle.url(forResource: "OutgoingCall", withExtension: "wav") else { return }
-                            do {
-                                try session.setCategory(.playAndRecord)
-                                try session.overrideOutputAudioPort(AVAudioSession.PortOverride.none)
-                                try session.setActive(true)
-                                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
-                                audioPlayer?.numberOfLoops = -1
-                                audioPlayer?.prepareToPlay()
-                                audioPlayer?.play()
-                            } catch { }
-                        }else{
-                            AudioServicesPlayAlertSound(SystemSoundID(1519))
-                        }
-                    }
-                }
-            case .outgoingMessage:
-                FeatureRestriction.isMessagesSoundEnabled { (success) in
-                    if success == .enabled {
-                        if otherAudioPlaying == false {
-                            guard let soundURL = UIKitSettings.bundle.url(forResource: "OutgoingMessege", withExtension: "wav") else { return }
-                            do {
-                                try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
-                                try AVAudioSession.sharedInstance().setActive(true)
-                                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
-                                audioPlayer?.prepareToPlay()
-                                audioPlayer?.play()
-                            } catch { }
-                        }else{
-                            AudioServicesPlayAlertSound(SystemSoundID(1519))
-                        }
-                    }
-                }
-            case .incomingMessageForOther:
-                FeatureRestriction.isMessagesSoundEnabled { (success) in
-                    if success == .enabled {
-                        if otherAudioPlaying == false {
-                            guard let soundURL = UIKitSettings.bundle.url(forResource: "IncomingMessageOther", withExtension: "wav") else { return }
-                            do {
-                                try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, mode: AVAudioSession.Mode.default)
-                                try AVAudioSession.sharedInstance().setActive(true)
-                                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
-                                audioPlayer?.prepareToPlay()
-                                audioPlayer?.play()
-                            } catch { }
-                        }else{
-                            AudioServicesPlayAlertSound(SystemSoundID(1519))
-                        }
-                    }
-                }
-            }
-        }else{
-            if audioPlayer?.isPlaying == true {
-                audioPlayer?.pause()
             }
         }
     }

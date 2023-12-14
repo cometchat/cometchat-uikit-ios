@@ -177,6 +177,12 @@ class CometChatReceiverPollMessageBubble: UITableViewCell {
             if let currentQuestion = pollsDictionary["question"] as? String {
                 self.question.text = currentQuestion
             }
+            
+            option1.isHidden = true
+            option2.isHidden = true
+            option3.isHidden = true
+            option4.isHidden = true
+            option5.isHidden = true
     
             if let results = pollsDictionary["results"] as? [String:Any], let options = results["options"] as? [String:Any], let total = results["total"] as? Int {
                 
