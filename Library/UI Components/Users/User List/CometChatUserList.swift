@@ -17,7 +17,7 @@ import CometChatPro
 
 struct LoggedInUser {
     static var uid = CometChat.getLoggedInUser()?.uid ?? ""
-    static let name = CometChat.getLoggedInUser()?.name ?? ""
+    static var name = CometChat.getLoggedInUser()?.name ?? ""
 }
 
 

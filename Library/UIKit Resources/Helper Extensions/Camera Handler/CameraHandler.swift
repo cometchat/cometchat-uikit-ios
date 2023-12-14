@@ -68,7 +68,15 @@ extension CameraHandler: UIImagePickerControllerDelegate, UINavigationController
         case .photoLibrary:
             
             if let  videoURL = info[UIImagePickerController.InfoKey.mediaURL] as? NSURL {
-                self.videoPickedBlock?(videoURL.absoluteString ?? "")
+                let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                let destinationUrl = documentsDirectoryURL.appendingPathComponent(videoURL.lastPathComponent ?? "")
+                let tempLocation = videoURL
+                do {
+                    CometChatSnackBoard.hide()
+                    try FileManager.default.copyItem(at: tempLocation as URL, to: destinationUrl)
+                } catch let error as NSError {}
+                
+                self.videoPickedBlock?(destinationUrl.absoluteString ?? "")
             }
             
             if let imageURL = info[UIImagePickerController.InfoKey.imageURL] as? NSURL {

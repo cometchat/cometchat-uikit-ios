@@ -187,6 +187,8 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
         setupKeyboard()
         setupRecorder()
         self.addObsevers()
+        LoggedInUser.uid = CometChat.getLoggedInUser()?.uid ?? ""
+        LoggedInUser.name = CometChat.getLoggedInUser()?.name ?? ""
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -366,7 +368,8 @@ public class CometChatThreadedMessageList: UIViewController, AVAudioRecorderDele
             threadedReplyCount.text = String(replyCount) + " " +  "REPLIES".localized()
         }
         if let message = currentMessage, let indexpath = indexPath {
-             CometChatThreadedMessageList.threadDelegate?.didReplyAdded(forMessage: message, text: threadedReplyCount.text ?? "", indexPath: indexpath)
+            message.replyCount = replyCount
+            CometChatThreadedMessageList.threadDelegate?.didReplyAdded(forMessage: message, text: threadedReplyCount.text ?? "", indexPath: indexpath)
         }
     }
     
@@ -2094,15 +2097,9 @@ extension CometChatThreadedMessageList: UITableViewDelegate , UITableViewDataSou
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if let firstMessageInSection = chatMessages[section].first {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MM/dd/yyyy"
             let dateString = String().setMessageDateHeader(time: Int(firstMessageInSection.sentAt))
             let label = CometChatMessageDateHeader()
-            if dateString == "1 Jan, 1970" {
-                label.text = "TODAY".localized()
-            }else{
-                label.text = dateString
-            }
+            label.text = dateString
             let containerView = UIView()
             containerView.addSubview(label)
             label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
@@ -2994,6 +2991,7 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
             if self.chatMessages.count == 0 {
                 self.addNewGroupedMessage(messages: [mediaMessage!])
                 self.filteredMessages.append(mediaMessage!)
+                self.incrementCount()
             }else{
                 self.chatMessages[lastSection].append(mediaMessage!)
                 self.filteredMessages.append(mediaMessage!)
@@ -3999,6 +3997,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
         
         if let guid = currentGroup?.guid {
             CometChat.callExtension(slug: "document", type: .post, endPoint: "v1/create", body: ["receiver":guid,"receiverType":"group"], onSuccess: { (response) in
+               
                 
             }) { (error) in
                 if let error = error {
@@ -4137,6 +4136,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                                     strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                                     strongSelf.tableView?.endUpdates()
                                     strongSelf.tableView?.scrollToBottomRow()
+                                    strongSelf.incrementCount()
                                     CometChatSoundManager().play(sound: .outgoingMessage, bool: true)
                                 }
                             }
@@ -4180,6 +4180,7 @@ extension CometChatThreadedMessageList : MessageActionsDelegate {
                             strongSelf.present(alert, animated: true, completion: nil)
                         }
                         CometChat.sendCustomMessage(message: locationMessage, onSuccess: { (message) in
+                            print("parent id" , message.parentMessageId)
                             DispatchQueue.main.async { [weak self] in
                                 guard let strongSelf = self else { return }
                                 strongSelf.dismiss(animated: true, completion: nil)

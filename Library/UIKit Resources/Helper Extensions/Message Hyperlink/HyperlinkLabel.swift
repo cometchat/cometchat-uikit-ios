@@ -158,7 +158,7 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
     }
     
     open override func drawText(in rect: CGRect) {
-        let range = NSRange(location: 0, length: textStorage.length + 100)
+        let range = NSRange(location: 0, length: textStorage.length)
 
         textContainer.size = rect.size
         let newOrigin = textOrigin(inRect: rect)

@@ -123,7 +123,5 @@ class CometChatWebView: UIViewController , WKNavigationDelegate {
 //        self.dismiss(animated: true, completion: nil)
     }
     
-    func webView(_: WKWebView, didFinish _: WKNavigation!) {
-        self.dismiss(animated: true, completion: nil)
-    }
+    func webView(_: WKWebView, didFinish _: WKNavigation!) {}
 }

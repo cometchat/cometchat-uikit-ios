@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -39,6 +39,7 @@
                 <outlet property="send" destination="As0-zr-DC2" id="ThE-9P-F2u"/>
                 <outlet property="smartRepliesView" destination="XBg-nj-c30" id="bL5-Lo-lfR"/>
                 <outlet property="tableView" destination="NJW-Ea-LuH" id="cg0-6P-R3R"/>
+                <outlet property="tableViewBottomConstraint" destination="TUR-Nu-aeX" id="vzk-mr-wCg"/>
                 <outlet property="textView" destination="685-zy-w75" id="cX4-Nk-u8Z"/>
             </connections>
         </placeholder>
@@ -48,17 +49,17 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="A6q-xQ-QZJ">
-                    <rect key="frame" x="0.0" y="48" width="414" height="1"/>
+                    <rect key="frame" x="0.0" y="44" width="414" height="1"/>
                     <color key="backgroundColor" systemColor="systemFillColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="1" id="KlU-Xy-aVW"/>
                     </constraints>
                 </view>
                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="doG-3v-0JC">
-                    <rect key="frame" x="0.0" y="49" width="414" height="773"/>
+                    <rect key="frame" x="0.0" y="45" width="414" height="777"/>
                     <subviews>
                         <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="NJW-Ea-LuH">
-                            <rect key="frame" x="0.0" y="0.0" width="414" height="773"/>
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="777"/>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         </tableView>
                         <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XBg-nj-c30" customClass="CometChatSmartRepliesPreview" customModule="CometChat_KitchenSink" customModuleProvider="target">
@@ -508,10 +509,10 @@
         <image name="messages-close-circle.png" width="24" height="24"/>
         <image name="messages-delete.png" width="24" height="24"/>
         <image name="microphone-circle.png" width="28" height="28"/>
-        <image name="pause.fill" catalog="system" width="117" height="128"/>
+        <image name="pause.fill" catalog="system" width="116" height="128"/>
         <image name="send-message-filled.png" width="27" height="27"/>
         <systemColor name="labelColor">
-            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondarySystemBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

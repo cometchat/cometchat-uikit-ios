@@ -110,7 +110,7 @@ class CometChatSenderTextMessageBubble: UITableViewCell {
                                 self.replybutton.setTitle("\(replies) replies", for: .normal)
                             }
                         }
-                    case .disabled, .enabled : self.replybutton.isHidden = true
+                    case .disabled, .enabled: self.replybutton.isHidden = true
                     }
                 }
                 

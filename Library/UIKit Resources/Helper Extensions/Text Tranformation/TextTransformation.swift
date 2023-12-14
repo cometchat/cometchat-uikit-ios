@@ -119,10 +119,22 @@ extension Date {
 
 extension String {
     func setMessageDateHeader(time: Int) -> String {
-        let date = Date(timeIntervalSince1970: TimeInterval(time))
-        let str = fetchMessageDateHeader(for: date)
-        
+        let str = fetchMessageHeaderDate(from: TimeInterval(time))
         return str
+    }
+    
+    func fetchMessageHeaderDate(from interval : TimeInterval) -> String {
+        let calendar = Calendar.current
+        let date = Date(timeIntervalSince1970: interval)
+        if (interval == 0.0) || (interval == -1) || (calendar.isDateInToday(date)) { return "TODAY".localized() }
+        else if calendar.isDateInYesterday(date) { return "YESTERDAY".localized() }
+        else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "d MMM, yyyy"
+            formatter.locale = Locale(identifier: "en_US")
+            let strDate: String = formatter.string(from: date)
+            return strDate
+        }
     }
     
     func fetchMessageDateHeader(for date : Date) -> String {
@@ -160,6 +172,30 @@ extension String {
             let strDate: String = formatter.string(from: date)
             return strDate
         }
+    }
+    
+    func checkNewMessageDate(time: Int) -> String {
+        let interval = TimeInterval(time)
+        let date = Date(timeIntervalSince1970: interval)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM, yyyy"
+        formatter.locale = Locale(identifier: "en_US")
+        let strDate: String = formatter.string(from: date)
+        return strDate
+    }
+    
+    func compareDates(newTimeInterval: Int, currentTimeInterval: Int ) -> Bool {
+        let tempNewDate = Date(timeIntervalSince1970: TimeInterval(newTimeInterval))
+        let tempCurrentDate = Date(timeIntervalSince1970: TimeInterval(currentTimeInterval))
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yyyy"
+        dateFormatter.locale = Locale(identifier: "en_US")
+        let formattedNewDate = dateFormatter.string(from: tempNewDate)
+        let formattedCurrentDate = dateFormatter.string(from: tempCurrentDate)
+        if let previousDate = dateFormatter.date(from: formattedNewDate) , let currentDate = dateFormatter.date(from: formattedCurrentDate) {
+            return previousDate.compare(currentDate) == .orderedSame
+        }
+        return false
     }
     
     
@@ -201,17 +237,13 @@ extension String {
     
     func fetchConversationsPastTime(for date : Date) -> String {
         
+        let calendar = Calendar.current
         var secondsAgo = Int(Date().timeIntervalSince(date))
         if secondsAgo < 0 {
             secondsAgo = secondsAgo * (-1)
         }
         
         let minute = 60
-        let hour = 60 * minute
-        let day = 24 * hour
-        let twoDays = 2 * day
-        
-        
         
         if secondsAgo < minute  {
             if secondsAgo < 2{
@@ -219,37 +251,30 @@ extension String {
             }else{
                 return "\(secondsAgo) " + "SECS".localized()
             }
-        } else if secondsAgo < hour {
-            let min = secondsAgo/minute
+        } else if calendar.isDateInToday(date) {
             let formatter = DateFormatter()
             formatter.dateFormat = "hh:mm a"
             formatter.locale = Locale(identifier: "en_US")
             let strDate: String = formatter.string(from: date)
-            if min == 1{
-                return strDate
-            }else{
-                return strDate
-            }
-        }else if secondsAgo < twoDays {
-            let day = secondsAgo/day
-            if day == 1 {
-                return "YESTERDAY".localized()
-            }else{
+            return strDate
+        } else if calendar.isDateInYesterday(date) {
+            return "YESTERDAY".localized()
+            
+        }  else {
+            let startOfNow = calendar.startOfDay(for: Date())
+            let startOfTimeStamp = calendar.startOfDay(for: date)
+            if  let day = calendar.dateComponents([.day], from: startOfNow, to: startOfTimeStamp).day {
                 let formatter = DateFormatter()
-                formatter.dateFormat = "EEE"
+                formatter.dateFormat = (day < -1)  &&  (day >= -7) ? "EEE" : "MMM dd"
                 formatter.locale = Locale(identifier: "en_US")
                 let strDate: String = formatter.string(from: date)
-                return strDate.uppercased()
+                return  (day < -1)  &&  (day >= -7) ? strDate.uppercased() : strDate
             }
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMM dd"
-            formatter.locale = Locale(identifier: "en_US")
-            let strDate: String = formatter.string(from: date)
-            return strDate.uppercased()
+            
+            return ""
         }
+        
     }
-    
     
     func setMessageTime(time: Int) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(time))
@@ -317,7 +342,7 @@ extension String {
             return strDate
         }
     }
-    
+        
     func separate(every stride: Int = 4, with separator: Character = " ") -> String {
         return String(enumerated().map { $0 > 0 && $0 % stride == 0 ? [separator, $1] : [$1]}.joined())
     }
