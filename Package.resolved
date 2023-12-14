@@ -1,14 +1,16 @@
 {
-  "pins" : [
-    {
-      "identity" : "ios-chat-sdk",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/cometchat-pro/ios-chat-sdk.git",
-      "state" : {
-        "revision" : "6fd83229d552cb4e3ecf1299337c5c94e70c483e",
-        "version" : "4.0.3"
+  "object": {
+    "pins": [
+      {
+        "package": "CometChatSDK",
+        "repositoryURL": "https://github.com/cometchat-pro/ios-chat-sdk.git",
+        "state": {
+          "branch": null,
+          "revision": "a028bb68eed6eb90cf5772bb9590d8c398754e23",
+          "version": "4.0.4"
+        }
       }
-    }
-  ],
-  "version" : 2
+    ]
+  },
+  "version": 1
 }
