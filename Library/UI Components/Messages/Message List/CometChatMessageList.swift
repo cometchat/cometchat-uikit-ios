@@ -3904,9 +3904,11 @@ extension CometChatMessageList : CometChatMessageComposerInternalDelegate {
                         guard let strongSelf = self else { return }
                         strongSelf.tableViewBottomConstraint.constant = 300
                         let indexpath = IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)
-                        strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
-                        strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
-                        strongSelf.tableView?.scrollToBottomRow()
+                        if let tableview = strongSelf.tableView, (indexpath.section <= strongSelf.numberOfSections(in: tableview) && indexpath.row <= tableview.numberOfRows(inSection: indexpath.section)) {
+                            strongSelf.tableView?.insertRows(at: [indexpath], with: .automatic)
+                            strongSelf.tableView?.reloadRows(at: [indexpath], with: .automatic)
+                            strongSelf.tableView?.scrollToBottomRow()
+                        }
                     }
                 } else {
                     self.chatMessages.append([stickerMessage])
