@@ -209,6 +209,7 @@ extension CometChatStickerKeyboard : UICollectionViewDelegate , UICollectionView
             
         }else if collectionView == self.stickersCollectionView {
             if let cell = collectionView.cellForItem(at: indexPath) as? CometChatStickerKeyboardItem, let sticker = cell.sticker {
+                self.didCloseButtonPressed(self)
                 CometChatStickerKeyboard.stickerDelegate?.didStickerSelected(sticker: sticker)
             }
         }

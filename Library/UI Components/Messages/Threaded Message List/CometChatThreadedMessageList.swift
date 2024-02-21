@@ -3056,7 +3056,6 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                 self.filteredMessages.append(stickerMessage!)
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.tableViewBottomConstraint.constant = 300
                     strongSelf.tableView?.beginUpdates()
                     strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                     strongSelf.tableView?.endUpdates()
@@ -3095,7 +3094,6 @@ extension CometChatThreadedMessageList : CometChatMessageComposerInternalDelegat
                 self.filteredMessages.append(stickerMessage!)
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
-                    strongSelf.tableViewBottomConstraint.constant = 300
                     strongSelf.tableView?.beginUpdates()
                     strongSelf.tableView?.insertRows(at: [IndexPath.init(row: strongSelf.chatMessages[lastSection].count - 1, section: lastSection)], with: .right)
                     strongSelf.tableView?.endUpdates()
