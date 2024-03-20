@@ -47,6 +47,7 @@ public final class CometChatConversationList: UIViewController {
     lazy var searchedText: String? = ""
     var refreshControl = UIRefreshControl()
     var searchController:UISearchController = UISearchController(searchResultsController: nil)
+    var typingIndicators: [TypingIndicator] = [TypingIndicator]()
     
     
     // MARK: - View controller lifecycle methods
@@ -465,6 +466,21 @@ extension CometChatConversationList: UITableViewDelegate , UITableViewDataSource
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastSectionIndex = tableView.numberOfSections - 1
         let lastRowIndex = tableView.numberOfRows(inSection: lastSectionIndex) - 1
+        for typingIndicator in self.typingIndicators {
+            if let cell = cell as? CometChatConversationListItem {
+                if ((cell.conversation?.conversationWith as? CometChatPro.User)?.uid == typingIndicator.sender?.uid && cell.conversation?.conversationType.rawValue == typingIndicator.receiverType.rawValue) || ((cell.conversation?.conversationWith as? CometChatPro.Group)?.guid == typingIndicator.receiverID && cell.conversation?.conversationType.rawValue == typingIndicator.receiverType.rawValue) {
+                    if cell.message.isHidden == false {
+                        cell.typing.isHidden = false
+                        cell.message.isHidden = true
+                    }
+                } else {
+                    if cell.typing.isHidden == false {
+                        cell.typing.isHidden = true
+                        cell.message.isHidden = false
+                    }
+                }
+            }
+        }
         if indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex {
             self.fetchConversations()
         }
@@ -636,6 +652,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
                             cell.parseMaskedData(forMessage: textMessage)
                             cell.parseSentimentAnalysis(forMessage: textMessage)
                             cell.unreadBadgeCount.incrementCount()
+                            self.tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
+                            let element = self.conversations[row]
+                            self.conversations.remove(at: row)
+                            self.conversations.insert(element, at: 0)
                             self.tableView.endUpdates()
                         }
                     }
@@ -655,6 +675,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
                             cell.parseMaskedData(forMessage: textMessage)
                             cell.parseSentimentAnalysis(forMessage: textMessage)
                             cell.unreadBadgeCount.incrementCount()
+                            self.tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
+                            let element = self.conversations[row]
+                            self.conversations.remove(at: row)
+                            self.conversations.insert(element, at: 0)
                             self.tableView.endUpdates()
                         }
                     }
@@ -674,6 +698,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
                             cell.parseMaskedData(forMessage: textMessage)
                             cell.parseSentimentAnalysis(forMessage: textMessage)
                             cell.unreadBadgeCount.incrementCount()
+                            self.tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
+                            let element = self.conversations[row]
+                            self.conversations.remove(at: row)
+                            self.conversations.insert(element, at: 0)
                             self.tableView.endUpdates()
                         }
                     }
@@ -688,6 +716,10 @@ extension CometChatConversationList : CometChatMessageDelegate {
                             cell.parseMaskedData(forMessage: textMessage)
                             cell.parseSentimentAnalysis(forMessage: textMessage)
                             cell.unreadBadgeCount.incrementCount()
+                            self.tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
+                            let element = self.conversations[row]
+                            self.conversations.remove(at: row)
+                            self.conversations.insert(element, at: 0)
                             self.tableView.endUpdates()
                         }
                     }
@@ -841,15 +873,14 @@ extension CometChatConversationList : CometChatMessageDelegate {
      [CometChatConversationList Documentation](https://prodocs.cometchat.com/docs/ios-ui-screens#section-3-comet-chat-conversation-list)
      */
     public func onTypingStarted(_ typingDetails: TypingIndicator) {
-        
         if let typingMetaData = typingDetails.metadata, let _ = typingMetaData["type"] as? String ,let _ = typingMetaData["reaction"] as? String {
             
         }else{
-            
             if let row = self.conversations.firstIndex(where: {($0.conversationWith as? CometChatPro.User)?.uid == typingDetails.sender?.uid && $0.conversationType.rawValue == typingDetails.receiverType.rawValue }) {
                 let indexPath = IndexPath(row: row, section: 0)
                 DispatchQueue.main.async {
                     if let cell = self.tableView.cellForRow(at: indexPath) as? CometChatConversationListItem,  (cell.conversation?.conversationWith as? CometChatPro.User)?.uid == typingDetails.sender?.uid {
+                        self.typingIndicators.append(typingDetails)
                         if cell.message.isHidden == false {
                             cell.typing.isHidden = false
                             cell.message.isHidden = true
@@ -862,6 +893,9 @@ extension CometChatConversationList : CometChatMessageDelegate {
                         if cell.typing.isHidden == false {
                             cell.typing.isHidden = true
                             cell.message.isHidden = false
+                            if self.typingIndicators.count > 0 {
+                                self.typingIndicators.remove(at: self.typingIndicators.firstIndex(of: typingDetails) ?? self.typingIndicators.count - 1)
+                            }
                         }
                         cell.reloadInputViews()
                     }
@@ -874,6 +908,7 @@ extension CometChatConversationList : CometChatMessageDelegate {
                         let user = typingDetails.sender?.name
                         cell.typing.text = user! + " " + "IS_TYPING".localized()
                         if cell.message.isHidden == false{
+                            self.typingIndicators.append(typingDetails)
                             cell.typing.isHidden = false
                             cell.message.isHidden = true
                         }
@@ -887,6 +922,9 @@ extension CometChatConversationList : CometChatMessageDelegate {
                         if cell.typing.isHidden == false{
                             cell.typing.isHidden = true
                             cell.message.isHidden = false
+                            if self.typingIndicators.count > 0 {
+                                self.typingIndicators.remove(at: self.typingIndicators.firstIndex(of: typingDetails) ?? self.typingIndicators.count - 1)
+                            }
                         }
                         cell.reloadInputViews()
                     }
@@ -912,6 +950,9 @@ extension CometChatConversationList : CometChatMessageDelegate {
                         cell.message.isHidden = false
                         cell.typing.isHidden = true
                     }
+                    if self.typingIndicators.count > 0 {
+                        self.typingIndicators.removeAll(where: {($0.sender?.uid == typingDetails.sender?.uid && $0.receiverType == typingDetails.receiverType) || ($0.receiverID == typingDetails.receiverID && $0.receiverType == typingDetails.receiverType)})
+                    }
                     cell.reloadInputViews()
                 }
             }
@@ -923,6 +964,9 @@ extension CometChatConversationList : CometChatMessageDelegate {
                     if cell.typing.isHidden == false{
                         cell.message.isHidden = false
                         cell.typing.isHidden = true
+                    }
+                    if self.typingIndicators.count > 0 {
+                        self.typingIndicators.removeAll(where: {($0.sender?.uid == typingDetails.sender?.uid && $0.receiverType == typingDetails.receiverType) || ($0.receiverID == typingDetails.receiverID && $0.receiverType == typingDetails.receiverType)})
                     }
                     cell.reloadInputViews()
                 }
@@ -1125,7 +1169,7 @@ extension CometChatConversationList : CometChatGroupDelegate {
             DispatchQueue.main.async { CometChatSoundManager().play(sound: .incomingMessageForOther, bool: true) }
             refreshConversations()
         }
-    } 
+    }
 }
 
 /*  ----------------------------------------------------------------------------------------- */
