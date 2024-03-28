@@ -1,7 +1,7 @@
 <div style="width:100%">
     <div style="width:50%; display:inline-block">
         <p align="center">
-        <img align="center" width="180" height="180" alt="" src="https://github.com/cometchat-pro/ios-swift-chat-ui-kit/blob/master/Screenshots/logo.png">    
+        <img align="center" width="180" height="180" alt="" src="https://assets.cometchat.io/website/images/logos/icon.png">    
         </p>    
     </div>    
 </div>
@@ -23,21 +23,8 @@
 ![Twitter Follow](https://img.shields.io/twitter/follow/cometchat?style=social)
 
 
-## Table of contents
-- [About the project](#about-the-project)
-  - [Built With](#built-with)
-- [Getting Started](#getting-started)
-  - [Dependencies](#dependencies)
-- [Versioning](#versioning)
-- [Contributing](#contributing)
-- [Support](#support)
-- [License](#license)
-- [About Authors](#about-authors)
-
-
 ## About the project
-CometChat Swift UIKit provides pre-built user interface kit that developers can use to quickly integrate a reliable & fully featured chat experience into an existing or a new mobile app.<br />
-
+CometChat Swift UIKit provides a pre-built user interface kit that developers can use to quickly integrate a reliable & fully-featured chat experience into an existing or a new mobile app.<br />
 
 ### Built With
 ✅ &nbsp; iOS
@@ -48,7 +35,6 @@ CometChat Swift UIKit provides pre-built user interface kit that developers can 
 
 ✅ &nbsp; Swift 4.0+
 
-
 ## Getting Started
 To set up Swift Chat UIKit and utilize CometChat for your chat functionality, you'll need to follow these steps:
 - Registration: Go to the CometChat website (https://www.cometchat.com/) and sign up for an account.
@@ -56,9 +42,8 @@ To set up Swift Chat UIKit and utilize CometChat for your chat functionality, yo
 - Make sure you've read the [key concepts](https://www.cometchat.com/docs/v4/ios-uikit/key-concepts)
 - Follow the steps provided in the integration section [here](https://www.cometchat.com/docs/v4/ios-uikit/integration)
 
-
 ## Dependencies
-Swift Chat UIKit handles all the Chat SDK related dependencies internally except calling dependency. If you want calling functionality inside your application then you need to install calling SDK additionally inside your project. You can install CometChatCallsSDK Calling SDK for iOS through Swift Package Manager.
+Swift Chat UIKit handles all the Chat SDK-related dependencies internally except calling dependency. To add calling functionality inside your application, you can install CometChatCallsSDK Calling SDK for iOS through Swift Package Manager.
 
 * Go to your Swift Package Manager's File tab and select Add Packages
 
@@ -66,24 +51,4 @@ Swift Chat UIKit handles all the Chat SDK related dependencies internally except
 
   * https://github.com/cometchat-pro/ios-calls-sdk.git
 
-* To add the package, select Version Rules, enter Up to Exact Version, 4.3.1, and click Next.
-
-
-## Versioning
-- Semantic Versioning: All of the CometChat packages adhere to [semantic versioning](https://semver.org/) principles.
-- Changelogs: Detailed changelogs documenting the changes, enhancements, and bug fixes made in each version can be found [here](https://github.com/cometchat-pro/ios-swift-chat-ui-kit/tags)
-
-## Contributing
-Please read through our [contributing guidelines](./CONTRIBUTING.md). Included are directions for opening issues, coding standards, and notes on development.
-
-## Support
-- Facing any issues while integrating or installing the UI Kit please connect with us via real time support present in <a href="https://app.cometchat.com/signup"> CometChat Dashboard.</a>.
-
-## License
-Code released under the [MIT License](./LICENSE.md).
-
-## About Authors 
-This project is created & maintained by: <br/>
-[⚔️ @abhisheksaralaya13🛡](https://github.com/abhisheksaralaya13)  <br/>
-[⚔️ @nabhodiptagarai 🛡](https://github.com/nabhodiptagarai)  <br/>
-[⚔️ @Suryansh1191 🛡](https://github.com/Suryansh1191) <br>
+* To add the package, select Version Rules, enter Up to Exact Version, 4.3.1, and click Next
