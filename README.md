@@ -1,7 +1,7 @@
 <div style="width:100%">
     <div style="width:50%; display:inline-block">
         <p align="center">
-        <img align="center" width="180" height="180" alt="" src="https://assets.cometchat.io/website/images/logos/icon.png">    
+        <img align="center" width="180" height="180" alt="" src="https://assets.cometchat.io/website/images/logos/logo_white.png">    
         </p>    
     </div>    
 </div>
