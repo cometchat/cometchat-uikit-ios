@@ -379,20 +379,38 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             var values = groupedMessages[key]
             values = values?.reversed()
             values?.forEach { (baseMessage) in
-                if let firstMessage = self.chatMessages[0].first {
-                    if String().compareDates(newTimeInterval: firstMessage.sentAt, currentTimeInterval: baseMessage.sentAt)   {
-                        self.chatMessages[0].insert( baseMessage , at: 0)
-                    } else {
-                        newSectionMessages.append(baseMessage)
-                        self.chatMessages.insert( newSectionMessages  , at: 0)
-                        newSectionMessages.removeAll()
+                DispatchQueue.main.async {
+                    if let firstMessage = self.chatMessages[0].first {
+                        if String().compareDates(newTimeInterval: firstMessage.sentAt, currentTimeInterval: baseMessage.sentAt)   {
+                            if let visibleIndexPath = self.tableView?.indexPathsForVisibleRows?.first, let tableView = self.tableView {
+                                self.chatMessages[0].insert( baseMessage , at: 0)
+                                tableView.beginUpdates()
+                                tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .none)
+                                guard let newVisibleIndexPath = tableView.indexPathForRow(at: tableView.rectForRow(at: visibleIndexPath).origin) else { return }
+                                let adjustedOffsetY = tableView.rectForRow(at: newVisibleIndexPath).minY
+                                tableView.setContentOffset(CGPoint(x: 0, y: adjustedOffsetY), animated: false)
+                            }
+                            self.tableView?.endUpdates()
+                        } else {
+                            if let visibleIndexPath = self.tableView?.indexPathsForVisibleRows?.first, let tableView = self.tableView {
+                                self.newSectionMessages.append(baseMessage)
+                                self.chatMessages.insert( self.newSectionMessages  , at: 0)
+                                tableView.beginUpdates()
+                                tableView.insertSections([0], with: .none)
+                                tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .none)
+                                guard let newVisibleIndexPath = tableView.indexPathForRow(at: tableView.rectForRow(at: visibleIndexPath).origin) else { return }
+                                let adjustedOffsetY = tableView.rectForRow(at: newVisibleIndexPath).minY
+                                tableView.setContentOffset(CGPoint(x: 0, y: adjustedOffsetY), animated: false)
+                            }
+                            self.tableView?.endUpdates()
+                            self.newSectionMessages.removeAll()
+                        }
                     }
                 }
             }
 
             DispatchQueue.main.async{ [weak self] in
                 guard let strongSelf = self else { return }
-                strongSelf.tableView?.reloadData()
                 strongSelf.refreshControl?.endRefreshing()
             }
         }
