@@ -26,8 +26,8 @@ let package = Package(
                path: "CometChatUIKitSwiftWrapper"),
         .binaryTarget(
             name: "CometChatUIKitSwift",
-            url: "https://library.cometchat.io/ios/v4/xcode15/CometChatUIKitSwift_4_3_1.xcframework.zip",
-            checksum: "c36919f37f6831413aad1e04b064f71058ee58269bc3f762905f6067b55b59f2"
+            url: "https://library.cometchat.io/ios/v4/xcode15/CometChatUIKitSwift_4_3_2.xcframework.zip",
+            checksum: "cfe5a8c23f7ab529551711947f0ffe29aead70ec0cb03be951abd464109db1c1"
         )
     ]
 )
