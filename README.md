@@ -1,29 +1,9 @@
-<div style="width:100%">
-    <div style="width:50%; display:inline-block">
-        <p align="center">
-        <img align="center" width="180" height="180" alt="" src="https://assets.cometchat.io/website/images/logos/logo_white.png">    
-        </p>    
-    </div>    
-</div>
-<br>
-<div align="center">Full-fledged Chat UIKit built with <a href="https://developer.apple.com/swift/">Swift</a>. </div>
-<div align="center">
-  <a href="https://www.cometchat.com/docs/v4/ios-uikit/overview"><strong>Explore CometChat docs »</strong></a> 
-</div>
-<br />
-<br />
+<p align="center">
+  <img alt="CometChat" src="https://assets.cometchat.io/website/images/logos/banner.png">
+</p>
 
-</br>
+# CometChat iOS UI Kit
 
-
-<a href="https://cocoapods.org/pods/CometChatSDK"><img src="https://img.shields.io/badge/platform-iOS-orange.svg" /></a>
-<a href=""><img src="https://img.shields.io/badge/language-%20Swift-orange.svg" /></a>
-<a href=""> <img src="https://img.shields.io/badge/Contributors-2-yellowgreen" /></a>
-<a href=" "> <img src="https://img.shields.io/badge/version-4.3.1-orange" /></a>
-![Twitter Follow](https://img.shields.io/twitter/follow/cometchat?style=social)
-
-
-## About the project
 CometChat Swift UIKit provides a pre-built user interface kit that developers can use to quickly integrate a reliable & fully-featured chat experience into an existing or a new mobile app.<br />
 
 ### Built With
@@ -52,3 +32,7 @@ Swift Chat UIKit handles all the Chat SDK-related dependencies internally except
   * https://github.com/cometchat-pro/ios-calls-sdk.git
 
 * To add the package, select Version Rules, enter Up to Exact Version, 4.3.1, and click Next
+
+  
+## Help and Support
+For issues running the project or integrating with our UI Kits, consult our [documentation](https://www.cometchat.com/docs/react-uikit/integration) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](https://app.cometchat.com/).
