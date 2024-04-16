@@ -31,7 +31,7 @@ Swift Chat UIKit handles all the Chat SDK-related dependencies internally except
 
   * https://github.com/cometchat-pro/ios-calls-sdk.git
 
-* To add the package, select Version Rules, enter Up to Exact Version, 4.3.3, and click Next
+* To add the package, select Version Rules, enter Up to Exact Version, 4.3.4, and click Next
 
   
 ## Help and Support
