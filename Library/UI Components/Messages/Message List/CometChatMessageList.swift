@@ -157,6 +157,8 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
     let calendar = Calendar.current
     var lastMessage: BaseMessage?
     var newSectionMessages = [BaseMessage]()
+    private var isloadingPreviousMessage = false
+    private var lastContentOffset: CGFloat = 0
     private var currentState: AudioRecodingState = .ready {
         didSet {
             self.audioNotePauseButton.setImage(self.currentState.buttonImage, for: .normal)
@@ -374,44 +376,46 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
             return date.reduceToMonthDayYear()
         }
         var sortedKeys = groupedMessages.keys.sorted()
+        DispatchQueue.main.async {
+            self.refreshControl?.endRefreshing()
+        }
+        
+        var newAddedSections = 0
         sortedKeys = sortedKeys.reversed()
         sortedKeys.forEach { (key) in
             var values = groupedMessages[key]
             values = values?.reversed()
             values?.forEach { (baseMessage) in
-                DispatchQueue.main.async {
-                    if let firstMessage = self.chatMessages[0].first {
-                        if String().compareDates(newTimeInterval: firstMessage.sentAt, currentTimeInterval: baseMessage.sentAt)   {
-                            if let visibleIndexPath = self.tableView?.indexPathsForVisibleRows?.first, let tableView = self.tableView {
-                                self.chatMessages[0].insert( baseMessage , at: 0)
-                                tableView.beginUpdates()
-                                tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .none)
-                                guard let newVisibleIndexPath = tableView.indexPathForRow(at: tableView.rectForRow(at: visibleIndexPath).origin) else { return }
-                                let adjustedOffsetY = tableView.rectForRow(at: newVisibleIndexPath).minY
-                                tableView.setContentOffset(CGPoint(x: 0, y: adjustedOffsetY), animated: false)
-                            }
-                            self.tableView?.endUpdates()
-                        } else {
-                            if let visibleIndexPath = self.tableView?.indexPathsForVisibleRows?.first, let tableView = self.tableView {
-                                self.newSectionMessages.append(baseMessage)
-                                self.chatMessages.insert( self.newSectionMessages  , at: 0)
-                                tableView.beginUpdates()
-                                tableView.insertSections([0], with: .none)
-                                tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .none)
-                                guard let newVisibleIndexPath = tableView.indexPathForRow(at: tableView.rectForRow(at: visibleIndexPath).origin) else { return }
-                                let adjustedOffsetY = tableView.rectForRow(at: newVisibleIndexPath).minY
-                                tableView.setContentOffset(CGPoint(x: 0, y: adjustedOffsetY), animated: false)
-                            }
-                            self.tableView?.endUpdates()
-                            self.newSectionMessages.removeAll()
-                        }
+                if let firstMessage = self.chatMessages[0].first {
+                    if String().compareDates(newTimeInterval: firstMessage.sentAt, currentTimeInterval: baseMessage.sentAt)   {
+                        self.chatMessages[0].insert( baseMessage , at: 0)
+                    } else {
+                        
+                        newSectionMessages.append(baseMessage)
+                        self.chatMessages.insert( newSectionMessages  , at: 0)
+                        newAddedSections += 1
+                        newSectionMessages.removeAll()
                     }
                 }
             }
-
-            DispatchQueue.main.async{ [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.refreshControl?.endRefreshing()
+        }
+        
+        DispatchQueue.main.async{[weak self] in
+            guard let this = self else { return }
+            guard let tableView = this.tableView else {return}
+            if messages.count != 0 {
+                let firstCellOffset = tableView.rectForRow(at: IndexPath(row: 0, section: 0))
+                let numberOfRowsInSection = tableView.numberOfRows(inSection: 0)
+                tableView.reloadData()
+                var scrollToItem = messages.count
+                if newAddedSections != 0 {
+                    let totalNumberOfRowsInCurrentPresentedSection = this.chatMessages[newAddedSections].count
+                    scrollToItem = totalNumberOfRowsInCurrentPresentedSection - numberOfRowsInSection
+                }
+                tableView.scrollToRow(at: IndexPath(item: scrollToItem, section: newAddedSections), at: .top, animated: false)
+                    tableView.contentOffset.y -= firstCellOffset.minY - (tableView.tableHeaderView?.frame.height ?? 0) - 50
+                
+                this.isloadingPreviousMessage = false
             }
         }
     }
@@ -2183,7 +2187,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         self.tableView?.dataSource = self
         self.tableView?.separatorColor = .clear
         self.tableView?.setEmptyMessage("LOADING".localized())
-        self.addRefreshControl(inTableView: true)
+//        self.addRefreshControl(inTableView: true)
         //         Added Long Press
         let longPressOnMessage = UILongPressGestureRecognizer(target: self, action: #selector(didLongPressedOnMessage))
         tableView?.addGestureRecognizer(longPressOnMessage)
@@ -2420,6 +2424,7 @@ public class CometChatMessageList: UIViewController, AVAudioRecorderDelegate, AV
         guard let request = messageRequest else {
             return
         }
+        isloadingPreviousMessage = true
         FeatureRestriction.isMessageHistoryEnabled { (success) in
             if success == .enabled {
                 self.fetchPreviousMessages(messageReq: request)
@@ -3520,6 +3525,20 @@ extension CometChatMessageList: UITableViewDelegate , UITableViewDataSource {
 
     public  func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return (section == chatMessages.count - 1) ? 16 : 0
+    }
+    
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        if let yOffset = self.tableView?.contentOffset.y {
+            if isloadingPreviousMessage == false && (scrollView.isDragging || scrollView.isDecelerating) {
+                if yOffset <= 10 && yOffset > lastContentOffset {
+                    loadPreviousMessages(true)
+                }
+            }
+            
+            lastContentOffset = yOffset
+        }
+        
     }
 }
 
