@@ -35,6 +35,7 @@ class CometChatSharedMedia: UITableViewCell {
     var videos: [MediaMessage] = [MediaMessage]()
     var docs: [MediaMessage] = [MediaMessage]()
     var entity: AppEntity?
+    var isAllMediaFetched = false
     var activityIndicator:UIActivityIndicatorView?
     weak var sharedMediaDelegate: SharedMediaDelegate?
     
@@ -89,6 +90,7 @@ class CometChatSharedMedia: UITableViewCell {
             self?.collectionView.backgroundView = self?.activityIndicator
             self?.collectionView.backgroundView?.isHidden = false
         }
+        isAllMediaFetched = false
         switch type {
         case .user:
             if let user = entity as? CometChatPro.User {
@@ -182,6 +184,7 @@ class CometChatSharedMedia: UITableViewCell {
      - Copyright:  ©  2019 CometChat Inc.
      */
     func fetchMediaMessages(for entity: AppEntity, type: CometChat.ReceiverType) {
+        if isAllMediaFetched == true { return }
         DispatchQueue.main.async { [weak self] in
             self?.activityIndicator?.startAnimating()
             self?.activityIndicator?.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: self?.collectionView.bounds.width ?? 0, height: CGFloat(44))
@@ -190,7 +193,8 @@ class CometChatSharedMedia: UITableViewCell {
         }
         switch type {
         case .user:
-            mediaMessageRequest?.fetchPrevious(onSuccess: { (mediaMessages) in
+            mediaMessageRequest?.fetchPrevious(onSuccess: { [weak self] (mediaMessages) in
+                if mediaMessages?.isEmpty == true { self?.isAllMediaFetched = true }
                 guard let fetchedMessages = mediaMessages?.filter({
                     (($0 as? MediaMessage)?.attachment != nil)}) else {
                         return }
@@ -219,7 +223,8 @@ class CometChatSharedMedia: UITableViewCell {
                 }
             })
         case .group:
-            mediaMessageRequest?.fetchPrevious(onSuccess: { (mediaMessages) in
+            mediaMessageRequest?.fetchPrevious(onSuccess: { [weak self] (mediaMessages) in
+                if mediaMessages?.isEmpty == true { self?.isAllMediaFetched = true }
                 guard let fetchedMessages = mediaMessages?.filter({
                     (($0 as? MediaMessage)?.attachment != nil)}) else {
                         return }
