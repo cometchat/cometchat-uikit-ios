@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/cometchat/chat-sdk-ios.git",
         "state": {
           "branch": null,
-          "revision": "bcfaa0dd71427ffdfd002e66fb77482b45cd9bdc",
-          "version": "4.0.48"
+          "revision": "479b018d2d4cea2f72385d27b73239db9ac2c3c6",
+          "version": "4.0.50"
         }
       }
     ]
