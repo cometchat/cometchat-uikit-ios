@@ -8,14 +8,14 @@
 
 Pod::Spec.new do |s|
   s.name             = 'CometChatUIKitSwift'
-  s.version          = '4.3.13'
+  s.version          = '4.3.14'
   s.summary          = 'CometChat Swift UI Kit is a collection of custom UI Components'
   s.description      = 'The UIKit designed to build chat & calling features in your application. The UI Kit is developed to keep developers in mind and aims to reduce development efforts significantly'
 
   s.homepage         = 'https://www.cometchat.com'
   s.license          = { :type => 'MIT', :file => 'License.md' }
   s.author           = { 'suryanshbisen' => 'suryansh.bisen@cometchat.com' }
-  s.source           = { :http => 'https://library.cometchat.io/ios/v4.0/xcode15/CometChatUIKitSwift_4_3_13.zip'}
+  s.source           = { :http => 'https://library.cometchat.io/ios/v4.0/xcode15/CometChatUIKitSwift_4_3_14.zip'}
   s.vendored_frameworks = 'CometChatUIKitSwift.xcframework'
   s.resource_bundles = {'CometChatUIKitSwift' => ['CometChatUIKitSwift.xcframework/PrivacyInfo.xcprivacy']}
 
