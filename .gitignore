@@ -1,0 +1,44 @@
+# Xcode
+*.xcuserstate
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+!*.xcworkspace/contents.xcworkspacedata/*
+
+# CocoaPods
+Pods/
+*.lock
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+
+# Build Artifacts
+build/
+*.app
+*.ipa
+*.dSYM
+
+
+# Code Coverage
+*.xccoverage
+
+# Dependency Managers
+Pods/
+
+
+# xcuserdata
+*.xcuserdatad/
+
+# IDE Workspace Checkpoints
+*.xcworkspace/
+
+# Generated Schemes
+xcuserdata/
+
+
+# Swift Package Manager
+.build/
+DerivedData/
+

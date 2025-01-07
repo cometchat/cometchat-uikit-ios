@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatFormBubble" customModule="CometChatUIKitSwift">
+            <connections>
+                <outlet property="containerView" destination="B9p-Ww-gmL" id="8N2-xl-Qp1"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="K5D-fX-m06">
+            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="B9p-Ww-gmL">
+                    <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                </stackView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="mpw-xO-vLr"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="B9p-Ww-gmL" firstAttribute="leading" secondItem="mpw-xO-vLr" secondAttribute="leading" id="B3G-F6-gwg"/>
+                <constraint firstItem="mpw-xO-vLr" firstAttribute="trailing" secondItem="B9p-Ww-gmL" secondAttribute="trailing" id="Cbe-0s-csW"/>
+                <constraint firstItem="mpw-xO-vLr" firstAttribute="bottom" secondItem="B9p-Ww-gmL" secondAttribute="bottom" id="Vug-5l-OkT"/>
+                <constraint firstItem="B9p-Ww-gmL" firstAttribute="top" secondItem="mpw-xO-vLr" secondAttribute="top" id="eHl-lP-W4u"/>
+            </constraints>
+            <point key="canvasLocation" x="-640" y="-104"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

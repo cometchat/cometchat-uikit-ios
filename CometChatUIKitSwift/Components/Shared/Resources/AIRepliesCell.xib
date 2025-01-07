@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="AIRepliesCell" rowHeight="171" id="KGk-i7-Jjw" customClass="AIRepliesCell" customModule="CometChatUIKitSwift">
+            <rect key="frame" x="0.0" y="0.0" width="489" height="171"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="489" height="171"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BoI-Js-VYp">
+                        <rect key="frame" x="10" y="5" width="469" height="161"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zZt-Tc-0cY">
+                                <rect key="frame" x="2" y="2" width="24" height="157"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain"/>
+                                <connections>
+                                    <action selector="onReplieButtonTapped:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="wJb-3F-6tR"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="zZt-Tc-0cY" secondAttribute="trailing" constant="2" id="AzT-CE-NjI"/>
+                            <constraint firstItem="zZt-Tc-0cY" firstAttribute="top" secondItem="BoI-Js-VYp" secondAttribute="top" constant="2" id="Lva-Hs-geN"/>
+                            <constraint firstAttribute="bottom" secondItem="zZt-Tc-0cY" secondAttribute="bottom" constant="2" id="Rqw-XQ-DXx"/>
+                            <constraint firstItem="zZt-Tc-0cY" firstAttribute="leading" secondItem="BoI-Js-VYp" secondAttribute="leading" constant="2" id="Tpj-b5-Hfg"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="BoI-Js-VYp" secondAttribute="trailing" constant="10" id="0db-W9-9XE"/>
+                    <constraint firstItem="BoI-Js-VYp" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="2LP-vv-NOS"/>
+                    <constraint firstAttribute="bottom" secondItem="BoI-Js-VYp" secondAttribute="bottom" constant="5" id="HOc-lJ-Ovr"/>
+                    <constraint firstItem="BoI-Js-VYp" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="5" id="IRh-c0-Ys2"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="contanierView" destination="BoI-Js-VYp" id="a7k-yU-dw0"/>
+                <outlet property="uiButton" destination="zZt-Tc-0cY" id="Pug-nS-f26"/>
+            </connections>
+            <point key="canvasLocation" x="-1891" y="0.0"/>
+        </tableViewCell>
+    </objects>
+</document>

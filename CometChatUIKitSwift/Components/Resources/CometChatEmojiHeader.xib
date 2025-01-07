@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="EmojiHeader" id="U6b-Vx-4bR" customClass="CometChatEmojiHeader" customModule="CometChatUIKitSwift">
+            <rect key="frame" x="0.0" y="0.0" width="283" height="50"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mn5-Yb-VAK">
+                    <rect key="frame" x="16" y="0.0" width="267" height="16"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="VXr-Tz-HHm"/>
+            <color key="backgroundColor" name="background"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="Mn5-Yb-VAK" secondAttribute="trailing" id="AHJ-aH-qzR"/>
+                <constraint firstItem="Mn5-Yb-VAK" firstAttribute="top" secondItem="U6b-Vx-4bR" secondAttribute="top" id="HhN-PG-vls"/>
+                <constraint firstItem="Mn5-Yb-VAK" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" constant="16" id="cU2-pf-f0q"/>
+                <constraint firstItem="VXr-Tz-HHm" firstAttribute="bottom" secondItem="Mn5-Yb-VAK" secondAttribute="bottom" id="yjp-RP-yxA"/>
+            </constraints>
+            <connections>
+                <outlet property="category" destination="Mn5-Yb-VAK" id="0cl-el-OUF"/>
+            </connections>
+            <point key="canvasLocation" x="164.49275362318841" y="79.6875"/>
+        </collectionReusableView>
+    </objects>
+    <resources>
+        <namedColor name="background">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

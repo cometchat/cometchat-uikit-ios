@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CometChatDocumentBubble" customModule="CometChatUIKitSwift">
+            <connections>
+                <outlet property="containerView" destination="iN0-l3-epB" id="nqo-uU-grf"/>
+                <outlet property="documentButton" destination="jmM-1E-uut" id="zU2-ke-PPj"/>
+                <outlet property="icon" destination="uzd-Kf-WU0" id="Atk-Lx-YhB"/>
+                <outlet property="line" destination="s4f-QQ-kiR" id="Ov1-s4-lVg"/>
+                <outlet property="subTitle" destination="4aV-Qq-ptQ" id="3kQ-f2-bFL"/>
+                <outlet property="title" destination="tfD-Uu-1nm" id="kxA-Kc-VYq"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="228" height="140"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Collaborative Document" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="tfD-Uu-1nm">
+                    <rect key="frame" x="12" y="10" width="162.5" height="36"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="36" id="bkO-WO-SnS"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="messages-collaborative-document.png" translatesAutoresizingMaskIntoConstraints="NO" id="uzd-Kf-WU0">
+                    <rect key="frame" x="188" y="18" width="24" height="24"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="24" id="bqx-Uq-dag"/>
+                        <constraint firstAttribute="height" constant="24" id="srh-pQ-ebc"/>
+                    </constraints>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Open document to edit content together. " textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4aV-Qq-ptQ">
+                    <rect key="frame" x="12" y="50" width="148" height="36"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="148" id="71L-Cl-bzi"/>
+                        <constraint firstAttribute="height" constant="36" id="MQo-mI-VWZ"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                    <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="s4f-QQ-kiR">
+                    <rect key="frame" x="0.0" y="96" width="228" height="1"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="bGE-N4-a7H"/>
+                    </constraints>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jmM-1E-uut">
+                    <rect key="frame" x="0.0" y="97" width="228" height="9"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                    <state key="normal" title="Open Document"/>
+                    <connections>
+                        <action selector="onOpenDocumentClick" destination="-1" eventType="touchUpInside" id="fFo-Pc-jT9"/>
+                    </connections>
+                </button>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="tfD-Uu-1nm" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="10" id="C3I-O8-1Xc"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="jmM-1E-uut" secondAttribute="trailing" id="CgE-sh-Lyj"/>
+                <constraint firstAttribute="trailing" secondItem="s4f-QQ-kiR" secondAttribute="trailing" id="D9c-Jd-fr9"/>
+                <constraint firstItem="jmM-1E-uut" firstAttribute="top" secondItem="s4f-QQ-kiR" secondAttribute="bottom" id="DxK-ve-HgI"/>
+                <constraint firstItem="s4f-QQ-kiR" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="EWH-UA-1eY"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="jmM-1E-uut" secondAttribute="bottom" id="FVr-Aj-lxy"/>
+                <constraint firstItem="s4f-QQ-kiR" firstAttribute="top" secondItem="4aV-Qq-ptQ" secondAttribute="bottom" constant="10" id="I32-L5-ABo"/>
+                <constraint firstItem="uzd-Kf-WU0" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="18" id="O9K-0S-WuJ"/>
+                <constraint firstItem="tfD-Uu-1nm" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="12" id="Rl9-Cs-Eed"/>
+                <constraint firstItem="4aV-Qq-ptQ" firstAttribute="top" secondItem="tfD-Uu-1nm" secondAttribute="bottom" constant="4" id="ZjA-tJ-rM6"/>
+                <constraint firstItem="jmM-1E-uut" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="avH-q8-eY8"/>
+                <constraint firstItem="4aV-Qq-ptQ" firstAttribute="leading" secondItem="tfD-Uu-1nm" secondAttribute="leading" id="i6M-dR-p9U"/>
+                <constraint firstAttribute="trailing" secondItem="uzd-Kf-WU0" secondAttribute="trailing" constant="16" id="q5g-Yq-bSg"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="137.68115942028987" y="368.97321428571428"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="messages-collaborative-document.png" width="24" height="24"/>
+    </resources>
+</document>

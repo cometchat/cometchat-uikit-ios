@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="KGk-i7-Jjw" customClass="EmptyTableViewCell" customModule="CometChatUIKitSwift" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DUb-Gd-t52">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                    </stackView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="DUb-Gd-t52" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="2jk-dh-Ygi"/>
+                    <constraint firstAttribute="bottom" secondItem="DUb-Gd-t52" secondAttribute="bottom" id="GyI-Yg-v0t"/>
+                    <constraint firstAttribute="trailing" secondItem="DUb-Gd-t52" secondAttribute="trailing" id="U0t-0i-P0B"/>
+                    <constraint firstItem="DUb-Gd-t52" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="rsi-rF-gll"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="baseContainerView" destination="DUb-Gd-t52" id="uUz-BT-Wgu"/>
+            </connections>
+            <point key="canvasLocation" x="20" y="21"/>
+        </tableViewCell>
+    </objects>
+</document>
