@@ -28,7 +28,7 @@ This is a reference application showcasing the integration of [CometChat's iOS U
 pod install
 ```
 
-3. Update the app credentials `APP_ID`, `REGION` and `AUTH_KEY` in the [AppConstants.swift](AppConstants.swift) file. file:https://github.com/cometchat/cometchat-uikit-ios/blob/c63c2e085bdf12b9f2f5168642f05f16d108b217/SampleApp/AppConstants.swift#L11-L15
+3. Update the app credentials `APP_ID`, `REGION` and `AUTH_KEY` in the [AppConstants.swift](AppConstants.swift) file. file:https://github.com/cometchat/cometchat-uikit-ios/blob/dff19ab3a1a398ff44a0dc0394972af4b3d04e3f/SampleApp/AppConstants.swift#L11-L15
 
 4. Run the sample app.
 
