@@ -32,7 +32,6 @@ class SmartReplyExtensionDecorator: DataSourceDecorator {
     public func connect() {
         if let _messageListenerId = _messageListenerId {
             CometChatMessageEvents.addListener(_messageListenerId, self)
-            CometChatUIEvents.addListener(_messageListenerId, self)
         }
     }
     
@@ -177,16 +176,4 @@ extension SmartReplyExtensionDecorator: CometChatMessageEventListener {
             self.presentSmartReplies(for: textMessage)
         }
     }
-}
-
-extension SmartReplyExtensionDecorator: CometChatUIEventListener {
-    
-    func ccActiveChatChanged(id: [String : Any]?, lastMessage: CometChatSDK.BaseMessage?, user: CometChatSDK.User?, group: CometChatSDK.Group?) {
-        DispatchQueue.main.async{
-            if let lastMessage = lastMessage, lastMessage.senderUid != CometChat.getLoggedInUser()?.uid {
-//                self.presentSmartReplies(for: lastMessage)
-            }
-        }
-    }
-    
 }

@@ -21,6 +21,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         currentScene = scene
+        
+        if !AppConstants.APP_ID.isEmpty && !AppConstants.AUTH_KEY.isEmpty && !AppConstants.REGION.isEmpty{
+            let defaults = UserDefaults.standard
+            defaults.set(AppConstants.APP_ID, forKey: "appID")
+            defaults.set(AppConstants.REGION, forKey: "region")
+            defaults.set(AppConstants.AUTH_KEY, forKey: "authKey")
+        }
+        
         initialisationCometChatUIKit(completion: {
             if CometChat.getLoggedInUser() != nil {
                 self.setRootViewController(UINavigationController(rootViewController: HomeScreenViewController()))

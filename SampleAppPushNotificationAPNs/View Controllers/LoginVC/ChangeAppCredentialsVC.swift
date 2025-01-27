@@ -240,10 +240,6 @@ class ChangeAppCredentialsVC: UIViewController {
         
         if checkForError() {
             
-            AppConstants.APP_ID = appIDTextFiled.textField.text ?? ""
-            AppConstants.REGION = selectedRegion
-            AppConstants.AUTH_KEY = authKeyTextField.textField.text ?? ""
-            
             let defaults = UserDefaults.standard
             defaults.set(appIDTextFiled.textField.text ?? "", forKey: "appID")
             defaults.set(selectedRegion, forKey: "region")
