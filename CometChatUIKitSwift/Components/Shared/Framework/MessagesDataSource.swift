@@ -617,7 +617,6 @@ public class MessagesDataSource: DataSource {
         audioBubble.pin(anchors: [.height], to: 50)
         audioBubble.pin(anchors: [.width], to: 240)
         audioBubble.set(fileURL: message?.attachment?.fileUrl ?? "")
-        audioBubble.set(fileSize: message?.attachment?.fileSize ?? 0)
         
         
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)

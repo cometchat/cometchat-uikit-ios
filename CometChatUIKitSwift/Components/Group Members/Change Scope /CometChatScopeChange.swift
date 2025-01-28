@@ -54,6 +54,7 @@ open class CometChatScopeChange: UIViewController {
         button.addTarget(self, action: #selector(onSaveButtonClicked), for: .primaryActionTriggered)
         button.setTitleColor(CometChatTheme.white, for: .normal)
         button.backgroundColor = CometChatTheme.primaryColor
+        button.titleLabel?.font = CometChatTypography.Button.medium
         button.heightAnchor.pin(equalToConstant: 48).isActive = true
         button.roundViewCorners(corner: .init(cornerRadius: 8))
         return button
@@ -64,6 +65,7 @@ open class CometChatScopeChange: UIViewController {
         button.setTitle("Cancel", for: .normal)
         button.setTitleColor(CometChatTheme.black, for: .normal)
         button.addTarget(self, action: #selector(onCancelButtonClicked), for: .primaryActionTriggered)
+        button.titleLabel?.font = CometChatTypography.Button.medium
         button.backgroundColor = CometChatTheme.backgroundColor04
         button.heightAnchor.pin(equalToConstant: 48).isActive = true
         button.roundViewCorners(corner: .init(cornerRadius: 8))

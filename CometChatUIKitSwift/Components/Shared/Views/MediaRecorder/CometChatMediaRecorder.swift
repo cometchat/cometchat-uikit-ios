@@ -400,6 +400,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
         // Update the UI by removing start button and adding pause button
         audioNoteStartButton.removeFromSuperview()
         buttonsStackView.insertArrangedSubview(audioNotePauseButton, at: 1)
+        NotificationCenter.default.post(name: Notification.Name("RecordingStarted"), object: nil)
         
         if currentState == .ready {
             audioViewModel.startRecording { [weak self] soundRecord, error in

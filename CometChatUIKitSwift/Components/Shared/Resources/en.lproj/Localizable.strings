@@ -599,7 +599,7 @@
 "SELECT_A_TIME" = "Select a Time";
 "NO_TIME_SLOTS_AVAILABLE_FOR_THIS_DAY" = "No time slot available for this date. Please try another date.";
 "REPLIES_R" = "replies";
-"MENTION_LIMIT_TEXT" = "You can mention up to 10 times at a time.";
+"MENTION_LIMIT_TEXT" = "You can mention up to 10 usere at once.";
 "MESSAGE_PRIVATELY" = "Message Privately";
 "COPY" = "Copy";
 "INFO" = "Info";
@@ -608,5 +608,5 @@
 "MESSAGE_WAS_DELETED" = "This message was deleted";
 "NO_CONVERSATIONS_YET" = "No Conversations Yet";
 "START_A_NEW_CHAT_OR_INVITE_OTHERS_TO_JOIN_THE_CONVERSATION." = "Start a new chat or invite others to join the conversation.";
-"OOPS!" = "Opps!";
+"OOPS!" = "Oops!";
 "LOOKS_LIKE_SOMETHINGS_WENT_WORNG._PLEASE_TRY_AGAIN" = "Looks like something went wrong. Please try again.";

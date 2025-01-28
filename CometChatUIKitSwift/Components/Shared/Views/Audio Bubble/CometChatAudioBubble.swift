@@ -75,6 +75,7 @@ public class CometChatAudioBubble: UIView {
     /// Initializes the view and builds its UI.
     override init(frame: CGRect) {
         super.init(frame: frame)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleRecordingStarted), name: Notification.Name("RecordingStarted"), object: nil)
         buildUI()
     }
     
@@ -83,10 +84,26 @@ public class CometChatAudioBubble: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    @objc private func handleRecordingStarted() {
+        guard let fileURL = fileURL else { return }
+        player?.pause()
+        audioWaveView.stopAnimation()
+        CometChatAudioBubble.audioCashing.removeValue(forKey: fileURL)
+        if let playImage = playImage {
+            if #available(iOS 17.0, *) {
+                playImageView.setSymbolImage(playImage, contentTransition: .replace.downUp.wholeSymbol)
+            } else {
+                playImageView.image = playImage
+            }
+        }
+        print("Player paused due to recording start")
+    }
+    
     /// Called when the view is about to be added to a window. This sets up the style if the window exists.
     public override func willMove(toWindow newWindow: UIWindow?) {
         if newWindow != nil {
             setUpStyle()
+            setupAudioPlayer()
         } else {
             playerDidFinishPlaying()
         }
@@ -120,6 +137,7 @@ public class CometChatAudioBubble: UIView {
             audioWaveContainerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -CometChatSpacing.Padding.p3),
             audioWaveContainerView.topAnchor.constraint(equalTo: topAnchor, constant: CometChatSpacing.Padding.p3),
             audioWaveContainerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: CometChatSpacing.Padding.p),
+            audioWaveContainerView.heightAnchor.constraint(equalToConstant: 50)
         ]
         
         NSLayoutConstraint.activate(constraintsToActive)
@@ -208,6 +226,7 @@ public class CometChatAudioBubble: UIView {
 
     /// Deinitializes the view and removes the time observer.
     deinit {
+        NotificationCenter.default.removeObserver(self)
         if let token = timeObserverToken {
             player?.removeTimeObserver(token)
         }

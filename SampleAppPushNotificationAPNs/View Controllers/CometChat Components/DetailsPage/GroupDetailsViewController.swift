@@ -312,7 +312,7 @@ class GroupDetailsViewController: UIViewController {
                     CometChat.leaveGroup(GUID: group.guid) { leaveSuccess in
                         DispatchQueue.main.async { [weak self] in
                             print("group left")
-                            self?.navigationController?.popToViewController(ofClass: HomeScreenViewController.self, animated: true)
+                            self?.navigationController?.popViewController(animated: true)
                             if let user = CometChat.getLoggedInUser(), let group = self?.group {
                                 
                                 let actionMessage = ActionMessage()

@@ -38,18 +38,19 @@ class LimitedFormatterView: UIView {
         containerStackView.translatesAutoresizingMaskIntoConstraints = false
         containerStackView.axis = .horizontal
         containerStackView.spacing = 10
-        containerStackView.alignment = .leading
-        containerStackView.distribution = .fillProportionally
+        containerStackView.alignment = .fill
+        containerStackView.distribution = .fill
         
         icon = UIImageView(image: iconImg)
         icon.tintColor = CometChatTheme_v4.palatte.accent700
         icon.translatesAutoresizingMaskIntoConstraints = false
+        icon.pin(anchors: [.height, .width], to: 20)
         containerStackView.addArrangedSubview(icon)
         
         
         infoLabel.text = "MENTION_LIMIT_TEXT".localize()
-        infoLabel.font = CometChatTheme_v4.typography.text1
-        infoLabel.textColor = CometChatTheme_v4.palatte.accent700
+        infoLabel.font = CometChatTypography.Caption1.regular
+        infoLabel.textColor = CometChatTheme.errorColor
         containerStackView.addArrangedSubview(infoLabel)
         
         addSubview(containerStackView)

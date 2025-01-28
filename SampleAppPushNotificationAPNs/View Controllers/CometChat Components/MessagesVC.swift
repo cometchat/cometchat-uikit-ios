@@ -227,7 +227,6 @@ class MessagesVC: UIViewController {
     func disableComposerWithCallButton() {
         self.composerView.removeFromSuperview()
         headerView.set(tailView: getInfoButton())
-        setTailViewToHeader()
     }
 }
 

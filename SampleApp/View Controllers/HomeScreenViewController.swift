@@ -215,10 +215,16 @@ class HomeScreenViewController: UITabBarController {
     //Logging out
     @objc func logoutTapped() {
         
+        UserDefaults.standard.removeObject(forKey: "appID")
+        UserDefaults.standard.removeObject(forKey: "region")
+        UserDefaults.standard.removeObject(forKey: "authKey")
+        AppConstants.APP_ID = ""
+        AppConstants.AUTH_KEY = ""
+        AppConstants.REGION = ""
+        
         //Changing root window
         let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as! SceneDelegate
         sceneDelegate.setRootViewController(UINavigationController(rootViewController: LoginWithUidVC()))
-
         
         //Logging out from CometChatSDK
         CometChat.logout(onSuccess: { success in

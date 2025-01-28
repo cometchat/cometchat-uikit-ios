@@ -17,10 +17,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var currentChatType: String?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
         cometchatAPNsHelper.configurePushNotification(application: application, delegate: self)
         UNUserNotificationCenter.current().delegate = self
+
         return true
     }
+
     // MARK: UISceneSession Lifecycle
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
