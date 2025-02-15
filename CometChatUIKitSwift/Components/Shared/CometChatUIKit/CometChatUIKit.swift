@@ -50,7 +50,7 @@ final public class CometChatUIKit {
             }
             result(.success(isSuccess))
         } onError: { error in
-            result(.failure(error as! Error))
+            result(.failure(NSError(domain: error.errorCode, code: 0)))
         }
     }
     

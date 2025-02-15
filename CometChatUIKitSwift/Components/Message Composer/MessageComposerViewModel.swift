@@ -296,7 +296,11 @@ extension MessageComposerViewModel {
                         guard let this = self else { return }
                         this.reset?(true)
                         // updated_text_message get as Action_message.
-                        CometChatMessageEvents.ccMessageEdited(message: textMessage, status: .success)
+                        if let actionMessage = updatedTextMessage as? ActionMessage {
+                            textMessage.editedAt = Date().timeIntervalSince1970 //bug from SDK 
+                            textMessage.editedBy = actionMessage.editedBy
+                            CometChatMessageEvents.ccMessageEdited(message: textMessage, status: .success)
+                        }
                     }
                 case .failure(let error):
                     DispatchQueue.main.async { [weak self] in

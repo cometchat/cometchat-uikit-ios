@@ -99,6 +99,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             uikitSettings.set(appID: AppConstants.APP_ID)
                 .set(authKey: AppConstants.AUTH_KEY)
                 .set(region: AppConstants.REGION)
+                .setExtensionGroupID(id: "group.sampleapp.notification.delivered")
                 .subscribePresenceForAllUsers()
                 .build()
             

@@ -128,7 +128,7 @@ class StickersExtensionDecorator: DataSourceDecorator {
     
     public override func getLastConversationMessage(conversation: Conversation, isDeletedMessagesHidden: Bool, additionalConfiguration: AdditionalConfiguration?) -> NSAttributedString? {
         if let customMessage = conversation.lastMessage as? CustomMessage, let additionalConfiguration {
-            if customMessage.type == MessageTypeConstants.sticker {
+            if customMessage.type == MessageTypeConstants.sticker && customMessage.deletedAt == 0.0 {
                 return addImageToText(text: ConversationConstants.customMessageSticker, image: "messages-stickers", additionalConfiguration: additionalConfiguration)
             }
         }

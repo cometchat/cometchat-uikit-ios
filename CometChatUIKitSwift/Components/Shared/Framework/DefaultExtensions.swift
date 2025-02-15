@@ -24,7 +24,6 @@ public class DefaultExtensions {
             MessageTranslationExtension(),
             CometChatPollsExtension(),
             ProfanityDataMaskingExtension(),
-            CometChatSmartReplyExtension(),
             ThumbnailGenerationExtension(),
             CometChatStickerExtension()
         ]

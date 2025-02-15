@@ -36,7 +36,7 @@ public class CometChatPollsViewModel : DataSourceDecorator {
     
     public override func getLastConversationMessage(conversation: Conversation, isDeletedMessagesHidden: Bool, additionalConfiguration: AdditionalConfiguration?) -> NSAttributedString? {
         if let customMessage = conversation.lastMessage as? CustomMessage, let additionalConfiguration {
-            if customMessage.type == MessageTypeConstants.poll {
+            if customMessage.type == MessageTypeConstants.poll && customMessage.deletedAt == 0.0 {
                 return addImageToText(text: ConversationConstants.customMessagePoll, image: "messages-poll", additionalConfiguration: additionalConfiguration)
             }
         }

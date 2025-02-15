@@ -32,7 +32,7 @@ extension MessageHeaderViewModel: CometChatUserEventListener {
         
         if user.uid == self.user?.uid{
             DispatchQueue.main.async {
-                self.user?.blockedByMe = true
+                self.user = user
                 self.hideUserStatus?()
             }
             
@@ -44,10 +44,10 @@ extension MessageHeaderViewModel: CometChatUserEventListener {
         
         if user.uid == self.user?.uid{
             DispatchQueue.main.async {
-                self.user?.blockedByMe = false
+                self.user = user
+                self.unHideUserStatus?()
                 if user.status == .online {
                     self.updateUserStatus?(true)
-                    
                 }
                 self.updateTypingStatus?(nil, false)
             }

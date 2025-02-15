@@ -204,7 +204,17 @@ open class CometChatMessageComposer: UIView {
     public var messageComposerMode: MessageComposerMode =  .draft
     public var auxiliaryButtonsAlignment: AuxilaryButtonAlignment = .left
     public var suggestionViewStyle: SuggestionViewStyle?
-    public var disableMentions: Bool = false
+    public var disableMentions: Bool = false {
+        didSet {
+            if disableMentions == true {
+                if let defaultMentions = viewModel.textFormatter.firstIndex(where: { $0.formatterID == "internal_mentions" }) {
+                    var mentions = viewModel.textFormatter
+                    mentions.remove(at: defaultMentions)
+                    viewModel.textFormatter = mentions
+                }
+            }
+        }
+    }
     public var hideSendButton = false
     public var attachmentOptions = [CometChatMessageComposerAction]()
     

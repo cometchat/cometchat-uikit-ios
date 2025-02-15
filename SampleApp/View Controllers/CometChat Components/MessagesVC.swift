@@ -125,6 +125,7 @@ class MessagesVC: UIViewController {
         CometChatUIEvents.addListener("messages-user-event-listener-\(randamID)", self)
         CometChatUserEvents.addListener("messages-user-event-listener-\(randamID)", self)
         CometChat.addGroupListener("messages-user-event-listener-\(randamID)", self)
+        CometChatGroupEvents.addListener("messages-groups-event-listner-\(randamID)", self)
     }
     
     deinit {
@@ -132,17 +133,16 @@ class MessagesVC: UIViewController {
         CometChat.removeGroupListener("messages-user-event-listener-\(randamID)")
         CometChatUIEvents.removeListener("messages-user-event-listener-\(randamID)")
         CometChatUserEvents.removeListener("messages-user-event-listener-\(randamID)")
+        CometChatGroupEvents.removeListener("messages-groups-event-listner-\(randamID)")
     }
     
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self // for swipe back gesture
         self.navigationController?.setNavigationBarHidden(true, animated: true)
-        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
-        
     }
     
     func buildUI() {
@@ -187,6 +187,7 @@ class MessagesVC: UIViewController {
             self.headerView.tailView.subviews.first?.subviews[0].isHidden = true
             self.headerView.tailView.subviews.first?.subviews[1].isHidden = true
             self.headerView.disable(userPresence: true)
+            if user != nil { blockedLabel.text = "Can’t send a message to blocked \(user?.name ?? "")" }
         }
     }
     
@@ -238,11 +239,18 @@ extension MessagesVC: CometChatUIEventListener, UIGestureRecognizerDelegate {
 }
 
 //MARK: - GROUP EVENTS -
-extension MessagesVC: CometChatGroupDelegate {
+extension MessagesVC: CometChatGroupDelegate, CometChatGroupEventListener {
     
     func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
         if bannedFrom.guid == group?.guid && CometChat.getLoggedInUser()?.uid == bannedUser.uid {
             disableComposerWithCallButton()
+        }
+    }
+    
+    func ccGroupLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
+        if leftGroup.guid == group?.guid && CometChat.getLoggedInUser()?.uid == leftUser.uid {
+            disableComposerWithCallButton()
+            headerView.set(group: leftGroup)
         }
     }
     

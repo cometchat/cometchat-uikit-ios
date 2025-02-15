@@ -26,11 +26,13 @@ extension CometChatMessageList {
     @discardableResult
     public func set(messagesRequestBuilder: MessagesRequest.MessageRequestBuilder) -> Self {
         self.messagesRequestBuilder = messagesRequestBuilder
+        self.viewModel.set(messagesRequestBuilder: messagesRequestBuilder)
         return self
     }
     
     @discardableResult
     public func set(templates: [CometChatMessageTemplate]) -> Self {
+        viewModel.templates.removeAll()
         for template in (templates) {
             viewModel.templates["\(template.category)_\(template.type)"] = template
         }
@@ -252,6 +254,10 @@ extension CometChatMessageList {
         if let lastCell = self.tableView.indexPathsForVisibleRows, let lastIndex = lastCell.last {
             self.tableView.scrollToLastVisibleCell(lastIndex: lastIndex)
         }
+    }
+    
+    public func getAdditionalConfiguration() -> AdditionalConfiguration {
+        return viewModel.additionalConfiguration
     }
     
 }

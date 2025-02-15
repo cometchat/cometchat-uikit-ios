@@ -103,7 +103,7 @@ public class UsersViewModel: UsersViewModelProtocol {
     private func groupUsers(users: [User]){
         
         var staticUsers: [[User]] = sectionUsers
-        for index in 0...(users.count-1) {
+        for index in 0..<users.count {
             let lastCharter = staticUsers.last?.first?.name?.first
             let user = users[index]
             

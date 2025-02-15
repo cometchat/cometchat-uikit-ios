@@ -103,19 +103,16 @@ open class CometChatMessageList: UIView {
     public lazy var messageBubbleStyle = CometChatMessageList.messageBubbleStyle {
         didSet {
             viewModel.messageBubbleStyle = messageBubbleStyle
-            viewModel.setUpDefaultTemplate()
         }
     }
     public lazy var actionBubbleStyle = CometChatMessageBubble.actionBubbleStyle {
         didSet {
             viewModel.actionBubbleStyle = actionBubbleStyle
-            viewModel.setUpDefaultTemplate()
         }
     }
     public lazy var callActionBubbleStyle = CometChatMessageBubble.callActionBubbleStyle {
         didSet {
             viewModel.callActionBubbleStyle = callActionBubbleStyle
-            viewModel.setUpDefaultTemplate()
         }
     }
     
@@ -712,6 +709,11 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
             
             //building not supported bubble
             if let cell = tableView.dequeueReusableCell(withIdentifier: CometChatMessageBubble.identifier , for: indexPath) as? CometChatMessageBubble {
+                
+                //doing this because our tableView is also transformed
+                cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+                
+                //Setting message alignment
                 switch messageAlignment {
                 case .standard:
                     if isLoggedInUser {
@@ -723,6 +725,51 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     }
                 case .leftAligned:
                     cell.set(bubbleAlignment: .left)
+                }
+                
+                //Setting up header
+                if !hideBubbleHeader {
+                    let nameLabel = UILabel()
+                    nameLabel.numberOfLines = 1
+                    nameLabel.text = isLoggedInUser ? "YOU".localize() : message.sender?.name ?? ""
+                    nameLabel.font = messageTypeStyle?.headerTextFont ?? bubbleStyle.headerTextFont
+                    nameLabel.textColor = messageTypeStyle?.headerTextColor ?? bubbleStyle.headerTextColor
+                    
+                    cell.set(headerView: nameLabel)
+                }
+
+                //Setting up footer view
+                buildMessageFooterView(on: cell, for: message, messageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle)
+                
+                //setting up avatar view
+                if let user = message.sender {
+                    cell.set(avatarURL: user.avatar, avatarName: user.name)
+                    
+                    //setting header View
+                    switch message.receiverType {
+                    case .user:
+                        cell.hide(headerView: true)
+                        if cell.alignment == .left {
+                            if let showAvatar {
+                                cell.hide(avatar: !showAvatar)
+                            } else {
+                                cell.hide(avatar: true)
+                            }
+                        }
+                    case .group:
+                        if cell.alignment == .left {
+                            if let showAvatar {
+                                cell.hide(avatar: !showAvatar)
+                            } else {
+                                cell.hide(avatar: false)
+                            }
+                            cell.hide(headerView: false)
+                        } else {
+                            cell.hide(headerView: true)
+                        }
+                    @unknown default:
+                        break
+                    }
                 }
                 
                 let noSupportedBubble = CometChatDeleteBubble()
@@ -788,15 +835,11 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         let visibleHeight = scrollView.frame.size.height
         let offsetY = scrollView.contentOffset.y
         
-        let contentToVisibleRatio = contentHeight / visibleHeight
+        // Calculate the threshold for 65% of the content height
+        let threshold = contentHeight * 0.70
         
-        let thresholdFactor: CGFloat = (0.85 - ((contentToVisibleRatio - 1.5) / (8.0 - 1.5)) * (0.85 - 0.20))
-        
-        // Calculate the threshold scroll position to trigger the API
-        let threshold = contentHeight * thresholdFactor
-        
-        // Trigger the API call if the user has scrolled beyond the threshold
-        return offsetY > contentHeight - visibleHeight - threshold
+        // Check if the user has scrolled 60% or more of the content
+        return offsetY + visibleHeight >= threshold
     }
 
     

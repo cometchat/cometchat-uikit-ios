@@ -12,7 +12,7 @@ public class GroupMembersUtils {
     
     let kickMember = CometChatGroupMemberOption(id: GroupMemberOptionConstants.kick, title: "KICK_MEMBER".localize(), icon: UIImage(named: "groups-kick.png", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate), backgroundColor: CometChatTheme_v4.palatte.error,  onClick: nil)
     
-    let banMember =  CometChatGroupMemberOption(id: GroupMemberOptionConstants.ban, title: "BAN_MEMBER".localize(), icon: UIImage(named: "groups-ban.png", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate), backgroundColor: #colorLiteral(red: 1, green: 0.8, blue: 0, alpha: 1),  onClick: nil)
+    let banMember =  CometChatGroupMemberOption(id: GroupMemberOptionConstants.ban, title: "BAN_MEMBER".localize(), icon: UIImage(named: "ban_members", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate), backgroundColor: #colorLiteral(red: 1, green: 0.8, blue: 0, alpha: 1),  onClick: nil)
     
     let unbanMember = CometChatGroupMemberOption(id: GroupMemberOptionConstants.unban, title: "UNBAN_MEMBER".localize(), icon: UIImage(named: "groups-kick.png", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate), backgroundColor: CometChatTheme_v4.palatte.error,  onClick: nil)
     

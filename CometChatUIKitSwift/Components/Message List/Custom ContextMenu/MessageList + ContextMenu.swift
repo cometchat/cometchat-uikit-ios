@@ -25,13 +25,12 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
             if let self,
                let cell,
                let message,
-               let options = viewModel.getTemplate(for: message)?.options?(cell.baseMessage, viewModel.group, controller),
-               !options.isEmpty,
                message.deletedAt == 0
             {
+                let options = viewModel.getTemplate(for: message)?.options?(cell.baseMessage, viewModel.group, controller)
                 self.contextMenuMessage = message
                 self.contextMenuCell = cell
-                self.onCellLongPressGestureRecognized(cell: cell, option: options, messageAlignment: cell.alignment)
+                self.onCellLongPressGestureRecognized(cell: cell, option: options ?? [], messageAlignment: cell.alignment)
             }
         }
         
@@ -86,6 +85,7 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
         
         
         popupView.buildUI()
+        popupView.reactionView.isHidden = disableReactions
         popupView.modalPresentationStyle = .overFullScreen
         popupView.transitioningDelegate = self
         controller?.present(popupView, animated: true)

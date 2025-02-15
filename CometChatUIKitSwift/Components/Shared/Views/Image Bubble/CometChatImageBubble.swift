@@ -34,6 +34,7 @@ public class CometChatImageBubble: UIStackView {
     var previewItemURL = NSURL()
     private weak var imageDownloadService: URLSessionDownloadTask?
     var retryCount = 0
+    var isPhotoNeedToDownload = false
 
     
     override init(frame: CGRect) {
@@ -89,7 +90,7 @@ public class CometChatImageBubble: UIStackView {
         return self
     }
     
-    public func set(imageUrl: String, localFileURL: String? = nil) {
+    public func set(imageUrl: String, localFileURL: String? = nil, thumbnailURL: String? = nil) {
         let localUrl = URL(string: localFileURL ?? "")
         if (localUrl?.checkFileExist()) ?? false {
             self.imageURL = localFileURL
@@ -102,22 +103,33 @@ public class CometChatImageBubble: UIStackView {
             } catch {
                 self.imageURL = imageUrl
             }
-        }else if let url = URL(string: imageUrl) {
+        }else if let thumbnailString = thumbnailURL, let thumbnailURL = URL(string: thumbnailString) {
             self.imageURL = imageUrl
-            previewMediaMessage(url: imageUrl, completion: { [weak self] success, fileLocation in
-                guard let this = self, let fileLocation = fileLocation else { return }
-                DispatchQueue.main.async(execute: {
-                    this.activityIndicator.isHidden = true
-                    do {
-                        let imageData = try Data(contentsOf: fileLocation)
-                        let image = UIImage(data: imageData as Data)
-                        this.previewItemURL = fileLocation as NSURL
-                        this.imageView.image = image
-                        this.activityIndicator.isHidden = true
-                    } catch {  }
-                })
-            })
+            setPreviewImage(url: thumbnailString)
+            self.isPhotoNeedToDownload = true
+        } else if let originalImageURL = URL(string: imageUrl) {
+            self.imageURL = imageUrl
+            setPreviewImage(url: imageURL!)
         }
+    }
+    
+    func setPreviewImage(url: String) {
+        
+        previewMediaMessage(url: url, completion: { [weak self] success, fileLocation in
+            guard let this = self, let fileLocation = fileLocation else { return }
+            DispatchQueue.main.async(execute: {
+                this.activityIndicator.isHidden = true
+                do {
+                    let imageData = try Data(contentsOf: fileLocation)
+                    let image = UIImage(data: imageData as Data)
+                    this.previewItemURL = fileLocation as NSURL
+                    this.imageView.image = image
+                    this.activityIndicator.isHidden = true
+                } catch {  }
+            })
+        })
+
+        
     }
     
     func previewMediaMessage(url: String, completion: @escaping (_ success: Bool,_ fileLocation: URL?) -> Void){
@@ -168,9 +180,38 @@ public class CometChatImageBubble: UIStackView {
     }
     
     func setupPreviewController() {
+        
+        if isPhotoNeedToDownload, let imageURL = imageURL {
+            activityIndicator.isHidden = false
+            activityIndicator.startAnimating()
+            previewMediaMessage(url: imageURL) { [weak self] success, fileLocation in
+                guard let this = self, let fileLocation = fileLocation else { return }
+                
+                DispatchQueue.main.async(execute: {
+                    
+                    do {
+                        let imageData = try Data(contentsOf: fileLocation)
+                        let image = UIImage(data: imageData as Data)
+                        this.previewItemURL = fileLocation as NSURL
+                        this.imageView.image = image
+                        this.activityIndicator.isHidden = true
+                    } catch {  }
+                    
+                    this.activityIndicator.isHidden = true
+                    this.activityIndicator.stopAnimating()
+                    this.startImagePreviewController()
+                })
+                
+            }
+        } else {
+            startImagePreviewController()
+        }
+    }
+    
+    func startImagePreviewController() {
+        
         guard let controller = self.controller else { return }
         
-        //TODO: IMAGE PREIVEW 
         let previewController = QLPreviewController()
         previewController.dataSource = self
         previewController.delegate = self
@@ -191,7 +232,6 @@ public class CometChatImageBubble: UIStackView {
             }
         }
         controller.present(previewController, animated: true)
-        
     }
 
     deinit {

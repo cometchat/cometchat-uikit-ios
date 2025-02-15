@@ -616,7 +616,7 @@ extension GroupDetailsViewController: CometChatGroupDelegate, CometChatGroupEven
                     if group.membersCount == 1 {
                         self.showHideOptions(hideViewMembers: false, hideAddMembers: false, hideBannMembers: false, hideLeaveGroup: true, hideDeleteGroup: false)
                     } else {
-                        self.showHideOptions(hideViewMembers: false, hideAddMembers: false, hideBannMembers: false, hideLeaveGroup: false, hideDeleteGroup: true)
+                        self.showHideOptions(hideViewMembers: false, hideAddMembers: false, hideBannMembers: false, hideLeaveGroup: false, hideDeleteGroup: false)
                     }
                 case .moderator:
                     self.showHideOptions(hideViewMembers: false, hideAddMembers: true, hideBannMembers: false, hideLeaveGroup: false, hideDeleteGroup: true)

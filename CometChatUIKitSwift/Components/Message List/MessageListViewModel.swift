@@ -59,14 +59,28 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     var isUIUpdating = false
     var templates = [String: CometChatMessageTemplate]()
     var hideDeletedMessages: Bool = false
-    var messageBubbleStyle = CometChatMessageBubble.style
-    var actionBubbleStyle = CometChatMessageBubble.actionBubbleStyle
-    var callActionBubbleStyle = CometChatMessageBubble.callActionBubbleStyle
     var hasFetchedMessagesBefore = false
+    var additionalConfiguration = AdditionalConfiguration()
+
+    var messageBubbleStyle = CometChatMessageBubble.style {
+        didSet {
+            additionalConfiguration.messageBubbleStyle = messageBubbleStyle
+        }
+    }
+    var actionBubbleStyle = CometChatMessageBubble.actionBubbleStyle {
+        didSet {
+            additionalConfiguration.actionBubbleStyle = actionBubbleStyle
+        }
+    }
+    var callActionBubbleStyle = CometChatMessageBubble.callActionBubbleStyle {
+        didSet {
+            additionalConfiguration.callActionBubbleStyle = callActionBubbleStyle
+        }
+    }
     
     var textFormatters = ChatConfigurator.getDataSource().getTextFormatters() {
         didSet {
-            setUpDefaultTemplate()
+            additionalConfiguration.textFormatter = textFormatters
         }
     }
     
@@ -98,6 +112,14 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
         self.messagesRequest = self.messagesRequestBuilder.build()
         self.fetchUnreadMessageCount()
+    }
+    
+    func set(messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder) {
+        if let user = user {
+            self.messagesRequestBuilder = messagesRequestBuilder.set(uid: user.uid ?? "")
+        } else if let group = group {
+            self.messagesRequestBuilder = messagesRequestBuilder.set(guid: group.guid)
+        }
     }
     
     func sendActiveChatChangeEvent() {
@@ -136,7 +158,6 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     }
     
     func setUpDefaultTemplate() {
-        let additionalConfiguration = AdditionalConfiguration()
         additionalConfiguration.textFormatter = self.textFormatters
         additionalConfiguration.messageBubbleStyle = messageBubbleStyle
         additionalConfiguration.actionBubbleStyle = actionBubbleStyle

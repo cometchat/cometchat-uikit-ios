@@ -52,7 +52,7 @@ public class CollaborativeDocumentViewModel : DataSourceDecorator {
     
     public override func getLastConversationMessage(conversation: Conversation, isDeletedMessagesHidden: Bool, additionalConfiguration: AdditionalConfiguration?) -> NSAttributedString? {
         if let customMessage = conversation.lastMessage as? CustomMessage, let additionalConfiguration {
-            if customMessage.type == MessageTypeConstants.document {
+            if customMessage.type == MessageTypeConstants.document && customMessage.deletedAt == 0.0 {
                 return addImageToText(text: ConversationConstants.customMessageDocument, image: "collaborative-document-message", additionalConfiguration: additionalConfiguration)
             }
         }

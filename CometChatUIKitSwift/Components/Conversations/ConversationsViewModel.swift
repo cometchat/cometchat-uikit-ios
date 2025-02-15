@@ -193,12 +193,17 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
     }
     
     func removerConversation(for entity: AppEntity) {
-        
-        if let conversationIndex = conversations.firstIndex(where: {
-            ($0.conversationWith as? User)?.uid == (entity as? User)?.uid ||
-            ($0.conversationWith as? Group)?.guid == (entity as? Group)?.guid
+        if let conversationIndex = conversations.firstIndex(where: { conversation in
+            if let user = conversation.conversationWith as? User, let entityUser = entity as? User {
+                return user.uid == entityUser.uid
+            } else if let group = conversation.conversationWith as? Group, let entityGroup = entity as? Group {
+                return group.guid == entityGroup.guid
+            }
+            return false
         }) {
             removeAt(at: conversationIndex)
+        } else {
+            print("wrong index")
         }
         
     }

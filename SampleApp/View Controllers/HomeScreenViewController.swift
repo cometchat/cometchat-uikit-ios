@@ -113,20 +113,28 @@ class HomeScreenViewController: UITabBarController {
             #if canImport(CometChatCallsSDK)
             switch self.selectedIndex {
             case 0:
-                if conversations.tableView.numberOfRows(inSection: 0) > 0{
-                    conversations.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                if let table = conversations.tableView, table.numberOfSections > 0{
+                    if table.numberOfRows(inSection: 0) > 0{
+                        table.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                    }
                 }
             case 1:
-                if calls.tableView.numberOfRows(inSection: 0) > 0{
-                    calls.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                if let table = calls.tableView, table.numberOfSections > 0{
+                    if table.numberOfRows(inSection: 0) > 0{
+                        table.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                    }
                 }
             case 2:
-                if users.tableView.numberOfRows(inSection: 0) > 0{
-                    users.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                if let table = users.tableView, table.numberOfSections > 0{
+                    if table.numberOfRows(inSection: 0) > 0{
+                        table.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                    }
                 }
             case 3:
-                if groups.tableView.numberOfRows(inSection: 0) > 0{
-                    groups.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                if let table = groups.tableView, table.numberOfSections > 0{
+                    if table.numberOfRows(inSection: 0) > 0{
+                        table.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                    }
                 }
             default:
                 break

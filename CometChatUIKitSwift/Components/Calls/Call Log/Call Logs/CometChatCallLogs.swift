@@ -136,6 +136,7 @@ open class CometChatCallLogs: CometChatListBase {
         let isInitiator = CometChat.getLoggedInUser()?.uid != (callObject.initiator as? CallUser)?.uid
         if let callUser = isInitiator ? (callObject.initiator as? CallUser) : (callObject.receiver as? CallUser) {
             call = Call(receiverId: callUser.uid, callType: callObject.type == .video ? .video : .audio, receiverType: .user)
+            
             if callObject.type == .video {
                 initiateDefaultVideoCall(call!)
             } else {

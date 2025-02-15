@@ -52,7 +52,7 @@ public class CollaborativeWhiteboardViewModel : DataSourceDecorator {
     
     public override func getLastConversationMessage(conversation: Conversation, isDeletedMessagesHidden: Bool, additionalConfiguration: AdditionalConfiguration?) -> NSAttributedString? {
         if let customMessage = conversation.lastMessage as? CustomMessage, let additionalConfiguration {
-            if customMessage.type == MessageTypeConstants.whiteboard {
+            if customMessage.type == MessageTypeConstants.whiteboard && customMessage.deletedAt == 0.0 {
                 return addImageToText(text: ConversationConstants.customMessageWhiteboard, image: "collaborative-message-icon", additionalConfiguration: additionalConfiguration)
             }
         }

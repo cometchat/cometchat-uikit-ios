@@ -20,15 +20,15 @@ let package = Package(
         .package(
             name: "CometChatSDK",
             url: "https://github.com/cometchat/chat-sdk-ios.git",
-            .exact("4.0.54")
+            .exact("4.0.55")
         )
     ],
     targets: [
         // Defining the binary target for CometChatUIKitSwift.
         .binaryTarget(
             name: "CometChatUIKitSwift",
-            url: "https://library.cometchat.io/ios/v4.0/xcode15/CometChatUIKitSwift_5_0_0_beta.3.xcframework.zip",
-            checksum: "3abbd372937dd6528840d19ac65c5efabbcd37e379803efa073025624e90dd92"
+            url: "https://library.cometchat.io/ios/v4.0/xcode15/CometChatUIKitSwift_5_0_0_beta.4.xcframework.zip",
+            checksum: "8d9c1a7f6e1469bed89a3fb809d3316dc5da3968c70f298209bd2a95679c603d"
         )
     ]
 )

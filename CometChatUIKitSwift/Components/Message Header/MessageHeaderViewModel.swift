@@ -16,6 +16,7 @@ public protocol MessageHeaderViewModelProtocol {
     var updateTypingStatus: ((_ user: User?, _ isTyping: Bool) -> Void)? { get set }
     var updateUserStatus: ((Bool) -> Void)? { get set }
     var hideUserStatus : (()->Void)? {get set}
+    var unHideUserStatus : (()->Void)? {get set}
     var listenerRandomId: TimeInterval { get set }
     
     func set(user: User)
@@ -34,7 +35,8 @@ public class MessageHeaderViewModel: NSObject, MessageHeaderViewModelProtocol {
     public var updateGroupCount: ((Group) -> Void)?
     public var listenerRandomId = Date().timeIntervalSince1970
     public var hideUserStatus : (()->Void)?
-    
+    public var unHideUserStatus : (()->Void)?
+
     public override init() {
         super.init()
     }
@@ -52,6 +54,7 @@ public class MessageHeaderViewModel: NSObject, MessageHeaderViewModelProtocol {
         CometChatMessageEvents.addListener("messages-header-message-listener-\(listenerRandomId)", self)
         CometChat.addGroupListener("messages-header-groups-sdk-listener-\(listenerRandomId)", self)
         CometChatGroupEvents.addListener("messages-header-group-event-listener-\(listenerRandomId)", self)
+        CometChatUserEvents.addListener("messages-header-user-event-listener-\(listenerRandomId)", self)
     }
     
     public func disconnect() {
@@ -59,6 +62,7 @@ public class MessageHeaderViewModel: NSObject, MessageHeaderViewModelProtocol {
         CometChat.removeMessageListener("messages-header-message-listener-\(listenerRandomId)")
         CometChat.removeGroupListener("messages-header-groups-sdk-listener-\(listenerRandomId)")
         CometChatGroupEvents.removeListener("messages-header-group-event-listener-\(listenerRandomId)")
+        CometChatUserEvents.removeListener("messages-header-user-event-listener-\(listenerRandomId)")
     }
     
     

@@ -594,11 +594,7 @@ public class MessagesDataSource: DataSource {
             localImageURL = message?.metaData?["fileURL"] as? String ///setting image from local path
         }
         
-        if let imageUrl = imageUrl {
-            imageBubble.set(imageUrl: imageUrl, localFileURL: localImageURL)
-        } else {
-            imageBubble.set(imageUrl: message?.attachment?.fileUrl ?? "", localFileURL: localImageURL)
-        }
+        imageBubble.set(imageUrl: message?.attachment?.fileUrl ?? "", localFileURL: localImageURL, thumbnailURL: imageUrl)
 
         if let style = style { imageBubble.style = style }
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)
@@ -708,16 +704,19 @@ public class MessagesDataSource: DataSource {
         let textFormatter = additionalConfiguration?.textFormatter
         
         if let currentMessage = conversation.lastMessage {
-            switch currentMessage.messageCategory {
-            case .message:
-                if currentMessage.deletedAt > 0.0 {
-                    if isDeletedMessagesHidden {
-                        lastMessage = ""
-                    } else {
-                        lastMessage = ConversationConstants.thisMessageDeleted
-                        lastMessageImage = "deleted-message"
-                    }
+            
+            if currentMessage.deletedAt > 0.0 {
+                if isDeletedMessagesHidden {
+                    lastMessage = ""
                 } else {
+                    lastMessage = ConversationConstants.thisMessageDeleted
+                    lastMessageImage = "deleted-message"
+                }
+                
+            } else {
+                
+                switch currentMessage.messageCategory {
+                case .message:
                     switch currentMessage.messageType {
                     case .text:
                         if let textMessage = currentMessage as? TextMessage {
@@ -760,40 +759,41 @@ public class MessagesDataSource: DataSource {
                     @unknown default:
                         break
                     }
-                }
-            case .action:
-                lastMessage = CometChatUIKit.getActionMessage(baseMessage: currentMessage)
-            case .interactive:
-                lastMessage = ConversationConstants.notSupportedMessage
-                lastMessageImage = "deleted-message"
-            case .custom:
-                if let customMessage = currentMessage as? CustomMessage {
-                    if customMessage.type == MessageTypeConstants.location {
-                        lastMessage = ConversationConstants.customMessageLocation
-                        lastMessageImage = "messages-location"
-                    } else if customMessage.type == MessageTypeConstants.document {
-                        lastMessage = ConversationConstants.customMessageDocument
-                        lastMessageImage = "message-document"
-                    } else if customMessage.type == MessageTypeConstants.meeting {
-                        lastMessage = ConversationConstants.hasIntiatedGroupAudioCall
-                    } else {
-                        if let pushNotificationTitle = customMessage.metaData?["pushNotification"] as? String {
-                            if !pushNotificationTitle.isEmpty {
-                                lastMessage = pushNotificationTitle
-                            } else {
-                                lastMessage = "\(String(describing: customMessage.customData))"
-                            }
+                    
+                case .action:
+                    lastMessage = CometChatUIKit.getActionMessage(baseMessage: currentMessage)
+                case .interactive:
+                    lastMessage = ConversationConstants.notSupportedMessage
+                    lastMessageImage = "deleted-message"
+                case .custom:
+                    if let customMessage = currentMessage as? CustomMessage {
+                        if customMessage.type == MessageTypeConstants.location {
+                            lastMessage = ConversationConstants.customMessageLocation
+                            lastMessageImage = "messages-location"
+                        } else if customMessage.type == MessageTypeConstants.document {
+                            lastMessage = ConversationConstants.customMessageDocument
+                            lastMessageImage = "message-document"
+                        } else if customMessage.type == MessageTypeConstants.meeting {
+                            lastMessage = ConversationConstants.hasIntiatedGroupAudioCall
                         } else {
-                            if let data = customMessage.customData{
-                                lastMessage = String(describing: data)
+                            if let pushNotificationTitle = customMessage.metaData?["pushNotification"] as? String {
+                                if !pushNotificationTitle.isEmpty {
+                                    lastMessage = pushNotificationTitle
+                                } else {
+                                    lastMessage = "\(String(describing: customMessage.customData))"
+                                }
+                            } else {
+                                if let data = customMessage.customData{
+                                    lastMessage = String(describing: data)
+                                }
                             }
                         }
                     }
+                case .call:
+                    break
+                @unknown default:
+                    break
                 }
-            case .call:
-                break
-            @unknown default:
-                break
             }
         } else {
             lastMessage = "TAP_TO_START_CONVERSATION".localize()

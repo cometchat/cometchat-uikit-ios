@@ -63,10 +63,12 @@ open class CometChatScopeChange: UIViewController {
     public lazy var cancelButton: UIButton = {
         let button = UIButton().withoutAutoresizingMaskConstraints()
         button.setTitle("Cancel", for: .normal)
-        button.setTitleColor(CometChatTheme.black, for: .normal)
+        button.setTitleColor(CometChatTheme.errorColor, for: .normal)
         button.addTarget(self, action: #selector(onCancelButtonClicked), for: .primaryActionTriggered)
         button.titleLabel?.font = CometChatTypography.Button.medium
-        button.backgroundColor = CometChatTheme.backgroundColor04
+        button.backgroundColor = CometChatTheme.backgroundColor01
+        button.borderWith(width: 1)
+        button.borderColor(color: CometChatTheme.borderColorDark)
         button.heightAnchor.pin(equalToConstant: 48).isActive = true
         button.roundViewCorners(corner: .init(cornerRadius: 8))
         return button

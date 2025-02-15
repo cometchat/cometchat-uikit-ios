@@ -256,6 +256,12 @@ import CometChatSDK
             self?.subtitleView.subviews.forEach({ $0.removeFromSuperview() })
         }
         
+        viewModel.unHideUserStatus = { [weak self] in
+            guard let self = self else { return }
+            self.subtitleView.isHidden = false
+            self.subtitleView.embed(subtitleLabel, insets: .init(top: 1, leading: 0, bottom: 0, trailing: 0))
+        }
+        
         viewModel.updateTypingStatus = { [weak self] byUser, isTyping in
             self?.updateTypingStatus(user: byUser, isTyping: isTyping)
         }

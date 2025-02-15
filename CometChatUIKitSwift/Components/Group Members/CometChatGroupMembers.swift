@@ -262,7 +262,7 @@ open class CometChatGroupMembers: CometChatListBase {
         
         // - Ban Action -
         if GroupMembersUtils.allowKickBanUnbanMember(group: viewModel.group, groupMember: groupMember) {
-            let banActionImage = UIImage(systemName: "person.slash.fill")?.add(text: "Ban", imageTint: .white)
+            let banActionImage = UIImage(named: "ban_members")?.add(text: "Ban", imageTint: .white)
             let banAction = UIContextualAction(
                 style: .normal,
                 title: "Ban",

@@ -267,7 +267,7 @@ extension BannedMembersVC {
         let indexPath = IndexPath(row: row, section: 0)
         let bannedMember = viewModel.isSearching ? viewModel.filteredBannedGroupMembers[indexPath.row] : viewModel.bannedGroupMembers[indexPath.row]
         
-        showAlert("Unban Member", "Are you sure you want to unban \(bannedMember.name ?? "") ", "Cancel", "Unbann") { [weak self] in
+        showAlert("UNBAN_MEMBER".localize(), "Are you sure you want to unban \(bannedMember.name ?? "") ", "CANCEL".localize(), "UNBAN".localize()) { [weak self] in
             self?.viewModel.unbanGroupMember(member: bannedMember)
         }
         

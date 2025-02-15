@@ -81,8 +81,8 @@ public struct DeleteBubbleStyle: BaseMessageBubbleStyle {
             textColor = CometChatTheme.neutralColor600
             deleteImageTintColor = CometChatTheme.neutralColor600
         case .outgoing:
-            textColor = CometChatTheme.textColorWhite
-            deleteImageTintColor = CometChatTheme.textColorWhite
+            textColor = CometChatTheme.white
+            deleteImageTintColor = CometChatTheme.white
         }
     }
 }

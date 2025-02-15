@@ -167,7 +167,6 @@ final public class UIKitSettings {
     @discardableResult
     public func build() -> Self {
         self.appSettingsBuilder.setRegion(region: self.region)
-        self.appSettingsBuilder.autoEstablishSocketConnection(true)
         self.appSettingsBuilder.build()
         return self
     }

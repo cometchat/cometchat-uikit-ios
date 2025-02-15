@@ -62,7 +62,6 @@ class OngoingCallViewModel:  OngoingCallViewModelProtocol {
                 if let callView = self.callView, let callSettings = self.callSettings {
                     CometChatCalls.startSession(callToken: token ?? "", callSetting: callSettings, view: callView, onSuccess: {_ in
                         
-                        
                     }, onError: {error in
                         self.onError?(error)
                     })

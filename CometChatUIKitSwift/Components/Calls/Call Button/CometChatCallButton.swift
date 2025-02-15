@@ -446,7 +446,7 @@ extension CometChatCallButtons {
                 confirmDialog.set(confirmButtonText: "OK".localize())
                 confirmDialog.set(cancelButtonText: "CANCEL".localize())
                 if let error = error {
-                    confirmDialog.set(error: CometChatServerError.get(error: error))
+                    confirmDialog.set(error: error.errorDescription)
                 }
                 confirmDialog.open {
                 }
@@ -492,7 +492,7 @@ extension CometChatCallButtons {
                 confirmDialog.set(confirmButtonText: "OK".localize())
                 confirmDialog.set(cancelButtonText: "CANCEL".localize())
                 if let error = error {
-                    confirmDialog.set(error: CometChatServerError.get(error: error))
+                    confirmDialog.set(error: error.errorDescription)
                 }
                 confirmDialog.open {
                 }

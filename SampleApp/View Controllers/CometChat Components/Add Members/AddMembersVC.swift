@@ -172,6 +172,20 @@ open class AddMembersVC: CometChatUsers {
         dismiss(animated: true)
     }
     
+    open override func showEmptyView() {
+        super.showEmptyView()
+        
+        //for making sure add button is not getting overlapped with empty state view
+        view.bringSubviewToFront(addMemberButtonView)
+    }
+    
+    open override func showErrorView() {
+        super.showErrorView()
+        
+        //for making sure add button is not getting overlapped with error state view
+        view.bringSubviewToFront(addMemberButtonView)
+    }
+    
     @objc private func didAddMembersPressed() {
         self.searchController.searchBar.endEditing(true)
         self.searchController.searchBar.resignFirstResponder()

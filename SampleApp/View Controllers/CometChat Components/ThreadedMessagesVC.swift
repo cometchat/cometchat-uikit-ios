@@ -124,7 +124,14 @@ class ThreadedMessagesVC: UIViewController {
         
         // Subtitle Label
         let subtitle = UILabel()
-        subtitle.text = (((parentMessage?.receiver as? User)?.name) ?? ((parentMessage?.receiver as? Group)?.name) ?? "")
+        
+        if (parentMessage?.receiver as? Group) != nil {
+            subtitle.text = ((parentMessage?.receiver as? Group)?.name) ?? ""
+        } else if parentMessage?.receiverUid == CometChat.getLoggedInUser()?.uid {
+            subtitle.text = ((parentMessage?.sender as? User)?.name) ?? ""
+        } else {
+            subtitle.text = ((parentMessage?.receiver as? User)?.name) ?? ""
+        }
         subtitle.textColor = CometChatTheme.textColorSecondary
         subtitle.font = CometChatTypography.Caption1.regular
         stackView.addArrangedSubview(subtitle)

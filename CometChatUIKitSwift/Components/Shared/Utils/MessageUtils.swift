@@ -135,6 +135,12 @@ open class MessageUtils {
             date.set(pattern: .time)
             date.set(timestamp: message.sentAt)
             date.style = dateStyle
+            
+            // adding edited tag for text message
+            if let textMessage = message as? TextMessage, textMessage.editedAt != 0 {
+                date.text = "Edited  " + (date.text ?? "")
+            }
+            
             statusInfoView.addSubview(date)
             constraintToActive += [
                 date.topAnchor.pin(equalTo: statusInfoView.topAnchor),

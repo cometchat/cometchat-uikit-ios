@@ -39,6 +39,7 @@ class UserDetailsViewController: UIViewController {
     
     public lazy var statusLabel: UILabel = {
         let label = UILabel()
+        if user?.blockedByMe == true { label.isHidden = true }
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = user?.status == .online ? "Online" : "Offline"
         label.font = CometChatTypography.Caption1.regular
@@ -240,7 +241,7 @@ class UserDetailsViewController: UIViewController {
     
     @objc func showBlockAlert(){
         if blockButton.tag == 0 {
-            self.showAlert("Block \(user?.name ?? "")", "Are you sure you want to block \(user?.name ?? "").", "Cancel", "Block", onActionsTriggered: { [weak self] in
+            self.showAlert("\("Block".localize()) \(user?.name ?? "")", "Are you sure you want to block \(user?.name ?? "").", "\("CANCEL".localize())", "\("Block".localize())", onActionsTriggered: { [weak self] in
                 if let user = self?.user {
                     CometChat.blockUsers([user.uid ?? ""]) { success in
                         DispatchQueue.main.async {
@@ -257,20 +258,22 @@ class UserDetailsViewController: UIViewController {
                 }
             })
         } else {
-            CometChat.unblockUsers([user?.uid ?? ""]) { [weak self] success in
-                DispatchQueue.main.async {
-                    if let user = self?.user {
-                        user.blockedByMe = false
-                        CometChatUserEvents.ccUserUnblocked(user: user)
+            self.showAlert("\("UNBLOCK".localize()) \(user?.name ?? "")", "Are you sure you want to unblock \(user?.name ?? "").", "\("CANCEL".localize())", "UNBLOCK".localize(), onActionsTriggered: { [weak self] in
+                if let user = self?.user {
+                    CometChat.unblockUsers([user.uid ?? ""]) { success in
+                        DispatchQueue.main.async {
+                            user.blockedByMe = false
+                            CometChatUserEvents.ccUserUnblocked(user: user)
+                            self?.blockButton.tag = 0
+                            self?.blockButton.setTitle("Block", for: .normal)
+                            self?.blockButton.tintColor = CometChatTheme.errorColor
+                            self?.blockButton.setTitleColor(CometChatTheme.errorColor, for: .normal)
+                        }
+                    } onError: { error in
+                        //TODO: ERROR
                     }
-                    self?.blockButton.tag = 0
-                    self?.blockButton.setTitle("Block", for: .normal)
-                    self?.blockButton.setTitleColor(CometChatTheme.errorColor, for: .normal)
-                    self?.blockButton.tintColor = CometChatTheme.errorColor
                 }
-            } onError: { error in
-                //TODO: ERROR
-            }
+            })
         }
     }
     
@@ -312,10 +315,11 @@ extension UserDetailsViewController: CometChatUserEventListener, CometChatUserDe
     }
     
     func ccUserBlocked(user: User) {
-        statusLabel.text = "Offline"
+        statusLabel.isHidden = true
     }
     
     func ccUserUnblocked(user: User) {
+        statusLabel.isHidden = false
         statusLabel.text = user.status == .online ? "Online" : "Offline"
     }
     

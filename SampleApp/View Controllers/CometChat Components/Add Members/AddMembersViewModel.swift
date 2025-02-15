@@ -31,12 +31,10 @@ class AddMembersViewModel : AddMembersViewModelProtocol {
             guard let this = self else { return }
             if let loggedInUser = CometChat.getLoggedInUser() {
                 var actionMessages: [ActionMessage] = [ActionMessage]()
-                var containsSuccess = false
                 
                 members.forEach { member in
                     
                     if let uid = member.uid, (addedMember[uid] as? String) == "success" {
-                        containsSuccess = true
                         
                         let actionMessage = ActionMessage()
                         actionMessage.action = .added
@@ -58,11 +56,7 @@ class AddMembersViewModel : AddMembersViewModelProtocol {
                     }
                 }
                 
-                if containsSuccess {
-                    this.isMembersAdded?(actionMessages, members, this.group, loggedInUser)
-                } else {
-                    this.unableToAddMember?("Unable to add member")
-                }
+                this.isMembersAdded?(actionMessages, members, this.group, loggedInUser)
                 
             }
             
