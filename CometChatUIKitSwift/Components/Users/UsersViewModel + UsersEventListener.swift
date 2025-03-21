@@ -11,10 +11,12 @@ import CometChatSDK
 extension UsersViewModel: CometChatUserDelegate {
     
     public func onUserOnline(user: User) {
+        user.status = .online
         update(user: user)
     }
     
     public func onUserOffline(user: User) {
+        user.status = .offline
         update(user: user)
     }
 }
@@ -23,13 +25,13 @@ extension UsersViewModel: CometChatUserEventListener {
     
     public func ccUserUnblocked(user: CometChatSDK.User) {
         // update user
+        user.blockedByMe = false
         update(user: user)
-        user.hasBlockedMe = false
     }
     
     public func ccUserBlocked(user: User) {
         // update user
+        user.blockedByMe = true
         update(user: user)
-        user.hasBlockedMe = true
     }
 }

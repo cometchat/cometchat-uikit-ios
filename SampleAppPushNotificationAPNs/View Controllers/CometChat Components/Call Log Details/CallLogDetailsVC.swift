@@ -158,7 +158,7 @@ public class CallLogDetailsVC: UIViewController {
     
     public var currentIndex: Int = 0
     
-    public let tabNames = ["Participants", "Recording", "History"]
+    public let tabNames = ["PARTICIPANTS".localize(), "RECORDING".localize(), "HISTORY".localize()]
     public var callLog: CometChatCallsSDK.CallLog?
     public var currentGroup: Group?
     public var currentUser: User?
@@ -184,7 +184,7 @@ public class CallLogDetailsVC: UIViewController {
     
     public func buildUI() {
         view.backgroundColor = CometChatTheme.backgroundColor01
-        title = "Call Detail"
+        title = "CALL_DETAIL".localize()
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .always
         navigationController?.navigationBar.tintColor = CometChatTheme.iconColorPrimary
@@ -240,16 +240,16 @@ public class CallLogDetailsVC: UIViewController {
         
         switch callLog?.status {
         case .busy, .unanswered, .rejected, .cancelled:
-            nameLabel.text = "Missed"
+            nameLabel.text = "MISSED".localize()
             callTypeImageView.image = UIImage(named: "missed_call_image")
             callTypeImageView.tintColor = CometChatTheme.errorColor
         case .initiated, .ongoing, .ended:
             if isInitiator{
-                nameLabel.text = "Outgoing"
+                nameLabel.text = "OUTGOING".localize()
                 callTypeImageView.image = UIImage(systemName: "arrow.up.right")
                 callTypeImageView.tintColor = CometChatTheme.successColor
             }else{
-                nameLabel.text = "Incoming"
+                nameLabel.text = "INCOMING".localize()
                 callTypeImageView.image = UIImage(systemName: "arrow.down.left")
                 callTypeImageView.tintColor = CometChatTheme.errorColor
             }

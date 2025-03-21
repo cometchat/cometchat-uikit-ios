@@ -18,7 +18,7 @@ open class CometChatAIConversationStarter: UIView {
     
     public let errorLabel: UILabel = {
         let label = UILabel().withoutAutoresizingMaskConstraints()
-        label.text = "Looks like something went wrong.\nPlease try again."
+        label.text = "SOMETHING_WENT_WRONG_WITH_NEW_LINE".localize()
         label.numberOfLines = 0
         label.textAlignment = .center
         return label

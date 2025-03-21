@@ -60,6 +60,7 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
     var isFetchedAll = false
     
     var isSearching: Bool = false
+    private var searchingText: String = ""
     var selectedGroups: [CometChatSDK.Group] = []
     var groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder
     private var filterGroupsRequestBuilder: GroupsRequest.GroupsRequestBuilder?
@@ -123,6 +124,7 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
     }
     
     func filterGroups(text: String) {
+        self.searchingText = text
         self.filterGroupsRequest = self.groupsRequestBuilder.set(searchKeyword: text).build()
         guard let filterGroupsRequest = filterGroupsRequest else { return }
         GroupsBuilder.getfilteredGroups(filterGroupRequest: filterGroupsRequest) { [weak self] result in
@@ -181,7 +183,11 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
     @discardableResult
     func update(group: Group) -> Self {
         if let index = groups.firstIndex(where: { $0.guid == group.guid }) {
-            self.groups[index] = group
+            if isSearching{
+                self.filteredGroups[index] = group
+            }else{
+                self.groups[index] = group
+            }
         }
         return self
     }

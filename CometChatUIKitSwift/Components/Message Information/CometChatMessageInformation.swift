@@ -71,14 +71,14 @@ open class CometChatMessageInformation: CometChatListBase {
             errorView.imageView.isHidden = true
             errorView.titleLabel.isHidden = true
             errorView.retryButton.isHidden = true
-            errorView.subtitleLabel.text = "Looks like something went wrong.\nPlease try again."
+            errorView.subtitleLabel.text = "SOMETHING_WENT_WRONG_WITH_NEW_LINE".localize()
         }
         
         if let emptyStateView = self.emptyStateView as? StateView {
             emptyStateView.imageView.isHidden = true
             emptyStateView.titleLabel.isHidden = true
             emptyStateView.retryButton.isHidden = true
-            emptyStateView.subtitleLabel.text = "Waiting for recipients to receive and view the message"
+            emptyStateView.subtitleLabel.text = "MESSAGE_INFORMATION_EMPTY_MESSAGE".localize()
         }
     }
     
@@ -87,7 +87,7 @@ open class CometChatMessageInformation: CometChatListBase {
     }
     
     open override func setupStyle() {
-        title = "Message Info"
+        title = "MESSAGE_INFO".localize()
         
         view.backgroundColor = style.backgroundColor
         view.borderWith(width: style.borderWidth)

@@ -14,7 +14,7 @@ open class CometChatScopeChange: UIViewController {
     public lazy var titleLabel: UILabel = {
         let label = UILabel().withoutAutoresizingMaskConstraints()
         label.textAlignment = .center
-        label.text = "Change Scope"
+        label.text = "CHANGE_SCOPE".localize()
         return label
     }()
     
@@ -22,7 +22,7 @@ open class CometChatScopeChange: UIViewController {
         let label = UILabel().withoutAutoresizingMaskConstraints()
         label.textAlignment = .center
         label.numberOfLines = 2
-        label.text = "You can change roles to manage group permissions and responsibilities."
+        label.text = "CHANGE_ROLE_MESSAGE".localize()
         return label
     }()
     
@@ -50,7 +50,7 @@ open class CometChatScopeChange: UIViewController {
     
     public lazy var saveButton: UIButton = {
         let button = UIButton().withoutAutoresizingMaskConstraints()
-        button.setTitle("Save", for: .normal)
+        button.setTitle("SAVE".localize(), for: .normal)
         button.addTarget(self, action: #selector(onSaveButtonClicked), for: .primaryActionTriggered)
         button.setTitleColor(CometChatTheme.white, for: .normal)
         button.backgroundColor = CometChatTheme.primaryColor
@@ -62,7 +62,7 @@ open class CometChatScopeChange: UIViewController {
     
     public lazy var cancelButton: UIButton = {
         let button = UIButton().withoutAutoresizingMaskConstraints()
-        button.setTitle("Cancel", for: .normal)
+        button.setTitle("CANCEL".localize(), for: .normal)
         button.setTitleColor(CometChatTheme.errorColor, for: .normal)
         button.addTarget(self, action: #selector(onCancelButtonClicked), for: .primaryActionTriggered)
         button.titleLabel?.font = CometChatTypography.Button.medium
@@ -296,10 +296,10 @@ open class CometChatScopeChange: UIViewController {
     @discardableResult
     public func set(group: Group, groupMember: GroupMember) -> Self {
         if group.scope == .moderator {
-            options = [("Moderator", .moderator), ("Participant", .participant)
+            options = [("MODERATOR".localize(), .moderator), ("PARTICIPANT".localize(), .participant)
             ]
         } else {
-            options = [("Admin", .admin), ("Moderator", .moderator), ("Participant", .participant) ]
+            options = [("ADMIN", .admin), ("MODERATOR", .moderator), ("PARTICIPANT", .participant) ]
         }
         
         options.enumerated().forEach { index, option in

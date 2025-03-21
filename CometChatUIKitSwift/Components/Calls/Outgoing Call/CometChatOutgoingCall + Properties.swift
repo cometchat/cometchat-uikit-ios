@@ -9,7 +9,6 @@ import Foundation
 import CometChatSDK
 
 #if canImport(CometChatCallsSDK)
-import CometChatCallsSDK
 
 extension CometChatOutgoingCall {
     

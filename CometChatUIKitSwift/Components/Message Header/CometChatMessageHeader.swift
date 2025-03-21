@@ -159,50 +159,53 @@ import CometChatSDK
     }
     
     func addCustomViews(){
-        
-        self.tailView.subviews.forEach({ $0.removeFromSuperview() })
-        if let auxiliaryView = auxiliaryView?(viewModel.user, viewModel.group) {
-            self.tailView.addArrangedSubview(auxiliaryView)
-        } else {
-            if let auxiliaryHeaderMenu = CometChatUIKit.getDataSource().getAuxiliaryHeaderMenu(user: viewModel.user, group: viewModel.group, controller: controller, id: nil, additionalConfiguration: additionalConfiguration){
-                auxiliaryHeaderMenu.distribution = .fillEqually
-                self.tailView.addArrangedSubview(auxiliaryHeaderMenu)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.tailView.subviews.forEach({ $0.removeFromSuperview() })
+            if let auxiliaryView = self.auxiliaryView?(self.viewModel.user, self.viewModel.group) {
+                self.tailView.addArrangedSubview(auxiliaryView)
+            } else {
+                if let auxiliaryHeaderMenu = CometChatUIKit.getDataSource().getAuxiliaryHeaderMenu(user: self.viewModel.user, group: self.viewModel.group, controller: self.controller, id: nil, additionalConfiguration: self.additionalConfiguration){
+                    auxiliaryHeaderMenu.distribution = .fillEqually
+                    self.tailView.addArrangedSubview(auxiliaryHeaderMenu)
+                }
             }
-        }
-        
-        if let trailView = trailView?(viewModel.user, viewModel.group){
-            self.tailView.alignment = .center
-            self.tailView.addArrangedSubview(trailView)
-        }
-        
-        if let titleView = titleView?(viewModel.user, viewModel.group){
-            self.titleLabelView.subviews.forEach({$0.removeFromSuperview()})
-            self.titleLabelView.embed(titleView)
-        }
-        
-        if let subtitleView = subtitleView?(viewModel.user, viewModel.group){
-            self.subtitle.subviews.forEach({$0.removeFromSuperview()})
-            self.subtitle.embed(subtitleView)
-        }
-        
-        if let leadingView = leadingView?(viewModel.user, viewModel.group){
-            self.leadingConatinerView.subviews.forEach({ $0.removeFromSuperview() })
-            var constraintsToActivate = [NSLayoutConstraint]()
-            self.leadingConatinerView.addSubview(leadingView)
-            constraintsToActivate += [
-                leadingView.leadingAnchor.pin(equalTo: leadingConatinerView.leadingAnchor),
-                leadingView.topAnchor.pin(equalTo: leadingConatinerView.topAnchor),
-                leadingView.bottomAnchor.pin(equalTo: leadingConatinerView.bottomAnchor),
-                leadingView.trailingAnchor.pin(equalTo: leadingConatinerView.trailingAnchor),
-                leadingView.widthAnchor.constraint(equalToConstant: 100)
-            ]
-            NSLayoutConstraint.activate(constraintsToActivate)
-        }
-        
-        if let listItemView = listItemView?(viewModel.user, viewModel.group){
-            listItemView.translatesAutoresizingMaskIntoConstraints = false
-            self.embed(listItemView)
-            self.bringSubviewToFront(listItemView)
+            
+            if let trailView = trailView?(viewModel.user, viewModel.group){
+                self.tailView.alignment = .center
+                self.tailView.addArrangedSubview(trailView)
+            }
+            
+            if let titleView = titleView?(viewModel.user, viewModel.group){
+                self.titleLabelView.subviews.forEach({$0.removeFromSuperview()})
+                self.titleLabelView.embed(titleView)
+            }
+            
+            if let subtitleView = subtitleView?(viewModel.user, viewModel.group){
+                self.subtitle.isHidden = false
+                self.subtitle.subviews.forEach({$0.removeFromSuperview()})
+                self.subtitle.embed(subtitleView)
+            }
+            
+            if let leadingView = leadingView?(viewModel.user, viewModel.group){
+                self.leadingConatinerView.subviews.forEach({ $0.removeFromSuperview() })
+                var constraintsToActivate = [NSLayoutConstraint]()
+                self.leadingConatinerView.addSubview(leadingView)
+                constraintsToActivate += [
+                    leadingView.leadingAnchor.pin(equalTo: leadingConatinerView.leadingAnchor),
+                    leadingView.topAnchor.pin(equalTo: leadingConatinerView.topAnchor),
+                    leadingView.bottomAnchor.pin(equalTo: leadingConatinerView.bottomAnchor),
+                    leadingView.trailingAnchor.pin(equalTo: leadingConatinerView.trailingAnchor),
+                    leadingView.widthAnchor.constraint(equalToConstant: 100)
+                ]
+                NSLayoutConstraint.activate(constraintsToActivate)
+            }
+            
+            if let listItemView = listItemView?(viewModel.user, viewModel.group){
+                listItemView.translatesAutoresizingMaskIntoConstraints = false
+                self.embed(listItemView)
+                self.bringSubviewToFront(listItemView)
+            }
         }
     }
     
@@ -218,6 +221,10 @@ import CometChatSDK
         if hideUserStatus{
             self.subtitle.isHidden = true
             self.subtitle.subviews.forEach({ $0.removeFromSuperview() })
+        } else {
+            if let user = viewModel.user {
+                updateUserStatus(user.status == .online ? true : false)
+            }
         }
     }
 
@@ -424,9 +431,9 @@ import CometChatSDK
                     else if timeDifference < 3600 {
                         let minutesAgo = Int(timeDifference / 60)
                         if minutesAgo <= 1{
-                            subtitleLabel.text = "Last seen a minute ago"
+                            subtitleLabel.text = "LAST_SEEN_A_MINUTE_AGO".localize()
                         }else{
-                            subtitleLabel.text = "Last seen \(minutesAgo) minutes ago"
+                            subtitleLabel.text = "\("LAST_SEEN".localize()) \(minutesAgo) \("MINUTES_AGO".localize())"
                         }
                         
                     }
@@ -434,7 +441,7 @@ import CometChatSDK
                     else {
                         let dateFormatter = DateFormatter()
                         dateFormatter.dateFormat = "d MMM 'at' h:mm a" // Customize date-time format as needed
-                        subtitleLabel.text = "Last seen \(dateFormatter.string(from: lastSeenTime))"
+                        subtitleLabel.text = "\("LAST_SEEN".localize()) \(dateFormatter.string(from: lastSeenTime))"
                     }
                     subtitleLabel.textColor = style.subtitleTextColor
 

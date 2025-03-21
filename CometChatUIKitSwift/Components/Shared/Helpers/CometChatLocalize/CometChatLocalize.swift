@@ -55,7 +55,7 @@ var bundleKey: UInt8 = 0
 public class CometChatLocalize: Bundle {
     
     static var defaultlocale: Language = .english
-    static var locale: String = Locale.current.languageCode ?? defaultlocale.rawValue
+    static var locale: String = Locale(identifier: UserDefaults.standard.stringArray(forKey: "AppleLanguages")?.first ?? "").languageCode ?? defaultlocale.rawValue
     
     
     /**
@@ -101,28 +101,58 @@ public class CometChatLocalize: Bundle {
 
 extension String {
     
+//    public func localize() -> String {
+//        CometChatLocalize.set(locale: Language(rawValue: CometChatLocalize.locale) ?? .english)
+//        UserDefaults.standard.set(CometChatLocalize.locale, forKey: "lang")
+//        if let lang = UserDefaults.standard.value(forKey: "lang") as? String {
+//            if let path = Bundle.main.path(forResource: lang, ofType: "lproj") {
+//                if let bundle = Bundle(path: path), NSLocalizedString(self, tableName: nil, bundle: bundle, value: "", comment: "") != self {
+//                    return NSLocalizedString(self, tableName: nil, bundle: bundle, value: "", comment: "")
+//                } else {
+//                    let path = CometChatUIKit.bundle.path(forResource: lang, ofType: "lproj")
+//                    let bundle = Bundle(path: path!)
+//                    return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
+//                }
+//            } else {
+//                let path = CometChatUIKit.bundle.path(forResource: lang, ofType: "lproj")
+//                let bundle = Bundle(path: path!)
+//                return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
+//            }
+//         } else {
+//            let path = CometChatUIKit.bundle.path(forResource: "en", ofType: "lproj")
+//            let bundle = Bundle(path: path!)
+//            return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
+//        }
+//    }
+    
     public func localize() -> String {
         CometChatLocalize.set(locale: Language(rawValue: CometChatLocalize.locale) ?? .english)
         UserDefaults.standard.set(CometChatLocalize.locale, forKey: "lang")
-        if let lang = UserDefaults.standard.value(forKey: "lang") as? String {
-            if let path = Bundle.main.path(forResource: lang, ofType: "lproj") {
-                if let bundle = Bundle(path: path), NSLocalizedString(self, tableName: nil, bundle: bundle, value: "", comment: "") != self {
-                    return NSLocalizedString(self, tableName: nil, bundle: bundle, value: "", comment: "")
-                } else {
-                    let path = CometChatUIKit.bundle.path(forResource: lang, ofType: "lproj")
-                    let bundle = Bundle(path: path!)
-                    return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
-                }
-            } else {
-                let path = CometChatUIKit.bundle.path(forResource: lang, ofType: "lproj")
-                let bundle = Bundle(path: path!)
-                return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
+        
+        let lang = UserDefaults.standard.string(forKey: "lang") ?? "en"
+        
+        if let mainPath = Bundle.main.path(forResource: lang, ofType: "lproj"),
+           let mainBundle = Bundle(path: mainPath) {
+            let localizedString = NSLocalizedString(self, tableName: nil, bundle: mainBundle, value: "", comment: "")
+            if localizedString != self {
+                return localizedString
             }
-         } else {
-            let path = CometChatUIKit.bundle.path(forResource: "en", ofType: "lproj")
-            let bundle = Bundle(path: path!)
-            return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
         }
+        
+        if let sdkPath = CometChatUIKit.bundle.path(forResource: lang, ofType: "lproj"),
+           let sdkBundle = Bundle(path: sdkPath) {
+            let localizedString = NSLocalizedString(self, tableName: nil, bundle: sdkBundle, value: "", comment: "")
+            if localizedString != self {
+                return localizedString
+            }
+        }
+
+        if let enPath = CometChatUIKit.bundle.path(forResource: CometChatLocalize.locale, ofType: "lproj"),
+           let enBundle = Bundle(path: enPath) {
+            return NSLocalizedString(self, tableName: nil, bundle: enBundle, value: self, comment: "")
+        }
+
+        return self
     }
 }
 

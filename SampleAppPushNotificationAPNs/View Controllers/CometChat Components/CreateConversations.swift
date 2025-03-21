@@ -14,7 +14,7 @@ open class CreateConversationVC: UIViewController {
 
     // MARK: - UI Elements
     public let segmentedControl: UISegmentedControl = {
-        let control = UISegmentedControl(items: ["Users", "Groups"])
+        let control = UISegmentedControl(items: ["USERS".localize(), "GROUPS".localize()])
         control.translatesAutoresizingMaskIntoConstraints = false
         control.selectedSegmentIndex = 0
         control.backgroundColor = CometChatTheme.backgroundColor02
@@ -68,7 +68,7 @@ open class CreateConversationVC: UIViewController {
     public func buildUI() {
         navigationController?.isNavigationBarHidden = false
         navigationController?.navigationItem.largeTitleDisplayMode = .never
-        navigationItem.title = "New Chat"
+        navigationItem.title = "NEW_CHAT".localize()
         navigationItem.largeTitleDisplayMode = .never
         navigationController?.navigationBar.prefersLargeTitles = false
         view.backgroundColor = CometChatTheme.backgroundColor01

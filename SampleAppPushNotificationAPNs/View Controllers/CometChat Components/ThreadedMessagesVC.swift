@@ -117,7 +117,7 @@ class ThreadedMessagesVC: UIViewController {
         
         // Title Label
         let title = UILabel()
-        title.text = "Thread"
+        title.text = "THREAD".localize()
         title.textColor = CometChatTheme.textColorPrimary
         title.font = CometChatTypography.Heading4.bold
         stackView.addArrangedSubview(title)
@@ -202,7 +202,7 @@ class ThreadedMessagesVC: UIViewController {
             blockedUserLabel.trailingAnchor.constraint(equalTo: blockedUserView.trailingAnchor, constant: -CometChatSpacing.Padding.p5)
         ])
         
-        blockedUserLabel.text = "Can’t send a message to blocked \(user?.name ?? "")"
+        blockedUserLabel.text = "\("SEND_MESSAGE_ERROR_TO_BLOCK_USER".localize()) \(user?.name ?? "")"
         
         if user?.blockedByMe == true{
             self.composerView.removeFromSuperview()

@@ -52,7 +52,6 @@ extension MessageHeaderViewModel: CometChatUserEventListener {
                 if user.status == .online {
                     self.updateUserStatus?(true)
                 }
-                self.updateTypingStatus?(nil, false)
                 self.onUpdate?()
             }
         }

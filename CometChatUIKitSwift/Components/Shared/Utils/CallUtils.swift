@@ -105,8 +105,6 @@ public class CallUtils {
 
 #if canImport(CometChatCallsSDK)
 
-import CometChatCallsSDK
-
 extension CallUtils {
     
     public func configureCallLogSubtitleView(

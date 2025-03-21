@@ -20,13 +20,15 @@ class TransferOwnership: CometChatGroupMembers {
     override func viewDidLoad() {
         selectionMode = .single
         super.viewDidLoad()
-        title = "Ownership Transfer"
+        title = "OWNERSHIP_TRANSFER".localize()
         onSelectedItemProceed = { [weak self] users in
             if let users = users.first {
                 self?.transferOwnership(to: users)
             }
         }
     }
+    
+    var leaveGroupCallback: (() -> ())?
     
     override func reloadData() {
         super.reloadData()
@@ -85,6 +87,7 @@ class TransferOwnership: CometChatGroupMembers {
                 if let group = self?.viewModel.group {
                     group.owner = user.uid
                     CometChatGroupEvents.ccOwnershipChanged(group: group, newOwner: user)
+                    self?.leaveGroupCallback?()
                 }
                 self?.removeSpinnerView()
                 self?.dismiss(animated: true)

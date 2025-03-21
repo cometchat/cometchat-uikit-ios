@@ -29,7 +29,7 @@ class ChangeAppCredentialsVC: UIViewController {
     lazy var appCredentialsLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "App Credentials"
+        label.text = "APP_CREDENTIALS".localize();
         label.font = CometChatTypography.Heading2.bold
         label.textColor = CometChatTheme.textColorPrimary
         return label
@@ -38,7 +38,7 @@ class ChangeAppCredentialsVC: UIViewController {
     lazy var regionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Region"
+        label.text = "REGION".localize()
         label.font = CometChatTypography.Body.medium
         label.textColor = CometChatTheme.textColorPrimary
         return label
@@ -100,13 +100,13 @@ class ChangeAppCredentialsVC: UIViewController {
     }()
     
     lazy var appIDTextFiled: CustomTextFiled = {
-        let textFiled = CustomTextFiled(leadingText: "APP ID", placeholderText: "Enter the app ID")
+        let textFiled = CustomTextFiled(leadingText: "APP_ID".localize(), placeholderText: "ENTER_APP_ID".localize())
         textFiled.translatesAutoresizingMaskIntoConstraints = false
         return textFiled
     }()
     
     lazy var authKeyTextField: CustomTextFiled = {
-        let textFiled = CustomTextFiled(leadingText: "Auth Key", placeholderText: "Enter the auth key")
+        let textFiled = CustomTextFiled(leadingText: "AUTH_KEY".localize(), placeholderText: "ENTER_AUTH_KEY".localize())
         textFiled.translatesAutoresizingMaskIntoConstraints = false
         return textFiled
     }()
@@ -115,7 +115,7 @@ class ChangeAppCredentialsVC: UIViewController {
         let button = UIButton()
         button.addTarget(self, action: #selector(onContinueButtonClicked), for: .primaryActionTriggered)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Continue", for: .normal)
+        button.setTitle("CONTINUE".localize(), for: .normal)
         button.setTitleColor(CometChatTheme.white, for: .normal)
         button.backgroundColor = CometChatTheme.primaryColor
         button.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -221,15 +221,15 @@ class ChangeAppCredentialsVC: UIViewController {
     func checkForError() -> Bool {
         var errorMessage: String?
         if selectedRegion.isEmpty {
-            errorMessage = "Please select a region"
+            errorMessage = "SELECT_REGION_ERROR".localize()
         }else if appIDTextFiled.textField.text == nil || appIDTextFiled.textField.text == "" {
-            errorMessage = "Please enter App ID properly"
+            errorMessage = "ENTER_APP_ID_ERROR"
         }else if authKeyTextField.textField.text == nil || authKeyTextField.textField.text == "" {
-            errorMessage = "Please enter Auth Key properly"
+            errorMessage = "ENTER_AUTH_KEY_ERROR".localize()
         }
         
         if let errorMessage = errorMessage  {
-            showAlert("Fill Proper", errorMessage, "Cancle", "") { }
+            showAlert("FILL_PROPER_ERROR".localize(), errorMessage, "CANCEL".localize(), "") { }
             return false
         } else {
             return true

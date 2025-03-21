@@ -65,7 +65,7 @@ open class CometChatGroupMembers: CometChatListBase {
         self.prefersLargeTitles = false
         self.hideSearch = false
         
-        title = "Members"
+        title = "MEMBERS".localize()
         
         //setting up loading state view
         let userShimmerView = UsersShimmerView()
@@ -73,12 +73,12 @@ open class CometChatGroupMembers: CometChatListBase {
         loadingView = userShimmerView
         
         //setting up error state view
-        errorStateTitleText = "Oops!"
-        errorStateSubTitleText = "Looks like something went wrong. Please try again."
+        errorStateTitleText = "OOPS!".localize()
+        errorStateSubTitleText = "LOOKS_LIKE_SOMETHINGS_WENT_WORNG._PLEASE_TRY_AGAIN".localize()
         
         //setting up empty state view
-        emptyStateTitleText = "No Users Available"
-        emptyStateSubTitleText = "Add contacts to start conversations and see them listed here."
+        emptyStateTitleText = "USERS_EMPTY_MESSAGE".localize()
+        emptyStateSubTitleText = "USERS_EMPTY_SUBTITLE_MESSAGE".localize()
         
         let barButtonItem = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(didTapBackButton))
         barButtonItem.tintColor = CometChatTheme.primaryColor
@@ -307,11 +307,13 @@ open class CometChatGroupMembers: CometChatListBase {
         }
         
         // - Kick Action -
+        
+        //TODO: update localised files after merging
         if GroupMembersUtils.allowKickBanUnbanMember(group: viewModel.group, groupMember: groupMember) {
-            let removeActionImage = UIImage(systemName: "minus.circle")?.add(text: "Remove", imageTint: .white)
+            let removeActionImage = UIImage(systemName: "minus.circle")?.add(text: "Kick", imageTint: .white)
             let removeAction = UIContextualAction(
                 style: .normal,
-                title: "Remove",
+                title: "Kick",
                 handler: { [weak self, weak groupMember] (action, sourceView, completionHandler)  in
                     if let groupMember = groupMember {
                         completionHandler(false)
@@ -362,7 +364,7 @@ open class CometChatGroupMembers: CometChatListBase {
     
     open func onRemoveMemberSelected(for groupMember: GroupMember) {
         // create an actionSheet
-        let actionSheetController: UIAlertController = UIAlertController(title: "Remove \(groupMember.name ?? "")", message: "Are you sure you want to Remove \(groupMember.name ?? "") from this group ?", preferredStyle: .actionSheet)
+        let actionSheetController: UIAlertController = UIAlertController(title: "Kick \(groupMember.name ?? "")", message: "Are you sure you want to kick \(groupMember.name ?? "") from this group ?", preferredStyle: .actionSheet)
         
         // create an action
         let firstAction: UIAlertAction = UIAlertAction(title: "Yes", style: .destructive) { action -> Void in

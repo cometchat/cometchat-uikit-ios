@@ -16,7 +16,7 @@ class CometChatCreatePollHeader: UITableViewCell {
     
     lazy var headerLabel: UILabel = {
         let label = UILabel().withoutAutoresizingMaskConstraints()
-        label.text = "Create Poll"
+        label.text = "CREATE_POLL".localize()
         return label
     }()
     

@@ -55,9 +55,9 @@ class CometChatWebView: UIViewController, WKNavigationDelegate {
         // Set the title based on webViewType
         switch webViewType {
         case .whiteboard:
-            self.title = "WHITEBOARD".localize()
+            self.title = "CUSTOM_MESSAGE_WHITEBOARD".localize()
         case .document:
-            self.title = "DOCUMENT".localize()
+            self.title = "CUSTOM_MESSAGE_DOCUMENT".localize()
         case .userProfile:
             if let name = user?.name {
                 self.title = name

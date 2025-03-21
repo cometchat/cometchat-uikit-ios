@@ -7,7 +7,6 @@
 
 #if canImport(CometChatCallsSDK)
 
-import CometChatCallsSDK
 import Foundation
 import CometChatSDK
 

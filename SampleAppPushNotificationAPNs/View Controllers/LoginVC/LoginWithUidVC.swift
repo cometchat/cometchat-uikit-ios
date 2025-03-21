@@ -23,7 +23,7 @@ class LoginWithUidVC: UIViewController {
     lazy var signInLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Sign in to cometchat"
+        label.text = "SIGN_IN_COMETCHAT".localize()
         label.font = CometChatTypography.Heading2.bold
         label.textColor = CometChatTheme.textColorPrimary
         return label
@@ -32,7 +32,7 @@ class LoginWithUidVC: UIViewController {
     lazy var chooseSampleUserLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Choose a Sample Users"
+        label.text = "CHOOSE_SAMPLE_USER".localize();
         label.font = CometChatTypography.Body.medium
         label.textColor = CometChatTheme.textColorPrimary
         return label
@@ -62,7 +62,7 @@ class LoginWithUidVC: UIViewController {
 
         let orLabel = UILabel()
         orLabel.translatesAutoresizingMaskIntoConstraints = false
-        orLabel.text = "  or  "
+        orLabel.text = "  \("OR".localize())  "
         orLabel.backgroundColor = CometChatTheme.backgroundColor01
         orLabel.textColor = CometChatTheme.neutralColor500
         orLabel.font = CometChatTypography.Body.medium
@@ -79,7 +79,7 @@ class LoginWithUidVC: UIViewController {
     }()
     
     lazy var uidTextField: CustomTextFiled = {
-        let textFiled = CustomTextFiled(leadingText: "UID", placeholderText: "Enter Your UID")
+        let textFiled = CustomTextFiled(leadingText: "UID", placeholderText: "ENTER_UID".localize())
         textFiled.textField.delegate = self
         textFiled.translatesAutoresizingMaskIntoConstraints = false
         return textFiled
@@ -89,7 +89,7 @@ class LoginWithUidVC: UIViewController {
         let button = UIButton()
         button.addTarget(self, action: #selector(onContinueButtonClicked), for: .primaryActionTriggered)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Continue", for: .normal)
+        button.setTitle("CONTINUE".localize(), for: .normal)
         button.setTitleColor(CometChatTheme.white, for: .normal)
         button.backgroundColor = CometChatTheme.primaryColor
         button.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -106,7 +106,7 @@ class LoginWithUidVC: UIViewController {
     lazy var changeAppCredentialsLabel: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        let fullText = "Change App Credentials"
+        let fullText = "CHANGE_APP_CREDENTIALS".localize();
         let attributedText = NSMutableAttributedString(
             string: fullText,
             attributes: [.foregroundColor: CometChatTheme.primaryColor]
@@ -114,7 +114,7 @@ class LoginWithUidVC: UIViewController {
         attributedText.addAttribute(
             .foregroundColor,
             value: CometChatTheme.textColorPrimary,
-            range: (fullText as NSString).range(of: "Change")
+            range: (fullText as NSString).range(of: "CHANGE".localize())
         )
         button.setAttributedTitle(attributedText, for: .normal)
         button.titleLabel?.font = CometChatTypography.Body.regular
@@ -263,14 +263,14 @@ class LoginWithUidVC: UIViewController {
                 switch result {
                 case .success(_):
                     DispatchQueue.main.async {
-                        self.continueButton.hideLoading(withTitle: "Continue")
+                        self.continueButton.hideLoading(withTitle: "CONTINUE".localize())
                         let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as! SceneDelegate
                         sceneDelegate.setRootViewController(UINavigationController(rootViewController: HomeScreenViewController()))
                     }
                     break
                 case .onError(let error):
                     DispatchQueue.main.async {
-                        self.continueButton.hideLoading(withTitle: "Continue")
+                        self.continueButton.hideLoading(withTitle: "CONTINUE".localize())
                         self.presentSomethingWentWrongAlert(error: error.errorDescription)
                     }
                 @unknown default:
@@ -282,12 +282,12 @@ class LoginWithUidVC: UIViewController {
     
     func presentSomethingWentWrongAlert(error: String) {
         let alert = UIAlertController(
-            title: "Something went wrong!",
+            title: "SOMETHING_WENT_WRONG".localize(),
             message: error,
             preferredStyle: .alert
         )
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: "CANCEL".localize(), style: .cancel, handler: nil)
         alert.addAction(cancelAction)
         
         self.present(alert, animated: true, completion: nil)
@@ -358,7 +358,7 @@ extension LoginWithUidVC {
             }
             
             guard let data = data else {
-                self?.presentSomethingWentWrongAlert(error: "No data Received")
+                self?.presentSomethingWentWrongAlert(error: "NO_DATA_RECEIVED".localize())
                 return
             }
             

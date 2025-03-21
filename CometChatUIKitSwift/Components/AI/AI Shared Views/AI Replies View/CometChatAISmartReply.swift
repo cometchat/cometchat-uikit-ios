@@ -14,7 +14,7 @@ open class CometChatAISmartReply: UIView {
     // MARK: - Properties
     public let titleLabel: UILabel = {
         let label = UILabel().withoutAutoresizingMaskConstraints()
-        label.text = "Suggest a reply"
+        label.text = "SUGGEST_A_REPLY".localize()
         return label
     }()
     
@@ -31,7 +31,7 @@ open class CometChatAISmartReply: UIView {
     
     public let errorLabel: UILabel = {
         let label = UILabel().withoutAutoresizingMaskConstraints()
-        label.text = "Looks like something went wrong.\nPlease try again."
+        label.text = "SOMETHING_WENT_WRONG_WITH_NEW_LINE".localize()
         label.numberOfLines = 0
         label.textAlignment = .center
         return label

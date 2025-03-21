@@ -8,7 +8,6 @@
 import Foundation
 
 #if canImport(CometChatCallsSDK)
-import CometChatCallsSDK
 
 public struct CallLogStyle: ListItemStyle, ListBaseStyle {
     public var listItemTitleTextColor: UIColor = CometChatTheme.textColorPrimary

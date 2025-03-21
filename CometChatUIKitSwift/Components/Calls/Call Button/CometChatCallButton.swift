@@ -11,7 +11,6 @@
 import Foundation
 import UIKit
 import CometChatSDK
-import CometChatCallsSDK
 
 public class CometChatCallButtons: UIStackView {
     
@@ -353,15 +352,7 @@ extension CometChatCallButtons {
                 this.controller?.present(outgoingCall, animated: true)
             }
         } onError: { error in
-            self.onError?(error)
-            DispatchQueue.main.async {
-                let confirmDialog = CometChatDialog()
-                confirmDialog.set(title: "SOMETHING_WENT_WRONG_ERROR".localize())
-                confirmDialog.set(confirmButtonText: "OK".localize())
-                confirmDialog.open {
-                }
-            }
-            
+            self.onError?(error)            
         }
     }
     
@@ -398,13 +389,6 @@ extension CometChatCallButtons {
             }
         } onError: { error in
             self.onError?(error)
-            DispatchQueue.main.async {
-                let confirmDialog = CometChatDialog()
-                confirmDialog.set(title: "SOMETHING_WENT_WRONG_ERROR".localize())
-                confirmDialog.set(confirmButtonText: "OK".localize())
-                confirmDialog.open {
-                }
-            }
         }
     }
 }

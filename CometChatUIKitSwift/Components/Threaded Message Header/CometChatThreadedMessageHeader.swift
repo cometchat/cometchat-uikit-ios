@@ -63,7 +63,8 @@ open class CometChatThreadedMessageHeader: UIView {
     public var singleNewMessageText: String = "ONE_REPLY".localize()
     public var multipleNewMessageText: String = "REPLIES".localize()
     public var controller: UIViewController?
-    public var template: CometChatMessageTemplate?
+    var template: CometChatMessageTemplate?
+    var storedTemplates: [CometChatMessageTemplate]?
     public var messageAlignment: MessageListAlignment = .standard
     public var hideReceipt: Bool = false
     public var hideBubbleHeader: Bool = false
@@ -209,8 +210,32 @@ open class CometChatThreadedMessageHeader: UIView {
                 cell.set(bubbleAlignment: .left)
             }
             
+            //setting up avatar view
+            if let user = message.sender {
+                cell.set(avatarURL: user.avatar, avatarName: user.name)
+                
+                //setting header View
+                switch message.receiverType {
+                case .user:
+                    cell.hide(headerView: true)
+                    if cell.alignment == .left {
+                        cell.hide(avatar: hideAvatar)
+                    }
+                case .group:
+                    if cell.alignment == .left {
+                        cell.hide(avatar: hideAvatar)
+                        cell.hide(headerView: false)
+                    } else {
+                        cell.hide(headerView: true)
+                    }
+                @unknown default:
+                    break
+                }
+            }
+            
             //adding headerView
             if let headerView = template.headerView?(message, cell.alignment, controller) {
+                cell.hide(headerView: false)
                 cell.set(headerView: headerView)
             } else {
                 if !hideBubbleHeader {
@@ -252,27 +277,8 @@ open class CometChatThreadedMessageHeader: UIView {
                 cell.set(footerView: footerView)
             }
             
-            //setting up avatar view
-            if let user = message.sender {
-                cell.set(avatarURL: user.avatar, avatarName: user.name)
-                
-                //setting header View
-                switch message.receiverType {
-                case .user:
-                    cell.hide(headerView: true)
-                    if cell.alignment == .left {
-                        cell.hide(avatar: hideAvatar)
-                    }
-                case .group:
-                    if cell.alignment == .left {
-                        cell.hide(avatar: hideAvatar)
-                        cell.hide(headerView: false)
-                    } else {
-                        cell.hide(headerView: true)
-                    }
-                @unknown default:
-                    break
-                }
+            if let bubbleView = template.bubbleView?(message, cell.alignment, controller){
+                cell.set(bubbleView: bubbleView)
             }
         }
         
@@ -315,6 +321,25 @@ open class CometChatThreadedMessageHeader: UIView {
                 self.template = template
             }
         }
+    }
+    
+    func applyTemplates(_ templates: [CometChatMessageTemplate]) {
+        guard let parentMessage = viewModel.parentMessage else { return }
+        
+        var messageType = parentMessage.messageType.toString()
+        let messageCategory = parentMessage.messageCategory.toString()
+        
+        if let customMessage = parentMessage as? CustomMessage {
+            messageType = customMessage.type ?? ""
+        }
+        
+        templates.forEach { template in
+            if template.category == messageCategory && template.type == messageType {
+                self.template = template
+            }
+        }
+        
+        setupMessageBubbleView()
     }
     
 }

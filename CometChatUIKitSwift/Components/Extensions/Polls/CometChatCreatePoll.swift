@@ -18,14 +18,14 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
 
     lazy var sendButton: UIButton = {
         let button = UIButton().withoutAutoresizingMaskConstraints()
-        button.setTitle("Send", for: .normal)
+        button.setTitle("SEND".localize(), for: .normal)
         button.addTarget(self, action: #selector(didSendPressed), for: .touchUpInside)
         return button
     }()
     
     lazy var cancelButton: UIButton = {
         let button = UIButton().withoutAutoresizingMaskConstraints()
-        button.setTitle("Cancel", for: .normal)
+        button.setTitle("CANCEL".localize(), for: .normal)
         button.addTarget(self, action: #selector(dismissView), for: .touchUpInside)
         return button
     }()
@@ -194,7 +194,7 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
         
     open func setupNavigation() {
         if navigationController != nil {
-            navigationItem.title = "Create Poll"
+            navigationItem.title = "CREATE_POLL".localize()
             navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButton)
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: sendButton)
         }
@@ -226,10 +226,10 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
             }
             
             if (firstOptionString.isEmpty || secondOptionString.isEmpty) && items.filter({$0 != ""}).count < 2{
-                showErrorView(errorText: "Please fill in all required fields before creating a poll.")
+                showErrorView(errorText: "FILL_POLL_DETAILS".localize())
             }else{
                 DispatchQueue.main.async {
-                    let alert = UIAlertController(title: nil, message: "Creating Poll...", preferredStyle: .alert)
+                    let alert = UIAlertController(title: nil, message: "CREATING_POLL".localize(), preferredStyle: .alert)
                     let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
                     loadingIndicator.hidesWhenStopped = true
                     loadingIndicator.style = .medium
@@ -328,12 +328,12 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
     }
     
     open func showExitConfirmation() {
-        let alertController = UIAlertController(title: "Exit", message: "Are you sure you want to exit?", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "EXIT".localize(), message: "EXIT_ALERT".localize(), preferredStyle: .alert)
 
-        let confirmAction = UIAlertAction(title: "Yes", style: .destructive) { [weak self] _ in
+        let confirmAction = UIAlertAction(title: "YES".localize(), style: .destructive) { [weak self] _ in
             self?.dismiss(animated: true)
         }
-        let cancelAction = UIAlertAction(title: "No", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: "NO".localize(), style: .cancel, handler: nil)
 
         alertController.addAction(confirmAction)
         alertController.addAction(cancelAction)
@@ -396,11 +396,11 @@ extension CometChatCreatePoll: UITableViewDelegate, UITableViewDataSource {
         
         switch cometChatPollSection[section] {
         case .question:
-            titleLabel.text = "Question"
+            titleLabel.text = "QUESTION".localize()
             titleLabel.textColor = style.questionTitleTextColor
             titleLabel.font = style.questionTitleTextFont
         case .answers:
-            titleLabel.text = "Options"
+            titleLabel.text = "OPTIONS".localize()
             titleLabel.textColor = style.optionsTitleTextColor
             titleLabel.font = style.optionsTitleTextFont
         }
@@ -426,7 +426,7 @@ extension CometChatCreatePoll: UITableViewDelegate, UITableViewDataSource {
             cell.question.textColor = style.questionTextColor
             cell.question.font = style.questionTextFont
             cell.question.attributedPlaceholder = NSAttributedString(
-                string: "Ask question",
+                string: "ASK_QUESTION".localize(),
                 attributes: [.foregroundColor: style.questionPlaceholderColor, .font: style.questionPlaceholderFont]
             )
             return cell
@@ -479,7 +479,7 @@ extension CometChatCreatePoll: UITableViewDelegate, UITableViewDataSource {
             cell.borderColor(color: style.optionsInputBoxBorderColor)
             cell.roundViewCorners(corner: style.optionsInputBoxCornerRadius ?? .init(cornerRadius: CometChatSpacing.Radius.r2))
             cell.options.attributedPlaceholder = NSAttributedString(
-                string: "Add",
+                string: "ADD".localize(),
                 attributes: [.foregroundColor: style.optionsPlaceholderColor, .font: style.optionsPlaceholderFont]
             )
             return cell

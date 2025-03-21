@@ -26,13 +26,15 @@ class HomeScreenViewController: UITabBarController {
     #if canImport(CometChatCallsSDK)
     lazy var calls: CometChatCallLogs = {
         let calls = CometChatCallLogs()
-        calls.goToCallLogDetail = { callLog, user, group in
-            let callDetails = CallLogDetailsVC()
-            callDetails.currentUser = user
-            callDetails.currentGroup = group
-            callDetails.callLog = callLog
-            self.navigationController?.pushViewController(callDetails, animated: true)
-        }
+        calls.set(goToCallLogDetail: { callLog, user, group in
+            if let callLog = callLog as? CometChatCallsSDK.CallLog {
+                let callDetails = CallLogDetailsVC()
+                callDetails.currentUser = user
+                callDetails.currentGroup = group
+                callDetails.callLog = callLog
+                self.navigationController?.pushViewController(callDetails, animated: true)
+            }
+        })
         return calls
     }()
     #endif
@@ -197,7 +199,7 @@ class HomeScreenViewController: UITabBarController {
     
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
         let menu = UIMenu(title: "\(appVersion ?? "v5.0.0")", children: [
-            UIAction(title: "Create conversation", image: UIImage(systemName: "plus.bubble.fill"), handler: { _ in
+            UIAction(title: "CREATE_CONVERSATION".localize(), image: UIImage(systemName: "plus.bubble.fill"), handler: { _ in
                 let startNewConversationNVC = UINavigationController(rootViewController: CreateConversationVC())
                 startNewConversationNVC.hidesBottomBarWhenPushed = true
                 self.navigationController?.present(startNewConversationNVC, animated: true)
@@ -205,7 +207,7 @@ class HomeScreenViewController: UITabBarController {
             UIAction(title: "\(CometChat.getLoggedInUser()?.name ?? "")", image: UIImage(systemName: "person.circle"), handler: { _ in
 
             }),
-            UIAction(title: "Logout", image: UIImage(systemName: "rectangle.portrait.and.arrow.right"), attributes: .destructive, handler: { _ in
+            UIAction(title: "LOGOUT".localize(), image: UIImage(systemName: "rectangle.portrait.and.arrow.right"), attributes: .destructive, handler: { _ in
                 self.logoutTapped()
             }),
         ])
@@ -222,7 +224,6 @@ class HomeScreenViewController: UITabBarController {
     
     //Logging out
     @objc func logoutTapped() {
-        
         UserDefaults.standard.removeObject(forKey: "appID")
         UserDefaults.standard.removeObject(forKey: "region")
         UserDefaults.standard.removeObject(forKey: "authKey")
@@ -234,9 +235,15 @@ class HomeScreenViewController: UITabBarController {
         let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as! SceneDelegate
         sceneDelegate.setRootViewController(UINavigationController(rootViewController: LoginWithUidVC()))
         
-        //Logging out from CometChatSDK
-        CometChat.logout(onSuccess: { success in
-        }, onError: { error in })
+        //Logging out from CometChatSDK        
+        CometChatNotifications.unregisterPushToken { success in
+            CometChat.logout(onSuccess: { success in
+            }, onError: { error in
+                print(error.errorDescription)
+            })
+        } onError: { error in
+            print(error.errorDescription)
+        }
     }
     
     @objc func tapCreate(){
@@ -250,18 +257,18 @@ class HomeScreenViewController: UITabBarController {
     }
     
     func setupTabs() {
-        conversations.tabBarItem = UITabBarItem(title: "Chats", image: UIImage(systemName: "message"), tag: 0)
+        conversations.tabBarItem = UITabBarItem(title: "CHATS".localize(), image: UIImage(systemName: "message"), tag: 0)
         conversations.tabBarItem.selectedImage = UIImage(systemName: "message.fill")
         
         #if canImport(CometChatCallsSDK) //if CometChatCalls SDK is not included
-        calls.tabBarItem = UITabBarItem(title: "Calls", image: UIImage(systemName: "phone"), tag: 0)
+        calls.tabBarItem = UITabBarItem(title: "CALLS".localize(), image: UIImage(systemName: "phone"), tag: 0)
         calls.tabBarItem.selectedImage = UIImage(systemName: "phone.fill")
         #endif
 
-        users.tabBarItem = UITabBarItem(title: "Users", image: UIImage(systemName: "person"), tag: 1)
+        users.tabBarItem = UITabBarItem(title: "USERS".localize(), image: UIImage(systemName: "person"), tag: 1)
         users.tabBarItem.selectedImage = UIImage(systemName: "person.fill")
 
-        groups.tabBarItem = UITabBarItem(title: "Groups", image: UIImage(systemName: "person.2"), tag: 1)
+        groups.tabBarItem = UITabBarItem(title: "GROUPS".localize(), image: UIImage(systemName: "person.2"), tag: 1)
         groups.tabBarItem.selectedImage = UIImage(systemName: "person.2.fill")
         
         

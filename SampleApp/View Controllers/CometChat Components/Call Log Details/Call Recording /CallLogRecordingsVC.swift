@@ -31,8 +31,8 @@ public class CallLogRecordingsVC: UIViewController, UITableViewDataSource, UITab
     
     public lazy var emptyStateView: UIView = {
         let stateView = StateView(
-            title: "No Call Recordings",
-            subtitle: "Record a call to see call recordings listed here.",
+            title: "NO_CALL_RECORDINGS".localize(),
+            subtitle: "RECORD_CALL_MESSAGE".localize(),
             image: UIImage(systemName: "phone.fill")
         )
         stateView.translatesAutoresizingMaskIntoConstraints = false

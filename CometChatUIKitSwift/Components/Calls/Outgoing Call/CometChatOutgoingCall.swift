@@ -9,7 +9,6 @@ import UIKit
 import CometChatSDK
 
 #if canImport(CometChatCallsSDK)
-import CometChatCallsSDK
 
 @MainActor
 open class CometChatOutgoingCall: UIViewController {
@@ -51,7 +50,7 @@ open class CometChatOutgoingCall: UIViewController {
     public lazy var callingLabel: UILabel = {
         let callingLabel = UILabel().withoutAutoresizingMaskConstraints()
         callingLabel.textAlignment = .center
-        callingLabel.text = "Calling"
+        callingLabel.text = "CALLING".localize()
         return callingLabel
     }()
     
@@ -96,7 +95,7 @@ open class CometChatOutgoingCall: UIViewController {
     public var outgoingCallStyle = OutgoingCallStyle()
     var onCancelClick: ((_ call: Call?, _ controller: UIViewController?) -> Void)?
     var viewModel =  OutgoingCallViewModel()
-    public var callSettingsBuilder: CallSettingsBuilder?
+    var callSettingsBuilder: CallSettingsBuilder?
     
     open override func viewDidLoad() {
         super.viewDidLoad()

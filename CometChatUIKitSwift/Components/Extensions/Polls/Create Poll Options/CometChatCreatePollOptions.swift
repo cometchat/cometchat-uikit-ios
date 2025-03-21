@@ -22,7 +22,7 @@ class CometChatCreatePollOptions: UITableViewCell, UITextFieldDelegate {
     
     lazy var options: UITextField = {
         let textField = UITextField().withoutAutoresizingMaskConstraints()
-        textField.placeholder = "Add"
+        textField.placeholder = "ADD".localize()
         textField.borderStyle = .none
         textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         return textField

@@ -9,7 +9,6 @@
 
 import UIKit
 import CometChatSDK
-import CometChatCallsSDK
 
 public class CometChatIncomingCall: UIViewController {
     
@@ -81,7 +80,7 @@ public class CometChatIncomingCall: UIViewController {
     public lazy var style = CometChatIncomingCall.style
     public lazy var avatarStyle = CometChatIncomingCall.avatarStyle
     
-    public var callSettingsBuilder: CallSettingsBuilder?
+    var callSettingsBuilder: CallSettingsBuilder?
     public var disableSoundForCalls = false
     public var customSoundForCalls: URL?
     var viewModel = IncomingCallViewModel()

@@ -14,7 +14,6 @@ class MessagesVC: UIViewController {
     var user: User?
     var group: Group?
     lazy var randamID = Date().timeIntervalSince1970
-    var isDraggedToDismissGesture = false
 
     //Setting Up header
     lazy var headerView: CometChatMessageHeader = {
@@ -28,40 +27,10 @@ class MessagesVC: UIViewController {
             guard let this = self else { return UIView() }
             return this.getInfoButton()
         })
+        if user?.blockedByMe == true { headerView.hideUserStatus = true }
         return headerView
     }()
-    
-    func getInfoButton() -> UIView {
-        let detailButton = CometChatButton()
-        let infoIcon: UIImage = UIImage(systemName: "info.circle")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
-        detailButton.set(text: "")
-        detailButton.set(icon: infoIcon)
-        detailButton.tintColor = CometChatTheme.iconColorPrimary
-        detailButton.backgroundColor = .clear
-        detailButton.set(controller: self)
-        detailButton.setOnClick { [weak self] in
-            DispatchQueue.main.async {
-                guard let this = self else { return }
-                if let group = this.group{
-                    let detailsView = GroupDetailsViewController()
-                    detailsView.group = self?.headerView.viewModel.group
-                    detailsView.onExitGroup = { group in
-                        self?.group = group
-                        if !(group.hasJoined){
-                            //Handle bann members real time update here
-                        }
-                    }
-                    this.navigationController?.pushViewController(detailsView, animated: true)
-                }else{
-                    let detailsView = UserDetailsViewController()
-                    detailsView.user = self?.headerView.viewModel.user
-                    this.navigationController?.pushViewController(detailsView, animated: true)
-                }
-            }
-        }
-        return detailButton
-    }
-    
+        
     lazy var messageListView: CometChatMessageList = {
         
         let messageListView = CometChatMessageList(frame: .null)
@@ -132,14 +101,6 @@ class MessagesVC: UIViewController {
         CometChatGroupEvents.addListener("messages-groups-event-listner-\(randamID)", self)
     }
     
-    deinit {
-        print("deinit called for CustomMessagesViewController")
-        CometChat.removeGroupListener("messages-user-event-listener-\(randamID)")
-        CometChatUIEvents.removeListener("messages-user-event-listener-\(randamID)")
-        CometChatUserEvents.removeListener("messages-user-event-listener-\(randamID)")
-        CometChatGroupEvents.removeListener("messages-groups-event-listner-\(randamID)")
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self // for swipe back gesture
         self.navigationController?.setNavigationBarHidden(true, animated: true)
@@ -158,15 +119,20 @@ class MessagesVC: UIViewController {
 
     }
     
+    deinit {
+        CometChat.removeGroupListener("messages-user-event-listener-\(randamID)")
+        CometChatUIEvents.removeListener("messages-user-event-listener-\(randamID)")
+        CometChatUserEvents.removeListener("messages-user-event-listener-\(randamID)")
+        CometChatGroupEvents.removeListener("messages-groups-event-listner-\(randamID)")
+    }
+    
     func buildUI() {
         
         self.view.backgroundColor = CometChatTheme.backgroundColor01
         
         view.addSubview(headerView)
         view.addSubview(messageListView)
-        view.addSubview(blockedView)
         view.addSubview(composerView)
-        blockedView.addSubview(blockedLabel)
         
         NSLayoutConstraint.activate([
             headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -177,51 +143,52 @@ class MessagesVC: UIViewController {
             messageListView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             messageListView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
-            blockedView.topAnchor.constraint(equalTo: messageListView.bottomAnchor),
-            blockedView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            blockedView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            blockedView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -CometChatSpacing.Padding.p5),
-            
             composerView.topAnchor.constraint(equalTo: messageListView.bottomAnchor),
             composerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             composerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             composerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            blockedLabel.topAnchor.constraint(equalTo: blockedView.topAnchor, constant: CometChatSpacing.Padding.p2),
-            blockedLabel.bottomAnchor.constraint(equalTo: blockedView.bottomAnchor, constant: -CometChatSpacing.Padding.p2),
-            blockedLabel.leadingAnchor.constraint(equalTo: blockedView.leadingAnchor, constant: CometChatSpacing.Padding.p5),
-            blockedLabel.trailingAnchor.constraint(equalTo: blockedView.trailingAnchor, constant: -CometChatSpacing.Padding.p5)
         ])
         
                 
         if user?.blockedByMe == true{
-            self.composerView.removeFromSuperview()
-            self.headerView.hideUserStatus = true
-            if user != nil { blockedLabel.text = "Can’t send a message to blocked \(user?.name ?? "")" }
+            disableMessageSending()
         }
     }
     
-    func enableComposerWithCallButton() {
-        
-        if user != nil { blockedLabel.text = "Can’t send a message to blocked \(user?.name ?? "")" }
-        if group != nil { blockedLabel.text = "You'r no longer part of this group" }
-        
-        self.view.addSubview(composerView)
-        NSLayoutConstraint.activate([
-            composerView.topAnchor.constraint(equalTo: messageListView.bottomAnchor),
-            composerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            composerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            composerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-        self.headerView.hideUserStatus = true
+    func getInfoButton() -> UIView {
+        let detailButton = CometChatButton()
+        let infoIcon: UIImage = UIImage(systemName: "info.circle")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+        detailButton.set(text: "")
+        detailButton.set(icon: infoIcon)
+        detailButton.tintColor = CometChatTheme.iconColorPrimary
+        detailButton.backgroundColor = .clear
+        detailButton.set(controller: self)
+        detailButton.setOnClick { [weak self] in
+            DispatchQueue.main.async {
+                guard let this = self else { return }
+                if let group = this.group{
+                    let detailsView = GroupDetailsViewController()
+                    detailsView.group = self?.headerView.viewModel.group
+                    detailsView.onExitGroup = { group in
+                        self?.group = group
+                        if !(group.hasJoined){
+                            //Handle bann members real time update here
+                        }
+                    }
+                    this.navigationController?.pushViewController(detailsView, animated: true)
+                }else{
+                    let detailsView = UserDetailsViewController()
+                    detailsView.user = self?.headerView.viewModel.user
+                    this.navigationController?.pushViewController(detailsView, animated: true)
+                }
+            }
+        }
+        return detailButton
     }
-    
-    func disableComposerWithCallButton() {
-        self.composerView.removeFromSuperview()
-//        headerView.set(trailView: getInfoButton())
-    }
+
 }
 
+//MARK: - HANDLING BACK GESTURE AND UI EVENT -
 extension MessagesVC: CometChatUIEventListener, UIGestureRecognizerDelegate {
     
     func openChat(user: User?, group: Group?) {
@@ -236,59 +203,151 @@ extension MessagesVC: CometChatUIEventListener, UIGestureRecognizerDelegate {
     }
 }
 
-//MARK: - GROUP EVENTS -
+//MARK: - HANDLING GROUP EVENTS -
 extension MessagesVC: CometChatGroupDelegate, CometChatGroupEventListener {
     
     func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
         if bannedFrom.guid == group?.guid && CometChat.getLoggedInUser()?.uid == bannedUser.uid {
-            disableComposerWithCallButton()
+            disableMessageSending()
         }
     }
     
     func ccGroupLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
         if leftGroup.guid == group?.guid && CometChat.getLoggedInUser()?.uid == leftUser.uid {
-            disableComposerWithCallButton()
+            disableMessageSending()
             headerView.set(group: leftGroup)
         }
     }
     
     func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
         if leftGroup.guid == group?.guid && CometChat.getLoggedInUser()?.uid == leftUser.uid {
-            disableComposerWithCallButton()
+            disableMessageSending()
         }
     }
     
     func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
         if kickedFrom.guid == group?.guid && CometChat.getLoggedInUser()?.uid == kickedUser.uid {
-            disableComposerWithCallButton()
+            disableMessageSending()
         }
     }
     
     func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
         if unbannedFrom.guid == group?.guid && CometChat.getLoggedInUser()?.uid == unbannedUser.uid {
-            enableComposerWithCallButton()
+            enableMessageSending()
         }
     }
     
     func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
         if addedTo.guid == group?.guid && CometChat.getLoggedInUser()?.uid == addedUser.uid {
-            enableComposerWithCallButton()
+            enableMessageSending()
         }
     }
     
 }
 
-// MARK: - User Block Events -
+// MARK: - HANDLING USER BLOCK EVENTS -
 extension MessagesVC : CometChatUserEventListener {
     func ccUserBlocked(user: User) {
         if user.uid == self.user?.uid {
-            disableComposerWithCallButton()
+            disableMessageSending()
         }
     }
     
     func ccUserUnblocked(user: User) {
         if user.uid == self.user?.uid {
-            enableComposerWithCallButton()
+            enableMessageSending()
         }
     }
+}
+
+
+extension MessagesVC {
+    
+    //This function will disable message sending by removing composer and adding some info when in logged in user has blocked the open user in chat or when the logged in user is no longer part of the open group.
+    func disableMessageSending() {
+        self.composerView.removeFromSuperview()
+
+        //adding blocked view
+        self.view.addSubview(blockedView)
+        var constraintsToActivate: [NSLayoutConstraint] = [NSLayoutConstraint]()
+        constraintsToActivate += [
+            blockedView.topAnchor.constraint(equalTo: messageListView.bottomAnchor),
+            blockedView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            blockedView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            blockedView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ]
+        
+        //adding label that shows messages
+        let infoLabel = UILabel(frame: .null)
+        infoLabel.translatesAutoresizingMaskIntoConstraints = false
+        infoLabel.textColor = CometChatTheme.textColorSecondary
+        infoLabel.font = CometChatTypography.Body.regular
+        infoLabel.textAlignment = .center
+        blockedView.addSubview(infoLabel)
+        constraintsToActivate += [
+            infoLabel.topAnchor.constraint(equalTo: blockedView.topAnchor,constant: 10),
+            infoLabel.leadingAnchor.constraint(equalTo: blockedView.leadingAnchor, constant: CometChatSpacing.Padding.p2),
+            infoLabel.trailingAnchor.constraint(equalTo: blockedView.trailingAnchor, constant: -CometChatSpacing.Padding.p2),
+        ]
+        
+        if user != nil {
+            infoLabel.text = "SEND_MESSAGE_ERROR_TO_BLOCK_USER".localize() + " " + (user?.name ?? "")
+            
+            //adding unblock button only in group
+            let unblockButton = UIButton()
+            unblockButton.translatesAutoresizingMaskIntoConstraints = false
+            unblockButton.setTitle("UNBLOCK".localize(), for: .normal)
+            unblockButton.layer.borderWidth = 0.2
+            unblockButton.layer.borderColor = CometChatTheme.borderColorDark.cgColor
+            unblockButton.layer.cornerRadius = 3
+            unblockButton.titleLabel?.font = CometChatTypography.Caption1.regular
+            unblockButton.setTitleColor(CometChatTheme.neutralColor900, for: .normal)
+            unblockButton.addTarget(self, action: #selector(onUnBlockButtonTapped), for: .primaryActionTriggered)
+            blockedView.addSubview(unblockButton)
+            constraintsToActivate += [
+                unblockButton.heightAnchor.constraint(equalToConstant: 32),
+                unblockButton.leadingAnchor.constraint(equalTo: blockedView.leadingAnchor, constant: CometChatSpacing.Padding.p3),
+                unblockButton.trailingAnchor.constraint(equalTo: blockedView.trailingAnchor, constant: -CometChatSpacing.Padding.p3),
+                unblockButton.topAnchor.constraint(equalTo: infoLabel.bottomAnchor, constant: 10),
+                unblockButton.bottomAnchor.constraint(equalTo: blockedView.bottomAnchor, constant: -30),
+            ]
+        }
+        
+        if group != nil {
+            infoLabel.text = "NO_LONGER_IN_GROUP_ERROR".localize()
+            constraintsToActivate.append(contentsOf: [
+                infoLabel.bottomAnchor.constraint(equalTo: blockedView.bottomAnchor, constant: -30),
+            ])
+        }
+        
+        NSLayoutConstraint.activate(constraintsToActivate)
+    }
+    
+    func enableMessageSending() {
+        
+        blockedView.removeFromSuperview()
+        
+        self.view.addSubview(composerView)
+        NSLayoutConstraint.activate([
+            composerView.topAnchor.constraint(equalTo: messageListView.bottomAnchor),
+            composerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            composerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            composerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
+    
+    @objc func onUnBlockButtonTapped() {
+        
+        CometChat.unblockUsers([user?.uid ?? ""]) { [weak self] success in
+            guard let this = self else { return }
+            DispatchQueue.main.async {
+                this.user?.blockedByMe = false
+                this.enableMessageSending()
+                CometChatUserEvents.ccUserUnblocked(user: this.user!)
+            }
+        } onError: { error in
+            //TODO: ERROR
+        }
+    }
+    
 }

@@ -11,7 +11,7 @@ import Foundation
     public var optional:Bool?
     @objc public var label = ""
     public var maximum: Int?
-    @objc public var placeHolder = "Enter text here..."
+    @objc public var placeHolder = "ENTER_TEXT_HERE".localize()
     @objc public var defaultValue = ""
     @objc public var text = ""
     

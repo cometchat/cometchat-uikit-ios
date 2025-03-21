@@ -21,7 +21,6 @@ extension CometChatUsers {
     }
     
     public func set(searchKeyword: String) -> Self {
-//        viewModel.filterUsers(text: searchKeyword)
         self.searchKeyWord = searchKeyword
         return self
     }
@@ -93,7 +92,7 @@ extension CometChatUsers {
     }
     
     @discardableResult
-    public func set(onLoad: @escaping (([User]) -> Void)) -> Self {
+    public func set(onLoad: @escaping (([[User]]) -> Void)) -> Self {
         self.onLoad = onLoad
         return self
     }

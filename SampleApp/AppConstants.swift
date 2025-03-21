@@ -13,6 +13,7 @@ class AppConstants {
     static var APP_ID: String = "26580020f03ff346"
     static var AUTH_KEY: String = "4152b0366478871f0fa8d19a287dd6f5ed5f8eff"
     static var REGION: String = "in"
+    static var PROVIDER_ID: String = "aoiueyrqwoieufhqpwieufghqpwieufghp"
 }
 
 

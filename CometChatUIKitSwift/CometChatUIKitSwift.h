@@ -12,7 +12,10 @@
 //! Project version string for CometChatUIKitSwift.
 FOUNDATION_EXPORT const unsigned char CometChatUIKitSwiftVersionString[];
 
-
+#if __has_include(<CometChatCallsSDK/CometChatCallsSDK.h>)
+#define __HAS_SOME_MODULE_FRAMEWORK__
+#import <CometChatCallsSDK/CometChatCallsSDK.h>
+#endif
 
 @interface CometChatUIKitSwiftCalls: NSObject
 

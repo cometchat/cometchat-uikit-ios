@@ -23,7 +23,7 @@ class CustomTextFiled: UIStackView {
     lazy var textField: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.placeholder = "Enter Your UID"
+        textField.placeholder = "ENTER_UID".localize()
         textField.font = CometChatTypography.Body.regular
         textField.textColor = CometChatTheme.textColorPrimary.withAlphaComponent(0.4)
         return textField

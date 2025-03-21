@@ -56,20 +56,20 @@ open class BannedMembersVC: CometChatListBase {
     }
     
     private func defaultSetup() {
-        title = "Banned Members"
+        title = "BANNED_MEMBERS".localize()
         prefersLargeTitles = false
         
         loadingView = UsersShimmerView()
         
         errorStateTitleText = "OOPS!".localize()
-        errorStateSubTitleText = "Looks like something went wrong. Please try again."
+        errorStateSubTitleText = "LOOKS_LIKE_SOMETHINGS_WENT_WORNG._PLEASE_TRY_AGAIN".localize()
         errorStateImage = UIImage(named: "error-icon", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal) ?? UIImage()
         
         emptyStateImage = UIImage(systemName: "person.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
-        emptyStateTitleText = "No Members Available"
+        emptyStateTitleText = "NO_MEMBERS_AVAILABLE".localize()
         emptyStateSubTitleText = ""
         
-        let barButtonItem = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(didTapBackButton))
+        let barButtonItem = UIBarButtonItem(title: "CANCEL".localize(), style: .done, target: self, action: #selector(didTapBackButton))
         barButtonItem.tintColor = CometChatTheme.primaryColor
         leftBarButtonItem = [barButtonItem]
     }
@@ -267,7 +267,7 @@ extension BannedMembersVC {
         let indexPath = IndexPath(row: row, section: 0)
         let bannedMember = viewModel.isSearching ? viewModel.filteredBannedGroupMembers[indexPath.row] : viewModel.bannedGroupMembers[indexPath.row]
         
-        showAlert("UNBAN_MEMBER".localize(), "Are you sure you want to unban \(bannedMember.name ?? "") ", "CANCEL".localize(), "UNBAN".localize()) { [weak self] in
+        showAlert("UNBAN_MEMBER".localize(), "\("Are you sure you want to unban".localize()) \(bannedMember.name ?? "") ", "CANCEL".localize(), "UNBAN".localize()) { [weak self] in
             self?.viewModel.unbanGroupMember(member: bannedMember)
         }
         

@@ -11,12 +11,10 @@ import CometChatSDK
 protocol UsersViewModelProtocol {
     
     var reload: (() -> Void)? { get set }
-    var reloadAtIndex: ((Int) -> Void)? { get set }
+    var reloadAtIndex: ((IndexPath) -> Void)? { get set }
     var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
-    var row: Int { get set }
-    var users: [User] { get set }
+    var searchedUsers: [User] { get set }
     var filteredUsers: [User] { get set }
-    var selectedUsers: [User] { get set }
     var isSearching: Bool { get set }
     func fetchUsers()
     func filterUsers(text: String)
@@ -26,16 +24,11 @@ protocol UsersViewModelProtocol {
 
 public class UsersViewModel: UsersViewModelProtocol {
     
-    var sectionUsers: [[User]] = [[User]]()
-    var sortedKeys = [String]()
-    var globalGroupedUsers: [String : [User]] = [:]
+    var users: [[User]] = [[User]]()
     var reload: (() -> Void)?
-    var reloadAtIndex: ((Int) -> Void)?
+    var reloadAtIndex: ((IndexPath) -> Void)?
     var failure: ((CometChatSDK.CometChatException) -> Void)?
-    var row: Int = -1 {
-        didSet { reloadAtIndex?(row) }
-    }
-    var users: [User] = []
+    var searchedUsers: [User] = []
     
     var filteredUsers: [User] = [] {
         didSet { reload?() }
@@ -71,7 +64,6 @@ public class UsersViewModel: UsersViewModelProtocol {
         if isFetchedAll { return }
         
         isFetching =  true
-        self.globalGroupedUsers.removeAll()
 
         UsersBuilder.fetchUsers(userRequest: userRequest) { [weak self] result in
             guard let this = self else { return }
@@ -84,7 +76,6 @@ public class UsersViewModel: UsersViewModelProtocol {
                         this.users.removeAll()
                         this.isRefresh = false
                     }
-                    this.users.append(contentsOf: fetchedUsers)
                     this.isFetchedAll = fetchedUsers.count < userRequest.limit
                 }
                 this.isFetching = false
@@ -100,7 +91,7 @@ public class UsersViewModel: UsersViewModelProtocol {
    
     private func groupUsers(users: [User]){
         
-        var staticUsers: [[User]] = sectionUsers
+        var staticUsers: [[User]] = self.users
         for index in 0..<users.count {
             let lastCharter = staticUsers.last?.first?.name?.first
             let user = users[index]
@@ -117,8 +108,8 @@ public class UsersViewModel: UsersViewModelProtocol {
         }
 
         DispatchQueue.main.async {
-            self.sectionUsers.removeAll()
-            self.sectionUsers = staticUsers
+            self.users.removeAll()
+            self.users = staticUsers
             self.reload?()
         }
     }
@@ -147,6 +138,17 @@ public class UsersViewModel: UsersViewModelProtocol {
         CometChatUserEvents.removeListener("user-listerner")
     }
     
+    func getIndexPath(for user: User) -> IndexPath? {
+        for (section, users) in users.enumerated() {
+            for (row, currentUser) in users.enumerated() {
+                if currentUser.uid == user.uid {
+                    return IndexPath(row: row, section: section)
+                }
+            }
+        }
+        return nil
+    }
+    
 }
 
 extension UsersViewModel {
@@ -154,36 +156,36 @@ extension UsersViewModel {
     @discardableResult
     func add(user: User) -> Self {
         if !self.users.contains(obj: user) {
-            self.users.append(user)
-        }
-        return self
-    }
-    
-    @discardableResult
-    func insert(user: User, at: Int) -> Self {
-        if !self.users.contains(obj: user) {
-            self.users.insert(user, at: at)
+            self.users[0].insert(user, at: 0)
+            self.reload?()
         }
         return self
     }
     
     @discardableResult
     func update(user: User) -> Self {
-        guard let row = users.firstIndex(where: {$0.uid == user.uid}) else { return self }
-            self.users[row] = user
+        
+        if let indexPath = getIndexPath(for: user) {
+            self.users[indexPath.section][indexPath.row] = user
+            self.reloadAtIndex?(indexPath)
+        }
+        
         return self
     }
     
     @discardableResult
     public func remove(user: User) -> Self {
-        guard let row = users.firstIndex(where: {$0.uid == user.uid}) else { return self }
-        self.users.remove(at: row)
+        if let indexPath = getIndexPath(for: user) {
+            self.users[indexPath.section].remove(at: indexPath.row)
+            self.reload?()
+        }
         return self
     }
     
     @discardableResult
     public func clearList() -> Self {
         self.users.removeAll()
+        self.reload?()
         return self
     }
     

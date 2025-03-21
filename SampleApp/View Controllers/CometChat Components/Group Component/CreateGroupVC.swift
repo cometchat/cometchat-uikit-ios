@@ -18,7 +18,7 @@ class CreateGroupVC: UIViewController {
     private let titleLabel = UILabel()
     private let closeButton = UIButton(type: .system)
     private let typeLabel = UILabel()
-    private let segmentedControl = UISegmentedControl(items: ["Public", "Private", "Password"])
+    private let segmentedControl = UISegmentedControl(items: ["PUBLIC".localize(), "PRIVATE".localize(), "PASSWORD".localize()])
     private let nameLabel = UILabel()
     private let nameTextFieldView = UIView()
     private let nameTextField = UITextField()
@@ -106,7 +106,7 @@ class CreateGroupVC: UIViewController {
     }
 
     private func setupTitleLabel() {
-        titleLabel.text = "New Group"
+        titleLabel.text = "NEW_GROUP".localize()
         titleLabel.textAlignment = .center
         titleLabel.textColor = CometChatTheme.textColorPrimary
         titleLabel.font = CometChatTypography.Heading2.medium
@@ -122,7 +122,7 @@ class CreateGroupVC: UIViewController {
     }
 
     private func setupTypeLabel() {
-        typeLabel.text = "Type"
+        typeLabel.text = "TYPE".localize()
         typeLabel.font = CometChatTypography.Caption1.medium
         typeLabel.textColor = CometChatTheme.textColorPrimary
         typeLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -153,14 +153,14 @@ class CreateGroupVC: UIViewController {
     }
 
     private func setupNameFields() {
-        nameLabel.text = "Name"
+        nameLabel.text = "NAME".localize()
         nameLabel.font = CometChatTypography.Caption1.medium
         nameLabel.textColor = CometChatTheme.textColorPrimary
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        nameTextField.placeholder = "Enter the group name"
+        nameTextField.placeholder = "ENTER_GROUP_NAME".localize()
         nameTextField.attributedPlaceholder = NSAttributedString(
-            string: "Enter the group name",
+            string: "ENTER_GROUP_NAME".localize(),
             attributes: [NSAttributedString.Key.foregroundColor: CometChatTheme.textColorTertiary, .font: CometChatTypography.Body.regular]
         )
         nameTextField.borderStyle = .none
@@ -175,14 +175,14 @@ class CreateGroupVC: UIViewController {
     }
 
     private func setupPasswordFields() {
-        passwordLabel.text = "Password"
+        passwordLabel.text = "PASSWORD".localize()
         passwordLabel.font = CometChatTypography.Caption1.medium
         passwordLabel.textColor = CometChatTheme.textColorPrimary
         passwordLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        passwordTextField.placeholder = "Enter the password"
+        passwordTextField.placeholder = "ENTER_PASSWORD".localize()
         passwordTextField.attributedPlaceholder = NSAttributedString(
-            string: "Enter the password",
+            string: "ENTER_PASSWORD".localize(),
             attributes: [NSAttributedString.Key.foregroundColor: CometChatTheme.textColorTertiary, .font: CometChatTypography.Body.regular]
         )
         passwordTextField.borderStyle = .none
@@ -215,7 +215,7 @@ class CreateGroupVC: UIViewController {
     }
 
     private func setupCreateGroupButton() {
-        createGroupButton.setTitle("Create Group", for: .normal)
+        createGroupButton.setTitle("CREATE_GROUP".localize(), for: .normal)
         createGroupButton.backgroundColor = CometChatTheme.primaryColor
         createGroupButton.setTitleColor(CometChatTheme.buttonTextColor, for: .normal)
         createGroupButton.titleLabel?.font = CometChatTypography.Button.medium
@@ -359,13 +359,13 @@ extension CreateGroupVC{
 
     @objc private func createGroupButtonTapped() {
         guard let groupName = nameTextField.text, !groupName.isEmpty else {
-            showError(message: "Group name cannot be empty")
+            showError(message: "EMPTY_GROUP_NAME_ERROR".localize())
             return
         }
 
         if segmentedControl.selectedSegmentIndex == 2,
            let password = passwordTextField.text, password.isEmpty {
-            showError(message: "Password cannot be empty for a password-protected group")
+            showError(message: "EMPTY_PASSWORD_ERROR".localize())
             return
         }
 
@@ -424,7 +424,7 @@ extension CreateGroupVC{
 
     private func showError(message: String) {
         let alert = UIAlertController(title: "", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: "OK".localize(), style: .default))
         present(alert, animated: true)
     }
 
@@ -447,7 +447,7 @@ extension CreateGroupVC{
     private func hideLoader() {
         DispatchQueue.main.async {
             self.loadingIndicator?.stopAnimating()
-            self.createGroupButton.setTitle("Create Group", for: .normal)
+            self.createGroupButton.setTitle("CREATE_GROUP".localize(), for: .normal)
         }
     }
     

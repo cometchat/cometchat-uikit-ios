@@ -81,7 +81,7 @@ open class CometChatListBase: UIViewController, StateManagement {
 
     //MARK: - Empty Views
     public lazy var errorStateView: UIView = {
-        let stateView = StateView(title: errorStateTitleText, subtitle: errorStateSubTitleText, image: errorStateImage, buttonText: "Retry")
+        let stateView = StateView(title: errorStateTitleText, subtitle: errorStateSubTitleText, image: errorStateImage, buttonText: "RETRY".localize())
         return stateView
     }()
     public var errorStateImage: UIImage = UIImage() {
@@ -333,6 +333,7 @@ open class CometChatListBase: UIViewController, StateManagement {
 
         if let cancelButton = searchController.searchBar.value(forKey: "cancelButton") as? UIButton, let searchBarCancelIconTintColor = searchStyle?.searchBarCancelIconTintColor {
             cancelButton.setTitleColor(searchBarCancelIconTintColor, for: .normal)
+            cancelButton.setTitle("CANCEL".localize(), for: .normal)
         }
     }
     

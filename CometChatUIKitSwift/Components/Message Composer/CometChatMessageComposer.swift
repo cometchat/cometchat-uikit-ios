@@ -13,7 +13,7 @@ open class CometChatMessageComposer: UIView {
     public lazy var textView: GrowingTextView = {
         let growingTextView = GrowingTextView().withoutAutoresizingMaskConstraints()
         growingTextView.delegate = self
-        growingTextView.placeholder = "Type your message here..."
+        growingTextView.placeholder = "COMPOSER_PLACEHOLDER".localize()
         growingTextView.maxHeight = style.textFiledFont.lineHeight * 5
         growingTextView.minHeight = 12
         growingTextView.backgroundColor = .clear
@@ -427,7 +427,7 @@ open class CometChatMessageComposer: UIView {
                 
                 ///Checking AI enabled of not
                 let aiOptionsList = ChatConfigurator.getDataSource().getAIOptions(controller: controller ?? UIViewController(), user: viewModel.user, group: viewModel.group, id: getId(), aiOptionsStyle: aiOptionsStyle)
-                if let aiOptionsList = aiOptionsList, !aiOptionsList.isEmpty && !hideAIButton {
+                if let aiOptionsList = aiOptionsList, !aiOptionsList.isEmpty && !hideAIButton && (viewModel.parentMessageId ?? 0) == 0 {
                     auxiliaryOptions.addArrangedSubview(aiButton)
                 }
                 

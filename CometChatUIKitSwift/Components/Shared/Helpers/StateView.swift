@@ -33,7 +33,7 @@ public class StateView: UIStackView {
     
     public lazy var retryButton: UIButton = {
         let button = UIButton().withoutAutoresizingMaskConstraints()
-        button.setTitle("Retry", for: .normal) //TODO: add text to localise files
+        button.setTitle("RETRY".localize(), for: .normal)
         button.pin(anchors: [.width], to: 120)
         button.pin(anchors: [.height], to: 40)
         return button

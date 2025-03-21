@@ -13,7 +13,7 @@ open class CometChatAIConversationSummary: UIView {
     // Title Label
     public let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Conversation summary"
+        label.text = "CONVERSATION_SUMMARY".localize()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -41,7 +41,7 @@ open class CometChatAIConversationSummary: UIView {
     
     public let errorLabel: UILabel = {
         let label = UILabel().withoutAutoresizingMaskConstraints()
-        label.text = "Looks like something went wrong.\nPlease try again."
+        label.text = "SOMETHING_WENT_WRONG_WITH_NEW_LINE".localize()
         label.numberOfLines = 0
         label.textAlignment = .center
         return label

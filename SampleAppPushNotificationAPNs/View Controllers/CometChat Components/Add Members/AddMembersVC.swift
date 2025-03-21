@@ -84,11 +84,11 @@ open class AddMembersVC: CometChatUsers {
         loadingView = UsersShimmerView()
         
         errorStateTitleText = "OOPS!".localize()
-        errorStateSubTitleText = "Looks like something went wrong. Please try again."
+        errorStateSubTitleText = "LOOKS_LIKE_SOMETHINGS_WENT_WORNG._PLEASE_TRY_AGAIN".localize()
         errorStateImage = UIImage(named: "error-icon", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal) ?? UIImage()
 
         emptyStateImage = UIImage(systemName: "person.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
-        emptyStateTitleText = "No Members Available"
+        emptyStateTitleText = "NO_MEMBERS_AVAILABLE".localize()
         emptyStateSubTitleText = ""
         
         let barButtonItem = UIBarButtonItem(title: cancelText, style: .done, target: self, action: #selector(didTapBackButton))
@@ -123,7 +123,7 @@ open class AddMembersVC: CometChatUsers {
     }
 
     private func setupAddMemberButton() {
-        addMemberButton.setTitle("Add \(selectedCellCount) Members", for: .normal)
+        addMemberButton.setTitle("\("ADD".localize()) \(selectedCellCount) \("MEMBERS".localize())", for: .normal)
         addMemberButton.titleLabel?.font = CometChatTypography.Button.medium
         addMemberButton.setTitleColor(CometChatTheme.white, for: .normal)
         addMemberButton.backgroundColor = CometChatTheme.primaryColor
@@ -222,7 +222,7 @@ open class AddMembersVC: CometChatUsers {
         [addMemberButton, addMemberButtonSeperator, addMemberButtonView].forEach { $0.isHidden = shouldHide }
         
         if !shouldHide {
-            addMemberButton.setTitle("Add \(selectedCellCount) Members", for: .normal)
+            addMemberButton.setTitle("\("ADD".localize()) \(selectedCellCount) \("MEMBERS".localize())", for: .normal)
         }
     }
 
@@ -265,9 +265,10 @@ open class AddMembersVC: CometChatUsers {
     }
 
     private func hideLoader() {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             self.loadingIndicator?.stopAnimating()
-            self.addMemberButton.setTitle("Add \(self.selectedCellCount) Members", for: .normal)
+            self.addMemberButton.setTitle("\("ADD".localize()) \(self.selectedCellCount) \("MEMBERS".localize())", for: .normal)
         }
     }
 }

@@ -96,7 +96,7 @@ open class CometChatReactionList: UIViewController {
         //populating reactionList which will be used for collection view
         var totalReactions = 0
         baseMessage.reactions.forEach({ totalReactions = totalReactions + $0.count })
-        reactionDataSource.append(ReactionListDataModel(reaction: "All", count: totalReactions, messageID: baseMessage.id, reactionsRequest: reactionRequestBuilder))
+        reactionDataSource.append(ReactionListDataModel(reaction: "ALL".localize(), count: totalReactions, messageID: baseMessage.id, reactionsRequest: reactionRequestBuilder))
         baseMessage.reactions.forEach { reactions in
             reactionDataSource.append(ReactionListDataModel(reaction: reactions.reaction, count: reactions.count, messageID: baseMessage.id, reactionsRequest: reactionRequestBuilder))
         }
@@ -151,7 +151,7 @@ open class CometChatReactionList: UIViewController {
             let backView = UIView().withoutAutoresizingMaskConstraints()
             view.embed(backView)
             backView.backgroundColor = CometChatTheme.backgroundColor01
-            errorLabel.text = "Looks like something went wrong. Please try again."
+            errorLabel.text = "LOOKS_LIKE_SOMETHINGS_WENT_WORNG._PLEASE_TRY_AGAIN".localize()
             backView.addSubview(errorLabel)
             errorLabel.pin(anchors: [.centerX, .centerY], to: view)
             errorLabel.leadingAnchor.constraint(equalTo: backView.leadingAnchor, constant: CometChatSpacing.Spacing.s4).isActive = true
@@ -387,7 +387,7 @@ extension CometChatReactionList: UITableViewDataSource, UITableViewDelegate {
             
             if reaction.reactedBy?.uid == CometChat.getLoggedInUser()?.uid {
                 let tapToRemoveLabel = UILabel()
-                tapToRemoveLabel.text = "Tap to remove"
+                tapToRemoveLabel.text = "TAP_TO_REMOVE".localize()
                 tapToRemoveLabel.font = style.subTitleTextFont
                 tapToRemoveLabel.textColor = style.subTitleTextColor
                 tapToRemoveLabel.textAlignment = .left

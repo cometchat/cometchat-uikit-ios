@@ -8,7 +8,6 @@
 import Foundation
 import CometChatSDK
 #if canImport(CometChatCallsSDK)
-import CometChatCallsSDK
 
 public class CallLogsViewModel {
     

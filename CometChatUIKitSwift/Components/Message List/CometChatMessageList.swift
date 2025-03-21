@@ -59,6 +59,7 @@ open class CometChatMessageList: UIView {
         // Not making this view's type as CometChatMessageShimmerView because user can replace this with any UIView
         let loadingShimmer = CometChatMessageShimmerView()
         loadingShimmer.transform = CGAffineTransform(scaleX: 1, y: -1)
+        loadingShimmer.backgroundColor = style.backgroundColor
         return loadingShimmer
     }()
     
@@ -885,7 +886,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 }
                 
                 let noSupportedBubble = CometChatDeleteBubble()
-                noSupportedBubble.messageText = "This message type is not supported"
+                noSupportedBubble.messageText = "MESSAGE_TYPE_NOT_SUPPORTED".localize()
                 cell.set(contentView: noSupportedBubble)
                 return cell
             }
@@ -1034,7 +1035,7 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                 if messageOption.onItemClick == nil {
                     
                     // Presenting Delete message action
-                    let actionSheetController: UIAlertController = UIAlertController(title: nil, message: "Are you sure you want to delete this message? This action cannot be undone.", preferredStyle: .actionSheet)
+                    let actionSheetController: UIAlertController = UIAlertController(title: nil, message: "DELETE_MESSAGE_SUBTITLE".localize(), preferredStyle: .actionSheet)
                     
                     // create an action
                     let firstAction: UIAlertAction = UIAlertAction(title: ConversationConstants.delete, style: .destructive) { [weak self] action -> Void in

@@ -39,7 +39,7 @@ class AddMembersViewModel : AddMembersViewModelProtocol {
                         let actionMessage = ActionMessage()
                         actionMessage.action = .added
                         actionMessage.conversationId = "group_\(this.group.guid)"
-                        actionMessage.message = "\(loggedInUser.name ?? "") added \(member.name ?? "")"
+                        actionMessage.message = "\(loggedInUser.name ?? "") \("ADDED".localize()) \(member.name ?? "")"
                         actionMessage.muid = "\(NSDate().timeIntervalSince1970)"
                         actionMessage.sender = loggedInUser
                         actionMessage.receiver = this.group

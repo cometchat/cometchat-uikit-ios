@@ -10,7 +10,6 @@ import UIKit
 import CometChatSDK
 
 #if canImport(CometChatCallsSDK)
-import CometChatCallsSDK
 
 public final class IncomingCallConfiguration {
     

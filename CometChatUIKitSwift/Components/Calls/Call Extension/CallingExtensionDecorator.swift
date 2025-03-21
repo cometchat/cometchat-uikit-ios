@@ -10,7 +10,6 @@ import Foundation
 
 
 #if canImport(CometChatCallsSDK)
-import CometChatCallsSDK
 
 class CallingExtensionDecorator: DataSourceDecorator {
     

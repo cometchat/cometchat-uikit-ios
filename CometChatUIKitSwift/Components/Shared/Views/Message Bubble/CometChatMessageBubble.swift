@@ -271,7 +271,14 @@ open class CometChatMessageBubble: UITableViewCell {
     
     @discardableResult
     public func set(bubbleView: UIView?) -> Self {
-        self.customBubbleView = bubbleView
+        if let bubbleView = bubbleView{
+            self.customBubbleView?.subviews.forEach({$0.removeFromSuperview()})
+            self.leadingView.subviews.forEach({$0.removeFromSuperview()})
+            self.middleStackView.subviews.forEach({$0.removeFromSuperview()})
+            self.bubbleStackView.subviews.forEach({$0.removeFromSuperview()})
+            self.customBubbleView = bubbleView
+            self.containerStackView.embed(bubbleView)
+        }
         return self
     }
     

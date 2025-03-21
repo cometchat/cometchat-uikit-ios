@@ -123,7 +123,7 @@ public class CometChatFormBubble: UIView {
         containerView.backgroundColor = (self.traitCollection.userInterfaceStyle == .dark) ? CometChatTheme_v4.palatte.accent100 : CometChatTheme_v4.palatte.secondary
         containerView.addArrangedSubview(quickView)
         let label = UILabel()
-        label.text = "Thank you for filling out the Form."
+        label.text = "FORM_COMPLETION_MESSAGE".localize()
         var labelHeight = label.text?.height(withConstrainedWidth: containerView.frame.width, font: UIFont.systemFont(ofSize: 17)) ?? 60
         if labelHeight < 60 {
             labelHeight = 60

@@ -48,7 +48,7 @@ class CometChatCallBubble: UIView {
     
     public var joinButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Join", for: .normal)
+        button.setTitle("JOIN".localize(), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -64,8 +64,8 @@ class CometChatCallBubble: UIView {
     
     public weak var controller: UIViewController?
     public var callType: CometChatSDK.CallType = .audio
-    public var audioCallTitleText = "Audio"
-    public var videoCallTitleText = "Video"
+    public var audioCallTitleText = "MESSAGE_AUDIO".localize()
+    public var videoCallTitleText = "MESSAGE_VIDEO".localize()
     public var onClick: ((_ callType: CometChatSDK.CallType) -> Void)?
     public static var style = CallBubbleStyle()
     public lazy var style = CometChatCallBubble.style

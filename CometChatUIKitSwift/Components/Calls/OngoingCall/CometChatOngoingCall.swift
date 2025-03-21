@@ -9,7 +9,6 @@
 #if canImport(CometChatCallsSDK)
 import UIKit
 import CometChatSDK
-import CometChatCallsSDK
 
 public enum CallWorkFlow {
     case defaultCalling

@@ -47,7 +47,7 @@ class GroupDetailsViewController: UIViewController {
     
     public let messageLabel: UILabel = {
         let label = UILabel()
-        label.text = "You are no longer part of this group"
+        label.text = "NO_LONGER_IN_GROUP_ERROR".localize()
         label.font = CometChatTypography.Heading4.regular
         label.textColor = CometChatTheme.textColorPrimary
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -93,9 +93,9 @@ class GroupDetailsViewController: UIViewController {
         return view
     }()
     
-    public let addMembersView = GroupActionView(title: "Add Members", image: UIImage(systemName: "person.badge.plus"))
-    public let viewMembersView = GroupActionView(title: "View Members", image: UIImage(systemName: "person.2"))
-    public let bannedMembersView = GroupActionView(title: "Banned Members", image: UIImage(named: "ban_member"))
+    public let addMembersView = GroupActionView(title: "ADD_MEMBERS".localize(), image: UIImage(systemName: "person.badge.plus"))
+    public let viewMembersView = GroupActionView(title: "VIEW_MEMBERS".localize(), image: UIImage(systemName: "person.2"))
+    public let bannedMembersView = GroupActionView(title: "BANNED_MEMBERS".localize(), image: UIImage(named: "ban_member"))
     
     public var listenerRandomID = Date().timeIntervalSince1970
     public var onExitGroup: ((_ group: Group) -> ())?
@@ -115,7 +115,7 @@ class GroupDetailsViewController: UIViewController {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.heightAnchor.constraint(equalToConstant: 35).isActive = true
-        button.setTitle("Leave", for: .normal)
+        button.setTitle("LEAVE".localize(), for: .normal)
         button.setTitleColor(CometChatTheme.errorColor, for: .normal)
         button.setImage(UIImage(systemName: "rectangle.portrait.and.arrow.right"), for: .normal)
         button.tintColor = CometChatTheme.errorColor
@@ -139,7 +139,7 @@ class GroupDetailsViewController: UIViewController {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.heightAnchor.constraint(equalToConstant: 35).isActive = true
-        button.setTitle("Delete and Exit", for: .normal)
+        button.setTitle("DELETE_AND_EXIT".localize(), for: .normal)
         button.setTitleColor(CometChatTheme.errorColor, for: .normal)
         button.setImage(UIImage(systemName: "trash"), for: .normal)
         button.tintColor = CometChatTheme.errorColor
@@ -181,7 +181,7 @@ class GroupDetailsViewController: UIViewController {
     
     // MARK: - Setup Navigation Bar
     public func setupNavigationBar() {
-        navigationItem.title = "Group Info"
+        navigationItem.title = "GROUP_INFO".localize()
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.navigationBar.tintColor = CometChatTheme.iconColorPrimary
     }
@@ -283,7 +283,7 @@ class GroupDetailsViewController: UIViewController {
     }
     
     @objc func showDeleteGroupAlert(){
-        self.showAlert("Delete and Exit?", "Are you sure you want to delete this chat and exit the group? This action cannot be undone.", "Cancel", "Delete & Exit", onActionsTriggered: {
+        self.showAlert("DELETE_AND_EXIT_QUESTION_MARK".localize(), "CONFIRM_DELETE_AND_EXIT_GROUP_ALERT".localize(), "CANCEL".localize(), "DELETE_AND_EXIT".localize(), onActionsTriggered: {
             if let group = self.group {
                 CometChat.deleteGroup(GUID: group.guid) { deleteSuccess in
                     DispatchQueue.main.async { [weak self] in
@@ -299,48 +299,55 @@ class GroupDetailsViewController: UIViewController {
     }
     @objc func showLeaveGroupAlert(){
         if group?.owner == CometChat.getLoggedInUser()?.uid && (group?.membersCount ?? 0) > 1 {
-            self.showAlert("Ownership Transfer", "You need to transfer ownership of this group to another group member before leaving this ground.", "Cancel", "Transfer", onActionsTriggered: {
+            self.showAlert("OWNERSHIP_TRANSFER".localize(), "TRANSFER_OWNERSHIP_ALERT".localize(), "CANCEL".localize(), "TRANSFER".localize(), onActionsTriggered: {
                 if let group = self.group {
                     let transferOwnership = TransferOwnership()
                     transferOwnership.set(group: group)
+                    transferOwnership.leaveGroupCallback = {
+                        self.leaveGroup(group: group)
+                    }
                     self.present(UINavigationController(rootViewController: transferOwnership), animated: true)
                 }
             })
         } else {
-            self.showAlert("Leave this group?", "Are you sure you want to leave this group? You won't receive any more messages from this chat.", "Cancel", "Leave", onActionsTriggered: {
+            self.showAlert("LEAVE_GROUP_QUESTION_MARK".localize(), "LEAVE_GROUP_ALERT".localize(), "CANCEL".localize(), "LEAVE".localize(), onActionsTriggered: {
                 if let group = self.group {
-                    CometChat.leaveGroup(GUID: group.guid) { leaveSuccess in
-                        DispatchQueue.main.async { [weak self] in
-                            print("group left")
-                            self?.navigationController?.popViewController(animated: true)
-                            if let user = CometChat.getLoggedInUser(), let group = self?.group {
-                                
-                                let actionMessage = ActionMessage()
-                                actionMessage.action = .scopeChanged
-                                actionMessage.conversationId = "group_\(group.guid)"
-                                actionMessage.message = "\(user.name ?? "") left"
-                                actionMessage.muid = "\(NSDate().timeIntervalSince1970)"
-                                actionMessage.sender = user
-                                actionMessage.receiver = group
-                                actionMessage.actionBy = user
-                                actionMessage.actionOn = user
-                                actionMessage.receiverUid = group.guid
-                                actionMessage.messageType = .groupMember
-                                actionMessage.messageCategory = .action
-                                actionMessage.receiverType = .group
-                                actionMessage.sentAt = Int(Date().timeIntervalSince1970)
-                                
-                                group.hasJoined = false
-                                group.membersCount = group.membersCount - 1
-                                CometChatGroupEvents.ccGroupLeft(action: actionMessage, leftUser: user, leftGroup: group)
-                            }
-                            self?.onExitGroup?(group)
-                        }
-                    } onError: { error in
-                        print("Something want wrong")
-                    }
+                    self.leaveGroup(group: group)
                 }
             })
+        }
+    }
+    
+    func leaveGroup(group:Group){
+        CometChat.leaveGroup(GUID: group.guid) { leaveSuccess in
+            DispatchQueue.main.async { [weak self] in
+                print("group left")
+                self?.navigationController?.popToViewController(ofClass: HomeScreenViewController.self)
+                if let user = CometChat.getLoggedInUser(), let group = self?.group {
+                    
+                    let actionMessage = ActionMessage()
+                    actionMessage.action = .scopeChanged
+                    actionMessage.conversationId = "group_\(group.guid)"
+                    actionMessage.message = "\(user.name ?? "") left"
+                    actionMessage.muid = "\(NSDate().timeIntervalSince1970)"
+                    actionMessage.sender = user
+                    actionMessage.receiver = group
+                    actionMessage.actionBy = user
+                    actionMessage.actionOn = user
+                    actionMessage.receiverUid = group.guid
+                    actionMessage.messageType = .groupMember
+                    actionMessage.messageCategory = .action
+                    actionMessage.receiverType = .group
+                    actionMessage.sentAt = Int(Date().timeIntervalSince1970)
+                    
+                    group.hasJoined = false
+                    group.membersCount = group.membersCount - 1
+                    CometChatGroupEvents.ccGroupLeft(action: actionMessage, leftUser: user, leftGroup: group)
+                }
+                self?.onExitGroup?(group)
+            }
+        } onError: { error in
+            print("Something want wrong")
         }
     }
     

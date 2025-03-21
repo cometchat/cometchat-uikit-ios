@@ -237,7 +237,7 @@ open class MessageUtils {
         }
         
         if !addtionalConfiguration.hideFileAttachmentOption{
-            composerAction.append(CometChatMessageComposerAction(id: MessageTypeConstants.file, text: "DOCUMENT".localize(), startIcon: UIImage(named: "document.on.document", in: CometChatUIKit.bundle, compatibleWith: nil) ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil))
+            composerAction.append(CometChatMessageComposerAction(id: MessageTypeConstants.file, text: "CUSTOM_MESSAGE_DOCUMENT".localize(), startIcon: UIImage(named: "document.on.document", in: CometChatUIKit.bundle, compatibleWith: nil) ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil))
         }
         
         return composerAction

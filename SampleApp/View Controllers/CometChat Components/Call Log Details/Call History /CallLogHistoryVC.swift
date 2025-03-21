@@ -67,12 +67,12 @@ public class CallLogHistoryVC: UIViewController, UITableViewDataSource, UITableV
         let isInitiator = CometChat.getLoggedInUser()?.uid == (call.initiator as? CallUser)?.uid
         
         if call.status == .cancelled || call.status == .busy || call.status == .rejected || call.status == .unanswered{
-            cell.nameLabel.text = "Missed call"
+            cell.nameLabel.text = "MISSED_CALL".localize()
         }else{
             if isInitiator{
-                cell.nameLabel.text = "Outgoing call"
+                cell.nameLabel.text = "OUTGOING_CALL".localize()
             }else{
-                cell.nameLabel.text = "Incoming call"
+                cell.nameLabel.text = "INCOMING_CALL".localize()
             }
         }
         

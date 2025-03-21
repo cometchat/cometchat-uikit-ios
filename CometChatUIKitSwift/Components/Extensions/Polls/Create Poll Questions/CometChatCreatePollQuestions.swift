@@ -12,7 +12,7 @@ class CometChatCreatePollQuestions: UITableViewCell, UITextFieldDelegate {
 
     lazy var question: UITextField = {
         let textField = UITextField().withoutAutoresizingMaskConstraints()
-        textField.placeholder = "Ask question"
+        textField.placeholder = "ASK_QUESTION".localize()
         textField.borderStyle = .none
         return textField
     }()

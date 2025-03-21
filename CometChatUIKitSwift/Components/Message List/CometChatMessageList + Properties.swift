@@ -14,7 +14,6 @@ extension CometChatMessageList {
     //MARK: Data
     @discardableResult
     public func set(user: User, parentMessage: BaseMessage? = nil) -> Self {
-        self.hideAvatar = true
         self.viewModel.set(user: user, messagesRequestBuilder: self.messagesRequestBuilder, parentMessage: parentMessage)
         return self
     }

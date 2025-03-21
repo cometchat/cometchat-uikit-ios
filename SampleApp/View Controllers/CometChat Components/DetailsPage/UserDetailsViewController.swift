@@ -41,7 +41,7 @@ class UserDetailsViewController: UIViewController {
         let label = UILabel()
         if user?.blockedByMe == true { label.isHidden = true }
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = user?.status == .online ? "Online" : "Offline"
+        label.text = user?.status == .online ? "ONLINE".localize() : "OFFLINE".localize()
         label.font = CometChatTypography.Caption1.regular
         label.textColor = CometChatTheme.textColorSecondary
         label.textAlignment = .center
@@ -77,7 +77,7 @@ class UserDetailsViewController: UIViewController {
         callButton.style.audioCallTextColor = CometChatTheme.textColorSecondary
         callButton.translatesAutoresizingMaskIntoConstraints = false
         callButton.hideVideoCallButton = true
-        callButton.voiceCallIconText = "Voice"
+        callButton.voiceCallIconText = "VOICE".localize()
         if let user = user { callButton.set(user: user) }
         callButton.layer.borderWidth = 1
         callButton.layer.borderColor = CometChatTheme.borderColorDefault.cgColor
@@ -94,7 +94,7 @@ class UserDetailsViewController: UIViewController {
         callButton.style.videoCallTextColor = CometChatTheme.textColorSecondary
         callButton.translatesAutoresizingMaskIntoConstraints = false
         callButton.hideVoiceCallButton = true
-        callButton.videoCallIconText = "Video"
+        callButton.videoCallIconText = "MESSAGE_VIDEO".localize()
         if let user = user { callButton.set(user: user) }
         callButton.layer.borderWidth = 1
         callButton.layer.borderColor = CometChatTheme.borderColorDefault.cgColor
@@ -113,12 +113,12 @@ class UserDetailsViewController: UIViewController {
         
         if user?.blockedByMe == false {
             button.tag = 0 // tag = 0 is blocked, tag = 1 is unblocked
-            button.setTitle("Block", for: .normal)
+            button.setTitle("BLOCK".localize(), for: .normal)
             button.setTitleColor(CometChatTheme.errorColor, for: .normal)
             button.tintColor = CometChatTheme.errorColor
         } else {
             button.tag = 1
-            button.setTitle("Unblock", for: .normal)
+            button.setTitle("UNBLOCK".localize(), for: .normal)
             button.tintColor = CometChatTheme.successColor
             button.setTitleColor(CometChatTheme.successColor, for: .normal)
         }
@@ -142,7 +142,7 @@ class UserDetailsViewController: UIViewController {
     public lazy var deleteChatButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Delete Chat", for: .normal)
+        button.setTitle("DELETE_CHAT".localize(), for: .normal)
         button.setTitleColor(CometChatTheme.errorColor, for: .normal)
         button.setImage(UIImage(systemName: "trash"), for: .normal)
         button.tintColor = CometChatTheme.errorColor
@@ -176,7 +176,7 @@ class UserDetailsViewController: UIViewController {
     
     // MARK: - Setup Navigation Bar
     public func setupNavigationBar() {
-        navigationItem.title = "User Info"
+        navigationItem.title = "USER_INFO".localize()
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.navigationBar.tintColor = CometChatTheme.iconColorPrimary
     }
@@ -241,14 +241,14 @@ class UserDetailsViewController: UIViewController {
     
     @objc func showBlockAlert(){
         if blockButton.tag == 0 {
-            self.showAlert("\("Block".localize()) \(user?.name ?? "")", "Are you sure you want to block \(user?.name ?? "").", "\("CANCEL".localize())", "\("Block".localize())", onActionsTriggered: { [weak self] in
+            self.showAlert("\("BLOCK".localize()) \(user?.name ?? "")", "\("BLOCKED_USER_ERROR".localize()) \(user?.name ?? "").", "\("CANCEL".localize())", "\("BLOCK".localize())", onActionsTriggered: { [weak self] in
                 if let user = self?.user {
                     CometChat.blockUsers([user.uid ?? ""]) { success in
                         DispatchQueue.main.async {
                             user.blockedByMe = true
                             CometChatUserEvents.ccUserBlocked(user: user)
                             self?.blockButton.tag = 1
-                            self?.blockButton.setTitle("Unblock", for: .normal)
+                            self?.blockButton.setTitle("UNBLOCK".localize(), for: .normal)
                             self?.blockButton.tintColor = CometChatTheme.successColor
                             self?.blockButton.setTitleColor(CometChatTheme.successColor, for: .normal)
                         }
@@ -258,14 +258,14 @@ class UserDetailsViewController: UIViewController {
                 }
             })
         } else {
-            self.showAlert("\("UNBLOCK".localize()) \(user?.name ?? "")", "Are you sure you want to unblock \(user?.name ?? "").", "\("CANCEL".localize())", "UNBLOCK".localize(), onActionsTriggered: { [weak self] in
+            self.showAlert("\("UNBLOCK".localize()) \(user?.name ?? "")", "\("BLOCKED_USER_ERROR".localize()) \(user?.name ?? "").", "\("CANCEL".localize())", "UNBLOCK".localize(), onActionsTriggered: { [weak self] in
                 if let user = self?.user {
                     CometChat.unblockUsers([user.uid ?? ""]) { success in
                         DispatchQueue.main.async {
                             user.blockedByMe = false
                             CometChatUserEvents.ccUserUnblocked(user: user)
                             self?.blockButton.tag = 0
-                            self?.blockButton.setTitle("Block", for: .normal)
+                            self?.blockButton.setTitle("BLOCK".localize(), for: .normal)
                             self?.blockButton.tintColor = CometChatTheme.errorColor
                             self?.blockButton.setTitleColor(CometChatTheme.errorColor, for: .normal)
                         }
@@ -278,7 +278,7 @@ class UserDetailsViewController: UIViewController {
     }
     
     @objc func showDeleteAlert(){
-        self.showAlert("Delete Chat", "Are you sure you want to delete this chat. This action cannot be undone.", "Cancel", "Delete", onActionsTriggered: { [weak self] in
+        self.showAlert("DELETE_CHAT".localize(), "DELETE_CHAT_CONFIRMATION".localize(), "CANCEL".localize(), "DELETE".localize(), onActionsTriggered: { [weak self] in
             if let user = self?.user {
                 CometChat.deleteConversation(conversationWith: user.uid ?? "", conversationType: .user) { [weak self] message in
                     DispatchQueue.main.async {
@@ -307,11 +307,11 @@ class UserDetailsViewController: UIViewController {
 extension UserDetailsViewController: CometChatUserEventListener, CometChatUserDelegate {
     
     func onUserOnline(user: User) {
-        statusLabel.text = "Online"
+        statusLabel.text = "ONLINE".localize()
     }
     
     func onUserOffline(user: User) {
-        statusLabel.text = "Offline"
+        statusLabel.text = "OFFLINE".localize()
     }
     
     func ccUserBlocked(user: User) {
@@ -320,7 +320,7 @@ extension UserDetailsViewController: CometChatUserEventListener, CometChatUserDe
     
     func ccUserUnblocked(user: User) {
         statusLabel.isHidden = false
-        statusLabel.text = user.status == .online ? "Online" : "Offline"
+        statusLabel.text = user.status == .online ? "ONLINE".localize() : "OFFLINE".localize()
     }
     
 }

@@ -12,27 +12,32 @@ extension CometChatThreadedMessageHeader {
     
     //MARK: Data
     @discardableResult
-    public func set(parentMessage: BaseMessage) ->  Self {
+    public func set(parentMessage: BaseMessage) -> Self {
         self.viewModel.parentMessage = parentMessage
-        getDefaultTemplate(for: parentMessage)
+        
+        if self.template == nil {
+            getDefaultTemplate(for: parentMessage)
+        }
         setupMessageBubbleView()
+        
+        if let storedTemplates = storedTemplates {
+            applyTemplates(storedTemplates)
+            self.storedTemplates = nil // Clear stored templates after applying
+        }
         return self
     }
     
     @discardableResult
     public func set(templates: [CometChatMessageTemplate]) -> Self {
-        viewModel.templates?.removeAll()
-        for template in (templates) {
-            viewModel.templates?["\(template.category)_\(template.type)"] = template
-        }
+        self.storedTemplates = templates
+        applyTemplates(templates)
         return self
     }
     
     @discardableResult
-    public func add(templates: [CometChatMessageTemplate]) -> Self {
-        for template in (templates) {
-            viewModel.templates?["\(template.category)_\(template.type)"] = template
-        }
+    public func add(template: CometChatMessageTemplate) -> Self {
+        self.template = template
+        setupMessageBubbleView()
         return self
     }
     

@@ -496,7 +496,7 @@ public class MessagesDataSource: DataSource {
     }
     
     public func fileAttachmentOption(controller: UIViewController?) -> CometChatMessageComposerAction{
-        return    CometChatMessageComposerAction(id: ComposerAttachmentConstants.file, text: "DOCUMENT".localize(), startIcon: UIImage(systemName: "doc.on.doc.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil)
+        return    CometChatMessageComposerAction(id: ComposerAttachmentConstants.file, text: "CUSTOM_MESSAGE_DOCUMENT".localize(), startIcon: UIImage(systemName: "doc.on.doc.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil)
     }
     
     
@@ -677,7 +677,7 @@ public class MessagesDataSource: DataSource {
         let deleteBubbleStyle = isLoggedInUser ? style?.outgoing.deleteBubbleStyle : style?.incoming.deleteBubbleStyle
         
         let deleteBubble = CometChatDeleteBubble()
-        deleteBubble.messageText = "This message type is not supported"
+        deleteBubble.messageText = "MESSAGE_TYPE_NOT_SUPPORTED".localize()
         if let deleteBubbleStyle { deleteBubble.style = deleteBubbleStyle }
         return deleteBubble
     }
@@ -688,7 +688,7 @@ public class MessagesDataSource: DataSource {
         let deleteBubbleStyle = isLoggedInUser ? style?.outgoing.deleteBubbleStyle : style?.incoming.deleteBubbleStyle
         
         let deleteBubble = CometChatDeleteBubble()
-        deleteBubble.messageText = "This message type is not supported"
+        deleteBubble.messageText = "MESSAGE_TYPE_NOT_SUPPORTED".localize()
         if let deleteBubbleStyle { deleteBubble.style = deleteBubbleStyle }
         return deleteBubble
     }
@@ -702,7 +702,7 @@ public class MessagesDataSource: DataSource {
         let deleteBubbleStyle = isLoggedInUser ? style?.outgoing.deleteBubbleStyle : style?.incoming.deleteBubbleStyle
         
         let deleteBubble = CometChatDeleteBubble()
-        deleteBubble.messageText = "This message type is not supported"
+        deleteBubble.messageText = "MESSAGE_TYPE_NOT_SUPPORTED".localize()
         if let deleteBubbleStyle { deleteBubble.style = deleteBubbleStyle }
         return deleteBubble
         

@@ -260,9 +260,9 @@ public class CometChatStickerKeyboard: UIView {
         separatorLineView.isHidden = true
         
         // Set labels' text
-        emptyTitleLabel.text = "No Stickers Available"
-        emptySubTitleLabel.text = "You don’t have any stickers yet."
-        errorLabel.text = "Looks like something went wrong.\nPlease try again."
+        emptyTitleLabel.text = "STICKERS_EMPTY_MESSAGE".localize()
+        emptySubTitleLabel.text = "DONT_HAVE_STICKERS_MESSAGE".localize()
+        errorLabel.text = "SOMETHING_WENT_WRONG_WITH_NEW_LINE".localize()
     }
 
     

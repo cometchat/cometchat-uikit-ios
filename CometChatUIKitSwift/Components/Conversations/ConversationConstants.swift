@@ -14,12 +14,12 @@ public enum ConversationConstants {
     static let cancel = "CANCEL".localize()
     static let searchText = "SEARCH".localize()
     static let chats = "CHATS".localize()
-    static let delete = "DELETE".localize()
+    static let delete = "DELETE_MESSAGE".localize()
     static let deleteConversationMessage = "DELETE_CONVERSATION_MESSAGE".localize()
     static let typingText = "TYPING".localize()
     static let isTyping = "IS_TYPING".localize()
     static let inAThread = "IN_A_THREAD".localize()
-    static let thisMessageDeleted = "THIS_MESSAGE_DELETED".localize()
+    static let thisMessageDeleted = "MESSAGE_WAS_DELETED".localize()
     static let messageImage = "MESSAGE_IMAGE".localize()
     static let messageVideo = "MESSAGE_VIDEO".localize()
     static let messageAudio = "MESSAGE_AUDIO".localize()
@@ -37,6 +37,6 @@ public enum ConversationConstants {
     static let cardMessage = "CARD_MESSAGE".localize()
     static let formMessage = "FORM_MESSAGE".localize()
     static let schedulerMessage = "SCHEDULER_MESSAGE".localize()
-    static let notSupportedMessage = "This Message is not supported"
+    static let notSupportedMessage = "MESSAGE_NOT_SUPPORTED".localize()
 
 }

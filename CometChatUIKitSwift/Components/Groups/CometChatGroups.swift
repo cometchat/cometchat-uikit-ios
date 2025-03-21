@@ -229,6 +229,7 @@ open class CometChatGroups: CometChatListBase {
     // Fetches group data from the view model.
     public func fetchData() {
         // Triggers the fetching of groups from the view model.
+        viewModel.isRefresh = true
         viewModel.fetchGroups()
     }
 
@@ -344,8 +345,8 @@ open class CometChatGroups: CometChatListBase {
         
         // Configures text and image for the empty state view.
         emptyStateImage = UIImage(systemName: "person.2.fill") ?? UIImage()
-        emptyStateTitleText = "No Groups Found".localize()  // Localizes the empty state title (TODO: add to localize files).
-        emptyStateSubTitleText = "Create or join groups to see them listed here and start collaborating..".localize() // Localizes the empty state subtitle (TODO: add to localize files).
+        emptyStateTitleText = "GROUPS_EMPTY_MESSAGE".localize()  // Localizes the empty state title (TODO: add to localize files).
+        emptyStateSubTitleText = "CREATE_GROUP_MESSAGE".localize() // Localizes the empty state subtitle (TODO: add to localize files).
         (emptyStateView as? StateView)?.retryButton.isHidden = true
         
         // Configures the status indicator style.
@@ -360,7 +361,7 @@ open class CometChatGroups: CometChatListBase {
     }
     
     open func showJoiningGroupAlert(for group: Group) {
-        joiningGroupAlert = UIAlertController(title: nil, message: "Joining Group", preferredStyle: .alert)
+        joiningGroupAlert = UIAlertController(title: nil, message: "JOINING_GROUP".localize(), preferredStyle: .alert)
         let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 30, y: 7, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = .medium
@@ -510,11 +511,15 @@ extension CometChatGroups {
             if !group.hasJoined, group.groupType == .public {
                 showJoiningGroupAlert(for: group)
                 viewModel.joinGroup(withGuid: group.guid, name: group.name ?? "", groupType: group.groupType, password: "", indexPath: indexPath, completion: {  [weak self] joinedGroup in
-                    guard let this = self, let joinedGroup = joinedGroup else { return }
-                    DispatchQueue.main.async {
+                    guard let this = self else { return }
+                    if let joinedGroup = joinedGroup {
                         group.hasJoined = true
+                    }
+                    DispatchQueue.main.async {
                         this.hideJoiningGroupAlert(completion: {
-                            this.onItemClick?(joinedGroup, indexPath)
+                            if let joinedGroup = joinedGroup {
+                                this.onItemClick?(joinedGroup, indexPath)
+                            }
                         })
                     }
                 })

@@ -55,7 +55,7 @@ public class CometChatEmojiKeyboard: UIViewController, PanModalPresentable {
         // Header Label
         header = UILabel()
         header.translatesAutoresizingMaskIntoConstraints = false
-        header.text = "Emoji Keyboard"
+        header.text = "EMOJI_KEYBOARD".localize()
         header.textColor = style.titleColor
         header.font = .boldSystemFont(ofSize: 18)
         header.textAlignment = .center
@@ -64,7 +64,7 @@ public class CometChatEmojiKeyboard: UIViewController, PanModalPresentable {
         // Cancel Button
         cancel = UIButton(type: .system)
         cancel.translatesAutoresizingMaskIntoConstraints = false
-        cancel.setTitle("Cancel", for: .normal)
+        cancel.setTitle("CANCEL".localize(), for: .normal)
         cancel.setTitleColor(style.cancelButtonTint, for: .normal)
         cancel.addTarget(self, action: #selector(onCancelClick(_:)), for: .touchUpInside)
         headerView.addSubview(cancel)

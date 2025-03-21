@@ -40,7 +40,7 @@ open class CometChatUsers: CometChatListBase {
     var onItemLongClick: ((_ user: User, _ indexPath: IndexPath) -> Void)? // Closure to handle long click events.
     var onError: ((_ error: CometChatException) -> Void)? // Closure to handle errors.
     var onEmpty: (() -> Void)?
-    var onLoad: (([User]) -> Void)?
+    var onLoad: (([[User]]) -> Void)?
     var isLoaded = false
     var onDidSelect: ((_ user: User, _ indexPath: IndexPath) -> Void)? // Closure for user selection events.
     public internal(set) var selectionLimit: Int? // Optional property to limit the number of selectable users.
@@ -191,14 +191,14 @@ open class CometChatUsers: CometChatListBase {
 
         // Setup default error and empty states.
         errorStateTitleText = "OOPS!".localize()
-        errorStateSubTitleText = "Looks like something went wrong. Please try again."
+        errorStateSubTitleText = "LOOKS_LIKE_SOMETHINGS_WENT_WORNG._PLEASE_TRY_AGAIN".localize()
         errorStateImage = UIImage(named: "error-icon", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal) ?? UIImage()
         (errorStateView as? StateView)?.retryButton.isHidden = true
         
 
         emptyStateImage = UIImage(systemName: "person.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
-        emptyStateTitleText = "No Users Available"
-        emptyStateSubTitleText = "Add contacts to start conversations and see them listed here.".localize()
+        emptyStateTitleText = "USERS_EMPTY_MESSAGE".localize()
+        emptyStateSubTitleText = "USERS_EMPTY_SUBTITLE_MESSAGE".localize()
         (emptyStateView as? StateView)?.retryButton.isHidden = true
 
         // Customize the status indicator with style properties.
@@ -283,6 +283,14 @@ open class CometChatUsers: CometChatListBase {
                 }
             }
         }
+        
+        
+        viewModel.reloadAtIndex = { [weak self] indexPath in
+            guard let this = self else { return }
+            DispatchQueue.main.async {
+                this.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+        }
     }
 
     // MARK: - Cell Registration
@@ -327,15 +335,6 @@ open class CometChatUsers: CometChatListBase {
         return self
     }
 
-    // Inserts a user at a specific index in the ViewModel's user list and returns the current instance for chaining.
-    @discardableResult
-    public func insert(user: User, at: Int) -> Self {
-        // Calls the ViewModel's insert method to place the user at the specified index.
-        viewModel.insert(user: user, at: at)
-        // Returns the current instance to enable method chaining.
-        return self
-    }
-
     // Removes a user from the ViewModel's user list and returns the current instance for chaining.
     @discardableResult
     public func remove(user: User) -> Self {
@@ -376,7 +375,7 @@ extension CometChatUsers {
         }
 
         // Retrieve the user object depending on search mode
-        let user = viewModel.isSearching ? viewModel.filteredUsers[safe: indexPath.row] : viewModel.sectionUsers[safe: indexPath.section]?[safe: indexPath.row]
+        let user = viewModel.isSearching ? viewModel.filteredUsers[safe: indexPath.row] : viewModel.users[safe: indexPath.section]?[safe: indexPath.row]
 
         // Set the user's name and avatar
         listItem.set(title: user?.name ?? "")
@@ -408,7 +407,7 @@ extension CometChatUsers {
 
         // Set presence indicator if not disabled
         listItem.statusIndicator.isHidden = !(user?.status == .online && !(user?.hasBlockedMe ?? true) && !(user?.blockedByMe ?? true))
-        if !hideUserStatus && user?.status == .online {
+        if !hideUserStatus && user?.status == .online && user?.blockedByMe == false {
             listItem.statusIndicator.isHidden = false
         }else{
             listItem.statusIndicator.isHidden = true
@@ -452,13 +451,13 @@ extension CometChatUsers {
     // Returns the number of sections in the table view
     open override func numberOfSections(in tableView: UITableView) -> Int {
         // If searching, there is only one section
-        return viewModel.isSearching ? 1 : viewModel.sectionUsers.count
+        return viewModel.isSearching ? 1 : viewModel.users.count
     }
 
     // Returns the number of rows in a section
     open override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // If searching, return the count of filtered users; otherwise, return the number of users in the section
-        return viewModel.isSearching ? viewModel.filteredUsers.count : viewModel.sectionUsers[safe: section]?.count ?? 0
+        return viewModel.isSearching ? viewModel.filteredUsers.count : viewModel.users[safe: section]?.count ?? 0
     }
 
     // Returns the height for a row at a given indexPath (automatic dimension)
@@ -475,7 +474,7 @@ extension CometChatUsers {
             return UIView(frame: .zero) // Instead of nil, return an empty UIView
         }
 
-        guard let title = viewModel.sectionUsers[safe: section]?.first?.name?.prefix(1).uppercased() else { return nil }
+        guard let title = viewModel.users[safe: section]?.first?.name?.prefix(1).uppercased() else { return nil }
 
         let label = UILabel()
         label.text = String(title)
@@ -494,7 +493,7 @@ extension CometChatUsers {
 
     // Handles row selection in the table view
     open override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.sectionUsers[indexPath.section][indexPath.row]
+        let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.users[indexPath.section][indexPath.row]
 
         // Handle selection based on mode and selection limit
         if selectionMode == .none {
@@ -508,7 +507,7 @@ extension CometChatUsers {
 
     // Handles row deselection in the table view
     open override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.sectionUsers[indexPath.section][indexPath.row]
+        let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.users[indexPath.section][indexPath.row]
 
         // Remove the user from the selected list
         if let foundUser = viewModel.selectedUsers.firstIndex(where: { $0.uid == user.uid }) {
@@ -520,10 +519,10 @@ extension CometChatUsers {
     // Handles table view scrolling and triggers fetching more users if at the end
     open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         // Check if we're in the last section
-        let lastSection = viewModel.sectionUsers.count - 1
+        let lastSection = viewModel.users.count - 1
 
         // Safely get the number of rows in the last section
-        if let lastRow = viewModel.sectionUsers[safe: lastSection]?.count, indexPath.section == lastSection && indexPath.row == lastRow - 1 {
+        if let lastRow = viewModel.users[safe: lastSection]?.count, indexPath.section == lastSection && indexPath.row == lastRow - 1 {
             // If it's the last row of the last section, trigger the fetch for more users
             if !viewModel.isFetchedAll && !viewModel.isFetching {
                 showFooterIndicator()
@@ -537,7 +536,7 @@ extension CometChatUsers {
     
     open override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        guard let user = viewModel.users[safe: indexPath.row] else {
+        guard let user = viewModel.users[safe: indexPath.section]?[safe: indexPath.row] else {
             return nil
         }
             
@@ -567,7 +566,8 @@ extension CometChatUsers {
             }
             actions.append(contentsOf: customActions)
         }
-        return UISwipeActionsConfiguration()
+        
+        return UISwipeActionsConfiguration(actions: actions)
     }
 
     // Returns the list of currently selected users

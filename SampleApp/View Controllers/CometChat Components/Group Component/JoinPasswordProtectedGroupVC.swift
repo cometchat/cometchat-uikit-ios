@@ -28,7 +28,7 @@ class JoinPasswordProtectedGroupVC: UIViewController {
     // Label for "Join Group" heading
     let joinGroupLabel: UILabel = {
         let label = UILabel()
-        label.text = "Join Group"
+        label.text = "JOIN_GROUP".localize()
         label.font = CometChatTypography.Heading2.bold // Apply heading font style
         label.textColor = CometChatTheme.textColorPrimary // Use primary theme color
         label.textAlignment = .center
@@ -62,7 +62,7 @@ class JoinPasswordProtectedGroupVC: UIViewController {
         let label = UILabel()
         label.font = CometChatTypography.Caption1.medium // Caption font for password label
         label.textColor = CometChatTheme.textColorPrimary // Primary text color
-        label.text = "Enter Password" // Default text for the label
+        label.text = "ENTER_PASSWORD".localize() // Default text for the label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -81,9 +81,9 @@ class JoinPasswordProtectedGroupVC: UIViewController {
     // TextField for entering the password
     let passwordTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Enter the password" // Placeholder text
+        textField.placeholder = "ENTER_PASSWORD".localize() // Placeholder text
         textField.attributedPlaceholder = NSAttributedString(
-            string: "Enter the password",
+            string: "ENTER_PASSWORD".localize(),
             attributes: [NSAttributedString.Key.foregroundColor: CometChatTheme.textColorTertiary, .font: CometChatTypography.Body.regular]
         ) // Custom attributes for the placeholder
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -93,7 +93,7 @@ class JoinPasswordProtectedGroupVC: UIViewController {
     // Label to display error messages when the password is invalid
     let errorLabel: UILabel = {
         let label = UILabel()
-        label.text = "Invalid password. Please try again." // Error message text
+        label.text = "INVALID_PASSWORD_MESSAGE".localize() // Error message text
         label.font = CometChatTypography.Caption1.regular // Font style for the error label
         label.textColor = CometChatTheme.errorColor // Error color from the theme
         label.numberOfLines = 0 // Allow multiple lines for the error message
@@ -105,7 +105,7 @@ class JoinPasswordProtectedGroupVC: UIViewController {
     // Button to initiate the action of joining the group
     let joinGroupButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Join Group", for: .normal) // Button title
+        button.setTitle("JOIN_GROUP".localize(), for: .normal) // Button title
         button.backgroundColor = CometChatTheme.primaryColor // Button background color
         button.titleLabel?.font = CometChatTypography.Button.medium // Button font style
         button.setTitleColor(.white, for: .normal) // Text color
@@ -212,14 +212,14 @@ class JoinPasswordProtectedGroupVC: UIViewController {
     private func setupUI(){
         groupImageView.setAvatar(avatarUrl: group?.icon ?? "", with: group?.name ?? "") // Set group avatar
         groupNameLabel.text = group?.name ?? "" // Set group name
-        groupMembersLabel.text = "\(group?.membersCount ?? 0) \("members")" // Set group members count
+        groupMembersLabel.text = "\(group?.membersCount ?? 0) \("MEMBERS".localize())" // Set group members count
     }
     
     // Action handler for join group button
     @objc func joinGroupTapped() {
         guard let group = group, let groupPassword = passwordTextField.text else { return }
         if groupPassword.isEmpty {
-            showError("Please enter the group password.") // Show error if no password entered
+            showError("ENTER_GROUP_PASSWORD".localize()) // Show error if no password entered
             return
         }
         
@@ -232,7 +232,7 @@ class JoinPasswordProtectedGroupVC: UIViewController {
                     onGroupJoined(group)
                 }
             } else {
-                self?.showError("Invalid password. Please try again.") // Show error on failure
+                self?.showError("INVALID_PASSWORD_MESSAGE".localize()) // Show error on failure
             }
         }
     }
@@ -275,7 +275,7 @@ class JoinPasswordProtectedGroupVC: UIViewController {
     // Stop the loading indicator and restore the button state
     private func stopLoadingIndicator() {
         loadingIndicator?.stopAnimating() // Stop the animation
-        joinGroupButton.setTitle("Join Group", for: .normal) // Restore the button title
+        joinGroupButton.setTitle("JOIN_GROUP".localize(), for: .normal) // Restore the button title
     }
 }
 
