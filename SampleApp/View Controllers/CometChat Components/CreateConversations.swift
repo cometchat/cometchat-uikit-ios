@@ -38,6 +38,7 @@ open class CreateConversationVC: UIViewController {
             messages.user = users
             self?.navigationController?.pushViewController(messages, animated: true)
         })
+        vc.searchController.hidesNavigationBarDuringPresentation = false
         return vc
     }()
 
@@ -48,6 +49,7 @@ open class CreateConversationVC: UIViewController {
             messages.group = group
             self?.navigationController?.pushViewController(messages, animated: true)
         })
+        vc.searchController.hidesNavigationBarDuringPresentation = false
         return vc
     }()
 
@@ -71,12 +73,17 @@ open class CreateConversationVC: UIViewController {
         navigationItem.title = "NEW_CHAT".localize()
         navigationItem.largeTitleDisplayMode = .never
         navigationController?.navigationBar.prefersLargeTitles = false
+        
         view.backgroundColor = CometChatTheme.backgroundColor01
         view.addSubview(segmentedControl)
         addChild(pageViewController)
         view.addSubview(pageViewController.view)
         pageViewController.didMove(toParent: self)
         setupConstraints()
+    }
+    
+    open override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.navigationBar.tintColor = CometChatTheme.iconColorPrimary
     }
 
     public func setupConstraints() {

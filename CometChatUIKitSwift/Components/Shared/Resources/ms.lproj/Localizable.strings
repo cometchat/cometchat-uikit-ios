@@ -42,7 +42,13 @@
 "UNBAN_MEMBER" = "Nyahban Ahli";
 "FORWARD_MESSAGE" = "Teruskan Mesej";
 "ONE_REPLY" = "1 balasan";
-"REPLIES" = " balasan";
+"ZERO_REPLY" = "0 balasan";
+"REPLIES" = " balasannya";
+"LAUNCH" = "Pelancaran";
+"JOIN" = "Sertai";
+"HAS_SHARED_WHITEBOARD" = "telah berkongsi papan putih kolaboratif";
+"HAS_SHARED_COLLABORATIVE_DOCUMENT" = "telah berkongsi dokumen kolaboratif";
+"YOU_CREATED_WHITEBOARD" = "Anda telah mencipta papan putih kolaboratif baru";
 "YOU_INITIATED_GROUP_AUDIO_CALL" = "Anda telah memulakan panggilan kumpulan";
 "YOU_INITIATED_GROUP_VIDEO_CALL" = "Anda telah memulakan panggilan kumpulan";
 "HAS_INITIATED_GROUP_AUDIO_CALL" = "telah memulakan panggilan kumpulan";
@@ -255,3 +261,4 @@
 "OPTIONS" = "Pilihan";
 "FILL_POLL_DETAILS" = "Sila isi semua bidang yang diperlukan sebelum membuat pengundian.";
 "USER" = "Gunakan";
+"MESSAGES" = "Pesanan";

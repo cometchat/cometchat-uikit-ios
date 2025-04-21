@@ -42,6 +42,7 @@
 "UNBAN_MEMBER" = "Avblockera medlem";
 "FORWARD_MESSAGE" = "Vidarebefordra meddelande";
 "ONE_REPLY" = "1 svar";
+"ZERO_REPLY" = "0 svar";
 "REPLIES" = " svar";
 "YOU_INITIATED_GROUP_AUDIO_CALL" = "Du har startat ett gruppsamtal";
 "YOU_INITIATED_GROUP_VIDEO_CALL" = "Du har startat ett gruppsamtal";
@@ -255,3 +256,4 @@
 "OPTIONS" = "Alternativ";
 "FILL_POLL_DETAILS" = "Fyll i alla obligatoriska fält innan du skapar en omröstning.";
 "USER" = "Använda";
+"MESSAGES" = "Meddelande";

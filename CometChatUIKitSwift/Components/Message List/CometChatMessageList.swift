@@ -125,8 +125,7 @@ open class CometChatMessageList: UIView {
     var onError: ((_ error: CometChatException) -> Void)?
     var onEmpty: (() -> Void)?
     var onLoad: (([BaseMessage]) -> Void)?
-    
-    public var hideAvatar: Bool = false
+    public var hideAvatar: Bool?
     public var hideGroupActionMessages: Bool = false
     public var hideReplyInThreadOption: Bool = false{
         didSet{
@@ -808,11 +807,11 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     case .user:
                         cell.hide(headerView: true)
                         if cell.alignment == .left {
-                            cell.hide(avatar: hideAvatar)
+                            cell.hide(avatar: hideAvatar ?? true)
                         }
                     case .group:
                         if cell.alignment == .left {
-                            cell.hide(avatar: hideAvatar)
+                            cell.hide(avatar: hideAvatar ?? false)
                             cell.hide(headerView: false)
                         } else {
                             cell.hide(headerView: true)
@@ -822,8 +821,10 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
                 
-                // Setting up context menu
-                setupContextMenu(for: cell, message: message)
+                if message.id > 0{
+                    // Setting up context menu
+                    setupContextMenu(for: cell, message: message)
+                }
                 
                 return cell
             }
@@ -871,11 +872,11 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     case .user:
                         cell.hide(headerView: true)
                         if cell.alignment == .left {
-                            cell.hide(avatar: hideAvatar)
+                            cell.hide(avatar: hideAvatar ?? true)
                         }
                     case .group:
                         if cell.alignment == .left {
-                            cell.hide(avatar: hideAvatar)
+                            cell.hide(avatar: hideAvatar ?? false)
                             cell.hide(headerView: false)
                         } else {
                             cell.hide(headerView: true)

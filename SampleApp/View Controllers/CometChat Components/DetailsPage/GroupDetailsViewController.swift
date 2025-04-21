@@ -185,11 +185,6 @@ class GroupDetailsViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.navigationBar.tintColor = CometChatTheme.iconColorPrimary
     }
-    
-    @objc public func didTapBackButton() {
-        // Handle back button tap
-        navigationController?.popViewController(animated: true)
-    }
 
     // MARK: - Setup ScrollView and ContentView
     public func setupScrollView() {
@@ -270,7 +265,6 @@ class GroupDetailsViewController: UIViewController {
         bottomContainerStackView.addArrangedSubview(deleteAndExitButton)
         
         groupNameLabel.text = group?.name
-        memberCountLabel.text = "\(group?.membersCount ?? 0) \("MEMBERS".localize())"
         groupImageView.setAvatar(avatarUrl: group?.icon ?? "", with: group?.name ?? "")
         
         if let group = group { updateGroupInfo(group) }
@@ -610,7 +604,7 @@ extension GroupDetailsViewController: CometChatGroupDelegate, CometChatGroupEven
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.group = group
-            self.memberCountLabel.text = "\(group.membersCount) \("MEMBERS".localize())"
+            self.memberCountLabel.text = "\(group.membersCount) \(group.membersCount > 1 ? "MEMBERS".localize() : "MEMBER".localize())"
             if group.owner == CometChat.getLoggedInUser()?.uid{
                 if group.membersCount == 1 {
                     self.showHideOptions(hideViewMembers: false, hideAddMembers: false, hideBannMembers: false, hideLeaveGroup: true, hideDeleteGroup: false)

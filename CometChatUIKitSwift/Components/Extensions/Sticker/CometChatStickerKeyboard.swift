@@ -232,6 +232,7 @@ public class CometChatStickerKeyboard: UIView {
         stickersCollectionView.trailingAnchor.pin(equalTo: self.trailingAnchor, constant: -(CometChatSpacing.Padding.p4)).isActive = true
         stickersCollectionView.bottomAnchor.pin(equalTo: separatorLineView.topAnchor).isActive = true
         stickersCollectionView.topAnchor.pin(equalTo: self.topAnchor).isActive = true
+        
         stickersCollectionView.pin(anchors: [.height], to: 250)
         
         // Error view constraints
@@ -324,8 +325,8 @@ public class CometChatStickerKeyboard: UIView {
         loadingView.bottomAnchor.pin(equalTo: self.bottomAnchor).isActive = true
         loadingView.topAnchor.pin(equalTo: self.topAnchor).isActive = true
         
-        // Set a fixed height for the loadingView.
         loadingView.heightAnchor.constraint(equalToConstant: 300).isActive = true
+        
     }
 
     /// Hides the loading view and stops the shimmer animation.

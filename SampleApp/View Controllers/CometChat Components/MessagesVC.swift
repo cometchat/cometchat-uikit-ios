@@ -104,12 +104,13 @@ class MessagesVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self // for swipe back gesture
         self.navigationController?.setNavigationBarHidden(true, animated: true)
+        navigationItem.hidesBackButton = true
+        title = "MESSAGES".localize()
         
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
-        
     }
     
     deinit {

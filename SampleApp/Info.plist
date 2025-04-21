@@ -21,7 +21,7 @@
 		</dict>
 	</array>
 	<key>CometChatSDK</key>
-	<string>4.0.55-beta1</string>
+	<string>4.0.55</string>
 	<key>GIDClientID</key>
 	<string>YOUR_DOT_REVERSED_IOS_CLIENT_ID</string>
 	<key>UIApplicationSceneManifest</key>

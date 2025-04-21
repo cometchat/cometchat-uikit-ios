@@ -457,6 +457,7 @@ open class CometChatMessageComposer: UIView {
         cometChatMediaRecorder.setSubmit(onSubmit: {url in
             if self.onSendButtonClick != nil {
                 self.onSendButtonClick?(self.viewModel.setupBaseMessage(url: url))
+                self.viewModel.reset?(true)
             } else {
                 if self.viewModel.user != nil {
                     self.viewModel.sendMediaMessageToUser(url: url, type: .audio)
@@ -493,6 +494,7 @@ open class CometChatMessageComposer: UIView {
             if let text = textView.text, !text.isEmpty {
                 let message = viewModel.setupBaseMessage(message: text, textFormatter: selectedFormatters)
                 onSendButtonClick(message)
+                viewModel.reset?(true)
             }
         } else {
             didDefaultSendButtonClicked()
@@ -586,6 +588,7 @@ extension CometChatMessageComposer {
     }
     
     @objc private func keyboardWillChangeFrame(_ notification: Notification) {
+        CometChatUIEvents.hidePanel(id: getId(), alignment: .composerBottom)
         if textView.isFirstResponder {
             if let endFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
                 let keyboardHeight = UIScreen.main.bounds.height - endFrame.origin.y

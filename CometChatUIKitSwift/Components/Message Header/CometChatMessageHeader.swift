@@ -162,6 +162,7 @@ import CometChatSDK
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.tailView.subviews.forEach({ $0.removeFromSuperview() })
+
             if let auxiliaryView = self.auxiliaryView?(self.viewModel.user, self.viewModel.group) {
                 self.tailView.addArrangedSubview(auxiliaryView)
             } else {

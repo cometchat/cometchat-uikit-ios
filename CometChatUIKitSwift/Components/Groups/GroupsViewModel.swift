@@ -182,10 +182,12 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
     
     @discardableResult
     func update(group: Group) -> Self {
-        if let index = groups.firstIndex(where: { $0.guid == group.guid }) {
-            if isSearching{
+        if isSearching{
+            if let index = filteredGroups.firstIndex(where: { $0.guid == group.guid }) {
                 self.filteredGroups[index] = group
-            }else{
+            }
+        }else{
+            if let index = groups.firstIndex(where: { $0.guid == group.guid }) {
                 self.groups[index] = group
             }
         }

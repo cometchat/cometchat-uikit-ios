@@ -42,6 +42,7 @@
 "UNBAN_MEMBER" = "Desbanear miembro";
 "FORWARD_MESSAGE" = "Reenviar mensaje";
 "ONE_REPLY" = "1 respuesta";
+"ZERO_REPLY" = "0 respuesta";
 "REPLIES" = " respuestas";
 "YOU_INITIATED_GROUP_AUDIO_CALL" = "Has iniciado una llamada grupal de audio";
 "YOU_INITIATED_GROUP_VIDEO_CALL" = "Has iniciado una llamada grupal de vídeo";
@@ -255,3 +256,4 @@
 "OPTIONS" = "Opciones";
 "FILL_POLL_DETAILS" = "Rellene todos los campos obligatorios antes de crear una encuesta.";
 "USER" = "Utilice";
+"MESSAGES" = "Mensaje";

@@ -80,7 +80,7 @@ open class CometChatThreadedMessageHeader: UIView {
     var datePattern: ((_ conversation: Conversation) -> String)?
     public var hideReplyCount: Bool = false
     public var hideReplyCountBar: Bool = false
-    public var hideAvatar: Bool = false
+    public var hideAvatar: Bool?
     
     //Helper Variable
     public static var style = ThreadedMessageHeaderStyle()
@@ -219,11 +219,11 @@ open class CometChatThreadedMessageHeader: UIView {
                 case .user:
                     cell.hide(headerView: true)
                     if cell.alignment == .left {
-                        cell.hide(avatar: hideAvatar)
+                        cell.hide(avatar: hideAvatar ?? true)
                     }
                 case .group:
                     if cell.alignment == .left {
-                        cell.hide(avatar: hideAvatar)
+                        cell.hide(avatar: hideAvatar ?? false)
                         cell.hide(headerView: false)
                     } else {
                         cell.hide(headerView: true)

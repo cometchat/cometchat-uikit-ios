@@ -538,8 +538,10 @@ extension MessageListViewModel {
         guard let loggedInUser = CometChat.getLoggedInUser() else { return self }
         if getTemplate(for: message) == nil { return self } ///Checking if template exists
         
-        markAsRead(message: message)
-        markAsDelivered(message: message)
+        if isMessageForThisUser(message: message){
+            markAsRead(message: message)
+            markAsDelivered(message: message)
+        }
         
         
         DispatchQueue.main.async { [weak self] in

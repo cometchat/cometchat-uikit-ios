@@ -42,11 +42,20 @@
 "UNBAN_MEMBER" = "Tag tiltásának feloldása";
 "FORWARD_MESSAGE" = "Üzenet továbbítása";
 "ONE_REPLY" = "1 válasz";
-"REPLIES" = " válasz";
+"ZERO_REPLY" = "0 válasz";
+"REPLIES" = " válaszok";
+"LAUNCH" = "Indítás";
+"JOIN" = "Csatlakozz";
+"HAS_SHARED_WHITEBOARD" = "megosztott egy együttműködő táblát";
+"HAS_SHARED_COLLABORATIVE_DOCUMENT" = "megosztott egy együttműködési dokumentumot";
+"YOU_CREATED_WHITEBOARD" = "Létrehozott egy új együttműködési táblát";
 "YOU_INITIATED_GROUP_AUDIO_CALL" = "Csoportos hanghívást kezdeményeztél";
 "YOU_INITIATED_GROUP_VIDEO_CALL" = "Csoportos videóhívást kezdeményeztél";
 "HAS_INITIATED_GROUP_AUDIO_CALL" = "csoportos hanghívást kezdeményezett";
 "HAS_INITIATED_GROUP_VIDEO_CALL" = "csoportos videóhívást kezdeményezett";
+"YOU_CREATED_DOCUMENT" = "Létrehozott egy új együttműködési dokumentumot";
+"SENDING_LOCATION" = "Elküldési hely...";
+"LOCATION_SENT_SUCCESSFULLY" = "Sikeresen elküldve";
 "EDIT" = "Szerkesztés";
 "SEARCH" = "Keresés";
 "ERROR" = "Hiba";
@@ -255,3 +264,4 @@
 "OPTIONS" = "Opciók";
 "FILL_POLL_DETAILS" = "Kérjük, töltse ki az összes kötelező mezőt a szavazás létrehozása előtt.";
 "USER" = "Használja";
+"MESSAGES" = "Üzenet";

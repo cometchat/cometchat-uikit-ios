@@ -108,7 +108,6 @@ extension MessageComposerViewModel {
         }
         
         isSoundForMessageEnabled?()
-        reset?(true)
         return textMessage!
     }
     
@@ -129,7 +128,6 @@ extension MessageComposerViewModel {
         }
         
         isSoundForMessageEnabled?()
-        reset?(true)
         return mediaMessage!
     }
     

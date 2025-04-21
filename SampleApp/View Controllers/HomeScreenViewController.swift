@@ -9,6 +9,7 @@ import UIKit
 import AVFoundation
 import CometChatUIKitSwift
 import CometChatSDK
+import Network
 
 class HomeScreenViewController: UITabBarController {
     
@@ -200,9 +201,9 @@ class HomeScreenViewController: UITabBarController {
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
         let menu = UIMenu(title: "\(appVersion ?? "v5.0.0")", children: [
             UIAction(title: "CREATE_CONVERSATION".localize(), image: UIImage(systemName: "plus.bubble.fill"), handler: { _ in
-                let startNewConversationNVC = UINavigationController(rootViewController: CreateConversationVC())
+                let startNewConversationNVC = CreateConversationVC()
                 startNewConversationNVC.hidesBottomBarWhenPushed = true
-                self.navigationController?.present(startNewConversationNVC, animated: true)
+                self.navigationController?.pushViewController(startNewConversationNVC, animated: true)
             }),
             UIAction(title: "\(CometChat.getLoggedInUser()?.name ?? "")", image: UIImage(systemName: "person.circle"), handler: { _ in
 
@@ -224,25 +225,28 @@ class HomeScreenViewController: UITabBarController {
     
     //Logging out
     @objc func logoutTapped() {
-        UserDefaults.standard.removeObject(forKey: "appID")
-        UserDefaults.standard.removeObject(forKey: "region")
-        UserDefaults.standard.removeObject(forKey: "authKey")
-        AppConstants.APP_ID = ""
-        AppConstants.AUTH_KEY = ""
-        AppConstants.REGION = ""
-        
-        //Changing root window
-        let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as! SceneDelegate
-        sceneDelegate.setRootViewController(UINavigationController(rootViewController: LoginWithUidVC()))
-        
-        //Logging out from CometChatSDK        
-        CometChatNotifications.unregisterPushToken { success in
-            CometChat.logout(onSuccess: { success in
-            }, onError: { error in
+        if NetworkMonitor.shared.isConnected{
+            CometChatNotifications.unregisterPushToken { success in
+            } onError: { error in
                 print(error.errorDescription)
+            }
+            CometChat.logout(onSuccess: { success in
+                UserDefaults.standard.removeObject(forKey: "appID")
+                UserDefaults.standard.removeObject(forKey: "region")
+                UserDefaults.standard.removeObject(forKey: "authKey")
+                AppConstants.APP_ID = ""
+                AppConstants.AUTH_KEY = ""
+                AppConstants.REGION = ""
+                
+                //Changing root window
+                let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as! SceneDelegate
+                sceneDelegate.setRootViewController(UINavigationController(rootViewController: LoginWithUidVC()))
+            }, onError: { error in
+                print("logout failed with error: \(error.errorDescription)")
             })
-        } onError: { error in
-            print(error.errorDescription)
+
+        }else{
+            print("logout failed with error: internet not connected")
         }
     }
     
@@ -311,5 +315,18 @@ extension UIViewController {
         }
 
         presentingVC.present(viewControllerToPresent, animated: true, completion: nil)
+    }
+}
+
+class NetworkMonitor {
+    static let shared = NetworkMonitor()
+    private let monitor = NWPathMonitor()
+    private let queue = DispatchQueue.global(qos: .background)
+    var isConnected: Bool = false
+    private init() {
+        monitor.pathUpdateHandler = { path in
+            self.isConnected = path.status == .satisfied
+        }
+        monitor.start(queue: queue)
     }
 }

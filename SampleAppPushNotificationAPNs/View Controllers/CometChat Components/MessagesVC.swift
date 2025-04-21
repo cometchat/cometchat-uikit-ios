@@ -104,6 +104,8 @@ class MessagesVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self // for swipe back gesture
         self.navigationController?.setNavigationBarHidden(true, animated: true)
+        navigationItem.hidesBackButton = true
+        title = "MESSAGES".localize()
         
         // setting this for notification
         // (notification will not be displayed if that users or groups chat is active on screen)

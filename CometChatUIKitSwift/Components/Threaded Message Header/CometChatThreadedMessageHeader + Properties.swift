@@ -77,7 +77,7 @@ extension CometChatThreadedMessageHeader {
             guard let this = self else { return }
             
             if count == 0 {
-                this.threadCountLabel.text = "NO_REPLIES".localize()
+                this.threadCountLabel.text = "ZERO_REPLY".localize()
             } else if count == 1 {
                 this.threadCountLabel.text = this.singleNewMessageText
             } else {

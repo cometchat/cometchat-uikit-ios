@@ -77,8 +77,9 @@ open class CometChatGroupMembers: CometChatListBase {
         errorStateSubTitleText = "LOOKS_LIKE_SOMETHINGS_WENT_WORNG._PLEASE_TRY_AGAIN".localize()
         
         //setting up empty state view
-        emptyStateTitleText = "USERS_EMPTY_MESSAGE".localize()
-        emptyStateSubTitleText = "USERS_EMPTY_SUBTITLE_MESSAGE".localize()
+        emptyStateImage = UIImage(systemName: "person.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+        emptyStateTitleText = "NO_MEMBERS_AVAILABLE".localize()
+        emptyStateSubTitleText = ""
         
         let barButtonItem = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(didTapBackButton))
         barButtonItem.tintColor = CometChatTheme.primaryColor
@@ -95,6 +96,8 @@ open class CometChatGroupMembers: CometChatListBase {
         if selectionMode != .none {
             addCheckBarButtonItem()
         }
+        
+        fetchData()
     }
     
     open func addCheckBarButtonItem() {
@@ -107,7 +110,6 @@ open class CometChatGroupMembers: CometChatListBase {
         super.viewWillAppear(animated)
         viewModel.connect()
         reloadData()
-        fetchData()
     }
     
     open override func setupStyle() {
@@ -149,12 +151,12 @@ open class CometChatGroupMembers: CometChatListBase {
                 switch this.viewModel.isSearching {
                 case true:
                     if this.viewModel.filteredGroupMembers.isEmpty {
-                        if this.viewModel.groupMembers.isEmpty {
-                            this.showEmptyView()
-                            if let onEmpty = this.onEmpty?(){
-                                onEmpty
-                            }
+                        this.showEmptyView()
+                        if let onEmpty = this.onEmpty?(){
+                            onEmpty
                         }
+                    }else{
+                        this.removeEmptyView()
                     }
                 case false:
                     if this.viewModel.groupMembers.isEmpty {
@@ -162,6 +164,8 @@ open class CometChatGroupMembers: CometChatListBase {
                         if let onEmpty = this.onEmpty?(){
                             onEmpty
                         }
+                    }else{
+                        this.removeEmptyView()
                     }
                 }
             })
@@ -198,7 +202,15 @@ open class CometChatGroupMembers: CometChatListBase {
         switch state {
         case .clear:
             viewModel.isSearching = false
-            reload()
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let this = self else { return }
+                if !this.viewModel.groupMembers.isEmpty {
+                    this.removeEmptyView()
+                }
+                this.tableView.reloadData()
+                this.tableView.restore()
+            }
         case .filter:
             viewModel.isSearching = true
             viewModel.filterGroupMembers(text: text)

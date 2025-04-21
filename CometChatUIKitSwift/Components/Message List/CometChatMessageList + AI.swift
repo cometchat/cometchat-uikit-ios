@@ -92,8 +92,10 @@ extension CometChatMessageList{
                 }
                 
             } else {
-                aiConversationStarterView.removeFromSuperview()
-                aiSmartReplyView.removeFromSuperview()
+                DispatchQueue.main.async { [weak self] in
+                    self?.aiConversationStarterView.removeFromSuperview()
+                    self?.aiSmartReplyView.removeFromSuperview()
+                }
             }
             
         }

@@ -41,7 +41,21 @@
 "BAN_MEMBER" = "Mitglied sperren";
 "UNBAN_MEMBER" = "Mitglied entsperren";
 "FORWARD_MESSAGE" = "Nachricht weiterleiten";
-"ONE_REPLY" = "1 Antwort";
+"FORWARD" = "Vorwärts";
+"SHARED_MEDIA" = "GETEILTE MEDIEN";
+"UNABLE_TO_FORWARD" = "Nachricht kann nicht weiterleiten an";
+"FORWARD_TO_5_AT_A_TIME" = "Sie können Nachrichten nur an 5 Teilnehmer gleichzeitig weiterleiten";
+"NO_PHOTOS" = "Keine Fotos";
+"NO_VIDEOS" = "Keine Videos";
+"NO_DOCUMENTS" = "Keine Dokumente";
+"HISTORY" = "Geschichte";
+"VIDEO_CALL" = "Videoanruf";
+"AUDIO_CALL" = "Audio-Anruf";
+"CALL" = "Rufen";
+"WHITEBOARD" = "Whiteboard";
+"LOADING" = "Wird geladen...";
+"ONE_REPLY" = "1 antwort";
+"ZERO_REPLY" = "0 antwort";
 "REPLIES" = " Antworten";
 "YOU_INITIATED_GROUP_AUDIO_CALL" = "Du hast einen Gruppenanruf gestartet";
 "YOU_INITIATED_GROUP_VIDEO_CALL" = "Du hast einen Gruppenanruf gestartet";
@@ -255,3 +269,4 @@
 "OPTIONS" = "Optionen";
 "FILL_POLL_DETAILS" = "Bitte füllen Sie alle Pflichtfelder aus, bevor Sie eine Umfrage erstellen.";
 "USER" = "Benutzen";
+"MESSAGES" = "Nachricht";

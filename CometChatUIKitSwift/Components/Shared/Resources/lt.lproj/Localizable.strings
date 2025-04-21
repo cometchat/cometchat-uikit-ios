@@ -42,6 +42,7 @@
 "UNBAN_MEMBER" = "Atblokuoti narį";
 "FORWARD_MESSAGE" = "Persiųsti žinutę";
 "ONE_REPLY" = "1 atsakymas";
+"ZERO_REPLY" = "0 atsakymas";
 "REPLIES" = " atsakymai";
 "YOU_INITIATED_GROUP_AUDIO_CALL" = "Tu pradėjai grupinį skambutį";
 "YOU_INITIATED_GROUP_VIDEO_CALL" = "Tu pradėjai grupinį skambutį";
@@ -255,3 +256,4 @@
 "OPTIONS" = "Opzioni";
 "FILL_POLL_DETAILS" = "Compila tutti i campi obbligatori prima di creare un sondaggio.";
 "USER" = "Usare";
+"MESSAGES" = "Messaggio";

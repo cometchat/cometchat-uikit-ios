@@ -140,7 +140,9 @@ open class CometChatGroups: CometChatListBase {
         super.viewWillDisappear(animated) // Calls the superclass implementation.
         // Removes the connection listener for the groups SDK to avoid memory leaks.
         CometChat.removeConnectionListener("groups-sdk-listener")
-        // Disconnects the view model to clean up resources.
+    }
+    
+    deinit{
         viewModel.disconnect()
     }
 

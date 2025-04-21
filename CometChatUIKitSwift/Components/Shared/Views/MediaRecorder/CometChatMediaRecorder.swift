@@ -478,6 +478,8 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
             try audioViewModel.resetRecording()
             currentState = .ready
             removePauseButtonAndAddPlayButton()
+            recordingView.playerDidFinishPlaying()
+            recordingView.setupAudioPlayer()
         } catch {
             showAlert(with: error)
         }
@@ -498,6 +500,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
 
             if let url = didAudioNoteSendPressed() {
                 recordingView.set(fileURL: url)
+                recordingView.setupAudioPlayer()
             }
 
         } catch {
