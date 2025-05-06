@@ -17,6 +17,7 @@ public class CallLogParticipantsVC: UIViewController, UITableViewDataSource, UIT
     
     public var participants = [Participant]()
     public var callLog: CallLog?
+    public var dateTimeFormatter: CometChatDateTimeFormatter?
     
     public lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -62,7 +63,7 @@ public class CallLogParticipantsVC: UIViewController, UITableViewDataSource, UIT
             let dateLabel = UILabel()
             dateLabel.textColor = CometChatTheme.textColorSecondary
             dateLabel.font = CometChatTypography.Body.regular
-            dateLabel.text = convertTimeStampToCallDate(timestamp: Double(callLog?.initiatedAt ?? 0))
+            dateLabel.text = convertTimeStampToCallDate(timestamp: callLog?.initiatedAt ?? 0, dateTimeFormatter: dateTimeFormatter)
             listItem.set(subtitle: dateLabel)
             
             let tailViewContainer = UIStackView()

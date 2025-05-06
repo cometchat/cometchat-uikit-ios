@@ -11,6 +11,7 @@ import CometChatUIKitSwift
 import CometChatSDK
 import Network
 
+
 class HomeScreenViewController: UITabBarController {
     
     lazy var conversations: CometChatConversations = {
@@ -33,6 +34,7 @@ class HomeScreenViewController: UITabBarController {
                 callDetails.currentUser = user
                 callDetails.currentGroup = group
                 callDetails.callLog = callLog
+                callDetails.dateTimeFormatter = calls.dateTimeFormatter
                 self.navigationController?.pushViewController(callDetails, animated: true)
             }
         })

@@ -140,15 +140,18 @@ public class CallLogDetailsVC: UIViewController {
     public lazy var participantsVC: CallLogParticipantsVC = {
         let vc = CallLogParticipantsVC()
         vc.callLog = callLog
+        vc.dateTimeFormatter = dateTimeFormatter
         return vc
     }()
     public lazy var recordingVC: CallLogRecordingsVC = {
         let vc = CallLogRecordingsVC()
         vc.callLog = callLog
+        vc.dateTimeFormatter = dateTimeFormatter
         return vc
     }()
     public lazy var historyVC: CallLogHistoryVC = {
         let vc = CallLogHistoryVC()
+        vc.dateTimeFormatter = dateTimeFormatter
         return vc
     }()
     
@@ -164,6 +167,7 @@ public class CallLogDetailsVC: UIViewController {
     public var currentUser: User?
     public var callLogRequest: CometChatCallsSDK.CallLogsRequest?
     public var callLogRequestBuilder: CometChatCallsSDK.CallLogsRequest.CallLogsBuilder?
+    public var dateTimeFormatter: CometChatDateTimeFormatter?
 
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -233,7 +237,7 @@ public class CallLogDetailsVC: UIViewController {
             durationLabel.centerYAnchor.constraint(equalTo: titleStack.centerYAnchor)
         ])
         
-        dateLabel.text = convertTimeStampToCallDate(timestamp: Double(callLog?.initiatedAt ?? 0))
+        dateLabel.text = convertTimeStampToCallDate(timestamp: callLog?.initiatedAt ?? 0, dateTimeFormatter: dateTimeFormatter)
         durationLabel.text = formatTime(seconds: (callLog?.totalDurationInMinutes ?? 0.0)*60)
         
         let isInitiator = CometChat.getLoggedInUser()?.uid == (callLog?.initiator as? CallUser)?.uid

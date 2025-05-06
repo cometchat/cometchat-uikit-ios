@@ -17,12 +17,14 @@ public class ConversationsUtils {
         conversation: Conversation,
         badgeStyle: BadgeStyle,
         dateStyle: DateStyle,
-        datePattern: String?
+        datePattern: String?,
+        dateTimeFormatter: CometChatDateTimeFormatter
     ) -> UIView {
         let tailView = UIView().withoutAutoresizingMaskConstraints()
         
         let dateLabel = CometChatDate().withoutAutoresizingMaskConstraints()
         dateLabel.textAlignment = .right
+        dateLabel.dateTimeFormatter = dateTimeFormatter
         if let datePattern = datePattern, !datePattern.isEmpty {
             dateLabel.text = datePattern
         } else {

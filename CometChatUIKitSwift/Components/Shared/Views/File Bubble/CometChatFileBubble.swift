@@ -414,7 +414,7 @@ extension Int {
         // Create a DateFormatter
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "d MMM, yyyy"
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         
         // Convert the date to the desired string format
         return dateFormatter.string(from: date)

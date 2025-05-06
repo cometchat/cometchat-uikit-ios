@@ -67,6 +67,7 @@ public class DateTimeElement: ElementEntity {
                 dateFormater.dateFormat = "yyyy-MM-dd'T'HH:mm"
             }
             dateFormater.timeZone = TimeZone(identifier: dateTimePicker.timeZone)
+            dateFormater.locale = Locale(identifier: CometChatLocalize.getLocale())
             dateTimePicker.defaultValue = Int(dateFormater.date(from: defaultValue)?.timeIntervalSince1970 ?? 0)
         }
 
@@ -80,6 +81,7 @@ public class DateTimeElement: ElementEntity {
                 dateFormater.dateFormat = "yyyy-MM-dd'T'HH:mm"
             }
             dateFormater.timeZone = TimeZone(identifier: dateTimePicker.timeZone)
+            dateFormater.locale = Locale(identifier: CometChatLocalize.getLocale())
             dateTimePicker.fromDateTime = Int(dateFormater.date(from: fromDateTime)?.timeIntervalSince1970 ?? 0)
         }
         if let todateTime = data[InteractiveConstants.DateTimeConstants.TO] as? String {
@@ -92,6 +94,7 @@ public class DateTimeElement: ElementEntity {
                 dateFormater.dateFormat = "yyyy-MM-dd'T'HH:mm"
             }
             dateFormater.timeZone = TimeZone(identifier: dateTimePicker.timeZone)
+            dateFormater.locale = Locale(identifier: CometChatLocalize.getLocale())
             dateTimePicker.toDateTime = Int(dateFormater.date(from: todateTime)?.timeIntervalSince1970 ?? 0)
         }
         
@@ -118,6 +121,7 @@ public class DateTimeElement: ElementEntity {
                 dateFormater.dateFormat = "yyyy-MM-dd'T'HH:mm"
             }
             dateFormater.timeZone = TimeZone(identifier: self.timeZone)
+            dateFormater.locale = Locale(identifier: CometChatLocalize.getLocale())
             let date = Date(timeIntervalSince1970: TimeInterval(value))
             let dateString = dateFormater.string(from: date)
             jsonRepresentation[InteractiveConstants.DateTimeConstants.DEFAULT_VALUE] = dateString
@@ -133,6 +137,7 @@ public class DateTimeElement: ElementEntity {
                 dateFormater.dateFormat = "yyyy-MM-dd'T'HH:mm"
             }
             dateFormater.timeZone = TimeZone(identifier: self.timeZone)
+            dateFormater.locale = Locale(identifier: CometChatLocalize.getLocale())
             let date = Date(timeIntervalSince1970: TimeInterval(self.fromDateTime))
             let dateString = dateFormater.string(from: date)
             jsonRepresentation[InteractiveConstants.DateTimeConstants.FROM] = dateString
@@ -148,6 +153,7 @@ public class DateTimeElement: ElementEntity {
                 dateFormater.dateFormat = "yyyy-MM-dd'T'HH:mm"
             }
             dateFormater.timeZone = TimeZone(identifier: self.timeZone)
+            dateFormater.locale = Locale(identifier: CometChatLocalize.getLocale())
             let date = Date(timeIntervalSince1970: TimeInterval(self.toDateTime))
             let dateString = dateFormater.string(from: date)
             jsonRepresentation[InteractiveConstants.DateTimeConstants.TO] = dateString
@@ -312,7 +318,7 @@ extension DateTimeElement {
             
             let dateFormatter = DateFormatter()
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
-            
+            dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
             var selectedDateData = [String: Any]()
             
             if element?.mode != .time {

@@ -286,7 +286,7 @@ extension CometChatMessageList {
         if let messageInformationConfiguration = self.messageInformationConfiguration {
             configureMessageInformation(configuration: messageInformationConfiguration, messageInformation: messageInformationController)
         }
-        
+        messageInformationController.dateTimeFormatter = dateTimeFormatter
         messageInformationController.set(message: message)
         
         if let indexPath = viewModel.getIndexPath(for: message), let cell = tableView.cellForRow(at: indexPath) as? CometChatMessageBubble {

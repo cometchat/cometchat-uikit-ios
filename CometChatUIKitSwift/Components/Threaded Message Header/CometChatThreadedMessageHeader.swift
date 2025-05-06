@@ -89,6 +89,10 @@ open class CometChatThreadedMessageHeader: UIView {
     private var heightConstant: NSLayoutConstraint!
     open var viewModel: ThreadedMessageHeaderViewModelProtocol = ThreadedMessageHeaderViewModel()
     
+    //Date Time Formatter
+    public static var dateTimeFormatter: CometChatDateTimeFormatter = CometChatUIKit.dateTimeFormatter
+    public lazy var dateTimeFormatter: CometChatDateTimeFormatter = CometChatThreadedMessageHeader.dateTimeFormatter
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
         buildUI()
@@ -269,7 +273,7 @@ open class CometChatThreadedMessageHeader: UIView {
                     bubbleStyle: bubbleStyle,
                     message: message,
                     hideReceipt: hideReceipt,
-                    messageAlignment: messageAlignment
+                    messageAlignment: messageAlignment, dateTimeFormatter: dateTimeFormatter
                 )
             }
             

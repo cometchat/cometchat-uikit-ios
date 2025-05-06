@@ -68,16 +68,22 @@ func formatTime(seconds: Double) -> String {
     }
 }
 
-public func convertTimeStampToCallDate(timestamp: Double) -> String{
+public func convertTimeStampToCallDate(timestamp: Int, dateTimeFormatter: CometChatDateTimeFormatter?) -> String{
     let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+    let dateTimeFormatterUtils = DateTimeFormatterUtils()
+    
+    if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: timestamp, dateTimeFormatter: dateTimeFormatter){
+        return formatter
+    }else{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMMM, h:mm a"
+        formatter.amSymbol = "am"
+        formatter.pmSymbol = "pm"
+        formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
 
-    let formatter = DateFormatter()
-    formatter.dateFormat = "d MMMM, h:mm a"
-    formatter.amSymbol = "am"
-    formatter.pmSymbol = "pm"
-
-    let formattedDate = formatter.string(from: date)
-    return formattedDate
+        let formattedDate = formatter.string(from: date)
+        return formattedDate
+    }
 }
 
 

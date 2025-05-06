@@ -102,6 +102,10 @@ import CometChatSDK
     
     public var titleContainerStackView = UIStackView().withoutAutoresizingMaskConstraints()
     
+    //Date Time Formatter
+    public static var dateTimeFormatter: CometChatDateTimeFormatter = CometChatUIKit.dateTimeFormatter
+    public lazy var dateTimeFormatter: CometChatDateTimeFormatter = CometChatMessageHeader.dateTimeFormatter
+    
     var onError: ((_ error: CometChatException) -> Void)?
     var onBack: (() -> Void)?
     var listItemView: ((_ user: User?, _ group: Group?) -> UIView)?
@@ -419,29 +423,24 @@ import CometChatSDK
             if let user = viewModel.user {
                 if !disableUsersPresence {
                     let currentTime = Date()
+                    let dateTimeFormatterUtils = DateTimeFormatterUtils()
                     
                     // Safely unwrap 'lastActiveAt' to ensure it's not nil
                     let lastSeenTime = Date(timeIntervalSince1970: user.lastActiveAt)
                     let timeDifference = currentTime.timeIntervalSince(lastSeenTime)
-                    
-                    // Check if user is online
+
+                    let timestamp = Int(user.lastActiveAt)
+
+                    // If the user is online
                     if user.status == .online {
                         subtitleLabel.text = MessageHeaderConstants.online
                     }
-                    // If the user has been offline for less than 1 hour (3600 seconds)
-                    else if timeDifference < 3600 {
-                        let minutesAgo = Int(timeDifference / 60)
-                        if minutesAgo <= 1{
-                            subtitleLabel.text = "LAST_SEEN_A_MINUTE_AGO".localize()
-                        }else{
-                            subtitleLabel.text = "\("LAST_SEEN".localize()) \(minutesAgo) \("MINUTES_AGO".localize())"
-                        }
-                        
-                    }
-                    // If user was last seen more than an hour ago
-                    else {
+                    else if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: timestamp, dateTimeFormatter: dateTimeFormatter){
+                        subtitleLabel.text = "\("LAST_SEEN".localize()) \(formatter)"
+                    }else{
                         let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "d MMM 'at' h:mm a" // Customize date-time format as needed
+                        dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
+                        dateFormatter.dateFormat = "d MMM 'at' h:mm a"
                         subtitleLabel.text = "\("LAST_SEEN".localize()) \(dateFormatter.string(from: lastSeenTime))"
                     }
                     subtitleLabel.textColor = style.subtitleTextColor

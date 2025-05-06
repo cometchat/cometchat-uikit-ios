@@ -9,7 +9,6 @@ import UIKit
 import CometChatUIKitSwift
 import CometChatSDK
 
-
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?

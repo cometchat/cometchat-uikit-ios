@@ -26,6 +26,7 @@ open class CometChatMessageInformation: CometChatListBase {
     public var style = CometChatMessageInformation.style
     public var messageStyle: MessageBubbleStyle = CometChatMessageBubble.style.outgoing
     public var receiptStyle = CometChatMessageInformation.receiptStyle
+    public var dateTimeFormatter: CometChatDateTimeFormatter?
     
     var bubbleSnapshotView: UIView?
     var subtitle: ((_ message: BaseMessage, _ receipt: MessageReceipt) -> UIView)?
@@ -271,7 +272,7 @@ extension CometChatMessageInformation {
                         listItem.titleLabel.attributedText = receiptAttributedText
                         
                         let dateLabel = UILabel().withoutAutoresizingMaskConstraints()
-                        dateLabel.text = receipt.timeStamp != 0 ? receipt.timeStamp.getDateInString() : "---"
+                        dateLabel.text = receipt.timeStamp != 0 ? receipt.timeStamp.getDateInString( dateTimeFormatter: dateTimeFormatter) : "---"
                         dateLabel.textColor = style.listItemSubTitleTextColor
                         dateLabel.font = style.listItemSubTitleFont
                         
@@ -314,7 +315,7 @@ extension CometChatMessageInformation {
             let dateLabel = UILabel().withoutAutoresizingMaskConstraints()
             dateLabel.textColor = style.listItemSubTitleTextColor
             dateLabel.font = style.listItemSubTitleFont
-            dateLabel.text = receipt.timeStamp.getDateInString()
+            dateLabel.text = receipt.timeStamp.getDateInString(dateTimeFormatter: dateTimeFormatter)
             tailView.addArrangedSubview(dateLabel)
         }
         
@@ -328,7 +329,7 @@ extension CometChatMessageInformation {
         let dateLabel = UILabel().withoutAutoresizingMaskConstraints()
         dateLabel.textColor = style.listItemSubTitleTextColor
         dateLabel.font = style.listItemSubTitleFont
-        dateLabel.text = receipt.timeStamp.getDateInString() // receipt.timeStamp.toDateFormatted()
+        dateLabel.text = receipt.timeStamp.getDateInString(dateTimeFormatter: dateTimeFormatter) // receipt.timeStamp.toDateFormatted()
         tailView.addArrangedSubview(dateLabel)
         tailView.setCustomSpacing(CometChatSpacing.Padding.p, after: dateLabel)
                 
@@ -414,17 +415,20 @@ extension CometChatMessageInformation {
 }
 
 extension Int {
-    /// Converts an Int Unix Epoch timestamp to the format "15 Oct, 2024".
-    func getDateInString(with pattern: String = "dd/M/yyyy, h:mm a") -> String {
-        // Create a Date object from the Unix timestamp
+    func getDateInString(with pattern: String = "dd/M/yyyy, h:mm a", dateTimeFormatter: CometChatDateTimeFormatter?) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(self))
-        
-        // Create a DateFormatter
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = pattern
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        
-        // Convert the date to the desired string format
-        return dateFormatter.string(from: date)
+        let dateTimeFormatterUtils = DateTimeFormatterUtils()
+
+        if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: self, dateTimeFormatter: dateTimeFormatter){
+            return formatter
+        }else{
+            // Create a DateFormatter
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = pattern
+            dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
+            
+            // Convert the date to the desired string format
+            return dateFormatter.string(from: date)
+        }
     }
 }

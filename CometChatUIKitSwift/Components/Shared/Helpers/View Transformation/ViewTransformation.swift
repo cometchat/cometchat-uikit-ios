@@ -278,7 +278,7 @@ extension String {
         let tempCurrentDate = Date(timeIntervalSince1970: TimeInterval(currentTimeInterval))
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
-        dateFormatter.locale = Locale(identifier: "en_US")
+        dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         let formattedNewDate = dateFormatter.string(from: tempNewDate)
         let formattedCurrentDate = dateFormatter.string(from: tempCurrentDate)
         if let previousDate = dateFormatter.date(from: formattedNewDate) , let currentDate = dateFormatter.date(from: formattedCurrentDate) {
@@ -292,7 +292,7 @@ extension String {
         let date = Date(timeIntervalSince1970: interval)
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM, yyyy"
-        formatter.locale = Locale(identifier: "en_US")
+        formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         let strDate: String = formatter.string(from: date)
         return strDate
     }

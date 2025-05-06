@@ -116,6 +116,9 @@ open class CometChatMessageList: UIView {
         }
     }
     
+    //Date Time Formatter
+    public static var dateTimeFormatter: CometChatDateTimeFormatter = CometChatUIKit.dateTimeFormatter
+    public lazy var dateTimeFormatter: CometChatDateTimeFormatter = CometChatMessageList.dateTimeFormatter
     
     //MARK: - Call Backs
     var onThreadRepliesClick: ((_ message: BaseMessage, _ template: CometChatMessageTemplate) -> ())?
@@ -607,7 +610,7 @@ open class CometChatMessageList: UIView {
             message: message,
             hideReceipt: hideReceipts,
             messageAlignment: messageAlignment,
-            timePattern: timePattern
+            timePattern: timePattern, dateTimeFormatter: dateTimeFormatter
         )
     }
     
@@ -663,6 +666,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         if hideDateSeparator == true { return nil }
         if let date = viewModel.messages[safe: section]?.messages.last?.sentAt {
             let dateHeader = CometChatDate().withoutAutoresizingMaskConstraints()
+            dateHeader.dateTimeFormatter = dateTimeFormatter
             if let time = dateSeparatorPattern?(date) {
                 dateHeader.text = time
             }

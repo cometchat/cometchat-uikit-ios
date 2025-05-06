@@ -259,6 +259,7 @@ class CallingExtensionDecorator: DataSourceDecorator {
     func formatDate(from timestamp: Double) -> String {
         let date = Date(timeIntervalSince1970: timestamp)
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         dateFormatter.dateFormat = "dd MMM, hh:mm a"
         return dateFormatter.string(from: date)
     }

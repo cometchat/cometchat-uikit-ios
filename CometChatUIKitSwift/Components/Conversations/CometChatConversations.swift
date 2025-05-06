@@ -43,6 +43,10 @@ open class CometChatConversations: CometChatListBase {
     public var disableTyping: Bool = false
     public var disableSoundForMessages: Bool = false
     public var customSoundForMessages: URL?
+    
+    //Date Time Formatter
+    public static var dateTimeFormatter: CometChatDateTimeFormatter = CometChatUIKit.dateTimeFormatter
+    public lazy var dateTimeFormatter: CometChatDateTimeFormatter = CometChatConversations.dateTimeFormatter
    
     //Internal Helper variables
     var listItemView: ((_ conversation: Conversation) -> UIView)?
@@ -247,7 +251,7 @@ open class CometChatConversations: CometChatListBase {
                         conversation: conversation,
                         badgeStyle: this.badgeStyle,
                         dateStyle: this.dateStyle,
-                        datePattern: this.datePattern?(conversation)
+                        datePattern: this.datePattern?(conversation), dateTimeFormatter: this.dateTimeFormatter
                     ))
                 }
             }
@@ -379,7 +383,7 @@ extension CometChatConversations {
                         conversation: conversation,
                         badgeStyle: badgeStyle,
                         dateStyle: dateStyle,
-                        datePattern: datePattern?(conversation)
+                        datePattern: datePattern?(conversation), dateTimeFormatter: dateTimeFormatter
                     ))
                 }
                 

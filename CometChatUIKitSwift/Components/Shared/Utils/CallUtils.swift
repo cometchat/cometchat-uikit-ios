@@ -113,7 +113,8 @@ extension CallUtils {
         incomingCallIcon: UIImage? = nil,
         outgoingCallIcon: UIImage? = nil,
         missedCallIcon: UIImage? = nil,
-        callDate: String?
+        callDate: String?,
+        dateTimeFormatter: CometChatDateTimeFormatter?
     ) -> UIView {
         
         if let callData = (callData as? CallLog) {
@@ -141,7 +142,7 @@ extension CallUtils {
             if let callDate = callDate, !callDate.isEmpty{
                 subtitleLabel.text = callDate
             }else{
-                subtitleLabel.text = convertTimeStampToCallDate(timestamp: callData.initiatedAt)
+                subtitleLabel.text = convertTimeStampToCallDate(timestamp: callData.initiatedAt, dateTimeFormatter: dateTimeFormatter)
             }
             subtitleLabel.font = style.listItemSubTitleFont
             subtitleLabel.textColor = style.listItemSubTitleTextColor
@@ -379,16 +380,22 @@ extension CallUtils {
         return ("", "", UIImage())
     }
     
-    public func convertTimeStampToCallDate(timestamp: Int) -> String{
+    public func convertTimeStampToCallDate(timestamp: Int, dateTimeFormatter: CometChatDateTimeFormatter?) -> String{
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let dateTimeFormatterUtils = DateTimeFormatterUtils()
+        
+        if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: timestamp, dateTimeFormatter: dateTimeFormatter){
+            return formatter
+        }else{
+            let formatter = DateFormatter()
+            formatter.dateFormat = "d MMMM, h:mm a"
+            formatter.amSymbol = "am"
+            formatter.pmSymbol = "pm"
+            formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMMM, h:mm a"
-        formatter.amSymbol = "am"
-        formatter.pmSymbol = "pm"
-
-        let formattedDate = formatter.string(from: date)
-        return formattedDate
+            let formattedDate = formatter.string(from: date)
+            return formattedDate
+        }
     }
     
 }

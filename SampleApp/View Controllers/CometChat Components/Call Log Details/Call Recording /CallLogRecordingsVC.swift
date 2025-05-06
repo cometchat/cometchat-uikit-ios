@@ -18,6 +18,7 @@ import CometChatCallsSDK
 
 public class CallLogRecordingsVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     public var callLog: CallLog?
+    public var dateTimeFormatter: CometChatDateTimeFormatter?
     
     public lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -154,7 +155,7 @@ public class CallLogRecordingsVC: UIViewController, UITableViewDataSource, UITab
         guard let recording = callLog?.recordings[indexPath.row] else { return }
         
         cell.titleLabel.text = recording.rid
-        cell.dateLabel.text = convertTimeStampToCallDate(timestamp: Double(recording.startTime ?? 0))
+        cell.dateLabel.text = convertTimeStampToCallDate(timestamp: recording.startTime ?? 0, dateTimeFormatter: dateTimeFormatter)
         cell.downloadButton.tag = indexPath.row
         cell.playButton.tag = indexPath.row
         cell.downloadButton.addTarget(self, action: #selector(onDownloadButtonClicked(_:)), for: .touchUpInside)

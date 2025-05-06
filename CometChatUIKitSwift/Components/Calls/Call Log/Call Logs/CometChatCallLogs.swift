@@ -37,6 +37,11 @@ open class CometChatCallLogs: CometChatListBase {
     var addOptions: ((_ call: CometChatCallsSDK.CallLog) -> [CometChatCallOption])?
     
     
+    //Date Time Formatter
+    public static var dateTimeFormatter: CometChatDateTimeFormatter = CometChatUIKit.dateTimeFormatter
+    public lazy var dateTimeFormatter: CometChatDateTimeFormatter = CometChatCallLogs.dateTimeFormatter
+    
+    
     public static var avatarStyle: AvatarStyle = {
         var avatarStyle = CometChatAvatar.style
         return avatarStyle
@@ -241,7 +246,7 @@ extension CometChatCallLogs {
                 style: style,
                 incomingCallIcon: style.incomingCallIcon,
                 outgoingCallIcon: style.outgoingCallIcon,
-                missedCallIcon: style.incomingCallIcon, callDate: datePattern?(callData)
+                missedCallIcon: style.incomingCallIcon, callDate: datePattern?(callData), dateTimeFormatter: dateTimeFormatter
             )
             listItem.set(subtitle: defaultSubtitle)
         }

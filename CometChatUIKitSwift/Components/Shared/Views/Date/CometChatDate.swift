@@ -9,6 +9,8 @@ public class CometChatDate: UILabel {
     public static var style = DateStyle() //global styling
     public lazy var style = CometChatDate.style //component level styling
     
+    public var dateTimeFormatter: CometChatDateTimeFormatter?
+    
     var pattern : CometChatDatePattern? = .dayDate
     var timestamp : Int? = 0
     var dateFormat: String?
@@ -112,6 +114,7 @@ extension Date {
     func dateFromCustomString(customString: String) -> Date {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
+        dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         return dateFormatter.date(from: customString) ?? Date()
     }
     
@@ -121,6 +124,7 @@ extension Date {
         let day = calendar.component(.day, from: self)
         let year = calendar.component(.year, from: self)
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         dateFormatter.dateFormat = "MM/dd/yyyy"
         return dateFormatter.date(from: "\(month)/\(day)/\(year)") ?? Date()
     }
@@ -129,6 +133,7 @@ extension Date {
     func reduceTo_MMM_dd_yyy() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, yyyy"
+        dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         
         let today = Calendar.current.startOfDay(for: Date())
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
@@ -144,6 +149,7 @@ extension Date {
 
     func reduceTo(customFormate: String) -> String {
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         dateFormatter.dateFormat = customFormate
         return dateFormatter.string(from: self)
     }
@@ -155,39 +161,44 @@ extension CometChatDate {
     
     func setTime(for time: Int) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(time))
-        let str = fetchMessagePastTime(for: date)
-        return str
+        let dateTimeFormatterUtils = DateTimeFormatterUtils()
+        
+        if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: time, dateTimeFormatter: dateTimeFormatter){
+            return formatter
+        }else{
+            let str = fetchMessagePastTime(for: date)
+            return str
+        }
     }
     
     func fetchMessagePastTime(for date : Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat =  "hh:mm a"
-        formatter.locale = Locale(identifier: "en_US")
+        formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         let strDate: String = formatter.string(from: date)
         return strDate
     }
     
     func setDayDate(for time: Int) -> String {
         let interval = TimeInterval(time)
-        let calendar = Calendar.current
         let date = Date(timeIntervalSince1970: interval)
-        if (interval == 0.0) || (interval == -1) || (calendar.isDateInToday(date)) { return "TODAY".localize() }
-        else if calendar.isDateInYesterday(date) { return "YESTERDAY".localize() }
-        else {
+        let dateTimeFormatterUtils = DateTimeFormatterUtils()
+
+        if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: time, dateTimeFormatter: dateTimeFormatter){
+            return formatter
+        }else{
             let formatter = DateFormatter()
             formatter.dateFormat = "d MMM, yyyy"
-            formatter.locale = Locale(identifier: "en_US")
+            formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
             let strDate: String = formatter.string(from: date)
             return strDate
         }
-        
     }
-    
-    
     
     func setDayTime(for time: Int) -> String {
         
         let date       = Date(timeIntervalSince1970: TimeInterval(time))
+        let dateTimeFormatterUtils = DateTimeFormatterUtils()
         var secondsAgo = Int(Date().timeIntervalSince(date))
         if secondsAgo < 0 {
             secondsAgo = secondsAgo * (-1)
@@ -199,40 +210,44 @@ extension CometChatDate {
         let twoDays = 2 * day
         let sevenDays = 7 * day
         
-        if secondsAgo < day {
-            let day = secondsAgo/hour
-            let formatter = DateFormatter()
-            formatter.dateFormat = "hh:mm a"
-            formatter.locale = Locale(identifier: "en_US")
-            let strDate: String = formatter.string(from: date)
-            if day == 1{
-                return strDate
-             } else {
-                return strDate
-            }
-        } else if secondsAgo < twoDays {
-            let day = secondsAgo/day
-            if day == 1 {
-                return "YESTERDAY".localize()
-             } else {
+        if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: time, dateTimeFormatter: dateTimeFormatter){
+            return formatter
+        }else{
+            if secondsAgo < day {
+                let day = secondsAgo/hour
                 let formatter = DateFormatter()
-                formatter.dateFormat = "EEE"
+                formatter.dateFormat = "hh:mm a"
+                formatter.locale = Locale(identifier: "en_US")
+                let strDate: String = formatter.string(from: date)
+                if day == 1{
+                    return strDate
+                 } else {
+                    return strDate
+                }
+            } else if secondsAgo < twoDays {
+                let day = secondsAgo/day
+                if day == 1 {
+                    return "YESTERDAY".localize()
+                 } else {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "EEE"
+                    formatter.locale = Locale(identifier: "en_US")
+                    let strDate: String = formatter.string(from: date)
+                    return strDate.capitalized
+                }
+            } else if secondsAgo < sevenDays {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "EEEE"
+                formatter.locale = Locale(identifier: "en_US")
+                let strDate: String = formatter.string(from: date)
+                return strDate.capitalized
+            } else {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "dd/MM/yyyy"
                 formatter.locale = Locale(identifier: "en_US")
                 let strDate: String = formatter.string(from: date)
                 return strDate.capitalized
             }
-        } else if secondsAgo < sevenDays {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "EEEE"
-            formatter.locale = Locale(identifier: "en_US")
-            let strDate: String = formatter.string(from: date)
-            return strDate.capitalized
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "dd/MM/yyyy"
-            formatter.locale = Locale(identifier: "en_US")
-            let strDate: String = formatter.string(from: date)
-            return strDate.capitalized
         }
     }
     

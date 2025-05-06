@@ -42,6 +42,16 @@ public enum Language : String {
     case hindi = "hi";
     /// Specifies an enum value where in this case the language will be `chinese`
     case chinese = "zh";
+    
+    case english_uk = "en-GB";
+    
+    case dutch = "nl";
+    
+    case japanese = "ja";
+    
+    case korean = "ko";
+    
+    case turkish = "tr";
 }
 
 var bundleKey: UInt8 = 0

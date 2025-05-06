@@ -17,6 +17,7 @@ import CometChatCallsSDK
 public class CallLogHistoryVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     // MARK: - Properties
     var callLog: [CallLog] = []
+    public var dateTimeFormatter: CometChatDateTimeFormatter?
     
     public lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -76,7 +77,7 @@ public class CallLogHistoryVC: UIViewController, UITableViewDataSource, UITableV
             }
         }
         
-        cell.dateLabel.text = convertTimeStampToCallDate(timestamp: Double(call.initiatedAt))
+        cell.dateLabel.text = convertTimeStampToCallDate(timestamp: call.initiatedAt, dateTimeFormatter: dateTimeFormatter)
         
         if call.totalDurationInMinutes == 0 {
             cell.durationLabel.text = "----"

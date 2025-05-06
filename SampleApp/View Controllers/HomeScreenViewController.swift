@@ -33,6 +33,7 @@ class HomeScreenViewController: UITabBarController {
                 callDetails.currentUser = user
                 callDetails.currentGroup = group
                 callDetails.callLog = callLog
+                callDetails.dateTimeFormatter = calls.dateTimeFormatter
                 self.navigationController?.pushViewController(callDetails, animated: true)
             }
         })

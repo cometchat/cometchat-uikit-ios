@@ -88,7 +88,8 @@ open class MessageUtils {
         message: BaseMessage,
         hideReceipt: Bool = false,
         messageAlignment: MessageListAlignment = .standard,
-        timePattern: ((_ timestamp: Int?) -> String)? = nil
+        timePattern: ((_ timestamp: Int?) -> String)? = nil,
+        dateTimeFormatter: CometChatDateTimeFormatter?
     ) {
         
         if let message = message as? CustomMessage, message.type == "meeting", message.deletedAt == 0{
@@ -124,6 +125,7 @@ open class MessageUtils {
         let isDateVisible = true //Will Use this when date alignment property get added
         var constraintToActive = [NSLayoutConstraint]()
         let date = CometChatDate().withoutAutoresizingMaskConstraints()
+        date.dateTimeFormatter = dateTimeFormatter
         let receipt = CometChatReceipt().withoutAutoresizingMaskConstraints()
         
         

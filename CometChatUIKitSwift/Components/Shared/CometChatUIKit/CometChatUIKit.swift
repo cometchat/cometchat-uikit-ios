@@ -15,6 +15,8 @@ final public class CometChatUIKit {
         case onError(CometChatException)
     }
     
+    public static var dateTimeFormatter: CometChatDateTimeFormatter = CometChatDateTimeFormatter()
+    
     public static var bundle =  Bundle(for: CometChatUIKit.self)
     static var uiKitSettings: UIKitSettings?
     static var uiKitError: CometChatException = CometChatException(errorCode: "Err_101", errorDescription: "UIKit Settings are not initialised, Try calling CometChatUIKit.init method first.")
