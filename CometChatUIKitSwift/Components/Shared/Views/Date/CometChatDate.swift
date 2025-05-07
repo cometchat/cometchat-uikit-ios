@@ -1,9 +1,8 @@
-
 import Foundation
 import UIKit
 import CometChatSDK
 
-@objc @IBDesignable  
+@objc @IBDesignable
 public class CometChatDate: UILabel {
     
     public static var style = DateStyle() //global styling
@@ -161,38 +160,83 @@ extension CometChatDate {
     
     func setTime(for time: Int) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(time))
-        let dateTimeFormatterUtils = DateTimeFormatterUtils()
-        
-        if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: time, dateTimeFormatter: dateTimeFormatter){
-            return formatter
-        }else{
-            let str = fetchMessagePastTime(for: date)
-            return str
+        var secondsAgo = Int(Date().timeIntervalSince(date))
+        if secondsAgo < 0 {
+            secondsAgo = secondsAgo * (-1)
         }
+        
+        let minute = 60
+        let hour = 60 * minute
+        let day = 24 * hour
+        
+        if let formatted = dateTimeFormatter?.time?(time) {
+            return formatted
+        }
+        
+        if let dateTimeFormatter = dateTimeFormatter?.minute, secondsAgo < minute {
+            return dateTimeFormatter(time)
+        } else if let dateTimeFormatter = dateTimeFormatter?.minutes, secondsAgo < minute {
+            return dateTimeFormatter(time)
+        } else if let dateTimeFormatter = dateTimeFormatter?.hour, secondsAgo < hour {
+            return dateTimeFormatter(time)
+        } else if let dateTimeFormatter = dateTimeFormatter?.hours, secondsAgo < hour {
+            return dateTimeFormatter(time)
+        } else if let dateTimeFormatter = dateTimeFormatter?.today, secondsAgo < day {
+            return dateTimeFormatter(time)
+        } else if let dateTimeFormatter = dateTimeFormatter?.otherDay, secondsAgo >= day {
+            return dateTimeFormatter(time)
+        }
+        
+        let str = fetchMessagePastTime(for: date)
+        return str
     }
     
     func fetchMessagePastTime(for date : Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat =  "hh:mm a"
-        formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
+        formatter.locale = Locale(identifier: "en_US")
         let strDate: String = formatter.string(from: date)
         return strDate
     }
     
     func setDayDate(for time: Int) -> String {
         let interval = TimeInterval(time)
+        let calendar = Calendar.current
         let date = Date(timeIntervalSince1970: interval)
-        let dateTimeFormatterUtils = DateTimeFormatterUtils()
-
-        if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: time, dateTimeFormatter: dateTimeFormatter){
-            return formatter
-        }else{
-            let formatter = DateFormatter()
-            formatter.dateFormat = "d MMM, yyyy"
-            formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
-            let strDate: String = formatter.string(from: date)
-            return strDate
+    
+        if (interval == 0.0 || interval == -1 || calendar.isDateInToday(date)) {
+            if let today = dateTimeFormatter?.today {
+                return today(time)
+            }
+            return "TODAY".localize()
         }
+
+        // Yesterday
+        if calendar.isDateInYesterday(date) {
+            if let yesterday = dateTimeFormatter?.yesterday {
+                return yesterday(time)
+            }
+            return "YESTERDAY".localize()
+        }
+
+        // Within the past 7 days
+        if let _ = calendar.date(byAdding: .day, value: -7, to: date) {
+            if let lastWeek = dateTimeFormatter?.lastWeek {
+                return lastWeek(time)
+            }
+        }
+
+        // Other day (older than a week)
+        if let otherDay = dateTimeFormatter?.otherDay {
+            return otherDay(time)
+        }
+
+        // Final fallback if nothing is overridden
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM, yyyy"
+        formatter.locale = Locale(identifier: "en_US")
+        let strDate: String = formatter.string(from: date)
+        return strDate
     }
     
     func setDayTime(for time: Int) -> String {

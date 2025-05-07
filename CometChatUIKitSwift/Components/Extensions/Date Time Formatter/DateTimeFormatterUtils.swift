@@ -42,8 +42,6 @@ public class DateTimeFormatterUtils{
         if calendar.isDateInToday(date) {
             if let todayFormatter = dateTimeFormatter?.today {
                 return todayFormatter(timeStamp)
-            } else if let timeFormatter = dateTimeFormatter?.time {
-                return timeFormatter(timeStamp)
             }
         }
         
@@ -57,11 +55,6 @@ public class DateTimeFormatterUtils{
             if let lastWeekFormatter = dateTimeFormatter?.lastWeek {
                 return lastWeekFormatter(timeStamp)
             }
-            
-            let dateFormat = DateFormatter()
-            dateFormat.dateFormat = "EEEE"
-            dateFormat.locale = Locale(identifier: CometChatLocalize.getLocale())
-            return dateFormat.string(from: date).capitalized
         }
         
         if let otherDayFormatter = dateTimeFormatter?.otherDay {

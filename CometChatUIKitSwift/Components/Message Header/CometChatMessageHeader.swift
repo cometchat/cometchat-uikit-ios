@@ -438,10 +438,20 @@ import CometChatSDK
                     else if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: timestamp, dateTimeFormatter: dateTimeFormatter){
                         subtitleLabel.text = "\("LAST_SEEN".localize()) \(formatter)"
                     }else{
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
-                        dateFormatter.dateFormat = "d MMM 'at' h:mm a"
-                        subtitleLabel.text = "\("LAST_SEEN".localize()) \(dateFormatter.string(from: lastSeenTime))"
+                        if timeDifference < 3600 {
+                            let minutesAgo = Int(timeDifference / 60)
+                            if minutesAgo <= 1{
+                                subtitleLabel.text = "LAST_SEEN_A_MINUTE_AGO".localize()
+                            }else{
+                                subtitleLabel.text = "\("LAST_SEEN".localize()) \(minutesAgo) \("MINUTES_AGO".localize())"
+                            }
+                        }
+                        else {
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
+                            dateFormatter.dateFormat = "d MMM 'at' h:mm a"
+                            subtitleLabel.text = "\("LAST_SEEN".localize()) \(dateFormatter.string(from: lastSeenTime))"
+                        }
                     }
                     subtitleLabel.textColor = style.subtitleTextColor
 
@@ -538,4 +548,3 @@ extension CometChatMessageHeader: CometChatConnectionDelegate {
     
     public func disconnected() {}
 }
-
