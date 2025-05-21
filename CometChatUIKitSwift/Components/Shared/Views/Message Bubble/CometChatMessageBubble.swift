@@ -375,6 +375,7 @@ open class CometChatMessageBubble: UITableViewCell {
     }
 
     public override func prepareForReuse() {
+        
         self.headerView.subviews.forEach({ $0.removeFromSuperview() })
         self.footerView.subviews.forEach({ $0.removeFromSuperview() })
         self.viewReplyView.subviews.forEach({ $0.removeFromSuperview() })

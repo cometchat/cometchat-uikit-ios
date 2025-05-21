@@ -267,7 +267,9 @@ class GroupDetailsViewController: UIViewController {
         groupNameLabel.text = group?.name
         groupImageView.setAvatar(avatarUrl: group?.icon ?? "", with: group?.name ?? "")
         
-        if let group = group { updateGroupInfo(group) }
+        if let group = group {
+            updateGroupInfo(group)
+        }
         
         if let _ = group?.hasJoined{
             groupErrorView.isHidden = true
@@ -508,6 +510,9 @@ extension GroupDetailsViewController: CometChatGroupDelegate, CometChatGroupEven
                 self.view.isUserInteractionEnabled = false
                 self.showHideOptions(hideViewMembers: true, hideAddMembers: true, hideBannMembers: true, hideLeaveGroup: true, hideDeleteGroup: true) //hiding all the options
             } else {
+                if let scope = self.group?.scope{
+                    leftGroup.scope = scope
+                }
                 updateGroupInfo(leftGroup)
             }
         }
@@ -520,6 +525,9 @@ extension GroupDetailsViewController: CometChatGroupDelegate, CometChatGroupEven
                 self.view.isUserInteractionEnabled = false
                 self.showHideOptions(hideViewMembers: true, hideAddMembers: true, hideBannMembers: true, hideLeaveGroup: true, hideDeleteGroup: true) //hiding all the options
             } else {
+                if let scope = self.group?.scope{
+                    kickedFrom.scope = scope
+                }
                 updateGroupInfo(kickedFrom)
             }
         }
@@ -532,6 +540,9 @@ extension GroupDetailsViewController: CometChatGroupDelegate, CometChatGroupEven
                 self.view.isUserInteractionEnabled = false
                 self.showHideOptions(hideViewMembers: true, hideAddMembers: true, hideBannMembers: true, hideLeaveGroup: true, hideDeleteGroup: true) //hiding all the options
             } else {
+                if let scope = self.group?.scope{
+                    bannedFrom.scope = scope
+                }
                 updateGroupInfo(bannedFrom)
             }
         }

@@ -548,3 +548,4 @@ extension CometChatMessageHeader: CometChatConnectionDelegate {
     
     public func disconnected() {}
 }
+

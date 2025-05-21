@@ -41,7 +41,6 @@ class UserDetailsViewController: UIViewController {
         let label = UILabel()
         if user?.blockedByMe == true { label.isHidden = true }
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = user?.status == .online ? "ONLINE".localize() : "OFFLINE".localize()
         label.font = CometChatTypography.Caption1.regular
         label.textColor = CometChatTheme.textColorSecondary
         label.textAlignment = .center
@@ -158,6 +157,7 @@ class UserDetailsViewController: UIViewController {
         return button
     }()
 
+    public var dateTimeFormatter: CometChatDateTimeFormatter?
     
     // MARK: - Lifecycle Methods
     override public func viewDidLoad() {
@@ -168,6 +168,9 @@ class UserDetailsViewController: UIViewController {
     override public func viewWillAppear(_ animated: Bool) {
         setupLayout()
         setupNavigationBar()
+        if let user = user{
+            updateUserStatus(user: user)
+        }
     }
     
     deinit {
@@ -307,11 +310,11 @@ class UserDetailsViewController: UIViewController {
 extension UserDetailsViewController: CometChatUserEventListener, CometChatUserDelegate {
     
     func onUserOnline(user: User) {
-        statusLabel.text = "ONLINE".localize()
+        updateUserStatus(user: user)
     }
     
     func onUserOffline(user: User) {
-        statusLabel.text = "OFFLINE".localize()
+        updateUserStatus(user: user)
     }
     
     func ccUserBlocked(user: User) {
@@ -320,7 +323,40 @@ extension UserDetailsViewController: CometChatUserEventListener, CometChatUserDe
     
     func ccUserUnblocked(user: User) {
         statusLabel.isHidden = false
-        statusLabel.text = user.status == .online ? "ONLINE".localize() : "OFFLINE".localize()
+        updateUserStatus(user: user)
+    }
+    
+    func updateUserStatus(user:User){
+        if user.status == .online {
+            statusLabel.text = "ONLINE".localize()
+        }else{
+            let currentTime = Date()
+            let dateTimeFormatterUtils = DateTimeFormatterUtils()
+            
+            // Safely unwrap 'lastActiveAt' to ensure it's not nil
+            let lastSeenTime = Date(timeIntervalSince1970: user.lastActiveAt)
+            let timeDifference = currentTime.timeIntervalSince(lastSeenTime)
+
+            let timestamp = Int(user.lastActiveAt)
+            if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: timestamp, dateTimeFormatter: dateTimeFormatter){
+                statusLabel.text = "\("LAST_SEEN".localize()) \(formatter)"
+            }else{
+                if timeDifference < 3600 {
+                    let minutesAgo = Int(timeDifference / 60)
+                    if minutesAgo <= 1{
+                        statusLabel.text = "LAST_SEEN_A_MINUTE_AGO".localize()
+                    }else{
+                        statusLabel.text = "\("LAST_SEEN".localize()) \(minutesAgo) \("MINUTES_AGO".localize())"
+                    }
+                }
+                else {
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.locale = Locale(identifier: CometChatLocalize.getLocale())
+                    dateFormatter.dateFormat = "d MMM 'at' h:mm a"
+                    statusLabel.text = "\("LAST_SEEN".localize()) \(dateFormatter.string(from: lastSeenTime))"
+                }
+            }
+        }
     }
     
 }

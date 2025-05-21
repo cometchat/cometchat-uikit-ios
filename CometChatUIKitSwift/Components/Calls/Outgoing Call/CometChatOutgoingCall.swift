@@ -240,16 +240,26 @@ open class CometChatOutgoingCall: UIViewController {
         if !disableSoundForCalls {
             CometChatSoundManager().pause()
         }
-        if let sessionID = call?.sessionID {
-            CometChat.rejectCall(sessionID: sessionID, status: .cancelled) { call in
-                if let call = call {
+        if let onCancelClick = onCancelClick?(call, self){
+            onCancelClick
+        }else{
+            if let sessionID = call?.sessionID {
+                CometChat.rejectCall(sessionID: sessionID, status: .cancelled) { call in
+                    guard let call = call else { return }
                     CometChatCallEvents.ccCallRejected(call: call)
+                    CometChat.clearActiveCall()
+                    DispatchQueue.main.async {[weak self] in
+                        self?.dismiss(animated: true)
+                    }
+                    print("Call Cancelled Success")
+                } onError: { error in
+                    print("Call Cancelled Error: \(String(describing: error?.errorDescription))")
+                    DispatchQueue.main.async {[weak self] in
+                        self?.dismiss(animated: true)
+                    }
                 }
-                print("Call Cancelled Success")
-            } onError: { error in
-                print("Call Cancelled Error: \(String(describing: error?.errorDescription))")
-            }
 
+            }
         }
     }
 }

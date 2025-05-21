@@ -82,6 +82,9 @@ class ThreadedMessagesVC: UIViewController {
         setupNavigationBar()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+    }
+    
     func setupNavigationBar() {
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationItem.largeTitleDisplayMode = .never

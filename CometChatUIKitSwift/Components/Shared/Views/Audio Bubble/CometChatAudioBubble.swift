@@ -120,7 +120,8 @@ public class CometChatAudioBubble: UIView {
         audioWaveContainerView.addSubview(audioWaveView)
         audioWaveContainerView.addSubview(audioTimeLineLabel)
         audioWaveView.pin(anchors: [.leading, .top], to: audioWaveContainerView)
-        audioTimeLineLabel.pin(anchors: [.leading, .trailing, .bottom], to: audioWaveContainerView)
+        audioTimeLineLabel.pin(anchors: [.leading, .trailing], to: audioWaveContainerView)
+        audioTimeLineLabel.pin(anchors: [.bottom], to: -2)
         
         constraintsToActive += [
             audioWaveView.bottomAnchor.pin(equalTo: audioTimeLineLabel.topAnchor, constant: -CometChatSpacing.Spacing.s2),
@@ -136,7 +137,7 @@ public class CometChatAudioBubble: UIView {
             audioWaveContainerView.leadingAnchor.pin(equalTo: playView.trailingAnchor, constant: CometChatSpacing.Padding.p3),
             audioWaveContainerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -CometChatSpacing.Padding.p3),
             audioWaveContainerView.topAnchor.constraint(equalTo: topAnchor, constant: CometChatSpacing.Padding.p3),
-            audioWaveContainerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: CometChatSpacing.Padding.p),
+            audioWaveContainerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -CometChatSpacing.Padding.p),
             audioWaveContainerView.heightAnchor.constraint(equalToConstant: 50)
         ]
         

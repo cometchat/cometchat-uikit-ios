@@ -162,7 +162,7 @@ class StickersExtensionDecorator: DataSourceDecorator {
     
             customMessage?.updateConversation = true
             if let customMessage = customMessage {
-                customMessage.muid = "\(Int(Date().timeIntervalSince1970))"
+                customMessage.muid = "\(Date().timeIntervalSince1970)"
                 customMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
                 customMessage.sender = CometChat.getLoggedInUser()
                 CometChatUIKit.sendCustomMessage(message: customMessage)

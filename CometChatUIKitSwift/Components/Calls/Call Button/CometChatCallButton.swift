@@ -190,7 +190,7 @@ public class CometChatCallButtons: UIStackView {
                     voiceMeeting.sender = CometChat.getLoggedInUser()
                     
                     CometChatUIKit.sendCustomMessage(message: voiceMeeting)
-                    this.startGroupCall(sessionID: "\(sessionID)_\(Date().timeIntervalSince1970)", group: forGroup, isVideoCall: false)
+                    this.startGroupCall(sessionID: "\(sessionID)", group: forGroup, isVideoCall: false)
                 }
             }
         }
@@ -218,7 +218,7 @@ public class CometChatCallButtons: UIStackView {
                     videoMeeting.sender = CometChat.getLoggedInUser()
                     
                     CometChatUIKit.sendCustomMessage(message: videoMeeting)
-                    this.startGroupCall(sessionID: "\(sessionID)_\(Date().timeIntervalSince1970)", group: forGroup, isVideoCall: true)
+                    this.startGroupCall(sessionID: "\(sessionID)", group: forGroup, isVideoCall: true)
                 }
             }
         }
@@ -333,21 +333,6 @@ extension CometChatCallButtons {
                     outgoingCall.set(callSettingsBuilder: callSettingsBuilder)
                 }
                 this.setupOutgoingCallConfiguration(outgoingCall: outgoingCall)
-                outgoingCall.set(onCancelClick: { call, controller in
-                    CometChat.rejectCall(sessionID: call?.sessionID ?? "", status: .cancelled) { call in
-                        if let call = call {
-                            CometChatCallEvents.ccCallRejected(call: call)
-                        }
-                        DispatchQueue.main.async {
-                            controller?.dismiss(animated: true)
-                        }
-                    } onError: { error in
-                        this.onError?(error)
-                        DispatchQueue.main.async {
-                            controller?.dismiss(animated: true)
-                        }
-                    }
-                })
                
                 this.controller?.present(outgoingCall, animated: true)
             }
@@ -369,21 +354,6 @@ extension CometChatCallButtons {
                     outgoingCall.set(callSettingsBuilder: callSettingsBuilder)
                 }
                 this.setupOutgoingCallConfiguration(outgoingCall: outgoingCall)
-                outgoingCall.set(onCancelClick: { call, controller in
-                    CometChat.rejectCall(sessionID: call?.sessionID ?? "", status: .cancelled) { call in
-                        if let call = call {
-                            CometChatCallEvents.ccCallRejected(call: call)
-                        }
-                        DispatchQueue.main.async {
-                            controller?.dismiss(animated: true)
-                        }
-                    } onError: { error in
-                        this.onError?(error)
-                        DispatchQueue.main.async {
-                            controller?.dismiss(animated: true)
-                        }
-                    }
-                })
                 
                 this.controller?.present(outgoingCall, animated: true)
             }

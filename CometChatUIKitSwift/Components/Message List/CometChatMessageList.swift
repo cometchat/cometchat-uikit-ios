@@ -65,6 +65,7 @@ open class CometChatMessageList: UIView {
     
     
     // MARK: - Disable Customisation
+    var isContextMenuActive = false //to prevent multiple touch issue on message bubble
     public var hideHeaderView = false
     public var hideBubbleHeader = false
     public var hideFooterView = false
@@ -702,10 +703,6 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
     }
 
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let message = viewModel.messages[safe: indexPath.section]?.messages[safe: indexPath.row] else {
-            return UITableViewCell()
-        }
-        
         guard let filteredMessages = viewModel.messages[safe: indexPath.section]?.messages.filter({ message in
                 !(hideGroupActionMessages && message.messageCategory == .action && message.receiverType == .group)
             }), let message = filteredMessages[safe: indexPath.row] else {

@@ -106,11 +106,14 @@ class MessagesVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         navigationItem.hidesBackButton = true
         title = "MESSAGES".localize()
+        
+        // setting this for notification
+        // (notification will not be displayed if that users or groups chat is active on screen)
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
-
     }
     
     deinit {

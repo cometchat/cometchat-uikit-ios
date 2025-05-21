@@ -53,7 +53,7 @@ open class CometChatReactionList: UIViewController {
         didSet {
             if !collectionView.visibleCells.isEmpty {
                 if oldValue < (reactionDataSource.count) {
-                    self.collectionView.reloadItems(at: [IndexPath(row: oldValue, section: 0), IndexPath(row: selectedIndex, section: 0)])
+                    self.collectionView.reloadData()
                 } else {
                     self.collectionView.reloadItems(at: [IndexPath(row: selectedIndex, section: 0)])
                 }
@@ -66,11 +66,11 @@ open class CometChatReactionList: UIViewController {
         super.viewDidLoad()
         setUpDelegate()
         buildUI()
+        fetchReactions()
     }
     
     open override func viewWillAppear(_ animated: Bool) {
         setupStyle()
-        fetchReactions()
     }
     
     func setUpDelegate() {
@@ -103,7 +103,7 @@ open class CometChatReactionList: UIViewController {
         
         if defaultReaction != nil {
             selectedIndex = self.reactionDataSource.firstIndex(where: { $0.reaction == defaultReaction }) ?? 0
-            if selectedIndex != 0 { reactionDataSource[0].fetchPrevious {   } onError: { error in } } 
+            if selectedIndex != 0 { reactionDataSource[0].fetchPrevious {   } onError: { error in } }
         }
         
         reloadViews()
@@ -162,6 +162,7 @@ open class CometChatReactionList: UIViewController {
     
     func setupStyle(){
         self.view.backgroundColor = style.backgroundColor
+        self.loadingView.backgroundColor = style.backgroundColor
         self.view.borderWith(width: style.borderWidth)
         self.view.borderColor(color: style.borderColor)
         self.view.roundViewCorners(corner: style.cornerRadius ?? .init(cornerRadius: 20))
@@ -231,7 +232,9 @@ open class CometChatReactionList: UIViewController {
                     
                     //Table View Update
                     removedReactionModel.messageReaction.remove(at: reactionIndex)
-                    if index == selectedIndex { tableView.deleteRows(at: [IndexPath(row: reactionIndex, section: 0)], with: .left) }
+                    if index == selectedIndex {
+                        tableView.deleteRows(at: [IndexPath(row: reactionIndex, section: 0)], with: .none)
+                    }
                     
                     //collection View update
                     updateCollectionViewCount(index: index)
@@ -245,13 +248,15 @@ open class CometChatReactionList: UIViewController {
             removedReactionModel.count = removedReactionModel.count - 1
             if removedReactionModel.count == 0 {
                 selectedIndex = 0
+                collectionView.scrollToItem(at: IndexPath(row: selectedIndex, section: 0), at: .centeredHorizontally, animated: false)
                 if index != 0 {
                     reactionDataSource.remove(at: index)
                 }
                 collectionView.reloadData()
                 collectionView.reloadItems(at: [IndexPath(row: index, section: 0)])
             } else {
-                collectionView.reloadItems(at: [IndexPath(row: index, section: 0)])
+                fetchPrevious()
+                collectionView.reloadData()
             }
         }
     }

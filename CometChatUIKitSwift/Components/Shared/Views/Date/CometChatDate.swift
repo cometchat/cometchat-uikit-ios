@@ -1,8 +1,9 @@
+
 import Foundation
 import UIKit
 import CometChatSDK
 
-@objc @IBDesignable
+@objc @IBDesignable  
 public class CometChatDate: UILabel {
     
     public static var style = DateStyle() //global styling

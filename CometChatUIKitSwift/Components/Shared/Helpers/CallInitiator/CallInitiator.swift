@@ -24,6 +24,7 @@ extension UIViewController {
                     CometChat.rejectCall(sessionID: call?.sessionID ?? "", status: .cancelled) { call in
                         if let call = call {
                             CometChatCallEvents.ccCallRejected(call: call)
+                            CometChat.clearActiveCall()
                         }
                         DispatchQueue.main.async {
                             controller?.dismiss(animated: true)
@@ -63,6 +64,7 @@ extension UIViewController {
                     CometChat.rejectCall(sessionID: call?.sessionID ?? "", status: .cancelled) { call in
                         if let call = call {
                             CometChatCallEvents.ccCallRejected(call: call)
+                            CometChat.clearActiveCall()
                         }
                         DispatchQueue.main.async {
                             controller?.dismiss(animated: true)

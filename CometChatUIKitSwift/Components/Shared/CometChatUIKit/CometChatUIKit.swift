@@ -202,7 +202,7 @@ extension CometChatUIKit {
     public static func sendCustomMessage(message: CustomMessage) {
         
         if message.sender == nil { message.sender = CometChat.getLoggedInUser() }
-        if message.muid == "" { message.muid = "\(NSDate().timeIntervalSince1970)" }
+        if message.muid == "" { message.muid = "\(Date().timeIntervalSince1970)" }
         if message.senderUid == "" { message.senderUid = CometChat.getLoggedInUser()?.uid ?? "" }
         
         CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.inProgress)

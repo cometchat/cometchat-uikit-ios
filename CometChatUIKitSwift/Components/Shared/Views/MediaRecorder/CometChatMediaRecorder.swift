@@ -100,12 +100,6 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
         return label
     }()
     
-    private lazy var audioBubbleBackView: UIView = {
-        let view = UIView().withoutAutoresizingMaskConstraints()
-        view.backgroundColor = .lightGray // Customize as needed
-        return view
-    }()
-    
     private lazy var recordingView: CometChatAudioBubble = {
         let view = CometChatAudioBubble().withoutAutoresizingMaskConstraints()
         return view
@@ -129,7 +123,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
     }()
     
     private lazy var recordingStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [upperStackView, audioBubbleBackView, buttonsStackView])
+        let stackView = UIStackView(arrangedSubviews: [upperStackView, recordingView, buttonsStackView])
         stackView.axis = .vertical
         stackView.spacing = CometChatSpacing.Spacing.s5
         stackView.alignment = .center
@@ -186,7 +180,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
 
         // Add arranged subviews to recording stack
         recordingStackView.addArrangedSubview(upperStackView)
-        recordingStackView.addArrangedSubview(audioBubbleBackView)
+        recordingStackView.addArrangedSubview(recordingView)
         recordingStackView.addArrangedSubview(buttonsStackView)
 
         // Add buttons to buttons stack
@@ -202,15 +196,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
         mediaRecorderBackView.addSubview(mediaRecorderView)
         mediaRecorderView.pin(anchors: [.centerX, .centerY], to: mediaRecorderBackView)
 
-        audioBubbleBackView.pin(anchors: [.leading, .trailing], to: recordingStackView)
-
-        // Embed recording view with insets
-        audioBubbleBackView.embed(recordingView, insets: .init(
-            top: 0,
-            leading: 0,
-            bottom: CometChatSpacing.Padding.p2,
-            trailing: 0
-        ))
+        recordingView.pin(anchors: [.leading, .trailing], to: recordingStackView)
 
         // Pin media recorder image
         mediaRecorderImage.pin(anchors: [.centerX, .centerY], to: mediaRecorderView)
@@ -218,7 +204,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
         // Set visibility
         audioTimerLabel.alpha = 1
         mediaRecorderBackView.isHidden = false
-        audioBubbleBackView.isHidden = true
+        recordingView.isHidden = true
         didAudioNoteStartPressed()
     }
 
@@ -292,11 +278,12 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
         audioTimerLabel.textColor = style.textColor
 
         // Style recording view
-        recordingView.style = CometChatMessageBubble.style.outgoing.audioBubbleStyle
-        audioBubbleBackView.backgroundColor = CometChatMessageBubble.style.outgoing.audioBubbleStyle.backgroundColor ?? CometChatTheme.primaryColor
-        audioBubbleBackView.borderWith(width: CometChatMessageBubble.style.outgoing.audioBubbleStyle.borderWidth ?? 0)
-        audioBubbleBackView.borderColor(color: CometChatMessageBubble.style.outgoing.audioBubbleStyle.borderColor ?? .clear)
-        audioBubbleBackView.roundViewCorners(corner: CometChatMessageBubble.style.outgoing.audioBubbleStyle.cornerRadius ?? .init(cornerRadius: CometChatSpacing.Radius.r3))
+        recordingView.style = style.messageBubbleStyle.audioBubbleStyle
+        
+        recordingView.backgroundColor = style.messageBubbleStyle.audioBubbleStyle.backgroundColor ?? CometChatTheme.primaryColor
+        recordingView.borderWith(width: style.messageBubbleStyle.audioBubbleStyle.borderWidth ?? 0)
+        recordingView.borderColor(color: style.messageBubbleStyle.audioBubbleStyle.borderColor ?? .clear)
+        recordingView.roundViewCorners(corner: style.messageBubbleStyle.audioBubbleStyle.cornerRadius ?? .init(cornerRadius: CometChatSpacing.Radius.r3))
         
         if #available(iOS 15.0, *) {
             if let sheetView = self.sheetPresentationController?.containerView {
@@ -496,7 +483,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
             removePauseButtonAndAddSendButton()
             mediaRecorderBackView.isHidden = true
             audioTimerLabel.alpha = 0
-            audioBubbleBackView.isHidden = false
+            recordingView.isHidden = false
 
             if let url = didAudioNoteSendPressed() {
                 recordingView.set(fileURL: url)
@@ -542,7 +529,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
         totalSecond = 0
         mediaRecorderBackView.isHidden = false
         audioTimerLabel.alpha = 1
-        audioBubbleBackView.isHidden = true
+        recordingView.isHidden = true
         audioNoteReRecordButton.removeFromSuperview()
         audioNoteSendButton.removeFromSuperview()
         buttonsStackView.insertArrangedSubview(audioNotePauseButton, at: 1)

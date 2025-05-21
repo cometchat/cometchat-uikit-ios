@@ -111,6 +111,7 @@ class MessagesVC: UIViewController {
         // (notification will not be displayed if that users or groups chat is active on screen)
         CometChatPNHelper.currentActiveGroup = group
         CometChatPNHelper.currentActiveUser = user
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -118,7 +119,6 @@ class MessagesVC: UIViewController {
         
         CometChatPNHelper.currentActiveGroup = nil
         CometChatPNHelper.currentActiveUser = nil
-
     }
     
     deinit {

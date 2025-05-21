@@ -28,11 +28,12 @@ extension CometChatMessageList {
                     .set(message: message)
                     .set(defaultReaction: reactionCount.reaction)
                     .set(configuration: this.reactionListConfiguration)
-                    .set(onClick: { reaction, baseMessage in
-                        if let onReactionListItemClick = self?.onReactionListItemClick?(reaction, baseMessage){
-                            onReactionListItemClick
-                        }
-                    })
+                
+                if let onReactionListItemClick = self?.onReactionListItemClick{
+                    reactionList.set { reaction, baseMessage in
+                        onReactionListItemClick(reaction, baseMessage)
+                    }
+                }
                 if let reactionsRequestBuilder = self?.reactionsRequestBuilder{
                     reactionList.set(reactionRequestBuilder: reactionsRequestBuilder)
                 }

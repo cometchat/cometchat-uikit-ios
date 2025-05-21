@@ -535,6 +535,10 @@ extension MessageListViewModel {
     @discardableResult
     public func add(message: BaseMessage) -> Self {
         
+        if parentMessage != nil, message.messageCategory == .action {
+            return self
+        }
+        
         guard let loggedInUser = CometChat.getLoggedInUser() else { return self }
         if getTemplate(for: message) == nil { return self } ///Checking if template exists
         

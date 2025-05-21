@@ -25,8 +25,10 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
             if let self,
                let cell,
                let message,
-               message.deletedAt == 0
+               message.deletedAt == 0,
+               !isContextMenuActive
             {
+                isContextMenuActive = true
                 let options = viewModel.getTemplate(for: message)?.options?(cell.baseMessage, viewModel.group, controller)
                 self.contextMenuMessage = message
                 self.contextMenuCell = cell
@@ -116,6 +118,8 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
                 animationClass.orignalBubbleView = contextMenuCell!.bubbleStackView
                 self.contextMenuCell = nil
                 self.contextMenuMessage = nil
+                self.isContextMenuActive = false
+
                 return animationClass
             }
         }

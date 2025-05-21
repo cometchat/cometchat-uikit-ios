@@ -287,12 +287,17 @@ open class CometChatMessageComposer: UIView {
             setupStyle()
             connect()
             updateUI()
+        }else{
+            disconnect()
         }
     }
     
     func updateUI(){
         if hideSendButton{
             sendButton.isHidden = true
+        }
+        if messageComposerMode == .edit {
+            viewModel.reset?(true)
         }
     }
     
@@ -536,8 +541,8 @@ open class CometChatMessageComposer: UIView {
         if let group = viewModel.group {
             id["guid"] = group.guid
         }
-        if viewModel.parentMessageId != 0 {
-            id["parentMessageId"] = viewModel.parentMessageId
+        if let parentMessageId = viewModel.parentMessageId, parentMessageId > 0 {
+            id["parentMessageId"] = parentMessageId
         }
         
         return id
@@ -789,17 +794,18 @@ extension CometChatMessageComposer {
 
 extension CometChatMessageComposer: CometChatUIEventListener {
     
-    func isForThisView(id: [String:Any]?) -> Bool {
-        guard let id = id , !id.isEmpty else { return false }
-        if (id["uid"] != nil && id["uid"] as? String ==
-            viewModel.user?.uid) || (id["guid"] != nil && id["guid"] as? String ==
-                                      viewModel.group?.guid) {
-            
-            if (id["parentMessageId"] != nil &&
-                id["parentMessageId"] as? Int == viewModel.parentMessageId) {
-                return true
-            }else if(id["parentMessageId"] == nil && viewModel.parentMessageId == nil ){
-                return true;
+    func isForThisView(id: [String: Any]?) -> Bool {
+        guard let id = id, !id.isEmpty else { return false }
+        
+        let isUserMatch = (id["uid"] as? String) == viewModel.user?.uid
+        let isGroupMatch = (id["guid"] as? String) == viewModel.group?.guid
+        let isParentMessageMatch = (id["parentMessageId"] as? Int) == viewModel.parentMessageId
+        
+        if isUserMatch || isGroupMatch {
+            if let parentMessageId = id["parentMessageId"] as? Int {
+                return parentMessageId == viewModel.parentMessageId
+            } else {
+                return viewModel.parentMessageId == nil
             }
         }
         return false
@@ -813,7 +819,9 @@ extension CometChatMessageComposer: CometChatUIEventListener {
     }
     
     public func showPanel(id: [String : Any]?, alignment: UIAlignment, view: UIView?) {
-        if !isForThisView(id: id) { return }
+        if !isForThisView(id: id) {
+            return
+        }
         if let view = view {
             switch alignment {
             case .composerTop:
