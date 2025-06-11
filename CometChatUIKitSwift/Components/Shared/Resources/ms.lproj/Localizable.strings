@@ -232,7 +232,7 @@
 "MESSAGE_INFORMATION_EMPTY_MESSAGE" = "Menunggu penerima menerima dan melihat mesej";
 "MESSAGE_INFO" = "Maklumat Mesej";
 "MESSAGE_NOT_SUPPORTED" = "Mesej ini tidak disokong";
-"LAST_SEEN_A_MINUTE_AGO" = "Terakhir dilihat satu minit lalu";
+"LAST_SEEN_A_MINUTE_AGO" = "Terakhir dilihat 1 minit yang lalu";
 "LAST_SEEN" = "Terakhir dilihat";
 "MINUTES_AGO" = "minit lalu";
 "JOINING_GROUP" = "Menyertai kumpulan";
@@ -262,3 +262,10 @@
 "FILL_POLL_DETAILS" = "Sila isi semua bidang yang diperlukan sebelum membuat pengundian.";
 "USER" = "Gunakan";
 "MESSAGES" = "Pesanan";
+"BAN" = "Larangan";
+"KICK" = "Tendang";
+"SCOPE" = "Skop";
+"BAN_MEMBER_ALERT" = "Adakah anda pasti mahu melarang";
+"FROM_THIS_GROUP_TEXT" = "dari kumpulan ini";
+"KICK_MEMBER_ALERT" = "Adakah anda pasti mahu menendang";
+"DELETE" = "Padam";

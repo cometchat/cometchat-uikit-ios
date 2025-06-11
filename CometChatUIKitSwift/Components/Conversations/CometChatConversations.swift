@@ -110,6 +110,7 @@ open class CometChatConversations: CometChatListBase {
     open override func viewWillAppear(_ animated: Bool) {
         listBaseStyle = style //setting list base style
         super.viewWillAppear(animated)
+        tableView.reloadData()
     }
     
     public override func viewWillDisappear(_ animated: Bool) {

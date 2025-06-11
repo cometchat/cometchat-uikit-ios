@@ -195,7 +195,7 @@ extension CometChatDate {
     func fetchMessagePastTime(for date : Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat =  "hh:mm a"
-        formatter.locale = Locale(identifier: "en_US")
+        formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         let strDate: String = formatter.string(from: date)
         return strDate
     }
@@ -235,7 +235,7 @@ extension CometChatDate {
         // Final fallback if nothing is overridden
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMM, yyyy"
-        formatter.locale = Locale(identifier: "en_US")
+        formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
         let strDate: String = formatter.string(from: date)
         return strDate
     }
@@ -262,7 +262,7 @@ extension CometChatDate {
                 let day = secondsAgo/hour
                 let formatter = DateFormatter()
                 formatter.dateFormat = "hh:mm a"
-                formatter.locale = Locale(identifier: "en_US")
+                formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
                 let strDate: String = formatter.string(from: date)
                 if day == 1{
                     return strDate
@@ -276,20 +276,20 @@ extension CometChatDate {
                  } else {
                     let formatter = DateFormatter()
                     formatter.dateFormat = "EEE"
-                    formatter.locale = Locale(identifier: "en_US")
+                    formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
                     let strDate: String = formatter.string(from: date)
                     return strDate.capitalized
                 }
             } else if secondsAgo < sevenDays {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "EEEE"
-                formatter.locale = Locale(identifier: "en_US")
+                formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
                 let strDate: String = formatter.string(from: date)
                 return strDate.capitalized
             } else {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "dd/MM/yyyy"
-                formatter.locale = Locale(identifier: "en_US")
+                formatter.locale = Locale(identifier: CometChatLocalize.getLocale())
                 let strDate: String = formatter.string(from: date)
                 return strDate.capitalized
             }

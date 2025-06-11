@@ -144,14 +144,17 @@ class MessagesVC: UIViewController {
             messageListView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
             messageListView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             messageListView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            messageListView.bottomAnchor.constraint(equalTo: composerView.topAnchor),
             
-            composerView.topAnchor.constraint(equalTo: messageListView.bottomAnchor),
             composerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             composerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             composerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
         
-                
+        let heightConstraint = messageListView.heightAnchor.constraint(greaterThanOrEqualToConstant: UIScreen.main.bounds.height)
+        heightConstraint.priority = .defaultLow
+        heightConstraint.isActive = true
+
         if user?.blockedByMe == true{
             disableMessageSending()
         }

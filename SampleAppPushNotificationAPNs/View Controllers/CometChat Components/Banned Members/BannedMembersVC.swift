@@ -93,6 +93,7 @@ open class BannedMembersVC: CometChatListBase {
                 
                 isEmpty ? self.showEmptyView() : self.removeEmptyView()
                 self.tableView.reloadData()
+                self.tableView.isUserInteractionEnabled = true
                 self.removeLoadingView()
                 self.hideFooterIndicator()
             }
@@ -266,9 +267,11 @@ extension BannedMembersVC {
         let row = sender.tag
         let indexPath = IndexPath(row: row, section: 0)
         let bannedMember = viewModel.isSearching ? viewModel.filteredBannedGroupMembers[indexPath.row] : viewModel.bannedGroupMembers[indexPath.row]
-        
+        tableView.isUserInteractionEnabled = false
         showAlert("UNBAN_MEMBER".localize(), "\("Are you sure you want to unban".localize()) \(bannedMember.name ?? "") ", "CANCEL".localize(), "UNBAN".localize()) { [weak self] in
             self?.viewModel.unbanGroupMember(member: bannedMember)
+        } cancelHandler: {
+            self.tableView.isUserInteractionEnabled = true
         }
         
     }

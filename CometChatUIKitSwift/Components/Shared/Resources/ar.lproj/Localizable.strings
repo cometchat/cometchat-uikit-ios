@@ -266,7 +266,7 @@
 "MESSAGE_INFORMATION_EMPTY_MESSAGE" = "بانتظار استلام وعرض الرسالة من قِبل المستلمين";
 "MESSAGE_INFO" = "معلومات الرسالة";
 "MESSAGE_NOT_SUPPORTED" = "هذا النوع من الرسائل غير مدعوم";
-"LAST_SEEN_A_MINUTE_AGO" = "آخر ظهور منذ دقيقة واحدة";
+"LAST_SEEN_A_MINUTE_AGO" = "شوهد آخر مرة منذ 1 دقيقة";
 "LAST_SEEN" = "آخر ظهور";
 "MINUTES_AGO" = "دقائق مضت";
 "JOINING_GROUP" = "الانضمام إلى المجموعة";
@@ -296,3 +296,10 @@
 "FILL_POLL_DETAILS" = "يرجى ملء جميع الحقول المطلوبة قبل إنشاء استطلاع.";
 "USER" = "استخدم";
 "MESSAGES" = "رسالة";
+"BAN" = "حظر";
+"KICK" = "ركلة";
+"SCOPE" = "النطاق";
+"BAN_MEMBER_ALERT" = "هل أنت متأكد من أنك تريد الحظر";
+"FROM_THIS_GROUP_TEXT" = "من هذه المجموعة";
+"KICK_MEMBER_ALERT" = "هل أنت متأكد من أنك تريد الركل";
+"DELETE" = "حذف";

@@ -165,7 +165,7 @@ open class CometChatListBase: UIViewController, StateManagement {
     
     open func reload() {
         tableView.reloadData()
-    }
+    } 
     
     open func registerCellWith(title: String){
         let cell = UINib(nibName: title, bundle: CometChatUIKit.bundle)
@@ -206,9 +206,20 @@ open class CometChatListBase: UIViewController, StateManagement {
     
     open func showLoadingView() {
         if hideLoadingState { return }
+        guard let loadingView = loadingView else { return }
+
         (loadingView as? CometChatShimmerView)?.startShimmer()
         isLoadingViewVisible = true
-        view.embed(loadingView)
+
+        loadingView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(loadingView)
+
+        NSLayoutConstraint.activate([
+            loadingView.topAnchor.pin(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            loadingView.leadingAnchor.pin(equalTo: view.leadingAnchor),
+            loadingView.trailingAnchor.pin(equalTo: view.trailingAnchor),
+            loadingView.bottomAnchor.pin(equalTo: view.bottomAnchor)
+        ])
     }
     
     open func removeLoadingView() {
@@ -344,6 +355,7 @@ open class CometChatListBase: UIViewController, StateManagement {
             searchController.searchResultsUpdater = self
             searchController.searchBar.delegate = self
             self.navigationItem.searchController = self.searchController
+            self.navigationItem.hidesSearchBarWhenScrolling = false
         }
     }
     

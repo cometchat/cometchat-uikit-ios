@@ -81,7 +81,7 @@ open class CometChatGroupMembers: CometChatListBase {
         emptyStateTitleText = "NO_MEMBERS_AVAILABLE".localize()
         emptyStateSubTitleText = ""
         
-        let barButtonItem = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(didTapBackButton))
+        let barButtonItem = UIBarButtonItem(title: "CANCEL".localize(), style: .done, target: self, action: #selector(didTapBackButton))
         barButtonItem.tintColor = CometChatTheme.primaryColor
         leftBarButtonItem = [barButtonItem]
 
@@ -261,10 +261,10 @@ open class CometChatGroupMembers: CometChatListBase {
         
         // - Scope Change Action -
         if GroupMembersUtils.allowScopeChange(group: viewModel.group, groupMember: groupMember) {
-            let scopeChangeImage = UIImage(systemName: "arrow.triangle.2.circlepath.circle")?.add(text: "Scope", imageTint: .white)
+            let scopeChangeImage = UIImage(systemName: "arrow.triangle.2.circlepath.circle")?.add(text: "SCOPE".localize(), imageTint: .white)
             let scopeChangeAction = UIContextualAction(
                 style: .normal,
-                title: "Scope",
+                title: "SCOPE".localize(),
                 handler: { [weak self] (action, sourceView, completionHandler)  in
                     guard let this = self else { return }
                     DispatchQueue.main.async(execute: {
@@ -300,10 +300,10 @@ open class CometChatGroupMembers: CometChatListBase {
         
         // - Ban Action -
         if GroupMembersUtils.allowKickBanUnbanMember(group: viewModel.group, groupMember: groupMember) {
-            let banActionImage = UIImage(named: "ban_members")?.add(text: "Ban", imageTint: .white)
+            let banActionImage = UIImage(named: "ban_members")?.add(text: "BAN".localize(), imageTint: .white)
             let banAction = UIContextualAction(
                 style: .normal,
-                title: "Ban",
+                title: "BAN".localize(),
                 handler: { [weak self, weak groupMember] (action, sourceView, completionHandler) in
                     if let groupMember = groupMember {
                         completionHandler(false)
@@ -322,10 +322,10 @@ open class CometChatGroupMembers: CometChatListBase {
         
         //TODO: update localised files after merging
         if GroupMembersUtils.allowKickBanUnbanMember(group: viewModel.group, groupMember: groupMember) {
-            let removeActionImage = UIImage(systemName: "minus.circle")?.add(text: "Kick", imageTint: .white)
+            let removeActionImage = UIImage(systemName: "minus.circle")?.add(text: "KICK".localize(), imageTint: .white)
             let removeAction = UIContextualAction(
                 style: .normal,
-                title: "Kick",
+                title: "KICK".localize(),
                 handler: { [weak self, weak groupMember] (action, sourceView, completionHandler)  in
                     if let groupMember = groupMember {
                         completionHandler(false)
@@ -347,14 +347,14 @@ open class CometChatGroupMembers: CometChatListBase {
     open func onBanMemberSelected(for groupMember: GroupMember) {
         // create an actionSheet
         let actionSheetController: UIAlertController = UIAlertController(
-            title: "Ban \(groupMember.name ?? "")",
-            message: "Are you sure you want to ban \(groupMember.name ?? "") from this group ?",
+            title: "\("BAN".localize()) \(groupMember.name ?? "")",
+            message: "\("BAN_MEMBER_ALERT".localize()) \(groupMember.name ?? "") \("FROM_THIS_GROUP_TEXT".localize())?",
             preferredStyle: .actionSheet
         )
         
         // create an action
         let firstAction: UIAlertAction = UIAlertAction(
-            title: "Yes",
+            title: "YES".localize(),
             style: .destructive
         ) { action -> Void in
             DispatchQueue.main.async {  [weak self] in
@@ -376,10 +376,10 @@ open class CometChatGroupMembers: CometChatListBase {
     
     open func onRemoveMemberSelected(for groupMember: GroupMember) {
         // create an actionSheet
-        let actionSheetController: UIAlertController = UIAlertController(title: "Kick \(groupMember.name ?? "")", message: "Are you sure you want to kick \(groupMember.name ?? "") from this group ?", preferredStyle: .actionSheet)
+        let actionSheetController: UIAlertController = UIAlertController(title: "Kick \(groupMember.name ?? "")", message: "\("KICK_MEMBER_ALERT".localize()) \(groupMember.name ?? "") \("FROM_THIS_GROUP_TEXT".localize())?", preferredStyle: .actionSheet)
         
         // create an action
-        let firstAction: UIAlertAction = UIAlertAction(title: "Yes", style: .destructive) { action -> Void in
+        let firstAction: UIAlertAction = UIAlertAction(title: "YES".localize(), style: .destructive) { action -> Void in
             DispatchQueue.main.async {  [weak self] in
                 guard let strongSelf = self else { return }
                 strongSelf.viewModel.kickGroupMember(group: strongSelf.viewModel.group, member: groupMember)

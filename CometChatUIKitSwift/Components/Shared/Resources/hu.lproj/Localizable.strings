@@ -235,7 +235,7 @@
 "MESSAGE_INFORMATION_EMPTY_MESSAGE" = "Várunk rá, hogy a címzettek megkapják és elolvassák az üzenetet";
 "MESSAGE_INFO" = "Üzenetinformáció";
 "MESSAGE_NOT_SUPPORTED" = "Ez a fajta üzenet nem támogatott";
-"LAST_SEEN_A_MINUTE_AGO" = "Utoljára látták egy perce";
+"LAST_SEEN_A_MINUTE_AGO" = "Utoljára látott 1 perccel ezelőtt";
 "LAST_SEEN" = "Legutóbb látták";
 "MINUTES_AGO" = "perce";
 "JOINING_GROUP" = "Csatlakozás a csoporthoz";
@@ -265,3 +265,10 @@
 "FILL_POLL_DETAILS" = "Kérjük, töltse ki az összes kötelező mezőt a szavazás létrehozása előtt.";
 "USER" = "Használja";
 "MESSAGES" = "Üzenet";
+"BAN" = "Tiltás";
+"KICK" = "Rúgás";
+"SCOPE" = "Hatály";
+"BAN_MEMBER_ALERT" = "Biztos, hogy be akarja tiltani";
+"FROM_THIS_GROUP_TEXT" = "ebből a csoportból";
+"KICK_MEMBER_ALERT" = "Biztos, hogy rúgni akarsz";
+"DELETE" = "Törölje";

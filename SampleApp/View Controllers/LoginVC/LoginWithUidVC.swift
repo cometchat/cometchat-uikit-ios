@@ -265,7 +265,11 @@ class LoginWithUidVC: UIViewController {
                     DispatchQueue.main.async {
                         self.continueButton.hideLoading(withTitle: "CONTINUE".localize())
                         let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as! SceneDelegate
-                        sceneDelegate.setRootViewController(UINavigationController(rootViewController: HomeScreenViewController()))
+                        if UIDevice.current.userInterfaceIdiom == .pad {
+                            sceneDelegate.setRootViewController(SplitViewController())
+                        } else {
+                            sceneDelegate.setRootViewController(UINavigationController(rootViewController: HomeScreenViewController()))
+                        }
                     }
                     break
                 case .onError(let error):

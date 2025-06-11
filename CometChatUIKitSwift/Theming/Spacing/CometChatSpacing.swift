@@ -134,7 +134,7 @@ public class CometChatSpacing {
     public class Margin {
         private static var _m: Double?
         public static var m: Double {
-            get { return _m ?? CometChatSpacing.Spacing.s10 }
+            get { return _m ?? CometChatSpacing.Spacing.s }
             set { _m = newValue }
         }
 

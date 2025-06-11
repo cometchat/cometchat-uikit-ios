@@ -186,7 +186,7 @@ extension CometChatUIKit {
     public static func sendTextMessage(message: TextMessage) {
         
         if message.sender == nil { message.sender = CometChat.getLoggedInUser() }
-        if message.muid == "" { message.muid = "\(NSDate().timeIntervalSince1970)" }
+        if message.muid == "" { message.muid = "\(Date().timeIntervalSince1970)" }
         if message.senderUid == "" { message.senderUid = CometChat.getLoggedInUser()?.uid ?? "" }
         
         CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.inProgress)
@@ -218,7 +218,7 @@ extension CometChatUIKit {
     public static func sendMediaMessage(message: MediaMessage) {
         
         if message.sender == nil { message.sender = CometChat.getLoggedInUser() }
-        if message.muid == "" { message.muid = "\(NSDate().timeIntervalSince1970)" }
+        if message.muid == "" { message.muid = "\(Date().timeIntervalSince1970)" }
         if message.senderUid == "" { message.senderUid = CometChat.getLoggedInUser()?.uid ?? "" }
         
         CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.inProgress)

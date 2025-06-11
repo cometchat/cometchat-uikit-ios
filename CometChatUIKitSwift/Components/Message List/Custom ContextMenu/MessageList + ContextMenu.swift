@@ -47,7 +47,12 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
         popupView.messageSnapShotView = cell.bubbleStackView.snapshotView(afterScreenUpdates: true)
         popupView.messageOptions = option
         if let controller = controller {
-            let screenFrame = cell.bubbleStackView.convert(cell.bubbleStackView.bounds, to: controller.view)
+            var screenFrame = cell.bubbleStackView.convert(cell.bubbleStackView.bounds, to: controller.view)
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                if let window = cell.bubbleStackView.window {
+                    screenFrame = cell.bubbleStackView.convert(cell.bubbleStackView.bounds, to: window)
+                }
+            }
             popupView.bubbleFrame = screenFrame
         }
         
@@ -113,7 +118,12 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
     public func animationController(forDismissed dismissed: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
         if let dismissed = dismissed as? MessagePopupViewController {
             if let controller = controller {
-                let cellCurrentFrame = contextMenuCell!.bubbleStackView.convert(contextMenuCell!.bubbleStackView.bounds, to: controller.view)
+                var cellCurrentFrame = contextMenuCell!.bubbleStackView.convert(contextMenuCell!.bubbleStackView.bounds, to: controller.view)
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    if let window = contextMenuCell!.bubbleStackView.window {
+                        cellCurrentFrame = contextMenuCell!.bubbleStackView.convert(contextMenuCell!.bubbleStackView.bounds, to: window)
+                    }
+                }
                 let animationClass = MessagePopupAnimator(messageBubbleView: dismissed.messageSnapShotView, isPresenting: false, originFrame: cellCurrentFrame)
                 animationClass.orignalBubbleView = contextMenuCell!.bubbleStackView
                 self.contextMenuCell = nil

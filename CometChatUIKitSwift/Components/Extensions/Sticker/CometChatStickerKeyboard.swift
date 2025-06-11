@@ -233,7 +233,12 @@ public class CometChatStickerKeyboard: UIView {
         stickersCollectionView.bottomAnchor.pin(equalTo: separatorLineView.topAnchor).isActive = true
         stickersCollectionView.topAnchor.pin(equalTo: self.topAnchor).isActive = true
         
-        stickersCollectionView.pin(anchors: [.height], to: 250)
+        if DeviceType.IS_SMALL_DEVICE {
+            stickersCollectionView.pin(anchors: [.height], to: 210)
+        } else if DeviceType.IS_BIG_DEVICE {
+            stickersCollectionView.pin(anchors: [.height], to: 250)
+        }
+        
         
         // Error view constraints
         errorView.leadingAnchor.pin(equalTo: self.leadingAnchor, constant: CometChatSpacing.Padding.p3).isActive = true

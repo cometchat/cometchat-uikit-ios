@@ -240,7 +240,7 @@
 "MESSAGE_INFORMATION_EMPTY_MESSAGE" = "Warte darauf, dass Empfänger die Nachricht erhalten und lesen";
 "MESSAGE_INFO" = "Nachrichteninfo";
 "MESSAGE_NOT_SUPPORTED" = "Dieser Nachrichtentyp wird nicht unterstützt";
-"LAST_SEEN_A_MINUTE_AGO" = "Zuletzt online vor einer Minute";
+"LAST_SEEN_A_MINUTE_AGO" = "Zuletzt vor 1 Minute gesehen";
 "LAST_SEEN" = "Zuletzt online";
 "MINUTES_AGO" = "Minuten zuvor";
 "JOINING_GROUP" = "Tritt der Gruppe bei";
@@ -270,3 +270,10 @@
 "FILL_POLL_DETAILS" = "Bitte füllen Sie alle Pflichtfelder aus, bevor Sie eine Umfrage erstellen.";
 "USER" = "Benutzen";
 "MESSAGES" = "Nachricht";
+"BAN" = "Bann";
+"KICK" = "Tritt";
+"SCOPE" = "Geltungsbereich";
+"BAN_MEMBER_ALERT" = "Bist du sicher, dass du verbieten willst";
+"FROM_THIS_GROUP_TEXT" = "aus dieser Gruppe";
+"KICK_MEMBER_ALERT" = "Bist du sicher, dass du treten willst?";
+"DELETE" = "Löschen";

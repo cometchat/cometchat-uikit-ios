@@ -30,7 +30,7 @@ extension UIImageView {
 }
 
 extension UIViewController {
-    public func showAlert(_ title: String, _ message: String, _ cancelText: String, _ confirmText: String, onActionsTriggered: @escaping (() -> ())) {
+    public func showAlert(_ title: String, _ message: String, _ cancelText: String, _ confirmText: String, onActionsTriggered: @escaping (() -> ()), cancelHandler: (() -> ())? = nil) {
         let alertController = UIAlertController(
             title: title,
             message: message,
@@ -41,7 +41,9 @@ extension UIViewController {
         alertController.setValue(NSAttributedString(string: alertController.message ?? "", attributes: [.font : CometChatTypography.Body.regular, .foregroundColor : CometChatTheme.textColorSecondary]), forKey: "attributedMessage")
         
         if !cancelText.isEmpty {
-            let cancelAction = UIAlertAction(title: cancelText, style: .cancel, handler: nil)
+            let cancelAction = UIAlertAction(title: cancelText, style: .cancel, handler: {_ in
+                cancelHandler?()
+            })
             alertController.addAction(cancelAction)
         }
         

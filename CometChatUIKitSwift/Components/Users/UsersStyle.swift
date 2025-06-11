@@ -150,7 +150,7 @@ public struct UsersStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     // Tint color for selection indicator in list items
     public var listItemSelectionImageTint: UIColor = CometChatTheme.iconColorHighlight
     
-    public var listItemSelectedBackground: UIColor = .clear
+    public var listItemSelectedBackground: UIColor = CometChatTheme.backgroundColor04
     
     public var listItemDeSelectedImageTint: UIColor = CometChatTheme.borderColorDefault
         

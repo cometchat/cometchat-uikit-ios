@@ -66,6 +66,11 @@ public class StickerAuxiliaryButton: UIButton {
         }
     }
     
+    public func resetToDefaultStyle() {
+        self.setImage(stickerButtonIcon, for: .normal)
+        self.imageView?.tintColor = CometChatTheme.iconColorSecondary
+    }
+    
     @discardableResult
     public func setOnStickerTap(onStickerTap: @escaping () -> Void) -> Self {
         self.onStickerTap = onStickerTap

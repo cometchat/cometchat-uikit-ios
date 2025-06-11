@@ -299,7 +299,7 @@ open class CometChatScopeChange: UIViewController {
             options = [("MODERATOR".localize(), .moderator), ("PARTICIPANT".localize(), .participant)
             ]
         } else {
-            options = [("ADMIN", .admin), ("MODERATOR", .moderator), ("PARTICIPANT", .participant) ]
+            options = [("ADMIN".localize(), .admin), ("MODERATOR".localize(), .moderator), ("PARTICIPANT".localize(), .participant) ]
         }
         
         options.enumerated().forEach { index, option in

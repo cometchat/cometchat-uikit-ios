@@ -255,7 +255,7 @@
 "MESSAGE_INFORMATION_EMPTY_MESSAGE" = "Waiting for recipients to receive and view the message";
 "MESSAGE_INFO" = "Message Info";
 "MESSAGE_NOT_SUPPORTED" = "This Message is not supported";
-"LAST_SEEN_A_MINUTE_AGO" = "Last seen a minute ago";
+"LAST_SEEN_A_MINUTE_AGO" = "Last seen 1 minute ago";
 "LAST_SEEN" = "Last seen";
 "MINUTES_AGO" = "minutes ago";
 "JOINING_GROUP" = "Joining Group";
@@ -285,3 +285,9 @@
 "FILL_POLL_DETAILS" = "Please fill in all required fields before creating a poll.";
 "USER" = "User";
 "MESSAGES" = "Messages";
+"BAN" = "Ban";
+"KICK" = "Kick";
+"SCOPE" = "Scope";
+"BAN_MEMBER_ALERT" = "Are you sure you want to ban";
+"FROM_THIS_GROUP_TEXT" = "from this group";
+"KICK_MEMBER_ALERT" = "Are you sure you want to kick";

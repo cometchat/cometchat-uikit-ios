@@ -166,6 +166,7 @@ open class CometChatMessageComposer: UIView {
         return button
     }()
     
+    var stickerButton: StickerAuxiliaryButton?
     public var bottomConstant: NSLayoutConstraint!
     
     //MARK: Global Style
@@ -314,12 +315,8 @@ open class CometChatMessageComposer: UIView {
         containerView.addArrangedSubview(headerView)
         containerView.addArrangedSubview(suggestionContainerView)
         let paddingView = UIView().withoutAutoresizingMaskConstraints()
-        paddingView.embed(composerBoxContainerStackView, insets: .init(
-            top: 0,
-            leading: CometChatSpacing.Margin.m2,
-            bottom: CometChatSpacing.Margin.m2,
-            trailing: CometChatSpacing.Margin.m2
-        ))
+        paddingView.addSubview(composerBoxContainerStackView)
+        
         containerView.addArrangedSubview(paddingView)
         containerView.addArrangedSubview(footerView)
         
@@ -328,8 +325,18 @@ open class CometChatMessageComposer: UIView {
         constraintsToActivate += [
             secondaryStackView.leadingAnchor.pin(equalTo: bottomContainerView.leadingAnchor, constant: CometChatSpacing.Padding.p3),
             secondaryStackView.trailingAnchor.pin(equalTo: auxiliaryStackView.leadingAnchor, constant: -CometChatSpacing.Padding.p4),
-            secondaryStackView.centerYAnchor.pin(equalTo: bottomContainerView.centerYAnchor)
+            secondaryStackView.centerYAnchor.pin(equalTo: bottomContainerView.centerYAnchor),
+            
+            composerBoxContainerStackView.leadingAnchor.pin(equalTo: paddingView.leadingAnchor, constant: CometChatSpacing.Margin.m2),
+            composerBoxContainerStackView.trailingAnchor.pin(equalTo: paddingView.trailingAnchor, constant: -CometChatSpacing.Margin.m2),
+            composerBoxContainerStackView.topAnchor.pin(equalTo: paddingView.topAnchor, constant: 0)
         ]
+        
+        if DeviceType.IS_SMALL_DEVICE {
+            composerBoxContainerStackView.bottomAnchor.pin(equalTo: paddingView.bottomAnchor, constant: 0).isActive = true
+        } else if DeviceType.IS_BIG_DEVICE {
+            composerBoxContainerStackView.bottomAnchor.pin(equalTo: paddingView.bottomAnchor, constant: -CometChatSpacing.Margin.m2).isActive = true
+        }
         
         bottomContainerView.addSubview(auxiliaryStackView)
         constraintsToActivate += [
@@ -423,6 +430,7 @@ open class CometChatMessageComposer: UIView {
                 ///Did not want to do it but I was forced
                 auxiliaryOptions.subviews.forEach({
                     if let button = $0 as? UIButton {
+                        stickerButton = button as? StickerAuxiliaryButton
                         button.imageView?.tintColor = style.stickerTint
                         if hideStickersButton{
                             button.isHidden = true
@@ -452,6 +460,7 @@ open class CometChatMessageComposer: UIView {
     
     @objc open func didMicrophoneButtonClicked() {
         controller?.view.endEditing(true)
+        CometChatUIEvents.hidePanel(id: getId(), alignment: .composerBottom)
         let cometChatMediaRecorder = CometChatMediaRecorder()
         cometChatMediaRecorder.style = mediaRecorderStyle
         if let user = viewModel.user {
@@ -614,7 +623,7 @@ extension CometChatMessageComposer {
     }
     
     @objc func attachmentButtonClicked() {
-        
+        CometChatUIEvents.hidePanel(id: getId(), alignment: .composerBottom)
         let impactFeedbackLight = UIImpactFeedbackGenerator(style: .light)
         impactFeedbackLight.impactOccurred()
         attachmentOptions = [CometChatMessageComposerAction]()
@@ -665,6 +674,7 @@ extension CometChatMessageComposer {
     }
     
     @objc func didAIButtonClicked() {
+        CometChatUIEvents.hidePanel(id: getId(), alignment: .composerBottom)
         var aiAttachmentOptions = [CometChatMessageComposerAction]()
         if let aiOptionsClosure = aiOptionsClosure?(viewModel.user, viewModel.group, controller){
             aiAttachmentOptions.append(contentsOf: aiOptionsClosure)
@@ -843,6 +853,7 @@ extension CometChatMessageComposer: CometChatUIEventListener {
             break
         case .composerBottom:
             remove(footerView: true)
+            stickerButton?.resetToDefaultStyle()
             break
         case .messageListTop, .messageListBottom: break
         }

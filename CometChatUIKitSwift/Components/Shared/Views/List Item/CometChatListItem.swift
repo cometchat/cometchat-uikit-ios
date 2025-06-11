@@ -260,6 +260,8 @@ open class CometChatListItem: UITableViewCell {
         statusIndicator.imageView.image = nil
         
         avatar.subviews.forEach({ $0.removeFromSuperview() })
+        avatar.image = nil
+        avatar.imageRequest?.cancel()
         tailView.subviews.forEach( { $0.removeFromSuperview() })
         subTitleView.subviews.forEach({ $0.removeFromSuperview() })
         

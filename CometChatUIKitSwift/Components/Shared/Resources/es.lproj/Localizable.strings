@@ -227,7 +227,7 @@
 "MESSAGE_INFORMATION_EMPTY_MESSAGE" = "Esperando que los destinatarios reciban y vean el mensaje";
 "MESSAGE_INFO" = "Información del mensaje";
 "MESSAGE_NOT_SUPPORTED" = "Este mensaje no es compatible";
-"LAST_SEEN_A_MINUTE_AGO" = "Visto hace un minuto";
+"LAST_SEEN_A_MINUTE_AGO" = "Visto por última vez hace 1 minuto";
 "LAST_SEEN" = "Última vez visto";
 "MINUTES_AGO" = "minutos atrás";
 "JOINING_GROUP" = "Uniéndose al grupo";
@@ -257,3 +257,10 @@
 "FILL_POLL_DETAILS" = "Rellene todos los campos obligatorios antes de crear una encuesta.";
 "USER" = "Utilice";
 "MESSAGES" = "Mensaje";
+"BAN" = "Prohibir";
+"KICK" = "Patada";
+"SCOPE" = "Alcance";
+"BAN_MEMBER_ALERT" = "¿Estás seguro de que quieres prohibir?";
+"FROM_THIS_GROUP_TEXT" = "de este grupo";
+"KICK_MEMBER_ALERT" = "¿Estás seguro de que quieres patear?";
+"DELETE" = "Borrar";

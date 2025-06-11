@@ -271,7 +271,7 @@
 "MESSAGE_INFORMATION_EMPTY_MESSAGE" = "等待接收者接收並檢視訊息";
 "MESSAGE_INFO" = "訊息資訊";
 "MESSAGE_NOT_SUPPORTED" = "此訊息不支援";
-"LAST_SEEN_A_MINUTE_AGO" = "一分鐘前上線";
+"LAST_SEEN_A_MINUTE_AGO" = "最後一次看到 1 分鐘前";
 "LAST_SEEN" = "最後上線";
 "MINUTES_AGO" = "分鐘前";
 "JOINING_GROUP" = "加入群組中";
@@ -301,3 +301,10 @@
 "FILL_POLL_DETAILS" = "請在建立投票前填寫所有必填欄位。";
 "USER" = "使用";
 "MESSAGES" = "留言";
+"BAN" = "禁令";
+"KICK" = "踢";
+"SCOPE" = "範圍";
+"BAN_MEMBER_ALERT" = "您確定要禁止嗎";
+"FROM_THIS_GROUP_TEXT" = "來自這個群組";
+"KICK_MEMBER_ALERT" = "你確定要踢球嗎";
+"DELETE" = "刪除";

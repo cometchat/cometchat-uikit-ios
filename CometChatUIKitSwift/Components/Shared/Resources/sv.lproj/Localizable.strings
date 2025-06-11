@@ -227,7 +227,7 @@
 "MESSAGE_INFORMATION_EMPTY_MESSAGE" = "Väntar på att mottagare ska ta emot och läsa meddelandet";
 "MESSAGE_INFO" = "Meddelandeinformation";
 "MESSAGE_NOT_SUPPORTED" = "Den här typen av meddelande stöds inte";
-"LAST_SEEN_A_MINUTE_AGO" = "Senast sedd för en minut sedan";
+"LAST_SEEN_A_MINUTE_AGO" = "Senast sedd för 1 minut sedan";
 "LAST_SEEN" = "Senast sedd";
 "MINUTES_AGO" = "minuter sedan";
 "JOINING_GROUP" = "Går med i grupp";
@@ -257,3 +257,10 @@
 "FILL_POLL_DETAILS" = "Fyll i alla obligatoriska fält innan du skapar en omröstning.";
 "USER" = "Använda";
 "MESSAGES" = "Meddelande";
+"BAN" = "Förbud";
+"KICK" = "Sparka";
+"SCOPE" = "Omfattning";
+"BAN_MEMBER_ALERT" = "Är du säker på att du vill förbjuda";
+"FROM_THIS_GROUP_TEXT" = "Från denna grupp";
+"KICK_MEMBER_ALERT" = "Är du säker på att du vill sparka";
+"DELETE" = "Ta bort";

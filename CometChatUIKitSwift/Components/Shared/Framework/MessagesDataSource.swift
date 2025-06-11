@@ -65,7 +65,7 @@ public class MessagesDataSource: DataSource {
             messageOptions.append(getReplyInThreadOption(controller: controller))
         }
         
-        if isMessageCategory(message: messageObject) {
+        if isMessageCategory(message: messageObject) && !additionalConfiguration.hideShareMessageOption {
             messageOptions.append(getShareOption(controller: controller))
         }
         

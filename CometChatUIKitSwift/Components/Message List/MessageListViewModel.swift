@@ -126,6 +126,11 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             additionalConfiguration.hideMessageInfoOption = hideMessageInfoOption
         }
     }
+    public var hideShareMessageOption: Bool = false{
+        didSet{
+            additionalConfiguration.hideShareMessageOption = hideShareMessageOption
+        }
+    }
     
     public override init() {
         messagesRequestBuilder = MessagesRequest.MessageRequestBuilder()

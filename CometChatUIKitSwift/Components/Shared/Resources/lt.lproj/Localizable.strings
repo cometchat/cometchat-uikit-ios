@@ -227,7 +227,7 @@
 "MESSAGE_INFORMATION_EMPTY_MESSAGE" = "Laukiama, kol gavėjai gaus ir peržiūrės žinutę";
 "MESSAGE_INFO" = "Žinutės informacija";
 "MESSAGE_NOT_SUPPORTED" = "Šio žinutės tipo nepalaikome";
-"LAST_SEEN_A_MINUTE_AGO" = "Paskutinį kartą matytas prieš minutę";
+"LAST_SEEN_A_MINUTE_AGO" = "Ultima visione 1 minuto fa";
 "LAST_SEEN" = "Paskutinį kartą matytas";
 "MINUTES_AGO" = "min. atgal";
 "JOINING_GROUP" = "Prisijungiama prie grupės";
@@ -257,3 +257,10 @@
 "FILL_POLL_DETAILS" = "Compila tutti i campi obbligatori prima di creare un sondaggio.";
 "USER" = "Usare";
 "MESSAGES" = "Messaggio";
+"BAN" = "Divieto";
+"KICK" = "Calciare";
+"SCOPE" = "Ambito";
+"BAN_MEMBER_ALERT" = "Sei sicuro di voler vietare";
+"FROM_THIS_GROUP_TEXT" = "di questo gruppo";
+"KICK_MEMBER_ALERT" = "Sei sicuro di voler calciare";
+"DELETE" = "Elimina";

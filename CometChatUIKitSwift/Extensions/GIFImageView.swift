@@ -81,7 +81,7 @@ public class GIFImageView: UIImageView {
     // Create frames from GIF data
     private func createFrames(from data: NSData) -> [UIImage] {
         var frames: [UIImage] = []
-        guard let source = CGImageSourceCreateWithData(data, nil) else { return frames }
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return frames }
         
         let count = CGImageSourceGetCount(source)
         for i in 0..<count {
@@ -94,7 +94,7 @@ public class GIFImageView: UIImageView {
     
     // Calculate the total duration of the GIF
     private func calculateGIFDuration(data: NSData) -> TimeInterval {
-        guard let source = CGImageSourceCreateWithData(data, nil) else { return 0 }
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return 0 }
         
         var totalDuration: TimeInterval = 0
         let count = CGImageSourceGetCount(source)

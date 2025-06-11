@@ -250,7 +250,7 @@
 "MESSAGE_INFORMATION_EMPTY_MESSAGE" = "等待接收者接收并查看消息";
 "MESSAGE_INFO" = "消息信息";
 "MESSAGE_NOT_SUPPORTED" = "此消息不受支持";
-"LAST_SEEN_A_MINUTE_AGO" = "一分钟前在线";
+"LAST_SEEN_A_MINUTE_AGO" = "上次查看时间：1分钟前";
 "LAST_SEEN" = "最后在线";
 "MINUTES_AGO" = "分钟前";
 "JOINING_GROUP" = "加入群组中";
@@ -280,3 +280,10 @@
 "FILL_POLL_DETAILS" = "在创建投票之前，请填写所有必填字段。";
 "USER" = "使用";
 "MESSAGES" = "留言";
+"BAN" = "禁令";
+"KICK" = "踢";
+"SCOPE" = "范围";
+"BAN_MEMBER_ALERT" = "你确定要封禁吗";
+"FROM_THIS_GROUP_TEXT" = "来自这个群组";
+"KICK_MEMBER_ALERT" = "你确定要踢吗";
+"DELETE" = "删除";

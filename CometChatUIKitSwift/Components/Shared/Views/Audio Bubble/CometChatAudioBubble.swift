@@ -42,7 +42,7 @@ public class CometChatAudioBubble: UIView {
     /// A label that shows the audio timeline in "currentTime/totalTime" format.
     public lazy var audioTimeLineLabel: UILabel = {
         let label = UILabel().withoutAutoresizingMaskConstraints()
-        label.text = "00:00/--:--"
+        label.text = "00:00/00:00"
         return label
     }()
     
@@ -72,6 +72,8 @@ public class CometChatAudioBubble: UIView {
     /// The total duration of the audio file in "MM:SS" format.
     var duration = "00:00"
     
+    static var durationCache: [String: String] = [:]
+    
     /// Initializes the view and builds its UI.
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -79,6 +81,11 @@ public class CometChatAudioBubble: UIView {
         buildUI()
     }
     
+    public override func removeFromSuperview() {
+        super.removeFromSuperview()
+        playerDidFinishPlaying()
+    }
+
     /// This initializer is required but not implemented for this custom view.
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -103,7 +110,6 @@ public class CometChatAudioBubble: UIView {
     public override func willMove(toWindow newWindow: UIWindow?) {
         if newWindow != nil {
             setUpStyle()
-            setupAudioPlayer()
         } else {
             playerDidFinishPlaying()
         }
@@ -153,10 +159,8 @@ public class CometChatAudioBubble: UIView {
         playImageView.tintColor = style.playImageTintColor
         playView.backgroundColor = style.playImageBackgroundColor
         
-        if let url = CometChatUIKit.bundle.url(forResource: "audio-waveform", withExtension: "gif") {
-            if let data = NSData(contentsOf: url) {
-                audioWaveView.setGIFData(data, tintColor: style.audioWaveFormTintIcon)
-            }
+        if let data = AudioWaveformGIFCache.shared.data {
+            audioWaveView.setGIFData(data as NSData, tintColor: style.audioWaveFormTintIcon)
         }
     }
     
@@ -164,7 +168,37 @@ public class CometChatAudioBubble: UIView {
     /// - Parameter fileURL: A string representing the file URL.
     public func set(fileURL: String) {
         self.fileURL = fileURL
+        updateDurationLabel()
     }
+
+    private func updateDurationLabel() {
+        guard let fileURL = fileURL else { return }
+
+        if let cached = CometChatAudioBubble.durationCache[fileURL] {
+            self.duration = cached
+            self.audioTimeLineLabel.text = "00:00/\(cached)"
+            return
+        }
+
+        guard let url = URL(string: fileURL) else { return }
+
+        let asset = AVURLAsset(url: url)
+        asset.loadValuesAsynchronously(forKeys: ["duration"]) { [weak self] in
+            var error: NSError?
+            let status = asset.statusOfValue(forKey: "duration", error: &error)
+            if status == .loaded {
+                let seconds = CMTimeGetSeconds(asset.duration)
+                let duration = self?.formatTime(seconds: seconds) ?? "00:00"
+
+                DispatchQueue.main.async {
+                    self?.duration = duration
+                    self?.audioTimeLineLabel.text = "00:00/\(duration)"
+                    CometChatAudioBubble.durationCache[fileURL] = duration
+                }
+            }
+        }
+    }
+
     
     public func set(fileSize: Double) {
         DispatchQueue.main.async { [weak self] in
@@ -177,11 +211,7 @@ public class CometChatAudioBubble: UIView {
         
         guard let fileURL = fileURL, let url = URL(string: fileURL) else { return }
         let item = AVPlayerItem(url: url)
-        
-        // Format the duration of the audio file.
-        duration = formatTime(seconds: (Double(item.asset.duration.value) / Double(item.asset.duration.timescale)))
-        audioTimeLineLabel.text = "00:00/\(duration)"
-        
+
         player = AVPlayer(playerItem: item)
         let session = AVAudioSession.sharedInstance()
         do{
@@ -281,5 +311,18 @@ public class CometChatAudioBubble: UIView {
         let minutes = Int(seconds) / 60
         let seconds = Int(seconds) % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+}
+
+final class AudioWaveformGIFCache {
+    static let shared = AudioWaveformGIFCache()
+    let data: Data?
+
+    private init() {
+        if let url = CometChatUIKit.bundle.url(forResource: "audio-waveform", withExtension: "gif") {
+            self.data = try? Data(contentsOf: url)
+        } else {
+            self.data = nil
+        }
     }
 }

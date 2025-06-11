@@ -9,8 +9,7 @@ import UIKit
 import AVFoundation
 import CometChatUIKitSwift
 import CometChatSDK
-import Network
-
+import SystemConfiguration
 
 class HomeScreenViewController: UITabBarController {
     
@@ -20,7 +19,12 @@ class HomeScreenViewController: UITabBarController {
             let messages = MessagesVC()
             messages.group = (conversation.conversationWith as? Group)
             messages.user = (conversation.conversationWith as? CometChatSDK.User)
-            self?.navigationController?.pushViewController(messages, animated: true)
+            
+            if let splitScreenCallBack = self?.splitScreenCallBack {
+                splitScreenCallBack(messages)
+            } else {
+                self?.navigationController?.pushViewController(messages, animated: true)
+            }
         })
         return conversations
     }()
@@ -28,14 +32,18 @@ class HomeScreenViewController: UITabBarController {
     #if canImport(CometChatCallsSDK)
     lazy var calls: CometChatCallLogs = {
         let calls = CometChatCallLogs()
-        calls.set(goToCallLogDetail: { callLog, user, group in
+        calls.set(goToCallLogDetail: { [weak self] callLog, user, group in
             if let callLog = callLog as? CometChatCallsSDK.CallLog {
                 let callDetails = CallLogDetailsVC()
                 callDetails.currentUser = user
                 callDetails.currentGroup = group
                 callDetails.callLog = callLog
                 callDetails.dateTimeFormatter = calls.dateTimeFormatter
-                self.navigationController?.pushViewController(callDetails, animated: true)
+                if let splitScreenCallBack = self?.splitScreenCallBack {
+                    splitScreenCallBack(callDetails)
+                } else {
+                    self?.navigationController?.pushViewController(callDetails, animated: true)
+                }
             }
         })
         return calls
@@ -47,7 +55,11 @@ class HomeScreenViewController: UITabBarController {
         users.set(onItemClick: { [weak self] users, indexPath in
             let messages = MessagesVC()
             messages.user = users
-            self?.navigationController?.pushViewController(messages, animated: true)
+            if let splitScreenCallBack = self?.splitScreenCallBack {
+                splitScreenCallBack(messages)
+            } else {
+                self?.navigationController?.pushViewController(messages, animated: true)
+            }
         })
         return users
     }()
@@ -79,7 +91,11 @@ class HomeScreenViewController: UITabBarController {
         groups.set(onItemClick: { [weak self] group, indexPath in
             let messages = MessagesVC()
             messages.group = group
-            self?.navigationController?.pushViewController(messages, animated: true)
+            if let splitScreenCallBack = self?.splitScreenCallBack {
+                splitScreenCallBack(messages)
+            } else {
+                self?.navigationController?.pushViewController(messages, animated: true)
+            }
         })
 
 
@@ -87,6 +103,7 @@ class HomeScreenViewController: UITabBarController {
     }()
     
     lazy var lastSelectedIndex = 0
+    var splitScreenCallBack: ((_ viewController: UIViewController) -> Void)?
     var loggedInUserAvatarImage: UIImage?
     
     override func viewDidLoad() {
@@ -227,7 +244,7 @@ class HomeScreenViewController: UITabBarController {
     
     //Logging out
     @objc func logoutTapped() {
-        if NetworkMonitor.shared.isConnected{
+        if Reachability.isConnectedToNetwork(){
             CometChatNotifications.unregisterPushToken { success in
             } onError: { error in
                 print(error.errorDescription)
@@ -320,15 +337,28 @@ extension UIViewController {
     }
 }
 
-class NetworkMonitor {
-    static let shared = NetworkMonitor()
-    private let monitor = NWPathMonitor()
-    private let queue = DispatchQueue.global(qos: .background)
-    var isConnected: Bool = false
-    private init() {
-        monitor.pathUpdateHandler = { path in
-            self.isConnected = path.status == .satisfied
+public class Reachability {
+
+    class func isConnectedToNetwork() -> Bool {
+
+        var zeroAddress = sockaddr_in(sin_len: 0, sin_family: 0, sin_port: 0, sin_addr: in_addr(s_addr: 0), sin_zero: (0, 0, 0, 0, 0, 0, 0, 0))
+        zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
+        zeroAddress.sin_family = sa_family_t(AF_INET)
+
+        let defaultRouteReachability = withUnsafePointer(to: &zeroAddress) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {zeroSockAddress in
+                SCNetworkReachabilityCreateWithAddress(nil, zeroSockAddress)
+            }
         }
-        monitor.start(queue: queue)
+        var flags: SCNetworkReachabilityFlags = SCNetworkReachabilityFlags(rawValue: 0)
+        if SCNetworkReachabilityGetFlags(defaultRouteReachability!, &flags) == false {
+            return false
+        }
+        let isReachable = (flags.rawValue & UInt32(kSCNetworkFlagsReachable)) != 0
+        let needsConnection = (flags.rawValue & UInt32(kSCNetworkFlagsConnectionRequired)) != 0
+        let ret = (isReachable && !needsConnection)
+
+        return ret
+
     }
 }

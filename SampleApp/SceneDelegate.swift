@@ -24,7 +24,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 
         initialisationCometChatUIKit(completion: {
             if CometChat.getLoggedInUser() != nil {
-                self.setRootViewController(UINavigationController(rootViewController: HomeScreenViewController()))
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    self.setRootViewController(SplitViewController())
+                } else {
+                    self.setRootViewController(UINavigationController(rootViewController: HomeScreenViewController()))
+                }
             } else {
                 
                 if AppConstants.APP_ID.isEmpty || AppConstants.AUTH_KEY.isEmpty || AppConstants.REGION.isEmpty {
@@ -99,7 +103,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             uikitSettings.set(appID: AppConstants.APP_ID)
                 .set(authKey: AppConstants.AUTH_KEY)
                 .set(region: AppConstants.REGION)
-                .setExtensionGroupID(id: "group.sampleapp.notification.delivered")
+                .setExtensionGroupID(id: "group.com.cometchat.internal.swift.notification")
                 .subscribePresenceForAllUsers()
                 .build()
             

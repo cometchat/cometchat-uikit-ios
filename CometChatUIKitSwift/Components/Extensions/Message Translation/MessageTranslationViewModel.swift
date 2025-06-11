@@ -81,7 +81,7 @@ extension MessageTranslationViewModel {
         var textMessage: TextMessage?
         if let message = messageObject as?  TextMessage {
             textMessage = message
-            let systemLanguage = Locale.preferredLanguages.first?.replacingOccurrences(of: "-US", with: "")
+            let systemLanguage = Locale(identifier: UserDefaults.standard.stringArray(forKey: "AppleLanguages")?.first ?? "").languageCode
             
             let spannedStringForMention = MessageUtils.wrapRegexMatches(in: textMessage?.text ?? "", regexPattern: CometChatMentionsFormatter().getRegex())
             

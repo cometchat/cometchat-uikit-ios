@@ -73,7 +73,7 @@ public struct ConversationsStyle: ListBaseStyle, ListItemStyle {
     
     public var listItemBackground: UIColor = .clear
     
-    public var listItemSelectedBackground: UIColor = .clear
+    public var listItemSelectedBackground: UIColor = CometChatTheme.backgroundColor04
     
     public var listItemBorderWidth: CGFloat = 0
     

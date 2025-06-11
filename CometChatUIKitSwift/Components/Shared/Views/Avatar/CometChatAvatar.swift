@@ -29,7 +29,7 @@ import AVFAudio
     // MARK: - Variable declaration.
     private var avatarURL: String?
     private var name: String?
-    private var imageRequest: Cancellable?
+    var imageRequest: Cancellable?
     private lazy var imageService = ImageService()
     
     //MARK: Styling

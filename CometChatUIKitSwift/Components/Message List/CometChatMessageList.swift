@@ -171,6 +171,11 @@ open class CometChatMessageList: UIView {
             viewModel.hideMessageInfoOption = hideMessageInfoOption
         }
     }
+    public var hideShareMessageOption: Bool = false{
+        didSet{
+            viewModel.hideShareMessageOption = hideShareMessageOption
+        }
+    }
     
     //AI Variables 
     public var enableConversationStarters: Bool = false

@@ -107,13 +107,12 @@ class MessagesVC: UIViewController {
         navigationItem.hidesBackButton = true
         title = "MESSAGES".localize()
         
-        // setting this for notification
-        // (notification will not be displayed if that users or groups chat is active on screen)
         
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
+        
     }
     
     deinit {
@@ -139,14 +138,17 @@ class MessagesVC: UIViewController {
             messageListView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
             messageListView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             messageListView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            messageListView.bottomAnchor.constraint(equalTo: composerView.topAnchor),
             
-            composerView.topAnchor.constraint(equalTo: messageListView.bottomAnchor),
             composerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             composerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             composerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
         
-                
+        let heightConstraint = messageListView.heightAnchor.constraint(greaterThanOrEqualToConstant: UIScreen.main.bounds.height)
+        heightConstraint.priority = .defaultLow
+        heightConstraint.isActive = true
+
         if user?.blockedByMe == true{
             disableMessageSending()
         }

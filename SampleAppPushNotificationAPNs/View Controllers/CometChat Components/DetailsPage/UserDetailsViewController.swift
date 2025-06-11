@@ -162,7 +162,16 @@ class UserDetailsViewController: UIViewController {
     // MARK: - Lifecycle Methods
     override public func viewDidLoad() {
         super.viewDidLoad()
+        
+    }
+    
+    public init() {
+        super.init(nibName: nil, bundle: nil)
         connect()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override public func viewWillAppear(_ animated: Bool) {
@@ -297,13 +306,13 @@ class UserDetailsViewController: UIViewController {
     
     
     func connect() {
-        CometChat.addUserListener("group-info-groups-event-listner-\(listenerRandomID)", self)
-        CometChatUserEvents.addListener("group-info-groups-event-listner-\(listenerRandomID)", self)
+        CometChat.addUserListener("user-info-user-event-listner-\(listenerRandomID)", self)
+        CometChatUserEvents.addListener("user-info-user-event-listner-\(listenerRandomID)", self)
     }
     
     func disconnect() {
-        CometChat.removeUserListener("group-info-groups-event-listner-\(listenerRandomID)")
-        CometChatUserEvents.removeListener("group-info-groups-event-listner-\(listenerRandomID)")
+        CometChat.removeUserListener("user-info-user-event-listner-\(listenerRandomID)")
+        CometChatUserEvents.removeListener("user-info-user-event-listner-\(listenerRandomID)")
     }
 }
 
