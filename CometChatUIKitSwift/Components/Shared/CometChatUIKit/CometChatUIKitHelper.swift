@@ -15,6 +15,10 @@ final public class CometChatUIKitHelper {
         CometChatMessageEvents.ccMessageSent(message: message, status: status)
     }
     
+    public static func onMessageModerated(message: BaseMessage) {
+        CometChatMessageEvents.onMessageModerated(message: message)
+    }
+    
     public static func onMessageEdited(message: BaseMessage, status: MessageStatus) {
         CometChatMessageEvents.ccMessageEdited(message: message, status: status)
     }

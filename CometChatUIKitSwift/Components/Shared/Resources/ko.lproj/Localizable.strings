@@ -284,3 +284,4 @@
 "FILL_POLL_DETAILS" = "투표를 만들기 전에 모든 필수 필드를 작성하세요.";
 "USER" = "사용자";
 "MESSAGES" = "메시지";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "귀하의 메시지는 관리 정책으로 인해 차단되었습니다.";

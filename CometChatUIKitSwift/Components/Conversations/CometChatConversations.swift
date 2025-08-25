@@ -261,7 +261,6 @@ open class CometChatConversations: CometChatListBase {
         viewModel.deleteAtIndex = { [weak self] indexPath in
             guard let this = self else { return }
             DispatchQueue.main.async {
-                this.tableView.deleteRows(at: [indexPath], with: .none)
                 this.tableView.reloadData()
             }
         }

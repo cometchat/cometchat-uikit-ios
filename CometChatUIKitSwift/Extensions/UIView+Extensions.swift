@@ -72,6 +72,82 @@ extension UIView {
     }
 }
 
+public class ModerationDisapprovedView: UIView {
+
+    public let iconView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "exclamationmark.triangle.fill")
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
+    public let messageLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Your message was blocked due to moderation policies"
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    public let backgroundContainer: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = 12
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    var backgroundContainerColor: UIColor?
+    var messageTextColor: UIColor?
+    var messageFont: UIFont?
+    var iconViewTintColor: UIColor?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupUI()
+    }
+    
+    public override func willMove(toWindow newWindow: UIWindow?) {
+        setupStyle()
+    }
+
+    private func setupUI() {
+        addSubview(backgroundContainer)
+        backgroundContainer.addSubview(iconView)
+        backgroundContainer.addSubview(messageLabel)
+
+        NSLayoutConstraint.activate([
+            backgroundContainer.topAnchor.constraint(equalTo: topAnchor),
+            backgroundContainer.bottomAnchor.constraint(equalTo: bottomAnchor),
+            backgroundContainer.leadingAnchor.constraint(equalTo: leadingAnchor),
+            backgroundContainer.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            iconView.leadingAnchor.constraint(equalTo: backgroundContainer.leadingAnchor, constant: 12),
+            iconView.widthAnchor.constraint(equalToConstant: 16),
+            iconView.heightAnchor.constraint(equalToConstant: 16),
+            iconView.topAnchor.constraint(equalTo: messageLabel.topAnchor),
+
+            messageLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 8),
+            messageLabel.trailingAnchor.constraint(equalTo: backgroundContainer.trailingAnchor, constant: -12),
+            messageLabel.topAnchor.constraint(equalTo: backgroundContainer.topAnchor, constant: 8),
+            messageLabel.bottomAnchor.constraint(equalTo: backgroundContainer.bottomAnchor, constant: -8)
+        ])
+    }
+    
+    func setupStyle(){
+        self.backgroundColor = backgroundContainerColor
+        backgroundContainer.backgroundColor = backgroundContainerColor
+        messageLabel.textColor = messageTextColor
+        messageLabel.font = messageFont
+        iconView.tintColor = iconViewTintColor
+    }
+}
+
+
 extension UILayoutPriority {
     static let lowest = UILayoutPriority(defaultLow.rawValue / 2.0)
 }

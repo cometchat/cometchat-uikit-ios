@@ -284,3 +284,4 @@
 "FILL_POLL_DETAILS" = "Lütfen anketi oluşturmak için gerekli tüm alanları doldurun.";
 "USER" = "Kullanıcı";
 "MESSAGES" = "Mesajlar";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "Mesajınız moderasyon politikaları nedeniyle engellendi.";

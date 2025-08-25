@@ -291,3 +291,5 @@
 "BAN_MEMBER_ALERT" = "Are you sure you want to ban";
 "FROM_THIS_GROUP_TEXT" = "from this group";
 "KICK_MEMBER_ALERT" = "Are you sure you want to kick";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "Your message was blocked due to moderation policies";
+"DONE" = "Done";

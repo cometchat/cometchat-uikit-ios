@@ -285,3 +285,4 @@
 "FILL_POLL_DETAILS" = "Please fill in all required fields before creating a poll.";
 "USER" = "User";
 "MESSAGES" = "Messages";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "Your message was blocked due to moderation policies";

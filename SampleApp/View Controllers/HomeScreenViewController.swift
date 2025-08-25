@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import AVFoundation
+//import AVFoundation
 import CometChatUIKitSwift
 import CometChatSDK
 import SystemConfiguration

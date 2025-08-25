@@ -101,7 +101,7 @@ open class CometChatGroupMembers: CometChatListBase {
     }
     
     open func addCheckBarButtonItem() {
-        let barButtonItem = UIBarButtonItem(image: UIImage(systemName: "checkmark"), style: .done, target: self, action: #selector(tickButtonTapped))
+        let barButtonItem = UIBarButtonItem(title: "DONE".localize(), style: .done, target: self, action: #selector(tickButtonTapped))
         barButtonItem.tintColor = CometChatTheme.primaryColor
         rightBarButtonItem = [barButtonItem]
     }

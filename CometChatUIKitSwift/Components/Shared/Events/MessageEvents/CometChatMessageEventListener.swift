@@ -29,6 +29,8 @@ public protocol CometChatMessageEventListener {
     //event for listening to test message events
     func onTextMessageReceived(textMessage: TextMessage)
     
+    func onMessageModerated(message: BaseMessage)
+    
     //event for listening to media message events
     func onMediaMessageReceived(mediaMessage: MediaMessage)
     
@@ -159,6 +161,7 @@ public extension CometChatMessageEventListener {
     func onTransientMessageReceived(_ message: CometChatSDK.TransientMessage) {}
     func onMessagesReadByAll(receipt: MessageReceipt) {}
     func onMessagesDeliveredToAll(receipt: MessageReceipt) {}
+    func onMessageModerated(message: BaseMessage) {}
 }
 
 //MARK: Deprecated methods

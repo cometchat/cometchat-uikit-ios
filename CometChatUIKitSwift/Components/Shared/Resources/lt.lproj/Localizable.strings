@@ -264,3 +264,5 @@
 "FROM_THIS_GROUP_TEXT" = "di questo gruppo";
 "KICK_MEMBER_ALERT" = "Sei sicuro di voler calciare";
 "DELETE" = "Elimina";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "Jūsų pranešimas buvo užblokuotas dėl moderavimo politikos.";
+"DONE" = "Fatto";

@@ -31,7 +31,9 @@ class AddMembersViewModel : AddMembersViewModelProtocol {
             guard let this = self else { return }
             if let loggedInUser = CometChat.getLoggedInUser() {
                 var actionMessages: [ActionMessage] = [ActionMessage]()
-                
+                var successfullyAddedMembers: [GroupMember] = []
+                var failedMembers: [GroupMember] = []
+
                 members.forEach { member in
                     
                     if let uid = member.uid, (addedMember[uid] as? String) == "success" {
@@ -50,14 +52,22 @@ class AddMembersViewModel : AddMembersViewModelProtocol {
                         actionMessage.messageCategory = .action
                         actionMessage.receiverType = .group
                         actionMessage.sentAt = Int(Date().timeIntervalSince1970)
-                        
+
                         actionMessages.append(actionMessage)
-                        this.group.membersCount += 1 // Updating group count
+                        this.group.membersCount += 1
+                        successfullyAddedMembers.append(member)
+                    } else {
+                        failedMembers.append(member)
                     }
                 }
-                
-                this.isMembersAdded?(actionMessages, members, this.group, loggedInUser)
-                
+
+                // Decide what to do based on result
+                if !successfullyAddedMembers.isEmpty {
+                    this.isMembersAdded?(actionMessages, members, this.group, loggedInUser)
+                } else {
+                    this.unableToAddMember?("Unable to add members.") // Customize message if needed
+                }
+
             }
             
         } onError: { [weak self] error in

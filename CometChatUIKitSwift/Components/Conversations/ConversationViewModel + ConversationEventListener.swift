@@ -10,6 +10,8 @@ import CometChatSDK
 
 extension ConversationsViewModel: CometChatConversationEventListener {
     
-    func ccConversationDeleted(conversation: Conversation) {    }
+    func ccConversationDeleted(conversation: Conversation) {
+        self.remove(conversation: conversation)
+    }
     
 }

@@ -287,3 +287,5 @@
 "FROM_THIS_GROUP_TEXT" = "来自这个群组";
 "KICK_MEMBER_ALERT" = "你确定要踢吗";
 "DELETE" = "删除";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "您的消息因审核政策而被屏蔽";
+"DONE" = "完成了";

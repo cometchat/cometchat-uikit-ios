@@ -20,8 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         cometchatAPNsHelper.configurePushNotification(application: application, delegate: self)
         UNUserNotificationCenter.current().delegate = self
-        
-
         return true
     }
 

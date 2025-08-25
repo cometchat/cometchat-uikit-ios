@@ -361,6 +361,10 @@ public class CometChatTheme {
         lightModeColor: UIColor(hex: "#F44649"),
         darkModeColor: UIColor(hex: "#C73C3E")
     )
+    public static var errorColor100 = UIColor.dynamicColor(
+        lightModeColor: UIColor(hex: "#F9EAEF"),
+        darkModeColor: UIColor(hex: "#3A0C05")
+    )
     
     //MARK: Button Colors
     private static var _buttonBackgroundColor: UIColor? = nil

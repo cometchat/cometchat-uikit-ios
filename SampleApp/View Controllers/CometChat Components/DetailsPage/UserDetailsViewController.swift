@@ -9,7 +9,7 @@ import UIKit
 import CometChatSDK
 import CometChatUIKitSwift
 
-class UserDetailsViewController: UIViewController {
+class UserDetailsViewController: UIViewController, CometChatConversationEventListener {
 
     // MARK: - UI Components
     public var user: User?
@@ -158,6 +158,7 @@ class UserDetailsViewController: UIViewController {
     }()
 
     public var dateTimeFormatter: CometChatDateTimeFormatter?
+    var conversation: Conversation? = nil
     
     // MARK: - Lifecycle Methods
     override public func viewDidLoad() {
@@ -249,7 +250,7 @@ class UserDetailsViewController: UIViewController {
         ]
         
         NSLayoutConstraint.activate(constantsToActive)
-    } 
+    }
     
     @objc func showBlockAlert(){
         if blockButton.tag == 0 {
@@ -292,27 +293,44 @@ class UserDetailsViewController: UIViewController {
     @objc func showDeleteAlert(){
         self.showAlert("DELETE_CHAT".localize(), "DELETE_CHAT_CONFIRMATION".localize(), "CANCEL".localize(), "DELETE".localize(), onActionsTriggered: { [weak self] in
             if let user = self?.user {
-                CometChat.deleteConversation(conversationWith: user.uid ?? "", conversationType: .user) { [weak self] message in
-                    DispatchQueue.main.async {
-                        self?.navigationController?.popToViewController(ofClass: HomeScreenViewController.self, animated: true)
+                self?.getConversation { deletedConversation in
+                    CometChat.deleteConversation(conversationWith: user.uid ?? "", conversationType: .user) { [weak self] message in
+                        DispatchQueue.main.async {
+                            CometChatConversationEvents.ccConversationDeleted(conversation: deletedConversation)
+                            self?.navigationController?.popToViewController(ofClass: HomeScreenViewController.self, animated: true)
+                        }
+                    } onError: { error in
+                        //TODO: ERROR
                     }
-                } onError: { error in
-                    //TODO: ERROR
                 }
-
             }
         })
     }
     
+    func getConversation(completion: @escaping((Conversation) -> ())){
+        CometChat.getConversation(conversationWith: user?.uid ?? "", conversationType: .user, onSuccess: { conversation in
+            if let convo = conversation{
+                completion(convo)
+            }
+        }, onError: { error in
+            print("error: \(error?.errorDescription ?? "Unknown error")")
+        })
+    }
     
     func connect() {
         CometChat.addUserListener("user-info-user-event-listner-\(listenerRandomID)", self)
         CometChatUserEvents.addListener("user-info-user-event-listner-\(listenerRandomID)", self)
+        CometChat.addUserListener("group-info-groups-event-listner-\(listenerRandomID)", self)
+        CometChatUserEvents.addListener("group-info-groups-event-listner-\(listenerRandomID)", self)
+        CometChatConversationEvents.addListener("user-details-conversations-event-listener-\(listenerRandomID)", self)
     }
     
     func disconnect() {
         CometChat.removeUserListener("user-info-user-event-listner-\(listenerRandomID)")
         CometChatUserEvents.removeListener("user-info-user-event-listner-\(listenerRandomID)")
+        CometChat.removeUserListener("group-info-groups-event-listner-\(listenerRandomID)")
+        CometChatUserEvents.removeListener("group-info-groups-event-listner-\(listenerRandomID)")
+        CometChatConversationEvents.removeListener("user-details-conversations-event-listener-\(listenerRandomID)")
     }
 }
 

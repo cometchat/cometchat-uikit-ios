@@ -49,6 +49,7 @@ public class CallLogDetailsVC: UIViewController {
                 return callButton
             }
         })
+        if currentUser?.blockedByMe == true { view.hideUserStatus = true }
         return view
     }()
     
@@ -241,26 +242,27 @@ public class CallLogDetailsVC: UIViewController {
         durationLabel.text = formatTime(seconds: (callLog?.totalDurationInMinutes ?? 0.0)*60)
         
         let isInitiator = CometChat.getLoggedInUser()?.uid == (callLog?.initiator as? CallUser)?.uid
-        
-        switch callLog?.status {
-        case .busy, .unanswered, .rejected, .cancelled:
+        let isReceived = (callLog?.status == .initiated || callLog?.status == .ongoing || callLog?.status == .ended)
+        let isMissed = (callLog?.status == .unanswered || callLog?.status == .busy || callLog?.status == .rejected || callLog?.status == .cancelled)
+
+        if isMissed {
             nameLabel.text = "MISSED".localize()
             callTypeImageView.image = UIImage(named: "missed_call_image")
             callTypeImageView.tintColor = CometChatTheme.errorColor
-        case .initiated, .ongoing, .ended:
-            if isInitiator{
+        } else if isReceived {
+            if isInitiator {
                 nameLabel.text = "OUTGOING".localize()
                 callTypeImageView.image = UIImage(systemName: "arrow.up.right")
                 callTypeImageView.tintColor = CometChatTheme.successColor
-            }else{
+            } else {
                 nameLabel.text = "INCOMING".localize()
                 callTypeImageView.image = UIImage(systemName: "arrow.down.left")
-                callTypeImageView.tintColor = CometChatTheme.errorColor
+                callTypeImageView.tintColor = CometChatTheme.successColor
             }
-        case .none:
-            break
-        @unknown default:
-            break
+        } else {
+            nameLabel.text = ""
+            callTypeImageView.image = nil
+            callTypeImageView.tintColor = nil
         }
         
         addChild(pageViewController)

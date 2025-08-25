@@ -400,6 +400,9 @@ extension GroupDetailsViewController{
     public func addMembers(){
         if let group = self.group {
             let addMemberController = AddMembersVC(group: group)
+            addMemberController.unableToAddMember = { error in
+                self.showAlert(with: error)
+            }
             let navController = UINavigationController(rootViewController: addMemberController)
             self.present(navController, animated: true, completion: nil)
         }

@@ -286,3 +286,5 @@
 "FROM_THIS_GROUP_TEXT" = "इस समूह से";
 "KICK_MEMBER_ALERT" = "क्या आप वाकई किक करना चाहते हैं";
 "DELETE" = "मिटाएँ";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "आपका संदेश मोडरेशन नीतियों के कारण ब्लॉक कर दिया गया।";
+"DONE" = "हो गया";

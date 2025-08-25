@@ -21,13 +21,13 @@ public struct ConversationsStyle: ListBaseStyle, ListItemStyle {
     
     public var cornerRadius: CometChatCornerStyle = .init(cornerRadius: 0)
     
-    public var titleFont: UIFont?
+    public var titleFont: UIFont? = CometChatTypography.setFont(size: 17, weight: .bold)
     
-    public var largeTitleFont: UIFont?
+    public var largeTitleFont: UIFont? = CometChatTypography.setFont(size: 34, weight: .bold)
     
-    public var titleColor: UIColor?
+    public var titleColor: UIColor? = CometChatTheme.textColorPrimary
     
-    public var largeTitleColor: UIColor?
+    public var largeTitleColor: UIColor? = CometChatTheme.textColorPrimary
     
     public var navigationBarTintColor: UIColor? 
     

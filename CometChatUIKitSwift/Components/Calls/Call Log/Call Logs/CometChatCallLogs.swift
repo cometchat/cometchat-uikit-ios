@@ -227,8 +227,7 @@ extension CometChatCallLogs {
         listItem.style = style
         listItem.avatar.style = avatarStyle
         
-        if (callData.status == .unanswered && (callData.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid) ||
-            (callData.status == .cancelled && (callData.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid) {
+        if callData.status == .unanswered || callData.status == .busy {
             listItem.titleLabel.textColor = style.missedCallTitleColor
         }
         
@@ -246,7 +245,7 @@ extension CometChatCallLogs {
                 style: style,
                 incomingCallIcon: style.incomingCallIcon,
                 outgoingCallIcon: style.outgoingCallIcon,
-                missedCallIcon: style.incomingCallIcon, callDate: datePattern?(callData), dateTimeFormatter: dateTimeFormatter
+                missedCallIcon: style.missedCallIcon, callDate: datePattern?(callData), dateTimeFormatter: dateTimeFormatter
             )
             listItem.set(subtitle: defaultSubtitle)
         }
@@ -290,7 +289,9 @@ extension CometChatCallLogs {
     }
     
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.tableView.isUserInteractionEnabled = false
         if let onItemClick = self.onItemClick?(viewModel.callLogs[indexPath.row]){
+            self.tableView.isUserInteractionEnabled = true
             onItemClick
         }else{
             var currentUser: User?
@@ -309,10 +310,12 @@ extension CometChatCallLogs {
                     DispatchQueue.main.async {
                         if let user = user{
                             currentUser = user
+                            self.tableView.isUserInteractionEnabled = true
                             self.goToCallLogDetail?(self.viewModel.callLogs[indexPath.row], user, nil)
                         }
                     }
                 } onError: { error in
+                    self.tableView.isUserInteractionEnabled = true
                     self.onError?(error)
                     print("error")
                 }
@@ -320,10 +323,12 @@ extension CometChatCallLogs {
                 CometChat.getGroup(GUID: callGroup?.guid ?? "") { group in
                     DispatchQueue.main.async {
                         currentGroup = group
+                        self.tableView.isUserInteractionEnabled = true
                         self.goToCallLogDetail?(self.viewModel.callLogs[indexPath.row], nil, group)
                     }
                 } onError: { error in
                     self.onError?(error)
+                    self.tableView.isUserInteractionEnabled = true
                     print("error")
                 }
 

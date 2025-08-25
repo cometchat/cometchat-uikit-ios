@@ -308,3 +308,5 @@
 "FROM_THIS_GROUP_TEXT" = "來自這個群組";
 "KICK_MEMBER_ALERT" = "你確定要踢球嗎";
 "DELETE" = "刪除";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "您的訊息因為管理政策被封鎖。";
+"DONE" = "完成";

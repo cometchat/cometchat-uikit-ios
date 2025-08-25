@@ -214,7 +214,7 @@
 "DELETE_CHAT_CONFIRMATION" = "Biztosan törlöd ezt a beszélgetést? Ez a művelet nem vonható vissza.";
 "NO_MEMBERS_AVAILABLE" = "Nincsenek elérhető tagok";
 "ADD" = "Hozzáadás";
-"UNBAN_MEMBER_ALERT" = "Biztosan feloldod a tiltást ehhez:";
+"UNBAN_MEMBER_ALERT" = "Biztosan feloldod a tiltást ehhez";
 "CALL_DETAIL" = "Hívás részletei";
 "MISSED" = "Elmulasztott";
 "NO_CALL_RECORDINGS" = "Nincsenek hívásfelvételek";
@@ -272,3 +272,5 @@
 "FROM_THIS_GROUP_TEXT" = "ebből a csoportból";
 "KICK_MEMBER_ALERT" = "Biztos, hogy rúgni akarsz";
 "DELETE" = "Törölje";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "Üzenetét moderálási irányelvek miatt blokkolták.";
+"DONE" = "Kész";

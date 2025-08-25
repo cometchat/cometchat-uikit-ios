@@ -89,7 +89,8 @@ open class MessageUtils {
         hideReceipt: Bool = false,
         messageAlignment: MessageListAlignment = .standard,
         timePattern: ((_ timestamp: Int?) -> String)? = nil,
-        dateTimeFormatter: CometChatDateTimeFormatter?
+        dateTimeFormatter: CometChatDateTimeFormatter?,
+        isModerated: Bool = false
     ) {
         
         if let message = message as? CustomMessage, message.type == "meeting", message.deletedAt == 0{
@@ -165,7 +166,12 @@ open class MessageUtils {
         
         if isReceiptVisible  {
             receipt.style = messageTypeStyle?.receiptStyle ?? bubbleStyle.receiptStyle
-            receipt.set(receipt: MessageReceiptUtils.get(receiptStatus: message))
+            if isModerated{
+                receipt.set(receipt: .failed)
+            }else{
+                receipt.set(receipt: MessageReceiptUtils.get(receiptStatus: message))
+            }
+            
             statusInfoView.addSubview(receipt)
             NSLayoutConstraint.activate([
                 receipt.topAnchor.pin(equalTo: statusInfoView.topAnchor),
@@ -214,6 +220,30 @@ open class MessageUtils {
         default: return (message as? CustomMessage)?.type ?? ""
         }
     }
+    
+    public static func getModerationView(from bubble: CometChatMessageBubble, message: BaseMessage, bubbleStyle: MessageBubbleStyle){
+        
+        let view = ModerationDisapprovedView().withoutAutoresizingMaskConstraints()
+        view.backgroundContainerColor = bubbleStyle.moderationStyle.moderationBackgroundColor
+        view.messageTextColor = bubbleStyle.moderationStyle.moderationTextColor
+        view.messageFont = bubbleStyle.moderationStyle.moderationTextFont
+        view.iconViewTintColor = bubbleStyle.moderationStyle.moderationImageTint
+        bubble.set(bottomView: view)
+    }
+    
+    public static func isMessageModerationDisapproved(message: BaseMessage) -> Bool {
+        if (message as? TextMessage)?.getModerationStatus() == "disapproved" || (message as? MediaMessage)?.getModerationStatus() == "disapproved" {
+             return true
+         }
+         return false
+     }
+    
+    public static func isMessageModerationPending(message: BaseMessage) -> Bool {
+        if (message as? TextMessage)?.getModerationStatus() == "pending" || (message as? MediaMessage)?.getModerationStatus() == "pending" {
+             return true
+         }
+         return false
+     }
     
     public static func getDefaultMessageCategories(message: BaseMessage) -> String {
         switch message.messageCategory {

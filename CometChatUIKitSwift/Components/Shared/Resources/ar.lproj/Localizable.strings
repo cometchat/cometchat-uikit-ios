@@ -303,3 +303,5 @@
 "FROM_THIS_GROUP_TEXT" = "من هذه المجموعة";
 "KICK_MEMBER_ALERT" = "هل أنت متأكد من أنك تريد الركل";
 "DELETE" = "حذف";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "تم حظر رسالتك بسبب سياسات الاعتدال.";
+"DONE" = "تم";

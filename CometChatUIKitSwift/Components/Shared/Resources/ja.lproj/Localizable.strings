@@ -284,3 +284,4 @@
 "FILL_POLL_DETAILS" = "投票を作成する前に、すべての必要なフィールドに記入してください。";
 "USER" = "ユーザー";
 "MESSAGES" = "メッセージ";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "あなたのメッセージはモデレーションポリシーによりブロックされました。";

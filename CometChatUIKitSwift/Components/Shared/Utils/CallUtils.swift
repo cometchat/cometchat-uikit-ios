@@ -164,220 +164,83 @@ extension CallUtils {
         outgoingCallIcon: UIImage? = nil,
         missedCallIcon: UIImage? = nil
     ) -> (statusWithType: String, status: String, icon: UIImage?) {
-        
-        guard let call = call as? CallLog else { return ("", "", UIImage()) }
-        
-        if call.type == .audioVideo {
-            call.type = .video
+
+        guard let call = call as? CallLog else {
+            return ("", "", UIImage())
         }
-        
+
+        let loggedInUserId = CometChat.getLoggedInUser()?.uid
+        let isOutgoing = (call.initiator as? CallUser)?.uid == loggedInUserId
+        let isAudio = call.type == .audio
+        let isVideo = call.type == .video || call.type == .audioVideo
+
+        let incomingIcon = incomingCallIcon?.withRenderingMode(.alwaysOriginal)
+        let outgoingIcon = outgoingCallIcon?.withRenderingMode(.alwaysOriginal)
+        let missedIcon = missedCallIcon?.withRenderingMode(.alwaysOriginal)
+
+        var statusWithType = ""
+        var status = ""
+        var icon: UIImage?
+
+        let successTint = style?.outgoingCallIconTint ?? CometChatTheme.successColor
+        let errorTint = style?.missedCallIconTint ?? CometChatTheme.errorColor
+
+        func tint(_ image: UIImage?, color: UIColor) -> UIImage? {
+            return image?.withTintColor(color, renderingMode: .alwaysOriginal)
+        }
+
         switch call.status {
-        case .initiated where call.type == .audio && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "OUTGOING_AUDIO_CALL".localize(),
-                "OUTGOING_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.outgoingCallIconTint ?? CometChatTheme.successColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .initiated where call.type == .audio && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "INCOMING_AUDIO_CALL".localize(),
-                "INCOMING_CALL".localize(),
-                incomingCallIcon?.withTintColor(style?.outgoingCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .initiated where call.type == .video  && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "INCOMING_VIDEO_CALL".localize(),
-                "INCOMING_CALL".localize(),
-                incomingCallIcon?.withTintColor(style?.incomingCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .initiated where call.type == .video && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "OUTGOING_VIDEO_CALL".localize(),
-                "OUTGOING_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.outgoingCallIconTint ?? CometChatTheme.successColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .unanswered where call.type == .audio  && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "UNANSWERED_AUDIO_CALL".localize(),
-                "UNANSWERED_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .unanswered where call.type == .audio  && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "MISSED_AUDIO_CALL".localize(),
-                "MISSED_CALL".localize(),
-                incomingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .unanswered where call.type == .video   && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "UNANSWERED_VIDEO_CALL".localize(),
-                "UNANSWERED_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .unanswered where call.type == .video  && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "MISSED_VIDEO_CALL".localize(),
-                "MISSED_CALL".localize(),
-                incomingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .cancelled where call.type == .audio && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "CANCELLED_AUDIO_CALL".localize(),
-                "CANCELLED_AUDIO_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .cancelled where call.type == .audio && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "MISSED_AUDIO_CALL".localize(),
-                "MISSED_CALL".localize(),
-                incomingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .cancelled where call.type == .video && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "CANCELLED_VIDEO_CALL".localize(),
-                "CANCELLED_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .cancelled where call.type == .video && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "MISSED_VIDEO_CALL".localize(),
-                "MISSED_CALL".localize(),
-                incomingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .rejected where call.type == .audio && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "CANCELLED_AUDIO_CALL".localize(),
-                "CANCELLED_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .rejected where call.type == .audio && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "REJECTED_AUDIO_CALL".localize(),
-                "REJECTED_CALL".localize(),
-                incomingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .rejected where call.type == .video && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "CANCELLED_VIDEO_CALL".localize(),
-                "CANCELLED_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .rejected where call.type == .video && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "REJECTED_VIDEO_CALL".localize(),
-                "REJECTED_CALL".localize(),
-                incomingCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .ongoing where call.type == .audio && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "OUTGOING_AUDIO_CALL".localize(),
-                "OUTGOING_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.outgoingCallIconTint ?? CometChatTheme.successColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .ongoing where call.type == .audio && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "OUTGOING_AUDIO_CALL".localize(),
-                "OUTGOING_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.outgoingCallIconTint ?? CometChatTheme.successColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .ongoing where call.type == .video && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "OUTGOING_VIDEO_CALL".localize(),
-                "OUTGOING_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.outgoingCallIconTint ?? CometChatTheme.successColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .ongoing where call.type == .video && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "OUTGOING_VIDEO_CALL".localize(),
-                "OUTGOING_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.outgoingCallIconTint ?? CometChatTheme.successColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .ended where call.type == .audio && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "OUTGOING_AUDIO_CALL".localize(),
-                "OUTGOING_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.outgoingCallIconTint ?? CometChatTheme.successColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .ended where call.type == .audio && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "INCOMING_AUDIO_CALL".localize(),
-                "INCOMING_CALL".localize(),
-                incomingCallIcon?.withTintColor(style?.incomingCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .ended where call.type == .video && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "OUTGOING_VIDEO_CALL".localize(),
-                "OUTGOING_CALL".localize(),
-                outgoingCallIcon?.withTintColor(style?.outgoingCallIconTint ?? CometChatTheme.successColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .ended where call.type == .video && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "INCOMING_VIDEO_CALL".localize(),
-                "INCOMING_CALL".localize(),
-                incomingCallIcon?.withTintColor(style?.incomingCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .busy where call.type == .video && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "UNANSWERED_VIDEO_CALL".localize(),
-                "UNANSWERED_CALL".localize(),
-                missedCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-        
-        case .busy where call.type == .audio  && (call.initiator as? CallUser)?.uid == CometChat.getLoggedInUser()?.uid:
-            return (
-                "UNANSWERED_AUDIO_CALL".localize(),
-                "UNANSWERED_CALL".localize(),
-                missedCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .busy where call.type == .video  && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "MISSED_VIDEO_CALL".localize(),
-                "MISSED_CALL".localize(),
-                missedCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .busy where call.type == .audio  && (call.initiator as? CallUser)?.uid != CometChat.getLoggedInUser()?.uid:
-            return (
-                "MISSED_AUDIO_CALL".localize(),
-                "MISSED_CALL".localize(),
-                missedCallIcon?.withTintColor(style?.missedCallIconTint ?? CometChatTheme.errorColor, renderingMode: .alwaysOriginal)
-            )
-            
-        case .rejected: break
-        case .busy: break
-        case .cancelled: break
-        case .ended: break
-        case .initiated: break
-        case .ongoing: break
-        case .unanswered: break
-        @unknown default: break
+        case .initiated, .ongoing, .ended:
+            if isOutgoing {
+                if isAudio {
+                    statusWithType = "OUTGOING_AUDIO_CALL".localize()
+                } else {
+                    statusWithType = "OUTGOING_VIDEO_CALL".localize()
+                }
+                status = "OUTGOING_CALL".localize()
+                icon = tint(outgoingIcon, color: successTint)
+            } else {
+                if isAudio {
+                    statusWithType = "INCOMING_AUDIO_CALL".localize()
+                } else {
+                    statusWithType = "INCOMING_VIDEO_CALL".localize()
+                }
+                status = "INCOMING_CALL".localize()
+                icon = tint(incomingIcon, color: successTint)
+            }
+
+        case .unanswered, .busy, .cancelled, .rejected:
+            if call.status == .unanswered {
+                if isAudio {
+                    statusWithType = "UNANSWERED_AUDIO_CALL".localize()
+                } else {
+                    statusWithType = "UNANSWERED_VIDEO_CALL".localize()
+                }
+                status = "UNANSWERED_CALL".localize()
+                icon = tint(missedIcon, color: errorTint)
+            } else {
+                if call.status == .rejected {
+                    if isAudio {
+                        statusWithType = "REJECTED_AUDIO_CALL".localize()
+                    } else {
+                        statusWithType = "REJECTED_VIDEO_CALL".localize()
+                    }
+                    status = "REJECTED_CALL".localize()
+                } else {
+                    if isAudio {
+                        statusWithType = "MISSED_AUDIO_CALL".localize()
+                    } else {
+                        statusWithType = "MISSED_VIDEO_CALL".localize()
+                    }
+                    status = "MISSED_CALL".localize()
+                }
+                icon = tint(missedIcon, color: errorTint)
+            }
+        @unknown default:
+            break
         }
-        return ("", "", UIImage())
+
+        return (statusWithType, status, icon ?? UIImage())
     }
     
     public func convertTimeStampToCallDate(timestamp: Int, dateTimeFormatter: CometChatDateTimeFormatter?) -> String{

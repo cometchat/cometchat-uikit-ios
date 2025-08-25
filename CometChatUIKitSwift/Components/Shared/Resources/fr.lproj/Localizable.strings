@@ -264,3 +264,5 @@
 "FROM_THIS_GROUP_TEXT" = "de ce groupe";
 "KICK_MEMBER_ALERT" = "Es-tu sûr de vouloir donner un coup de pied";
 "DELETE" = "Supprimer";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "Votre message a été bloqué en raison des politiques de modération.";
+"DONE" = "Terminé";

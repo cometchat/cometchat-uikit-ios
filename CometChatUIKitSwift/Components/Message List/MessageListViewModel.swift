@@ -64,6 +64,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     var hasFetchedMessagesBefore = false
     var additionalConfiguration = AdditionalConfiguration()
 
+    
     var messageBubbleStyle = CometChatMessageBubble.style {
         didSet {
             additionalConfiguration.messageBubbleStyle = messageBubbleStyle
@@ -165,8 +166,10 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     func set(messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder) {
         if let user = user {
             self.messagesRequestBuilder = messagesRequestBuilder.set(uid: user.uid ?? "").setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
+            self.messagesRequest = self.messagesRequestBuilder.build()
         } else if let group = group {
             self.messagesRequestBuilder = messagesRequestBuilder.set(guid: group.guid).setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
+            self.messagesRequest = self.messagesRequestBuilder.build()
         }
     }
     
@@ -895,11 +898,24 @@ extension MessageListViewModel: CometChatMessageEventListener {
     
     public func ccMessageEdited(message: BaseMessage, status: MessageStatus) {
         if checkThreadedMessageBelongsToThisConversation(message: message) {
-            if status == .success {
+            if status == .success{
                 self.update(message: message)
             }
         }
     }
+    
+    public func onMessageModerated(message: BaseMessage) {
+        if MessageUtils.isMessageModerationDisapproved(message: message) {
+            for (index, (_, messages)) in messages.enumerated() {
+                if let messageIndex = messages.firstIndex(where: { $0.id == message.id }) {
+                    self.messages[index].messages[messageIndex] = message
+                    self.updateAtIndex?(index, messageIndex, message)
+                    return
+                }
+            }
+        }
+    }
+
     
     public func onMessageEdited(message: BaseMessage) {
         if checkThreadedMessageBelongsToThisConversation(message: message) {

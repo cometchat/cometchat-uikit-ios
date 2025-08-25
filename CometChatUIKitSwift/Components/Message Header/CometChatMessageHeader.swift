@@ -78,7 +78,7 @@ import CometChatSDK
     }()
 
     // MARK: - Variables
-    private var disableTyping: Bool = false
+    public var disableTyping: Bool = false
     private var hideBackIcon: Bool = false
     private var disableUsersPresence: Bool = false
     weak var controller: UIViewController?

@@ -46,11 +46,11 @@ public struct CallLogStyle: ListItemStyle, ListBaseStyle {
     
     public var titleColor: UIColor? = CometChatTheme.textColorPrimary
     
-    public var titleFont: UIFont? = CometChatTypography.Heading4.bold
+    public var titleFont: UIFont? = CometChatTypography.setFont(size: 17, weight: .bold)
     
     public var largeTitleColor: UIColor? = CometChatTheme.textColorPrimary
     
-    public var largeTitleFont: UIFont?
+    public var largeTitleFont: UIFont? = CometChatTypography.setFont(size: 34, weight: .bold)
     
     public var navigationBarTintColor: UIColor? = CometChatTheme.backgroundColor01
     
@@ -100,7 +100,7 @@ public struct CallLogStyle: ListItemStyle, ListBaseStyle {
     
     public var missedCallTitleColor: UIColor? = CometChatTheme.errorColor
     
-    public var missedCallIcon: UIImage?
+    public var missedCallIcon: UIImage = UIImage(named: "missedCall")?.withRenderingMode(.alwaysOriginal) ?? UIImage()
     
     public var missedCallIconTint: UIColor? = CometChatTheme.errorColor
     

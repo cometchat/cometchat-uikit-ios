@@ -619,7 +619,9 @@ extension CometChatGroups {
 extension CometChatGroups: CometChatConnectionDelegate {
     public func connected() {
         setupViewModel()
-        tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+        if tableView.numberOfSections > 0 && tableView.numberOfRows(inSection: 0) > 0{
+            tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+        }
         viewModel.isRefresh = true
     }
     

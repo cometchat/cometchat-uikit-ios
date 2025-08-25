@@ -21,6 +21,7 @@ open class AddMembersVC: CometChatUsers {
     private var loadingIndicator: UIActivityIndicatorView?
     
     private var composerBottomAnchor: NSLayoutConstraint?
+    var unableToAddMember: ((String) -> Void)?
 
     let addMemberButton = UIButton()
     let addMemberButtonSeperator = UIView()
@@ -207,7 +208,7 @@ open class AddMembersVC: CometChatUsers {
             DispatchQueue.main.async {
                 self.addMembersViewModel?.addMembers(members: groupMembers)
                 self.addMembersViewModel?.unableToAddMember = { error in
-                    self.showAlert(with: error)
+                    self.unableToAddMember?(error)
                     self.hideLoader()
                 }
             }

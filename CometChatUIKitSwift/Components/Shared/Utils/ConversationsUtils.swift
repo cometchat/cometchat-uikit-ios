@@ -96,7 +96,11 @@ public class ConversationsUtils {
         
         if let lastMessage = conversation.lastMessage, lastMessage.deletedAt == 0 {
             reciept.disable(receipt: disableReceipt)
-            reciept.set(receipt: MessageReceiptUtils.get(receiptStatus: lastMessage))
+            if MessageUtils.isMessageModerationDisapproved(message: lastMessage){
+                reciept.set(receipt: .failed)
+            }else{
+                reciept.set(receipt: MessageReceiptUtils.get(receiptStatus: lastMessage))
+            }
             reciept.style = receiptStyle
         }
         

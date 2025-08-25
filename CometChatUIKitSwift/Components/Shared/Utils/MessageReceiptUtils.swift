@@ -23,6 +23,9 @@ public struct MessageReceiptUtils {
         if let metaData = message.metaData, let isError = metaData["error"] as? Bool, isError {
             return .failed
         }
+        if MessageUtils.isMessageModerationDisapproved(message: message){
+            return .failed
+        }
         if message.readAt > 0 {
             return .read
         } else if message.deliveredAt > 0 {

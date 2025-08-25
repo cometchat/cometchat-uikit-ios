@@ -65,13 +65,13 @@ public struct GroupsStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     public var titleColor: UIColor? = CometChatTheme.textColorPrimary
     
     // Font used for the title text, defaults to nil (not set).
-    public var titleFont: UIFont?
+    public var titleFont: UIFont? = CometChatTypography.setFont(size: 17, weight: .bold)
     
     // Color for the large title text, defaults to the primary text color from CometChatTheme.
     public var largeTitleColor: UIColor? = CometChatTheme.textColorPrimary
     
     // Font used for the large title text, defaults to nil (not set).
-    public var largeTitleFont: UIFont?
+    public var largeTitleFont: UIFont? = CometChatTypography.setFont(size: 34, weight: .bold)
     
     // Background color of the navigation bar, defaults to a specific background color from CometChatTheme.
     public var navigationBarTintColor: UIColor? = CometChatTheme.backgroundColor01

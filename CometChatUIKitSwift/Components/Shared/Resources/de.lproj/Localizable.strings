@@ -277,3 +277,5 @@
 "FROM_THIS_GROUP_TEXT" = "aus dieser Gruppe";
 "KICK_MEMBER_ALERT" = "Bist du sicher, dass du treten willst?";
 "DELETE" = "Löschen";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "Ihre Nachricht wurde aufgrund der Moderationsrichtlinien blockiert.";
+"DONE" = "Erledigt";

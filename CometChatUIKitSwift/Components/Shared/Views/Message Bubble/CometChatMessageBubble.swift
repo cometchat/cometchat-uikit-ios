@@ -301,8 +301,11 @@ open class CometChatMessageBubble: UITableViewCell {
     }
     
     @discardableResult
-    public func set(bottomView: UIView) -> Self {
-        self.bottomView.embed(bottomView)
+    public func set(bottomView: UIView?) -> Self {
+        self.bottomView.subviews.forEach { $0.removeFromSuperview() }
+        if let bottomView = bottomView{
+            self.bottomView.embed(bottomView)
+        }
         return self
     }
     

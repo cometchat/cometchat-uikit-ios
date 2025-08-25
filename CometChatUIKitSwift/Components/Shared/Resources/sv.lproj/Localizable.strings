@@ -264,3 +264,5 @@
 "FROM_THIS_GROUP_TEXT" = "Från denna grupp";
 "KICK_MEMBER_ALERT" = "Är du säker på att du vill sparka";
 "DELETE" = "Ta bort";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "Ditt meddelande blockerades på grund av modereringspolicyer.";
+"DONE" = "Utfört";

@@ -315,7 +315,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
             currentState = .recorded
             try audioViewModel.stopRecording()
         } catch {
-            showAlert(with: error)
+            showAlert(error: error)
         }
     }
 
@@ -392,7 +392,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
         if currentState == .ready {
             audioViewModel.startRecording { [weak self] soundRecord, error in
                 if let error = error {
-                    self?.showAlert(with: error)
+                    self?.showAlert(error: error)
                     return
                 }
                 DispatchQueue.main.async {
@@ -408,7 +408,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
                 startTimer()
                 removePlayButtonAndAddPauseButton()
             } catch {
-                showAlert(with: error)
+                showAlert(error: error)
             }
         }
     }
@@ -419,7 +419,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
                 try audioViewModel.pausePlaying()
                 currentState = .paused
             } catch {
-                showAlert(with: error)
+                showAlert(error: error)
             }
         }
         
@@ -427,7 +427,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
             currentState = .recorded
             try audioViewModel.stopRecording()
         } catch {
-            showAlert(with: error)
+            showAlert(error: error)
         }
         
         // Dismiss the view after stopping recording
@@ -454,7 +454,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
             currentState = .paused
             removePauseButtonAndAddPlayButton()
         } catch {
-            showAlert(with: error)
+            showAlert(error: error)
         }
     }
     
@@ -468,7 +468,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
             recordingView.playerDidFinishPlaying()
             recordingView.setupAudioPlayer()
         } catch {
-            showAlert(with: error)
+            showAlert(error: error)
         }
         
         reRecordAudio()
@@ -491,7 +491,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
             }
 
         } catch {
-            showAlert(with: error)
+            showAlert(error: error)
         }
     }
 

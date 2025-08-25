@@ -258,6 +258,7 @@
 		1F8EB3C53BD4711D606A3C15 /* Message Status@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Message Status@2x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/messages-error.imageset/Message Status@2x.png"; sourceTree = "<group>"; };
 		1FD3C3E3AA516CE0C2BEAC82 /* CometChat horizontal logo 4@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "CometChat horizontal logo 4@3x.png"; path = "SampleAppPushNotificationAPNs/Assets.xcassets/cometchat-logo-with-name.imageset/CometChat horizontal logo 4@3x.png"; sourceTree = "<group>"; };
 		206860C41E89619CBF1C54D7 /* message-composer-plus@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "message-composer-plus@2x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/message-composer-plus.imageset/message-composer-plus@2x.png"; sourceTree = "<group>"; };
+		206AA24AF092D637B333E9E2 /* Base_Icon@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Base_Icon@3x.png"; path = "SampleApp/Assets.xcassets/missedCall.imageset/Base_Icon@3x.png"; sourceTree = "<group>"; };
 		20B43541F3E8C23139528708 /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = SampleAppPushNotificationAPNs/Assets.xcassets/block_image.imageset/Contents.json; sourceTree = "<group>"; };
 		210D6611DEA5E43A491BCAD0 /* Base_Icon@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Base_Icon@2x.png"; path = "CometChatUIKitSwift/Components/Resources/groups-assets.xcassets/groups-create.imageset/Base_Icon@2x.png"; sourceTree = "<group>"; };
 		2117D745D217B629FD288F73 /* CometChatCallBubble.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatCallBubble.swift; path = "CometChatUIKitSwift/Components/Calls/Call Bubble/CometChatCallBubble.swift"; sourceTree = "<group>"; };
@@ -285,6 +286,7 @@
 		24D163B6660013562C0AD7B8 /* File Type=.mp3, Size=Icon@1x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "File Type=.mp3, Size=Icon@1x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/cometchat_audio_file_icon.imageset/File Type=.mp3, Size=Icon@1x.png"; sourceTree = "<group>"; };
 		251F4B707E25690998855988 /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/messages-media-play.imageset/Contents.json"; sourceTree = "<group>"; };
 		25245942DA61797187D01154 /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/message-document.imageset/Contents.json"; sourceTree = "<group>"; };
+		254FC6EA7D3F44C6F46BB038 /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "SampleAppPushNotificationAPNs/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2586DF1632B650E182E1B0F2 /* CometChatGroupMemberOption.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatGroupMemberOption.swift; path = CometChatUIKitSwift/Components/Shared/Models/CometChatGroupMemberOption.swift; sourceTree = "<group>"; };
 		25EA08E6DA56B082391BFE6D /* UIView+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UIView+Extensions.swift"; path = "CometChatUIKitSwift/Extensions/UIView+Extensions.swift"; sourceTree = "<group>"; };
 		26297C44DEB5D42E90E9F680 /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/messages-emoji-keyboard-food.imageset/Contents.json"; sourceTree = "<group>"; };
@@ -333,6 +335,7 @@
 		2DE869092101D066C8FF493E /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/ai_suggest_reply.imageset/Contents.json"; sourceTree = "<group>"; };
 		2DE8FBFD9E81992D40E187E5 /* UserDetailsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserDetailsViewController.swift; path = "SampleAppPushNotificationAPNs/View Controllers/CometChat Components/DetailsPage/UserDetailsViewController.swift"; sourceTree = "<group>"; };
 		2DFD3A4A925D4551DED53C88 /* 512.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = 512.png; path = SampleApp/Assets.xcassets/AppIcon.appiconset/512.png; sourceTree = "<group>"; };
+		2E1D069EA59EEDF44B5145A9 /* Base_Icon@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Base_Icon@2x.png"; path = "SampleAppPushNotificationAPNs/Assets.xcassets/missedCall.imageset/Base_Icon@2x.png"; sourceTree = "<group>"; };
 		2E1EACFD582FB9E000AE5424 /* Vector@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Vector@2x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/time-zone-earth.imageset/Vector@2x.png"; sourceTree = "<group>"; };
 		2E54DA439927A37A540FCEDD /* 72.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = 72.png; path = SampleAppPushNotificationAPNs/Assets.xcassets/AppIcon.appiconset/72.png; sourceTree = "<group>"; };
 		2E5A4930F56B7A49B28FD70B /* CometChatCallActionBubble.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; name = CometChatCallActionBubble.xib; path = CometChatUIKitSwift/Components/Resources/CometChatCallActionBubble.xib; sourceTree = "<group>"; };
@@ -386,6 +389,7 @@
 		38C5A1A811F47292CF83E2FD /* CometChatMessageTranslationBubble.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatMessageTranslationBubble.swift; path = "CometChatUIKitSwift/Components/Extensions/Message Translation/CometChatMessageTranslationBubble.swift"; sourceTree = "<group>"; };
 		38DA42D25E9B4302E03B368C /* Chats.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = Chats.png; path = "CometChatUIKitSwift/Components/Resources/chats-assets.xcassets/Chats.imageset/Chats.png"; sourceTree = "<group>"; };
 		38E076F9FFB76F8780795DD6 /* Base_Icon@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Base_Icon@3x.png"; path = "SampleAppPushNotificationAPNs/Assets.xcassets/groups-create.imageset/Base_Icon@3x.png"; sourceTree = "<group>"; };
+		3912FE32A468B8249ACEE399 /* Base_Icon@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Base_Icon@2x.png"; path = "SampleApp/Assets.xcassets/missedCall.imageset/Base_Icon@2x.png"; sourceTree = "<group>"; };
 		3992540EA2DE94DB523495DC /* Pods_SampleAppPushNotificationAPNs.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SampleAppPushNotificationAPNs.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		39E12E71AE71ACCB2AF36FF4 /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/add_reaction.imageset/Contents.json"; sourceTree = "<group>"; };
 		3A0B4D9DA209DB69C67707DB /* Icon-60@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Icon-60@3x.png"; path = "CometChatUIKitSwift/Components/Calls/Resources/calls-assets.xcassets/missed-video-call.imageset/Icon-60@3x.png"; sourceTree = "<group>"; };
@@ -769,6 +773,7 @@
 		7F6DC9EA91963AF5E9A23446 /* messages-add-reaction-dark@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "messages-add-reaction-dark@2x.png"; path = "CometChatUIKitSwift/Components/Shared/Resources/shared-assets.xcassets/add-reaction.imageset/messages-add-reaction-dark@2x.png"; sourceTree = "<group>"; };
 		7F74DDF2A27AF5FDBF4C08E0 /* CometChatMessageList + Properties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "CometChatMessageList + Properties.swift"; path = "CometChatUIKitSwift/Components/Message List/CometChatMessageList + Properties.swift"; sourceTree = "<group>"; };
 		7F7BAD8D387C2678DAF0FCA3 /* Base_iOS Icons@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Base_iOS Icons@2x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/translate-icon.imageset/Base_iOS Icons@2x.png"; sourceTree = "<group>"; };
+		7F8AA38B7CD77510C267A5AA /* Base_Icon@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Base_Icon@3x.png"; path = "SampleAppPushNotificationAPNs/Assets.xcassets/missedCall.imageset/Base_Icon@3x.png"; sourceTree = "<group>"; };
 		7F9CA35B68DED9B7ABD8F103 /* Yes@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Yes@3x.png"; path = "CometChatUIKitSwift/Components/Calls/Resources/calls-assets.xcassets/outgoing-audio-call.imageset/Yes@3x.png"; sourceTree = "<group>"; };
 		80090413436ECD47E4BDAE89 /* MessageReceiptUtils.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MessageReceiptUtils.swift; path = CometChatUIKitSwift/Components/Shared/Utils/MessageReceiptUtils.swift; sourceTree = "<group>"; };
 		80401C4CA7A1E7AE4D3C9EEB /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "SampleApp/Assets.xcassets/cometchat-logo.imageset/Contents.json"; sourceTree = "<group>"; };
@@ -899,6 +904,7 @@
 		97A33633113E6712A4A50CFF /* ConversationsStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConversationsStyle.swift; path = CometChatUIKitSwift/Components/Conversations/ConversationsStyle.swift; sourceTree = "<group>"; };
 		97A9D7A09B356CA56CD96455 /* CallButtonStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CallButtonStyle.swift; path = "CometChatUIKitSwift/Components/Calls/Call Button/CallButtonStyle.swift"; sourceTree = "<group>"; };
 		97BB3A1CA235A8636C209C5F /* CometChatMessageTranslationStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatMessageTranslationStyle.swift; path = "CometChatUIKitSwift/Components/Extensions/Message Translation/CometChatMessageTranslationStyle.swift"; sourceTree = "<group>"; };
+		97CDC9D5DFF5F00F5BB4B1A1 /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = SampleApp/Assets.xcassets/missedCall.imageset/Contents.json; sourceTree = "<group>"; };
 		981C158376F75A1CC0C654DF /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Shared/Resources/shared-assets.xcassets/error-alert.imageset/Contents.json"; sourceTree = "<group>"; };
 		98543680E89B6B55CBE0AD3E /* SceneDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = SampleAppPushNotificationAPNs/SceneDelegate.swift; sourceTree = "<group>"; };
 		98ABB5B77EBD3ED4C421F0E3 /* CometChatCardBubble.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; name = CometChatCardBubble.xib; path = CometChatUIKitSwift/Components/Resources/CometChatCardBubble.xib; sourceTree = "<group>"; };
@@ -1004,6 +1010,7 @@
 		ABB4CF61A2A5C674528DB311 /* Base_Icon@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Base_Icon@3x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/messages-stickers.imageset/Base_Icon@3x.png"; sourceTree = "<group>"; };
 		AC1AF43D027D6CCD155CEC32 /* Icon-40.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Icon-40.png"; path = "CometChatUIKitSwift/Components/Calls/Resources/calls-assets.xcassets/missed-audio-call.imageset/Icon-40.png"; sourceTree = "<group>"; };
 		AC68ABBCB0FA9817C1869020 /* AddMembersViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AddMembersViewModel.swift; path = "SampleAppPushNotificationAPNs/View Controllers/CometChat Components/Add Members/AddMembersViewModel.swift"; sourceTree = "<group>"; };
+		AC977F512B33D1CEA2BE7D9F /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = SampleAppPushNotificationAPNs/Assets.xcassets/missedCall.imageset/Contents.json; sourceTree = "<group>"; };
 		ACBE558C064B49A7F9EE23FE /* messages-emoji-keyboard-add-reaction@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "messages-emoji-keyboard-add-reaction@2x.png"; path = "CometChatUIKitSwift/Components/Shared/Resources/shared-assets.xcassets/messages-emoji-keyboard-add-reaction.imageset/messages-emoji-keyboard-add-reaction@2x.png"; sourceTree = "<group>"; };
 		AD042BFFAFC8E74D9E13E300 /* cometchat_white@3x-1.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "cometchat_white@3x-1.png"; path = "SampleAppPushNotificationAPNs/Assets.xcassets/cometchat_white.imageset/cometchat_white@3x-1.png"; sourceTree = "<group>"; };
 		AD4F37DBF14EDEC8AE388CED /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/cometchat_unknown_file_icon.imageset/Contents.json"; sourceTree = "<group>"; };
@@ -1052,6 +1059,7 @@
 		B59B93C8B08EEF8D0C469B76 /* messages-end-call.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "messages-end-call.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/messages-end-call.imageset/messages-end-call.png"; sourceTree = "<group>"; };
 		B5ABA878E304DBEC2F26807E /* CometChatCreatePollOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatCreatePollOptions.swift; path = "CometChatUIKitSwift/Components/Extensions/Polls/Create Poll Options/CometChatCreatePollOptions.swift"; sourceTree = "<group>"; };
 		B5D612DC04EC57DAF93B7476 /* messages-forward-message@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "messages-forward-message@2x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/messages-forward-message.imageset/messages-forward-message@2x.png"; sourceTree = "<group>"; };
+		B5D92FA801A0E5F36103762E /* AppConstants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppConstants.swift; path = SampleApp/AppConstants.swift; sourceTree = "<group>"; };
 		B5DB4DCA8F74319BAA25217B /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/photo-library.imageset/Contents.json"; sourceTree = "<group>"; };
 		B60841BC7723641C2BB1370E /* CometChatSmartRepliesItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatSmartRepliesItem.swift; path = "CometChatUIKitSwift/Components/Extensions/Smart Replies/CometChatSmartRepliesItem.swift"; sourceTree = "<group>"; };
 		B638488452056E0136A1843A /* message-composer-attachment@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "message-composer-attachment@2x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/message-composer-attachment.imageset/message-composer-attachment@2x.png"; sourceTree = "<group>"; };
@@ -1233,6 +1241,7 @@
 		D693D6B58B0C57B56BF8FF23 /* Icon@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/initiated_video_call.imageset/Icon@2x.png"; sourceTree = "<group>"; };
 		D697EB5222C654234DC32F32 /* audio@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "audio@3x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/message-composer-audio-file.imageset/audio@3x.png"; sourceTree = "<group>"; };
 		D6D13AE61EC4EF9FC532BB97 /* OutgoingCallViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OutgoingCallViewModel.swift; path = "CometChatUIKitSwift/Components/Calls/Outgoing Call/OutgoingCallViewModel.swift"; sourceTree = "<group>"; };
+		D6D59113A8C5FD74064A409E /* Base_Icon.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = Base_Icon.png; path = SampleAppPushNotificationAPNs/Assets.xcassets/missedCall.imageset/Base_Icon.png; sourceTree = "<group>"; };
 		D7820618C69691F277ECD600 /* Base_iOS Icons@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Base_iOS Icons@3x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/sticker-image.imageset/Base_iOS Icons@3x.png"; sourceTree = "<group>"; };
 		D7A8B59B2DA04A98A9996F4D /* GroupsShimmerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GroupsShimmerView.swift; path = CometChatUIKitSwift/Components/Groups/GroupsShimmerView.swift; sourceTree = "<group>"; };
 		D7AD7D0FAAF350FA0DE9B67E /* microphone-circle@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "microphone-circle@2x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/microphone-circle.imageset/microphone-circle@2x.png"; sourceTree = "<group>"; };
@@ -1277,6 +1286,7 @@
 		DDE64323928A60A9A35E6343 /* iOS Icons@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "iOS Icons@3x.png"; path = "SampleAppPushNotificationAPNs/Assets.xcassets/ban_members.imageset/iOS Icons@3x.png"; sourceTree = "<group>"; };
 		DE4D980C878F1C62E27908BE /* CometChatMessageTemplate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatMessageTemplate.swift; path = CometChatUIKitSwift/Components/Shared/Models/CometChatMessageTemplate.swift; sourceTree = "<group>"; };
 		DE6AF0EB28B3DA39B6FA6800 /* Localizable.strings */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = CometChatUIKitSwift/Components/Shared/Resources/sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		DE7CCB5C0AE0C082CB5F9DC0 /* Base_Icon.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = Base_Icon.png; path = SampleApp/Assets.xcassets/missedCall.imageset/Base_Icon.png; sourceTree = "<group>"; };
 		DEC01F50E93BFD36D192A24A /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/sticker-image-filled.imageset/Contents.json"; sourceTree = "<group>"; };
 		DEDDBC71C86439A54237A36B /* SampleAppPushNotificationAPNs.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = SampleAppPushNotificationAPNs.entitlements; path = SampleAppPushNotificationAPNs/SampleAppPushNotificationAPNs.entitlements; sourceTree = "<group>"; };
 		DEFB26A0E5907959A00D4CFA /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = SampleAppPushNotificationAPNs/Assets.xcassets/Contents.json; sourceTree = "<group>"; };
@@ -2947,6 +2957,16 @@
 				6E0F69414A9A2AE723468666 /* changelog.md */,
 				6E1F66AFA36F00C73D715BA4 /* SplitScreenViewController.swift */,
 				E2CC97DA9BD2DD9D53222FA0 /* SplitScreenViewController.swift */,
+				B5D92FA801A0E5F36103762E /* AppConstants.swift */,
+				DE7CCB5C0AE0C082CB5F9DC0 /* Base_Icon.png */,
+				3912FE32A468B8249ACEE399 /* Base_Icon@2x.png */,
+				206AA24AF092D637B333E9E2 /* Base_Icon@3x.png */,
+				97CDC9D5DFF5F00F5BB4B1A1 /* Contents.json */,
+				D6D59113A8C5FD74064A409E /* Base_Icon.png */,
+				2E1D069EA59EEDF44B5145A9 /* Base_Icon@2x.png */,
+				7F8AA38B7CD77510C267A5AA /* Base_Icon@3x.png */,
+				AC977F512B33D1CEA2BE7D9F /* Contents.json */,
+				254FC6EA7D3F44C6F46BB038 /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3220,9 +3240,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleApp/Pods-SampleApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleApp/Pods-SampleApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3259,9 +3283,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleAppPushNotificationAPNs/Pods-SampleAppPushNotificationAPNs-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleAppPushNotificationAPNs/Pods-SampleAppPushNotificationAPNs-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3298,9 +3326,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleAppPushNotificationAPNs/Pods-SampleAppPushNotificationAPNs-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleAppPushNotificationAPNs/Pods-SampleAppPushNotificationAPNs-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3337,9 +3369,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleApp/Pods-SampleApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleApp/Pods-SampleApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3482,6 +3518,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SampleApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SampleApp;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Access Camera";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app needs access to the microphone to record audio messages";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Access Photos";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Access Photos";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -3493,7 +3534,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 5.0.6;
+				MARKETING_VERSION = 5.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jitvar.test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -3518,6 +3559,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SampleApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SampleApp;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Access Camera";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app needs access to the microphone to record audio messages";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Access Photos";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Access Photos";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -3529,7 +3575,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 5.0.6;
+				MARKETING_VERSION = 5.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jitvar.test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

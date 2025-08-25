@@ -165,14 +165,23 @@ extension URL {
 }
 
 extension UIViewController {
-    func showAlert(with error: Error) {
-        let alertController = UIAlertController(title: "ERROR".localize(), message: error.localizedDescription, preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "OK".localize(), style: .cancel) { _ in
-            alertController.dismiss(animated: true, completion: nil)
-        })
+    func showAlert(message: String? = nil, error: Error? = nil) {
+        let alertMessage = message ?? error?.localizedDescription ?? ""
+        let alertController = UIAlertController(
+            title: "ERROR".localize(),
+            message: alertMessage,
+            preferredStyle: .alert
+        )
+        alertController.addAction(UIAlertAction(
+            title: "OK".localize(),
+            style: .cancel,
+            handler: { _ in
+                alertController.dismiss(animated: true, completion: nil)
+            })
+        )
         alertController.view.tintColor = CometChatTheme_v4.palatte.primary
         DispatchQueue.main.async { [weak self] in
-        guard let this = self else { return }
+            guard let this = self else { return }
             this.present(alertController, animated: true, completion: nil)
         }
     }

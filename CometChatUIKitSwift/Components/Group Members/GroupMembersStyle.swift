@@ -95,5 +95,7 @@ public struct GroupMembersStyle: ListBaseStyle, ListItemStyle {
     
     public var privateGroupImageBackgroundColor: UIColor = CometChatTheme.successColor
     
+    public init() {}
+    
 }
 

@@ -264,3 +264,5 @@
 "FROM_THIS_GROUP_TEXT" = "deste grupo";
 "KICK_MEMBER_ALERT" = "Tem certeza de que quer chutar?";
 "DELETE" = "Excluir";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "Sua mensagem foi bloqueada devido às políticas de moderação.";
+"DONE" = "Feito";

@@ -72,4 +72,8 @@ public class SDKEventInitializer : CometChatMessageDelegate {
         CometChatMessageEvents.onMessageReactionRemoved(reactionEvent: reactionEvent)
     }
     
+    public func onMessageModerated(_ message: BaseMessage) {
+        CometChatMessageEvents.onMessageModerated(message: message)
+    }
+    
 }

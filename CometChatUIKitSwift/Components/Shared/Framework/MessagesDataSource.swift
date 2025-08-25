@@ -59,7 +59,19 @@ public class MessagesDataSource: DataSource {
     public func getTextMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?, additionalConfiguration: AdditionalConfiguration) -> [CometChatMessageOption]? {
         
         let isSentByMe = isSentByMe(loggedInUser: loggedInUser, message: messageObject)
+        let isGroupOwner = group?.owner == loggedInUser.uid
         var messageOptions = [CometChatMessageOption]()
+        
+        if MessageUtils.isMessageModerationDisapproved(message: messageObject) {
+            if !additionalConfiguration.hideCopyMessageOption {
+                messageOptions.append(getCopyOption(controller: controller))
+            }
+            if (isSentByMe || group?.scope == .admin || group?.scope == .moderator || isGroupOwner) &&
+                !additionalConfiguration.hideDeleteMessageOption {
+                messageOptions.append(getDeleteOption(controller: controller))
+            }
+            return messageOptions
+        }
         
         if (messageObject.parentMessageId == 0) && !additionalConfiguration.hideReplyInThreadOption {
             messageOptions.append(getReplyInThreadOption(controller: controller))
@@ -73,7 +85,7 @@ public class MessagesDataSource: DataSource {
             messageOptions.append(getCopyOption(controller: controller))
         }
         
-        if isSentByMe && !additionalConfiguration.hideEditMessageOption {
+        if (isSentByMe || group?.scope == .admin || group?.scope == .moderator || isGroupOwner) && !additionalConfiguration.hideEditMessageOption {
             messageOptions.append(getEditOption(controller: controller))
         }
         
@@ -81,7 +93,7 @@ public class MessagesDataSource: DataSource {
             messageOptions.append(getInformationOption(controller: controller))
         }
         
-        if (isSentByMe || group?.scope == .admin || group?.scope == .moderator) && !additionalConfiguration.hideDeleteMessageOption  {
+        if (isSentByMe || group?.scope == .admin || group?.scope == .moderator || isGroupOwner) && !additionalConfiguration.hideDeleteMessageOption  {
             messageOptions.append(getDeleteOption(controller: controller))
         }
         
@@ -442,6 +454,14 @@ public class MessagesDataSource: DataSource {
     public func getCommonOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?, additionalConfiguration: AdditionalConfiguration) -> [CometChatMessageOption] {
         var options = [CometChatMessageOption]()
         let isSentByMe = isSentByMe(loggedInUser: loggedInUser, message: messageObject)
+        
+        if MessageUtils.isMessageModerationDisapproved(message: messageObject) {
+            if (isSentByMe || group?.scope == .admin || group?.scope == .moderator) &&
+                !additionalConfiguration.hideDeleteMessageOption {
+                options.append(getDeleteOption(controller: controller))
+            }
+            return options
+        }
         
         if (messageObject.parentMessageId == 0) && !additionalConfiguration.hideReplyInThreadOption {
             options.append(getReplyInThreadOption(controller: controller))

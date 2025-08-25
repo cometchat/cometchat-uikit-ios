@@ -177,6 +177,8 @@ open class CometChatMessageList: UIView {
         }
     }
     
+    public var hideModerationStatus: Bool = false
+    
     //AI Variables 
     public var enableConversationStarters: Bool = false
     public var enableSmartReplies: Bool = false
@@ -603,11 +605,24 @@ open class CometChatMessageList: UIView {
         }
     }
     
+    open func addModerationView(
+        on cell: CometChatMessageBubble,
+        message: BaseMessage,
+        bubbleStyle: MessageBubbleStyle
+    ) {
+        MessageUtils.getModerationView(
+            from: cell,
+            message: message,
+            bubbleStyle: bubbleStyle
+        )
+    }
+    
     open func buildMessageFooterView(
         on cell: CometChatMessageBubble,
         for message: BaseMessage,
         messageTypeStyle: BaseMessageBubbleStyle?,
-        bubbleStyle: MessageBubbleStyle
+        bubbleStyle: MessageBubbleStyle,
+        isModerated: Bool = false
     ) {
         MessageUtils.buildStatusInfo(
             from: cell,
@@ -616,7 +631,7 @@ open class CometChatMessageList: UIView {
             message: message,
             hideReceipt: hideReceipts,
             messageAlignment: messageAlignment,
-            timePattern: timePattern, dateTimeFormatter: dateTimeFormatter
+            timePattern: timePattern, dateTimeFormatter: dateTimeFormatter, isModerated: isModerated
         )
     }
     
@@ -776,7 +791,14 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     cell.set(contentView: contentView)
                 }
                 
-                if let bottomView = template.bottomView?(message, cell.alignment, controller) {
+
+                cell.set(bottomView: nil)
+
+                let isModerated = MessageUtils.isMessageModerationDisapproved(message: message)
+
+                if isModerated && !hideModerationStatus && message.deletedAt <= 0 {
+                    addModerationView(on: cell, message: message, bubbleStyle: messageBubbleStyle.outgoing)
+                } else if let bottomView = template.bottomView?(message, cell.alignment, controller) {
                     cell.set(bottomView: bottomView)
                 }
                 
@@ -784,13 +806,13 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 if let statusInfoView = template.statusInfoView?(message, cell.alignment, controller) {
                     cell.set(statusInfoView: statusInfoView)
                 } else {
-                    buildMessageFooterView(on: cell, for: message, messageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle)
+                    buildMessageFooterView(on: cell, for: message, messageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle, isModerated: isModerated)
                 }
                 
                 if let footerView = template.footerView?(message, cell.alignment, controller) {
                     cell.set(footerView: footerView)
                 } else {
-                    if message.deletedAt == 0 {
+                    if message.deletedAt == 0 && !isModerated {
                         buildReactionsView(
                             forMessage: message,
                             cell: cell,
@@ -800,7 +822,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
                 
-                if message.deletedAt == 0 {
+                if message.deletedAt == 0 && !isModerated{
                     addThreadedRepliesView(forMessage: message, toCell: cell, isLoggedInUser: isLoggedInUser, specificMessageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle)
                 }
                 

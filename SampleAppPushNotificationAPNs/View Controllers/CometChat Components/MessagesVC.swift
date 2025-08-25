@@ -105,7 +105,6 @@ class MessagesVC: UIViewController {
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self // for swipe back gesture
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         navigationItem.hidesBackButton = true
-        title = "MESSAGES".localize()
         
         // setting this for notification
         // (notification will not be displayed if that users or groups chat is active on screen)
@@ -339,6 +338,10 @@ extension MessagesVC {
             composerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             composerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        composerView.bottomConstant.constant = -CometChatSpacing.Margin.m8
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            self?.composerView.superview?.layoutIfNeeded()
+        }
     }
     
     @objc func onUnBlockButtonTapped() {

@@ -42,6 +42,7 @@ public struct MessageBubbleStyle {
     public var pollBubbleStyle: PollBubbleStyle
     public var linkPreviewBubbleStyle: LinkPreviewBubbleStyle
     public var callBubbleStyle: CallBubbleStyle
+    public var moderationStyle: ModerationStyle
     
     public lazy var reactionsStyle: ReactionsStyle = {
         var reactionsStyle = CometChatReactions.style
@@ -62,10 +63,11 @@ public struct MessageBubbleStyle {
         messageTranslationBubbleStyle = MessageTranslationBubbleStyle()
         deleteBubbleStyle = DeleteBubbleStyle()
         pollBubbleStyle = PollBubbleStyle()
+        moderationStyle = ModerationStyle()
     }
     
     //for default values according to the bubble type
-    internal init(styleType: BubbleStyleType) {
+    public init(styleType: BubbleStyleType) {
         textBubbleStyle = TextBubbleStyle(styleType: styleType)
         imageBubbleStyle = ImageBubbleStyle(styleType: styleType)
         videoBubbleStyle = VideoBubbleStyle(styleType: styleType)
@@ -79,6 +81,7 @@ public struct MessageBubbleStyle {
         deleteBubbleStyle = DeleteBubbleStyle(styleType: styleType)
         pollBubbleStyle = PollBubbleStyle(styleType: styleType)
         callBubbleStyle = CallBubbleStyle(styleType: styleType)
+        moderationStyle = ModerationStyle()
 
         switch styleType {
         case .incoming:
@@ -113,7 +116,7 @@ public protocol BaseMessageBubbleStyle {
     var reactionsStyle: ReactionsStyle? { get set }
 }
 
-enum BubbleStyleType {
+public enum BubbleStyleType {
     case incoming
     case outgoing
 }

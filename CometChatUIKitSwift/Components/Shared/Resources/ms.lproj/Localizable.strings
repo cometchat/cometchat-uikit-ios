@@ -269,3 +269,5 @@
 "FROM_THIS_GROUP_TEXT" = "dari kumpulan ini";
 "KICK_MEMBER_ALERT" = "Adakah anda pasti mahu menendang";
 "DELETE" = "Padam";
+"MODERATION_MESSAGE_BLOCKED_ERROR" = "Mesej anda telah disekat kerana dasar moderasi.";
+"DONE" = "Selesai";

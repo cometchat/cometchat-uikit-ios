@@ -124,6 +124,7 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
         CometChatMessageEvents.addListener("conversations-list-messages-event-listener-\(listenerRandomID)", self)
         CometChatCallEvents.addListener("conversations-list-call-event-listener-\(listenerRandomID)", self)
         CometChat.addCallListener("conversations-list-call-sdk-listener-\(listenerRandomID)", self)
+        CometChatConversationEvents.addListener("user-details-conversations-event-listener-\(listenerRandomID)", self)
         
     }
     
@@ -136,6 +137,7 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
         CometChatMessageEvents.removeListener("conversations-list-messages-event-listener-\(listenerRandomID)")
         CometChatCallEvents.removeListener("conversations-list-call-event-listener-\(listenerRandomID)")
         CometChat.removeCallListener("conversations-list-call-sdk-listener-\(listenerRandomID)")
+        CometChatConversationEvents.removeListener("user-details-conversations-event-listener-\(listenerRandomID)")
     }
     
     func markAsDelivered(conversation: Conversation) {
@@ -284,9 +286,11 @@ extension ConversationsViewModel  {
     /// remove conversation.
     @discardableResult
     public func remove(conversation: Conversation) -> Self {
-        if let index = conversations.firstIndex(of: conversation) {
+        if let index = conversations.firstIndex(where: { $0.conversationId == conversation.conversationId }) {
             self.conversations.remove(at: index)
-            self.deleteAtIndex?(IndexPath(row: index, section: 0))
+            DispatchQueue.main.async {
+                self.deleteAtIndex?(IndexPath(row: index, section: 0))
+            }
         }
         return self
     }

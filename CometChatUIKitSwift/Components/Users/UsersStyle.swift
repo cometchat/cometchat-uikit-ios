@@ -64,13 +64,13 @@ public struct UsersStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     public var titleColor: UIColor? = CometChatTheme.textColorPrimary
     
     // Font for title text
-    public var titleFont: UIFont? 
-    
+    public var titleFont: UIFont? = CometChatTypography.setFont(size: 17, weight: .bold)
+        
     // Text color for large titles (i.e., navigation large titles)
     public var largeTitleColor: UIColor? = CometChatTheme.textColorPrimary
     
     // Font for large titles
-    public var largeTitleFont: UIFont?
+    public var largeTitleFont: UIFont? = CometChatTypography.setFont(size: 34, weight: .bold)
     
     // Tint color for the navigation bar background
     public var navigationBarTintColor: UIColor? = CometChatTheme.backgroundColor01
