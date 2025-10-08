@@ -285,3 +285,5 @@
 "USER" = "Gebruiker";
 "MESSAGES" = "Berichten";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Je bericht werd geblokkeerd vanwege het moderatiebeleid.";
+"PHOTO_LIBRARY" = "Fotobibliotheek";
+"VIDEO_LIBRARY" = "Videobibliotheek";

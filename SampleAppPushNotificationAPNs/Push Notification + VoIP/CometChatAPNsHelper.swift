@@ -247,7 +247,20 @@ extension CometChatAPNsHelper {
             case "initiated":
                 switch applicationState{
                 case.active:
-                    return updatedInitiateCall(sender: sender, senderName: senderName, body: body, callAction: callAction, receiver: receiver, callType: callType, sessionId: sessionId, conversationId: conversationId)
+                    if CometChat.getActiveCall() != nil {
+                        print("User is already on a call, rejecting with busy...")
+                        if let sessionId = payload.dictionaryPayload["sessionId"] as? String {
+                            CometChat.rejectCall(sessionID: sessionId, status: .busy, onSuccess: { rejectedCall in
+                                print("Rejected incoming call with busy status.")
+                            }, onError: { error in
+                                print("Failed to reject with busy status: \(String(describing: error?.errorDescription))")
+                            })
+                        }
+                        return nil
+                    } else {
+                        return updatedInitiateCall(sender: sender, senderName: senderName, body: body, callAction: callAction, receiver: receiver, callType: callType, sessionId: sessionId, conversationId: conversationId)
+                    }
+                    
                 case .inactive:
                     return updatedInitiateCall(sender: sender, senderName: senderName, body: body, callAction: callAction, receiver: receiver, callType: callType, sessionId: sessionId, conversationId: conversationId)
                 case .background:
@@ -264,7 +277,10 @@ extension CometChatAPNsHelper {
             case "rejected" :
                 provider?.reportCall(with: uuid!, endedAt: Date(), reason: .unanswered)
             case "busy" :
-                provider?.reportCall(with: uuid!, endedAt: Date(), reason: .unanswered)
+                if let uuid = uuid{
+                    provider?.reportCall(with: uuid, endedAt: Date(), reason: .unanswered)
+                    self.uuid = nil
+                }
             case "cancelled":
                 provider?.reportCall(with: uuid!, endedAt: Date(), reason: .failed)
                 handleMissedCallNotification(payload: payload.dictionaryPayload)

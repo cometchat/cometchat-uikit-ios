@@ -288,3 +288,5 @@
 "DELETE" = "मिटाएँ";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "आपका संदेश मोडरेशन नीतियों के कारण ब्लॉक कर दिया गया।";
 "DONE" = "हो गया";
+"PHOTO_LIBRARY" = "फोटो लाइब्रेरी";
+"VIDEO_LIBRARY" = "वीडियो लाइब्रेरी";

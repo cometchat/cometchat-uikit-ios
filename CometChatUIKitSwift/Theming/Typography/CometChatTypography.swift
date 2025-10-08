@@ -31,67 +31,190 @@ public class CometChatTypography {
     // MARK: - Typography Levels
     
     public class Title {
-        public static var bold: UIFont { CometChatTypography.setFont(size: 32, weight: .bold) }
-        public static var medium: UIFont { CometChatTypography.setFont(size: 32, weight: .medium) }
-        public static var regular: UIFont { CometChatTypography.setFont(size: 32, weight: .regular) }
+        private static var _bold: UIFont?
+        public static var bold: UIFont {
+            get { _bold ?? CometChatTypography.setFont(size: 32, weight: .bold) }
+            set { _bold = newValue }
+        }
+        
+        private static var _medium: UIFont?
+        public static var medium: UIFont {
+            get { _medium ?? CometChatTypography.setFont(size: 32, weight: .medium) }
+            set { _medium = newValue }
+        }
+        
+        private static var _regular: UIFont?
+        public static var regular: UIFont {
+            get { _regular ?? CometChatTypography.setFont(size: 32, weight: .regular) }
+            set { _regular = newValue }
+        }
     }
     
     public class Heading1 {
-        public static var bold: UIFont { CometChatTypography.setFont(size: 24, weight: .bold) }
-        public static var medium: UIFont { CometChatTypography.setFont(size: 24, weight: .medium) }
-        public static var regular: UIFont { CometChatTypography.setFont(size: 24, weight: .regular) }
+        private static var _bold: UIFont?
+        public static var bold: UIFont {
+            get { _bold ?? CometChatTypography.setFont(size: 24, weight: .bold) }
+            set { _bold = newValue }
+        }
+        
+        private static var _medium: UIFont?
+        public static var medium: UIFont {
+            get { _medium ?? CometChatTypography.setFont(size: 24, weight: .medium) }
+            set { _medium = newValue }
+        }
+        
+        private static var _regular: UIFont?
+        public static var regular: UIFont {
+            get { _regular ?? CometChatTypography.setFont(size: 24, weight: .regular) }
+            set { _regular = newValue }
+        }
     }
     
     public class Heading2 {
-        public static var bold: UIFont { CometChatTypography.setFont(size: 20, weight: .bold) }
-        public static var medium: UIFont { CometChatTypography.setFont(size: 20, weight: .medium) }
-        public static var regular: UIFont { CometChatTypography.setFont(size: 20, weight: .regular) }
+        private static var _bold: UIFont?
+        public static var bold: UIFont {
+            get { _bold ?? CometChatTypography.setFont(size: 20, weight: .bold) }
+            set { _bold = newValue }
+        }
+        
+        private static var _medium: UIFont?
+        public static var medium: UIFont {
+            get { _medium ?? CometChatTypography.setFont(size: 20, weight: .medium) }
+            set { _medium = newValue }
+        }
+        
+        private static var _regular: UIFont?
+        public static var regular: UIFont {
+            get { _regular ?? CometChatTypography.setFont(size: 20, weight: .regular) }
+            set { _regular = newValue }
+        }
     }
-
-    // Heading 3 Styles
+    
     public class Heading3 {
-        public static var bold: UIFont { CometChatTypography.setFont(size: 18, weight: .bold) }
-        public static var medium: UIFont { CometChatTypography.setFont(size: 18, weight: .medium) }
-        public static var regular: UIFont { CometChatTypography.setFont(size: 18, weight: .regular) }
+        private static var _bold: UIFont?
+        public static var bold: UIFont {
+            get { _bold ?? CometChatTypography.setFont(size: 18, weight: .bold) }
+            set { _bold = newValue }
+        }
+        
+        private static var _medium: UIFont?
+        public static var medium: UIFont {
+            get { _medium ?? CometChatTypography.setFont(size: 18, weight: .medium) }
+            set { _medium = newValue }
+        }
+        
+        private static var _regular: UIFont?
+        public static var regular: UIFont {
+            get { _regular ?? CometChatTypography.setFont(size: 18, weight: .regular) }
+            set { _regular = newValue }
+        }
     }
     
-    // Heading 4 Styles
     public class Heading4 {
-        public static var bold: UIFont { CometChatTypography.setFont(size: 16, weight: .bold) }
-        public static var medium: UIFont { CometChatTypography.setFont(size: 16, weight: .medium) }
-        public static var regular: UIFont { CometChatTypography.setFont(size: 16, weight: .regular) }
+        private static var _bold: UIFont?
+        public static var bold: UIFont {
+            get { _bold ?? CometChatTypography.setFont(size: 16, weight: .bold) }
+            set { _bold = newValue }
+        }
+        
+        private static var _medium: UIFont?
+        public static var medium: UIFont {
+            get { _medium ?? CometChatTypography.setFont(size: 16, weight: .medium) }
+            set { _medium = newValue }
+        }
+        
+        private static var _regular: UIFont?
+        public static var regular: UIFont {
+            get { _regular ?? CometChatTypography.setFont(size: 16, weight: .regular) }
+            set { _regular = newValue }
+        }
     }
     
-    // Body Styles
     public class Body {
-        public static var bold: UIFont { CometChatTypography.setFont(size: 14, weight: .bold) }
-        public static var medium: UIFont { CometChatTypography.setFont(size: 14, weight: .medium) }
-        public static var regular: UIFont { CometChatTypography.setFont(size: 14, weight: .regular) }
+        private static var _bold: UIFont?
+        public static var bold: UIFont {
+            get { _bold ?? CometChatTypography.setFont(size: 14, weight: .bold) }
+            set { _bold = newValue }
+        }
+        
+        private static var _medium: UIFont?
+        public static var medium: UIFont {
+            get { _medium ?? CometChatTypography.setFont(size: 14, weight: .medium) }
+            set { _medium = newValue }
+        }
+        
+        private static var _regular: UIFont?
+        public static var regular: UIFont {
+            get { _regular ?? CometChatTypography.setFont(size: 14, weight: .regular) }
+            set { _regular = newValue }
+        }
     }
     
-    // Caption 1 Styles
     public class Caption1 {
-        public static var bold: UIFont { CometChatTypography.setFont(size: 12, weight: .bold) }
-        public static var medium: UIFont { CometChatTypography.setFont(size: 12, weight: .medium) }
-        public static var regular: UIFont { CometChatTypography.setFont(size: 12, weight: .regular) }
+        private static var _bold: UIFont?
+        public static var bold: UIFont {
+            get { _bold ?? CometChatTypography.setFont(size: 12, weight: .bold) }
+            set { _bold = newValue }
+        }
+        
+        private static var _medium: UIFont?
+        public static var medium: UIFont {
+            get { _medium ?? CometChatTypography.setFont(size: 12, weight: .medium) }
+            set { _medium = newValue }
+        }
+        
+        private static var _regular: UIFont?
+        public static var regular: UIFont {
+            get { _regular ?? CometChatTypography.setFont(size: 12, weight: .regular) }
+            set { _regular = newValue }
+        }
     }
     
-    // Caption 2 Styles
     public class Caption2 {
-        public static var bold: UIFont { CometChatTypography.setFont(size: 10, weight: .bold) }
-        public static var medium: UIFont { CometChatTypography.setFont(size: 10, weight: .medium) }
-        public static var regular: UIFont { CometChatTypography.setFont(size: 10, weight: .regular) }
+        private static var _bold: UIFont?
+        public static var bold: UIFont {
+            get { _bold ?? CometChatTypography.setFont(size: 10, weight: .bold) }
+            set { _bold = newValue }
+        }
+        
+        private static var _medium: UIFont?
+        public static var medium: UIFont {
+            get { _medium ?? CometChatTypography.setFont(size: 10, weight: .medium) }
+            set { _medium = newValue }
+        }
+        
+        private static var _regular: UIFont?
+        public static var regular: UIFont {
+            get { _regular ?? CometChatTypography.setFont(size: 10, weight: .regular) }
+            set { _regular = newValue }
+        }
     }
     
-    // Button Styles
     public class Button {
-        public static var bold: UIFont { CometChatTypography.setFont(size: 14, weight: .bold) }
-        public static var medium: UIFont { CometChatTypography.setFont(size: 14, weight: .medium) }
-        public static var regular: UIFont { CometChatTypography.setFont(size: 14, weight: .regular) }
+        private static var _bold: UIFont?
+        public static var bold: UIFont {
+            get { _bold ?? CometChatTypography.setFont(size: 14, weight: .bold) }
+            set { _bold = newValue }
+        }
+        
+        private static var _medium: UIFont?
+        public static var medium: UIFont {
+            get { _medium ?? CometChatTypography.setFont(size: 14, weight: .medium) }
+            set { _medium = newValue }
+        }
+        
+        private static var _regular: UIFont?
+        public static var regular: UIFont {
+            get { _regular ?? CometChatTypography.setFont(size: 14, weight: .regular) }
+            set { _regular = newValue }
+        }
     }
     
-    // Link Styles
     public class Link {
-        public static var regular: UIFont { CometChatTypography.setFont(size: 14, weight: .regular) }
+        private static var _regular: UIFont?
+        public static var regular: UIFont {
+            get { _regular ?? CometChatTypography.setFont(size: 14, weight: .regular) }
+            set { _regular = newValue }
+        }
     }
 }

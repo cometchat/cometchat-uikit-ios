@@ -266,3 +266,5 @@
 "DELETE" = "Borrar";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Tu mensaje fue bloqueado debido a las políticas de moderación.";
 "DONE" = "Hecho";
+"PHOTO_LIBRARY" = "Biblioteca de fotos";
+"VIDEO_LIBRARY" = "Biblioteca de vídeos";

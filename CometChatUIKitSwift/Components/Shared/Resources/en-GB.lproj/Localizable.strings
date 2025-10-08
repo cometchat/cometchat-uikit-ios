@@ -286,3 +286,5 @@
 "USER" = "User";
 "MESSAGES" = "Messages";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Your message was blocked due to moderation policies";
+"PHOTO_LIBRARY" = "Photo Library";
+"VIDEO_LIBRARY" = "Video Library";

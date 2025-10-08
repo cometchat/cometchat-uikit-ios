@@ -285,3 +285,5 @@
 "USER" = "Kullanıcı";
 "MESSAGES" = "Mesajlar";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Mesajınız moderasyon politikaları nedeniyle engellendi.";
+"PHOTO_LIBRARY" = "Fotoğraf Kütüphanesi";
+"VIDEO_LIBRARY" = "Video Kütüphanesi";

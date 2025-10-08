@@ -11,7 +11,7 @@ import UIKit
 class AppConstants {
     
     static var APP_ID: String = "26580020f03ff346"
-    static var AUTH_KEY: String = "4152b0366478871f0fa8d19a287dd6f5ed5f8eff"
+    static var AUTH_KEY: String = "afb14577cf7e9422108ef104c22f3dbe8a3adcb6"
     static var REGION: String = "in"
 }
 

@@ -262,10 +262,11 @@ open class MessageUtils {
         
         if !addtionalConfiguration.hideImageAttachmentOption{
             composerAction.append(CometChatMessageComposerAction(id: MessageTypeConstants.image, text: "TAKE_A_PHOTO".localize(), startIcon: UIImage(systemName: "camera.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil))
+            composerAction.append(CometChatMessageComposerAction(id: MessageTypeConstants.image, text: "PHOTO_LIBRARY".localize(), startIcon:  UIImage(systemName: "photo.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil))
         }
         
         if !addtionalConfiguration.hideVideoAttachmentOption{
-            composerAction.append(CometChatMessageComposerAction(id: MessageTypeConstants.image, text: "PHOTO_VIDEO_LIBRARY".localize(), startIcon:  UIImage(systemName: "photo") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil))
+            composerAction.append(CometChatMessageComposerAction(id: MessageTypeConstants.video, text: "VIDEO_LIBRARY".localize(), startIcon:  UIImage(systemName: "video.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil))
         }
         
         if !addtionalConfiguration.hideFileAttachmentOption{

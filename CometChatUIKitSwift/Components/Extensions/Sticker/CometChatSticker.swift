@@ -11,13 +11,13 @@ import UIKit
 
 public class CometChatSticker {
     
-    var id: String?
-    var name: String?
-    var order: Int?
-    var setID: String?
-    var setName: String?
-    var setOrder: Int?
-    var url: String?
+    public var id: String?
+    public var name: String?
+    public var order: Int?
+    public var setID: String?
+    public var setName: String?
+    public var setOrder: Int?
+    public var url: String?
     
     init(id: String ,name: String, order: Int, setID: String, setName: String, setOrder: Int, url: String) {
         self.id = id

@@ -305,3 +305,5 @@
 "DELETE" = "حذف";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "تم حظر رسالتك بسبب سياسات الاعتدال.";
 "DONE" = "تم";
+"PHOTO_LIBRARY" = "مكتبة الصور";
+"VIDEO_LIBRARY" = "مكتبة الفيديو";

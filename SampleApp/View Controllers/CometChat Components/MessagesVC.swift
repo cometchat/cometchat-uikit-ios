@@ -105,6 +105,7 @@ class MessagesVC: UIViewController {
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self // for swipe back gesture
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         navigationItem.hidesBackButton = true
+
         
     }
     

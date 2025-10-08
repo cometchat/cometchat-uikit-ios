@@ -35,7 +35,18 @@ class CameraHandler: NSObject{
             let myPickerController = UIImagePickerController()
             myPickerController.delegate = self;
             myPickerController.sourceType = .photoLibrary
-            myPickerController.mediaTypes = ["public.image", "public.movie"]
+            myPickerController.mediaTypes = ["public.image"]
+            currentVC?.present(myPickerController, animated: true, completion: nil)
+        }
+    }
+    
+    func presentVideoLibrary(for view: UIViewController) {
+        currentVC = view
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary){
+            let myPickerController = UIImagePickerController()
+            myPickerController.delegate = self;
+            myPickerController.sourceType = .photoLibrary
+            myPickerController.mediaTypes = ["public.movie"]
             currentVC?.present(myPickerController, animated: true, completion: nil)
         }
     }

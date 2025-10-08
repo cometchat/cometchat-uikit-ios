@@ -271,3 +271,5 @@
 "DELETE" = "Padam";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Mesej anda telah disekat kerana dasar moderasi.";
 "DONE" = "Selesai";
+"PHOTO_LIBRARY" = "Perpustakaan Foto";
+"VIDEO_LIBRARY" = "Perpustakaan Video";

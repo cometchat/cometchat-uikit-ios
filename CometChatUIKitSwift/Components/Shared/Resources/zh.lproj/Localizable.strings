@@ -289,3 +289,5 @@
 "DELETE" = "删除";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "您的消息因审核政策而被屏蔽";
 "DONE" = "完成了";
+"PHOTO_LIBRARY" = "照片库";
+"VIDEO_LIBRARY" = "视频库";

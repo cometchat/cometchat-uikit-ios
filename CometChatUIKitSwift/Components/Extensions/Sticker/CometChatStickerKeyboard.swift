@@ -1,4 +1,3 @@
-
 //  StickerKeyboard.swift
 //  Created by admin on 04/11/22.
 
@@ -16,7 +15,7 @@ protocol StickerkeyboardDelegate {
     func showStickerKeyboard(status: Bool)
 }
 
-@objc @IBDesignable 
+@objc @IBDesignable
 public class CometChatStickerKeyboard: UIView {
     
     /// Collection view to display sticker sets in a horizontal scrollable layout.
@@ -503,9 +502,6 @@ extension CometChatStickerKeyboard : UICollectionViewDelegate , UICollectionView
             if let cell = collectionView.cellForItem(at: indexPath) as? StickerCell, let stickerSet = cell.stickerSet, let stickers = stickerSet.stickers {
                 self.stickersForPreview.removeAll()
                 self.stickersForPreview = stickers
-                for sticker in stickers {
-                    self.stickersForPreview.append(sticker)
-                }
                 DispatchQueue.main.async {
                     self.stickersCollectionView.reloadData()
                     self.stickersCollectionView.setContentOffset(CGPoint.zero, animated: true)

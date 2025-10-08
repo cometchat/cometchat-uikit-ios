@@ -29,8 +29,7 @@ class PollsOptionView: UIView {
         progressBar.translatesAutoresizingMaskIntoConstraints = false
         progressBar.heightAnchor.constraint(equalToConstant: 8).isActive = true
         progressBar.clipsToBounds = true
-        progressBar.subviews[1].clipsToBounds = true
-
+        progressBar.subviews.forEach { $0.clipsToBounds = true }
         if total == 0 {
             progressBar.setProgress(0, animated: true)
         } else {
@@ -180,7 +179,9 @@ class PollsOptionView: UIView {
         optionProgressBar.backgroundColor = style.optionProgressBackgroundColor
         optionProgressBar.progressTintColor = style.optionProgressTintColor
         optionProgressBar.roundViewCorners(corner: style.optionProgressCornerRadius)
-        optionProgressBar.layer.sublayers?[1].cornerRadius = style.optionProgressCornerRadius.cornerRadius
+        optionProgressBar.layer.sublayers?.forEach({
+            $0.cornerRadius = style.optionProgressCornerRadius.cornerRadius
+          })
         pollAttemptedCountLabel.textColor = style.optionCountTextColor
         pollAttemptedCountLabel.font = style.optionCountTextFont
         spinnerView.color = style.optionProgressTintColor

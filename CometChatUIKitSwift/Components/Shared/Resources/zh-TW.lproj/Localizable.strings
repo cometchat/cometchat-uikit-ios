@@ -310,3 +310,5 @@
 "DELETE" = "刪除";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "您的訊息因為管理政策被封鎖。";
 "DONE" = "完成";
+"PHOTO_LIBRARY" = "照片庫";
+"VIDEO_LIBRARY" = "影片資料庫";

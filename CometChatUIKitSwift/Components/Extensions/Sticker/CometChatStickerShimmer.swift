@@ -37,8 +37,10 @@ open class CometChatStickerShimmer: CometChatShimmerView, UICollectionViewDataSo
     }
     
     open override func stopShimmer() {
-        cellCountManager = 0
-        collectionView.reloadData()
+        DispatchQueue.main.async { [weak self] in
+            self?.cellCountManager = 0
+            self?.collectionView.reloadData()
+        }
     }
     
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

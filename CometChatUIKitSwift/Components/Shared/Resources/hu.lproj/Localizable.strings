@@ -274,3 +274,5 @@
 "DELETE" = "Törölje";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Üzenetét moderálási irányelvek miatt blokkolták.";
 "DONE" = "Kész";
+"PHOTO_LIBRARY" = "Fotókönyvtár";
+"VIDEO_LIBRARY" = "Videókönyvtár";

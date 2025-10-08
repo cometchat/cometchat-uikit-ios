@@ -285,3 +285,5 @@
 "USER" = "사용자";
 "MESSAGES" = "메시지";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "귀하의 메시지는 관리 정책으로 인해 차단되었습니다.";
+"PHOTO_LIBRARY" = "사진 보관함";
+"VIDEO_LIBRARY" = "비디오 보관함";

@@ -293,3 +293,5 @@
 "KICK_MEMBER_ALERT" = "Are you sure you want to kick";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Your message was blocked due to moderation policies";
 "DONE" = "Done";
+"PHOTO_LIBRARY" = "Photo Library";
+"VIDEO_LIBRARY" = "Video Library";

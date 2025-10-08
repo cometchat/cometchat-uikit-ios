@@ -511,8 +511,12 @@ public class MessagesDataSource: DataSource {
         return CometChatMessageComposerAction(id: ComposerAttachmentConstants.camera, text: "TAKE_A_PHOTO".localize(), startIcon: UIImage(systemName: "camera.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil)
     }
     
-    public func photoAndVideoLibraryOption(controller: UIViewController?) -> CometChatMessageComposerAction{
-        return   CometChatMessageComposerAction(id: ComposerAttachmentConstants.gallery, text: "PHOTO_VIDEO_LIBRARY".localize(), startIcon:  UIImage(systemName: "photo.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil)
+    public func photoLibraryOption(controller: UIViewController?) -> CometChatMessageComposerAction{
+        return   CometChatMessageComposerAction(id: ComposerAttachmentConstants.photo, text: "PHOTO_LIBRARY".localize(), startIcon:  UIImage(systemName: "photo.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil)
+    }
+    
+    public func videoLibraryOption(controller: UIViewController?) -> CometChatMessageComposerAction{
+        return   CometChatMessageComposerAction(id: ComposerAttachmentConstants.video, text: "VIDEO_LIBRARY".localize(), startIcon:  UIImage(systemName: "video.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil)
     }
     
     public func fileAttachmentOption(controller: UIViewController?) -> CometChatMessageComposerAction{
@@ -526,10 +530,11 @@ public class MessagesDataSource: DataSource {
         
         if !additionalConfiguration.hideImageAttachmentOption{
             composerAction.append(takePhotoOption(controller: controller))
+            composerAction.append(photoLibraryOption(controller: controller))
         }
         
         if !additionalConfiguration.hideVideoAttachmentOption{
-            composerAction.append(photoAndVideoLibraryOption(controller: controller))
+            composerAction.append(videoLibraryOption(controller: controller))
         }
         
         if !additionalConfiguration.hideFileAttachmentOption{

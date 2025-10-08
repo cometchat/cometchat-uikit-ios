@@ -266,3 +266,5 @@
 "DELETE" = "Ta bort";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Ditt meddelande blockerades på grund av modereringspolicyer.";
 "DONE" = "Utfört";
+"PHOTO_LIBRARY" = "Fotobibliotek";
+"VIDEO_LIBRARY" = "Videobibliotek";

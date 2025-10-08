@@ -279,3 +279,5 @@
 "DELETE" = "Löschen";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Ihre Nachricht wurde aufgrund der Moderationsrichtlinien blockiert.";
 "DONE" = "Erledigt";
+"PHOTO_LIBRARY" = "Photothek";
+"VIDEO_LIBRARY" = "Videothek";

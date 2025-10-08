@@ -133,10 +133,10 @@ class CallingExtensionDecorator: DataSourceDecorator {
             icon = callType == .audio ? "phone" : "video"
 
         case .busy:
-            callStatusText = "MISSED_CALL".localize()
+            callStatusText = "Call Busy".localize()
             icon = callType == .audio ? "phone.arrow.down.left" : "arrow.down.left.video"
-            textColor = additionalConfiguration.callActionBubbleStyle.missedCallTextColor
-            iconTintColor = additionalConfiguration.callActionBubbleStyle.missedCallImageTintColor
+            textColor = additionalConfiguration.callActionBubbleStyle.callTextColor
+            iconTintColor = additionalConfiguration.callActionBubbleStyle.callImageTintColor
 
         case .ended:
             callStatusText = "CALL_ENDED".localize()
@@ -299,7 +299,7 @@ class CallingExtensionDecorator: DataSourceDecorator {
             case .cancelled:
                 return NSAttributedString(string: isLoggedInUser ? "CALL_CANCELLED".localize() : "MISSED_CALL".localize())
             case .busy:
-                return NSAttributedString(string: isLoggedInUser ? "CALL_REJECTED".localize() : "MISSED_CALL".localize())
+                return NSAttributedString(string: isLoggedInUser ? "CALL_REJECTED".localize() : "Call Busy".localize())
             case .ended:
                 return NSAttributedString(string: "CALL_ENDED".localize())
             case .ongoing:

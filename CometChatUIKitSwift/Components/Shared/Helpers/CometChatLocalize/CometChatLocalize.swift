@@ -75,12 +75,24 @@ public class CometChatLocalize: Bundle {
      - Author: CometChat Team
      - Copyright:  ©  2022 CometChat Inc.
      */
-    public class func set(locale: Language){
-        self.locale = locale.rawValue
+    public class func set(locale: Language) {
+        set(locale: locale.rawValue)
+    }
+    
+    public class func set(locale: String) {
+        self.locale = locale
+        UserDefaults.standard.set(locale, forKey: "lang")
+
         defer {
             object_setClass(CometChatUIKit.bundle, CometChatLocalize.self)
         }
-        objc_setAssociatedObject(CometChatUIKit.bundle, &bundleKey,    CometChatUIKit.bundle.path(forResource: locale.rawValue, ofType: "lproj"), .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+
+        objc_setAssociatedObject(
+            CometChatUIKit.bundle,
+            &bundleKey,
+            CometChatUIKit.bundle.path(forResource: locale, ofType: "lproj"),
+            .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+        )
     }
     
     /**
@@ -94,52 +106,21 @@ public class CometChatLocalize: Bundle {
     
     
     
-    public override func localizedString(forKey key: String,
-                                  value: String?,
-                                  table tableName: String?) -> String {
-        
-        guard let path = objc_getAssociatedObject(self, &bundleKey) as? String,
-            let bundle = Bundle(path: path) else {
-                
+    public override func localizedString(forKey key: String, value: String?, table tableName: String?) -> String {
+            guard let path = objc_getAssociatedObject(self, &bundleKey) as? String,
+                  let bundle = Bundle(path: path) else {
                 return super.localizedString(forKey: key, value: value, table: tableName)
+            }
+            return bundle.localizedString(forKey: key, value: value, table: tableName)
         }
-        
-        return bundle.localizedString(forKey: key, value: value, table: tableName)
-    }
 }
 
 
 extension String {
     
-//    public func localize() -> String {
-//        CometChatLocalize.set(locale: Language(rawValue: CometChatLocalize.locale) ?? .english)
-//        UserDefaults.standard.set(CometChatLocalize.locale, forKey: "lang")
-//        if let lang = UserDefaults.standard.value(forKey: "lang") as? String {
-//            if let path = Bundle.main.path(forResource: lang, ofType: "lproj") {
-//                if let bundle = Bundle(path: path), NSLocalizedString(self, tableName: nil, bundle: bundle, value: "", comment: "") != self {
-//                    return NSLocalizedString(self, tableName: nil, bundle: bundle, value: "", comment: "")
-//                } else {
-//                    let path = CometChatUIKit.bundle.path(forResource: lang, ofType: "lproj")
-//                    let bundle = Bundle(path: path!)
-//                    return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
-//                }
-//            } else {
-//                let path = CometChatUIKit.bundle.path(forResource: lang, ofType: "lproj")
-//                let bundle = Bundle(path: path!)
-//                return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
-//            }
-//         } else {
-//            let path = CometChatUIKit.bundle.path(forResource: "en", ofType: "lproj")
-//            let bundle = Bundle(path: path!)
-//            return NSLocalizedString(self, tableName: nil, bundle: bundle!, value: "", comment: "")
-//        }
-//    }
-    
     public func localize() -> String {
-        CometChatLocalize.set(locale: Language(rawValue: CometChatLocalize.locale) ?? .english)
-        UserDefaults.standard.set(CometChatLocalize.locale, forKey: "lang")
         
-        let lang = UserDefaults.standard.string(forKey: "lang") ?? "en"
+        let lang = CometChatLocalize.getLocale()
         
         if let mainPath = Bundle.main.path(forResource: lang, ofType: "lproj"),
            let mainBundle = Bundle(path: mainPath) {

@@ -266,3 +266,5 @@
 "DELETE" = "Elimina";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Jūsų pranešimas buvo užblokuotas dėl moderavimo politikos.";
 "DONE" = "Fatto";
+"PHOTO_LIBRARY" = "Libreria di foto";
+"VIDEO_LIBRARY" = "Libreria video";

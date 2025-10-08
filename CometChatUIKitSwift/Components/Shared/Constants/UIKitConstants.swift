@@ -6,7 +6,7 @@ public struct UIConstants {
 }
 
 internal struct UIKitConstants {
-    static var version = "5.0.8"
+    static var version = "5.0.9"
     static var messageId = "messageId"
     static var conversationId = "conversationId"
     static var senderId = "senderId"
@@ -47,6 +47,8 @@ public struct  MessageTypeConstants {
 public struct ComposerAttachmentConstants {
     public static let camera = "camera"
     public static let gallery = "gallery"
+    public static let photo = "photo"
+    public static let video = "video"
     public static let audio = "audio"
     public static let file = "file"
 }

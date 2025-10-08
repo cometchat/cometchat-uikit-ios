@@ -14,8 +14,10 @@ extension CometChatMessageComposer : CometChatActionSheetDelegate {
     func onActionItemClick(item: ActionItem) {
         if item.id == ComposerAttachmentConstants.camera {
             takeAPhotoPressed()
-        } else if item.id == ComposerAttachmentConstants.gallery {
-            photoAndVideoLibraryPressed()
+        } else if item.id == ComposerAttachmentConstants.photo {
+            photoLibraryPressed()
+        } else if item.id == ComposerAttachmentConstants.video {
+            videoLibraryPressed()
         } else if item.id == ComposerAttachmentConstants.file {
             documentPressed()
         } else {
@@ -40,7 +42,7 @@ extension CometChatMessageComposer : CometChatActionSheetDelegate {
         }
     }
     
-    private func photoAndVideoLibraryPressed() {
+    private func photoLibraryPressed() {
         if let controller = controller {
             CameraHandler.shared.presentPhotoLibrary(for: controller)
             CameraHandler.shared.imagePickedBlock = { [weak self] (photoURL) in
@@ -51,6 +53,12 @@ extension CometChatMessageComposer : CometChatActionSheetDelegate {
                     this.viewModel.sendMediaMessageToGroup(url: photoURL, type: .image)
                 }
             }
+        }
+    }
+    
+    private func videoLibraryPressed() {
+        if let controller = controller {
+            CameraHandler.shared.presentVideoLibrary(for: controller)
             CameraHandler.shared.videoPickedBlock = { [weak self] (videoURL) in
                 guard let this = self else { return }
                 if let _ = this.viewModel.user {

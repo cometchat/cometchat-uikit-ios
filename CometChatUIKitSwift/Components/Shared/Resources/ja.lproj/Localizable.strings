@@ -285,3 +285,6 @@
 "USER" = "ユーザー";
 "MESSAGES" = "メッセージ";
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "あなたのメッセージはモデレーションポリシーによりブロックされました。";
+"PHOTO_LIBRARY" = "写真ライブラリ";
+"VIDEO_LIBRARY" = "ビデオライブラリ";
+
