@@ -1036,6 +1036,7 @@ extension CometChatMessageList {
     }
     
     @objc func didViewRepliesTap(sender: UITapGestureRecognizer) {
+        controller?.view.endEditing(true)
         guard let indexPath = self.tableView.indexPathForRow(at: sender.location(in: self.tableView)), let message = viewModel.messages[safe: indexPath.section]?.messages[safe: indexPath.row], let template = viewModel.getTemplate(for: message) else {
             print("Error: indexPath)")
             return

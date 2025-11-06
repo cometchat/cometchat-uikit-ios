@@ -407,6 +407,10 @@ extension CometChatGroups {
         if let leadingView = leadingView?(group){
             listItem.set(leadingView: leadingView)
         }
+        
+        if let trailingView = trailingView?(group) {
+              listItem.set(tail: trailingView)
+          }
 
         // Set the subtitle for the group, either using a custom subtitle or member count
         if let subTitleView = subtitle?(group) {

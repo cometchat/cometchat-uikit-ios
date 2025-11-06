@@ -28,6 +28,7 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
                message.deletedAt == 0,
                !isContextMenuActive
             {
+                self.controller?.view.endEditing(true)
                 isContextMenuActive = true
                 let options = viewModel.getTemplate(for: message)?.options?(cell.baseMessage, viewModel.group, controller)
                 self.contextMenuMessage = message

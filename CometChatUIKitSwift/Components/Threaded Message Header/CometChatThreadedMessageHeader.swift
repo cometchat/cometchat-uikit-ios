@@ -93,16 +93,26 @@ open class CometChatThreadedMessageHeader: UIView {
     public static var dateTimeFormatter: CometChatDateTimeFormatter = CometChatUIKit.dateTimeFormatter
     public lazy var dateTimeFormatter: CometChatDateTimeFormatter = CometChatThreadedMessageHeader.dateTimeFormatter
     
+    lazy var onTapGesture: UITapGestureRecognizer = {
+        let onTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        onTapGesture.cancelsTouchesInView = false
+        return onTapGesture
+    }()
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        isUserInteractionEnabled = true
         buildUI()
         setupViewModel()
+        addKeyboardDismissGesture()
     }
     
     public init() {
         super.init(frame: .zero)
+        isUserInteractionEnabled = true
         buildUI()
         setupViewModel()
+        addKeyboardDismissGesture()
     }
     
     required public init?(coder: NSCoder) {
@@ -117,6 +127,7 @@ open class CometChatThreadedMessageHeader: UIView {
     
     deinit {
         disconnect()
+        removeKeyboardDismissGesture()
     }
     
     open func setupViewModel() {
@@ -347,3 +358,23 @@ open class CometChatThreadedMessageHeader: UIView {
     }
     
 }
+
+extension CometChatThreadedMessageHeader {
+    func addKeyboardDismissGesture() {
+        self.addGestureRecognizer(onTapGesture)
+        controller?.view.addGestureRecognizer(onTapGesture)
+    }
+    
+    @objc func dismissKeyboard() {
+        UIApplication.shared.keyWindow?.endEditing(true)
+        self.endEditing(true)
+        controller?.view.endEditing(true)
+    }
+
+    
+    func removeKeyboardDismissGesture() {
+        self.removeGestureRecognizer(onTapGesture)
+        controller?.view.removeGestureRecognizer(onTapGesture)
+    }
+}
+

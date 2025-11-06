@@ -305,6 +305,7 @@ extension ConversationsViewModel  {
         CometChat.deleteConversation(conversationWith: id, conversationType: type) { [weak self] success in
             guard let this = self else { return }
             this.remove(conversation: conversation)
+            CometChatConversationEvents.ccConversationDeleted(conversation: conversation)
         } onError: { [weak self] error in
             guard let error = error, let this = self else { return }
             this.failure?(error)

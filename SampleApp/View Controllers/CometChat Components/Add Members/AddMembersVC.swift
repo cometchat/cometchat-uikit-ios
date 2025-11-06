@@ -54,9 +54,10 @@ open class AddMembersVC: CometChatUsers {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        let keyboardHeight = (notification.userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.height
+        let kbFrame = (notification.userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+        let height = kbFrame.height - view.safeAreaInsets.bottom
         UIView.animate(withDuration: 0.2) {
-            self.composerBottomAnchor?.constant = -keyboardHeight
+            self.composerBottomAnchor?.constant = -height
             self.view.layoutIfNeeded()
         }
     }
@@ -164,7 +165,8 @@ open class AddMembersVC: CometChatUsers {
             addMemberButton.bottomAnchor.constraint(equalTo: addMemberButtonView.bottomAnchor, constant: -22)
         ])
         
-        composerBottomAnchor = addMemberButtonView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        composerBottomAnchor = addMemberButtonView.bottomAnchor
+            .constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         composerBottomAnchor?.isActive = true
     }
 
