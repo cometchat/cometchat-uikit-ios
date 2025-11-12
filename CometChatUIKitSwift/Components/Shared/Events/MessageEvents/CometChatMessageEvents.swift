@@ -52,6 +52,14 @@ public class CometChatMessageEvents {
         }
     }
     
+    public static  func onAIAssistantMessageReceived(message: AIAssistantMessage) {
+        
+        let objectEnumerator = self.observer.objectEnumerator()
+        while let value = objectEnumerator?.nextObject() as? CometChatMessageEventListener {
+            value.onAIAssistantMessageReceived(message: message)
+        }
+    }
+    
     public static  func onMediaMessageReceived(message: MediaMessage) {
         
         let objectEnumerator = self.observer.objectEnumerator()

@@ -31,6 +31,8 @@ public protocol CometChatMessageEventListener {
     
     func onMessageModerated(message: BaseMessage)
     
+    func onAIAssistantMessageReceived(message: AIAssistantMessage)
+    
     //event for listening to media message events
     func onMediaMessageReceived(mediaMessage: MediaMessage)
     
@@ -162,6 +164,7 @@ public extension CometChatMessageEventListener {
     func onMessagesReadByAll(receipt: MessageReceipt) {}
     func onMessagesDeliveredToAll(receipt: MessageReceipt) {}
     func onMessageModerated(message: BaseMessage) {}
+    func onAIAssistantMessageReceived(message: AIAssistantMessage) {}
 }
 
 //MARK: Deprecated methods

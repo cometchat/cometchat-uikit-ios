@@ -93,7 +93,7 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
         
         
         popupView.buildUI()
-        popupView.reactionView.isHidden = (hideReactionOption || MessageUtils.isMessageModerationDisapproved(message: message))
+        popupView.reactionView.isHidden = (hideReactionOption || MessageUtils.isMessageModerationDisapproved(message: message) || (message is AIAssistantMessage))
         popupView.modalPresentationStyle = .overFullScreen
         popupView.transitioningDelegate = self
         controller?.present(popupView, animated: true)

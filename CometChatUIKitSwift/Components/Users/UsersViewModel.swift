@@ -53,10 +53,14 @@ public class UsersViewModel: UsersViewModelProtocol {
         self.userRequest = userRequestBuilder.build()
     }
     
+    public func setRequestBuilder(userRequestBuilder: UsersRequest.UsersRequestBuilder) {
+        self.userRequestBuilder = userRequestBuilder
+        self.userRequest = self.userRequestBuilder.build()
+    }
+    
     func fetchUsers() {
         if isRefresh {
             isFetchedAll = false
-            userRequestBuilder = UsersBuilder.getDefaultRequestBuilder()
             userRequest = userRequestBuilder.build()
         }
 

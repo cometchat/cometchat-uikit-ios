@@ -95,6 +95,10 @@ public class DataSourceDecorator: DataSource {
         return dataSource.getTextMessageTemplate(additionalConfiguration: additionalConfiguration)
     }
     
+    public func getAIAssistantMessageTemplate(additionalConfiguration:AdditionalConfiguration?) -> CometChatMessageTemplate {
+        return dataSource.getAIAssistantMessageTemplate(additionalConfiguration: additionalConfiguration)
+    }
+    
     public func getAudioMessageTemplate(additionalConfiguration:AdditionalConfiguration?) -> CometChatMessageTemplate {
         return dataSource.getAudioMessageTemplate(additionalConfiguration: additionalConfiguration)
     }
@@ -139,6 +143,10 @@ public class DataSourceDecorator: DataSource {
         return dataSource.getTextMessageContentView(message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
     }
     
+    public func getAIAssistantMessageContentView(message: CometChatSDK.AIAssistantMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AIAssistantBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
+        return dataSource.getAIAssistantMessageContentView(message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
+    }
+    
     public func getImageMessageContentView(message: CometChatSDK.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: ImageBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView? {
         return dataSource.getImageMessageContentView(message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
     }
@@ -177,6 +185,10 @@ public class DataSourceDecorator: DataSource {
     
     public func getTextMessageBubble(messageText: String?, message: CometChatSDK.TextMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView? {
         return dataSource.getTextMessageBubble(messageText: messageText, message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
+    }
+    
+    public func getAIAssistantMessageBubble(messageText: String?, message: CometChatSDK.AIAssistantMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AIAssistantBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView? {
+        return dataSource.getAIAssistantMessageBubble(messageText: messageText, message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
     }
     
     public func getImageMessageBubble(imageUrl: String?, caption: String?, message: CometChatSDK.MediaMessage?, controller: UIViewController?, style: ImageBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView? {

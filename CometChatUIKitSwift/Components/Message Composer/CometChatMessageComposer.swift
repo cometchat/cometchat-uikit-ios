@@ -288,8 +288,58 @@ open class CometChatMessageComposer: UIView {
             setupStyle()
             connect()
             updateUI()
+            updateSendButtonState()
         }else{
             disconnect()
+        }
+    }
+    
+    private func observeStreamingState() {
+        CometChatAIStreamService.shared.onStreamingStateChanged = { [weak self] isBusy in
+            guard let self = self else { return }
+            self.sendButton.isEnabled = !isBusy
+            self.sendButton.backgroundColor = isBusy ? self.style.inactiveSendButtonImageBackgroundColor : self.style.activeSendButtonImageBackgroundColor
+        }
+    }
+    
+    func updateSendButtonState() {
+        let aiBusyButton: UIImage = UIImage(systemName: "stop.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+        let hasText = !(textView.text?.isEmpty ?? true)
+        let isAIBusy = CometChatAIStreamService.shared.isAIBusy
+        let isAgentic = viewModel.user?.isAgentic ?? false
+        
+        sendButton.isEnabled = hasText && !isAIBusy
+        
+        // Set background color based on user type
+        if isAgentic {
+            sendButton.backgroundColor = sendButton.isEnabled ? style.agenticActiveSendButtonImageBackgroundColor : style.agenticInactiveSendButtonImageBackgroundColor
+        } else {
+            sendButton.backgroundColor = sendButton.isEnabled ? style.activeSendButtonImageBackgroundColor : style.inactiveSendButtonImageBackgroundColor
+        }
+        
+        // Set image based on state and user type
+        if !isAIBusy {
+            sendButton.setImage(isAgentic ? style.agenticSendButtonImage : style.sendButtonImage, for: .normal)
+        } else {
+            sendButton.setImage(aiBusyButton, for: .normal)
+        }
+        
+        // Set tint color based on user type
+        sendButton.imageView?.tintColor = isAgentic ? style.agenticSendButtonImageTint : style.sendButtonImageTint
+    }
+    
+    private func updateSendButtonForAgenticUser() {
+        DispatchQueue.main.async { [weak self] in
+            guard let this = self else { return }
+            let isAgentic = this.viewModel.user?.isAgentic ?? false
+            let isAIBusy = CometChatAIStreamService.shared.isAIBusy
+            
+            if isAgentic && isAIBusy {
+                let aiBusyButton: UIImage = UIImage(systemName: "stop.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+                this.sendButton.setImage(aiBusyButton, for: .normal)
+            } else {
+                this.sendButton.setImage(this.style.sendButtonImage, for: .normal)
+            }
         }
     }
     
@@ -299,6 +349,17 @@ open class CometChatMessageComposer: UIView {
         }
         if messageComposerMode == .edit {
             viewModel.reset?(true)
+        }
+        
+        if viewModel.user?.isAgentic ?? false{
+            secondaryStackView.isHidden = true
+            auxiliaryStackView.isHidden = true
+            disableMentions = true
+            dividerView.isHidden = true
+            sendButton.imageView?.translatesAutoresizingMaskIntoConstraints = false
+            sendButton.imageView?.widthAnchor.constraint(equalToConstant: 16).isActive = true
+            sendButton.imageView?.heightAnchor.constraint(equalToConstant: 16).isActive = true
+            sendButton.imageView?.contentMode = .scaleAspectFit
         }
     }
     
@@ -358,6 +419,15 @@ open class CometChatMessageComposer: UIView {
         secondaryStackView.addArrangedSubview(microphoneButton)
         
         NSLayoutConstraint.activate(constraintsToActivate)
+        
+        updateSendButtonState()
+        
+    }
+    
+    @objc private func handleAIBusyStateChanged() {
+        DispatchQueue.main.async { [weak self] in
+            self?.updateSendButtonState()
+        }
     }
     
     open func handleThemeModeChange() {
@@ -400,11 +470,13 @@ open class CometChatMessageComposer: UIView {
         //setting image
         attachmentButton.setImage(style.attachmentImage, for: .normal)
         microphoneButton.setImage(style.voiceRecordingImage, for: .normal)
-        sendButton.setImage(style.sendButtonImage, for: .normal)
         aiButton.setImage(style.aiImage, for: .normal)
         
-        sendButton.imageView?.tintColor = style.sendButtonImageTint
-        sendButton.backgroundColor = style.inactiveSendButtonImageBackgroundColor
+        // Set send button image and tint based on user type
+        let isAgentic = viewModel.user?.isAgentic ?? false
+        sendButton.setImage(isAgentic ? style.agenticSendButtonImage : style.sendButtonImage, for: .normal)
+        sendButton.imageView?.tintColor = isAgentic ? style.agenticSendButtonImageTint : style.sendButtonImageTint
+        sendButton.backgroundColor = isAgentic ? style.agenticInactiveSendButtonImageBackgroundColor : style.inactiveSendButtonImageBackgroundColor
         
         microphoneButton.imageView?.tintColor = style.voiceRecordingImageTint
         attachmentButton.imageView?.tintColor = style.attachmentImageTint
@@ -511,6 +583,10 @@ open class CometChatMessageComposer: UIView {
                 viewModel.reset?(true)
             }
         } else {
+            if viewModel.user?.isAgentic ?? false{
+                CometChatAIStreamService.shared.isAIBusy = true
+            }
+            updateSendButtonState()
             didDefaultSendButtonClicked()
         }
     }
@@ -539,6 +615,7 @@ open class CometChatMessageComposer: UIView {
     
     deinit {
         disconnect()
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("AIBusyStateChanged"), object: nil)
     }
     
     private func getId() -> [String: Any] {
@@ -558,9 +635,10 @@ open class CometChatMessageComposer: UIView {
     }
     
     open func presentEditPreview(for message: BaseMessage) {
+        let isAgentic = viewModel.user?.isAgentic ?? false
         
         self.sendButton.isEnabled = true
-        self.sendButton.backgroundColor = style.activeSendButtonImageBackgroundColor
+        self.sendButton.backgroundColor = isAgentic ? style.agenticActiveSendButtonImageBackgroundColor : style.activeSendButtonImageBackgroundColor
         
         if let textMessage = message as? TextMessage {
             let formattedText = MessageUtils.processTextFormatter(message: textMessage, textFormatter: viewModel.textFormatter, formattingType: .COMPOSER)
@@ -722,6 +800,14 @@ extension CometChatMessageComposer {
         setupDelegates()
         viewModel.connect()
         CometChatUIEvents.addListener("composer-ui-event-listener-\(listenerRandomId)", self)
+        if viewModel.user?.isAgentic ?? false {
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(handleAIBusyStateChanged),
+                name: NSNotification.Name("AIBusyStateChanged"),
+                object: nil
+            )
+        }
         return self
     }
     
@@ -773,7 +859,10 @@ extension CometChatMessageComposer {
             guard let this = self else { return }
             this.textView.text = ""
             this.sendButton.isEnabled = false
-            this.sendButton.backgroundColor = this.style.inactiveSendButtonImageBackgroundColor
+            
+            let isAgentic = this.viewModel.user?.isAgentic ?? false
+            this.sendButton.backgroundColor = isAgentic ? this.style.agenticInactiveSendButtonImageBackgroundColor : this.style.inactiveSendButtonImageBackgroundColor
+            
             this.selectedFormatters.removeAll()
             this.endOnGoingTextFormatting()
             this.removeLimitView()
@@ -781,6 +870,7 @@ extension CometChatMessageComposer {
             if !this.messagePreview.isHidden {
                 this.hideEditPreview()
             }
+            this.updateSendButtonState()
         }
         
         viewModel.onMessageEdit = { [weak self] message in

@@ -14,7 +14,9 @@ class MessagesVC: UIViewController {
     var user: User?
     var group: Group?
     lazy var randamID = Date().timeIntervalSince1970
-
+    var parentMessage: BaseMessage? = nil
+    var withParent: Bool = false
+    
     //Setting Up header
     lazy var headerView: CometChatMessageHeader = {
         let headerView = CometChatMessageHeader()
@@ -27,6 +29,81 @@ class MessagesVC: UIViewController {
             guard let this = self else { return UIView() }
             return this.getInfoButton()
         })
+        headerView.onAiNewChatClicked = { [weak self] user in
+            guard let self = self, let navController = self.navigationController else { return }
+            
+            let filteredStack = navController.viewControllers.filter {
+                !($0 is MessagesVC) && !($0 is CometChatAIAssistanceChatHistory)
+            }
+            navController.setViewControllers(filteredStack, animated: false)
+
+            let newMessagesVC = MessagesVC()
+            newMessagesVC.parentMessage = nil
+            newMessagesVC.user = user
+            newMessagesVC.withParent = false
+            navController.pushViewController(newMessagesVC, animated: false)
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak navController] in
+                guard let nav = navController else { return }
+
+                var stack = nav.viewControllers
+                if let lastMessagesIndex = stack.lastIndex(where: { $0 is MessagesVC }) {
+                    stack = stack.enumerated().filter { index, vc in
+                        !(vc is MessagesVC && index != lastMessagesIndex) && !(vc is CometChatAIAssistanceChatHistory)
+                    }.map { $0.element }
+
+                    nav.setViewControllers(stack, animated: false)
+                }
+            }
+        }
+
+        headerView.onAiChatHistoryClicked = { [weak self] user in
+            let vc = CometChatAIAssistanceChatHistory()
+            vc.user = user
+            vc.onMessageClicked = { [weak self] baseMessage in
+                let selfVC = vc
+
+                if let navController = selfVC.navigationController {
+                    var filteredStack = navController.viewControllers.filter { !($0 is MessagesVC) }
+                    
+                    if let lastHistoryIndex = filteredStack.lastIndex(where: { $0 is CometChatAIAssistanceChatHistory }) {
+                        filteredStack = filteredStack.enumerated().filter { index, viewController in
+                            !(viewController is CometChatAIAssistanceChatHistory && index != lastHistoryIndex)
+                        }.map { $0.element }
+                    }
+                    
+                    navController.setViewControllers(filteredStack, animated: false)
+                }
+
+                let threadedView = MessagesVC()
+                threadedView.parentMessage = baseMessage
+                threadedView.user = user
+                threadedView.withParent = true
+                selfVC.navigationController?.pushViewController(threadedView, animated: true)
+            }
+
+            vc.onNewChatButtonClicked = { [weak self] user in
+                
+                if let navController = vc.navigationController {
+                    var filteredStack = navController.viewControllers.filter { !($0 is MessagesVC) }
+                    
+                    if let lastHistoryIndex = filteredStack.lastIndex(where: { $0 is CometChatAIAssistanceChatHistory }) {
+                        filteredStack = filteredStack.enumerated().filter { index, viewController in
+                            !(viewController is CometChatAIAssistanceChatHistory && index != lastHistoryIndex)
+                        }.map { $0.element }
+                    }
+                    
+                    navController.setViewControllers(filteredStack, animated: false)
+                }
+                
+                let threadedView = MessagesVC()
+                threadedView.parentMessage = nil
+                threadedView.user = user
+                threadedView.withParent = false
+                vc.navigationController?.pushViewController(threadedView, animated: false)
+            }
+            self?.navigationController?.pushViewController(vc, animated: false)
+        }
         if user?.blockedByMe == true { headerView.hideUserStatus = true }
         return headerView
     }()
@@ -35,7 +112,9 @@ class MessagesVC: UIViewController {
         
         let messageListView = CometChatMessageList(frame: .null)
         messageListView.translatesAutoresizingMaskIntoConstraints = false
-        if let user = user { messageListView.set(user: user) }
+        if let user = user {
+            messageListView.set(user: user, parentMessage: parentMessage, withParent: self.withParent)
+        }
         if let group = group { messageListView.set(group: group) }
         messageListView.set(controller: self)
         messageListView.set(onThreadRepliesClick: { [weak self] message,template in
@@ -59,7 +138,17 @@ class MessagesVC: UIViewController {
                 }
             }
         }
+        messageListView.onAIOptionSelected = { [weak self] option in
+            self?.aiOptionSelected = option
+            self?.composerView.set(aiOptionsText: option)
+        }
         messageListView.set(textFormatters: [mentionsFormatter])
+        
+        if let user = user, user.isAgentic {
+            messageListView.messageBubbleStyle.outgoing.textBubbleStyle.textColor = CometChatTheme.neutralColor900
+            messageListView.messageBubbleStyle.outgoing.textBubbleStyle.backgroundColor = CometChatTheme.neutralColor300
+            messageListView.messageBubbleStyle.outgoing.dateStyle.textColor = CometChatTheme.neutralColor600
+        }
         
         return messageListView
     }()
@@ -69,6 +158,9 @@ class MessagesVC: UIViewController {
         if let user = user { messageComposer.set(user: user) }
         if let group = group { messageComposer.set(group: group) }
         messageComposer.set(controller: self)
+        if let mssg = parentMessage{
+            messageComposer.set(parentMessageId: mssg.id)
+        }
         messageComposer.translatesAutoresizingMaskIntoConstraints = false
         return messageComposer
     }()
@@ -87,6 +179,8 @@ class MessagesVC: UIViewController {
         label.textAlignment = .center
         return label
     }()
+    
+    public var aiOptionSelected: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()

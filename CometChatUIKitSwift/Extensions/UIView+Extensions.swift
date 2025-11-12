@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import CometChatSDK
 
 extension UIView {
     
@@ -146,6 +147,111 @@ public class ModerationDisapprovedView: UIView {
         iconView.tintColor = iconViewTintColor
     }
 }
+
+public class AIActionBarView: UIView {
+
+    // MARK: - Button Tap Callbacks
+    public var onCopyTapped: ((BaseMessage) -> Void)?
+    public var message: BaseMessage?
+    
+    // MARK: - Buttons
+    private lazy var copyButton: UIButton = {
+        let button = UIButton(type: .system)
+        let image = UIImage(
+            named: "copyButton",
+            in: CometChatUIKit.bundle,
+            compatibleWith: nil
+        )?.withRenderingMode(.alwaysOriginal) ?? UIImage()
+        
+        button.setImage(image, for: .normal)
+        button.tintColor = .lightGray
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.widthAnchor.constraint(equalToConstant: 25).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        button.addTarget(self, action: #selector(copyTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    // MARK: - Copied Label
+    private lazy var copiedLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Copied!"
+        label.textColor = CometChatTheme.textColorSecondary
+        label.font = CometChatTypography.Caption1.medium
+        label.textAlignment = .center
+        label.alpha = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    // MARK: - Stack View
+    private lazy var buttonStackView: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [copyButton])
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.distribution = .equalSpacing
+        stack.spacing = 24
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
+    // MARK: - Init
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupUI()
+    }
+    
+    // MARK: - Setup UI
+    private func setupUI() {
+        backgroundColor = .clear
+        addSubview(buttonStackView)
+        addSubview(copiedLabel)
+        
+        NSLayoutConstraint.activate([
+            buttonStackView.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+            buttonStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            buttonStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
+            
+            copiedLabel.centerYAnchor.constraint(equalTo: copyButton.centerYAnchor),
+            copiedLabel.centerXAnchor.constraint(equalTo: copyButton.centerXAnchor)
+        ])
+    }
+    
+    // MARK: - Actions
+    @objc private func copyTapped() {
+        guard let message else { return }
+        onCopyTapped?(message)
+        animateCopiedFeedback()
+    }
+
+    // MARK: - Animation
+    private func animateCopiedFeedback() {
+        // Fade out button, fade in label
+        UIView.animate(withDuration: 0.4, animations: {
+            self.copyButton.alpha = 0
+            self.copiedLabel.alpha = 1
+        })
+
+        // Haptic feedback
+        let feedback = UINotificationFeedbackGenerator()
+        feedback.notificationOccurred(.success)
+
+        // Wait and revert
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            UIView.transition(with: self, duration: 0.25, options: [.transitionCrossDissolve]) {
+                self.copyButton.alpha = 1
+                self.copiedLabel.alpha = 0
+            }
+        }
+    }
+}
+
+
 
 
 extension UILayoutPriority {

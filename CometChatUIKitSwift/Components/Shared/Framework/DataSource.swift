@@ -24,6 +24,8 @@ public protocol DataSource {
     
     func getTextMessageContentView(message: TextMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView?
     
+    func getAIAssistantMessageContentView(message: AIAssistantMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AIAssistantBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView?
+    
     func getImageMessageContentView(message: MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: ImageBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView?
     
     func getVideoMessageContentView(message: MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: VideoBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView?
@@ -39,6 +41,8 @@ public protocol DataSource {
     func getCardMessageContentView(message: CardMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: CardBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView?
         
     func getTextMessageTemplate(additionalConfiguration:AdditionalConfiguration?) -> CometChatMessageTemplate
+    
+    func getAIAssistantMessageTemplate(additionalConfiguration:AdditionalConfiguration?) -> CometChatMessageTemplate
         
     func getAudioMessageTemplate(additionalConfiguration:AdditionalConfiguration?) -> CometChatMessageTemplate
         
@@ -84,7 +88,9 @@ public protocol DataSource {
     func getVideoMessageBubble(videoUrl: String?, thumbnailUrl: String?, message: MediaMessage?, controller: UIViewController?, style: VideoBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView?
         
     func getTextMessageBubble(messageText: String?, message: TextMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView?
-        
+    
+    func getAIAssistantMessageBubble(messageText: String?, message: AIAssistantMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AIAssistantBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView?
+            
     func getImageMessageBubble(imageUrl:String?, caption: String?, message: MediaMessage?, controller: UIViewController?, style: ImageBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView?
         
     func getAudioMessageBubble(audioUrl:String?, title: String?, message: MediaMessage?, controller: UIViewController?, style: AudioBubbleStyle?, additionalConfiguration:AdditionalConfiguration?) -> UIView?

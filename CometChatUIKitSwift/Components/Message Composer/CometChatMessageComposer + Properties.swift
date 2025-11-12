@@ -182,4 +182,11 @@ extension CometChatMessageComposer {
         return self
     }
     
+    @discardableResult
+    public func set(aiOptionsText: String) -> Self {
+        textView.text = aiOptionsText
+        textViewDidChange(textView)
+        return self
+    }
+    
 }

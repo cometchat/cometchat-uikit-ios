@@ -211,11 +211,9 @@ open class CometChatListItem: UITableViewCell {
         super.setSelected(selected, animated: animated)
         if selected {
             check.image = selectedCellImage
-            self.background.backgroundColor = style.listItemSelectedBackground
             check.tintColor = style.listItemSelectionImageTint
         } else {
             check.image = deselectedCellImage
-            self.background.backgroundColor = style.listItemBackground
             check.tintColor = style.listItemDeSelectedImageTint
         }
     }

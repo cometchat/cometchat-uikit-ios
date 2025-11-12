@@ -354,6 +354,9 @@ open class CometChatListBase: UIViewController, StateManagement {
             searchController.searchBar.placeholder = searchPlaceholderText
             searchController.searchResultsUpdater = self
             searchController.searchBar.delegate = self
+            if #available(iOS 16,*){
+                self.navigationItem.preferredSearchBarPlacement = .stacked
+            }
             self.navigationItem.searchController = self.searchController
             self.navigationItem.hidesSearchBarWhenScrolling = false
         }

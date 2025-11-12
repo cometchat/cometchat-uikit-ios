@@ -152,6 +152,9 @@ extension MessageComposerViewModel {
             MessageComposerBuilder.textMessage(message: textMessage) { result in
                 switch result {
                 case .success(let updatedTextMessage):
+                    if let user = self.user, user.isAgentic, self.parentMessageId == nil {
+                        self.parentMessageId = updatedTextMessage.id
+                    }
                     CometChatMessageEvents.ccMessageSent(message: updatedTextMessage, status: .success)
                 case .failure(let error):
                     self.failure?(error)

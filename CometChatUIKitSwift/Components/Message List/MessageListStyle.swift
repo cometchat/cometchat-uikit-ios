@@ -36,6 +36,28 @@ public struct MessageListStyle {
     
     public var backgroundImage: UIImage?
 
+    // MARK: - AI Assistant Suggested Message
+    public var aiAssistantSuggestedMessageTextFont: UIFont? = CometChatTypography.Body.regular
     
+    public var aiAssistantSuggestedMessageTextColor: UIColor? = CometChatTheme.neutralColor900
+    
+    public var aiAssistantSuggestedMessageBorderColor: UIColor? = CometChatTheme.neutralColor300
+    
+    public var aiAssistantSuggestedMessageBorderWidth: CGFloat? = 1
+    
+    public var aiAssistantSuggestedMessageCornerRadius: CGFloat? = 8
+    
+    public var aiAssistantSuggestedMessageBackgroundColor: UIColor? = CometChatTheme.backgroundColor02
+    
+    public var aiAssistantSuggestedMessageIconColor: UIColor? = CometChatTheme.primaryColor
+    
+    public var emptyChatGreetingTitleTextColor: UIColor? = CometChatTheme.neutralColor900
+    
+    public var emptyChatGreetingTitleTextFont: UIFont? = CometChatTypography.Heading1.regular
+    
+    public var emptyChatGreetingSubtitleTextColor: UIColor? = CometChatTheme.neutralColor600
+    
+    public var emptyChatGreetingSubtitleTextFont: UIFont? = CometChatTypography.Body.regular
+            
     public init() {  }
 }

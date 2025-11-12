@@ -47,3 +47,31 @@ public struct TextBubbleStyle: BaseMessageBubbleStyle {
     }
     
 }
+
+
+//public struct AIAssistantBubbleStyle: BaseMessageBubbleStyle {
+//    
+//    public var avatarStyle: AvatarStyle?
+//    public var dateStyle: DateStyle?
+//    public var receiptStyle: ReceiptStyle?
+//    public var backgroundColor: UIColor?
+//    public var backgroundDrawable: UIImage?
+//    public var cornerRadius: CometChatCornerStyle?
+//    public var borderWidth: CGFloat?
+//    public var borderColor: UIColor?
+//    public var headerTextColor: UIColor?
+//    public var headerTextFont: UIFont?
+//    public var threadedIndicatorTextFont: UIFont?
+//    public var threadedIndicatorTextColor: UIColor?
+//    public var threadedIndicatorImageTint: UIColor?
+//    
+//    public var textFont: UIFont = CometChatTypography.Body.regular
+//    public var textColor: UIColor = CometChatTheme.black
+//    
+//    public var reactionsStyle: ReactionsStyle?
+//    
+//    public init() {
+//        
+//    }
+//    
+//}

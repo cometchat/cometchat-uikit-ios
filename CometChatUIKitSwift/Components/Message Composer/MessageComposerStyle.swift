@@ -64,6 +64,11 @@ public struct MessageComposerStyle {
     public var infoCornerRadius: CometChatCornerStyle = .init(cornerRadius: CometChatSpacing.Radius.r1)
     public var infoBorderColor: UIColor = .clear
     public var infoBorderWidth: CGFloat = 0
+    
+    public var agenticSendButtonImage: UIImage = UIImage(systemName: "arrow.up")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+    public var agenticSendButtonImageTint: UIColor = CometChatTheme.neutralColor50
+    public var agenticActiveSendButtonImageBackgroundColor: UIColor = CometChatTheme.neutralColor900
+    public var agenticInactiveSendButtonImageBackgroundColor: UIColor = CometChatTheme.neutralColor300
 
     public init() { }
     

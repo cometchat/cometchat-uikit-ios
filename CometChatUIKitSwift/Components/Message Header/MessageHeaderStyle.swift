@@ -28,6 +28,11 @@ public struct MessageHeaderStyle {
     public var privateGroupIcon = UIImage(systemName: "shield.fill")?.withRenderingMode(.alwaysTemplate)
     public var protectedGroupIcon = UIImage(systemName: "lock.fill")?.withRenderingMode(.alwaysTemplate)
     public var backgroundImage: UIImage?
+    
+    public var newChatButtonImageTintColor: UIColor? = CometChatTheme.iconColorPrimary
+    public var chatHistoryButtonImageTintColor: UIColor? = CometChatTheme.iconColorPrimary
+    public var newChatButtonImage = UIImage(named: "newChatIcon", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal) ?? UIImage()
+    public var chatHistoryButtonImage = UIImage(named: "chatHistoryIcon", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal) ?? UIImage()
   
     public init() {}
 }

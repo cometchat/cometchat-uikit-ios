@@ -11,7 +11,6 @@ import CometChatUIKitSwift
 import CometChatSDK
 import SystemConfiguration
 
-var isBugseeLaunched = false
 
 class HomeScreenViewController: UITabBarController {
     

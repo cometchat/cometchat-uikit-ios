@@ -17,6 +17,7 @@ protocol MessageListViewModelProtocol {
     var messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder { get set }
     var messages: [(date: Date, messages: [BaseMessage])] { get set }
     var reload: (() -> Void)? { get set }
+    var streamingSpeed: Int? { get set }
     var newMessageReceived: ((_ message: BaseMessage) -> Void)? { get set }
     var appendAtIndex: ((_ section: Int, _ row: Int, _ baseMessage: BaseMessage, _ isNewSectionAdded: Bool) -> Void)? { get set }
     var updateAtIndex: ((Int, Int, BaseMessage) -> Void)? { get set }
@@ -29,6 +30,9 @@ protocol MessageListViewModelProtocol {
 
 open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
+    var threadedPArentMessageId: Int = 0
+    var deleteBatch: (([(section: Int, row: Int, msg: BaseMessage)], [Int]) -> Void)?
+
     var group: CometChatSDK.Group?
     var user: CometChatSDK.User?
     var parentMessage: CometChatSDK.BaseMessage?
@@ -37,7 +41,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     var messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder
     var messageActionRequestBuilder = MessagesRequest.MessageRequestBuilder().build()
     var messageNextRequestBuilder = MessagesRequest.MessageRequestBuilder().build()
-    private var messagesRequest: MessagesRequest?
+    var messagesRequest: MessagesRequest?
     private var filterMessagesRequest: MessagesRequest?
     var reload: (() -> Void)?
     var onFirstMessageFetch: (() -> Void)?
@@ -64,6 +68,9 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     var hasFetchedMessagesBefore = false
     var additionalConfiguration = AdditionalConfiguration()
 
+    var placeholder: StreamMessage?
+    var streamPlaceholderRunId: Int?
+    var isThinkingHidden = false
     
     var messageBubbleStyle = CometChatMessageBubble.style {
         didSet {
@@ -133,10 +140,28 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         }
     }
     
+    /// Sets streaming delay in milliseconds (e.g. 100 = smooth, 200 = slow)
+    public var streamingSpeed: Int? {
+        didSet { setupStreamingSpeedIfNeeded() }
+    }
+    
+    private var pendingAIMessages: [Int: AIAssistantMessage] = [:]
+    
     public override init() {
         messagesRequestBuilder = MessagesRequest.MessageRequestBuilder()
+        isUIUpdating = true
+        messages = []
         super.init()
         setUpDefaultTemplate()
+        
+        // Clean up stream state for agentic users when needed
+        if let user = user, user.isAgentic && parentMessage?.id == 0 {
+            isUIUpdating = false
+            messages.removeAll()
+            CometChatAIStreamService.shared.isAIBusy = false // cleanup: not busy
+            CometChatAIStreamService.shared.cleanupAll()     // cleanup: all stream state
+            return
+        }
     }
     
     func set(group: Group, messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder?, parentMessage: BaseMessage? = nil) {
@@ -150,15 +175,26 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         self.messagesRequest = self.messagesRequestBuilder.build()
         self.fetchUnreadMessageCount()
     }
-    
-    func set(user: User, messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder?, parentMessage: BaseMessage? = nil) {
+        
+    func set(user: User, messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder?, parentMessage: BaseMessage? = nil, withParent: Bool = false) {
         self.user = user
         self.parentMessage = parentMessage
-        self.messagesRequestBuilder = messagesRequestBuilder?.set(uid: user.uid ?? "").setParentMessageId(parentMessageId: parentMessage?.id ?? 0) ?? MessagesRequest
-            .MessageRequestBuilder().set(uid: user.uid ?? "")
+        var builder = messagesRequestBuilder?
+            .set(uid: user.uid ?? "")
+            .setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
+            .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+            .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
+        ?? MessagesRequest.MessageRequestBuilder()
+            .set(uid: user.uid ?? "")
             .hideReplies(hide: true)
             .setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
             .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+            .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
+
+        if withParent {
+            builder = builder.set(withParent: true)
+        }
+        self.messagesRequestBuilder = builder
         self.messagesRequest = self.messagesRequestBuilder.build()
         self.fetchUnreadMessageCount()
     }
@@ -233,6 +269,13 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             this.isUIUpdating = false
             switch result {
             case .success(let fetchedMessages):
+                
+                let fetchedMessages = fetchedMessages.filter { message in
+                    let messageType = String(describing: type(of: message))
+                    return !(messageType.contains("AIToolArgumentMessage") || messageType.contains("AIToolResultMessage"))
+                }
+
+                
                 if fetchedMessages.isEmpty {
                     this.isAllMessagesFetchedInPrevious = true
                     this.appendMessagesAtTop?(0, 0)
@@ -439,6 +482,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         CometChatMessageEvents.addListener("event-listener-\(currentRandomDate)", self)
         CometChat.addGroupListener("message-list-groups-sdk-listner-\(currentRandomDate)", self)
         CometChatGroupEvents.addListener("message-list-groups-events-listener-\(currentRandomDate)", self)
+        CometChat.addAIAssistantListener("message-list-ai-events-listener-\(currentRandomDate)", self)
     }
     
     // MARK:- disconnect message listener
@@ -450,14 +494,47 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         CometChatCallEvents.removeListener("message-list-call-event-listner-\(currentRandomDate)")
         CometChat.removeGroupListener("message-list-groups-sdk-listner-\(currentRandomDate)")
         CometChatGroupEvents.removeListener("message-list-groups-events-listener-\(currentRandomDate)")
+        CometChat.removeAIAssistantListener("message-list-ai-events-listener-\(currentRandomDate)")
     }
     
+//    func checkThreadedMessageBelongsToThisConversation(message: BaseMessage) -> Bool {
+//        if (parentMessage == nil && message.parentMessageId == 0) || parentMessage?.id == message.parentMessageId {
+//            return true
+//        } else {
+//            return false
+//        }
+//    }
+    
+//    func checkThreadedMessageBelongsToThisConversation(message: BaseMessage) -> Bool {
+//        // If no explicit parent, still accept thread root
+//        if parentMessage == nil && message.parentMessageId == 0 {
+//            return true
+//        }
+//        
+//        // If parentMessage exists and matches
+//        if let parent = parentMessage, parent.id == message.parentMessageId {
+//            return true
+//        }
+//        
+//        // If this is an agentic thread and message has same threadParent
+//        if threadMessageParentId > 0 && message.parentMessageId == threadMessageParentId {
+//            return true
+//        }
+//        
+//        return false
+//    }
+    
     func checkThreadedMessageBelongsToThisConversation(message: BaseMessage) -> Bool {
-        if (parentMessage == nil && message.parentMessageId == 0) || parentMessage?.id == message.parentMessageId {
+        if (parentMessage == nil && message.parentMessageId == 0) {
             return true
-        } else {
-            return false
         }
+        if parentMessage?.id == message.parentMessageId {
+            return true
+        }
+        if threadedPArentMessageId == message.parentMessageId && user?.isAgentic == true {
+            return true
+        }
+        return false
     }
     
     func ifThreadedMessageUpdateCount(message: BaseMessage) {
@@ -879,19 +956,71 @@ extension MessageListViewModel: CometChatMessageEventListener {
             }
         }
     }
-            
+    
     public func ccMessageSent(message: CometChatSDK.BaseMessage, status: MessageStatus) {
-        
         ccMessageSent?(message, status)
-        if status == .success { ifThreadedMessageUpdateCount(message: message) }
+        
+        if status == .success {
+            ifThreadedMessageUpdateCount(message: message)
+        }
+        
         if checkThreadedMessageBelongsToThisConversation(message: message) {
             switch status {
             case .inProgress:
-                self.add(message: message)
-            case .success:
-                self.update(message: message)
-            case .error:
-                self.update(message: message)
+                if user?.isAgentic == true {
+                    markFailedStreamBubblesForRemoval()
+                }
+                add(message: message)
+                if user?.isAgentic ?? false, message is TextMessage {
+                    CometChatAIStreamService.shared.isAIBusy = true
+                }
+            case .success, .error:
+                if (user?.isAgentic ?? false && threadedPArentMessageId <= 0 && !messages.isEmpty) {
+                    threadedPArentMessageId = message.id
+                    self.messagesRequestBuilder = messagesRequestBuilder.set(uid: user?.uid ?? "").setParentMessageId(parentMessageId: threadedPArentMessageId)
+                    self.messagesRequest = self.messagesRequestBuilder.build()
+                }
+                if let message = message as? TextMessage, threadedPArentMessageId > 0, user?.isAgentic ?? false, status != .error {
+                    startStreaming(runId: message.id, assistant: user!)
+                }
+            }
+                update(message: message)
+            }
+        }
+    
+    public func removeMarkedFailedStreamMessages() {
+        DispatchQueue.main.async { [weak self] in
+            guard let this = self else { return }
+            
+            var deletions: [(section: Int, row: Int, msg: BaseMessage)] = []
+            var emptySections: [Int] = []
+            
+            for section in this.messages.indices.reversed() {
+                for row in this.messages[section].messages.indices.reversed() {
+                    let msg = this.messages[section].messages[row]
+                    if msg.metaData?["__remove_stream_error__"] as? Bool == true {
+                        deletions.append((section, row, msg))
+                        this.messages[section].messages.remove(at: row)
+                    }
+                }
+                if this.messages[section].messages.isEmpty {
+                    emptySections.append(section)
+                }
+            }
+            
+            // Perform table updates cleanly
+            this.deleteBatch?(deletions, emptySections)
+        }
+    }
+
+    
+    private func markFailedStreamBubblesForRemoval() {
+        for section in messages.indices {
+            for row in messages[section].messages.indices {
+                if let streamMessage = messages[section].messages[row] as? StreamMessage,
+                   streamMessage.metaData?["__stream_error__"] as? Bool == true {
+                    messages[section].messages[row].metaData?["__remove_stream_error__"] = true
+                }
             }
         }
     }
@@ -936,6 +1065,7 @@ extension MessageListViewModel: CometChatMessageEventListener {
     }
     
 }
+
 
 extension MessageListViewModel: CometChatGroupDelegate {
     
@@ -1130,23 +1260,241 @@ extension MessageListViewModel: CometChatUIEventListener {
     }
 }
 
-//MARK: Connection Listener
-extension MessageListViewModel: CometChatConnectionDelegate {
-    public func connected() {
-        updateUserAndGroup()
-        fetchActionMessages({
-            success in
-            if success {
-                self.fetchMissedMessages()
+extension MessageListViewModel: AIAssistantEventsDelegate, QueueCompletionCallback {
+    
+    // MARK: - AI Assistant Message Handling
+    
+    public func onAIAssistantMessageReceived(message: AIAssistantMessage) {
+        isThinkingHidden = false
+        let runId = message.runId
+        guard runId > 0 else { return }
+        
+        guard self.getTemplate(for: message) != nil else { return }
+        
+        ifThreadedMessageUpdateCount(message: message)
+        
+        if checkThreadedMessageBelongsToThisConversation(message: message) {
+            
+            CometChatAIStreamService.shared.aiAssistantMessages[runId] = message
+            CometChatAIStreamService.shared.setQueueCompletionCallback(runId: runId, callback: self)
+        }
+        
+        print("onAIAssistantMessageReceived is called.....end of streaming")
+    }
+    
+    public func onAIAssistantEventReceived(_ event: AIAssistantBaseEvent) {
+        let runId = event.id
+        print("Received AI Event: \(event.type) for Run ID: \(runId)")
+        
+        CometChatAIStreamService.shared.handleIncomingEvent(runId: runId, event: event)
+        if CometChatAIStreamService.shared.runExists(runId: runId) {
+            processNextEvent(runId: runId, event: event)
+        }
+    }
+    
+    private func processNextEvent(runId: Int, event: AIAssistantBaseEvent) {
+        guard runId == event.id else { return }
+        
+        let delay = CometChatAIStreamService.shared.streamProcessingDelay
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(delay))) {
+            switch event {
+            case let run as AIAssistantRunStartedEvent:
+                self.handleRunStarted(run)
+            case let run as AIAssistantRunFinishedEvent:
+                self.handleRunFinished(run)
+            case let toolEnd as AIAssistantToolEndedEvent:
+                self.handleToolCallEnd(toolEnd)
+            default:
+                break // Other events handled separately
             }
-        })
+        }
+    }
+    
+    
+    // MARK: - Run Lifecycle
+    
+    private func handleRunStarted(_ event: AIAssistantRunStartedEvent) {
+        print("🚀 Run Started | runId: \(event.runId)")
+
+    }
+    
+    private func handleRunFinished(_ event: AIAssistantRunFinishedEvent) {
+        let runId = event.runId
+        print("✅ Run Finished | runId: \(runId)")
+    }
+    
+    private func handleToolCallEnd(_ event: AIAssistantToolEndedEvent) {
+        let runId = event.runId
+        if let messageId = CometChatAIStreamService.shared.getMessageIdForRun(runId: runId) {
+            print("🛠️ Tool Ended | runId: \(runId) for messageId: \(messageId)")
+        }
+    }
+    
+    
+    // MARK: - Queue Completion
+    public func onQueueCompleted(_ aiAssistantMessage: CometChatSDK.AIAssistantMessage?, _ aiToolResultMessage: CometChatSDK.AIToolResultMessage?, _ aiToolArgumentMessage: CometChatSDK.AIToolArgumentMessage?) {
+        CometChatAIStreamService.shared.isAIBusy = false
+        guard let assistantMessage = aiAssistantMessage else { return }
+        
+        let runId = assistantMessage.runId
+        pendingAIMessages.removeValue(forKey: runId)
+        completeStreaming(runId: runId, finalMessage: assistantMessage)
+        CometChatAIStreamService.shared.clearBuffer(runId: runId)
+    }
+    
+    
+    // MARK: - Streaming Lifecycle
+    
+    func startStreaming(runId: Int, assistant: CometChatSDK.User, parentMessageId: Int? = nil) {
+        guard !hasStreamPlaceholder(for: runId) else { return }
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let this = self else { return }
+            
+            self?.placeholder = StreamMessage(
+                receiverUid: CometChatUIKit.getLoggedInUser()?.uid ?? "",
+                receiverType: .user,
+                text: "",
+                runId: runId,
+                threadId: ""
+            )
+            
+            self?.placeholder?.runId = runId
+            self?.placeholder?.muid = "stream_placeholder_\(runId)"
+            self?.placeholder?.parentMessageId = parentMessageId ?? 0
+            self?.placeholder?.sender = assistant
+            self?.placeholder?.metaData = [
+                "__streaming_placeholder__": true,
+                "__show_thinking__": true,
+                "runId": runId
+            ]
+            
+            this.add(message: (self?.placeholder)!)
+        }
+    }
+    
+    // MARK: - Stream Completion / Failure
+    func completeStreaming(runId: Int, finalMessage: CometChatSDK.BaseMessage) {
+
+        DispatchQueue.main.async { [weak self] in
+            guard let this = self else { return }
+
+            // Ensure thinking is off
+            if let final = finalMessage as? StreamMessage {
+                final.metaData?["__show_thinking__"] = false
+            }
+
+            // Replace placeholder
+            for (sectionIndex, group) in this.messages.enumerated() {
+                if let rowIndex = group.messages.firstIndex(where: {
+                    $0.metaData?["runId"] as? Int == runId &&
+                    $0.metaData?["__streaming_placeholder__"] as? Bool == true
+                }) {
+                    this.messages[sectionIndex].messages[rowIndex] = finalMessage
+                    this.updateAtIndex?(sectionIndex, rowIndex, finalMessage)
+                    return
+                }
+            }
+
+            // Fallback
+            this.add(message: finalMessage)
+        }
+    }
+
+    
+    func failStreaming(runId: Int, error: Error) {
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let this = self else { return }
+            for (sectionIndex, group) in this.messages.enumerated() {
+                if let rowIndex = group.messages.firstIndex(where: {
+                    $0.metaData?["runId"] as? Int == runId &&
+                    $0.metaData?["__streaming_placeholder__"] as? Bool == true
+                }), let placeholder = group.messages[rowIndex] as? StreamMessage {
+                    
+                    placeholder.metaData?["__streaming_error__"] = error.localizedDescription
+                    placeholder.text = "Error: \(error.localizedDescription)"
+                    
+                    this.messages[sectionIndex].messages[rowIndex] = placeholder
+                    this.updateAtIndex?(sectionIndex, rowIndex, placeholder)
+                    break
+                }
+            }
+        }
+    }
+    
+    
+    // MARK: - Utilities & Cleanup
+    private func hasStreamPlaceholder(for runId: Int) -> Bool {
+        return messages.contains { group in
+            group.messages.contains {
+                ($0.metaData?["runId"] as? Int == runId) &&
+                ($0.metaData?["__streaming_placeholder__"] as? Bool == true)
+            }
+        }
+    }
+    
+    public func setupStreamingSpeedIfNeeded() {
+        guard let user = user, user.isAgentic, let speed = streamingSpeed else { return }
+        // Lowered min delay to make streaming a bit faster
+        let delay = max(0.01, min(Double(speed) / 1000.0, 0.5))
+        CometChatAIStreamService.shared.streamProcessingDelay = delay
+    }
+    
+    public func cleanupPendingMessages() {
+        pendingAIMessages.removeAll()
+    }
+    
+    public func cleanup() {
+        CometChatAIStreamService.shared.isAIBusy = false
+        CometChatAIStreamService.shared.cleanupAll()
+        pendingAIMessages.removeAll()
+    }
+}
+
+
+// MARK: - Connection Listener
+
+extension MessageListViewModel: CometChatConnectionDelegate {
+    
+    public func connected() {
+        if let user = user, user.isAgentic {
+            CometChatStreamCallBackEvents.ccStreamCompleted(true)
+            CometChatAIStreamService.shared.onConnected()
+        }else{
+            updateUserAndGroup()
+            fetchActionMessages { success in
+                if success { self.fetchMissedMessages() }
+            }
+        }
     }
     
     public func disconnected() {
-        
+        if let user = user, user.isAgentic {
+            CometChatStreamCallBackEvents.ccStreamInterrupted(true)
+            CometChatAIStreamService.shared.onDisconnected()
+            placeholder?.metaData?["__stream_error__"] = true
+        }
     }
     
-    public func connecting() {
-        
+    public func connecting() { }
+
+    public func onConnectionError(_ error: CometChatException) {
+        if let user = user, user.isAgentic {
+            CometChatStreamCallBackEvents.ccStreamInterrupted(true)
+            CometChatAIStreamService.shared.onConnectionError(error)
+        }
     }
+    
+    private func handleInterruptedRuns() {
+        for index in messages.indices {
+            messages[index].messages.removeAll { $0 is StreamMessage }
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.reload?()
+        }
+    }
+
+
 }

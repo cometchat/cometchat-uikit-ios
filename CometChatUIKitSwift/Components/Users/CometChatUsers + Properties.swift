@@ -12,6 +12,7 @@ extension CometChatUsers {
     
     public func set(userRequestBuilder: UsersRequest.UsersRequestBuilder) -> Self {
         viewModel.userRequestBuilder = userRequestBuilder
+        viewModel.setRequestBuilder(userRequestBuilder: userRequestBuilder)
         return self
     }
     

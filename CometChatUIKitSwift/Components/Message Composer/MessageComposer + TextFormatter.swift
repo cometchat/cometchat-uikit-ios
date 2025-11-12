@@ -41,7 +41,7 @@ extension CometChatMessageComposer: UITextViewDelegate {
             guard let this = self else { return }
 
             //--- START: Managing typing ---//
-            if  !this.disableTypingEvents && this.viewModel.checkBlockedStatus() != true {
+            if !this.disableTypingEvents && this.viewModel.checkBlockedStatus() != true {
                 this.viewModel.startTyping()
                 this.typingWorkItem?.cancel()
                 this.typingWorkItem = DispatchWorkItem(block: {
@@ -50,16 +50,32 @@ extension CometChatMessageComposer: UITextViewDelegate {
                 DispatchQueue.global().asyncAfter(deadline: .now() + 1.5 , execute: this.typingWorkItem!)
             }
             //--- END: Managing typing ---//
-            
-            if textView.text.isEmpty {
+
+            let hasText = !textView.text.isEmpty
+            let isAgentic = this.viewModel.user?.isAgentic ?? false
+            let isAIBusy = CometChatAIStreamService.shared.isAIBusy
+            let aiBusyButton: UIImage = UIImage(systemName: "stop.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+
+            if !hasText {
                 if this.viewModel.checkBlockedStatus() != true {
                     this.viewModel.endTyping()
                 }
-                this.sendButton.backgroundColor = this.style.inactiveSendButtonImageBackgroundColor
+                this.sendButton.backgroundColor = isAgentic ? this.style.agenticInactiveSendButtonImageBackgroundColor : this.style.inactiveSendButtonImageBackgroundColor
                 this.sendButton.isEnabled = false
             } else {
-                this.sendButton.backgroundColor = this.style.activeSendButtonImageBackgroundColor
-                this.sendButton.isEnabled = true
+                if isAgentic {
+                    // For agentic users: Only enable if AI is NOT busy
+                    this.sendButton.isEnabled = hasText && !isAIBusy
+                    this.sendButton.backgroundColor = this.sendButton.isEnabled ? this.style.agenticActiveSendButtonImageBackgroundColor : this.style.agenticInactiveSendButtonImageBackgroundColor
+                    this.sendButton.setImage(!isAIBusy ? this.style.agenticSendButtonImage : aiBusyButton, for: .normal)
+                    this.sendButton.imageView?.tintColor = this.style.agenticSendButtonImageTint
+                } else {
+                    // For non-agentic users: Enable as soon as there is text
+                    this.sendButton.isEnabled = true
+                    this.sendButton.backgroundColor = this.style.activeSendButtonImageBackgroundColor
+                    this.sendButton.setImage(this.style.sendButtonImage, for: .normal)
+                    this.sendButton.imageView?.tintColor = this.style.sendButtonImageTint
+                }
             }
         }
     }

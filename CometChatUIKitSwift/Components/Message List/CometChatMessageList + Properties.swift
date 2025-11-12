@@ -11,10 +11,29 @@ import CometChatSDK
 
 extension CometChatMessageList {
     
+    
+    @discardableResult
+    public func set(suggestedMessages: [String]) ->  Self {
+        self.suggestedMessages = suggestedMessages
+        return self
+    }
+    
+    @discardableResult
+    public func set(emptyChatAIGreetingView: UIView) ->  Self {
+        self.emptyChatAIGreetingView = emptyChatAIGreetingView
+        return self
+    }
+    
+    @discardableResult
+    public func set(streamingSpeed: Int) ->  Self {
+        self.streamingSpeed = streamingSpeed
+        return self
+    }
+    
     //MARK: Data
     @discardableResult
-    public func set(user: User, parentMessage: BaseMessage? = nil) -> Self {
-        self.viewModel.set(user: user, messagesRequestBuilder: self.messagesRequestBuilder, parentMessage: parentMessage)
+    public func set(user: User, parentMessage: BaseMessage? = nil, withParent: Bool = false) -> Self {
+        self.viewModel.set(user: user, messagesRequestBuilder: self.messagesRequestBuilder, parentMessage: parentMessage, withParent: withParent)
         return self
     }
     

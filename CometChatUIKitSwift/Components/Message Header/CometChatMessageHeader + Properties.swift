@@ -56,7 +56,9 @@ extension CometChatMessageHeader {
     
     @discardableResult
     public func set(trailView: @escaping ((_ user: User?, _ group: Group?) -> UIView)) -> Self {
-        self.trailView = trailView
+        if viewModel.user?.isAgentic == false{
+            self.trailView = trailView
+        }
         return self
     }
     

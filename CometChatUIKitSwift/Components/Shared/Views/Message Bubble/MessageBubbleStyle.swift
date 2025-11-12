@@ -30,6 +30,7 @@ public struct MessageBubbleStyle {
     public lazy var receiptStyle: ReceiptStyle = CometChatReceipt.style
     
     public var textBubbleStyle: TextBubbleStyle
+    public var aiAssistantBubbleStyle: AIAssistantBubbleStyle
     public var imageBubbleStyle: ImageBubbleStyle
     public var videoBubbleStyle: VideoBubbleStyle
     public var stickersBubbleStyle: StickerBubbleStyle
@@ -53,6 +54,7 @@ public struct MessageBubbleStyle {
         callBubbleStyle = CallBubbleStyle()
         linkPreviewBubbleStyle = LinkPreviewBubbleStyle()
         textBubbleStyle = TextBubbleStyle()
+        aiAssistantBubbleStyle = AIAssistantBubbleStyle()
         imageBubbleStyle = ImageBubbleStyle()
         videoBubbleStyle = VideoBubbleStyle()
         fileBubbleStyle = FileBubbleStyle()
@@ -69,6 +71,7 @@ public struct MessageBubbleStyle {
     //for default values according to the bubble type
     public init(styleType: BubbleStyleType) {
         textBubbleStyle = TextBubbleStyle(styleType: styleType)
+        aiAssistantBubbleStyle = AIAssistantBubbleStyle()
         imageBubbleStyle = ImageBubbleStyle(styleType: styleType)
         videoBubbleStyle = VideoBubbleStyle(styleType: styleType)
         fileBubbleStyle = FileBubbleStyle(styleType: styleType)

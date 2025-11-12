@@ -6,7 +6,7 @@ public struct UIConstants {
 }
 
 internal struct UIKitConstants {
-    static var version = "5.0.10"
+    static var version = "5.1.1"
     static var messageId = "messageId"
     static var conversationId = "conversationId"
     static var senderId = "senderId"
@@ -23,6 +23,7 @@ public struct  MessageCategoryConstants {
     public static var action = "action"
     public static var call = "call"
     public static var interactive = "interactive"
+    public static var agentic = "agentic"
 }
 
 public struct  MessageTypeConstants {
@@ -42,6 +43,7 @@ public struct  MessageTypeConstants {
     public static var form = "form"
     public static var card = "card"
     public static var scheduler = "scheduler"
+    public static var assistant = "assistant"
 }
 
 public struct ComposerAttachmentConstants {

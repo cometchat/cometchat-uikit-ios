@@ -63,6 +63,27 @@ open class CometChatMessageList: UIView {
         return loadingShimmer
     }()
     
+    lazy var aiScrollContainer: UIScrollView = {
+       let s = UIScrollView().withoutAutoresizingMaskConstraints()
+       s.alwaysBounceVertical = true
+       s.backgroundColor = .clear
+       s.showsVerticalScrollIndicator = false
+       s.showsHorizontalScrollIndicator = false
+       s.keyboardDismissMode = .interactive
+       return s
+    }()
+
+    lazy var aiContentView: UIView = {
+       let v = UIView().withoutAutoresizingMaskConstraints()
+       return v
+    }()
+    
+    lazy var aiView: AIAssistantIntroductionView = {
+        let view = AIAssistantIntroductionView().withoutAutoresizingMaskConstraints()
+        view.isHidden = true
+        return view
+    }()
+    
     
     // MARK: - Disable Customisation
     var isContextMenuActive = false //to prevent multiple touch issue on message bubble
@@ -81,6 +102,10 @@ open class CometChatMessageList: UIView {
             messageIndicator?.isHidden = hideNewMessageIndicator
         }
     }
+    public var hideSuggestedMessages = false
+    var suggestedMessages: [String]?
+    var emptyChatAIGreetingView: UIView?
+    var streamingSpeed: Int = 0
     
     //MARK: - Configuration
     public var reactionsConfiguration: ReactionsConfiguration?
@@ -179,7 +204,7 @@ open class CometChatMessageList: UIView {
     
     public var hideModerationStatus: Bool = false
     
-    //AI Variables 
+    //AI Variables
     public var enableConversationStarters: Bool = false
     public var enableSmartReplies: Bool = false
     var aiConversationStarterView = CometChatAIConversationStarter()
@@ -217,10 +242,12 @@ open class CometChatMessageList: UIView {
         }
     }
 
+    public var onAIOptionSelected: ((_ option: String) -> Void)?
 
     //MARK: - INTERNAL HELPER VARIABLE
     var newMessageIndicatorScrollOffSet: CGFloat = 150
     var messagesRequestBuilder: MessagesRequest.MessageRequestBuilder? = nil
+    public var withParent: Bool?
     var reactionsRequestBuilder: ReactionsRequestBuilder? = nil
     var baseMessage: BaseMessage?
     weak var controller: UIViewController?
@@ -255,32 +282,122 @@ open class CometChatMessageList: UIView {
     
     open override func willMove(toWindow newWindow: UIWindow?) {
         if newWindow != nil {
-            setupStyle()
-            if !viewModel.hasFetchedMessagesBefore {
-                fetchData()
+            
+            if viewModel.user?.isAgentic ?? false{
+                hideDateSeparator = true
+                viewModel.streamingSpeed = streamingSpeed
+                if viewModel.parentMessage != nil && viewModel.parentMessage?.id ?? 0 > 0{
+                    fetchData()
+                } else if viewModel.threadedPArentMessageId > 0{
+                    if viewModel.hasFetchedMessagesBefore {
+                        fetchData()
+                    }
+                } else{
+                    buildAgenticView()
+                }
+                
+                
+            }else{
+                if !viewModel.hasFetchedMessagesBefore {
+                    fetchData()
+                }
             }
+            setupStyle()
+        }else{
+            smartRepliesWorkItem?.cancel()
+            smartRepliesWorkItem = nil
         }
     }
     
     deinit {
-        disconnect()
+        CometChatAIStreamService.shared.cleanupAll()
+            disconnect()
+            CometChatAIStreamService.shared.isAIBusy = false
     }
     
     // ------ END: life cycle functions ---- //
     
     //MARK: Building and styling UI
     open func buildUI() {
-        
         embed(container)
         
-        // Add subviews to container
         container.addArrangedSubview(headerViewContainer)
         headerViewContainer.pin(anchors: [.leading, .trailing], to: container, with: 10)
+        
+        // Add aiScrollView instead of aiView
+        container.addArrangedSubview(aiScrollContainer)
+        aiScrollContainer.pin(anchors: [.leading, .trailing], to: container, with: 0)
+        
+        // Place aiView inside aiScrollView
+        aiScrollContainer.addSubview(aiView)
+        aiView.pin(anchors: [.top, .leading, .trailing, .bottom], to: aiScrollContainer, with: 0)
+        aiView.widthAnchor.constraint(equalTo: aiScrollContainer.widthAnchor).isActive = true
+        aiView.heightAnchor.constraint(equalTo: aiScrollContainer.heightAnchor).isActive = true
+        
         container.addArrangedSubview(tableView)
         tableView.pin(anchors: [.leading, .trailing], to: container, with: 0)
         container.addArrangedSubview(footerViewContainer)
         footerViewContainer.pin(anchors: [.leading, .trailing], to: container, with: 10)
     }
+    
+    func buildAgenticView(){
+        if let view = emptyChatAIGreetingView{
+            aiView.removeFromSuperview()
+            aiScrollContainer.addSubview(view)
+            view.pin(anchors: [.top, .leading, .trailing, .bottom], to: aiScrollContainer, with: 0)
+            view.widthAnchor.constraint(equalTo: aiScrollContainer.widthAnchor).isActive = true
+            view.heightAnchor.constraint(equalTo: aiScrollContainer.heightAnchor).isActive = true
+        }
+        showAIView()
+    }
+    
+    func showAIView() {
+        tableView.isHidden = true
+        aiScrollContainer.isHidden = false
+        if let view = emptyChatAIGreetingView{
+            view.isHidden = false
+        }else{
+            aiView.isHidden = false
+        }
+        aiView.avatarView.setAvatar(avatarUrl: viewModel.user?.avatar ?? "", with: viewModel.user?.name)
+        if let user = viewModel.user {
+            aiView.avatarView.setAvatar(avatarUrl: user.avatar ?? "", with: user.name)
+            let greeting = user.metadata?["greetingMessage"] as? String
+            let intro = user.metadata?["introductoryMessage"] as? String
+            var suggestions : [String]?
+            
+            if let suggestedMessages = suggestedMessages{
+                suggestions = suggestedMessages
+            }else{
+                suggestions = user.metadata?["suggestedMessages"] as? [String]
+            }
+             
+            aiView.configure(
+                greetingMessage: greeting,
+                introductoryMessage: intro,
+                suggestedMessages: suggestions,
+                hideSuggestedMessages: hideSuggestedMessages
+            )
+        }
+        aiView.onOptionSelected = { [weak self] option in
+            guard let this = self else { return }
+            this.onAIOptionSelected?(option)
+        }
+    }
+
+    func showTableView() {
+        DispatchQueue.main.async { [weak self] in
+            self?.aiScrollContainer.isHidden = true
+            
+            if let view = self?.emptyChatAIGreetingView{
+                view.isHidden = true
+            }else{
+                self?.aiView.isHidden = true
+            }
+            self?.tableView.isHidden = false
+        }
+    }
+
     
     open func setupStyle() {
         self.backgroundColor = style.backgroundColor
@@ -440,8 +557,8 @@ open class CometChatMessageList: UIView {
     open func setupViewModel() {
         
         viewModel.reload = { [weak self]  in
+            guard let this = self else { return }
             DispatchQueue.main.async {
-                guard let this = self else { return }
                 this.removeLoadingView()
                 this.reload()
                                 
@@ -450,9 +567,13 @@ open class CometChatMessageList: UIView {
                         onEmpty
                     }
                    if !this.hideEmptyView{
+                       if let user = this.viewModel.user, user.isAgentic{
+                           this.showAIView()
+                       }
                         this.showEmptyView()
                     }
                 } else {
+                    this.showTableView()
                     this.removeEmptyView()
                     this.removeErrorView()
                 }
@@ -465,40 +586,55 @@ open class CometChatMessageList: UIView {
         }
         
         viewModel.appendAtIndex = { [weak self] section , row, message, isNewSectionAdded in
-            
-            guard let this = self else { return }
-            
-            var shouldScrollToBottom = false
-            if this.scrollToBottomOnNewMessages {
-                shouldScrollToBottom = true
-            } else {
-                if this.tableView.contentOffset.y > 300 {
-                    this.messageIndicator?.incrementCount()
-                    this.messageIndicator?.isHidden = false
-                } else {
+            DispatchQueue.main.async {
+                guard let this = self else { return }
+                this.showTableView()
+                var shouldScrollToBottom = false
+                if this.scrollToBottomOnNewMessages {
                     shouldScrollToBottom = true
+                } else {
+                    if this.tableView.contentOffset.y > 300 {
+                        this.messageIndicator?.incrementCount()
+                        this.messageIndicator?.isHidden = false
+                    } else {
+                        shouldScrollToBottom = true
+                    }
+                }
+                this.viewModel.removeMarkedFailedStreamMessages()
+                //setting animation as to top because our tableView in inverse
+                if isNewSectionAdded {
+                    this.tableView.performBatchUpdates({
+                        this.tableView.insertSections([section], with: .top)
+                        this.tableView.insertRows(at: [IndexPath(row: row, section: section)], with: .top)
+                    }, completion: nil)
+
+                } else {
+                    this.tableView.insertRows(at: [IndexPath(row: row, section: section)], with: .top)
+                }
+                
+                //removing error/empty view if presented
+                this.removeEmptyView()
+                this.removeErrorView()
+                
+                if shouldScrollToBottom {
+                    this.scrollToBottom()
                 }
             }
-            
-            //setting animation as to top because our tableView in inverse
-            if isNewSectionAdded {
-                this.tableView.performBatchUpdates({
-                    this.tableView.insertSections([section], with: .top)
-                    this.tableView.insertRows(at: [IndexPath(row: row, section: section)], with: .top)
-                }, completion: nil)
-
-            } else {
-                this.tableView.insertRows(at: [IndexPath(row: row, section: section)], with: .top)
-            }
-            
-            //removing error/empty view if presented
-            this.removeEmptyView()
-            this.removeErrorView()
-            
-            if shouldScrollToBottom {
-                this.scrollToBottom()
-            }
         }
+        
+        viewModel.deleteBatch = { [weak self] deletions, emptySections in
+            guard let table = self?.tableView else { return }
+
+            table.performBatchUpdates({
+                for (section,row,msg) in deletions {
+                    table.deleteRows(at: [IndexPath(row: row, section: section)], with: .fade)
+                }
+                for section in emptySections {
+                    table.deleteSections(IndexSet(integer: section), with: .fade)
+                }
+            })
+        }
+
         
         
         viewModel.updateAtIndex = { [weak self] section , row, message in
@@ -617,6 +753,14 @@ open class CometChatMessageList: UIView {
         )
     }
     
+    open func addAIActionBarView(on cell: CometChatMessageBubble, message: BaseMessage){
+        MessageUtils.getAIActionView(message: message, from: cell, onCopyTapped: { message in
+            if let message = message as? AIAssistantMessage {
+                UIPasteboard.general.string = message.text
+            }
+        })
+    }
+    
     open func buildMessageFooterView(
         on cell: CometChatMessageBubble,
         for message: BaseMessage,
@@ -672,6 +816,7 @@ open class CometChatMessageList: UIView {
     
     fileprivate func registerCells() {
         tableView.register(CometChatMessageBubble.self, forCellReuseIdentifier: CometChatMessageBubble.identifier)
+        tableView.register(CometChatStreamBubble.self, forCellReuseIdentifier: "CometChatStreamBubble")
     }
     
 }
@@ -733,11 +878,59 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         var bubbleStyle = isLoggedInUser ? messageBubbleStyle.outgoing : messageBubbleStyle.incoming
         let messageTypeStyle = MessageUtils.getSpecificMessageTypeStyle(message: message, from: messageBubbleStyle)
         
+        if let isPlaceholder = message.metaData?["__streaming_placeholder__"] as? Bool,
+           let message = message as? StreamMessage,
+           let runId = message.metaData?["runId"] as? Int {
+            
+            if isPlaceholder {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "CometChatStreamBubble", for: indexPath) as! CometChatStreamBubble
+                cell.runId = runId
+                cell.messageObj = message
+                cell.avatarView.setAvatar(avatarUrl: viewModel.user?.avatar, with: viewModel.user?.name)
+                
+                cell.updateUI = { [weak tableView] in
+                    guard
+                        let tableView = tableView,
+                        tableView.window != nil,
+                        tableView.dataSource != nil
+                    else { return }
+
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
+                        guard
+                            tableView.window != nil,
+                            tableView.dataSource != nil
+                        else { return }
+
+                        UIView.performWithoutAnimation {
+                            tableView.beginUpdates()
+                            tableView.endUpdates()
+                        }
+                    }
+                }
+                
+                cell.runId = runId
+                if let showThinking = message.metaData?["__show_thinking__"] as? Bool, showThinking {
+                    cell.showThinking()
+                } else {
+                    cell.completeStreaming(finalText: message.text)
+//                    cell.hideThinking()
+                }
+                
+                cell.bindToRun(runId: runId)
+                cell.contentView.transform = CGAffineTransform(scaleX: 1, y: -1)
+                return cell
+                
+            }
+        }
+        
         if let template = viewModel.getTemplate(for: message) {
             if let cell = tableView.dequeueReusableCell(withIdentifier: CometChatMessageBubble.identifier , for: indexPath) as? CometChatMessageBubble {
                 
                 cell.transform = CGAffineTransform(scaleX: 1, y: -1) // doing this because our tableView is also transformed
                 cell.set(message: message)
+                if let user = viewModel.user, user.isAgentic, !isLoggedInUser{
+                    bubbleStyle.backgroundColor = .clear
+                }
                 cell.set(style: bubbleStyle, specificMessageTypeStyle: messageTypeStyle)
                 
                 // Overriding whole bubble
@@ -806,7 +999,11 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 if let statusInfoView = template.statusInfoView?(message, cell.alignment, controller) {
                     cell.set(statusInfoView: statusInfoView)
                 } else {
-                    buildMessageFooterView(on: cell, for: message, messageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle, isModerated: isModerated)
+                    if let user = viewModel.user, user.isAgentic && cell.alignment == .left{
+                        addAIActionBarView(on: cell, message: message)
+                    }else{
+                        buildMessageFooterView(on: cell, for: message, messageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle, isModerated: isModerated)
+                    }
                 }
                 
                 if let footerView = template.footerView?(message, cell.alignment, controller) {
@@ -823,7 +1020,11 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 }
                 
                 if message.deletedAt == 0 && !isModerated{
-                    addThreadedRepliesView(forMessage: message, toCell: cell, isLoggedInUser: isLoggedInUser, specificMessageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle)
+                    if let user = viewModel.user, user.isAgentic{
+                        
+                    }else{
+                        addThreadedRepliesView(forMessage: message, toCell: cell, isLoggedInUser: isLoggedInUser, specificMessageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle)
+                    }
                 }
                 
                 // Setting up avatar view
@@ -835,7 +1036,15 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     case .user:
                         cell.hide(headerView: true)
                         if cell.alignment == .left {
-                            cell.hide(avatar: hideAvatar ?? true)
+                            if let hideAvatar = hideAvatar{
+                                cell.hide(avatar: hideAvatar)
+                            }else{
+                                if let user = viewModel.user, user.isAgentic {
+                                    cell.hide(avatar: false)
+                                }else{
+                                    cell.hide(avatar: true)
+                                }
+                            }
                         }
                     case .group:
                         if cell.alignment == .left {
@@ -849,7 +1058,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
                 
-                if message.id > 0{
+                if message.id > 0 &&  viewModel.user?.isAgentic == false{
                     // Setting up context menu
                     setupContextMenu(for: cell, message: message)
                 }
@@ -931,20 +1140,24 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
     
     open func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let yOffset = tableView.contentOffset.y
-        
+
         if (scrollView.isDragging || scrollView.isDecelerating) && yOffset > lastContentOffset && yOffset >= 400 {
             self.messageIndicator?.isHidden = false
         }
-        
+
         if viewModel.isUIUpdating == false && (scrollView.isDragging || scrollView.isDecelerating) && viewModel.isAllMessagesFetchedInPrevious == false {
             if yOffset > lastContentOffset && shouldLoadMoreData(scrollView: scrollView) {
                 showTopSpinner()
                 viewModel.fetchPreviousMessages()
             }
         }
-        
+
+        if yOffset <= 50 {
+            self.messageIndicator?.reset()
+            self.messageIndicator?.isHidden = true
+        }
+
         lastContentOffset = yOffset
-        
     }
     
     open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -1115,7 +1328,7 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                     }
                 }
             case MessageOptionConstants.forwardMessage: break
-            case MessageOptionConstants.replyInThread : 
+            case MessageOptionConstants.replyInThread :
                 if let baseMessage = forMessage, let template = viewModel.getTemplate(for: message) {
                     self.onThreadRepliesClick?(baseMessage, template)
                 }

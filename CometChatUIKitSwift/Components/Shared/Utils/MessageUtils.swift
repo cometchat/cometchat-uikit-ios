@@ -201,6 +201,7 @@ open class MessageUtils {
             case .groupMember: return "groupMember"
             case .file: return "file"
             case .video: return "video"
+            case .assistant: return "assistant"
             case .custom: return (message as? CustomMessage)?.type ?? ""
             default: return (message as? CustomMessage)?.type ?? ""
             }
@@ -217,6 +218,7 @@ open class MessageUtils {
             return "call"
         case .action: 
             return "groupMember"
+        case .agentic: return "assistant"
         default: return (message as? CustomMessage)?.type ?? ""
         }
     }
@@ -228,6 +230,15 @@ open class MessageUtils {
         view.messageTextColor = bubbleStyle.moderationStyle.moderationTextColor
         view.messageFont = bubbleStyle.moderationStyle.moderationTextFont
         view.iconViewTintColor = bubbleStyle.moderationStyle.moderationImageTint
+        bubble.set(bottomView: view)
+    }
+    
+    public static func getAIActionView(message: BaseMessage,from bubble: CometChatMessageBubble, onCopyTapped: @escaping(BaseMessage) -> ()){
+        let view = AIActionBarView().withoutAutoresizingMaskConstraints()
+        view.message = message
+        view.onCopyTapped = { message in
+            onCopyTapped(message)
+        }
         bubble.set(bottomView: view)
     }
     
@@ -245,6 +256,11 @@ open class MessageUtils {
          return false
      }
     
+//    public static func isUserAgentic(user: User?) -> Bool {
+//        guard let user = user else { return false }
+//        return user.role == "@agentic"
+//    }
+    
     public static func getDefaultMessageCategories(message: BaseMessage) -> String {
         switch message.messageCategory {
         case .message: return "message"
@@ -252,6 +268,7 @@ open class MessageUtils {
         case .call: return "call"
         case .action: return "action"
         case .interactive: return "interactive"
+        case .agentic: return "agentic"
         default: return "message"
         }
     }
@@ -427,4 +444,10 @@ open class MessageUtils {
         
     }
     
+}
+
+extension User {
+    public var isAgentic: Bool {
+        return role == "@agentic"
+    }
 }

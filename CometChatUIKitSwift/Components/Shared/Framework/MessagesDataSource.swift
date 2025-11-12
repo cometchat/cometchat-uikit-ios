@@ -180,9 +180,32 @@ public class MessagesDataSource: DataSource {
 
     }
     
+    public func getAIAssistantMessageTemplate(additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate {
+        return CometChatMessageTemplate(category: MessageCategoryConstants.agentic, type: MessageTypeConstants.assistant, contentView: { message, alignment, controller in
+            guard let aiMessage = message as? AIAssistantMessage else { return UIView() }
+            if (aiMessage.deletedAt != 0.0) {
+                if let deletedBubble = self.getDeleteMessageBubble(messageObject: aiMessage, additionalConfiguration: additionalConfiguration) {
+                    return deletedBubble
+                }
+            }
+            return ChatConfigurator.getDataSource().getAIAssistantMessageContentView(message: aiMessage, controller: controller, alignment: alignment, style: AIAssistantBubbleStyle(), additionalConfiguration: additionalConfiguration)
+            
+        }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
+            guard let textMessage = message as? TextMessage else { return nil }
+            return ChatConfigurator.getDataSource().getBottomView(message: textMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+        } options: { message, group, controller in
+            return []
+        }
+    }
+    
     public func getTextMessageContentView(message: TextMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
         return ChatConfigurator.getDataSource().getTextMessageBubble(messageText: message.text, message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
     }
+    
+    public func getAIAssistantMessageContentView(message: AIAssistantMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AIAssistantBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
+        return ChatConfigurator.getDataSource().getAIAssistantMessageBubble(messageText: message.text, message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
+    }
+    
     
     public func getAudioMessageTemplate(additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate {
         return CometChatMessageTemplate(category: MessageCategoryConstants.message, type: MessageTypeConstants.audio, contentView: { message, alignment, controller in
@@ -375,7 +398,8 @@ public class MessagesDataSource: DataSource {
             ChatConfigurator.getDataSource().getGroupActionTemplate(additionalConfiguration: additionalConfiguration),
             ChatConfigurator.getDataSource().getFormMessageTemplate(additionalConfiguration: additionalConfiguration),
             ChatConfigurator.getDataSource().getCardMessageTemplate(additionalConfiguration: additionalConfiguration),
-            ChatConfigurator.getDataSource().getSchedulerMessageTemplate(additionalConfiguration: additionalConfiguration)
+            ChatConfigurator.getDataSource().getSchedulerMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getAIAssistantMessageTemplate(additionalConfiguration: additionalConfiguration)
         ]
     }
     
@@ -386,6 +410,9 @@ public class MessagesDataSource: DataSource {
             case MessageTypeConstants.text:
                 template = ChatConfigurator.getDataSource()
                     .getTextMessageTemplate(additionalConfiguration: additionalConfiguration)
+                
+            case MessageTypeConstants.assistant:
+                template = ChatConfigurator.getDataSource().getAIAssistantMessageTemplate(additionalConfiguration: additionalConfiguration)
                 
             case MessageTypeConstants.image:
                 template = ChatConfigurator.getDataSource()
@@ -558,12 +585,13 @@ public class MessagesDataSource: DataSource {
             MessageTypeConstants.groupMember,
             MessageTypeConstants.form,
             MessageTypeConstants.card,
-            MessageTypeConstants.scheduler
+            MessageTypeConstants.scheduler,
+            MessageTypeConstants.assistant
         ]
     }
     
     public func getAllMessageCategories() -> [String]? {
-        return [MessageCategoryConstants.message, MessageCategoryConstants.action]
+        return [MessageCategoryConstants.message, MessageCategoryConstants.action, MessageCategoryConstants.custom, MessageCategoryConstants.agentic]
     }
     
     public func getAuxiliaryOptions(user: CometChatSDK.User?, group: CometChatSDK.Group?, controller: UIViewController?, id: [String : Any]?) -> UIView? {
@@ -602,6 +630,18 @@ public class MessagesDataSource: DataSource {
             videoBubble.set(controller: controller)
         }
         return videoBubble
+    }
+    
+    public func getAIAssistantMessageBubble(messageText: String?, message: CometChatSDK.AIAssistantMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AIAssistantBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
+        
+        let aiBubble = CometChatAIAssistantBubble().withoutAutoresizingMaskConstraints()
+        aiBubble.set(text: messageText ?? "")
+        let messageBubbleStyle =  additionalConfiguration?.messageBubbleStyle.incoming
+        if let style = messageBubbleStyle?.aiAssistantBubbleStyle {
+            aiBubble.style = style
+        }
+        
+        return aiBubble
     }
     
     public func getTextMessageBubble(messageText: String?, message: CometChatSDK.TextMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {

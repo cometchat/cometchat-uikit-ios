@@ -379,27 +379,35 @@ extension CometChatConversations {
                 if let tailView = tailView?(conversation){
                     listItem.set(tail: tailView)
                 }else{
-                    listItem.set(tail: ConversationsUtils().configureTailView(
-                        conversation: conversation,
-                        badgeStyle: badgeStyle,
-                        dateStyle: dateStyle,
-                        datePattern: datePattern?(conversation), dateTimeFormatter: dateTimeFormatter
-                    ))
+                    if let user = conversation.conversationWith as? User, user.isAgentic{
+                        
+                    }else {
+                        listItem.set(tail: ConversationsUtils().configureTailView(
+                            conversation: conversation,
+                            badgeStyle: badgeStyle,
+                            dateStyle: dateStyle,
+                            datePattern: datePattern?(conversation), dateTimeFormatter: dateTimeFormatter
+                        ))
+                    }
                 }
                 
                 //Building subtitle View
                 if let subtitle = subtitleView?(conversation){
                     listItem.set(subtitle: subtitle)
                 } else {
-                    listItem.set(subtitle: ConversationsUtils.configureSubtitleView(
-                        conversation: conversation,
-                        isTypingEnabled: false,
-                        receiptStyle: receiptStyle,
-                        disableReceipt: hideReceipts,
-                        textFormatter: textFormatters,
-                        typingIndicatorStyle: typingIndicatorStyle,
-                        conversationStyle: style
-                    ))
+                    if let user = conversation.conversationWith as? User, user.isAgentic{
+                        
+                    }else{
+                        listItem.set(subtitle: ConversationsUtils.configureSubtitleView(
+                            conversation: conversation,
+                            isTypingEnabled: false,
+                            receiptStyle: receiptStyle,
+                            disableReceipt: hideReceipts,
+                            textFormatter: textFormatters,
+                            typingIndicatorStyle: typingIndicatorStyle,
+                            conversationStyle: style
+                        ))
+                    }
                 }
                 
                 switch conversation.conversationType {

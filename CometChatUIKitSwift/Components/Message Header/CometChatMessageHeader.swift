@@ -71,6 +71,63 @@ import CometChatSDK
         return view
     }()
     
+//    private lazy var aiActionStackView: UIStackView = {
+//        // Plus button
+//        let plusButton = UIButton(type: .system)
+//        plusButton.setImage(UIImage(systemName: "plus"), for: .normal)
+//        plusButton.tintColor = .gray
+//        plusButton.translatesAutoresizingMaskIntoConstraints = false
+//        plusButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
+//        plusButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+//        plusButton.addTarget(self, action: #selector(newChatButtonClicked), for: .touchUpInside)
+//
+//        // Refresh button
+//        let refreshButton = UIButton(type: .system)
+//        refreshButton.setImage(UIImage(systemName: "arrow.counterclockwise"), for: .normal)
+//        refreshButton.tintColor = .gray
+//        refreshButton.translatesAutoresizingMaskIntoConstraints = false
+//        refreshButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
+//        refreshButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+//        refreshButton.addTarget(self, action: #selector(aiHistoryButtonClicked), for: .touchUpInside)
+//
+//        // StackView
+//        let stack = UIStackView(arrangedSubviews: [plusButton, refreshButton])
+//        stack.axis = .horizontal
+//        stack.alignment = .center
+//        stack.spacing = 8
+//        stack.distribution = .fillEqually
+//        stack.translatesAutoresizingMaskIntoConstraints = false
+//        return stack
+//    }()
+    
+    private lazy var newChatButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        button.addTarget(self, action: #selector(newChatButtonClicked), for: .touchUpInside)
+        return button
+    }()
+
+    private lazy var chatHistoryButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        button.addTarget(self, action: #selector(aiHistoryButtonClicked), for: .touchUpInside)
+        return button
+    }()
+
+    private lazy var aiActionStackView: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [newChatButton, chatHistoryButton])
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 8
+        stack.distribution = .fillEqually
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
     public lazy var statusIndicator: CometChatStatusIndicator = {
         let indicator = CometChatStatusIndicator().withoutAutoresizingMaskConstraints()
         indicator.pin(anchors: [.height, .width], to: 13)
@@ -146,6 +203,10 @@ import CometChatSDK
 
     // MARK: - ViewModel
     open var viewModel: MessageHeaderViewModelProtocol = MessageHeaderViewModel()
+    public var onAiChatHistoryClicked: ((User) -> Void)?
+    public var onAiNewChatClicked: ((User) -> Void)?
+    public var hideNewChatButton: Bool = false
+    public var hideChatHistoryButton: Bool = false
 
     // MARK: - Initialization
     override public init(frame: CGRect) {
@@ -170,7 +231,16 @@ import CometChatSDK
             if let auxiliaryView = self.auxiliaryView?(self.viewModel.user, self.viewModel.group) {
                 self.tailView.addArrangedSubview(auxiliaryView)
             } else {
-                if let auxiliaryHeaderMenu = CometChatUIKit.getDataSource().getAuxiliaryHeaderMenu(user: self.viewModel.user, group: self.viewModel.group, controller: self.controller, id: nil, additionalConfiguration: self.additionalConfiguration){
+                if self.viewModel.user?.isAgentic ?? false{
+                    newChatButton.setImage(style.newChatButtonImage, for: .normal)
+                    chatHistoryButton.setImage(style.chatHistoryButtonImage, for: .normal)
+                    newChatButton.tintColor = style.newChatButtonImageTintColor
+                    chatHistoryButton.tintColor = style.chatHistoryButtonImageTintColor
+                    newChatButton.isHidden = hideNewChatButton
+                    chatHistoryButton.isHidden = hideChatHistoryButton
+                    self.tailView.addArrangedSubview(aiActionStackView)
+                }
+                else if let auxiliaryHeaderMenu = CometChatUIKit.getDataSource().getAuxiliaryHeaderMenu(user: self.viewModel.user, group: self.viewModel.group, controller: self.controller, id: nil, additionalConfiguration: self.additionalConfiguration){
                     auxiliaryHeaderMenu.distribution = .fillEqually
                     self.tailView.addArrangedSubview(auxiliaryHeaderMenu)
                 }
@@ -301,6 +371,18 @@ import CometChatSDK
         NSLayoutConstraint.activate(constraintsToActivate)
         
         
+    }
+    
+    @objc func aiHistoryButtonClicked() {
+        if let user = viewModel.user{
+            self.onAiChatHistoryClicked?(user)
+        }
+    }
+    
+    @objc func newChatButtonClicked() {
+        if let user = viewModel.user{
+            self.onAiNewChatClicked?(user)
+        }
     }
 
     open func setupStyle() {

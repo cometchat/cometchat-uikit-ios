@@ -76,4 +76,8 @@ public class SDKEventInitializer : CometChatMessageDelegate {
         CometChatMessageEvents.onMessageModerated(message: message)
     }
     
+    public func onAIAssistantMessageReceived(_ message: AIAssistantMessage) {
+        CometChatMessageEvents.onAIAssistantMessageReceived(message: message)
+    }
+    
 }
