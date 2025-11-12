@@ -15,8 +15,10 @@ CometChat Swift UIKit provides a pre-built user interface kit that developers ca
 
 ## 🚀 Explore the Sample Apps!
 
-Dive straight into our Sample Apps to see CometChat UI Kit in action! Whether you're building a messaging app or enhancing your existing project, this sample app showcases the full potential of our iOS UI components.  
+Dive straight into our Sample Apps to see CometChat UI Kit in action! Whether you're building a messaging app or enhancing your existing project, this sample app showcases the full potential of our iOS UI components.
+
 - [Sample App ](SampleApp#readme)
+- [Sample App for AI Agents](AISampleApp#readme)  
 - [Sample App with APNs Push Notifications](SampleAppPushNotificationAPNs#readme)
 
 
