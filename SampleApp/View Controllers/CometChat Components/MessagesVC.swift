@@ -204,6 +204,7 @@ class MessagesVC: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
+        
     }
     
     deinit {

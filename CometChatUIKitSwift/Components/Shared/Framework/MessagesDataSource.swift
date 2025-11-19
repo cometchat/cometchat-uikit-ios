@@ -651,7 +651,13 @@ public class MessagesDataSource: DataSource {
         
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)
         let messageBubbleStyle = isLoggedInUser ? additionalConfiguration?.messageBubbleStyle.outgoing : additionalConfiguration?.messageBubbleStyle.incoming
-        if let style = messageBubbleStyle?.textBubbleStyle { textBubble.style = style }
+        if let style = messageBubbleStyle?.textBubbleStyle {
+            textBubble.style = style
+        } else {
+            // Set default style based on message alignment when additionalConfiguration is nil
+            let bubbleType: BubbleStyleType = isLoggedInUser ? .outgoing : .incoming
+            textBubble.style = TextBubbleStyle(styleType: bubbleType)
+        }
         
         //processing for TextFormatter
         let textFormatter = additionalConfiguration?.textFormatter ?? []

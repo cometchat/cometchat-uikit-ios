@@ -16,6 +16,7 @@ public enum ConversationConstants {
     static let chats = "CHATS".localize()
     static let delete = "DELETE_MESSAGE".localize()
     static let deleteConversationMessage = "DELETE_CONVERSATION_MESSAGE".localize()
+    static let deleteConversation = "DELETE_CONVERSATION".localize()
     static let typingText = "TYPING".localize()
     static let isTyping = "IS_TYPING".localize()
     static let inAThread = "IN_A_THREAD".localize()

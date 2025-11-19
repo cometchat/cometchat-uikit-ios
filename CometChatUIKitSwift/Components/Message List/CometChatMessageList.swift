@@ -589,6 +589,36 @@ open class CometChatMessageList: UIView {
             DispatchQueue.main.async {
                 guard let this = self else { return }
                 this.showTableView()
+                
+                let shouldFilterMessage = this.hideGroupActionMessages &&
+                                         message.messageCategory == .action &&
+                                         message.receiverType == .group
+                
+                // If the message should be filtered, don't insert it into the table view
+                // but still perform other operations like removing empty views
+                if shouldFilterMessage {
+                    this.removeEmptyView()
+                    this.removeErrorView()
+                    return
+                }
+                
+                // Calculate the actual row index after filtering
+                var actualRow = row
+                if let messages = this.viewModel.messages[safe: section]?.messages {
+                    let filteredMessages = messages.filter { msg in
+                        !(this.hideGroupActionMessages && msg.messageCategory == .action && msg.receiverType == .group)
+                    }
+                    
+                    // Find the actual index of this message in the filtered array
+                    if let messageIndex = filteredMessages.firstIndex(where: { $0.muid == message.muid }) {
+                        actualRow = messageIndex
+                    } else {
+                        this.removeEmptyView()
+                        this.removeErrorView()
+                        return
+                    }
+                }
+                
                 var shouldScrollToBottom = false
                 if this.scrollToBottomOnNewMessages {
                     shouldScrollToBottom = true
@@ -600,25 +630,23 @@ open class CometChatMessageList: UIView {
                         shouldScrollToBottom = true
                     }
                 }
+                
                 this.viewModel.removeMarkedFailedStreamMessages()
-                //setting animation as to top because our tableView in inverse
-                if isNewSectionAdded {
-                    this.tableView.performBatchUpdates({
+                
+                this.tableView.performBatchUpdates({
+                    if isNewSectionAdded {
                         this.tableView.insertSections([section], with: .top)
-                        this.tableView.insertRows(at: [IndexPath(row: row, section: section)], with: .top)
-                    }, completion: nil)
-
-                } else {
-                    this.tableView.insertRows(at: [IndexPath(row: row, section: section)], with: .top)
-                }
-                
-                //removing error/empty view if presented
-                this.removeEmptyView()
-                this.removeErrorView()
-                
-                if shouldScrollToBottom {
-                    this.scrollToBottom()
-                }
+                    }
+                    this.tableView.insertRows(at: [IndexPath(row: actualRow, section: section)], with: .top)
+                }, completion: { _ in
+                    // Removing error/empty view if presented
+                    this.removeEmptyView()
+                    this.removeErrorView()
+                    
+                    if shouldScrollToBottom {
+                        this.scrollToBottom()
+                    }
+                })
             }
         }
         
@@ -1058,7 +1086,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
                 
-                if message.id > 0 &&  viewModel.user?.isAgentic == false{
+                if message.id > 0 &&  viewModel.user?.isAgentic != true{
                     // Setting up context menu
                     setupContextMenu(for: cell, message: message)
                 }

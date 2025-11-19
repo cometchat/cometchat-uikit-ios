@@ -74,3 +74,25 @@ enum AIExtension {
     }
 }
 
+
+extension UIViewController {
+
+    /// Ensures the presented controller matches the current VC's interface style.
+    func presentWithInheritedInterfaceStyle(_ viewControllerToPresent: UIViewController, animated: Bool = true, completion: (() -> Void)? = nil) {
+        if #available(iOS 13.0, *) {
+            let style = traitCollection.userInterfaceStyle
+            viewControllerToPresent.overrideUserInterfaceStyle = style
+        }
+
+        present(viewControllerToPresent, animated: animated) {
+            if #available(iOS 13.0, *) {
+                // Delay to ensure the window is attached
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                     let style = self.traitCollection.userInterfaceStyle
+                        viewControllerToPresent.view.overrideUserInterfaceStyle = style
+                }
+            }
+            completion?()
+        }
+    }
+}

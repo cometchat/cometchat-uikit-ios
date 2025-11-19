@@ -581,7 +581,7 @@ extension CometChatConversations {
     
     private func delete(conversation: Conversation) {
         // create an actionSheet
-        let actionSheetController: UIAlertController = UIAlertController(title: nil, message: ConversationConstants.deleteConversationMessage, preferredStyle: .actionSheet)
+        let actionSheetController: UIAlertController = UIAlertController(title: ConversationConstants.deleteConversation, message: ConversationConstants.deleteConversationMessage, preferredStyle: .alert)
         
         // create an action
         let firstAction: UIAlertAction = UIAlertAction(title: ConversationConstants.delete, style: .destructive) { action -> Void in

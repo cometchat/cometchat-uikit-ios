@@ -5,7 +5,7 @@ target 'SampleAppPushNotificationAPNs' do
   use_frameworks!
 
   pod 'CometChatCallsSDK','4.2.1'
-  pod 'CometChatUIKitSwift','5.1.1'
+  pod 'CometChatUIKitSwift','5.1.2'
 end
 
 
@@ -14,7 +14,7 @@ target 'SampleApp' do
   use_frameworks!
 
   pod 'CometChatCallsSDK','4.2.1'
-  pod 'CometChatUIKitSwift','5.1.1'
+  pod 'CometChatUIKitSwift','5.1.2'
 
 end
 
@@ -23,6 +23,6 @@ target 'AISampleApp' do
   use_frameworks!
 
   pod 'CometChatCallsSDK','4.2.1'
-  pod 'CometChatUIKitSwift','5.1.1'
+  pod 'CometChatUIKitSwift','5.1.2'
 
 end

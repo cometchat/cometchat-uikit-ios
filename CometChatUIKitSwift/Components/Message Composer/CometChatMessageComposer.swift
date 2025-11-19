@@ -566,7 +566,7 @@ open class CometChatMessageComposer: UIView {
                 sheetController.largestUndimmedDetentIdentifier = .medium
             }
             cometChatMediaRecorder.modalPresentationStyle = .pageSheet
-            controller?.present(cometChatMediaRecorder, animated: true, completion: nil)
+            controller?.presentWithInheritedInterfaceStyle(cometChatMediaRecorder)
         } else {
             controller?.presentPanModal(cometChatMediaRecorder)
         }
@@ -744,7 +744,7 @@ extension CometChatMessageComposer {
                 sheetController.largestUndimmedDetentIdentifier = .large
             }
             actionSheet.modalPresentationStyle = .pageSheet
-            controller?.present(actionSheet, animated: true, completion: nil)
+            controller?.presentWithInheritedInterfaceStyle(actionSheet)
         } else {
             controller?.presentPanModal(actionSheet)
         }
@@ -784,7 +784,7 @@ extension CometChatMessageComposer {
                 sheetController.prefersGrabberVisible = true // Optional: shows grabber
             }
             actionSheet.modalPresentationStyle = .pageSheet
-            controller?.present(actionSheet, animated: true, completion: nil)
+            controller?.presentWithInheritedInterfaceStyle(actionSheet)
         } else {
             controller?.presentPanModal(actionSheet)
         }

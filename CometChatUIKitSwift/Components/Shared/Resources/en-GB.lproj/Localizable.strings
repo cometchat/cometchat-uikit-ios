@@ -131,7 +131,8 @@
 "OPEN_DOCUMENT_TO_EDIT_CONTENT_TOGETHER" = "Open document to edit content together.";
 "OPEN_DOCUMENT" = "Open Document";
 "OPEN_WHITEBOARD_TO_DRAW_TOGETHER" = "Open whiteboard to draw together.";
-"DELETE_CONVERSATION_MESSAGE" = "Would you like to delete this conversation? This conversation will be deleted from all of your devices.";
+"DELETE_CONVERSATION_MESSAGE" = "This conversation will be deleted from all of your devices.";
+"DELETE_CONVERSATION" = "Would you like to delete this conversation?";
 "TAP_TO_START_CONVERSATION" = "Tap to start conversation";
 "IN_A_THREAD" = "In a thread ⤵";
 "INCOMING_AUDIO_CALL" = "Incoming audio call";
