@@ -50,6 +50,7 @@ final public class CometChatUIKit {
                 CometChatUIKit.registerForPushNotification(with: uiKitSettings.deviceToken)
                 CometChatUIKit.registerForFCM(with: uiKitSettings.fcmKey)
             }
+            FlagReasonsManager.shared.getFlagReasons()
             result(.success(isSuccess))
         } onError: { error in
             result(.failure(NSError(domain: error.errorCode, code: 0)))
@@ -97,6 +98,7 @@ final public class CometChatUIKit {
                 CometChatUIKit.configureAI(extensions: uiKitSettings.aiExtensions)
                 CometChatUIKit.configureExtensions(extensions: uiKitSettings.extensions)
             }
+            FlagReasonsManager.shared.getFlagReasons()
             registerNotificationAndVOIP()
             result(.success(user))
         } onError: { error in
@@ -134,6 +136,7 @@ final public class CometChatUIKit {
             result(.success(user))
             CometChatUIKit.configureExtensions(extensions: CometChatUIKit.uiKitSettings?.extensions)
             CometChatUIKit.configureAI(extensions: CometChatUIKit.uiKitSettings?.aiExtensions)
+            FlagReasonsManager.shared.getFlagReasons()
         } onError: { error in
             result(.onError(error))
             debugPrint(error.description)
@@ -207,6 +210,9 @@ extension CometChatUIKit {
         
         CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.inProgress)
         CometChat.sendCustomMessage(message: message) { customMessage in
+            if let _ = customMessage.quotedMessage {
+                CometChatMessageEvents.ccReplyToMessage(message: customMessage, status: .success)
+            }
             CometChatMessageEvents.ccMessageSent(message: customMessage, status: MessageStatus.success)
         } onError: { error in
             if let error =  error {

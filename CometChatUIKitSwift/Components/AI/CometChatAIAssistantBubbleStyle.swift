@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 public struct AIAssistantBubbleStyle: BaseMessageBubbleStyle {
+    public var messagePreviewStyle: MessagePreviewStyle?
     public var backgroundDrawable: UIImage?
     
     public var cornerRadius: CometChatCornerStyle?

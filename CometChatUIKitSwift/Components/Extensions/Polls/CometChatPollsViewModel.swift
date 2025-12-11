@@ -8,14 +8,23 @@
 import Foundation
 import CometChatSDK
 
-public class CometChatPollsViewModel : DataSourceDecorator {
+public class CometChatPollsViewModel : DataSourceDecorator, CometChatMessageEventListener {
     
     var pollsExtensionTypeConstant = ExtensionType.extensionPoll
     var configuration: PollBubbleConfiguration?
     var loggedInUser = CometChat.getLoggedInUser()
     
+    var eventID = Date().timeIntervalSince1970
+    var quotedMessageId: Int?
+    var quotedMessage: BaseMessage?
+    
     public override init(dataSource: DataSource) {
         super.init(dataSource: dataSource)
+        CometChatMessageEvents.addListener("polls-reply-listener-\(eventID)", self)
+    }
+    
+    deinit {
+        CometChatMessageEvents.removeListener("polls-reply-listener-\(eventID)")
     }
     
     public override func getId() -> String {
@@ -124,8 +133,22 @@ public class CometChatPollsViewModel : DataSourceDecorator {
         if let group = group {
             createPoll.set(group: group)
         }
-
+        createPoll.quotedMessage = self.quotedMessage
+        createPoll.quotedMessageId = self.quotedMessageId
         let navigationController = UINavigationController(rootViewController: createPoll)
         controller?.present(navigationController, animated: true, completion: nil)
+    }
+    
+    public func ccReplyToMessage(message: BaseMessage, status: MessageStatus) {
+        if message.deletedAt <= 0 {
+            switch status {
+            case .inProgress:
+                quotedMessageId = message.id
+                quotedMessage = message
+            case .success, .error:
+                quotedMessageId = nil
+                quotedMessage = nil
+            }
+        }
     }
 }

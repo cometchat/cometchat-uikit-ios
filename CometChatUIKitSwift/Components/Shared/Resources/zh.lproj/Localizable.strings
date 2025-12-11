@@ -291,3 +291,13 @@
 "DONE" = "完成了";
 "PHOTO_LIBRARY" = "照片库";
 "VIDEO_LIBRARY" = "视频库";
+
+"REPORT_A_MESSAGE" = "举报";
+"REPORT_MESSAGE_SUBTITLE" = "如果此聊天违反我们的社区标准，请举报。我们不会告诉账户你举报了他们。";
+"REPORT" = "举报";
+"REASON" = "原因";
+"OPTIONAL" = "可选";
+"REPORT_MESSAGE_PLACEHOLDER" = "为您的报告提供更多背景信息...";
+"SPAM" = "垃圾邮件";
+"SEXUAL_CONTENT" = "色情内容";
+"HARASSMENT_BULLYING" = "骚扰/欺凌";

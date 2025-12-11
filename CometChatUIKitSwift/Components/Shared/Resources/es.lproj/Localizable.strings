@@ -268,3 +268,13 @@
 "DONE" = "Hecho";
 "PHOTO_LIBRARY" = "Biblioteca de fotos";
 "VIDEO_LIBRARY" = "Biblioteca de vídeos";
+
+"REPORT_A_MESSAGE" = "Informe";
+"REPORT_MESSAGE_SUBTITLE" = "Denuncie este chat si va en contra de nuestras normas comunitarias. No le diremos a la cuenta que los denunciaste.";
+"REPORT" = "Informe";
+"REASON" = "Motivo";
+"OPTIONAL" = "Opcional";
+"REPORT_MESSAGE_PLACEHOLDER" = "Proporcione un contexto adicional para su informe...";
+"SPAM" = "Correo basura";
+"SEXUAL_CONTENT" = "Contenido sexual";
+"HARASSMENT_BULLYING" = "Acoso/Intimidación";

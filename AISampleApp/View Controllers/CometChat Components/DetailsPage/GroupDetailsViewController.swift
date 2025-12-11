@@ -135,6 +135,30 @@ class GroupDetailsViewController: UIViewController {
         return button
     }()
     
+    public lazy var deleteChatButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.heightAnchor.constraint(equalToConstant: 35).isActive = true
+        button.setTitle("DELETE_CHAT".localize(), for: .normal)
+        button.setTitleColor(CometChatTheme.errorColor, for: .normal)
+        button.setImage(UIImage(systemName: "trash"), for: .normal)
+        button.tintColor = CometChatTheme.errorColor
+        
+        // Set spacing between the image and title
+        let spacing: CGFloat = 8.0
+        button.imageView?.contentMode = .scaleAspectFit
+        
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: spacing, bottom: 0, right: -spacing)
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -spacing, bottom: 0, right: 0)
+        
+        // Ensure content is centered
+        button.contentHorizontalAlignment = .center
+        button.contentVerticalAlignment = .center
+        button.titleLabel?.font = CometChatTypography.Heading4.regular
+        button.addTarget(self, action: #selector(showDeleteChatAlert), for: .primaryActionTriggered)
+        return button
+    }()
+    
     public lazy var deleteAndExitButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -262,6 +286,7 @@ class GroupDetailsViewController: UIViewController {
         bottomContainerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20).isActive = true
         bottomContainerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20).isActive = true
         bottomContainerStackView.addArrangedSubview(leaveButton)
+        bottomContainerStackView.addArrangedSubview(deleteChatButton)
         bottomContainerStackView.addArrangedSubview(deleteAndExitButton)
         
         groupNameLabel.text = group?.name
@@ -293,6 +318,24 @@ class GroupDetailsViewController: UIViewController {
             }
         })
     }
+    
+    @objc func showDeleteChatAlert(){
+        self.showAlert("DELETE_CHAT".localize(), "DELETE_CHAT_CONFIRMATION".localize(), "CANCEL".localize(), "DELETE".localize(), onActionsTriggered: { [weak self] in
+            if let group = self?.group {
+                self?.getConversation { deletedConversation in
+                    CometChat.deleteConversation(conversationWith: group.guid, conversationType: .group) { [weak self] message in
+                        DispatchQueue.main.async {
+                            CometChatConversationEvents.ccConversationDeleted(conversation: deletedConversation)
+                            self?.navigationController?.popToViewController(ofClass: HomeScreenViewController.self, animated: true)
+                        }
+                    } onError: { error in
+                        //TODO: ERROR
+                    }
+                }
+            }
+        })
+    }
+    
     @objc func showLeaveGroupAlert(){
         if group?.owner == CometChat.getLoggedInUser()?.uid && (group?.membersCount ?? 0) > 1 {
             self.showAlert("OWNERSHIP_TRANSFER".localize(), "TRANSFER_OWNERSHIP_ALERT".localize(), "CANCEL".localize(), "TRANSFER".localize(), onActionsTriggered: {
@@ -353,6 +396,16 @@ class GroupDetailsViewController: UIViewController {
         self.bannedMembersView.isHidden = hideBannMembers
         self.leaveButton.isHidden = hideLeaveGroup
         self.deleteAndExitButton.isHidden = hideDeleteGroup
+    }
+    
+    func getConversation(completion: @escaping((Conversation) -> ())){
+        CometChat.getConversation(conversationWith: group?.guid ?? "", conversationType: .group, onSuccess: { conversation in
+            if let convo = conversation{
+                completion(convo)
+            }
+        }, onError: { error in
+            print("error: \(error?.errorDescription ?? "Unknown error")")
+        })
     }
     
     func connect() {

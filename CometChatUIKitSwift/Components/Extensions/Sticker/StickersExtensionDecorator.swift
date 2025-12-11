@@ -9,21 +9,49 @@ import CometChatSDK
 import UIKit
 import Foundation
 
-class StickersExtensionDecorator: DataSourceDecorator {
+class StickersExtensionDecorator: DataSourceDecorator, CometChatMessageEventListener {
 
     var stickerTypeConstant = "extension_sticker"
     var configuration : StickerConfiguration?
     var anInterface : DataSource?
+    var eventID = Date().timeIntervalSince1970
+    var quotedMessageId: Int?
+    var quotedMessage: BaseMessage?
     
     public override init(dataSource: DataSource) {
         super.init(dataSource: dataSource)
         self.anInterface = dataSource
     }
     
+    public func ccReplyToMessage(message: BaseMessage, status: MessageStatus) {
+        if message.deletedAt <= 0 {
+            switch status {
+            case .inProgress:
+                quotedMessageId = message.id
+                quotedMessage = message
+            case .success, .error:
+                quotedMessageId = nil
+                quotedMessage = nil
+            }
+        }
+    }
+    
+    func ccMessageSent(message: BaseMessage, status: MessageStatus) {
+        if message.deletedAt <= 0 {
+            quotedMessageId = nil
+            quotedMessage = nil
+        }
+    }
+    
     public init(dataSource: DataSource, configuration: StickerConfiguration?) {
         super.init(dataSource: dataSource)
         self.anInterface = dataSource
         self.configuration = configuration
+        CometChatMessageEvents.addListener("reply-listener-\(eventID)", self)
+    }
+    
+    deinit {
+        CometChatMessageEvents.removeListener("reply-listener-\(eventID)")
     }
     
     override func getAllMessageTemplates(additionalConfiguration: AdditionalConfiguration?) -> [CometChatMessageTemplate] {
@@ -94,9 +122,7 @@ class StickersExtensionDecorator: DataSourceDecorator {
         
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)
         let messageBubbleStyle = isLoggedInUser ? additionalConfiguration?.messageBubbleStyle.outgoing : additionalConfiguration?.messageBubbleStyle.incoming
-        if let style = messageBubbleStyle?.stickersBubbleStyle { stickerBubble.style = style }
-        
-        stickerBubble.style.backgroundColor = .clear
+        stickerBubble.style = style ?? messageBubbleStyle?.stickersBubbleStyle ?? StickerBubbleStyle()
         stickerBubble.imageView.contentMode = .scaleAspectFit
         stickerBubble.pin(anchors: [.height, .width], to: 160)
         return stickerBubble
@@ -165,6 +191,14 @@ class StickersExtensionDecorator: DataSourceDecorator {
                 customMessage.muid = "\(Date().timeIntervalSince1970)"
                 customMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
                 customMessage.sender = CometChat.getLoggedInUser()
+                if let quotedMessageId = self.quotedMessageId {
+                    customMessage.quotedMessageId = quotedMessageId
+                }
+                if let quotedMessage = self.quotedMessage {
+                    customMessage.quotedMessage = quotedMessage
+                }
+                self.quotedMessageId = nil
+                self.quotedMessage = nil
                 CometChatUIKit.sendCustomMessage(message: customMessage)
             }
         }

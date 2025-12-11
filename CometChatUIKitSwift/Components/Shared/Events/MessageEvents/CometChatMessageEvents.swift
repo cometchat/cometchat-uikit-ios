@@ -165,6 +165,14 @@ public class CometChatMessageEvents {
             value.onMessageEdit(message: message, status: status)
         }
     }
+    
+    public static func ccReplyToMessage(message: BaseMessage, status: MessageStatus) {
+        
+        let objectEnumerator = self.observer.objectEnumerator()
+        while let value = objectEnumerator?.nextObject() as? CometChatMessageEventListener {
+            value.ccReplyToMessage(message: message, status: status)
+        }
+    }
 
     public static func onMessageEdited(message: BaseMessage) {
         

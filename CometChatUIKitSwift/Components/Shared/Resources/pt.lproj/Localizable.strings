@@ -268,3 +268,13 @@
 "DONE" = "Feito";
 "PHOTO_LIBRARY" = "Biblioteca de fotos";
 "VIDEO_LIBRARY" = "Biblioteca de vídeos";
+
+"REPORT_A_MESSAGE" = "Relatório";
+"REPORT_MESSAGE_SUBTITLE" = "Denuncie esta conversa se ela violar nossos Padrões Comunitários. Não contaremos à conta que você os denunciou.";
+"REPORT" = "Relatório";
+"REASON" = "Razão";
+"OPTIONAL" = "Opcional";
+"REPORT_MESSAGE_PLACEHOLDER" = "Forneça contexto adicional para seu relatório...";
+"SPAM" = "Spam";
+"SEXUAL_CONTENT" = "Conteúdo sexual";
+"HARASSMENT_BULLYING" = "Assédio/ Intimidação";

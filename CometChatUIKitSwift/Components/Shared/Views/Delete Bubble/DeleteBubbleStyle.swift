@@ -14,6 +14,7 @@ public struct DeleteBubbleStyle: BaseMessageBubbleStyle {
     
     // MARK: - Background and Border Styling
     
+    public var messagePreviewStyle: MessagePreviewStyle?
     /// The background color of the delete bubble.
     public var backgroundColor: UIColor?
     

@@ -57,6 +57,7 @@
 "HAS_INITIATED_GROUP_AUDIO_CALL" = "has initiated a group call";
 "HAS_INITIATED_GROUP_VIDEO_CALL" = "has initiated a group call";
 "EDIT" = "Edit";
+"REPORT_MESSAGE" = "Report";
 "SEARCH" = "Search";
 "ERROR" = "Error";
 "CALL_REJECTED" = "Call Rejected";
@@ -296,3 +297,14 @@
 "DONE" = "Done";
 "PHOTO_LIBRARY" = "Photo Library";
 "VIDEO_LIBRARY" = "Video Library";
+"REPLY_TO_MESSAGE" = "Reply to Message";
+
+"REPORT_A_MESSAGE" = "Report";
+"REPORT_MESSAGE_SUBTITLE" = "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
+"REPORT" = "Report";
+"REASON" = "Reason";
+"OPTIONAL" = "Optional";
+"REPORT_MESSAGE_PLACEHOLDER" = "Provide additional context for your report…";
+"SPAM" = "Spam";
+"SEXUAL_CONTENT" = "Sexual Content";
+"HARASSMENT_BULLYING" = "Harassment / Bullying";

@@ -16,6 +16,8 @@ public protocol CometChatMessageEventListener {
 
     //event for message edited by logged-in user
     func ccMessageEdited(message: BaseMessage, status: MessageStatus)
+    
+    func ccReplyToMessage(message: BaseMessage, status: MessageStatus)
 
     //event for message deleted by logged-in user
     func ccMessageDeleted(message: BaseMessage)
@@ -157,6 +159,7 @@ public extension CometChatMessageEventListener {
     func onMessageReactionRemoved(reactionEvent: ReactionEvent) {}
     func ccMessageSent(message: BaseMessage, status: MessageStatus) {}
     func ccMessageEdited(message: BaseMessage, status: MessageStatus) {}
+    func ccReplyToMessage(message: BaseMessage, status: MessageStatus) {}
     func ccMessageDeleted(message: BaseMessage) {}
     func ccMessageRead(message: BaseMessage) {}
     func ccLiveReaction(reaction: TransientMessage) {}

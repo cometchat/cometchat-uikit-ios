@@ -295,6 +295,28 @@ open class CometChatThreadedMessageHeader: UIView {
             if let bubbleView = template.bubbleView?(message, cell.alignment, controller){
                 cell.set(bubbleView: bubbleView)
             }
+            
+            if let quotedMessage = message.quotedMessage{
+                if let replyView = template.replyView?(quotedMessage, cell.alignment, controller) {
+                    cell.set(replyView: replyView)
+                }else{
+                    if quotedMessage.deletedAt <= 0 {
+                        let preview = CometChatMessagePreview.makePreview(
+                            for: quotedMessage,
+                            isLoggedInUser: isLoggedInUser,
+                            textFormatters: textFormatters,                 // use your existing variable
+                            formattingType: .MESSAGE_BUBBLE,
+                            style: messageTypeStyle?.messagePreviewStyle ?? bubbleStyle.messagePreviewStyle,
+                            onPreviewClicked: nil,
+                            onCrossClicked: nil,
+                            hideCloseButton: true                           // you had closeButton.isHidden = true
+                        )
+
+                        cell.set(replyView: preview)
+
+                    }
+                }
+            }
         }
         
         bubbleContainerView.subviews.forEach({ $0.removeFromSuperview() })

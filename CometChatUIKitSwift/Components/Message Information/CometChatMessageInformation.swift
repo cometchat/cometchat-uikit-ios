@@ -43,7 +43,7 @@ open class CometChatMessageInformation: CometChatListBase {
         setupTableView(style: .plain, withRefreshControl: false)
         tableView.alwaysBounceVertical = true
         tableView.separatorStyle = .none
-        
+        hideSearch = true
         registerCells()
         setupViewModel()
         if let message = viewModel.message { viewModel.getMessageReceipt(information: message) }

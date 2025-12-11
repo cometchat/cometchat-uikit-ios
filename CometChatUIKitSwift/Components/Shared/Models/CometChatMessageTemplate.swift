@@ -20,6 +20,7 @@ public struct CometChatMessageTemplate {
     public var bottomView: ((_ message: BaseMessage?, _ alignment: MessageBubbleAlignment, _ controller: UIViewController?) -> (UIView)?)? = nil
     public var options: ((_ message: BaseMessage?, _ group: Group?, _ controller: UIViewController?) -> ([CometChatMessageOption]?))? = nil
     public var statusInfoView: ((_ message: BaseMessage?, _ alignment:  MessageBubbleAlignment, _ controller: UIViewController?) -> UIView?)? = nil
+    public var replyView: ((_ message: BaseMessage?, _ alignment:  MessageBubbleAlignment, _ controller: UIViewController?) -> UIView?)? = nil
     
     public init(
         category: String,
@@ -30,7 +31,8 @@ public struct CometChatMessageTemplate {
         footerView: ( (_: BaseMessage?, _: MessageBubbleAlignment, _: UIViewController?) -> UIView?)?,
         bottomView: ( (_: BaseMessage?, _: MessageBubbleAlignment, _: UIViewController?) -> UIView?)?,
         options: ( (_: BaseMessage?, _: Group?, _: UIViewController?) -> [CometChatMessageOption]?)?,
-        statusInfoView: ((_ : BaseMessage?, _:  MessageBubbleAlignment, _: UIViewController?) -> UIView?)? = nil
+        statusInfoView: ((_ : BaseMessage?, _:  MessageBubbleAlignment, _: UIViewController?) -> UIView?)? = nil,
+        replyView: ((_ : BaseMessage?, _:  MessageBubbleAlignment, _: UIViewController?) -> UIView?)? = nil
     ) {
         self.category = category
         self.type = type
@@ -41,6 +43,7 @@ public struct CometChatMessageTemplate {
         self.bottomView = bottomView
         self.options = options
         self.statusInfoView = statusInfoView
+        self.replyView = replyView
     }
     
     func toString() -> String {

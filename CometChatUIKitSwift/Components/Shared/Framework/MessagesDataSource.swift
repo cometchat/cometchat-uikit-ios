@@ -10,6 +10,10 @@ import CometChatSDK
 import UIKit
 
 public class MessagesDataSource: DataSource {
+    
+    public func getFlagMessageOption(controller: UIViewController?) -> CometChatMessageOption {
+        return CometChatMessageOption(id: MessageOptionConstants.reportMessage, title: "REPORT_MESSAGE".localize(), icon: AssetConstants.report)
+    }
 
     public func getEditOption(controller: UIViewController?) -> CometChatMessageOption {
         return CometChatMessageOption(id: MessageOptionConstants.editMessage, title: "EDIT".localize(), icon: AssetConstants.edit)
@@ -38,6 +42,10 @@ public class MessagesDataSource: DataSource {
     
     public func getReplyInThreadOption(controller: UIViewController?) -> CometChatMessageOption {
         return CometChatMessageOption(id: MessageOptionConstants.replyInThread, title: "REPLY_IN_THREAD".localize(), icon: AssetConstants.thread)
+    }
+    
+    public func getReplyToMessageOption(controller: UIViewController?) -> CometChatMessageOption {
+        return CometChatMessageOption(id: MessageOptionConstants.replyMessage, title: "REPLY_TO_MESSAGE".localize(), icon: AssetConstants.reply)
     }
     
     public func getCopyOption(controller: UIViewController?) -> CometChatMessageOption {
@@ -73,6 +81,10 @@ public class MessagesDataSource: DataSource {
             return messageOptions
         }
         
+        if !additionalConfiguration.hideReplyMessageOption{
+            messageOptions.append(getReplyToMessageOption(controller: controller))
+        }
+        
         if (messageObject.parentMessageId == 0) && !additionalConfiguration.hideReplyInThreadOption {
             messageOptions.append(getReplyInThreadOption(controller: controller))
         }
@@ -103,6 +115,10 @@ public class MessagesDataSource: DataSource {
         
         if isSentByMe && (messageObject.metaData?["error"] as? Bool == true){
             return nil
+        }
+        
+        if !isSentByMe && !additionalConfiguration.hideFlagMessageOption && messageObject.messageCategory == .message && FlagReasonsManager.shared.flagReasons.count > 0{
+            messageOptions.append(getFlagMessageOption(controller: controller))
         }
         
         return messageOptions
@@ -490,6 +506,10 @@ public class MessagesDataSource: DataSource {
             return options
         }
         
+        if !additionalConfiguration.hideReplyMessageOption {
+            options.append(getReplyToMessageOption(controller: controller))
+        }
+        
         if (messageObject.parentMessageId == 0) && !additionalConfiguration.hideReplyInThreadOption {
             options.append(getReplyInThreadOption(controller: controller))
         }
@@ -507,6 +527,10 @@ public class MessagesDataSource: DataSource {
         
         if group != nil && !isSentByMe && !additionalConfiguration.hideMessagePrivatelyOption {
             options.append(getMessagePrivatelyOption(controller: controller))
+        }
+        
+        if !isSentByMe && !additionalConfiguration.hideFlagMessageOption && messageObject.messageCategory == .message && FlagReasonsManager.shared.flagReasons.count > 0{
+            options.append(getFlagMessageOption(controller: controller))
         }
         
         return options

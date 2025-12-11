@@ -273,3 +273,13 @@
 "DONE" = "Selesai";
 "PHOTO_LIBRARY" = "Perpustakaan Foto";
 "VIDEO_LIBRARY" = "Perpustakaan Video";
+
+"REPORT_A_MESSAGE" = "Laporan";
+"REPORT_MESSAGE_SUBTITLE" = "Laporkan sembang ini jika ia bertentangan dengan Piawaian Komuniti kami. Kami tidak akan memberitahu akaun yang anda melaporkannya.";
+"REPORT" = "Laporan";
+"REASON" = "Sebab";
+"OPTIONAL" = "Pilihan";
+"REPORT_MESSAGE_PLACEHOLDER" = "Berikan konteks tambahan untuk laporan anda...";
+"SPAM" = "Spam";
+"SEXUAL_CONTENT" = "Kandungan Seksual";
+"HARASSMENT_BULLYING" = "Gangguan/Buli";

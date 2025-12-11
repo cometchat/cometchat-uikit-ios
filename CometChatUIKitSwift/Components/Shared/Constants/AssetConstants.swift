@@ -10,6 +10,7 @@ import UIKit
 
 public struct AssetConstants {
     
+    static let report = UIImage(systemName: "info.circle")?.withRenderingMode(.alwaysTemplate)
     static let edit = UIImage(systemName: "pencil")?.withRenderingMode(.alwaysTemplate)
     static let delete = UIImage(systemName: "trash")?.withRenderingMode(.alwaysTemplate)
     static let forward = UIImage()
@@ -17,7 +18,7 @@ public struct AssetConstants {
     static let share = UIImage(systemName: "square.and.arrow.up")?.withRenderingMode(.alwaysTemplate)
     static let translate = UIImage(named: "translate-icon", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
     static let messageInfo = UIImage(systemName: "info.circle")?.withRenderingMode(.alwaysTemplate)
-    static let reply = UIImage(systemName: "arrow.turn.down.right")?.withRenderingMode(.alwaysTemplate)
+    static let reply = UIImage(systemName: "arrowshape.turn.up.left")?.withRenderingMode(.alwaysTemplate)
     static let thread = UIImage(systemName: "arrow.turn.down.right")?.withRenderingMode(.alwaysTemplate)
     static let privately = UIImage(named: "send-message-in-private", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
     

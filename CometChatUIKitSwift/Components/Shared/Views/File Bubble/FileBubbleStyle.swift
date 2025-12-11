@@ -11,6 +11,7 @@ import UIKit
 /// A structure representing the style configuration for the file bubble in CometChat messages.
 public struct FileBubbleStyle: BaseMessageBubbleStyle {
     
+    public var messagePreviewStyle: MessagePreviewStyle?
     /// The text font for the thread count in the file bubble.
     public var threadedIndicatorTextFont: UIFont?
     

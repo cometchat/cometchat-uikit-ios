@@ -285,16 +285,18 @@ class LoginWithUidVC: UIViewController {
     }
     
     func presentSomethingWentWrongAlert(error: String) {
-        let alert = UIAlertController(
-            title: "SOMETHING_WENT_WRONG".localize(),
-            message: error,
-            preferredStyle: .alert
-        )
-        
-        let cancelAction = UIAlertAction(title: "CANCEL".localize(), style: .cancel, handler: nil)
-        alert.addAction(cancelAction)
-        
-        self.present(alert, animated: true, completion: nil)
+        DispatchQueue.main.async {
+            let alert = UIAlertController(
+                title: "SOMETHING_WENT_WRONG".localize(),
+                message: error,
+                preferredStyle: .alert
+            )
+            
+            let cancelAction = UIAlertAction(title: "CANCEL".localize(), style: .cancel, handler: nil)
+            alert.addAction(cancelAction)
+            
+            self.present(alert, animated: true, completion: nil)
+        }
     }
 
 

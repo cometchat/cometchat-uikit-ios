@@ -54,6 +54,8 @@ open class CometChatAIConversationSummary: UIView {
     public var disableLoadingState: Bool = false
     public var isLoadingViewVisible = false
     
+    public var onCloseButtonTapped: (() -> ())?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         buildUI()
@@ -144,7 +146,7 @@ open class CometChatAIConversationSummary: UIView {
     }
     
     @objc func onCloseButtonClicked() {
-        CometChatUIEvents.hidePanel(id: id, alignment: .composerTop)
+        onCloseButtonTapped?()
     }
     
     @discardableResult

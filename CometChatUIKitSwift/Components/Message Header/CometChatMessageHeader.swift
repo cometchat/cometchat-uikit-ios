@@ -64,7 +64,7 @@ import CometChatSDK
     public lazy var tailView: UIStackView = {
         let view = UIStackView().withoutAutoresizingMaskConstraints()
         view.distribution = .fill
-        view.alignment = .fill
+        view.alignment = .center
         view.spacing = CometChatSpacing.Spacing.s4
         view.addArrangedSubview(UIView())
         view.widthAnchor.constraint(lessThanOrEqualToConstant: 120).isActive = true
@@ -172,6 +172,9 @@ import CometChatSDK
     var trailView: ((_ user: User?, _ group: Group?) -> UIView)?
     var auxiliaryView: ((_ user: User?, _ group: Group?) -> UIView)?
     
+    var options: [CometChatPopupMenu.MenuItem]?
+    private var menuButton: UIButton!
+    
     //MARK: LOCAL STYLING
     public lazy var style = CometChatMessageHeader.style
     public lazy var statusIndicatorStyle = CometChatMessageHeader.statusIndicatorStyle
@@ -243,6 +246,40 @@ import CometChatSDK
                 else if let auxiliaryHeaderMenu = CometChatUIKit.getDataSource().getAuxiliaryHeaderMenu(user: self.viewModel.user, group: self.viewModel.group, controller: self.controller, id: nil, additionalConfiguration: self.additionalConfiguration){
                     auxiliaryHeaderMenu.distribution = .fillEqually
                     self.tailView.addArrangedSubview(auxiliaryHeaderMenu)
+                }
+                if let options = self.options, !options.isEmpty {
+
+                    self.menuButton?.removeFromSuperview()
+
+                    // Create button
+                    let button = UIButton(type: .system)
+                    button.translatesAutoresizingMaskIntoConstraints = false
+                    button.setImage(style.menuIcon, for: .normal)
+                    button.tintColor = style.menuIconTintColor
+
+                    // Add to tailView
+                    self.tailView.addArrangedSubview(button)
+                    self.menuButton = button
+
+                    // Build UIMenu from options
+                    var actions: [UIAction] = []
+                    for item in options {
+                        let action = UIAction(title: item.title, image: item.icon) { _ in
+                            item.action?()
+                        }
+                        actions.append(action)
+                    }
+                    let menu = UIMenu(title: "", children: actions)
+                    if #available(iOS 14.0, *) {
+                        button.menu = menu
+                        button.showsMenuAsPrimaryAction = true
+                    } else {
+                        // Fallback on earlier versions
+                    }
+
+                    // Optional button constraints
+                    button.widthAnchor.constraint(equalToConstant: 24).isActive = true
+                    button.heightAnchor.constraint(equalToConstant: 24).isActive = true
                 }
             }
             

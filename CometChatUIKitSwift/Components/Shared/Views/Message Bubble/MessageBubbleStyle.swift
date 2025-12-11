@@ -44,6 +44,7 @@ public struct MessageBubbleStyle {
     public var linkPreviewBubbleStyle: LinkPreviewBubbleStyle
     public var callBubbleStyle: CallBubbleStyle
     public var moderationStyle: ModerationStyle
+    public var messagePreviewStyle: MessagePreviewStyle
     
     public lazy var reactionsStyle: ReactionsStyle = {
         var reactionsStyle = CometChatReactions.style
@@ -66,6 +67,7 @@ public struct MessageBubbleStyle {
         deleteBubbleStyle = DeleteBubbleStyle()
         pollBubbleStyle = PollBubbleStyle()
         moderationStyle = ModerationStyle()
+        messagePreviewStyle = MessagePreviewStyle()
     }
     
     //for default values according to the bubble type
@@ -85,17 +87,31 @@ public struct MessageBubbleStyle {
         pollBubbleStyle = PollBubbleStyle(styleType: styleType)
         callBubbleStyle = CallBubbleStyle(styleType: styleType)
         moderationStyle = ModerationStyle()
+        messagePreviewStyle = MessagePreviewStyle()
 
         switch styleType {
         case .incoming:
             dateStyle.textColor = CometChatTheme.neutralColor600
             dateStyle.textFont = CometChatTypography.Caption2.regular
             backgroundColor = CometChatTheme.neutralColor300
+            
+            messagePreviewStyle.backgroundColor = CometChatTheme.neutralColor400
+            messagePreviewStyle.indicatorViewBackgroundColor = CometChatTheme.borderColorHighlight
+            messagePreviewStyle.titleTextColor = CometChatTheme.textColorHighlight
+            messagePreviewStyle.subtitleTextColor = CometChatTheme.textColorSecondary
+            messagePreviewStyle.subtitleImageTintColor = CometChatTheme.iconColorSecondary
         case .outgoing:
             backgroundColor = CometChatTheme.primaryColor
             dateStyle.textColor = CometChatTheme.white
             dateStyle.textFont = CometChatTypography.Caption2.regular
+            
+            messagePreviewStyle.backgroundColor = CometChatTheme.white.withAlphaComponent(0.2)
+            messagePreviewStyle.indicatorViewBackgroundColor = CometChatTheme.white
+            messagePreviewStyle.titleTextColor = CometChatTheme.white
+            messagePreviewStyle.subtitleTextColor = CometChatTheme.white
+            messagePreviewStyle.subtitleImageTintColor = CometChatTheme.white
         }
+        messagePreviewStyle.cornerRadius = CometChatCornerStyle(cornerRadius: CometChatSpacing.Radius.r3)
         dateStyle.borderWidth = 0
         dateStyle.backgroundColor = .clear
         
@@ -117,6 +133,7 @@ public protocol BaseMessageBubbleStyle {
     var threadedIndicatorTextColor: UIColor? { get set }
     var threadedIndicatorImageTint: UIColor? { get set }
     var reactionsStyle: ReactionsStyle? { get set }
+    var messagePreviewStyle: MessagePreviewStyle? { get set }
 }
 
 public enum BubbleStyleType {

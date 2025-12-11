@@ -13,6 +13,7 @@ import Foundation
 /// This struct conforms to `BaseMessageBubbleStyle` and provides customizable
 /// visual properties for link preview bubbles in chat messages.
 public struct LinkPreviewBubbleStyle: BaseMessageBubbleStyle {
+    public var messagePreviewStyle: MessagePreviewStyle?
     
     /// The text font for the thread count in the link preview bubble.
     public var threadedIndicatorTextFont: UIFont?

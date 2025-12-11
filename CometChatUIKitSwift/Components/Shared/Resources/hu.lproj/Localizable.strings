@@ -276,3 +276,13 @@
 "DONE" = "Kész";
 "PHOTO_LIBRARY" = "Fotókönyvtár";
 "VIDEO_LIBRARY" = "Videókönyvtár";
+
+"REPORT_A_MESSAGE" = "Jelentés";
+"REPORT_MESSAGE_SUBTITLE" = "Jelentse ezt a csevegést, ha az ellentétes közösségi szabványokkal. Nem fogjuk megmondani, hogy melyik fiókot jelentettél róluk.";
+"REPORT" = "Jelentés";
+"REASON" = "Ok";
+"OPTIONAL" = "Választható";
+"REPORT_MESSAGE_PLACEHOLDER" = "Adjon meg további kontextumot a jelentéshez...";
+"SPAM" = "Spam";
+"SEXUAL_CONTENT" = "Szexuális tartalom";
+"HARASSMENT_BULLYING" = "Zaklatás/zaklatás";

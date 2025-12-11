@@ -8,14 +8,23 @@
 import Foundation
 import CometChatSDK
 
-public class CollaborativeDocumentViewModel : DataSourceDecorator {
+public class CollaborativeDocumentViewModel : DataSourceDecorator, CometChatMessageEventListener {
     
     var collaborativeDocumentExtensionTypeConstant = ExtensionType.document
     var configuration: CollaborativeDocumentBubbleConfiguration?
     var loggedInUser = CometChat.getLoggedInUser()
     
+    var eventID = Date().timeIntervalSince1970
+    var quotedMessageId: Int?
+    var quotedMessage: BaseMessage?
+    
     public override init(dataSource: DataSource) {
         super.init(dataSource: dataSource)
+        CometChatMessageEvents.addListener("collaborative-document-listener-\(eventID)", self)
+    }
+    
+    deinit {
+        CometChatMessageEvents.removeListener("collaborative-document-listener-\(eventID)")
     }
     
     public override func getId() -> String {
@@ -134,9 +143,24 @@ public class CollaborativeDocumentViewModel : DataSourceDecorator {
     }
     
     private func sentDocument(user: User?, group: Group?) {
+        
+        var body = [String: Any]()
+        
+        if let quotedMessage = quotedMessage {
+            body.append(with: ["quotedMessage": quotedMessage.rawMessage ?? [:]])
+        }
+        if let id = quotedMessageId {
+            body.append(with: ["quotedMessageId": id])
+        }
+        
         if let group = group {
-            CometChat.callExtension(slug: ExtensionConstants.document, type: .post, endPoint: ExtensionUrls.document, body: ["receiver":group.guid,"receiverType":"group"], onSuccess: { (response) in
-                
+            body.append(with: ["receiver":group.guid,"receiverType":"group"])
+            CometChat.callExtension(slug: ExtensionConstants.document, type: .post, endPoint: ExtensionUrls.document, body: body, onSuccess: { (response) in
+                if let mssg = self.quotedMessage {
+                    CometChatMessageEvents.ccReplyToMessage(message: mssg, status: .success)
+                }
+                self.quotedMessage = nil
+                self.quotedMessageId = nil
             }) { (error) in
                 if let error = error {
                     DispatchQueue.main.async {
@@ -150,8 +174,13 @@ public class CollaborativeDocumentViewModel : DataSourceDecorator {
                 }
             }
         } else if let user = user {
-            CometChat.callExtension(slug: ExtensionConstants.document, type: .post, endPoint:  ExtensionUrls.document, body: ["receiver":user.uid ?? "","receiverType":"user"], onSuccess: { (response) in
-                
+            body.append(with: ["receiver":user.uid ?? "","receiverType":"user"])
+            CometChat.callExtension(slug: ExtensionConstants.document, type: .post, endPoint:  ExtensionUrls.document, body: body, onSuccess: { (response) in
+                if let mssg = self.quotedMessage {
+                    CometChatMessageEvents.ccReplyToMessage(message: mssg, status: .success)
+                }
+                self.quotedMessage = nil
+                self.quotedMessageId = nil
             }) { (error) in
                 if let error = error {
                     DispatchQueue.main.async {
@@ -163,6 +192,19 @@ public class CollaborativeDocumentViewModel : DataSourceDecorator {
                         })
                     }
                 }
+            }
+        }
+    }
+    
+    public func ccReplyToMessage(message: BaseMessage, status: MessageStatus) {
+        if message.deletedAt <= 0 {
+            switch status {
+            case .inProgress:
+                quotedMessageId = message.id
+                quotedMessage = message
+            case .success, .error:
+                quotedMessageId = nil
+                quotedMessage = nil
             }
         }
     }

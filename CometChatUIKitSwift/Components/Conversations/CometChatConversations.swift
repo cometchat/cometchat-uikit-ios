@@ -73,6 +73,8 @@ open class CometChatConversations: CometChatListBase {
     public var hideDeleteConversationOption: Bool = false
     public var hideUserStatus: Bool = false
     public var hideGroupType: Bool = false
+    
+    public var onSearchClick : (() -> ())?
 
     
     deinit {
@@ -89,6 +91,13 @@ open class CometChatConversations: CometChatListBase {
         fatalError("init(coder:) has not been implemented")
     }
     
+    public override func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        
+        self.searchController.isActive = false
+        self.searchController.searchBar.resignFirstResponder()
+        self.onSearchClick?()
+    }
+    
     // MARK:- ViewController Life Cycle
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,6 +107,7 @@ open class CometChatConversations: CometChatListBase {
         connect()
         setupViewModel()
         viewModel.isRefresh = true
+        hideSearch = false
         hideSeparator = true
         if selectionMode == .single{
             tableView.allowsMultipleSelection = false
@@ -115,6 +125,11 @@ open class CometChatConversations: CometChatListBase {
     
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+    }
+    
+    open override func viewDidDisappear(_ animated: Bool) {
+        self.searchController.isActive = false
+        self.searchController.searchBar.resignFirstResponder()
     }
     
     open override func setupStyle() {

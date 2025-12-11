@@ -43,6 +43,16 @@ open class CometChatMessageBubble: UITableViewCell {
         return stackView
     }()
     
+    public let highlightOverlay: UIView = {
+        let v = UIView()
+        v.isUserInteractionEnabled = false
+        v.backgroundColor = .clear
+        v.translatesAutoresizingMaskIntoConstraints = false
+        return v
+    }()
+    
+    public var messagePreview: UIView?
+    
     public lazy var replayView: UIView = UIView()
         .withoutAutoresizingMaskConstraints()
     
@@ -96,6 +106,7 @@ open class CometChatMessageBubble: UITableViewCell {
     var alignment: MessageBubbleAlignment = .right
     static let identifier = "CometChatMessageBubble"
     var actionSheetStyle : ActionSheetStyle = CometChatActionSheet.style
+    var messagePreviewStyle : MessagePreviewStyle = CometChatMessagePreview.style
     var avatarName: String?
     var avatarURL: String?
     
@@ -104,7 +115,7 @@ open class CometChatMessageBubble: UITableViewCell {
     var firstLongPressForAnimation: UILongPressGestureRecognizer?
     var secondLongPressForAction: UILongPressGestureRecognizer?
     var onLongPressGestureRecognized: (() -> Void)?
-    
+    var disableSwipeToReply: Bool = false
     
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -140,6 +151,15 @@ open class CometChatMessageBubble: UITableViewCell {
     }
     
     open func buildUI() {
+        
+        contentView.addSubview(highlightOverlay)
+
+        NSLayoutConstraint.activate([
+            highlightOverlay.topAnchor.constraint(equalTo: contentView.topAnchor),
+            highlightOverlay.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            highlightOverlay.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            highlightOverlay.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
+        ])
         
         firstLongPressForAnimation = UILongPressGestureRecognizer(target: self, action: #selector(onLongPressStarted(_:)))
         firstLongPressForAnimation!.minimumPressDuration = 0.2
@@ -321,6 +341,45 @@ open class CometChatMessageBubble: UITableViewCell {
         return self
     }
     
+    @discardableResult
+    public func set(replyView view: UIView?) -> Self {
+        // Remove any previous reply subviews
+        replayView.subviews.forEach { $0.removeFromSuperview() }
+
+        self.messagePreview = view
+        
+        guard let view = messagePreview else {
+            replayView.isHidden = true
+            return self
+        }
+
+        replayView.isHidden = false
+        view.withoutAutoresizingMaskConstraints()
+        replayView.addSubview(view)
+        view.leadingAnchor.constraint(equalTo: replayView.leadingAnchor, constant: 4).isActive = true
+        view.trailingAnchor.constraint(equalTo: replayView.trailingAnchor, constant: -4).isActive = true
+        view.topAnchor.constraint(equalTo: replayView.topAnchor, constant: 4).isActive = true
+        view.bottomAnchor.constraint(equalTo: replayView.bottomAnchor, constant: -4).isActive = true
+        return self
+    }
+
+    // Helper for preview text extraction
+    private func previewText(for message: BaseMessage) -> String {
+        if let txt = message as? TextMessage { return txt.text }
+        if let media = message as? MediaMessage {
+            switch media.messageType {
+            case .image: return "Image"
+            case .video: return "Video"
+            case .audio: return "Audio"
+            case .file:  return media.attachment?.fileName ?? "File"
+            default: return "Media"
+            }
+        }
+        if let action = message as? ActionMessage { return action.message ?? "Action" }
+        return "Message"
+    }
+
+    
     
     public override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
@@ -379,6 +438,13 @@ open class CometChatMessageBubble: UITableViewCell {
 
     public override func prepareForReuse() {
         
+        messagePreview = nil
+        replayView.isHidden = true
+        
+        contentView.subviews
+                .filter { $0.tag == 9999 }
+                .forEach { $0.removeFromSuperview() }
+        
         self.headerView.subviews.forEach({ $0.removeFromSuperview() })
         self.footerView.subviews.forEach({ $0.removeFromSuperview() })
         self.viewReplyView.subviews.forEach({ $0.removeFromSuperview() })
@@ -394,4 +460,67 @@ open class CometChatMessageBubble: UITableViewCell {
     open override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool{
         return true
     }
+    
+    // MARK: - Swipe to Reply Support
+    private var swipeGesture: UISwipeGestureRecognizer?
+    private var onSwipeReply: ((_ message: BaseMessage?) -> Void)?
+
+    
+    // Call this after bubble alignment is set
+    func setupSwipeGestures(message: BaseMessage) {
+        // Remove old gesture if any
+        
+        // Always remove previous gesture recognizers first
+        if let existing = swipeGesture {
+            bubbleStackView.removeGestureRecognizer(existing)
+            swipeGesture = nil
+        }
+        
+        if message.messageCategory == .action {
+            return
+        }
+        
+        if disableSwipeToReply { return }
+        
+        if MessageUtils.isMessageModerationDisapproved(message: message) { return }
+        
+        if message.id <= 0 {
+            return
+        }
+        
+        if let existing = swipeGesture {
+            bubbleStackView.removeGestureRecognizer(existing)
+        }
+
+        // Decide direction based on alignment
+        let direction: UISwipeGestureRecognizer.Direction = .right
+        let swipe = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipeReply(_:)))
+        swipe.direction = direction
+        bubbleStackView.addGestureRecognizer(swipe)
+        swipeGesture = swipe
+    }
+    
+    @objc private func handleSwipeReply(_ gesture: UISwipeGestureRecognizer) {
+        guard gesture.state == .ended else { return }
+        // Animate slight movement for visual feedback
+        UIView.animate(withDuration: 0.15,
+                       animations: {
+                           self.bubbleStackView.transform = CGAffineTransform(translationX: gesture.direction == .right ? 15 : -15, y: 0)
+                       },
+                       completion: { _ in
+                           UIView.animate(withDuration: 0.15) {
+                               self.bubbleStackView.transform = .identity
+                           }
+                       })
+        // Trigger callback
+        onSwipeReply?(baseMessage)
+    }
+
+    @discardableResult
+    public func onSwipeReplyDetected(_ handler: @escaping (_ message: BaseMessage?) -> Void) -> Self {
+        self.onSwipeReply = handler
+        return self
+    }
+
+
 }

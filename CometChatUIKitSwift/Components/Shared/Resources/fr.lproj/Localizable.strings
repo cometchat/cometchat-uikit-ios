@@ -268,3 +268,13 @@
 "DONE" = "Terminé";
 "PHOTO_LIBRARY" = "Photothèque";
 "VIDEO_LIBRARY" = "Vidéothèque";
+
+"REPORT_A_MESSAGE" = "Rapport";
+"REPORT_MESSAGE_SUBTITLE" = "Signalez ce chat s'il va à l'encontre de nos normes communautaires. Nous ne communiquerons pas au compte sur lequel vous les avez signalés.";
+"REPORT" = "Rapport";
+"REASON" = "Motif";
+"OPTIONAL" = "Facultatif";
+"REPORT_MESSAGE_PLACEHOLDER" = "Fournissez un contexte supplémentaire à votre rapport...";
+"SPAM" = "Spam";
+"SEXUAL_CONTENT" = "Contenu sexuel";
+"HARASSMENT_BULLYING" = "Harcèlement/Harcèlement";

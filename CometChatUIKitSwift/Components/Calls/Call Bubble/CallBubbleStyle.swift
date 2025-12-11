@@ -10,6 +10,7 @@ import UIKit
 
 public struct CallBubbleStyle: BaseMessageBubbleStyle {
     
+    public var messagePreviewStyle: MessagePreviewStyle?
     public var avatarStyle: AvatarStyle?
     public var dateStyle: DateStyle?
     public var receiptStyle: ReceiptStyle?

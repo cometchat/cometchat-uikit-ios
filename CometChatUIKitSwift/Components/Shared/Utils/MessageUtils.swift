@@ -15,31 +15,44 @@ open class MessageUtils {
         message: BaseMessage,
         from messageStyle: (incoming: MessageBubbleStyle, outgoing: MessageBubbleStyle)
     ) -> BaseMessageBubbleStyle? {
-        
+        let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
+        let style = isLoggedInUser ? messageStyle.outgoing : messageStyle.incoming
+
         if message.deletedAt > 0.0{
-            return getMessageBubbleStyle(from: message).deleteBubbleStyle
+            return style.deleteBubbleStyle
         }
         switch message.messageCategory {
         case .message:
             switch message.messageType {
             case .text:
-                if let map = ExtensionModerator.extensionCheck(baseMessage: message), !map.isEmpty,
-                   let linkPreview = map[ExtensionConstants.linkPreview], let links = linkPreview["links"] as? [Any], !links.isEmpty {
-                    return getMessageBubbleStyle(from: message).linkPreviewBubbleStyle
-                } else {
-                    return getMessageBubbleStyle(from: message).textBubbleStyle
+                guard let map = ExtensionModerator.extensionCheck(baseMessage: message),
+                      let rawPreview = map[ExtensionConstants.linkPreview] else {
+                    return style.textBubbleStyle
                 }
+
+                guard let links = rawPreview["links"] as? [Any], !links.isEmpty else {
+                    return style.textBubbleStyle
+                }
+
+                return style.linkPreviewBubbleStyle
+
             case .image:
-                return getMessageBubbleStyle(from: message).imageBubbleStyle
+                return style.imageBubbleStyle
             case .video:
-                return getMessageBubbleStyle(from: message).videoBubbleStyle
+                return style.videoBubbleStyle
             case .audio:
-                return getMessageBubbleStyle(from: message).audioBubbleStyle
+                return style.audioBubbleStyle
             case .file:
-                return getMessageBubbleStyle(from: message).fileBubbleStyle
+                return style.fileBubbleStyle
             case .custom:
                 break
             case .groupMember:
+                break
+            case .assistant:
+                break
+            case .toolResult:
+                break
+            case .toolArguments:
                 break
             @unknown default:
                 break
@@ -52,15 +65,37 @@ open class MessageUtils {
             if let customMessage = message as? CustomMessage {
                 switch customMessage.type {
                 case "extension_sticker":
-                    return getMessageBubbleStyle(from: message).stickersBubbleStyle
+                    let baseStyle = style.stickersBubbleStyle
+                    var modifiedStyle = baseStyle
+                    if let _ = message.quotedMessage {
+                        modifiedStyle.backgroundColor = isLoggedInUser ? CometChatTheme.primaryColor : CometChatTheme.neutralColor600
+                        var dateStyle = DateStyle()
+                        dateStyle.textColor = isLoggedInUser ? CometChatTheme.white : CometChatTheme.neutralColor600
+                        dateStyle.textFont = CometChatTypography.Caption2.regular
+                        dateStyle.backgroundColor = .clear
+                        dateStyle.borderWidth = 0
+                        modifiedStyle.dateStyle = dateStyle
+                        return modifiedStyle
+                    } else {
+                        var dateStyle = DateStyle()
+                        dateStyle.textColor = CometChatTheme.white
+                        dateStyle.textFont = CometChatTypography.Caption2.regular
+                        dateStyle.borderWidth = 0
+                        dateStyle.backgroundColor = CometChatTheme.black.withAlphaComponent(0.6)
+                        dateStyle.cornerRadius = .init(cornerRadius: CometChatSpacing.Radius.r2)
+                        dateStyle.textColor = CometChatTheme.white
+                        modifiedStyle.dateStyle = dateStyle
+                        modifiedStyle.backgroundColor = .clear
+                        return modifiedStyle
+                    }
                 case "extension_poll":
-                    return getMessageBubbleStyle(from: message).pollBubbleStyle
+                    return style.pollBubbleStyle
                 case "extension_whiteboard":
-                    return getMessageBubbleStyle(from: message).collaborativeWhiteboardBubbleStyle
+                    return style.collaborativeWhiteboardBubbleStyle
                 case "extension_document":
-                    return getMessageBubbleStyle(from: message).collaborativeDocumentBubbleStyle
+                    return style.collaborativeDocumentBubbleStyle
                 case "meeting":
-                    return getMessageBubbleStyle(from: message).callBubbleStyle
+                    return style.callBubbleStyle
                 case .none:
                     break
                 case .some(_):
@@ -69,13 +104,10 @@ open class MessageUtils {
             }
         case .interactive:
             break
+        case .agentic:
+            break
         @unknown default:
             break
-        }
-        
-        func getMessageBubbleStyle(from message: BaseMessage) -> MessageBubbleStyle {
-            let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
-            return isLoggedInUser ? messageStyle.outgoing : messageStyle.incoming
         }
         
         return nil
@@ -442,6 +474,46 @@ open class MessageUtils {
         return (attributedString, itemData)
 
         
+    }
+    
+    public static func quotedMessageText(for message: BaseMessage) -> String {
+        if let textMsg = message as? TextMessage {
+            return textMsg.text
+        }
+        
+        if let mediaMsg = message as? MediaMessage {
+            if let fileName = mediaMsg.attachment?.fileName, !fileName.isEmpty {
+                return fileName
+            }
+            switch mediaMsg.messageType {
+            case .image: return "Image"
+            case .video: return "Video"
+            case .audio: return "Audio"
+            case .file:  return "File"
+            default:     return "Media"
+            }
+        }
+        
+        if let customMessage = message as? CustomMessage {
+            switch customMessage.type {
+            case "extension_sticker":
+                return "Sticker"
+            case "extension_poll":
+                return "Poll"
+            case "extension_whiteboard":
+                return "Collaborative Whiteboard"
+            case "extension_document":
+                return "Collaborative Document"
+            case "meeting":
+                return "Meeting"
+            case .none:
+                break
+            case .some(_):
+                break
+            }
+        }
+        
+        return "Message"
     }
     
 }

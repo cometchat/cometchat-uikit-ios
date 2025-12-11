@@ -167,3 +167,43 @@ extension CometChatMessageList{
         CometChatUIEvents.ccComposeMessage(id: id, message: textMessage)
     }
 }
+
+
+extension CometChatMessageList{
+    
+    public func getConversationSummary(configuration: [String: Any]? = nil) {
+        if self.enableConversationSummary {
+            DispatchQueue.main.async { [weak self] in
+                guard let this = self else { return }
+                
+                let receiverId = this.viewModel.user?.uid ?? this.viewModel.group?.guid
+                let receiverType: CometChat.ReceiverType = this.viewModel.user?.uid != nil ? .user : .group
+                guard let receiverId = receiverId else { return }
+                
+                this.aiConversationSummaryView = CometChatAIConversationSummary()
+                this.aiConversationSummaryView.showLoadingView()
+                this.aiConversationSummaryView.onCloseButtonTapped = {
+                    this.aiConversationSummaryView.removeFromSuperview()
+                }
+                
+                CometChat.getConversationSummary(receiverId: receiverId, receiverType: receiverType, configuration: configuration) { conversationSummary in
+                    DispatchQueue.main.async {
+                        this.aiConversationSummaryView.hideLoadingView()
+                        if conversationSummary.isEmpty{
+                            this.aiConversationSummaryView.show(error: true)
+                        }else{
+                            this.aiConversationSummaryView.set(summary: conversationSummary)
+                        }
+                    }
+                } onError: { error in
+                    DispatchQueue.main.async{
+                        this.aiConversationSummaryView.hideLoadingView()
+                        this.aiConversationSummaryView.removeFromSuperview()
+                    }
+                }
+                
+                this.set(footerView: this.aiConversationSummaryView)
+            }
+        }
+    }
+}

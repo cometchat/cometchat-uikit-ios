@@ -14,6 +14,7 @@ class ThreadedMessagesVC: UIViewController {
     var user: User?
     var parentMessage: BaseMessage?
     var bubbleView: UIView?
+    var targetMessageId: Int?
     
     lazy var parentMessageView: CometChatThreadedMessageHeader = {
         let parentMessageContainerView = CometChatThreadedMessageHeader()
@@ -80,6 +81,13 @@ class ThreadedMessagesVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavigationBar()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if let targetMessageId = targetMessageId {
+            messageListView.goToMessage(withId: targetMessageId)
+            self.targetMessageId = nil
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {

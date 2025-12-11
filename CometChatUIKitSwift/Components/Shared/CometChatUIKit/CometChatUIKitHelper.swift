@@ -22,6 +22,10 @@ final public class CometChatUIKitHelper {
     public static func onMessageEdited(message: BaseMessage, status: MessageStatus) {
         CometChatMessageEvents.ccMessageEdited(message: message, status: status)
     }
+    
+    public static func onReplyToMessage(message: BaseMessage, status: MessageStatus) {
+        CometChatMessageEvents.ccReplyToMessage(message: message, status: status)
+    }
 
     public static func onMessageDeleted(message: BaseMessage) {
         CometChatMessageEvents.onMessageDeleted(message: message)

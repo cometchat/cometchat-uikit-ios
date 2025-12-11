@@ -79,6 +79,9 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
     public static var style = CreatePollStyle()
     public lazy var style = CometChatCreatePoll.style
     
+    var quotedMessageId: Int?
+    var quotedMessage: BaseMessage?
+    
     public var cometChatPollSection: [CometChatPollsSection] = [.question, .answers]
     
     open override func viewDidLoad() {
@@ -225,6 +228,13 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
                 body.append(with: ["receiver": group.guid, "receiverType": ReceiverTypeConstants.group])
             }
             
+            if let quotedMessage = quotedMessage {
+                body.append(with: ["quotedMessage": quotedMessage.rawMessage ?? [:]])
+            }
+            if let id = quotedMessageId {
+                body.append(with: ["quotedMessageId": id])
+            }
+            
             if (firstOptionString.isEmpty || secondOptionString.isEmpty) && items.filter({$0 != ""}).count < 2{
                 showErrorView(errorText: "FILL_POLL_DETAILS".localize())
             }else{
@@ -239,10 +249,15 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
                     self.present(alert, animated: true, completion: nil)
                 }
                 
-                CometChat.callExtension(slug: ExtensionConstants.polls, type: .post, endPoint: "v2/create", body: body, onSuccess: { _ in
+                CometChat.callExtension(slug: ExtensionConstants.polls, type: .post, endPoint: "v2/create", body: body, onSuccess: { [weak self] _ in
+                    if let mssg = self?.quotedMessage {
+                        CometChatMessageEvents.ccReplyToMessage(message: mssg, status: .success)
+                    }
+                    self?.quotedMessage = nil
+                    self?.quotedMessageId = nil
                     DispatchQueue.main.async {
-                        self.dismiss(animated: true) {
-                            self.dismiss(animated: true, completion: nil)
+                        self?.dismiss(animated: true) {
+                            self?.dismiss(animated: true, completion: nil)
                         }
                     }
                 }) { error in

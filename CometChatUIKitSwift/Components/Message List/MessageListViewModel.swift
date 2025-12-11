@@ -24,11 +24,19 @@ protocol MessageListViewModelProtocol {
     var deleteAtIndex: ((Int, Int, BaseMessage) -> Void)? { get set }
     var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     func fetchNextMessages()
-    func fetchPreviousMessages()
+    func fetchPreviousMessages(completion: (() -> Void)?)
     func fetchUnreadMessageCount()
 }
 
 open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
+    
+    var scrollToMessageId: ((Int, Bool) -> Void)?
+
+    private var gotoMessageId: Int = 0
+    private var gotoMessage: BaseMessage?
+    private var hasMorePreviousMessages: Bool = true
+    private var hasMoreNewMessages: Bool = true
+
     
     var threadedPArentMessageId: Int = 0
     var deleteBatch: (([(section: Int, row: Int, msg: BaseMessage)], [Int]) -> Void)?
@@ -36,18 +44,24 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     var group: CometChatSDK.Group?
     var user: CometChatSDK.User?
     var parentMessage: CometChatSDK.BaseMessage?
+    var quotedMessage: CometChatSDK.BaseMessage?
     var messages: [(date: Date, messages: [CometChatSDK.BaseMessage])] = []
     var selectedMessages: [CometChatSDK.BaseMessage] = []
     var messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder
     var messageActionRequestBuilder = MessagesRequest.MessageRequestBuilder().build()
     var messageNextRequestBuilder = MessagesRequest.MessageRequestBuilder().build()
     var messagesRequest: MessagesRequest?
+    var messagesNextRequest: MessagesRequest?
+    var messagesNextRequestPagination: MessagesRequest?
     private var filterMessagesRequest: MessagesRequest?
     var reload: (() -> Void)?
+    var hideBottomSpinner: (() -> Void)?
+    var pushTableView: (() -> Void)?
     var onFirstMessageFetch: (() -> Void)?
     var newMessageReceived: ((_ message: BaseMessage) -> Void)?
     var ccMessageSent: ((_ message: BaseMessage, _ status: MessageStatus) -> Void)?
     var appendAtIndex: ((_ section: Int, _ row: Int, _ baseMessage: BaseMessage, _ isNewSectionAdded: Bool) -> Void)?
+
     var updateAtIndex: ((Int, Int, BaseMessage) -> Void)?
     var deleteAtIndex: ((Int, Int, BaseMessage) -> Void)?
     var hideHeaderView: ((Bool) -> Void)?
@@ -61,8 +75,13 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     private var disableReaction: Bool = false
     var currentRandomDate = Date().timeIntervalSinceReferenceDate
     var isAllMessagesFetchedInPrevious = false
+    var isAllMessagesFetchedInNext = false
     var cellHeight = [IndexPath: CGFloat]()
-    var isUIUpdating = false
+    
+    // In MessageListViewModel
+    var isFetchingNext = false
+
+    var isUIUpdating: Bool = false
     var templates = [String: CometChatMessageTemplate]()
     var hideDeletedMessages: Bool = false
     var hasFetchedMessagesBefore = false
@@ -99,6 +118,11 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             additionalConfiguration.hideReplyInThreadOption = hideReplyInThreadOption
         }
     }
+    public var hideFlagMessageOption: Bool = false{
+        didSet{
+            additionalConfiguration.hideFlagMessageOption = hideFlagMessageOption
+        }
+    }
     public var hideTranslateMessageOption: Bool = false{
         didSet{
             additionalConfiguration.hideTranslateMessageOption = hideTranslateMessageOption
@@ -129,6 +153,13 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             additionalConfiguration.hideCopyMessageOption = hideCopyMessageOption
         }
     }
+    public var hideReplyMessageOption: Bool = false{
+        didSet{
+            additionalConfiguration.hideReplyMessageOption = hideReplyMessageOption
+        }
+    }
+    public var disableSwipeToReply: Bool = false
+    
     public var hideMessageInfoOption: Bool = false{
         didSet{
             additionalConfiguration.hideMessageInfoOption = hideMessageInfoOption
@@ -209,6 +240,147 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         }
     }
     
+    func isMessageAlreadyLoaded(_ id: Int) -> Bool {
+        return messages
+            .flatMap { $0.messages }
+            .contains(where: { $0.id == id })
+    }
+    
+    // MARK: - Go To Message 
+
+    func goToMessage(messageId: Int) {
+        guard messageId != 0 else { return }
+
+        gotoMessageId = messageId
+
+        CometChat.getMessageDetails(messageId) { [weak self] message in
+            guard let this = self else { return }
+            this.gotoMessage = message
+            this.fetchSurroundingMessages(goToMessage: message)
+        } onError: { [weak self] error in
+            guard let this = self, let error = error else { return }
+            this.failure?(error)
+        }
+    }
+
+
+    private func fetchSurroundingMessages(goToMessage: BaseMessage) {
+
+        messagesRequest = messagesRequestBuilder.set(messageID: goToMessage.id).build()
+
+        fetchPreviousMessages()
+    }
+
+
+    private func fetchNewerMessages(
+        anchorMessage: BaseMessage,
+        olderMessages: [BaseMessage],
+        anchoredRequest: MessagesRequest
+    ) {
+        
+        MessagesListBuilder.fetchNextMessages(messageRequest: anchoredRequest) { [weak self] result in
+            guard let this = self else { return }
+
+            switch result {
+            case .success(let newerRaw):
+
+                print(newerRaw.forEach({ message in
+                    print(message.id)
+                }))
+                this.prepareProcessedMessageWindow(
+                    olderRaw: olderMessages,
+                    goToMessage: anchorMessage,
+                    newerRaw: newerRaw
+                )
+
+            case .failure(let error):
+                this.failure?(error)
+            }
+        }
+    }
+
+
+    private func prepareProcessedMessageWindow(
+        olderRaw: [BaseMessage],
+        goToMessage: BaseMessage,
+        newerRaw: [BaseMessage]
+    ) {
+        var fullSnapshot: [BaseMessage] = []
+        fullSnapshot.append(contentsOf: olderRaw)
+        fullSnapshot.append(goToMessage)
+        fullSnapshot.append(contentsOf: newerRaw)
+        
+        let fullList = filteredNonAIToolMessages(fullSnapshot)
+
+        self.processMessageList(fullList) { [weak self] processedSnapshot in
+            guard let this = self else { return }
+
+            // 🚨 IMPORTANT: reset current list for GoTo window
+            this.messages.removeAll()
+            this.isAllMessagesFetchedInPrevious = false
+            this.isAllMessagesFetchedInNext = false
+
+            // group into: [(date, messages[])]
+            this.groupMessages(messages: processedSnapshot)
+
+            // After grouping, update pagination anchors
+            this.finalizeGoToPaginationState(anchorMessageId: goToMessage.id)
+            
+
+            // Scroll to the target message
+            if let _ = this.indexPathForMessageId(goToMessage.id) {
+                DispatchQueue.main.async {
+                    this.scrollToMessageId?(goToMessage.id, false)
+                }
+            } else {
+                print("⚠️ Could not find goToMessage.id in grouped messages")
+            }
+        }
+    }
+    
+    func indexPathForMessageId(_ id: Int) -> IndexPath? {
+        for (sectionIndex, section) in messages.enumerated() {
+            if let rowIndex = section.messages.firstIndex(where: { $0.id == id }) {
+                return IndexPath(row: rowIndex, section: sectionIndex)
+            }
+        }
+        return nil
+    }
+    
+    private func finalizeGoToPaginationState(anchorMessageId: Int) {
+
+        // 1. Clear GoTo flags
+        self.gotoMessageId = 0
+        self.gotoMessage = nil
+
+        // 2. Reset pagination COMPLETE state
+        self.isAllMessagesFetchedInPrevious = false
+        self.isAllMessagesFetchedInNext = false
+
+        // 3. Reset request builders to align with the new window
+        if let oldest = messages.last?.messages.last {
+            // Oldest = bottom-most
+            self.messagesRequestBuilder = self.messagesRequestBuilder
+                .set(messageID: oldest.id)
+
+            self.messagesRequest = self.messagesRequestBuilder.build()
+        }
+
+        if let newest = messages.first?.messages.first {
+            self.messagesNextRequest = self.messagesRequestBuilder
+                .set(messageID: newest.id)
+                .build()
+        }
+    }
+
+    
+    private func filteredNonAIToolMessages(_ list: [BaseMessage]) -> [BaseMessage] {
+        return list.filter {
+            let name = String(describing: type(of: $0))
+            return !(name.contains("AIToolArgumentMessage") || name.contains("AIToolResultMessage"))
+        }
+    }
+    
     func sendActiveChatChangeEvent() {
         
         onFirstMessageFetch?()
@@ -259,7 +431,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         }
     }
     
-    func fetchPreviousMessages() {
+    func fetchPreviousMessages(completion: (() -> Void)? = nil) {
         guard let messagesRequest = messagesRequest else { return }
         if isAllMessagesFetchedInPrevious == true { return }
         isUIUpdating = true
@@ -269,6 +441,20 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             this.isUIUpdating = false
             switch result {
             case .success(let fetchedMessages):
+                
+                if let gotoMessage = this.gotoMessage{
+                    if fetchedMessages.isEmpty {
+                        this.isAllMessagesFetchedInPrevious = true
+                    }
+
+                    this.messagesNextRequest = this.messagesRequestBuilder.set(messageID: this.gotoMessage?.id ?? 0).build()
+                    this.fetchNewerMessages(
+                        anchorMessage: gotoMessage,
+                        olderMessages: fetchedMessages,
+                        anchoredRequest: this.messagesNextRequest!
+                    )
+                    return
+                }
                 
                 let fetchedMessages = fetchedMessages.filter { message in
                     let messageType = String(describing: type(of: message))
@@ -284,8 +470,10 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
                     this.groupMessages(messages: fetchedMessages_)
                 })
                 self?.sendActiveChatChangeEvent()
+                completion?()
             case .failure(let error):
                 this.failure?(error)
+                completion?()
             }
         }
     }
@@ -324,6 +512,99 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             return
         }
     }
+    
+    var captureAnchorMessageId: (() -> Int?)?
+    var restoreAnchor: ((Int) -> Void)?
+
+    
+    // Callbacks the VC will assign
+    /// Called by VM to get VC's current metrics before starting fetch.
+    /// Must return (oldOffsetY, oldContentHeight)
+    var captureScrollMetrics: (() -> (oldOffsetY: CGFloat, oldContentHeight: CGFloat))?
+
+    /// Called by VM to tell VC that fetch finished and VM updated its messages.
+    /// VM passes the previously captured metrics back to VC for restoration.
+    var didCompleteFetchNextWithMetrics: ((_ oldOffsetY: CGFloat, _ oldContentHeight: CGFloat) -> Void)?
+
+    // OPTIONAL: called just before starting the network fetch (VC can show spinner / disable)
+    var willStartFetchNext: (() -> Void)?
+
+    // Modify fetchNextMessagesForPagination to use the above:
+    func fetchNextMessagesForPagination(completion: ((Int) -> ())? = nil) {
+        if isAllMessagesFetchedInNext { return }
+        if isFetchingNext { return }
+        
+        isFetchingNext = true
+        
+        let anchorMessageId = messages.first?.messages.first
+        
+        // Build request (existing logic)
+        guard let newest = messages.first?.messages.first else {
+            isFetchingNext = false
+            return
+        }
+        if let user = user {
+            self.messagesNextRequestPagination = self.messagesRequestBuilder
+                .set(uid: user.uid ?? "")
+                .set(messageID: newest.id)
+                .build()
+        } else if let group = group {
+            self.messagesNextRequestPagination = self.messagesRequestBuilder
+                .set(guid: group.guid)
+                .set(messageID: newest.id)
+                .build()
+        }
+        guard let request = messagesNextRequestPagination else { return }
+        
+        let oldMetrics = captureScrollMetrics?() ?? (oldOffsetY: CGFloat(0), oldContentHeight: CGFloat(0))
+        
+        willStartFetchNext?()
+        
+        MessagesListBuilder.fetchNextMessages(messageRequest: request) { [weak self] result in
+            guard let this = self else { return }
+            
+            switch result {
+            case .success(let fetched):
+                if fetched.isEmpty {
+                    this.isFetchingNext = false
+                    this.isAllMessagesFetchedInNext = true
+                    DispatchQueue.main.async {
+                        this.hideBottomSpinner?()
+                    }
+                    return
+                }
+                
+                this.processMessageList(fetched) { processed in
+                    this.groupMessages(messages: processed, atBottom: true)
+                    
+                    DispatchQueue.main.async {
+                        this.isFetchingNext = false
+                        
+                        this.didCompleteFetchNextWithMetrics?(oldMetrics.oldOffsetY, oldMetrics.oldContentHeight)
+                        
+                        if let id = anchorMessageId {
+                            self?.scrollToMessageId?(id.id, true)
+                        }
+                        completion?(anchorMessageId?.id ?? 0)
+                    }
+                }
+                
+            case .failure(let error):
+                this.isFetchingNext = false
+                DispatchQueue.main.async {
+                    this.failure?(error)
+                }
+            }
+        }
+    }
+
+    func messageAt(indexPath: IndexPath) -> BaseMessage? {
+        guard messages.indices.contains(indexPath.section) else { return nil }
+        let sectionMessages = messages[indexPath.section].messages
+        guard sectionMessages.indices.contains(indexPath.row) else { return nil }
+        return sectionMessages[indexPath.row]
+    }
+
     
     func fetchNextMessagesFromLastMessage() {
             MessagesListBuilder.fetchNextMessages(messageRequest: messageNextRequestBuilder) { [weak self] result in
@@ -497,38 +778,11 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         CometChat.removeAIAssistantListener("message-list-ai-events-listener-\(currentRandomDate)")
     }
     
-//    func checkThreadedMessageBelongsToThisConversation(message: BaseMessage) -> Bool {
-//        if (parentMessage == nil && message.parentMessageId == 0) || parentMessage?.id == message.parentMessageId {
-//            return true
-//        } else {
-//            return false
-//        }
-//    }
-    
-//    func checkThreadedMessageBelongsToThisConversation(message: BaseMessage) -> Bool {
-//        // If no explicit parent, still accept thread root
-//        if parentMessage == nil && message.parentMessageId == 0 {
-//            return true
-//        }
-//        
-//        // If parentMessage exists and matches
-//        if let parent = parentMessage, parent.id == message.parentMessageId {
-//            return true
-//        }
-//        
-//        // If this is an agentic thread and message has same threadParent
-//        if threadMessageParentId > 0 && message.parentMessageId == threadMessageParentId {
-//            return true
-//        }
-//        
-//        return false
-//    }
-    
     func checkThreadedMessageBelongsToThisConversation(message: BaseMessage) -> Bool {
         if (parentMessage == nil && message.parentMessageId == 0) {
             return true
         }
-        if parentMessage?.id == message.parentMessageId {
+        if parentMessage?.id == message.parentMessageId || quotedMessage?.id == message.parentMessageId {
             return true
         }
         if threadedPArentMessageId == message.parentMessageId && user?.isAgentic == true {
@@ -655,30 +909,41 @@ extension MessageListViewModel {
     
     @discardableResult
     public func update(message: BaseMessage) -> Self {
-       processMessageList([message]) { [weak self] messages in
-           guard let this = self else { return }
-            guard let message = messages.first else { return }
+        processMessageList([message]) { [weak self] messages in
+            guard let this = self else { return }
+            guard var newMessage = messages.first else { return }
+
             if let section = this.messages.firstIndex(where: { (date: Date, messages: [BaseMessage]) in
-                if let muid = Double(message.muid), muid != 0.0 {
+                if let muid = Double(newMessage.muid), muid != 0.0 {
                     if date.timeIntervalSince1970 == 0.0 {
                         return true
                     } else {
-                        return String().compareDates(newTimeInterval:  muid, currentTimeInterval:  date.timeIntervalSince1970) ? true : false
+                        return String().compareDates(newTimeInterval: muid,
+                                                     currentTimeInterval: date.timeIntervalSince1970)
                     }
                    
                 } else {
-                    return String().compareDates(newTimeInterval: Double(message.sentAt), currentTimeInterval: date.timeIntervalSince1970) ? true : false
+                    return String().compareDates(newTimeInterval: Double(newMessage.sentAt),
+                                                 currentTimeInterval: date.timeIntervalSince1970)
                 }
-            }), let row = this.messages[section].messages.firstIndex(where: {
-                if message.muid != "" {
-                    return $0.muid == message.muid
-                    
+            }),
+            let row = this.messages[section].messages.firstIndex(where: {
+                if newMessage.muid != "" {
+                    return $0.muid == newMessage.muid
                 } else {
-                    return $0.id == message.id
+                    return $0.id == newMessage.id
                 }
             }) {
-                this.messages[section].messages[row] = message
-                this.updateAtIndex?(section, row, message)
+
+                let oldMessage = this.messages[section].messages[row]
+
+                if newMessage.quotedMessage == nil, let oldQuoted = oldMessage.quotedMessage {
+                    newMessage.quotedMessage = oldQuoted
+                }
+
+                this.messages[section].messages[row] = newMessage
+
+                this.updateAtIndex?(section, row, newMessage)
             }
         }
         return self
@@ -954,6 +1219,14 @@ extension MessageListViewModel: CometChatMessageEventListener {
             } else {
                 update(message: message)
             }
+        }
+    }
+    
+    public func ccReplyToMessage(message: BaseMessage, status: MessageStatus) {
+        if status == .inProgress {
+            quotedMessage = message
+        } else if status == .error || status == .success {
+            quotedMessage = nil
         }
     }
     

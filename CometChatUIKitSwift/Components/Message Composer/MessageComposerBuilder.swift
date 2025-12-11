@@ -19,7 +19,7 @@ public class MessageComposerBuilder {
             completion(.success(updatedTextMessage))
         } onError: { error in
             guard let error = error else { return }
-            completion(.failure(error))
+            completion(.failure(error)) 
         }
     }
     

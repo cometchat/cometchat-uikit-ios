@@ -4,8 +4,8 @@ target 'SampleAppPushNotificationAPNs' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  pod 'CometChatCallsSDK','4.2.1'
-  pod 'CometChatUIKitSwift','5.1.2'
+  pod 'CometChatCallsSDK'
+  pod 'CometChatUIKitSwift','5.1.3'
 end
 
 
@@ -13,8 +13,8 @@ target 'SampleApp' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  pod 'CometChatCallsSDK','4.2.1'
-  pod 'CometChatUIKitSwift','5.1.2'
+  pod 'CometChatCallsSDK'
+  pod 'CometChatUIKitSwift','5.1.3'
 
 end
 
@@ -22,7 +22,7 @@ target 'AISampleApp' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  pod 'CometChatCallsSDK','4.2.1'
-  pod 'CometChatUIKitSwift','5.1.2'
+  pod 'CometChatCallsSDK'
+  pod 'CometChatUIKitSwift','5.1.3'
 
 end

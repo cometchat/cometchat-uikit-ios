@@ -311,6 +311,10 @@ extension CometChatListItem{
         return self
     }
     
+    func set(attributedTitle: NSAttributedString) {
+        titleLabel.attributedText = attributedTitle
+    }
+    
     @discardableResult
     public func set(titleView: UIView) -> Self {
         self.titleView.subviews.forEach({ $0.removeFromSuperview() })

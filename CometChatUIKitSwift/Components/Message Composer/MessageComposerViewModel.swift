@@ -27,6 +27,8 @@ open class MessageComposerViewModel: NSObject, MessageComposerViewModelProtocol 
     var message: BaseMessage?
     var typingIndicator: TypingIndicator?
     var onMessageEdit: ((_ message: BaseMessage) -> ())?
+    var showReplyView: ((_ message: BaseMessage) -> ())?
+    var hideReplyView: (() -> ())?
     var textFormatterMap: [Character: CometChatTextFormatter] = {
         var textFormatterMap = [Character: CometChatTextFormatter]()
         for textFormatter in ChatConfigurator.getDataSource().getTextFormatters() {
@@ -35,6 +37,9 @@ open class MessageComposerViewModel: NSObject, MessageComposerViewModelProtocol 
         return textFormatterMap
     }()
     var eventID = "MessageComposerViewModel-\(Date().timeIntervalSince1970)"
+    var quotedMessageId: Int?
+    var quotedMessage: BaseMessage?
+
     
     var textFormatter: [CometChatTextFormatter] {
         get {
@@ -56,11 +61,13 @@ open class MessageComposerViewModel: NSObject, MessageComposerViewModelProtocol 
     func connect() {
         CometChatMessageEvents.addListener(eventID, self)
         CometChatUserEvents.addListener(eventID, self)
+        CometChatMessageEvents.addListener("composer-reply-listener-\(eventID)", self)
     }
     
     func disconnect() {
         CometChatMessageEvents.removeListener(eventID)
         CometChatUserEvents.removeListener(eventID)
+        CometChatMessageEvents.removeListener("composer-reply-listener-\(eventID)")
     }
     
     func set(user: User) {
@@ -81,6 +88,19 @@ extension MessageComposerViewModel: CometChatMessageEventListener {
     public func ccMessageEdited(message: BaseMessage, status: MessageStatus) {
         if status == .inProgress {
             onMessageEdit?(message)
+        }
+    }
+    
+    public func ccReplyToMessage(message: BaseMessage, status: MessageStatus) {
+        if message.deletedAt <= 0 {
+            switch status {
+            case .inProgress:
+                showReplyView?(message)
+            case .success, .error:
+                quotedMessage = nil
+                quotedMessageId = nil
+                hideReplyView?()
+            }
         }
     }
 }
@@ -147,8 +167,17 @@ extension MessageComposerViewModel {
             if let parentMessageId = self.parentMessageId {
                 textMessage.parentMessageId = parentMessageId
             }
+            
+            if let quotedMessageId = quotedMessageId {
+                textMessage.quotedMessageId = quotedMessageId
+            }
+            if let fullQuoted = quotedMessage {
+                textMessage.quotedMessage = fullQuoted
+            }
             self.isSoundForMessageEnabled?()
             CometChatMessageEvents.ccMessageSent(message: textMessage, status: .inProgress)
+            quotedMessage = nil
+            quotedMessageId = nil
             MessageComposerBuilder.textMessage(message: textMessage) { result in
                 switch result {
                 case .success(let updatedTextMessage):
@@ -156,6 +185,9 @@ extension MessageComposerViewModel {
                         self.parentMessageId = updatedTextMessage.id
                     }
                     CometChatMessageEvents.ccMessageSent(message: updatedTextMessage, status: .success)
+                    if let _ = updatedTextMessage.quotedMessage{
+                        CometChatMessageEvents.ccReplyToMessage(message: updatedTextMessage, status: .success)
+                    }
                 case .failure(let error):
                     self.failure?(error)
                     textMessage.metaData = ["error": true]
@@ -202,7 +234,7 @@ extension MessageComposerViewModel {
     
     public func sendTextMessageToGroup(message: String, textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]]) {
         reset?(true)
-        var message: String = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        let message: String = message.trimmingCharacters(in: .whitespacesAndNewlines)
         if !message.isEmpty {
             guard let guid = self.group?.guid else { return }
             let textMessage = TextMessage(receiverUid: guid, text: message, receiverType: .group)
@@ -216,14 +248,25 @@ extension MessageComposerViewModel {
             if let parentMessageId = parentMessageId {
                 textMessage.parentMessageId = parentMessageId
             }
+            
+            if let quotedMessageId = quotedMessageId {
+                textMessage.quotedMessageId = quotedMessageId
+            }
+            if let fullQuoted = quotedMessage {
+                textMessage.quotedMessage = fullQuoted
+            }
             isSoundForMessageEnabled?()
             // Broadcasting the message sent's event with inProgress status.
             CometChatMessageEvents.ccMessageSent(message: textMessage, status: .inProgress)
+            quotedMessage = nil
+            quotedMessageId = nil
             MessageComposerBuilder.textMessage(message: textMessage) { result in
                 switch result {
                 case .success(let updatedTextMessage):
-                    // Broadcasting the message sent's event with sucess status.
                     CometChatMessageEvents.ccMessageSent(message: updatedTextMessage, status: .success)
+                    if let _ = updatedTextMessage.quotedMessage{
+                        CometChatMessageEvents.ccReplyToMessage(message: updatedTextMessage, status: .success)
+                    }
                 case .failure(let error):
                     self.failure?(error)
                     textMessage.metaData = ["error": true]
@@ -246,12 +289,26 @@ extension MessageComposerViewModel {
         if let parentMessageId = parentMessageId {
             mediaMessage.parentMessageId = parentMessageId
         }
+        
+        if let quotedMessageId = quotedMessageId {
+            mediaMessage.quotedMessageId = quotedMessageId
+        }
+        
+        if let fullQuoted = quotedMessage {
+            mediaMessage.quotedMessage = fullQuoted
+        }
         isSoundForMessageEnabled?()
         CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .inProgress)
+        hideReplyView?()
+        quotedMessage = nil
+        quotedMessageId = nil
         MessageComposerBuilder.mediaMessage(message: mediaMessage) {(result) in
             switch result {
             case .success(let updatedMediaMessage):
                 CometChatMessageEvents.ccMessageSent(message: updatedMediaMessage, status: .success)
+                if let _ = updatedMediaMessage.quotedMessage{
+                    CometChatMessageEvents.ccReplyToMessage(message: updatedMediaMessage, status: .success)
+                }
             case .failure(let error):
                 self.failure?(error)
                 mediaMessage.metaData = ["error": true]
@@ -272,11 +329,23 @@ extension MessageComposerViewModel {
         mediaMessage.metaData = ["fileURL": url]
         mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
         isSoundForMessageEnabled?()
+        if let quotedMessageId = quotedMessageId {
+            mediaMessage.quotedMessageId = quotedMessageId
+        }
+        if let fullQuoted = quotedMessage {
+            mediaMessage.quotedMessage = fullQuoted
+        }
+        hideReplyView?()
         CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .inProgress)
+        quotedMessage = nil
+        quotedMessageId = nil
         MessageComposerBuilder.mediaMessage(message: mediaMessage) { (result) in
             switch result {
             case .success(let updatedMediaMessage):
                 CometChatMessageEvents.ccMessageSent(message: updatedMediaMessage, status: .success)
+                if let _ = updatedMediaMessage.quotedMessage{
+                    CometChatMessageEvents.ccReplyToMessage(message: updatedMediaMessage, status: .success)
+                }
             case .failure(let error):
                 self.failure?(error)
                 mediaMessage.metaData = ["error": true]

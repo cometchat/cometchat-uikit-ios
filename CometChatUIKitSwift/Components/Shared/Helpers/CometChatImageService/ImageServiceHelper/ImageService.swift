@@ -31,12 +31,22 @@ final class ImageService {
                 completion(cacheImage)
             }
         } else if cacheType == .normal, let cacheImage = ImageService.imageCache.object(forKey: url as AnyObject) as? UIImage {
-            DispatchQueue.main.async { [weak cacheImage] in 
+            DispatchQueue.main.async {
                 completion(cacheImage)
             }
         } else {
             
-            let dataTask = URLSession.shared.dataTask(with: url) { data, result, error in
+            var finalURL = url
+
+            if finalURL.scheme == "http" {
+                var comps = URLComponents(url: finalURL, resolvingAgainstBaseURL: false)
+                comps?.scheme = "https"
+                if let httpsURL = comps?.url {
+                    finalURL = httpsURL
+                }
+            }
+            
+            let dataTask = URLSession.shared.dataTask(with: finalURL) { data, result, error in
                 // Helper
                 var image: UIImage?
                 

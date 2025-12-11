@@ -9,6 +9,7 @@ import UIKit
 
 public struct StickerBubbleStyle: BaseMessageBubbleStyle {
     
+    public var messagePreviewStyle: MessagePreviewStyle?
     public var backgroundColor: UIColor?
     public var backgroundDrawable: UIImage?
     public var borderWidth: CGFloat?

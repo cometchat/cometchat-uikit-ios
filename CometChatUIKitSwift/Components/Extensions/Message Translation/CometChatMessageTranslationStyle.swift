@@ -13,6 +13,7 @@ import UIKit
 public struct MessageTranslationBubbleStyle: BaseMessageBubbleStyle {
     
     // MARK: - Properties
+    public var messagePreviewStyle: MessagePreviewStyle?
     
     /// The text font for the thread count in the message translation bubble.
     public var threadedIndicatorTextFont: UIFont?

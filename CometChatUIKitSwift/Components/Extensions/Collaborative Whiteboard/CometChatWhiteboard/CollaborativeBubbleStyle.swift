@@ -10,6 +10,7 @@ import UIKit
 
 public struct CollaborativeBubbleStyle: BaseMessageBubbleStyle {
     
+    public var messagePreviewStyle: MessagePreviewStyle?
     public var headerTextColor: UIColor?
     public var headerTextFont: UIFont?
     public var backgroundColor: UIColor?

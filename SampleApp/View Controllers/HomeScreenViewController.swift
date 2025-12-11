@@ -11,7 +11,6 @@ import CometChatUIKitSwift
 import CometChatSDK
 import SystemConfiguration
 
-
 class HomeScreenViewController: UITabBarController {
     
     lazy var conversations: CometChatConversations = {
@@ -27,6 +26,46 @@ class HomeScreenViewController: UITabBarController {
                 self?.navigationController?.pushViewController(messages, animated: true)
             }
         })
+        
+        conversations.onSearchClick = {
+            let searchVC = CometChatSearch()
+            searchVC.hidesBottomBarWhenPushed = true
+            
+            searchVC.onConversationClicked = { [weak self] conversation, indexPath in
+                    let messages = MessagesVC()
+                    messages.group = (conversation.conversationWith as? Group)
+                    messages.user = (conversation.conversationWith as? CometChatSDK.User)
+                    
+                    if let splitScreenCallBack = self?.splitScreenCallBack {
+                        splitScreenCallBack(messages)
+                    } else {
+                        self?.navigationController?.pushViewController(messages, animated: true)
+                    }
+            }
+            searchVC.onMessageClicked = { [weak self] message in
+                let loggedInUID = CometChat.getLoggedInUser()?.uid
+                if message.parentMessageId > 0{
+                    CometChat.getMessageDetails(message.parentMessageId) { parentMessage in
+                        let threadedView = ThreadedMessagesVC()
+                        threadedView.parentMessage = parentMessage
+                        threadedView.parentMessageView.controller = self
+                        threadedView.targetMessageId = message.id
+                        threadedView.parentMessageView.set(parentMessage: parentMessage)
+                        self?.navigationController?.pushViewController(threadedView, animated: true)
+                    } onError: { error in
+                        print(error?.errorDescription ?? "")
+                    }
+                } else {
+                    let messagesVC = MessagesVC() // or your custom MessageViewController
+                    messagesVC.user = loggedInUID == message.sender?.uid ? (message.receiver as? CometChatSDK.User) : message.sender
+                    messagesVC.group = message.receiver as? Group
+                    messagesVC.targetMessageId = message.id
+
+                    self?.navigationController?.pushViewController(messagesVC, animated: true)
+                }
+            }
+            self.navigationController?.pushViewController(searchVC, animated: false)
+        }
         return conversations
     }()
     

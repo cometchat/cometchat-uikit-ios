@@ -14,6 +14,7 @@ public class AdditionalConfiguration {
     public var actionBubbleStyle: GroupActionBubbleStyle = CometChatMessageBubble.actionBubbleStyle
     public var conversationsStyle: ConversationsStyle = CometChatConversations.style
     public var callActionBubbleStyle: CallActionBubbleStyle = CometChatMessageBubble.callActionBubbleStyle
+    public var searchStyle: SearchStyle = CometChatSearch.style
     
     
     public var hideImageAttachmentOption: Bool = false
@@ -26,6 +27,7 @@ public class AdditionalConfiguration {
     public var hideVoiceRecordingButton: Bool = false
     public var hideStickersButton: Bool = false
     
+    public var hideFlagMessageOption: Bool = false
     public var hideReplyInThreadOption: Bool = false
     public var hideTranslateMessageOption: Bool = false
     public var hideEditMessageOption: Bool = false
@@ -35,6 +37,7 @@ public class AdditionalConfiguration {
     public var hideCopyMessageOption: Bool = false
     public var hideMessageInfoOption: Bool = false
     public var hideShareMessageOption: Bool = false
+    public var hideReplyMessageOption: Bool = false
     
     public var hideVideoCallButton: Bool = false
     public var hideVoiceCallButton: Bool = false

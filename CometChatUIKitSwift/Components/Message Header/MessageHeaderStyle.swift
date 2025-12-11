@@ -28,6 +28,9 @@ public struct MessageHeaderStyle {
     public var privateGroupIcon = UIImage(systemName: "shield.fill")?.withRenderingMode(.alwaysTemplate)
     public var protectedGroupIcon = UIImage(systemName: "lock.fill")?.withRenderingMode(.alwaysTemplate)
     public var backgroundImage: UIImage?
+
+    public var menuIcon: UIImage = UIImage(systemName: "ellipsis") ?? UIImage()
+    public var menuIconTintColor: UIColor = CometChatTheme.iconColorPrimary
     
     public var newChatButtonImageTintColor: UIColor? = CometChatTheme.iconColorPrimary
     public var chatHistoryButtonImageTintColor: UIColor? = CometChatTheme.iconColorPrimary

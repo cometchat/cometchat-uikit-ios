@@ -281,3 +281,13 @@
 "DONE" = "Erledigt";
 "PHOTO_LIBRARY" = "Photothek";
 "VIDEO_LIBRARY" = "Videothek";
+
+"REPORT_A_MESSAGE" = "Bericht";
+"REPORT_MESSAGE_SUBTITLE" = "Melde diesen Chat, wenn er gegen unsere Gemeinschaftsstandards verstößt. Wir werden dem Konto nichts mitteilen, von dem du sie gemeldet hast.";
+"REPORT" = "Bericht";
+"REASON" = "Grund";
+"OPTIONAL" = "Fakultativ";
+"REPORT_MESSAGE_PLACEHOLDER" = "Geben Sie zusätzlichen Kontext für Ihren Bericht an...";
+"SPAM" = "Spam";
+"SEXUAL_CONTENT" = "Sexueller Inhalt";
+"HARASSMENT_BULLYING" = "Belästigung/Mobbing";

@@ -9,6 +9,7 @@ import UIKit
 
 /// A style configuration struct for customizing the appearance of an audio message bubble in CometChat.
 public struct AudioBubbleStyle: BaseMessageBubbleStyle {
+    public var messagePreviewStyle: MessagePreviewStyle?
     
     /// The text font for the thread count in the audio bubble.
     public var threadedIndicatorTextFont: UIFont?

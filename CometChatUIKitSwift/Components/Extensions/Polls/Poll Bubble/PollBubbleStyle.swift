@@ -11,6 +11,7 @@ import Foundation
 /// A structure that defines the visual styling for the poll message bubble in CometChat. This style can be customized for incoming and outgoing message bubbles.
 public struct PollBubbleStyle: BaseMessageBubbleStyle {
     
+    public var messagePreviewStyle: MessagePreviewStyle?
     /// The text font for the thread count in the poll bubble.
     public var threadedIndicatorTextFont: UIFont?
     

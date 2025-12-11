@@ -312,3 +312,13 @@
 "DONE" = "完成";
 "PHOTO_LIBRARY" = "照片庫";
 "VIDEO_LIBRARY" = "影片資料庫";
+
+"REPORT_A_MESSAGE" = "報告";
+"REPORT_MESSAGE_SUBTITLE" = "如果它違反我們的社群標準，請報告此聊天。我們不會告訴您報告的帳戶。";
+"REPORT" = "報告";
+"REASON" = "原因";
+"OPTIONAL" = "可選";
+"REPORT_MESSAGE_PLACEHOLDER" = "為您的報告提供其他前後關聯...";
+"SPAM" = "垃圾郵件";
+"SEXUAL_CONTENT" = "性內容";
+"HARASSMENT_BULLYING" = "騷擾 ／ 欺凌";

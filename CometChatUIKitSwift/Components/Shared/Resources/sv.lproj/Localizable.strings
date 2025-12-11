@@ -268,3 +268,13 @@
 "DONE" = "Utfört";
 "PHOTO_LIBRARY" = "Fotobibliotek";
 "VIDEO_LIBRARY" = "Videobibliotek";
+
+"REPORT_A_MESSAGE" = "Rapportera";
+"REPORT_MESSAGE_SUBTITLE" = "Rapportera den här chatten om den strider mot våra gemenskapsstandarder. Vi kommer inte att berätta för kontot du rapporterade dem.";
+"REPORT" = "Rapportera";
+"REASON" = "Anledning";
+"OPTIONAL" = "Valfritt";
+"REPORT_MESSAGE_PLACEHOLDER" = "Ge ytterligare sammanhang för din rapport...";
+"SPAM" = "Skräppost";
+"SEXUAL_CONTENT" = "Sexuellt innehåll";
+"HARASSMENT_BULLYING" = "Trakasserier och mobbning";

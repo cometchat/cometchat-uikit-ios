@@ -10,6 +10,12 @@ import UIKit
 
 open class CometChatMessageComposer: UIView {
     
+    // MARK: - Reply message integration
+    private var replyingToMessage: BaseMessage?
+    private var quotedMessage: BaseMessage?
+    private var quotedPreviewView: CometChatMessagePreview?
+    var messagePreviewStyle : MessagePreviewStyle = CometChatMessagePreview.style
+    
     public lazy var textView: GrowingTextView = {
         let growingTextView = GrowingTextView().withoutAutoresizingMaskConstraints()
         growingTextView.delegate = self
@@ -42,6 +48,7 @@ open class CometChatMessageComposer: UIView {
         stackView.axis = .vertical
         stackView.spacing = 0
         stackView.distribution = .fill
+        stackView.alignment = .center
         
         stackView.addArrangedSubview(messagePreview)
         stackView.addArrangedSubview(topContainerView)
@@ -73,8 +80,6 @@ open class CometChatMessageComposer: UIView {
     
     public lazy var messagePreview: UIStackView = {
         let stackView = UIStackView().withoutAutoresizingMaskConstraints()
-        stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.layoutMargins = .init(top: CometChatSpacing.Padding.p1, left: CometChatSpacing.Padding.p1, bottom: CometChatSpacing.Padding.p1, right: CometChatSpacing.Padding.p1)
         stackView.isHidden = true
         return stackView
     }()
@@ -290,8 +295,18 @@ open class CometChatMessageComposer: UIView {
             updateUI()
             updateSendButtonState()
         }else{
+            clearReplyState()
             disconnect()
         }
+    }
+    
+    private func clearReplyState() {
+        if let message = quotedMessage{
+            CometChatMessageEvents.ccReplyToMessage(message: message, status: .error)
+        }
+        viewModel.quotedMessage = nil
+        viewModel.quotedMessageId = nil
+        hideReplyPreview()
     }
     
     private func observeStreamingState() {
@@ -390,7 +405,20 @@ open class CometChatMessageComposer: UIView {
             
             composerBoxContainerStackView.leadingAnchor.pin(equalTo: paddingView.leadingAnchor, constant: CometChatSpacing.Margin.m2),
             composerBoxContainerStackView.trailingAnchor.pin(equalTo: paddingView.trailingAnchor, constant: -CometChatSpacing.Margin.m2),
-            composerBoxContainerStackView.topAnchor.pin(equalTo: paddingView.topAnchor, constant: 0)
+            composerBoxContainerStackView.topAnchor.pin(equalTo: paddingView.topAnchor, constant: 0),
+            
+            
+            messagePreview.leadingAnchor.pin(equalTo: composerBoxContainerStackView.leadingAnchor, constant: 4),
+            messagePreview.trailingAnchor.pin(equalTo: composerBoxContainerStackView.trailingAnchor, constant: -4),
+            
+            topContainerView.leadingAnchor.pin(equalTo: composerBoxContainerStackView.leadingAnchor),
+            topContainerView.trailingAnchor.pin(equalTo: composerBoxContainerStackView.trailingAnchor),
+            
+            dividerView.leadingAnchor.pin(equalTo: composerBoxContainerStackView.leadingAnchor),
+            dividerView.trailingAnchor.pin(equalTo: composerBoxContainerStackView.trailingAnchor),
+            
+            bottomContainerView.leadingAnchor.pin(equalTo: composerBoxContainerStackView.leadingAnchor),
+            bottomContainerView.trailingAnchor.pin(equalTo: composerBoxContainerStackView.trailingAnchor)
         ]
         
         if DeviceType.IS_SMALL_DEVICE {
@@ -606,6 +634,7 @@ open class CometChatMessageComposer: UIView {
         case .reply: break
             
         }
+        viewModel.quotedMessage = nil
     }
     
     ///Setup Delegates
@@ -646,6 +675,7 @@ open class CometChatMessageComposer: UIView {
             messagePreview.subviews.forEach({ $0.removeFromSuperview() })
             messagePreview.isHidden = false
             messagePreview.addArrangedSubview(editPreviewView)
+            editPreviewView.topAnchor.constraint(equalTo: messagePreview.topAnchor, constant: 4).isActive = true
             editPreviewView.layoutIfNeeded()
             editPreviewView.onCrossIconClicked = { [weak self] in
                 self?.hideEditPreview()
@@ -659,6 +689,7 @@ open class CometChatMessageComposer: UIView {
     
     open func hideEditPreview() {
         messageComposerMode = .draft
+        textView.text = ""
         messagePreview.subviews.forEach({ $0.removeFromSuperview() })
         messagePreview.isHidden = true
         UIView.animate(withDuration: 0.3) { [weak self] in
@@ -850,6 +881,52 @@ extension CometChatMessageComposer {
     }
 }
 
+extension CometChatMessageComposer {
+    // MARK: - Reply Preview Handling
+
+    func showReplyPreview(for message: BaseMessage) {
+        
+        replyingToMessage = message
+        viewModel.quotedMessage = message
+        // inside showReplyPreview(for:)
+        let isUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
+
+        let preview = CometChatMessagePreview.makePreview(
+            for: message,
+            isLoggedInUser: isUser,
+            textFormatters: viewModel.textFormatter,       // composer uses viewModel.textFormatter
+            formattingType: .COMPOSER,
+            style: messagePreviewStyle,
+            onPreviewClicked: nil,
+            onCrossClicked: { [weak self] in
+                CometChatMessageEvents.ccReplyToMessage(message: message, status: .error)
+                self?.viewModel.quotedMessage = nil
+                self?.hideReplyPreview()
+            },
+            hideCloseButton: false
+        )
+
+        // Replace existing arranged subviews, add preview (like before)
+        messagePreview.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        messagePreview.addArrangedSubview(preview)
+        preview.topAnchor.constraint(equalTo: messagePreview.topAnchor, constant: 4).isActive = true
+        messagePreview.isHidden = false
+
+        // Update ViewModel bits as before
+        viewModel.quotedMessageId = message.id
+        textView.becomeFirstResponder()
+    }
+
+    func hideReplyPreview() {
+        messagePreview.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        messagePreview.isHidden = true
+        replyingToMessage = nil
+        viewModel.quotedMessageId = nil
+        textView.resignFirstResponder()
+    }
+
+}
+
 
 extension CometChatMessageComposer {
     
@@ -887,6 +964,19 @@ extension CometChatMessageComposer {
         
         viewModel.failure = { [weak self] error in
             self?.onError?(error)
+        }
+        
+        viewModel.showReplyView = { [weak self] message in
+            guard let this = self else { return }
+            this.quotedMessage = message
+            this.showReplyPreview(for: message)
+        }
+        
+        viewModel.hideReplyView = { [weak self] in
+            DispatchQueue.main.async { [weak self] in
+                guard let this = self else { return }
+                this.hideReplyPreview()
+            }
         }
     }
 }

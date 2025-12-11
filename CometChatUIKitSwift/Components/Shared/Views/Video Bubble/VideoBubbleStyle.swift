@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 public struct VideoBubbleStyle: BaseMessageBubbleStyle {
+    public var messagePreviewStyle: MessagePreviewStyle?
     public var threadedIndicatorTextFont: UIFont?
     
     public var threadedIndicatorTextColor: UIColor?

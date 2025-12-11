@@ -29,7 +29,7 @@ open class CometChatMessageList: UIView {
 
     open lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain).withoutAutoresizingMaskConstraints()
-        tableView.alwaysBounceVertical = true
+        tableView.alwaysBounceVertical = false
         tableView.backgroundColor = UIColor.clear
         tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         return tableView
@@ -156,9 +156,15 @@ open class CometChatMessageList: UIView {
     var onLoad: (([BaseMessage]) -> Void)?
     public var hideAvatar: Bool?
     public var hideGroupActionMessages: Bool = false
+    public var hideFlagRemarkFeild: Bool = false
     public var hideReplyInThreadOption: Bool = false{
         didSet{
             viewModel.hideReplyInThreadOption = hideReplyInThreadOption
+        }
+    }
+    public var hideFlagMessageOption: Bool = false{
+        didSet{
+            viewModel.hideFlagMessageOption = hideFlagMessageOption
         }
     }
     public var hideTranslateMessageOption: Bool = false{
@@ -191,6 +197,16 @@ open class CometChatMessageList: UIView {
             viewModel.hideCopyMessageOption = hideCopyMessageOption
         }
     }
+    public var hideReplyMessageOption: Bool = false{
+        didSet{
+            viewModel.hideReplyMessageOption = hideReplyMessageOption
+        }
+    }
+    public var disableSwipeToReply: Bool = false{
+        didSet{
+            viewModel.disableSwipeToReply = disableSwipeToReply
+        }
+    }
     public var hideMessageInfoOption: Bool = false{
         didSet{
             viewModel.hideMessageInfoOption = hideMessageInfoOption
@@ -201,14 +217,16 @@ open class CometChatMessageList: UIView {
             viewModel.hideShareMessageOption = hideShareMessageOption
         }
     }
-    
+
     public var hideModerationStatus: Bool = false
     
     //AI Variables
     public var enableConversationStarters: Bool = false
     public var enableSmartReplies: Bool = false
+    public var enableConversationSummary: Bool = false
     var aiConversationStarterView = CometChatAIConversationStarter()
     var aiSmartReplyView = CometChatAISmartReply()
+    var aiConversationSummaryView = CometChatAIConversationSummary()
     var smartRepliesKeywords: [String] = []
     var smartRepliesDelayDuration: Int = 10
     var smartRepliesWorkItem: DispatchWorkItem?
@@ -261,6 +279,23 @@ open class CometChatMessageList: UIView {
     }()
     var contextMenuCell: CometChatMessageBubble?
     var contextMenuMessage: BaseMessage?
+    
+    private let deltaThreshold: CGFloat = 2
+    
+    var highlightRetryCount: Int = 0
+    var pendingHighlightMessageId: Int?
+    
+    var oldContentHeight: CGFloat = 0
+    var oldContentOffset: CGPoint = CGPoint()
+    var oldDistanceFromTop : CGFloat = 0
+    var newHeight : CGFloat = 0
+
+    var fetchNextAnchorSnapshot: AnchorSnapshot?
+    var gotoMessageId: Int = 0
+    
+    public var textFormatter: [CometChatTextFormatter] = [CometChatMentionsFormatter()]
+    
+    public var flagReasonLocalizer: ((String) -> String)?
     
     //MARK: - Life Cycle Function
     public override init(frame: CGRect) {
@@ -338,6 +373,19 @@ open class CometChatMessageList: UIView {
         tableView.pin(anchors: [.leading, .trailing], to: container, with: 0)
         container.addArrangedSubview(footerViewContainer)
         footerViewContainer.pin(anchors: [.leading, .trailing], to: container, with: 10)
+    }
+    
+    func showBottomSpinner() {
+        tableView.isScrollEnabled = false
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.startAnimating()
+        spinner.frame = CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 60)
+        tableView.tableHeaderView = spinner   // inverted table → header acts as bottom
+    }
+
+    func hideBottomSpinner() {
+        tableView.isScrollEnabled = true
+        tableView.tableHeaderView = nil
     }
     
     func buildAgenticView(){
@@ -455,7 +503,12 @@ open class CometChatMessageList: UIView {
         if viewModel.messages.isEmpty {
             showLoadingView()
         }
-        viewModel.fetchPreviousMessages()
+
+        if gotoMessageId != 0 {
+            self.goToMessage(withId: gotoMessageId)
+        } else {
+            viewModel.fetchPreviousMessages()
+        }
     }
     
     open func showNewMessageIndicator() {
@@ -479,10 +532,35 @@ open class CometChatMessageList: UIView {
                 guard let this = self else { return }
                 this.messageIndicator?.reset()
                 this.messageIndicator?.isHidden = true
+                this.fetchBottomMessages()
                 this.scrollToBottom()
             }
             
         }
+    }
+    
+   private func fetchBottomMessages() {
+        viewModel.hasFetchedMessagesBefore = false
+        viewModel.isAllMessagesFetchedInPrevious = false
+        
+        viewModel.messages.removeAll()
+        gotoMessageId = 0
+        if let user = viewModel.user, !user.isAgentic {
+            viewModel.set(messagesRequestBuilder: MessagesRequest.MessageRequestBuilder()
+                .set(uid: user.uid ?? "")
+                .hideReplies(hide: true)
+                .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+                .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
+                .set(messageID: -1))
+        } else if let group = viewModel.group {
+            viewModel.set(messagesRequestBuilder: MessagesRequest.MessageRequestBuilder()
+                .set(guid: group.guid)
+                .hideReplies(hide: true)
+                .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+                .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
+                .set(messageID: -1))
+        }
+        fetchData()
     }
     
     //MARK: - State Views
@@ -509,20 +587,26 @@ open class CometChatMessageList: UIView {
     }
     
     open func showLoadingView() {
-        if hideLoadingView { return }
-        if let loadingStateView = loadingStateView as? CometChatMessageShimmerView {
-            loadingStateView.startShimmer()
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if self.hideLoadingView { return }
+            if let loadingStateView = self.loadingStateView as? CometChatMessageShimmerView {
+                loadingStateView.startShimmer()
+            }
+            addSubview(self.loadingStateView)
+            self.embed(self.loadingStateView)
         }
-        addSubview(loadingStateView)
-        embed(loadingStateView)
     }
     
     open func removeLoadingView() {
-        if hideLoadingView { return }
-        if let loadingStateView = loadingStateView as? CometChatMessageShimmerView {
-            loadingStateView.stopShimmer()
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if self.hideLoadingView { return }
+            if let loadingStateView = self.loadingStateView as? CometChatMessageShimmerView {
+                loadingStateView.stopShimmer()
+            }
+            self.loadingStateView.removeFromSuperview()
         }
-        loadingStateView.removeFromSuperview()
     }
     
     open func showTopSpinner() {
@@ -555,6 +639,29 @@ open class CometChatMessageList: UIView {
     
     //MARK: - View Model Set up
     open func setupViewModel() {
+
+        viewModel.scrollToMessageId = { [weak self] id, isPagination in
+            guard let this = self else { return }
+            
+            this.oldContentHeight = this.tableView.contentSize.height
+            
+            this.newHeight = this.tableView.contentSize.height
+            this.scrollToMessage(withId: id, isPagination: isPagination) { anchorId in
+                                
+                DispatchQueue.main.async {
+                    if let indexPath = self?.indexPathForMessageWithId(anchorId) {
+                        let rectForAnchor = self?.tableView.rectForRow(at: indexPath)
+                        let targetOffsetY = (rectForAnchor?.origin.y ?? 0) - (self?.oldDistanceFromTop ?? 0)
+                        self?.tableView.setContentOffset(CGPoint(x: 0, y: targetOffsetY), animated: false)
+                    }
+                    
+                    print("after fetch next height: \(self?.tableView.contentOffset.y ?? 0), \(self?.tableView.contentSize.height ?? 0)")
+                    
+                    self?.hideBottomSpinner()
+                    self?.tableView.isScrollEnabled = true
+                }
+            }
+        }
         
         viewModel.reload = { [weak self]  in
             guard let this = self else { return }
@@ -604,21 +711,26 @@ open class CometChatMessageList: UIView {
                 
                 // Calculate the actual row index after filtering
                 var actualRow = row
-                if let messages = this.viewModel.messages[safe: section]?.messages {
-                    let filteredMessages = messages.filter { msg in
-                        !(this.hideGroupActionMessages && msg.messageCategory == .action && msg.receiverType == .group)
-                    }
-                    
-                    // Find the actual index of this message in the filtered array
-                    if let messageIndex = filteredMessages.firstIndex(where: { $0.muid == message.muid }) {
-                        actualRow = messageIndex
-                    } else {
-                        this.removeEmptyView()
-                        this.removeErrorView()
-                        return
-                    }
+                guard let messages = this.viewModel.messages[safe: section]?.messages else {
+                    this.tableView.reloadData()
+                    this.removeEmptyView()
+                    this.removeErrorView()
+                    return
                 }
                 
+                let filteredMessages = messages.filter { msg in
+                    !(this.hideGroupActionMessages && msg.messageCategory == .action && msg.receiverType == .group)
+                }
+                
+                if let messageIndex = filteredMessages.firstIndex(where: { $0.muid == message.muid }) {
+                    actualRow = messageIndex
+                } else {
+                    this.removeEmptyView()
+                    this.removeErrorView()
+                    return
+                }
+                let wasNextPagination = this.viewModel.isFetchingNext
+
                 var shouldScrollToBottom = false
                 if this.scrollToBottomOnNewMessages {
                     shouldScrollToBottom = true
@@ -633,6 +745,46 @@ open class CometChatMessageList: UIView {
                 
                 this.viewModel.removeMarkedFailedStreamMessages()
                 
+                // VALIDATION: Check current state
+                let currentSectionCount = this.tableView.numberOfSections
+                let currentRowCount = section < currentSectionCount ? this.tableView.numberOfRows(inSection: section) : 0
+                let expectedRowCountAfterInsert = isNewSectionAdded ? filteredMessages.count : currentRowCount + 1
+                
+                // If data source doesn't match expectations, reload
+                if filteredMessages.count != expectedRowCountAfterInsert {
+                    this.tableView.reloadData()
+                    this.removeEmptyView()
+                    this.removeErrorView()
+                    if shouldScrollToBottom {
+                        this.scrollToBottom()
+                    }
+                    return
+                }
+                
+                // Validate section exists or should be created
+                if isNewSectionAdded && section < currentSectionCount {
+                    // Section already exists, reload instead
+                    this.tableView.reloadData()
+                    this.removeEmptyView()
+                    this.removeErrorView()
+                    if shouldScrollToBottom {
+                        this.scrollToBottom()
+                    }
+                    return
+                }
+                
+                if !isNewSectionAdded && section >= currentSectionCount {
+                    // Section doesn't exist, reload instead
+                    this.tableView.reloadData()
+                    this.removeEmptyView()
+                    this.removeErrorView()
+                    if shouldScrollToBottom {
+                        this.scrollToBottom()
+                    }
+                    return
+                }
+                
+                // Safe to perform batch update
                 this.tableView.performBatchUpdates({
                     if isNewSectionAdded {
                         this.tableView.insertSections([section], with: .top)
@@ -643,7 +795,7 @@ open class CometChatMessageList: UIView {
                     this.removeEmptyView()
                     this.removeErrorView()
                     
-                    if shouldScrollToBottom {
+                    if !wasNextPagination && shouldScrollToBottom {
                         this.scrollToBottom()
                     }
                 })
@@ -667,7 +819,7 @@ open class CometChatMessageList: UIView {
         
         viewModel.updateAtIndex = { [weak self] section , row, message in
             guard let this = self else { return }
-            DispatchQueue.main.async {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
                 UIView.performWithoutAnimation {
                     this.tableView.beginUpdates()
                     this.tableView.reloadRows(at: [IndexPath(row: row , section: section)], with: .none)
@@ -748,6 +900,31 @@ open class CometChatMessageList: UIView {
             }
         }
         
+        viewModel.willStartFetchNext = { [weak self] in
+            self?.captureAnchorBeforeFetchNext()
+        }
+
+        viewModel.didCompleteFetchNextWithMetrics = { [weak self] oldOffsetY, oldContentHeight in
+            self?.restoreAnchorAfterFetchNext(oldOffsetY: oldOffsetY, oldContentHeight: oldContentHeight)
+        }
+        
+        viewModel.captureAnchorMessageId = { [weak self] in
+            return self?.getTopVisibleMessageId()   // or 5th-from-bottom logic
+        }
+        
+        viewModel.restoreAnchor = { [weak self] messageId in
+            guard let self = self else { return }
+            // call the no-blink restore
+            self.restoreAnchorWithoutBlink(messageId: messageId)
+        }
+
+        viewModel.hideBottomSpinner = { [weak self] in
+            guard let this = self else { return }
+            DispatchQueue.main.async {
+                this.hideBottomSpinner()
+            }
+        }
+        
     }
     
     open func handleThemeModeChange() {
@@ -805,6 +982,31 @@ open class CometChatMessageList: UIView {
             messageAlignment: messageAlignment,
             timePattern: timePattern, dateTimeFormatter: dateTimeFormatter, isModerated: isModerated
         )
+    }
+    
+    open func addMessageReplyPreview(forMessage: BaseMessage, toCell: CometChatMessageBubble, isLoggedInUser: Bool, specificMessageTypeStyle: BaseMessageBubbleStyle?, bubbleStyle: MessageBubbleStyle) {
+        let mid = forMessage.id
+
+        let preview = CometChatMessagePreview.makePreview(
+            for: forMessage,
+            isLoggedInUser: isLoggedInUser,
+            textFormatters: textFormatter,                  // note singular name used in MessageList
+            formattingType: .MESSAGE_BUBBLE,
+            style: specificMessageTypeStyle?.messagePreviewStyle ?? bubbleStyle.messagePreviewStyle,
+            onPreviewClicked: { [weak self] in
+                self?.goToMessage(withId: mid)
+            },
+            onCrossClicked: nil,
+            hideCloseButton: true                           // your code hides closeButton
+        )
+
+        toCell.set(replyView: preview)
+
+        // you can still call layoutIfNeeded as before
+        preview.setNeedsLayout()
+        preview.layoutIfNeeded()
+        toCell.contentView.setNeedsLayout()
+        toCell.contentView.layoutIfNeeded()
     }
     
     open func addThreadedRepliesView(forMessage: BaseMessage, toCell: CometChatMessageBubble, isLoggedInUser: Bool, specificMessageTypeStyle: BaseMessageBubbleStyle?, bubbleStyle: MessageBubbleStyle) {
@@ -901,7 +1103,6 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
             }), let message = filteredMessages[safe: indexPath.row] else {
                 return UITableViewCell()
             }
-        
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
         var bubbleStyle = isLoggedInUser ? messageBubbleStyle.outgoing : messageBubbleStyle.incoming
         let messageTypeStyle = MessageUtils.getSpecificMessageTypeStyle(message: message, from: messageBubbleStyle)
@@ -941,7 +1142,6 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     cell.showThinking()
                 } else {
                     cell.completeStreaming(finalText: message.text)
-//                    cell.hideThinking()
                 }
                 
                 cell.bindToRun(runId: runId)
@@ -953,12 +1153,16 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         
         if let template = viewModel.getTemplate(for: message) {
             if let cell = tableView.dequeueReusableCell(withIdentifier: CometChatMessageBubble.identifier , for: indexPath) as? CometChatMessageBubble {
+                let isModerated = MessageUtils.isMessageModerationDisapproved(message: message)
                 
                 cell.transform = CGAffineTransform(scaleX: 1, y: -1) // doing this because our tableView is also transformed
                 cell.set(message: message)
+                cell.set(replyView: nil)   
+
                 if let user = viewModel.user, user.isAgentic, !isLoggedInUser{
                     bubbleStyle.backgroundColor = .clear
                 }
+                cell.disableSwipeToReply = disableSwipeToReply
                 cell.set(style: bubbleStyle, specificMessageTypeStyle: messageTypeStyle)
                 
                 // Overriding whole bubble
@@ -967,6 +1171,24 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     return cell
                 }
                 
+                cell.onSwipeReplyDetected { message in
+                    guard let message = message else { return }
+                    CometChatMessageEvents.ccReplyToMessage(message: message, status: .inProgress)
+                }
+                
+                // Handle quoted / reply view
+                if let quotedMessage = message.quotedMessage, message.deletedAt <= 0, !isModerated{
+                    if let customReplyView = template.replyView?(message, cell.alignment, controller) {
+                        cell.set(replyView: customReplyView)
+                    } else if !hideReplyMessageOption{
+                        addMessageReplyPreview(forMessage: quotedMessage, toCell: cell, isLoggedInUser: isLoggedInUser, specificMessageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle)
+                    }
+                } else {
+                    // No quoted message
+                    cell.set(replyView: nil)
+                }
+
+                cell.setupSwipeGestures(message: message)
                 // For action messages
                 if message.messageCategory == .action || message.messageCategory == .call {
                     cell.set(bubbleAlignment: .center)
@@ -1014,8 +1236,6 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 
 
                 cell.set(bottomView: nil)
-
-                let isModerated = MessageUtils.isMessageModerationDisapproved(message: message)
 
                 if isModerated && !hideModerationStatus && message.deletedAt <= 0 {
                     addModerationView(on: cell, message: message, bubbleStyle: messageBubbleStyle.outgoing)
@@ -1166,27 +1386,83 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         return UITableView.automaticDimension
     }
     
-    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let yOffset = tableView.contentOffset.y
+    /// For inverted table: section 0, row 0 is visual BOTTOM.
+    /// We consider "near bottom" when any of rows 0...4 of section 0 are visible.
+    private func isNearBottomForNextPagination() -> Bool {
+        guard let visible = tableView.indexPathsForVisibleRows else { return false }
 
-        if (scrollView.isDragging || scrollView.isDecelerating) && yOffset > lastContentOffset && yOffset >= 400 {
+        // Look only at section 0 (newest side)
+        let minRowInFirstSection = visible
+            .filter { $0.section == 0 }
+            .map { $0.row }
+            .min()
+
+        if let minRow = minRowInFirstSection {
+            // If row 0..4 is visible, we are near visual bottom -> fetch NEXT
+            return minRow <= 30
+        }
+        return false
+    }
+
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        if scrollView.contentOffset.y < 0 {
+            scrollView.contentOffset = CGPoint(x: 0, y: 0)
+        }
+        
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let visibleHeight = scrollView.frame.height
+        
+        let delta = offsetY - lastContentOffset
+        let isScrollingUp = delta > deltaThreshold  // scrolling up (towards older messages)
+        let isScrollingDown = delta < -deltaThreshold  // scrolling down (towards newer messages)
+        
+        if (scrollView.isDragging || scrollView.isDecelerating) && offsetY > lastContentOffset && offsetY >= 400 {
             self.messageIndicator?.isHidden = false
         }
-
-        if viewModel.isUIUpdating == false && (scrollView.isDragging || scrollView.isDecelerating) && viewModel.isAllMessagesFetchedInPrevious == false {
-            if yOffset > lastContentOffset && shouldLoadMoreData(scrollView: scrollView) {
-                showTopSpinner()
-                viewModel.fetchPreviousMessages()
-            }
+        
+        if isScrollingUp,
+           !viewModel.isAllMessagesFetchedInPrevious,
+           offsetY + visibleHeight >= (contentHeight * 0.70),
+           !viewModel.isUIUpdating {
+            showTopSpinner()
+            viewModel.fetchPreviousMessages()
         }
-
-        if yOffset <= 50 {
+        
+        if isScrollingDown,
+           !viewModel.isAllMessagesFetchedInNext,
+           offsetY <= 80,
+           !viewModel.isFetchingNext {
+            
+            // Capture the current scroll position before fetching new data
+            oldContentHeight = tableView.contentSize.height
+            oldContentOffset = tableView.contentOffset
+            oldDistanceFromTop = oldContentOffset.y
+            
+            viewModel.fetchNextMessagesForPagination()
+        }
+        
+        if offsetY <= 50 {
             self.messageIndicator?.reset()
             self.messageIndicator?.isHidden = true
         }
-
-        lastContentOffset = yOffset
+        
+        lastContentOffset = offsetY
     }
+
+    func indexPathForMessageWithId(_ anchorId: Int) -> IndexPath? {
+        // Find the message with the anchorId in the data source
+        for (sectionIndex, section) in viewModel.messages.enumerated() {
+            for (rowIndex, message) in section.messages.enumerated() {
+                if message.id == anchorId {
+                    return IndexPath(row: rowIndex, section: sectionIndex)
+                }
+            }
+        }
+        return nil  // Return nil if not found
+    }
+
     
     open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let messageIndicator = self.messageIndicator else { return }
@@ -1225,6 +1501,16 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         // Check if the user has scrolled 60% or more of the content
         return offsetY + visibleHeight >= threshold
     }
+    
+    func visibleIndexPath(forMessageId id: Int) -> IndexPath? {
+        for (sectionIndex, sectionTuple) in viewModel.messages.enumerated() {
+
+            if let rowIndex = sectionTuple.messages.firstIndex(where: { $0.id == id }) {
+                return IndexPath(row: rowIndex, section: sectionIndex)
+            }
+        }
+        return nil
+    }
 
     
 }
@@ -1235,7 +1521,9 @@ extension CometChatMessageList {
     open func scrollViewDidZoom(_ scrollView: UIScrollView) {  }
     
     // called on start of dragging (may require some time and or distance to move)
-    open func scrollViewWillBeginDragging(_ scrollView: UIScrollView) { }
+    open func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        lastContentOffset = scrollView.contentOffset.y
+    }
     
     // called on finger up if the user dragged. velocity is in points/millisecond. targetContentOffset may be changed to adjust where the scroll view comes to rest
     open func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) { }
@@ -1292,6 +1580,14 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
     func onItemClick(messageOption: CometChatMessageOption, forMessage: BaseMessage?, indexPath: IndexPath?) {
         if let message = forMessage {
             switch messageOption.id {
+            case MessageOptionConstants.replyMessage :
+                if messageOption.onItemClick == nil {
+                    CometChatMessageEvents.ccReplyToMessage(message: message, status: .inProgress)
+                } else {
+                    if let forMessage = forMessage {
+                        messageOption.onItemClick?(forMessage)
+                    }
+                }
             case MessageOptionConstants.editMessage :
                 if messageOption.onItemClick == nil {
                     if let forMessage = forMessage {
@@ -1302,6 +1598,14 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                         messageOption.onItemClick?(forMessage)
                     }
                 }
+            case MessageOptionConstants.reportMessage :
+                let vc = CometChatFlagMessage()
+                vc.modalPresentationStyle = .overFullScreen
+                vc.messageId = forMessage?.id
+                vc.flagReasonLocalizer = flagReasonLocalizer
+                vc.hideFlagRemarkFeild = hideFlagRemarkFeild
+                controller?.present(vc, animated: false)
+
             case MessageOptionConstants.deleteMessage :
                 if messageOption.onItemClick == nil {
                     
@@ -1452,4 +1756,15 @@ extension CometChatMessageList {
     func removeKeyboardDismissGesture() {
         self.removeGestureRecognizer(onTapGesture)
     }
+
+    func performAfterNextLayout(_ block: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            self.tableView.layoutIfNeeded()   // Finish current layout
+            DispatchQueue.main.async {        // Wait for next runloop
+                self.tableView.layoutIfNeeded()
+                block()
+            }
+        }
+    }
+
 }

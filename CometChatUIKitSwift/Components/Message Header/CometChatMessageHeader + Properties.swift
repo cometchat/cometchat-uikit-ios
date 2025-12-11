@@ -86,4 +86,26 @@ extension CometChatMessageHeader {
         return self
     }
     
+    @discardableResult
+    public func set(options: [CometChatPopupMenu.MenuItem]?) -> CometChatMessageHeader {
+        self.options = options
+        return self
+    }
+    
+}
+
+
+public struct CometChatPopupMenu {
+
+    public struct MenuItem {
+        let title: String
+        let icon: UIImage
+        let action: (() -> Void)?
+
+        public init(title: String, icon: UIImage, action: (() -> Void)? = nil) {
+            self.title = title
+            self.icon = icon
+            self.action = action
+        }
+    }
 }

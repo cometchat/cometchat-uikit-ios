@@ -26,6 +26,7 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
                let cell,
                let message,
                message.deletedAt == 0,
+               message.id > 0,
                !isContextMenuActive
             {
                 self.controller?.view.endEditing(true)

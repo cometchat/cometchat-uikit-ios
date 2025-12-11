@@ -307,3 +307,14 @@
 "DONE" = "تم";
 "PHOTO_LIBRARY" = "مكتبة الصور";
 "VIDEO_LIBRARY" = "مكتبة الفيديو";
+
+
+"REPORT_A_MESSAGE" = "تقرير";
+"REPORT_MESSAGE_SUBTITLE" = "قم بالإبلاغ عن هذه المحادثة إذا كانت تتعارض مع معايير المجتمع الخاصة بنا. لن نخبر الحساب الذي أبلغت عنه.";
+"REPORT" = "تقرير";
+"REASON" = "السبب";
+"OPTIONAL" = "اختياري";
+"REPORT_MESSAGE_PLACEHOLDER" = "قم بتوفير سياق إضافي لتقريرك...";
+"SPAM" = "بريد مؤذي";
+"SEXUAL_CONTENT" = "المحتوى الجنسي";
+"HARASSMENT_BULLYING" = "التحرش والتنمر";

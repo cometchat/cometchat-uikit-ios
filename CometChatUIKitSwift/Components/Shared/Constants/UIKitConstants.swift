@@ -6,7 +6,7 @@ public struct UIConstants {
 }
 
 internal struct UIKitConstants {
-    static var version = "5.1.2"
+    static var version = "5.1.3"
     static var messageId = "messageId"
     static var conversationId = "conversationId"
     static var senderId = "senderId"
@@ -78,6 +78,7 @@ public struct  MessageOptionConstants {
     public static var shareMessage = "shareMessage"
     public static var messagePrivately = "messagePrivately"
     public static var forwardMessage = "forwardMessage"
+    public static var reportMessage = "reportMessage"
 }
 
 @objc public enum MessageBubbleAlignment: Int {
