@@ -153,6 +153,9 @@ extension CometChatSuggestionView: UITableViewDataSource, UITableViewDelegate {
         if let listItem = tableView.dequeueReusableCell(withIdentifier: CometChatListItem.identifier, for: indexPath) as? CometChatListItem {
             let data = self.suggestionItems[indexPath.row]
             
+            listItem.titleLabel.font = style.textFont
+            listItem.titleLabel.textColor = style.textColor
+            
             listItem.layoutMargin = .init(
                 top: CometChatSpacing.Padding.p2,
                 leading: CometChatSpacing.Padding.p4,
@@ -167,16 +170,40 @@ extension CometChatSuggestionView: UITableViewDataSource, UITableViewDelegate {
                 listItem.avatar.style = avatarStyle
             }
             
-            listItem.set(title: data.name ?? "")
+            if data.name?.contains(where: {$0 == "@"}) == true{
+                let notifyText = "(Notify everyone in this group)"
+                let titleText = "\(data.name ?? "")  \(notifyText)"
+
+                let defaultAttributes: [NSAttributedString.Key: Any] = [
+                    .font: style.textFont,
+                    .foregroundColor: style.textColor
+                ]
+                let fullTitle = NSMutableAttributedString(string: titleText, attributes: defaultAttributes)
+                if let range = titleText.range(of: notifyText) {
+                    let nsRange = NSRange(range, in: titleText)
+                    fullTitle.addAttribute(.foregroundColor, value: CometChatTheme.textColorSecondary, range: nsRange)
+                    fullTitle.addAttribute(.font, value: CometChatTypography.Button.regular, range: nsRange)
+                }
+                listItem.set(attributedTitle: fullTitle)
+            } else {
+                listItem.set(title: data.name ?? "")
+            }
+            
             listItem.hide(avatar: data.hideLeftIcon)
             listItem.allow(selection: false)
             
             //Setting Styling
-            listItem.set(avatarURL: data.leftIconUrl ?? "", with: data.name) 
-            if let avatarImage = data.leftIconImage { listItem.avatar.set(image: avatarImage) }
+            if let str = data.leftIconUrl {
+                if isValidURL(str){
+                    listItem.set(avatarURL: str)
+                } else {
+                    listItem.set(avatarURL: "", with: str)
+                }
+            } else {
+                listItem.set(avatarURL: data.leftIconUrl ?? "", with: data.name)
+            }
             
-            listItem.titleLabel.font = style.textFont
-            listItem.titleLabel.textColor = style.textColor
+            if let avatarImage = data.leftIconImage { listItem.avatar.set(image: avatarImage) }
             
             if !data.hideLeftIcon {
                 listItem.statusIndicator.style = statusIndicatorStyle
@@ -207,4 +234,13 @@ extension CometChatSuggestionView: UITableViewDataSource, UITableViewDelegate {
             })
         }
     }
+    func isValidURL(_ urlString: String) -> Bool {
+            if let url = URL(string: urlString) {
+                // Further checks can be added here if needed,
+                // e.g., checking for specific schemes (http, https)
+                // or ensuring a host exists.
+                return url.scheme != nil && url.host != nil
+            }
+            return false
+        }
 }

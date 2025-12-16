@@ -155,4 +155,12 @@ extension CometChatConversations {
     public func getConversationList() -> [Conversation] {
         return viewModel.conversations
     }
+
+    @discardableResult
+    public func setMentionAllLabel(_ id: String, _ label: String)  -> Self{
+        if let mentionFormatter = textFormatters.first(where: { $0 is CometChatMentionsFormatter }) as? CometChatMentionsFormatter {
+            mentionFormatter.setMentionAllLabel(id: id, label: label)
+        }
+        return self
+    }
 }

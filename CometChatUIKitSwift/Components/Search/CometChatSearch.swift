@@ -731,7 +731,7 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
                 listItem.style = style
                 listItem.set(subtitle: SearchUtils.configureMessageSubtitleView(
                     message: message,
-                    searchStyle: style,
+                    searchStyle: style, textFormatter: textFormatters,
                     searchKeyword: searchController.searchBar.text ?? ""
                 ))
                 listItem.set(tail: SearchUtils().configureMessageTailView(

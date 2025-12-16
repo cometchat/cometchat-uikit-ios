@@ -347,5 +347,13 @@ extension CometChatMessageList {
     public func getAdditionalConfiguration() -> AdditionalConfiguration {
         return viewModel.additionalConfiguration
     }
+
+    @discardableResult
+    public func setMentionAllLabel(_ id: String, _ label: String) -> Self{
+        if let mentionFormatter = viewModel.textFormatters.first(where: { $0 is CometChatMentionsFormatter }) as? CometChatMentionsFormatter {
+            mentionFormatter.setMentionAllLabel(id: id, label: label)
+        }
+        return self
+    }
     
 }

@@ -177,6 +177,7 @@ public class SearchUtils {
     static func configureMessageSubtitleView(
         message: BaseMessage,
         searchStyle: SearchStyle,
+        textFormatter: [CometChatTextFormatter]?,
         searchKeyword: String
     ) -> UIView {
         let label = UILabel()
@@ -186,19 +187,67 @@ public class SearchUtils {
 
         let content = (message as? TextMessage)?.text ?? ""
         
-        if searchKeyword.isEmpty {
-            label.text = content
-        } else {
-            let highlighted = highlightKeyword(
-                in: content,
-                keyword: searchKeyword,
-                font: searchStyle.listItemSubTitleFont,
-                highlightFont: UIFont.boldSystemFont(ofSize: searchStyle.listItemSubTitleFont.pointSize)
+        var attributedText: NSMutableAttributedString
+
+        if let formatters = textFormatter,
+           !formatters.isEmpty,
+           let textMessage = message as? TextMessage {
+
+            let processed = MessageUtils.processTextFormatter(
+                message: textMessage,
+                textFormatter: formatters,
+                formattingType: .MESSAGE_BUBBLE
             )
-            label.attributedText = highlighted
+            attributedText = NSMutableAttributedString(attributedString: processed)
+//            {
+//                
+//            } else {
+//                attributedText = NSMutableAttributedString(string: content)
+//            }
+
+        } else {
+            attributedText = NSMutableAttributedString(string: content)
         }
 
+        if !searchKeyword.isEmpty {
+            applySearchHighlight(
+                to: attributedText,
+                keyword: searchKeyword,
+                normalFont: searchStyle.listItemSubTitleFont,
+                highlightFont: UIFont.boldSystemFont(ofSize: searchStyle.listItemSubTitleFont.pointSize)
+            )
+        }
+
+        label.attributedText = attributedText
         return label
+    }
+
+    static func applySearchHighlight(
+        to attributedText: NSMutableAttributedString,
+        keyword: String,
+        normalFont: UIFont,
+        highlightFont: UIFont
+    ) {
+        let text = attributedText.string.lowercased()
+        let search = keyword.lowercased()
+
+        var searchRange = NSRange(location: 0, length: attributedText.length)
+
+        while let range = text.range(of: search, options: [], range: Range(searchRange, in: text)) {
+            let nsRange = NSRange(range, in: text)
+
+            // IMPORTANT: Preserve ALL existing attributes, only change the font
+            attributedText.enumerateAttributes(in: nsRange, options: []) { attrs, _, _ in
+                var newAttrs = attrs
+                newAttrs[.font] = highlightFont
+                newAttrs[.foregroundColor] = CometChatTheme.primaryColor
+                newAttrs[.backgroundColor] = UIColor.clear
+                attributedText.setAttributes(newAttrs, range: nsRange)
+            }
+
+            let nextLocation = nsRange.location + nsRange.length
+            searchRange = NSRange(location: nextLocation, length: attributedText.length - nextLocation)
+        }
     }
 
     

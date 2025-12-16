@@ -19,9 +19,13 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
     var mentionsType: MentionsType = MentionsType.usersAndGroupMembers
     var visibility: MentionsVisibility = .both
     
+    public var disableMentionAll: Bool = false
+    public var mentionAllId: String = "all"
+    public var mentionAllLabel: String = "all"
     
-    //Static style
-    public static var composerTextStyle: MentionTextStyle = {
+    
+    // Shared (computed) styles so they reflect updated fonts/colors when language/theme changes
+    public static var composerTextStyle: MentionTextStyle {
         var mentionStyle = MentionTextStyle()
         mentionStyle.textColor = CometChatTheme.primaryColor
         mentionStyle.textBackgroundColor = .clear
@@ -30,9 +34,9 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
         mentionStyle.loggedInUserTextColor = CometChatTheme.warningColor
         mentionStyle.loggedInUserTextBackgroundColor = .clear
         return mentionStyle
-    }()
+    }
     
-    public static var conversationListTextStyle: MentionTextStyle = {
+    public static var conversationListTextStyle: MentionTextStyle {
         var mentionStyle = MentionTextStyle()
         mentionStyle.textColor = CometChatTheme.primaryColor
         mentionStyle.textBackgroundColor = CometChatTheme.primaryColor.withAlphaComponent(0.2)
@@ -41,9 +45,9 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
         mentionStyle.loggedInUserTextColor = CometChatTheme.warningColor
         mentionStyle.loggedInUserTextBackgroundColor = CometChatTheme.warningColor.withAlphaComponent(0.2)
         return mentionStyle
-    }()
+    }
     
-    public static var leftBubbleTextStyle: MentionTextStyle = {
+    public static var leftBubbleTextStyle: MentionTextStyle {
         var mentionStyle = MentionTextStyle()
         mentionStyle.textColor = CometChatTheme.primaryColor
         mentionStyle.textBackgroundColor = CometChatTheme.primaryColor.withAlphaComponent(0.2)
@@ -52,9 +56,9 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
         mentionStyle.loggedInUserTextColor = CometChatTheme.warningColor
         mentionStyle.loggedInUserTextBackgroundColor = CometChatTheme.warningColor.withAlphaComponent(0.2)
         return mentionStyle
-    }()
+    }
     
-    public static var rightBubbleTextStyle: MentionTextStyle = {
+    public static var rightBubbleTextStyle: MentionTextStyle {
         var mentionStyle = MentionTextStyle()
         mentionStyle.textColor = CometChatTheme.white
         mentionStyle.textBackgroundColor = CometChatTheme.white.withAlphaComponent(0.2)
@@ -63,13 +67,21 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
         mentionStyle.loggedInUserTextColor = CometChatTheme.warningColor
         mentionStyle.loggedInUserTextBackgroundColor = CometChatTheme.warningColor.withAlphaComponent(0.2)
         return mentionStyle
-    }()
+    }
     
-    //Local Styling
-    public lazy var rightBubbleTextStyle = CometChatMentionsFormatter.rightBubbleTextStyle
-    public lazy var leftBubbleTextStyle = CometChatMentionsFormatter.leftBubbleTextStyle
-    public lazy var conversationListTextStyle = CometChatMentionsFormatter.conversationListTextStyle
-    public lazy var composerTextStyle = CometChatMentionsFormatter.composerTextStyle
+    // Instance (mutable) styling - initialized from computed shared styles
+    public var rightBubbleTextStyle = CometChatMentionsFormatter.rightBubbleTextStyle
+    public var leftBubbleTextStyle = CometChatMentionsFormatter.leftBubbleTextStyle
+    public var conversationListTextStyle = CometChatMentionsFormatter.conversationListTextStyle
+    public var composerTextStyle = CometChatMentionsFormatter.composerTextStyle
+    
+    // Call this when language/typography/theme changes to refresh instance styles
+    public func reloadStyles() {
+        self.rightBubbleTextStyle = CometChatMentionsFormatter.rightBubbleTextStyle
+        self.leftBubbleTextStyle = CometChatMentionsFormatter.leftBubbleTextStyle
+        self.conversationListTextStyle = CometChatMentionsFormatter.conversationListTextStyle
+        self.composerTextStyle = CometChatMentionsFormatter.composerTextStyle
+    }
     
     public enum MentionsType {
         case usersAndGroupMembers
@@ -90,7 +102,8 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
     }
     
     open override func getRegex() -> String {
-        return "<@uid:(.*?)>"
+        let escapedAllId = NSRegularExpression.escapedPattern(for: mentionAllId)
+        return "<@(?:uid|all):([^>]+)>"
     }
     
     open override func search(string: String, suggestedItems listItemModelCallBack: ((_: [SuggestionItem]) -> ())? = nil) {
@@ -155,6 +168,30 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
         
         groupMemberRequestBuilder?.fetchNext(onSuccess: { users in
             var listItemModel = [SuggestionItem]()
+            
+            let trimmed = string.trimmingCharacters(in: .whitespaces)
+            let alias = self.mentionAllLabel.lowercased()
+            let query = trimmed.lowercased()
+            
+            if self.disableMentionAll == false,
+               self.group != nil,
+               (query.isEmpty || alias.hasPrefix(query)) {
+
+                let style = self.composerTextStyle.getLoggedInUserTextAttributes()
+
+                let allItem = SuggestionItem(
+                    id: self.mentionAllId,
+                    name: "@\(self.mentionAllLabel)",
+                    leftIconUrl: group.icon ?? group.name,
+                    visibleText: "@\(self.mentionAllLabel)",
+                    underlyingText: "<@\("all"):\(self.mentionAllId)>",
+                    visibleTextAttributes: style,
+                    status: .offline
+                )
+
+                listItemModel.append(allItem)
+            }
+            
             for user in users {
                 listItemModel.append(self.buildSuggestionItem(user: user))
             }
@@ -221,20 +258,49 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
     
     open override func handlePreMessageSend(baseMessage: BaseMessage, suggestionItemList: [SuggestionItem]) {
         suggestionItemList.forEach { suggestionItem in
+            if suggestionItem.id == mentionAllId {
+                baseMessage.metaData?["mentionedAll"] = true   // optional metadata
+            }
+
             let user = User(uid: suggestionItem.id ?? "", name: suggestionItem.name ?? "")
             baseMessage.mentionedUsers.append(user)
         }
     }
     
-    open override func prepareMessageString(baseMessage: BaseMessage, regexString: String, alignment: MessageBubbleAlignment = .right, formattingType: FormattingType) -> NSAttributedString {
+    open override func prepareMessageString(
+        baseMessage: BaseMessage,
+        regexString: String,
+        alignment: MessageBubbleAlignment = .right,
+        formattingType: FormattingType
+    ) -> NSAttributedString {
+
+        if regexString == mentionAllId {
+            let style = getNSAttributesForAllMention(alignment: alignment, formattingType: formattingType)
+            return NSAttributedString(string: "@\(mentionAllLabel)", attributes: style)
+        }
+
         for user in baseMessage.mentionedUsers {
             if user.uid == regexString {
                 let style = getNSAttributes(for: user, alignment: alignment, formattingType: formattingType)
                 return NSAttributedString(string: "@\(user.name ?? "")", attributes: style)
             }
         }
-        return NSAttributedString(string: "")
+
+        return NSAttributedString(string: "@\(regexString)")
     }
+
+    
+    func getNSAttributesForAllMention(alignment: MessageBubbleAlignment, formattingType: FormattingType) -> [NSAttributedString.Key: Any] {
+        switch formattingType {
+        case .MESSAGE_BUBBLE:
+            return alignment == .left ? leftBubbleTextStyle.getLoggedInUserTextAttributes() : rightBubbleTextStyle.getLoggedInUserTextAttributes()
+        case .COMPOSER:
+            return composerTextStyle.getLoggedInUserTextAttributes()
+        case .CONVERSATION_LIST:
+            return conversationListTextStyle.getLoggedInUserTextAttributes()
+        }
+    }
+
     
     open func getNSAttributes(for user: User, alignment: MessageBubbleAlignment, formattingType: FormattingType) -> [NSAttributedString.Key: Any] {
         switch formattingType {
@@ -329,5 +395,19 @@ extension CometChatMentionsFormatter {
         self.visibility = visibility
         return self
     }
+    
+    @discardableResult
+    public func setDisableMentionAll(_ disable: Bool) -> Self {
+        self.disableMentionAll = disable
+        return self
+    }
+
+    @discardableResult
+    public func setMentionAllLabel(id: String, label: String) -> Self {
+        self.mentionAllId = id
+        self.mentionAllLabel = label
+        return self
+    }
+
     
 }
