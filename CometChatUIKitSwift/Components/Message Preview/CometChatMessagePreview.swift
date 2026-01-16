@@ -51,10 +51,28 @@ open class CometChatMessagePreview: UIView {
         self.message = message
         super.init(frame: .null)
         buildUI()
+        setupNotificationObserver()
     }
     
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupNotificationObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: NSNotification.Name("CometChatThemeChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleThemeChange() {
+        setupStyle()
     }
     
     open override func willMove(toWindow newWindow: UIWindow?) {

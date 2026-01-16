@@ -13,6 +13,8 @@ class UserDetailsViewController: UIViewController, CometChatConversationEventLis
 
     // MARK: - UI Components
     public var user: User?
+    public let scrollView = UIScrollView()
+    public let contentView = UIView()
     
     public lazy var userImageView: CometChatAvatar = {
         let imageView = CometChatAvatar(frame: .null)
@@ -163,7 +165,9 @@ class UserDetailsViewController: UIViewController, CometChatConversationEventLis
     // MARK: - Lifecycle Methods
     override public func viewDidLoad() {
         super.viewDidLoad()
-        
+        view.backgroundColor = CometChatTheme.backgroundColor01
+        setupScrollView()
+        setupLayout()
     }
     
     public init() {
@@ -176,7 +180,6 @@ class UserDetailsViewController: UIViewController, CometChatConversationEventLis
     }
     
     override public func viewWillAppear(_ animated: Bool) {
-        setupLayout()
         setupNavigationBar()
         if let user = user{
             updateUserStatus(user: user)
@@ -194,59 +197,76 @@ class UserDetailsViewController: UIViewController, CometChatConversationEventLis
         navigationController?.navigationBar.tintColor = CometChatTheme.iconColorPrimary
     }
     
+    // MARK: - Setup ScrollView and ContentView
+    public func setupScrollView() {
+        view.addSubview(scrollView)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        
+        scrollView.addSubview(contentView)
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+        contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
+        contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
+        contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
+        contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
+    }
+    
     // MARK: - Setup Layout
     public func setupLayout() {
         
-        view.backgroundColor = CometChatTheme.backgroundColor01
-        
         var constantsToActive = [NSLayoutConstraint]()
         
-        view.addSubview(userImageView)
+        contentView.addSubview(userImageView)
         constantsToActive += [
-            userImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
-            userImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0)
+            userImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 25),
+            userImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor, constant: 0)
         ]
         
-        view.addSubview(userNameLabel)
+        contentView.addSubview(userNameLabel)
         constantsToActive += [
             userNameLabel.topAnchor.constraint(equalTo: userImageView.bottomAnchor, constant: CometChatSpacing.Padding.p3),
             userNameLabel.centerXAnchor.constraint(equalTo: userImageView.centerXAnchor, constant: 0)
         ]
         
-        view.addSubview(statusLabel)
+        contentView.addSubview(statusLabel)
         constantsToActive += [
             statusLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 3),
             statusLabel.centerXAnchor.constraint(equalTo: userNameLabel.centerXAnchor, constant: 0)
         ]
         
-        view.addSubview(buttonContainerStackView)
+        contentView.addSubview(buttonContainerStackView)
         #if canImport(CometChatCallsSDK)
         buttonContainerStackView.addArrangedSubview(audioCallButton)
         buttonContainerStackView.addArrangedSubview(videoCallButton)
         #endif
         constantsToActive += [
             buttonContainerStackView.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: CometChatSpacing.Padding.p5),
-            buttonContainerStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 60),
-            buttonContainerStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -60)
+            buttonContainerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 60),
+            buttonContainerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -60)
         ]
         
-        view.addSubview(separatorView)
+        contentView.addSubview(separatorView)
         constantsToActive += [
             separatorView.topAnchor.constraint(equalTo: buttonContainerStackView.bottomAnchor, constant: CometChatSpacing.Padding.p5),
-            separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            separatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            separatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ]
         
-        view.addSubview(blockButton)
+        contentView.addSubview(blockButton)
         constantsToActive += [
             blockButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: CometChatSpacing.Padding.p5),
-            blockButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: CometChatSpacing.Padding.p5),
+            blockButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: CometChatSpacing.Padding.p5),
         ]
         
-        view.addSubview(deleteChatButton)
+        contentView.addSubview(deleteChatButton)
         constantsToActive += [
             deleteChatButton.topAnchor.constraint(equalTo: blockButton.bottomAnchor, constant: CometChatSpacing.Padding.p5),
-            deleteChatButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: CometChatSpacing.Padding.p5),
+            deleteChatButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: CometChatSpacing.Padding.p5),
+            deleteChatButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ]
         
         NSLayoutConstraint.activate(constantsToActive)

@@ -8,11 +8,21 @@
 import UIKit
 
 public struct BadgeStyle {
-        
-    public var textColor: UIColor = CometChatTheme.buttonIconColor
+    
+    private var _backgroundColor: UIColor?
+    public var backgroundColor: UIColor {
+        get { return _backgroundColor ?? CometChatTheme.primaryColor }
+        set { _backgroundColor = newValue }
+    }
+    
+    private var _textColor: UIColor?
+    public var textColor: UIColor {
+        get { return _textColor ?? CometChatTheme.buttonIconColor }
+        set { _textColor = newValue }
+    }
+    
     public var textFont: UIFont = CometChatTypography.Caption1.regular
     public var cornerRadius : CometChatCornerStyle? = nil
-    public var backgroundColor : UIColor = CometChatTheme.primaryColor
     public var borderWidth : CGFloat = 0.5
     public var borderColor : CGColor = UIColor.clear.cgColor
 

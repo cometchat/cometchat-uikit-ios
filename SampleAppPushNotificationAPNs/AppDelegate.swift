@@ -15,11 +15,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let cometchatAPNsHelper = CometChatAPNsHelper()
     var currentChatIdentifier: String?
     var currentChatType: String?
+    var window : UIWindow?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
         cometchatAPNsHelper.configurePushNotification(application: application, delegate: self)
         UNUserNotificationCenter.current().delegate = self
-        
+
         return true
     }
 

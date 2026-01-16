@@ -13,7 +13,13 @@ public struct ActionSheetStyle{
     public var borderWidth: CGFloat = 0
     public var borderColor: UIColor = .clear
     public var cornerRadius: CometChatCornerStyle? = nil
-    public var imageTintColor: UIColor = CometChatTheme.iconColorHighlight
+    
+    private var _imageTintColor: UIColor?
+    public var imageTintColor: UIColor {
+        get { return _imageTintColor ?? CometChatTheme.iconColorHighlight }
+        set { _imageTintColor = newValue }
+    }
+    
     public var textFont: UIFont = CometChatTypography.Heading4.regular
     public var textColor: UIColor = CometChatTheme.textColorPrimary
     

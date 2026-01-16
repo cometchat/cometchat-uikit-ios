@@ -29,9 +29,21 @@ public struct CallBubbleStyle: BaseMessageBubbleStyle {
     public var titleTextColor: UIColor = CometChatTheme.white
     public var subtitleTextFont: UIFont = CometChatTypography.Caption1.regular
     public var subtitleTextColor: UIColor = CometChatTheme.white
-    public var joinButtonTextColor: UIColor = CometChatTheme.white
+    
+    private var _joinButtonTextColor: UIColor?
+    public var joinButtonTextColor: UIColor {
+        get { return _joinButtonTextColor ?? CometChatTheme.textColorHighlight }
+        set { _joinButtonTextColor = newValue }
+    }
+    
     public var joinButtonTextFont: UIFont = CometChatTypography.Button.medium
-    public var callImageTintColor: UIColor = CometChatTheme.iconColorHighlight
+    
+    private var _callImageTintColor: UIColor?
+    public var callImageTintColor: UIColor {
+        get { return _callImageTintColor ?? CometChatTheme.iconColorHighlight }
+        set { _callImageTintColor = newValue }
+    }
+    
     public var audioCallImage: UIImage = UIImage(systemName: "phone.arrow.down.left.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     public var videoCallImage: UIImage = UIImage(systemName: "arrow.down.left.video.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     public var callImageBackgroundColor : UIColor = CometChatTheme.white
@@ -52,14 +64,16 @@ public struct CallBubbleStyle: BaseMessageBubbleStyle {
         case .incoming:
             titleTextColor = CometChatTheme.neutralColor900
             subtitleTextColor = CometChatTheme.neutralColor600
-            joinButtonTextColor = CometChatTheme.textColorHighlight
+            // Don't set _joinButtonTextColor for incoming - let it use computed property
+            // which will fetch CometChatTheme.textColorHighlight dynamically
+            _joinButtonTextColor = nil  // This will make it use textColorHighlight
             videoCallImage = UIImage(systemName: "arrow.down.left.video.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
             audioCallImage = UIImage(systemName: "phone.arrow.down.left.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
             separatorBackgroundColor = CometChatTheme.borderColorDark
         case .outgoing:
             titleTextColor = CometChatTheme.white
             subtitleTextColor = CometChatTheme.white
-            joinButtonTextColor = CometChatTheme.white
+            _joinButtonTextColor = CometChatTheme.white
             videoCallImage = UIImage(systemName: "arrow.up.right.video.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
             audioCallImage = UIImage(systemName: "phone.arrow.up.right.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
             separatorBackgroundColor = CometChatTheme.white.withAlphaComponent(0.3)

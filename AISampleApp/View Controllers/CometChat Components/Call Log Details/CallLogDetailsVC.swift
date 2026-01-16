@@ -14,10 +14,19 @@ import CometChatCallsSDK
 
 public class CallLogDetailsVC: UIViewController {
     
+    // MARK: - Constraint Properties
+    private var userInfoHeightConstraint: NSLayoutConstraint?
+    private var currentCallHeightConstraint: NSLayoutConstraint?
+    private var avatarHeightConstraint: NSLayoutConstraint?
+    private var avatarWidthConstraint: NSLayoutConstraint?
+    private var tabsHeightConstraint: NSLayoutConstraint?
+    private var topSpacingConstraint: NSLayoutConstraint?
+    private var detailSpacingConstraint: NSLayoutConstraint?
+    private var tabSpacingConstraint: NSLayoutConstraint?
+    
     public lazy var userInfoView: CometChatMessageHeader = {
         let view = CometChatMessageHeader()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.heightAnchor.constraint(equalToConstant: 65).isActive = true
         view.backgroundColor = .yellow
         view.titleLabel.font = CometChatTypography.Heading4.medium
         view.subtitleLabel.font = CometChatTypography.Body.regular
@@ -56,7 +65,6 @@ public class CallLogDetailsVC: UIViewController {
     public lazy var currentCallDetailView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.heightAnchor.constraint(equalToConstant: 72).isActive = true
         view.backgroundColor = CometChatTheme.backgroundColor03
         view.layer.cornerRadius = 4
         return view
@@ -118,6 +126,8 @@ public class CallLogDetailsVC: UIViewController {
         collectionView.dataSource = self
         collectionView.register(TabCell.self, forCellWithReuseIdentifier: "TabCell")
         collectionView.backgroundColor = .clear
+        collectionView.isScrollEnabled = false
+        collectionView.showsHorizontalScrollIndicator = false
         return collectionView
     }()
     
@@ -185,6 +195,43 @@ public class CallLogDetailsVC: UIViewController {
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: true)
+        updateNavigationBarForOrientation()
+    }
+    
+    public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        coordinator.animate(alongsideTransition: { [weak self] context in
+            guard let self = self else { return }
+            
+            // Update navigation bar
+            if size.width > size.height {
+                self.navigationItem.largeTitleDisplayMode = .never
+            } else {
+                self.navigationItem.largeTitleDisplayMode = .always
+            }
+            
+            // Update constraints for new orientation
+            self.updateLayoutForOrientation(size: size)
+            
+            // Force layout update
+            self.view.layoutIfNeeded()
+            
+            // Invalidate collection view layout
+            self.tabsCollectionView.collectionViewLayout.invalidateLayout()
+            
+        }, completion: { [weak self] _ in
+            self?.tabsCollectionView.reloadData()
+        })
+    }
+    
+    private func updateNavigationBarForOrientation() {
+        let isLandscape = view.bounds.width > view.bounds.height
+        if isLandscape {
+            navigationItem.largeTitleDisplayMode = .never
+        } else {
+            navigationItem.largeTitleDisplayMode = .always
+        }
     }
     
     public func buildUI() {
@@ -200,21 +247,34 @@ public class CallLogDetailsVC: UIViewController {
         view.addSubview(tabsCollectionView)
         view.addSubview(separatorView)
         userInfoView.backButton.removeFromSuperview()
+        
+        // Create constraint references
+        userInfoHeightConstraint = userInfoView.heightAnchor.constraint(equalToConstant: 65)
+        currentCallHeightConstraint = currentCallDetailView.heightAnchor.constraint(equalToConstant: 72)
+        avatarHeightConstraint = userInfoView.avatar.heightAnchor.constraint(equalToConstant: 60)
+        avatarWidthConstraint = userInfoView.avatar.widthAnchor.constraint(equalToConstant: 60)
+        tabsHeightConstraint = tabsCollectionView.heightAnchor.constraint(equalToConstant: 50)
+        topSpacingConstraint = userInfoView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 7)
+        detailSpacingConstraint = currentCallDetailView.topAnchor.constraint(equalTo: userInfoView.bottomAnchor, constant: 20)
+        tabSpacingConstraint = tabsCollectionView.topAnchor.constraint(equalTo: currentCallDetailView.bottomAnchor, constant: 12)
+        
         NSLayoutConstraint.activate([
             userInfoView.tailView.centerYAnchor.constraint(equalTo: userInfoView.avatar.centerYAnchor),
             userInfoView.avatar.leadingAnchor.constraint(equalTo: userInfoView.leadingAnchor, constant: 16),
-            userInfoView.avatar.heightAnchor.constraint(equalToConstant: 60),
-            userInfoView.avatar.widthAnchor.constraint(equalToConstant: 60),
-            userInfoView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 7),
+            avatarHeightConstraint!,
+            avatarWidthConstraint!,
+            userInfoHeightConstraint!,
+            topSpacingConstraint!,
             userInfoView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             userInfoView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            currentCallDetailView.topAnchor.constraint(equalTo: userInfoView.bottomAnchor, constant: 20),
+            detailSpacingConstraint!,
             currentCallDetailView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             currentCallDetailView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            tabsCollectionView.topAnchor.constraint(equalTo: currentCallDetailView.bottomAnchor, constant: 12),
+            currentCallHeightConstraint!,
+            tabSpacingConstraint!,
             tabsCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tabsCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tabsCollectionView.heightAnchor.constraint(equalToConstant: 50),
+            tabsHeightConstraint!,
             tabsCollectionView.bottomAnchor.constraint(equalTo: separatorView.topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
@@ -279,6 +339,22 @@ public class CallLogDetailsVC: UIViewController {
         
         tabsCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .centeredHorizontally)
         
+        // Set initial orientation
+        updateLayoutForOrientation(size: view.bounds.size)
+    }
+    
+    private func updateLayoutForOrientation(size: CGSize) {
+        let isLandscape = size.width > size.height
+        
+        // Update all constraints
+        userInfoHeightConstraint?.constant = isLandscape ? 50 : 65
+        currentCallHeightConstraint?.constant = isLandscape ? 60 : 72
+        avatarHeightConstraint?.constant = isLandscape ? 40 : 60
+        avatarWidthConstraint?.constant = isLandscape ? 40 : 60
+        tabsHeightConstraint?.constant = isLandscape ? 40 : 50
+        topSpacingConstraint?.constant = isLandscape ? 4 : 7
+        detailSpacingConstraint?.constant = isLandscape ? 8 : 20
+        tabSpacingConstraint?.constant = isLandscape ? 8 : 12
     }
     
     public func setupPageViewController() {
@@ -338,7 +414,9 @@ extension CallLogDetailsVC: UICollectionViewDelegate, UICollectionViewDataSource
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.width / CGFloat(tabNames.count), height: 50)
+        let width = collectionView.bounds.width / CGFloat(tabNames.count)
+        let height = collectionView.bounds.height
+        return CGSize(width: width, height: height)
     }
 }
 

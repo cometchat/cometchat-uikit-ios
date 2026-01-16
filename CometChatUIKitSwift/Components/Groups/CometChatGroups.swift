@@ -76,6 +76,7 @@ open class CometChatGroups: CometChatListBase {
     public let groupsRequestBuilder : GroupsRequest.GroupsRequestBuilder = GroupsBuilder.getDefaultRequestBuilder()
     public var tickButton: [UIBarButtonItem]?
     public var joiningGroupAlert: UIAlertController?
+    public var bannedFromGroupAlert : UIAlertController?
     
     public var hideGroupType: Bool = false
 
@@ -286,6 +287,15 @@ open class CometChatGroups: CometChatListBase {
                 // Calls the onError closure to handle the error.
                 this.onError?(error)
                 // Hides the footer loading indicator and refresh control.
+                DispatchQueue.main.async {
+                    if this.joiningGroupAlert != nil {
+                        this.hideJoiningGroupAlert(completion: {
+                            this.showBannedUserAlert()
+                        })
+                    } else {
+                        this.showBannedUserAlert()
+                    }
+                }
                 this.hideFooterIndicator()
                 this.refreshControl.endRefreshing()
                 this.removeLoadingView()
@@ -375,6 +385,13 @@ open class CometChatGroups: CometChatListBase {
     
     open func hideJoiningGroupAlert(completion: @escaping (() -> Void)) {
         joiningGroupAlert?.dismiss(animated: true, completion: completion)
+    }
+    
+    open func showBannedUserAlert() {
+        bannedFromGroupAlert = UIAlertController(title: "Can't join group", message: "BANNED_FROM_GROUP".localize(), preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK".localize(), style: .default, handler: nil)
+        bannedFromGroupAlert?.addAction(okAction)
+        self.present(bannedFromGroupAlert!, animated: true, completion: nil)
     }
 }
 

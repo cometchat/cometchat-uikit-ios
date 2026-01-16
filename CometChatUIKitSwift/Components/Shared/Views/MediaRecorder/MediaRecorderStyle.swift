@@ -13,7 +13,11 @@ public struct MediaRecorderStyle {
     public var borderWidth: CGFloat = 1
     public var borderColor: UIColor = CometChatTheme.borderColorLight
     public var cornerRadius: CometChatCornerStyle? = nil
-    public var recordingButtonBackgroundColor: UIColor = CometChatTheme.iconColorHighlight
+    private var _recordingButtonBackgroundColor: UIColor?
+    public var recordingButtonBackgroundColor: UIColor {
+        get { _recordingButtonBackgroundColor ?? CometChatTheme.iconColorHighlight }
+        set { _recordingButtonBackgroundColor = newValue }
+    }
     public var recordingButtonCornerRadius: CometChatCornerStyle? = nil
     public var recordingButtonBorderWidth: CGFloat = 0
     public var recordingButtonBorderColor: UIColor = .clear
@@ -35,24 +39,40 @@ public struct MediaRecorderStyle {
     public var stopButtonBorderColor: UIColor = CometChatTheme.borderColorLight
     
     public var sendButtonBackgroundColor: UIColor = CometChatTheme.backgroundColor01
-    public var sendButtonImageTintColor: UIColor = CometChatTheme.iconColorHighlight
+    private var _sendButtonImageTintColor: UIColor?
+    public var sendButtonImageTintColor: UIColor {
+        get { _sendButtonImageTintColor ?? CometChatTheme.iconColorHighlight }
+        set { _sendButtonImageTintColor = newValue }
+    }
     public var sendButtonImage: UIImage = UIImage(named: "custom-send", in: CometChatUIKit.bundle, with: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     public var sendButtonBorderWidth: CGFloat = 1
     public var sendButtonBorderColor: UIColor = CometChatTheme.borderColorLight
     public var sendButtonCornerRadius: CometChatCornerStyle? = nil
     
-    public var playButtonImageTintColor: UIColor = CometChatTheme.errorColor
+    private var _playButtonImageTintColor: UIColor?
+    public var playButtonImageTintColor: UIColor {
+        get { _playButtonImageTintColor ?? CometChatTheme.primaryColor }
+        set { _playButtonImageTintColor = newValue }
+    }
     public var playButtonBackgroundColor: UIColor = CometChatTheme.white
     
     public var pauseButtonBackgroundColor: UIColor = CometChatTheme.backgroundColor01
-    public var pauseButtonImageTintColor: UIColor = CometChatTheme.errorColor
+    private var _pauseButtonImageTintColor: UIColor?
+    public var pauseButtonImageTintColor: UIColor {
+        get { _pauseButtonImageTintColor ?? CometChatTheme.primaryColor }
+        set { _pauseButtonImageTintColor = newValue }
+    }
     public var pausebuttonImage: UIImage = UIImage(systemName: "pause.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     public var pauseButtonCornerRadius: CometChatCornerStyle? = nil
     public var pauseButtonBorderWidth: CGFloat = 1
     public var pauseButtonBorderColor: UIColor = CometChatTheme.borderColorLight
     
     public var startButtonImage: UIImage = UIImage(systemName: "play.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
-    public var startButtonImageTintColor: UIColor = CometChatTheme.errorColor
+    private var _startButtonImageTintColor: UIColor?
+    public var startButtonImageTintColor: UIColor {
+        get { _startButtonImageTintColor ?? CometChatTheme.primaryColor }
+        set { _startButtonImageTintColor = newValue }
+    }
     public var startButtonBackgroundColor: UIColor = CometChatTheme.backgroundColor01
     public var startButtonCornerRadius: CometChatCornerStyle? = nil
     public var startButtonBorderWidth: CGFloat = 1

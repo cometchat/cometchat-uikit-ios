@@ -30,7 +30,6 @@ public struct StickerBubbleStyle: BaseMessageBubbleStyle {
     
     public init() { }
     internal init(styleType: BubbleStyleType) { // for default values according to the bubble type
-        backgroundColor = .clear
         
         var dateStyle = DateStyle()
         dateStyle.textColor = CometChatTheme.white
@@ -41,7 +40,23 @@ public struct StickerBubbleStyle: BaseMessageBubbleStyle {
         dateStyle.textColor = CometChatTheme.white
         self.dateStyle = dateStyle
         
+        // Don't initialize messagePreviewStyle here - let it be set by parent MessageBubbleStyle
+        
         self.styleType = styleType
+        
+        // Set styling to match text bubbles
+        switch styleType {
+        case .incoming:
+            backgroundColor = .clear  // Sticker itself is always clear
+            cornerRadius = CometChatCornerStyle(cornerRadius: CometChatSpacing.Radius.r3)
+            borderWidth = 0
+            borderColor = .clear
+        case .outgoing:
+            backgroundColor = .clear
+            cornerRadius = CometChatCornerStyle(cornerRadius: CometChatSpacing.Radius.r3)
+            borderWidth = 0
+            borderColor = .clear
+        }
     }
 
     

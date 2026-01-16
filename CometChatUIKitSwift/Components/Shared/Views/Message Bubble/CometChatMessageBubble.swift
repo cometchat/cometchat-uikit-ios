@@ -89,6 +89,7 @@ open class CometChatMessageBubble: UITableViewCell {
         return stackView
     }()
     
+    public var message: BaseMessage?
     //This will be used for setting whole bubble's view custom
     public var customBubbleView: UIView?
     public var bubbleViewSpacing: CGFloat = 10
@@ -121,10 +122,37 @@ open class CometChatMessageBubble: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         buildUI()
+        setupThemeObserver()
     }
     
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("CometChatThemeChanged"), object: nil)
+    }
+    
+    private func setupThemeObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: NSNotification.Name("CometChatThemeChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleThemeChange() {
+        // Re-apply the style to update colors
+        // The style's computed properties will fetch the latest theme colors
+        if let message = message {
+            // Determine if this is an outgoing message
+            let isOutgoing = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
+            let currentStyle = isOutgoing ? CometChatMessageBubble.style.outgoing : CometChatMessageBubble.style.incoming
+            
+            // Re-apply background color from the style
+            set(backgroundColor: currentStyle.backgroundColor)
+        }
     }
     
     @objc func onLongPressStarted(_ sender: UILongPressGestureRecognizer) {
@@ -350,6 +378,10 @@ open class CometChatMessageBubble: UITableViewCell {
         
         guard let view = messagePreview else {
             replayView.isHidden = true
+            // Reset background to clear when no reply
+            if baseMessage?.messageType == .custom, let customMsg = baseMessage as? CustomMessage, customMsg.type == "extension_sticker" {
+                set(backgroundColor: .clear)
+            }
             return self
         }
 
@@ -360,6 +392,15 @@ open class CometChatMessageBubble: UITableViewCell {
         view.trailingAnchor.constraint(equalTo: replayView.trailingAnchor, constant: -4).isActive = true
         view.topAnchor.constraint(equalTo: replayView.topAnchor, constant: 4).isActive = true
         view.bottomAnchor.constraint(equalTo: replayView.bottomAnchor, constant: -4).isActive = true
+        
+        // Set background color for sticker messages with reply
+        if baseMessage?.messageType == .custom, let customMsg = baseMessage as? CustomMessage, customMsg.type == "extension_sticker" {
+            let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: baseMessage?.senderUid)
+            if !isLoggedInUser {
+                // Incoming sticker with reply - use neutral color
+                set(backgroundColor: CometChatTheme.neutralColor300)
+            }
+        }
         return self
     }
 

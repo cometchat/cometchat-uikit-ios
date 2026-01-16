@@ -1281,6 +1281,13 @@ extension MessageListViewModel: CometChatMessageEventListener {
                 }
             }
             
+            // Remove empty sections from data source
+            for section in emptySections.sorted(by: >) {
+                if section < this.messages.count {
+                    this.messages.remove(at: section)
+                }
+            }
+            
             // Perform table updates cleanly
             this.deleteBatch?(deletions, emptySections)
         }

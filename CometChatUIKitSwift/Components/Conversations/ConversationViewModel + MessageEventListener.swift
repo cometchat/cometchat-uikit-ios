@@ -181,7 +181,7 @@ extension ConversationsViewModel: CometChatMessageEventListener {
         }) {
             if conversation.lastMessage?.id == message.id {
                 conversation.lastMessage = message
-                conversation.updatedAt = message.readAt
+//                conversation.updatedAt = message.readAt
             }
             conversation.unreadMessageCount = 0
             update(conversation: conversation)

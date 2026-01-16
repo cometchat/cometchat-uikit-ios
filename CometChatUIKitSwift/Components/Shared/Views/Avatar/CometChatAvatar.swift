@@ -37,9 +37,42 @@ import AVFAudio
     public lazy var style = CometChatAvatar.style //component level styling
     
     // MARK: - Initialization of required Methods
-    public override init(image: UIImage?) { super.init(image: image) }
-    public override init(frame: CGRect) { super.init(frame: frame) }
-    required init?(coder aDecoder: NSCoder) { super.init(coder: aDecoder) }
+    public override init(image: UIImage?) { 
+        super.init(image: image)
+        setupThemeObserver()
+    }
+    
+    public override init(frame: CGRect) { 
+        super.init(frame: frame)
+        setupThemeObserver()
+    }
+    
+    required init?(coder aDecoder: NSCoder) { 
+        super.init(coder: aDecoder)
+        setupThemeObserver()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("CometChatThemeChanged"), object: nil)
+    }
+    
+    private func setupThemeObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: NSNotification.Name("CometChatThemeChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleThemeChange() {
+        // Directly update visual properties from the current style
+        // The style's computed properties will fetch the latest theme colors
+        self.backgroundColor = style.backgroundColor
+        if avatarURL == nil || avatarURL?.isEmpty == true {
+            setAvatar(avatarUrl: avatarURL, with: name)
+        }
+    }
     
     
     public override func layoutSubviews() {

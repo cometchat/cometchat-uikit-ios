@@ -23,7 +23,13 @@ public struct MessageComposerStyle {
     public var borderColor: UIColor = .clear
     public var sendButtonImage: UIImage = UIImage(named: "custom-send", in: CometChatUIKit.bundle, with: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     public var sendButtonImageTint: UIColor = CometChatTheme.white
-    public var activeSendButtonImageBackgroundColor: UIColor = CometChatTheme.primaryColor
+    
+    private var _activeSendButtonImageBackgroundColor: UIColor?
+    public var activeSendButtonImageBackgroundColor: UIColor {
+        get { return _activeSendButtonImageBackgroundColor ?? CometChatTheme.primaryColor }
+        set { _activeSendButtonImageBackgroundColor = newValue }
+    }
+    
     public var inactiveSendButtonImageBackgroundColor: UIColor = CometChatTheme.neutralColor300
     
     public var composeBoxBackgroundColor: UIColor = CometChatTheme.backgroundColor01
@@ -50,10 +56,21 @@ public struct MessageComposerStyle {
     public var editPreviewMessageTextColor: UIColor = CometChatTheme.textColorSecondary
     public var editPreviewBackgroundColor: UIColor = CometChatTheme.backgroundColor03
     public var editPreviewCornerRadius: CometChatCornerStyle = .init(cornerRadius: CometChatSpacing.Radius.r1)
-    public var editPreviewBorderColor: UIColor = .clear
+    
+    private var _editPreviewBorderColor: UIColor?
+    public var editPreviewBorderColor: UIColor {
+        get { return _editPreviewBorderColor ?? CometChatTheme.borderColorHighlight }
+        set { _editPreviewBorderColor = newValue }
+    }
+    
     public var editPreviewBorderWidth: CGFloat = 0
     public var editPreviewCloseIcon: UIImage = UIImage(systemName: "xmark")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
-    public var editPreviewCloseIconTint: UIColor = CometChatTheme.iconColorPrimary
+    
+    private var _editPreviewCloseIconTint: UIColor?
+    public var editPreviewCloseIconTint: UIColor {
+        get { return _editPreviewCloseIconTint ?? CometChatTheme.iconColorHighlight }
+        set { _editPreviewCloseIconTint = newValue }
+    }
     
     public var infoIcon: UIImage = UIImage(systemName: "info.circle")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     public var infoIconTint: UIColor = CometChatTheme.errorColor

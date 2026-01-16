@@ -110,7 +110,7 @@ class MessagesVC: UIViewController {
         options.append(option1)
         options.append(option2)
         options.append(option3)
-        headerView.set(options: options)
+//        headerView.set(options: options)
 
         headerView.onAiNewChatClicked = { [weak self] user in
             guard let self = self, let navController = self.navigationController else { return }
@@ -290,10 +290,12 @@ class MessagesVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         navigationItem.hidesBackButton = true
         
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: true)
+        
 
     }
     

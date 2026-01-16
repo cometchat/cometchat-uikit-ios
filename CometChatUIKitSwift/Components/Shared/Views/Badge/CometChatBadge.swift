@@ -35,10 +35,32 @@ import CometChatSDK
     // MARK: - Initialization
     public required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)!
+        setupThemeObserver()
     }
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        setupThemeObserver()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("CometChatThemeChanged"), object: nil)
+    }
+    
+    private func setupThemeObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: NSNotification.Name("CometChatThemeChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleThemeChange() {
+        // Directly update visual properties from the current style
+        // The style's computed properties will fetch the latest theme colors
+        self.backgroundColor = style.backgroundColor
+        self.textColor = style.textColor
     }
     
     public override func drawText(in rect: CGRect) {

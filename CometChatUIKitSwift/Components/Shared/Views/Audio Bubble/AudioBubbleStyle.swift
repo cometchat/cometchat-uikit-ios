@@ -56,13 +56,21 @@ public struct AudioBubbleStyle: BaseMessageBubbleStyle {
     // MARK: - Audio Player Specific Styling
     
     /// The tint color for the play button image in the audio bubble.
-    public var playImageTintColor: UIColor = CometChatTheme.primaryColor
+    private var _playImageTintColor: UIColor?
+    public var playImageTintColor: UIColor {
+        get { return _playImageTintColor ?? CometChatTheme.primaryColor }
+        set { _playImageTintColor = newValue }
+    }
     
     /// The background color for the play button in the audio bubble.
     public var playImageBackgroundColor: UIColor = CometChatTheme.neutralColor50
     
     /// The tint color for the audio waveform icon inside the audio bubble.
-    public var audioWaveFormTintIcon: UIColor = CometChatTheme.primaryColor
+    private var _audioWaveFormTintIcon: UIColor?
+    public var audioWaveFormTintIcon: UIColor {
+        get { return _audioWaveFormTintIcon ?? CometChatTheme.primaryColor }
+        set { _audioWaveFormTintIcon = newValue }
+    }
     
     /// The font used for the audio timeline label in the audio bubble.
     public var audioTimeLineFont: UIFont = CometChatTypography.Caption1.regular
@@ -86,14 +94,17 @@ public struct AudioBubbleStyle: BaseMessageBubbleStyle {
         // Set default styles based on the bubble type (incoming or outgoing)
         switch styleType {
         case .incoming:
-            playImageTintColor = CometChatTheme.primaryColor
+            // Don't set backing variables for incoming - let them use computed properties
+            // which will fetch CometChatTheme.primaryColor dynamically
+            _playImageTintColor = nil
             playImageBackgroundColor = CometChatTheme.neutralColor50
-            audioWaveFormTintIcon = CometChatTheme.primaryColor
+            _audioWaveFormTintIcon = nil
             audioTimeLineTextColor = CometChatTheme.neutralColor600
         case .outgoing:
-            playImageTintColor = CometChatTheme.primaryColor
+            // For outgoing, play button uses primaryColor but waveform is white
+            _playImageTintColor = nil
             playImageBackgroundColor = CometChatTheme.white
-            audioWaveFormTintIcon = CometChatTheme.white
+            _audioWaveFormTintIcon = CometChatTheme.white
             audioTimeLineTextColor = CometChatTheme.white
         }
     }

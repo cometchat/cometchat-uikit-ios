@@ -784,13 +784,39 @@ open class CometChatMessageList: UIView {
                     return
                 }
                 
+                // Final validation right before batch update
+                let recheckSectionCount = this.tableView.numberOfSections
+                let recheckRowCount = section < recheckSectionCount ? this.tableView.numberOfRows(inSection: section) : 0
+                
+                // Double-check consistency one more time
+                let isStillConsistent = isNewSectionAdded ?
+                    (section == recheckSectionCount && recheckRowCount == 0) :
+                    (section < recheckSectionCount && filteredMessages.count == recheckRowCount + 1)
+                
+                guard isStillConsistent else {
+                    this.tableView.reloadData()
+                    this.removeEmptyView()
+                    this.removeErrorView()
+                    if shouldScrollToBottom {
+                        this.scrollToBottom()
+                    }
+                    return
+                }
+                
                 // Safe to perform batch update
                 this.tableView.performBatchUpdates({
                     if isNewSectionAdded {
                         this.tableView.insertSections([section], with: .top)
                     }
                     this.tableView.insertRows(at: [IndexPath(row: actualRow, section: section)], with: .top)
-                }, completion: { _ in
+                }, completion: { success in
+                    if !success {
+                        // Defer a reload to fix any inconsistency
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            this.tableView.reloadData()
+                        }
+                    }
+                    
                     // Removing error/empty view if presented
                     this.removeEmptyView()
                     this.removeErrorView()
@@ -803,27 +829,100 @@ open class CometChatMessageList: UIView {
         }
         
         viewModel.deleteBatch = { [weak self] deletions, emptySections in
-            guard let table = self?.tableView else { return }
-
-            table.performBatchUpdates({
-                for (section,row,msg) in deletions {
-                    table.deleteRows(at: [IndexPath(row: row, section: section)], with: .fade)
+            guard let self = self else { return }
+            let table = self.tableView
+            
+            // Ensure we're on the main thread
+            DispatchQueue.main.async {
+                // Validate table view state before performing updates
+                let currentSections = table.numberOfSections
+                
+                // Filter out invalid deletions
+                let validDeletions = deletions.filter { section, row, msg in
+                    guard section < currentSections else {
+                        return false
+                    }
+                    let rowsInSection = table.numberOfRows(inSection: section)
+                    guard row < rowsInSection else {
+                        return false
+                    }
+                    return true
                 }
-                for section in emptySections {
-                    table.deleteSections(IndexSet(integer: section), with: .fade)
+                
+                // Filter out invalid empty sections
+                let validEmptySections = emptySections.filter { section in
+                    guard section < currentSections else {
+                        return false
+                    }
+                    return true
                 }
-            })
+                
+                // Only perform batch updates if there are valid operations
+                guard !validDeletions.isEmpty || !validEmptySections.isEmpty else { return }
+                
+                table.performBatchUpdates({
+                    // Delete rows first
+                    if !validDeletions.isEmpty {
+                        let indexPaths = validDeletions.map { IndexPath(row: $0.row, section: $0.section) }
+                        table.deleteRows(at: indexPaths, with: .fade)
+                    }
+                    
+                    // Then delete empty sections
+                    if !validEmptySections.isEmpty {
+                        table.deleteSections(IndexSet(validEmptySections), with: .fade)
+                    }
+                }, completion: { finished in
+                    if !finished {
+                        print("Batch update did not complete successfully")
+                    }
+                })
+            }
         }
 
         
         
         viewModel.updateAtIndex = { [weak self] section , row, message in
             guard let this = self else { return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+            
+            DispatchQueue.main.async {
+                // Step 1: Capture current table view state
+                let currentSections = this.tableView.numberOfSections
+                let currentRows = section < currentSections ? this.tableView.numberOfRows(inSection: section) : 0
+                
+                // Step 2: Validate section exists
+                guard section < currentSections else {
+                    return // Skip update - will be corrected on next load
+                }
+                
+                // Step 3: Validate row exists
+                guard row < currentRows else {
+                    return // Skip update - will be corrected on next load
+                }
+                
+                // Step 4: Verify data source consistency
+                let dataSourceCount = this.viewModel.messages.count > section ?
+                                     this.viewModel.messages[section].messages.count : 0
+                
+                guard dataSourceCount == currentRows else {
+                    // Schedule a deferred section reload to fix the inconsistency
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                        if section < this.tableView.numberOfSections {
+                            this.tableView.reloadSections(IndexSet(integer: section), with: .none)
+                        }
+                    }
+                    return
+                }
+                
+                let indexPath = IndexPath(row: row, section: section)
+                
+                // Step 5: Only update visible cells (performance optimization)
+                guard this.tableView.indexPathsForVisibleRows?.contains(indexPath) == true else {
+                    return
+                }
+                
+                // Step 6: Safely reload the specific row for receipt updates
                 UIView.performWithoutAnimation {
-                    this.tableView.beginUpdates()
-                    this.tableView.reloadRows(at: [IndexPath(row: row , section: section)], with: .none)
-                    this.tableView.endUpdates()
+                    this.tableView.reloadRows(at: [indexPath], with: .none)
                 }
             }
         }
@@ -831,9 +930,37 @@ open class CometChatMessageList: UIView {
         viewModel.deleteAtIndex = { [weak self] section , row, message in
             guard let this = self else { return }
             DispatchQueue.main.async {
-                this.tableView.beginUpdates()
-                this.tableView.deleteRows(at: [IndexPath(row: row - 1, section: section)], with: .automatic)
-                this.tableView.endUpdates()
+                // Capture current state
+                let currentSections = this.tableView.numberOfSections
+                let currentRows = section < currentSections ? this.tableView.numberOfRows(inSection: section) : 0
+                
+                // Validate section
+                guard section < currentSections else { return }
+                
+                let deleteRow = row - 1
+                
+                // Validate row
+                guard deleteRow >= 0 && deleteRow < currentRows else { return }
+                
+                // Verify data source will be consistent after delete
+                let dataSourceCount = this.viewModel.messages.count > section ?
+                                     this.viewModel.messages[section].messages.count : 0
+                
+                let expectedCountAfterDelete = currentRows - 1
+                guard dataSourceCount == expectedCountAfterDelete else {
+                    // Use section reload as fallback
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                        if section < this.tableView.numberOfSections {
+                            this.tableView.reloadSections(IndexSet(integer: section), with: .automatic)
+                        }
+                    }
+                    return
+                }
+                
+                // Safe delete
+                UIView.performWithoutAnimation {
+                    this.tableView.deleteRows(at: [IndexPath(row: deleteRow, section: section)], with: .automatic)
+                }
             }
         }
         
@@ -1610,7 +1737,7 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                 if messageOption.onItemClick == nil {
                     
                     // Presenting Delete message action
-                    let actionSheetController: UIAlertController = UIAlertController(title: nil, message: "DELETE_MESSAGE_SUBTITLE".localize(), preferredStyle: .actionSheet)
+                    let actionSheetController: UIAlertController = UIAlertController(title: nil, message: "DELETE_MESSAGE_SUBTITLE".localize(), preferredStyle: .alert)
                     
                     // create an action
                     let firstAction: UIAlertAction = UIAlertAction(title: ConversationConstants.delete, style: .destructive) { [weak self] action -> Void in

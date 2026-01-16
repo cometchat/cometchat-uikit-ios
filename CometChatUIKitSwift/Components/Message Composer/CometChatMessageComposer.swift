@@ -15,6 +15,7 @@ open class CometChatMessageComposer: UIView {
     private var quotedMessage: BaseMessage?
     private var quotedPreviewView: CometChatMessagePreview?
     var messagePreviewStyle : MessagePreviewStyle = CometChatMessagePreview.style
+    private var originalEditText: String?
     
     public lazy var textView: GrowingTextView = {
         let growingTextView = GrowingTextView().withoutAutoresizingMaskConstraints()
@@ -280,12 +281,28 @@ open class CometChatMessageComposer: UIView {
         setupViewModel()
         buildUI()
         handleThemeModeChange()
+        setupThemeObserver()
     }
     
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         setupViewModel()
         buildUI()
+        setupThemeObserver()
+    }
+
+    private func setupThemeObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: NSNotification.Name("CometChatThemeChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleThemeChange() {
+        // Update send button state which will apply the new theme color
+        updateSendButtonState()
     }
     
     open override func willMove(toWindow newWindow: UIWindow?) {
@@ -329,7 +346,15 @@ open class CometChatMessageComposer: UIView {
         if isAgentic {
             sendButton.backgroundColor = sendButton.isEnabled ? style.agenticActiveSendButtonImageBackgroundColor : style.agenticInactiveSendButtonImageBackgroundColor
         } else {
-            sendButton.backgroundColor = sendButton.isEnabled ? style.activeSendButtonImageBackgroundColor : style.inactiveSendButtonImageBackgroundColor
+            // In edit mode, disable send when text is unchanged; enable when it changes
+            if messageComposerMode == .edit {
+                let currentText = textView.text ?? ""
+                let unchanged = (currentText == (originalEditText ?? ""))
+                sendButton.isEnabled = hasText && !isAIBusy && !unchanged
+                sendButton.backgroundColor = sendButton.isEnabled ? style.activeSendButtonImageBackgroundColor : style.inactiveSendButtonImageBackgroundColor
+            } else {
+                sendButton.backgroundColor = sendButton.isEnabled ? style.activeSendButtonImageBackgroundColor : style.inactiveSendButtonImageBackgroundColor
+            }
         }
         
         // Set image based on state and user type
@@ -494,7 +519,10 @@ open class CometChatMessageComposer: UIView {
         textView.textColor = style.textFiledColor
         textView.placeholderColor = style.placeHolderTextColor
         textView.placeholderFont = style.placeHolderTextFont
-        
+        textView.typingAttributes = [
+            .font: style.textFiledFont,
+            .foregroundColor: style.textFiledColor
+        ]
         //setting image
         attachmentButton.setImage(style.attachmentImage, for: .normal)
         microphoneButton.setImage(style.voiceRecordingImage, for: .normal)
@@ -645,6 +673,7 @@ open class CometChatMessageComposer: UIView {
     deinit {
         disconnect()
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name("AIBusyStateChanged"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("CometChatThemeChanged"), object: nil)
     }
     
     private func getId() -> [String: Any] {
@@ -684,11 +713,12 @@ open class CometChatMessageComposer: UIView {
                 self?.controller?.view.layoutIfNeeded()
             }
         }
-        
+        updateSendButtonState()
     }
     
     open func hideEditPreview() {
         messageComposerMode = .draft
+        originalEditText = nil
         textView.text = ""
         messagePreview.subviews.forEach({ $0.removeFromSuperview() })
         messagePreview.isHidden = true
@@ -855,6 +885,7 @@ extension CometChatMessageComposer {
         if let message = message as? TextMessage {
             self.viewModel.message = message
             self.messageComposerMode = .edit
+            self.originalEditText = message.text
             
             selectedFormatters.removeAll()
             endOnGoingTextFormatting()
@@ -874,6 +905,7 @@ extension CometChatMessageComposer {
                 attributedString = NSMutableAttributedString(attributedString: processedString.0)
             }
             textView.attributedText = attributedString
+            updateSendButtonState()
             
             presentEditPreview(for: message)
         }
@@ -944,6 +976,7 @@ extension CometChatMessageComposer {
             this.endOnGoingTextFormatting()
             this.removeLimitView()
             this.messageComposerMode = .draft
+            this.originalEditText = nil
             if !this.messagePreview.isHidden {
                 this.hideEditPreview()
             }

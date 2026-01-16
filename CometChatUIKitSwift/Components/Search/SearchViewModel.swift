@@ -25,8 +25,10 @@ open class SearchViewModel: NSObject {
     
     private var searchWorkItem: DispatchWorkItem? = nil
     private var currentSearchText: String = ""
+    var listenerRandomID = Date().timeIntervalSince1970
     
     var onSearch: ((SearchState, String) -> ())?
+    var reloadAtIndex: ((IndexPath) -> Void)?
     var reload: (() -> Void)?
     
     var user: User?
@@ -36,6 +38,11 @@ open class SearchViewModel: NSObject {
     
     public override init() {
         super.init()
+        connect()
+    }
+    
+    deinit {
+        disconnect()
     }
     
     /// Filters conversations and messages based on text, filters, attachmentTypes, or links
@@ -113,6 +120,21 @@ open class SearchViewModel: NSObject {
         
         searchWorkItem = task
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: task)
+    }
+    
+    public func connect() {
+        CometChat.addGroupListener("conversations-list-groups-sdk-listner-\(listenerRandomID)", self)
+        CometChatGroupEvents.addListener("conversations-list-groups-event-listner-\(listenerRandomID)", self)
+        CometChatMessageEvents.addListener("conversations-list-messages-event-listener-\(listenerRandomID)", self)
+        CometChatConversationEvents.addListener("user-details-conversations-event-listener-\(listenerRandomID)", self)
+    }
+    
+    // MARK:- disconnect conversation listener
+    public func disconnect() {
+        CometChat.removeGroupListener("conversations-list-groups-sdk-listner-\(listenerRandomID)")
+        CometChatGroupEvents.removeListener("conversations-list-groups-event-listner-\(listenerRandomID)")
+        CometChatMessageEvents.removeListener("conversations-list-messages-event-listener-\(listenerRandomID)")
+        CometChatConversationEvents.removeListener("user-details-conversations-event-listener-\(listenerRandomID)")
     }
     
     func fetchNextMessages(

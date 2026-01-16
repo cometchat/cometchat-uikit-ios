@@ -21,10 +21,38 @@ class MessagePreviewView: UIView {
         self.style = style
         super.init(frame: .null)
         buildUI()
+        setupThemeObserver()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("CometChatThemeChanged"), object: nil)
+    }
+    
+    private func setupThemeObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: NSNotification.Name("CometChatThemeChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleThemeChange() {
+        print("🎨 MessagePreviewView: Received theme change notification")
+        
+        // Update colors from the style's computed properties
+        borderColor(color: style.editPreviewBorderColor)
+        
+        // Update close button tint if we can access it
+        if let closeButton = subviews.compactMap({ $0 as? UIButton }).first {
+            closeButton.tintColor = style.editPreviewCloseIconTint
+        }
+        
+        print("🎨 MessagePreviewView: Updated edit preview colors")
     }
     
     func buildUI() {

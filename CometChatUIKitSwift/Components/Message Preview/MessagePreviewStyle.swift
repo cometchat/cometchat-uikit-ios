@@ -14,11 +14,19 @@ public struct MessagePreviewStyle {
     public var borderWidth: CGFloat = 0
     public var cornerRadius: CometChatCornerStyle? = nil
     public var titleTextFont = CometChatTypography.Caption1.medium
-    public var titleTextColor: UIColor = CometChatTheme.textColorHighlight
+    internal var _titleTextColor: UIColor?
+    public var titleTextColor: UIColor {
+        get { _titleTextColor ?? CometChatTheme.textColorHighlight }
+        set { _titleTextColor = newValue }
+    }
     public var subtitleTextFont = CometChatTypography.Caption1.regular
     public var subtitleTextColor: UIColor = CometChatTheme.textColorSecondary
     public var subtitleImageTintColor: UIColor = CometChatTheme.iconColorSecondary
-    public var indicatorViewBackgroundColor: UIColor = CometChatTheme.borderColorHighlight
+    internal var _indicatorViewBackgroundColor: UIColor?
+    public var indicatorViewBackgroundColor: UIColor {
+        get { _indicatorViewBackgroundColor ?? CometChatTheme.borderColorHighlight }
+        set { _indicatorViewBackgroundColor = newValue }
+    }
     public var previewCloseIcon: UIImage = UIImage(systemName: "xmark")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     
     public init() {  }

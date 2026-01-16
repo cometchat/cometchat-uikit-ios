@@ -152,10 +152,28 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
     public override func viewDidLoad() {
         super.viewDidLoad()
         buildUI()
+        setupNotificationObserver()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        setupStyle()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupNotificationObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: NSNotification.Name("CometChatThemeChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleThemeChange() {
         setupStyle()
     }
     

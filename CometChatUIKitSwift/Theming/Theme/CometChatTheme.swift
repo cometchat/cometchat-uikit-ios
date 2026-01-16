@@ -367,7 +367,7 @@ public class CometChatTheme {
     )
     
     //MARK: Button Colors
-    private static var _buttonBackgroundColor: UIColor? = nil
+    static var _buttonBackgroundColor: UIColor? = nil
     public static var buttonBackgroundColor: UIColor {
         get {
             return _buttonBackgroundColor ?? primaryColor
@@ -387,7 +387,7 @@ public class CometChatTheme {
         darkModeColor: UIColor(hex: "#FFFFFF")
     )
     
-    private static var _secondaryButtonBackgroundColor: UIColor? = nil
+    static var _secondaryButtonBackgroundColor: UIColor? = nil
     public static var secondaryButtonBackgroundColor: UIColor {
         get {
             return _secondaryButtonBackgroundColor ?? neutralColor800
@@ -397,7 +397,7 @@ public class CometChatTheme {
         }
     }
 
-    private static var _secondaryButtonIconColor: UIColor? = nil
+    static var _secondaryButtonIconColor: UIColor? = nil
     public static var secondaryButtonIconColor: UIColor {
         get {
             return _secondaryButtonIconColor ?? neutralColor800
@@ -407,7 +407,7 @@ public class CometChatTheme {
         }
     }
 
-    private static var _secondaryButtonTextColor: UIColor? = nil
+    static var _secondaryButtonTextColor: UIColor? = nil
     public static var secondaryButtonTextColor: UIColor {
         get {
             return _secondaryButtonTextColor ?? neutralColor800
@@ -417,7 +417,7 @@ public class CometChatTheme {
         }
     }
 
-    private static var _fabButtonBackgroundColor: UIColor? = nil
+    static var _fabButtonBackgroundColor: UIColor? = nil
     public static var fabButtonBackgroundColor: UIColor {
         get {
             return _fabButtonBackgroundColor ?? primaryColor
@@ -432,7 +432,7 @@ public class CometChatTheme {
         darkModeColor: UIColor(hex: "#FFFFFF")
     )
 
-    private static var _whiteHoverColor: UIColor? = nil
+    static var _whiteHoverColor: UIColor? = nil
     public static var whiteHoverColor: UIColor {
         get {
             return _whiteHoverColor ?? neutralColor50

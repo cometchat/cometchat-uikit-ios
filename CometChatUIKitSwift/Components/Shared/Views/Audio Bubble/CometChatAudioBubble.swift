@@ -78,6 +78,7 @@ public class CometChatAudioBubble: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         NotificationCenter.default.addObserver(self, selector: #selector(handleRecordingStarted), name: Notification.Name("RecordingStarted"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleThemeChange), name: NSNotification.Name("CometChatThemeChanged"), object: nil)
         buildUI()
     }
     
@@ -89,6 +90,13 @@ public class CometChatAudioBubble: UIView {
     /// This initializer is required but not implemented for this custom view.
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    @objc private func handleThemeChange() {
+        
+        // Update colors from the style's computed properties
+        playImageView.tintColor = style.playImageTintColor
+
     }
     
     @objc private func handleRecordingStarted() {
@@ -261,6 +269,7 @@ public class CometChatAudioBubble: UIView {
         if let token = timeObserverToken {
             player?.removeTimeObserver(token)
         }
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("CometChatThemeChanged"), object: nil)
     }
     
     /// Sets the view controller that manages the audio bubble.

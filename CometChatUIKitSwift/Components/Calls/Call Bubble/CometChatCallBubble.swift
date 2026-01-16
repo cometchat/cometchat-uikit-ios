@@ -73,10 +73,35 @@ class CometChatCallBubble: UIView {
     override public init(frame: CGRect) {
         super.init(frame: frame)
         buildUI()
+        setupThemeObserver()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("CometChatThemeChanged"), object: nil)
+    }
+    
+    private func setupThemeObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: NSNotification.Name("CometChatThemeChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleThemeChange() {
+        print("🎨 CometChatCallBubble: Received theme change notification")
+        
+        // Update icon tint color and join button color from the style's computed properties
+        iconImageView.tintColor = style.callImageTintColor
+        joinButton.setTitleColor(style.joinButtonTextColor, for: .normal)
+        
+        print("🎨 CometChatCallBubble: Updated icon tint color to \(style.callImageTintColor)")
+        print("🎨 CometChatCallBubble: Updated join button color to \(style.joinButtonTextColor)")
     }
     
     override func willMove(toWindow newWindow: UIWindow?) {

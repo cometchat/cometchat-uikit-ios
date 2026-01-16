@@ -73,6 +73,16 @@ open class GrowingTextView: UITextView {
         NotificationCenter.default.removeObserver(self)
     }
     
+    // Override paste to strip formatting from pasted text
+    open override func paste(_ sender: Any?) {
+        if let pasteboardString = UIPasteboard.general.string {
+            // Insert plain text at current position, preserving current typing attributes
+            let currentAttributes = self.typingAttributes
+            self.insertText(pasteboardString)
+            self.typingAttributes = currentAttributes
+        }
+    }
+    
     open override var intrinsicContentSize: CGSize {
         return CGSize(width: UIView.noIntrinsicMetric, height: 30)
     }
@@ -180,7 +190,44 @@ open class GrowingTextView: UITextView {
     @objc func textDidEndEditing(notification: Notification) {
         if let sender = notification.object as? GrowingTextView, sender == self {
             if trimWhiteSpaceWhenEndEditing {
-                text = text?.trimmingCharacters(in: .whitespacesAndNewlines)
+                // Preserve attributed text formatting when trimming
+                if let currentAttributedText = attributedText, currentAttributedText.length > 0 {
+                    let trimmedString = currentAttributedText.string.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if trimmedString.count != currentAttributedText.length {
+                        // Find the range to keep (trimmed range)
+                        let originalString = currentAttributedText.string as NSString
+                        var startIndex = 0
+                        var endIndex = originalString.length
+                        
+                        // Find start index (skip leading whitespace)
+                        while startIndex < originalString.length {
+                            let char = originalString.character(at: startIndex)
+                            if let scalar = UnicodeScalar(char), !CharacterSet.whitespacesAndNewlines.contains(scalar) {
+                                break
+                            }
+                            startIndex += 1
+                        }
+                        
+                        // Find end index (skip trailing whitespace)
+                        while endIndex > startIndex {
+                            let char = originalString.character(at: endIndex - 1)
+                            if let scalar = UnicodeScalar(char), !CharacterSet.whitespacesAndNewlines.contains(scalar) {
+                                break
+                            }
+                            endIndex -= 1
+                        }
+                        
+                        // Create new attributed string with trimmed range
+                        if startIndex < endIndex {
+                            let trimmedRange = NSRange(location: startIndex, length: endIndex - startIndex)
+                            attributedText = currentAttributedText.attributedSubstring(from: trimmedRange)
+                        } else {
+                            attributedText = NSAttributedString(string: "")
+                        }
+                    }
+                } else {
+                    text = text?.trimmingCharacters(in: .whitespacesAndNewlines)
+                }
                 setNeedsDisplay()
             }
             scrollToCorrectPosition()

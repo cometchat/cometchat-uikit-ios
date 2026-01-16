@@ -10,12 +10,23 @@ import UIKit
 public struct MessageBubbleStyle {
     
     //normal public variable for component wise styling
-    public var backgroundColor: UIColor = CometChatTheme.primaryColor
+    private var _backgroundColor: UIColor?
+    public var backgroundColor: UIColor {
+        get { return _backgroundColor ?? CometChatTheme.primaryColor }
+        set { _backgroundColor = newValue }
+    }
+    
     public var backgroundDrawable: UIImage?
     public var borderWidth: CGFloat = 0
     public var borderColor: UIColor = .clear
     public var cornerRadius: CometChatCornerStyle = CometChatCornerStyle(cornerRadius: CometChatSpacing.Radius.r3)
-    public var headerTextColor: UIColor = CometChatTheme.primaryColor
+    
+    private var _headerTextColor: UIColor?
+    public var headerTextColor: UIColor {
+        get { return _headerTextColor ?? CometChatTheme.primaryColor }
+        set { _headerTextColor = newValue }
+    }
+    
     public var headerTextFont: UIFont = CometChatTypography.Caption1.medium
     public var threadedIndicatorTextFont: UIFont = CometChatTypography.Caption1.regular
     public var threadedIndicatorTextColor: UIColor = CometChatTheme.textColorPrimary
@@ -93,15 +104,17 @@ public struct MessageBubbleStyle {
         case .incoming:
             dateStyle.textColor = CometChatTheme.neutralColor600
             dateStyle.textFont = CometChatTypography.Caption2.regular
-            backgroundColor = CometChatTheme.neutralColor300
+            _backgroundColor = CometChatTheme.neutralColor300
             
             messagePreviewStyle.backgroundColor = CometChatTheme.neutralColor400
-            messagePreviewStyle.indicatorViewBackgroundColor = CometChatTheme.borderColorHighlight
-            messagePreviewStyle.titleTextColor = CometChatTheme.textColorHighlight
+            // Don't set backing variables for incoming - let them use computed properties dynamically
+            messagePreviewStyle._indicatorViewBackgroundColor = nil
+            messagePreviewStyle._titleTextColor = nil
             messagePreviewStyle.subtitleTextColor = CometChatTheme.textColorSecondary
             messagePreviewStyle.subtitleImageTintColor = CometChatTheme.iconColorSecondary
         case .outgoing:
-            backgroundColor = CometChatTheme.primaryColor
+            // Don't set _backgroundColor for outgoing - let it use the computed property
+            // which will fetch CometChatTheme.primaryColor dynamically
             dateStyle.textColor = CometChatTheme.white
             dateStyle.textFont = CometChatTypography.Caption2.regular
             
@@ -115,6 +128,19 @@ public struct MessageBubbleStyle {
         dateStyle.borderWidth = 0
         dateStyle.backgroundColor = .clear
         
+        // Apply messagePreviewStyle to all child bubble styles
+        stickersBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        textBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        imageBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        videoBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        fileBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        audioBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        pollBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        callBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        collaborativeWhiteboardBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        collaborativeDocumentBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        linkPreviewBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        messageTranslationBubbleStyle.messagePreviewStyle = messagePreviewStyle
     }
 }
 

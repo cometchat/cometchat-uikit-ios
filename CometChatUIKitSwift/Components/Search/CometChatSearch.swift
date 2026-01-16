@@ -238,6 +238,9 @@ open class CometChatSearch: UIViewController {
      func setupSearchController() {
         searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self
+         if #available(iOS 16.0, *) {
+             self.navigationItem.preferredSearchBarPlacement = .stacked
+         }
         searchController.obscuresBackgroundDuringPresentation = false
         if let user = user {
             searchController.searchBar.placeholder = "Search for \(user.name ?? "")"
@@ -754,6 +757,19 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
         switch searchScopes[indexPath.section] {
         case .conversations:
             let conversation = viewModel.filteredConversations[indexPath.row]
+            
+            // Clear unread count immediately when clicking on conversation
+            if conversation.unreadMessageCount > 0 {
+                conversation.unreadMessageCount = 0
+                viewModel.filteredConversations[indexPath.row] = conversation
+                tableView.reloadRows(at: [indexPath], with: .none)
+                
+                // Mark last message as read if it exists
+                if let lastMessage = conversation.lastMessage, lastMessage.senderUid != CometChat.getLoggedInUser()?.uid {
+                    CometChat.markAsRead(baseMessage: lastMessage)
+                }
+            }
+            
             onConversationClicked?(conversation, indexPath)
 
         case .messages:
@@ -1018,3 +1034,4 @@ extension CometChatSearch: UICollectionViewDataSource, UICollectionViewDelegateF
     }
 
 }
+

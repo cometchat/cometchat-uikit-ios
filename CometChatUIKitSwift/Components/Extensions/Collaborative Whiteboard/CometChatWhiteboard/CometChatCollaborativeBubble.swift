@@ -95,6 +95,7 @@ public class CometChatCollaborativeBubble: UIStackView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         buildUI()
+        setupThemeObserver()
     }
     
     convenience init(frame: CGRect, message: CustomMessage) {
@@ -105,6 +106,29 @@ public class CometChatCollaborativeBubble: UIStackView {
     
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("CometChatThemeChanged"), object: nil)
+    }
+    
+    private func setupThemeObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: NSNotification.Name("CometChatThemeChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleThemeChange() {
+        print("🎨 CometChatCollaborativeBubble: Received theme change notification")
+        
+        // Update colors from the style's computed properties
+        icon.tintColor = style.iconTint
+        openButton.setTitleColor(style.buttonTextColor, for: .normal)
+        
+        print("🎨 CometChatCollaborativeBubble: Updated icon and button colors")
     }
     
     public override func willMove(toWindow newWindow: UIWindow?) {

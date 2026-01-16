@@ -53,6 +53,7 @@ open class CometChatPollsBubble: UIView {
     /// Initializes the poll bubble with a default frame.
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupNotificationObserver()
     }
     
     /// Initializes the poll bubble with a coder, which is not supported in this class.
@@ -63,6 +64,28 @@ open class CometChatPollsBubble: UIView {
     /// Initializes the poll bubble with default values.
     public init() {
         super.init(frame: .zero)
+        setupNotificationObserver()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupNotificationObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleThemeChange),
+            name: NSNotification.Name("CometChatThemeChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleThemeChange() {
+        setupStyle()
+        // Update all option views with new style
+        optionViews.forEach { optionView in
+            optionView.set(style: style)
+        }
     }
     
     // MARK: - Lifecycle

@@ -97,6 +97,8 @@ open class CometChatOutgoingCall: UIViewController {
     var viewModel =  OutgoingCallViewModel()
     var callSettingsBuilder: CallSettingsBuilder?
     
+    private var declineButtonBottomConstraint: NSLayoutConstraint?
+    
     open override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -183,14 +185,31 @@ open class CometChatOutgoingCall: UIViewController {
         view.addSubview(declineButtonView)
         constraintsToActive += [
             declineButtonView.centerXAnchor.pin(equalTo: view.centerXAnchor),
-            declineButtonView.bottomAnchor.pin(equalTo: view.bottomAnchor, constant: -80),
         ]
+        
+        let bottom = declineButtonView.bottomAnchor.pin(equalTo: view.bottomAnchor, constant: -80)
+        declineButtonBottomConstraint = bottom
+        constraintsToActive.append(bottom)
         
         declineButtonView.addSubview(declineButton)
         declineButton.pin(anchors: [.centerX, .centerY], to: declineButtonView)
         
         NSLayoutConstraint.activate(constraintsToActive)
         
+        updateDeclineButtonBottomConstraint()
+    }
+    
+    private func updateDeclineButtonBottomConstraint() {
+        // Example: smaller bottom padding in landscape compact height
+        let isCompactHeight = traitCollection.verticalSizeClass == .compact
+        let constant: CGFloat = isCompactHeight ? -10 : -80
+        declineButtonBottomConstraint?.constant = constant
+        view.layoutIfNeeded()
+    }
+    
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateDeclineButtonBottomConstraint()
     }
     
     func addCustomViews(){

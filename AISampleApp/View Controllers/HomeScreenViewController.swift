@@ -11,6 +11,7 @@ import CometChatUIKitSwift
 import CometChatSDK
 import SystemConfiguration
 
+
 class HomeScreenViewController: UIViewController {
 
     // Split screen callback (if needed)

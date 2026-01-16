@@ -35,9 +35,21 @@ public struct CollaborativeBubbleStyle: BaseMessageBubbleStyle {
     public var titleColor = CometChatTheme.white
     public var subTitleFont = CometChatTypography.Caption2.regular
     public var subTitleColor = CometChatTheme.white
-    public var iconTint = CometChatTheme.white
+    
+    private var _iconTint: UIColor?
+    public var iconTint: UIColor {
+        get { return _iconTint ?? CometChatTheme.primaryColor }
+        set { _iconTint = newValue }
+    }
+    
     public var buttonTextFont = CometChatTypography.Body.medium
-    public var buttonTextColor = CometChatTheme.white
+    
+    private var _buttonTextColor: UIColor?
+    public var buttonTextColor: UIColor {
+        get { return _buttonTextColor ?? CometChatTheme.primaryColor }
+        set { _buttonTextColor = newValue }
+    }
+    
     public var dividerTint = CometChatTheme.neutralColor100
     
     public var reactionsStyle: ReactionsStyle?
@@ -53,13 +65,15 @@ public struct CollaborativeBubbleStyle: BaseMessageBubbleStyle {
         case .incoming:
             titleColor = CometChatTheme.neutralColor900
             subTitleColor = CometChatTheme.neutralColor600
-            buttonTextColor = CometChatTheme.primaryColor
-            iconTint = CometChatTheme.primaryColor
+            // Don't set backing variables for incoming - let them use computed properties
+            // which will fetch CometChatTheme.primaryColor dynamically
+            _buttonTextColor = nil
+            _iconTint = nil
         case .outgoing:
             titleColor = CometChatTheme.white
             subTitleColor = CometChatTheme.white
-            buttonTextColor = CometChatTheme.white
-            iconTint = CometChatTheme.white
+            _buttonTextColor = CometChatTheme.white
+            _iconTint = CometChatTheme.white
         }
     }
     

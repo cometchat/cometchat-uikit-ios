@@ -61,7 +61,11 @@ public struct PollBubbleStyle: BaseMessageBubbleStyle {
     public var nonSelectedPollImageTint: UIColor = CometChatTheme.white
     
     /// The tint color used for selected poll option images.
-    public var selectedPollImageTint: UIColor = CometChatTheme.white
+    private var _selectedPollImageTint: UIColor?
+    public var selectedPollImageTint: UIColor {
+        get { _selectedPollImageTint ?? CometChatTheme.primaryColor }
+        set { _selectedPollImageTint = newValue }
+    }
     
     /// The font used for the poll option text.
     public var optionTextFont: UIFont = CometChatTypography.Body.regular
@@ -73,7 +77,11 @@ public struct PollBubbleStyle: BaseMessageBubbleStyle {
     public var optionProgressBackgroundColor: UIColor = CometChatTheme.extendedPrimaryColor700
     
     /// The tint color for the progress bar of a poll option.
-    public var optionProgressTintColor: UIColor = CometChatTheme.white
+    private var _optionProgressTintColor: UIColor?
+    public var optionProgressTintColor: UIColor {
+        get { _optionProgressTintColor ?? CometChatTheme.primaryColor }
+        set { _optionProgressTintColor = newValue }
+    }
     
     /// The corner radius for the poll option progress bars.
     public var optionProgressCornerRadius: CometChatCornerStyle = .init(cornerRadius: 4)
@@ -105,19 +113,19 @@ public struct PollBubbleStyle: BaseMessageBubbleStyle {
         case .incoming:
             pollTextColor = CometChatTheme.neutralColor900
             nonSelectedPollImageTint = CometChatTheme.neutralColor500
-            selectedPollImageTint = CometChatTheme.primaryColor
+            _selectedPollImageTint = nil // Use computed property to get primaryColor dynamically
             optionTextColor = CometChatTheme.neutralColor900
             optionProgressBackgroundColor = CometChatTheme.neutralColor400
-            optionProgressTintColor = CometChatTheme.primaryColor
+            _optionProgressTintColor = nil // Use computed property to get primaryColor dynamically
             optionCountTextColor = CometChatTheme.neutralColor900
             
         case .outgoing:
             pollTextColor = CometChatTheme.white
             nonSelectedPollImageTint = CometChatTheme.white
-            selectedPollImageTint = CometChatTheme.white
+            _selectedPollImageTint = CometChatTheme.white
             optionTextColor = CometChatTheme.white
-            optionProgressBackgroundColor = CometChatTheme.extendedPrimaryColor700
-            optionProgressTintColor = CometChatTheme.white
+            optionProgressBackgroundColor = CometChatTheme.neutralColor400
+            _optionProgressTintColor = CometChatTheme.white
             optionCountTextColor = CometChatTheme.white
         }
     }
