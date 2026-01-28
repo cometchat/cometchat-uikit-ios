@@ -11,10 +11,12 @@ import CometChatUIKitSwift
 import CometChatSDK
 import SystemConfiguration
 
+
 class HomeScreenViewController: UITabBarController {
     
     lazy var conversations: CometChatConversations = {
         let conversations = CometChatConversations()
+        conversations.hideSearch = false
         conversations.set(onItemClick: { [weak self] conversation, indexPath in
             let messages = MessagesVC()
             messages.group = (conversation.conversationWith as? Group)
@@ -92,6 +94,7 @@ class HomeScreenViewController: UITabBarController {
     
     lazy var users: CometChatUsers = {
         let users = CometChatUsers()
+        users.hideSearch = false
         users.set(onItemClick: { [weak self] users, indexPath in
             let messages = MessagesVC()
             messages.user = users
@@ -107,6 +110,7 @@ class HomeScreenViewController: UITabBarController {
     lazy var groups: CometChatGroups = {
                 
         let groups = CometChatGroups()
+        groups.hideSearch = false
         groups.rightBarButtonItem = [
             UIBarButtonItem(
                 image: UIImage(named: "groups-create"),
@@ -230,11 +234,13 @@ class HomeScreenViewController: UITabBarController {
         customButton.translatesAutoresizingMaskIntoConstraints = false
         
         var widthAnchor = customButton.widthAnchor.constraint(equalToConstant: 24)
-        widthAnchor.priority = .required
+        // Use high priority instead of required to prevent constraint conflicts during iPad window resizing
+        widthAnchor.priority = .defaultHigh
         widthAnchor.isActive = true
         
         var heightAnchor = customButton.heightAnchor.constraint(equalToConstant: 24)
-        heightAnchor.priority = .required
+        // Use high priority instead of required to prevent constraint conflicts during iPad window resizing
+        heightAnchor.priority = .defaultHigh
         heightAnchor.isActive = true
 
         if let imageURL = URL(string: "\(CometChat.getLoggedInUser()?.avatar ?? "")") {

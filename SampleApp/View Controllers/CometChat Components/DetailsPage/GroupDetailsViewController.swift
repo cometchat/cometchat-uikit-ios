@@ -436,6 +436,7 @@ extension GroupDetailsViewController{
     public func viewMembers(){
         if let group = self.group {
             let groupMembers = CometChatGroupMembers()
+            groupMembers.hideSearch = false
             groupMembers.set(group: group)
             let navController = UINavigationController(rootViewController: groupMembers)
             self.present(navController, animated: true, completion: nil)

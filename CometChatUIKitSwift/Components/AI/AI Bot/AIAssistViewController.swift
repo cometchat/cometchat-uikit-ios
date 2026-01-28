@@ -42,18 +42,42 @@ open class AIAssistViewController: CometChatListBase {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        let keyboardHeight = (notification.userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.height
-        UIView.animate(withDuration: 0.2) {
+        guard let keyboardFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        let keyboardHeight = calculateKeyboardHeight(from: keyboardFrame)
+        let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.2
+        UIView.animate(withDuration: animationDuration) {
             self.composerBottomAnchor?.constant = -keyboardHeight - 10
             self.view.layoutIfNeeded()
         }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
-        UIView.animate(withDuration: 0.2) {
+        let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.2
+        UIView.animate(withDuration: animationDuration) {
             self.composerBottomAnchor?.constant = -30
             self.view.layoutIfNeeded()
         }
+    }
+    
+    /// Calculate keyboard height accounting for iPad flexible window positioning
+    private func calculateKeyboardHeight(from keyboardFrame: CGRect) -> CGFloat {
+        guard let window = self.view.window else {
+            return keyboardFrame.height
+        }
+        
+        // Convert keyboard frame from screen coordinates to window coordinates
+        let keyboardFrameInWindow = window.convert(keyboardFrame, from: nil)
+        
+        // Calculate the keyboard height relative to the window bottom
+        let windowHeight = window.bounds.height
+        let keyboardTopInWindow = keyboardFrameInWindow.origin.y
+        
+        // If keyboard is below the window (not visible), return 0
+        if keyboardTopInWindow >= windowHeight {
+            return 0
+        }
+        
+        return max(0, windowHeight - keyboardTopInWindow)
     }
     
     open override func buildUI() {

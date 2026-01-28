@@ -169,7 +169,8 @@ class LoginWithUidVC: UIViewController {
     
     @objc func keyboardWillHide(_ notification: Notification) {
         self.view.removeGestureRecognizer(keyboardDismissGusture)
-        UIView.animate(withDuration: 0.3, animations: { [weak self] in
+        let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.3
+        UIView.animate(withDuration: animationDuration, animations: { [weak self] in
             self?.containerView.transform = .identity
         })
     }
@@ -177,11 +178,33 @@ class LoginWithUidVC: UIViewController {
     @objc func keyboardWillShow(_ notification: Notification) {
         self.view.addGestureRecognizer(keyboardDismissGusture)
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-            let keyboardHeight = keyboardFrame.height
-            UIView.animate(withDuration: 0.3, animations: { [weak self] in
+            let keyboardHeight = calculateKeyboardHeight(from: keyboardFrame)
+            let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.3
+            UIView.animate(withDuration: animationDuration, animations: { [weak self] in
                 self?.containerView.transform = CGAffineTransform(translationX: 0, y: -(keyboardHeight/2))
             })
         }
+    }
+    
+    /// Calculate keyboard height accounting for iPad flexible window positioning
+    private func calculateKeyboardHeight(from keyboardFrame: CGRect) -> CGFloat {
+        guard let window = self.view.window else {
+            return keyboardFrame.height
+        }
+        
+        // Convert keyboard frame from screen coordinates to window coordinates
+        let keyboardFrameInWindow = window.convert(keyboardFrame, from: nil)
+        
+        // Calculate the keyboard height relative to the window bottom
+        let windowHeight = window.bounds.height
+        let keyboardTopInWindow = keyboardFrameInWindow.origin.y
+        
+        // If keyboard is below the window (not visible), return 0
+        if keyboardTopInWindow >= windowHeight {
+            return 0
+        }
+        
+        return max(0, windowHeight - keyboardTopInWindow)
     }
     
     func buildUI() {

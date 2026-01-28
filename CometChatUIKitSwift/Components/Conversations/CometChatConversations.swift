@@ -107,7 +107,6 @@ open class CometChatConversations: CometChatListBase {
         connect()
         setupViewModel()
         viewModel.isRefresh = true
-        hideSearch = false
         hideSeparator = true
         if selectionMode == .single{
             tableView.allowsMultipleSelection = false

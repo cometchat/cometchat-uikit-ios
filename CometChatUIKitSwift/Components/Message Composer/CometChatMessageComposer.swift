@@ -290,6 +290,21 @@ open class CometChatMessageComposer: UIView {
         buildUI()
         setupThemeObserver()
     }
+    
+    open override var intrinsicContentSize: CGSize {
+        let targetSize = CGSize(
+            width: bounds.width > 0 ? bounds.width : UIScreen.main.bounds.width,
+            height: UIView.layoutFittingCompressedSize.height
+        )
+
+        let height = containerView.systemLayoutSizeFitting(
+            targetSize,
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        ).height
+
+        return CGSize(width: UIView.noIntrinsicMetric, height: height)
+    }
 
     private func setupThemeObserver() {
         NotificationCenter.default.addObserver(
@@ -498,6 +513,24 @@ open class CometChatMessageComposer: UIView {
         if self.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
             self.setupStyle()
         }
+        
+        // Handle size class changes for iPad flexible window resizing
+        if previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass ||
+           previousTraitCollection?.verticalSizeClass != traitCollection.verticalSizeClass {
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
+            layoutIfNeeded()
+        }
+    }
+    
+    /// Handle window size transitions for iPad flexible window resizing
+    open func handleWindowSizeTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator?) {
+        coordinator?.animate(alongsideTransition: { [weak self] _ in
+            guard let self = self else { return }
+            self.invalidateIntrinsicContentSize()
+            self.setNeedsLayout()
+            self.layoutIfNeeded()
+        }, completion: nil)
     }
     
     open func setupStyle() {
@@ -744,21 +777,57 @@ extension CometChatMessageComposer {
         CometChatUIEvents.hidePanel(id: getId(), alignment: .composerBottom)
         if textView.isFirstResponder {
             if let endFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-                let keyboardHeight = UIScreen.main.bounds.height - endFrame.origin.y
+                // Convert keyboard frame to view's coordinate space for iPad flexible window support
+                let keyboardHeight = calculateKeyboardHeight(from: endFrame)
+                let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.2
+                
                 if keyboardHeight > 0 {
                     bottomConstant.constant = -keyboardHeight - CometChatSpacing.Margin.m2
-                    UIView.animate(withDuration: 0.2) {
+                    UIView.animate(withDuration: animationDuration) {
                         self.superview?.layoutIfNeeded()
                     }
                     
                 } else {
                     bottomConstant.constant = -CometChatSpacing.Margin.m8
-                    UIView.animate(withDuration: 0.2) {
+                    UIView.animate(withDuration: animationDuration) {
                         self.superview?.layoutIfNeeded()
                     }
                 }
             }
         }
+    }
+    
+    /// Calculate keyboard height accounting for iPad flexible window positioning
+    /// - Parameter keyboardFrame: The keyboard frame in screen coordinates
+    /// - Returns: The effective keyboard height relative to this view's window
+    private func calculateKeyboardHeight(from keyboardFrame: CGRect) -> CGFloat {
+        guard let window = self.window else {
+            // Fallback to screen-based calculation if no window
+            return UIScreen.main.bounds.height - keyboardFrame.origin.y
+        }
+        
+        // Convert keyboard frame from screen coordinates to window coordinates
+        let keyboardFrameInWindow = window.convert(keyboardFrame, from: nil)
+        
+        // Get the view's frame in window coordinates
+        let viewFrameInWindow = self.convert(self.bounds, to: window)
+        
+        // Calculate how much the keyboard overlaps with the view's window
+        let windowHeight = window.bounds.height
+        let keyboardTopInWindow = keyboardFrameInWindow.origin.y
+        
+        // If keyboard is below the window (not visible), return 0
+        if keyboardTopInWindow >= windowHeight {
+            return 0
+        }
+        
+        // Calculate the keyboard height relative to the window bottom
+        // This accounts for iPad flexible window positioning where the window
+        // may not extend to the bottom of the screen
+        let keyboardHeightInWindow = windowHeight - keyboardTopInWindow
+        
+        // Ensure we don't return negative values
+        return max(0, keyboardHeightInWindow)
     }
     
     @objc func attachmentButtonClicked() {

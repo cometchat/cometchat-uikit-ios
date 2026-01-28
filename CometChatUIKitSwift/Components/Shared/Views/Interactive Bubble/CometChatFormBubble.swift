@@ -325,8 +325,9 @@ public class CometChatFormBubble: UIView {
     
     @objc func keyboardWillShow(_ notification: Notification,_ textView: UITextView) {
         if let keyboardFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-                let keyboardHeight = keyboardFrame.height
-            UIView.animate(withDuration: 0.3) {
+            let keyboardHeight = calculateKeyboardHeight(from: keyboardFrame)
+            let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.3
+            UIView.animate(withDuration: animationDuration) {
                 let offset = CGPoint(x: 0, y: keyboardHeight)
                 if let controller = self.controller {
                     for view1 in controller.view.subviews {
@@ -342,7 +343,8 @@ public class CometChatFormBubble: UIView {
     }
 
     @objc func keyboardWillHide(_ notification: Notification,_ textView: UITextView) {
-        UIView.animate(withDuration: 0.3) {
+        let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.3
+        UIView.animate(withDuration: animationDuration) {
             if let controller = self.controller {
                 for view1 in controller.view.subviews {
                     if let scrollView = view1 as? UIScrollView {
@@ -353,6 +355,27 @@ public class CometChatFormBubble: UIView {
             self.controller?.view.frame.origin.y = 0
 //            self.controller?.view.layoutIfNeeded()
         }
+    }
+    
+    /// Calculate keyboard height accounting for iPad flexible window positioning
+    private func calculateKeyboardHeight(from keyboardFrame: CGRect) -> CGFloat {
+        guard let window = self.controller?.view.window else {
+            return keyboardFrame.height
+        }
+        
+        // Convert keyboard frame from screen coordinates to window coordinates
+        let keyboardFrameInWindow = window.convert(keyboardFrame, from: nil)
+        
+        // Calculate the keyboard height relative to the window bottom
+        let windowHeight = window.bounds.height
+        let keyboardTopInWindow = keyboardFrameInWindow.origin.y
+        
+        // If keyboard is below the window (not visible), return 0
+        if keyboardTopInWindow >= windowHeight {
+            return 0
+        }
+        
+        return max(0, windowHeight - keyboardTopInWindow)
     }
     
     func buildButton(_ buttonElement: ButtonElement) {

@@ -205,8 +205,6 @@ open class CometChatUsers: CometChatListBase {
         statusIndicatorStyle.borderColor = style.backgroundColor
         statusIndicatorStyle.borderWidth = 2
         avatarStyle.textFont = CometChatTypography.Heading3.bold
-        
-        hideSearch = false
     }
     
     override func onRefreshControlTriggered(){

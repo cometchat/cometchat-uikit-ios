@@ -47,7 +47,8 @@ final class CometChatSearchListItemAttachments: UITableViewCell {
         lbl.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         lbl.textColor = .secondaryLabel
         lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.setContentHuggingPriority(.required, for: .horizontal)
+        // Use high priority instead of required to prevent constraint conflicts during iPad window resizing
+        lbl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return lbl
     }()
     

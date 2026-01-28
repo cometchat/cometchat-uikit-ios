@@ -47,7 +47,6 @@ class MessagesVC: UIViewController {
                         threadedView.parentMessage = parentmessage
                         threadedView.user = self?.user
                         threadedView.targetMessageId = message.id
-//                        self?.messageListView.goToMessage(withId: message.id)
                         threadedView.parentMessageView.controller = self
                         threadedView.parentMessageView.set(parentMessage: parentmessage)
                         nav.pushViewController(threadedView, animated: true)
@@ -328,12 +327,8 @@ class MessagesVC: UIViewController {
             
             composerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             composerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            composerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            composerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),            
         ])
-        
-        let heightConstraint = messageListView.heightAnchor.constraint(greaterThanOrEqualToConstant: UIScreen.main.bounds.height)
-        heightConstraint.priority = .defaultLow
-        heightConstraint.isActive = true
 
         if user?.blockedByMe == true{
             disableMessageSending()

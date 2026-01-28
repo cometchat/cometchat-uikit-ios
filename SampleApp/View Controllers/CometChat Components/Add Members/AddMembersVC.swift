@@ -54,19 +54,44 @@ open class AddMembersVC: CometChatUsers {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        let kbFrame = (notification.userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
-        let height = kbFrame.height - view.safeAreaInsets.bottom
-        UIView.animate(withDuration: 0.2) {
+        guard let kbFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        let height = calculateKeyboardHeight(from: kbFrame)
+        let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.2
+        UIView.animate(withDuration: animationDuration) {
             self.composerBottomAnchor?.constant = -height
             self.view.layoutIfNeeded()
         }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
-        UIView.animate(withDuration: 0.2) {
+        let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.2
+        UIView.animate(withDuration: animationDuration) {
             self.composerBottomAnchor?.constant = 0
             self.view.layoutIfNeeded()
         }
+    }
+    
+    /// Calculate keyboard height accounting for iPad flexible window positioning
+    private func calculateKeyboardHeight(from keyboardFrame: CGRect) -> CGFloat {
+        guard let window = self.view.window else {
+            return keyboardFrame.height - view.safeAreaInsets.bottom
+        }
+        
+        // Convert keyboard frame from screen coordinates to window coordinates
+        let keyboardFrameInWindow = window.convert(keyboardFrame, from: nil)
+        
+        // Calculate the keyboard height relative to the window bottom
+        let windowHeight = window.bounds.height
+        let keyboardTopInWindow = keyboardFrameInWindow.origin.y
+        
+        // If keyboard is below the window (not visible), return 0
+        if keyboardTopInWindow >= windowHeight {
+            return 0
+        }
+        
+        // Subtract safe area since the button is constrained to safeAreaLayoutGuide
+        let keyboardHeightInWindow = windowHeight - keyboardTopInWindow - view.safeAreaInsets.bottom
+        return max(0, keyboardHeightInWindow)
     }
     
     open override func viewWillAppear(_ animated: Bool) {

@@ -187,15 +187,25 @@ extension NSLayoutConstraint {
     var almostHigh: NSLayoutConstraint {
         with(priority: .cometChatAlmostHigh)
     }
+    
+    /// Returns updated `self` with `priority == .cometChatFlexible`.
+    /// Use this for constraints that should yield during iPad window resizing.
+    var flexible: NSLayoutConstraint {
+        with(priority: .cometChatFlexible)
+    }
 }
 
 // MARK: - UILayoutPriority Extensions
 extension UILayoutPriority {
     
     /// Having our default priority lower than `.required(1000)` allows the user to easily override any default constraints and customize the layout.
+    /// This is especially important for iPad flexible window resizing where constraints need to be breakable.
     static let cometChatHigh = UILayoutPriority(rawValue: 850)
     static let cometChatAlmostHigh = UILayoutPriority.cometChatHigh - 1
 
     /// The default low priority used for the default layouts. It's higher than the system `defaultLow`.
     static let cometChatLow = UILayoutPriority.defaultLow + 10
+    
+    /// Priority for flexible constraints that should yield during window resizing
+    static let cometChatFlexible = UILayoutPriority(rawValue: 750)
 }

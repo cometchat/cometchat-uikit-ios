@@ -100,7 +100,7 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
         guard let userInfo = notification.userInfo,
               let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
         
-        let keyboardHeight = keyboardFrame.height
+        let keyboardHeight = calculateKeyboardHeight(from: keyboardFrame)
         tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
         tableView.scrollIndicatorInsets = tableView.contentInset
     }
@@ -108,6 +108,27 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
     @objc private func keyboardWillHide(_ notification: Notification) {
         tableView.contentInset = .zero
         tableView.scrollIndicatorInsets = .zero
+    }
+    
+    /// Calculate keyboard height accounting for iPad flexible window positioning
+    private func calculateKeyboardHeight(from keyboardFrame: CGRect) -> CGFloat {
+        guard let window = self.view.window else {
+            return keyboardFrame.height
+        }
+        
+        // Convert keyboard frame from screen coordinates to window coordinates
+        let keyboardFrameInWindow = window.convert(keyboardFrame, from: nil)
+        
+        // Calculate the keyboard height relative to the window bottom
+        let windowHeight = window.bounds.height
+        let keyboardTopInWindow = keyboardFrameInWindow.origin.y
+        
+        // If keyboard is below the window (not visible), return 0
+        if keyboardTopInWindow >= windowHeight {
+            return 0
+        }
+        
+        return max(0, windowHeight - keyboardTopInWindow)
     }
     
     deinit {

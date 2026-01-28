@@ -139,10 +139,11 @@ public class CometChatCardBubble: UIView {
         button.titleLabel?.text = buttonElement.buttonText
         button.setTitle(buttonElement.buttonText, for: .normal)
         button.setTitleColor(style.getButtonTextColor(), for: .normal)
-        separator.setContentHuggingPriority(.required, for: .horizontal)
-        separator.setContentHuggingPriority(.required, for: .vertical)
-        separator.setContentCompressionResistancePriority(.required, for: .horizontal)
-        separator.setContentCompressionResistancePriority(.required, for: .vertical)
+        // Use high priority instead of required to prevent constraint conflicts during iPad window resizing
+        separator.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        separator.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        separator.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        separator.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
         activityIndicator.color = style.getButtonTextColor()
         containerView.addArrangedSubview(activityIndicator)
         containerView.addArrangedSubview(button)

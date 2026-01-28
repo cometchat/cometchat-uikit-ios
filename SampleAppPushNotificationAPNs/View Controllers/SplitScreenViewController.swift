@@ -9,14 +9,33 @@ import CometChatUIKitSwift
 
 class SplitViewController: UISplitViewController, UISplitViewControllerDelegate {
     
+    private lazy var primaryNavigationController: UINavigationController = {
+        let nvc = UINavigationController(rootViewController: homeScreenViewController)
+        return nvc
+    }()
+    
     private lazy var homeScreenViewController: HomeScreenViewController = {
         let vc = HomeScreenViewController()
         vc.splitScreenCallBack = { [weak self] viewController in
-            if let messagesVC = viewController as? MessagesVC {
-                messagesVC.headerView.hideBackButton = true
-            }
-            DispatchQueue.main.async {
-                self?.secondaryNavigationController.setViewControllers([viewController], animated: false)
+            guard let self = self else { return }
+            
+            // Check if we're in compact mode (small window)
+            if self.traitCollection.horizontalSizeClass == .compact || self.isCollapsed {
+                // In compact mode, push navigate instead of showing in split view
+                if let messagesVC = viewController as? MessagesVC {
+                    messagesVC.headerView.hideBackButton = false // Show back button for navigation
+                }
+                DispatchQueue.main.async {
+                    self.primaryNavigationController.pushViewController(viewController, animated: true)
+                }
+            } else {
+                // In regular mode (large window), show in secondary view
+                if let messagesVC = viewController as? MessagesVC {
+                    messagesVC.headerView.hideBackButton = true
+                }
+                DispatchQueue.main.async {
+                    self.secondaryNavigationController.setViewControllers([viewController], animated: false)
+                }
             }
         }
         return vc
@@ -30,9 +49,41 @@ class SplitViewController: UISplitViewController, UISplitViewControllerDelegate 
     override func viewDidLoad() {
         super.viewDidLoad()
                 
-        self.viewControllers = [homeScreenViewController, secondaryNavigationController]
+        self.viewControllers = [primaryNavigationController, secondaryNavigationController]
         self.delegate = self
-        self.preferredDisplayMode = .allVisible // .allVisible, .oneOverSecondary, etc.
+        self.preferredDisplayMode = .oneBesideSecondary
+        self.presentsWithGesture = true
+    }
+    
+    // MARK: - UISplitViewControllerDelegate
+    
+    func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
+        // Return true to indicate that we have handled the collapse by doing nothing
+        // This prevents the secondary view from being pushed onto the primary
+        // The welcome screen should not be shown when collapsed
+        if let navController = secondaryViewController as? UINavigationController,
+           navController.viewControllers.first is ConversationsWelcomeViewController {
+            return true // Discard the welcome screen when collapsing
+        }
+        return false
+    }
+    
+    func splitViewController(_ splitViewController: UISplitViewController, separateSecondaryFrom primaryViewController: UIViewController) -> UIViewController? {
+        // When expanding, return the secondary navigation controller with welcome screen
+        // if there's no messages view currently shown
+        if let primaryNav = primaryViewController as? UINavigationController {
+            // Check if there's a MessagesVC in the primary stack
+            if let messagesVC = primaryNav.viewControllers.last as? MessagesVC {
+                // Pop it from primary and move to secondary
+                primaryNav.popViewController(animated: false)
+                messagesVC.headerView.hideBackButton = true
+                secondaryNavigationController.setViewControllers([messagesVC], animated: false)
+                return secondaryNavigationController
+            }
+        }
+        // Return welcome screen if no messages view
+        secondaryNavigationController.setViewControllers([ConversationsWelcomeViewController()], animated: false)
+        return secondaryNavigationController
     }
 }
 

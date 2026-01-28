@@ -33,6 +33,7 @@ open class CreateConversationVC: UIViewController {
 
     public lazy var usersViewController: CometChatUsers = {
         let vc = CometChatUsers()
+        vc.hideSearch = false
         vc.set(onItemClick: { [weak self] users, indexPath in
             let messages = MessagesVC()
             messages.user = users
@@ -44,6 +45,7 @@ open class CreateConversationVC: UIViewController {
 
     public lazy var groupsViewController: CometChatGroups = {
         let vc = CometChatGroups()
+        vc.hideSearch = false
         vc.set(onItemClick: { [weak self] group, indexPath in
             let messages = MessagesVC()
             messages.group = group
@@ -139,7 +141,6 @@ extension CreateConversationVC: UIPageViewControllerDelegate {
     public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         if completed, let visibleViewController = pageViewController.viewControllers?.first, let index = pages.firstIndex(of: visibleViewController) {
             segmentedControl.selectedSegmentIndex = index
-            groupsViewController.hideSearch = false
             groupsViewController.navigationItem.searchController = nil
         }
     }

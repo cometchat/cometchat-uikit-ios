@@ -210,8 +210,9 @@ class OptionCell: UICollectionViewCell {
         let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .medium)
         imageView.image = UIImage(systemName: "arrow.right", withConfiguration: config)
         imageView.tintColor = CometChatTheme.iconColorSecondary
-        imageView.setContentHuggingPriority(.required, for: .horizontal)
-        imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        // Use high priority instead of required to prevent constraint conflicts during iPad window resizing
+        imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return imageView
     }()
     

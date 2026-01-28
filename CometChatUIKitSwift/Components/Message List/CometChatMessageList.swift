@@ -272,6 +272,7 @@ open class CometChatMessageList: UIView {
     var messageIndicator : CometChatNewMessageIndicator?
     var viewModel = MessageListViewModel()
     var lastContentOffset: CGFloat = 0
+    private var isViewActive: Bool = true  // Flag to track if view is still active for updates
     lazy var onTapGesture: UITapGestureRecognizer = {
         let onTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         onTapGesture.cancelsTouchesInView = false
@@ -345,6 +346,7 @@ open class CometChatMessageList: UIView {
     }
     
     deinit {
+        isViewActive = false  // Prevent any pending async operations from updating tableView
         CometChatAIStreamService.shared.cleanupAll()
             disconnect()
             CometChatAIStreamService.shared.isAIBusy = false
@@ -618,9 +620,10 @@ open class CometChatMessageList: UIView {
         ActivityIndicator.hide()
         tableView.tableFooterView?.isHidden = true
         if tableView.contentSize.height < tableView.visibleSize.height || (tableView.contentOffset.y < 5 && !tableView.visibleCells.isEmpty) {
-            tableView.beginUpdates()
+            // Avoid beginUpdates/endUpdates here as it can cause data source inconsistency
+            // when concurrent message operations are in progress
             ActivityIndicator.activityIndicator.frame = .zero
-            tableView.endUpdates()
+            tableView.tableFooterView = nil
         }
     }
     
@@ -641,31 +644,33 @@ open class CometChatMessageList: UIView {
     open func setupViewModel() {
 
         viewModel.scrollToMessageId = { [weak self] id, isPagination in
-            guard let this = self else { return }
+            guard let this = self, this.isViewActive else { return }
             
             this.oldContentHeight = this.tableView.contentSize.height
             
             this.newHeight = this.tableView.contentSize.height
             this.scrollToMessage(withId: id, isPagination: isPagination) { anchorId in
                                 
-                DispatchQueue.main.async {
-                    if let indexPath = self?.indexPathForMessageWithId(anchorId) {
-                        let rectForAnchor = self?.tableView.rectForRow(at: indexPath)
-                        let targetOffsetY = (rectForAnchor?.origin.y ?? 0) - (self?.oldDistanceFromTop ?? 0)
-                        self?.tableView.setContentOffset(CGPoint(x: 0, y: targetOffsetY), animated: false)
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self, self.isViewActive, self.tableView.window != nil else { return }
+                    if let indexPath = self.indexPathForMessageWithId(anchorId) {
+                        let rectForAnchor = self.tableView.rectForRow(at: indexPath)
+                        let targetOffsetY = (rectForAnchor.origin.y) - (self.oldDistanceFromTop)
+                        self.tableView.setContentOffset(CGPoint(x: 0, y: targetOffsetY), animated: false)
                     }
                     
-                    print("after fetch next height: \(self?.tableView.contentOffset.y ?? 0), \(self?.tableView.contentSize.height ?? 0)")
+                    print("after fetch next height: \(self.tableView.contentOffset.y), \(self.tableView.contentSize.height)")
                     
-                    self?.hideBottomSpinner()
-                    self?.tableView.isScrollEnabled = true
+                    self.hideBottomSpinner()
+                    self.tableView.isScrollEnabled = true
                 }
             }
         }
         
         viewModel.reload = { [weak self]  in
-            guard let this = self else { return }
+            guard let this = self, this.isViewActive else { return }
             DispatchQueue.main.async {
+                guard this.isViewActive, this.tableView.window != nil else { return }
                 this.removeLoadingView()
                 this.reload()
                                 
@@ -694,7 +699,11 @@ open class CometChatMessageList: UIView {
         
         viewModel.appendAtIndex = { [weak self] section , row, message, isNewSectionAdded in
             DispatchQueue.main.async {
-                guard let this = self else { return }
+                guard let this = self, this.isViewActive else { return }
+                
+                // Additional safety check - ensure tableView is still in a valid state
+                guard this.tableView.window != nil else { return }
+                
                 this.showTableView()
                 
                 let shouldFilterMessage = this.hideGroupActionMessages &&
@@ -743,14 +752,21 @@ open class CometChatMessageList: UIView {
                     }
                 }
                 
-                this.viewModel.removeMarkedFailedStreamMessages()
+                // Defer removeMarkedFailedStreamMessages to avoid data source mutation during batch updates
+                // This will be called after the current batch update completes
+                DispatchQueue.main.async {
+                    this.viewModel.removeMarkedFailedStreamMessages()
+                }
                 
-                // VALIDATION: Check current state
+                // VALIDATION: Check current state - must match data source EXACTLY at this moment
                 let currentSectionCount = this.tableView.numberOfSections
                 let currentRowCount = section < currentSectionCount ? this.tableView.numberOfRows(inSection: section) : 0
-                let expectedRowCountAfterInsert = isNewSectionAdded ? filteredMessages.count : currentRowCount + 1
                 
-                // If data source doesn't match expectations, reload
+                // For insert to succeed: data source count must equal currentRowCount + 1
+                // (the message was already added to viewModel.messages before this callback)
+                let expectedRowCountAfterInsert = currentRowCount + 1
+                
+                // If data source doesn't match expectations, reload instead of batch update
                 if filteredMessages.count != expectedRowCountAfterInsert {
                     this.tableView.reloadData()
                     this.removeEmptyView()
@@ -829,11 +845,13 @@ open class CometChatMessageList: UIView {
         }
         
         viewModel.deleteBatch = { [weak self] deletions, emptySections in
-            guard let self = self else { return }
+            guard let self = self, self.isViewActive else { return }
             let table = self.tableView
             
             // Ensure we're on the main thread
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, self.isViewActive, table.window != nil else { return }
+                
                 // Validate table view state before performing updates
                 let currentSections = table.numberOfSections
                 
@@ -882,9 +900,11 @@ open class CometChatMessageList: UIView {
         
         
         viewModel.updateAtIndex = { [weak self] section , row, message in
-            guard let this = self else { return }
+            guard let this = self, this.isViewActive else { return }
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let this = self, this.isViewActive, this.tableView.window != nil else { return }
+                
                 // Step 1: Capture current table view state
                 let currentSections = this.tableView.numberOfSections
                 let currentRows = section < currentSections ? this.tableView.numberOfRows(inSection: section) : 0
@@ -905,7 +925,8 @@ open class CometChatMessageList: UIView {
                 
                 guard dataSourceCount == currentRows else {
                     // Schedule a deferred section reload to fix the inconsistency
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+                        guard let this = self, this.isViewActive else { return }
                         if section < this.tableView.numberOfSections {
                             this.tableView.reloadSections(IndexSet(integer: section), with: .none)
                         }
@@ -1071,6 +1092,25 @@ open class CometChatMessageList: UIView {
             self.setupStyle()
             self.tableView.reloadData()
         }
+        
+        // Handle size class changes for iPad flexible window resizing
+        if previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass ||
+           previousTraitCollection?.verticalSizeClass != traitCollection.verticalSizeClass {
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
+            layoutIfNeeded()
+        }
+    }
+    
+    /// Handle window size transitions for iPad flexible window resizing
+    open func handleWindowSizeTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator?) {
+        coordinator?.animate(alongsideTransition: { [weak self] _ in
+            guard let self = self else { return }
+            self.invalidateIntrinsicContentSize()
+            self.setNeedsLayout()
+            self.layoutIfNeeded()
+            self.tableView.reloadData()
+        }, completion: nil)
     }
     
     open func addModerationView(

@@ -237,10 +237,16 @@ public class PanModalPresentationController: UIPresentationController {
                 let presentable = self.presentable
                 else { return }
 
+            // Invalidate layout before adjusting frame to prevent constraint conflicts
+            self.presentedView.setNeedsLayout()
             self.adjustPresentedViewFrame()
             if presentable.shouldRoundTopCorners {
                 self.addRoundedCorners(to: self.presentedView)
             }
+            self.presentedView.layoutIfNeeded()
+        }, completion: { [weak self] _ in
+            // Ensure final layout is correct after transition
+            self?.setNeedsLayoutUpdate()
         })
     }
 

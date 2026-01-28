@@ -57,16 +57,42 @@ class CreateGroupVC: UIViewController {
     
     @objc func keyboardWillShow(_ notification: Notification) {
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-            let keyboardHeight = keyboardFrame.height
+            let keyboardHeight = calculateKeyboardHeight(from: keyboardFrame)
+            let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.2
             scrollViewBottomAnchor?.constant = -keyboardHeight
-            UIView.animate(withDuration: 0.2) { [weak self] in
+            UIView.animate(withDuration: animationDuration) { [weak self] in
                 self?.view?.layoutIfNeeded()
             }
         }
     }
 
     @objc func keyboardWillHide(_ notification: Notification) {
-        scrollViewBottomAnchor?.constant = 0
+        let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.2
+        UIView.animate(withDuration: animationDuration) { [weak self] in
+            self?.scrollViewBottomAnchor?.constant = 0
+            self?.view?.layoutIfNeeded()
+        }
+    }
+    
+    /// Calculate keyboard height accounting for iPad flexible window positioning
+    private func calculateKeyboardHeight(from keyboardFrame: CGRect) -> CGFloat {
+        guard let window = self.view.window else {
+            return keyboardFrame.height
+        }
+        
+        // Convert keyboard frame from screen coordinates to window coordinates
+        let keyboardFrameInWindow = window.convert(keyboardFrame, from: nil)
+        
+        // Calculate the keyboard height relative to the window bottom
+        let windowHeight = window.bounds.height
+        let keyboardTopInWindow = keyboardFrameInWindow.origin.y
+        
+        // If keyboard is below the window (not visible), return 0
+        if keyboardTopInWindow >= windowHeight {
+            return 0
+        }
+        
+        return max(0, windowHeight - keyboardTopInWindow)
     }
 
     // MARK: - UI Setup

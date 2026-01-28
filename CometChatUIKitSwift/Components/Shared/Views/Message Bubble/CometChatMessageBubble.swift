@@ -212,6 +212,10 @@ open class CometChatMessageBubble: UITableViewCell {
             )
         )
         
+        // Set content hugging and compression resistance for flexible resizing
+        containerStackView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        containerStackView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        
         //Setting custom view
         if let bubbleView = customBubbleView {
             containerStackView.embed(bubbleView)
@@ -222,6 +226,10 @@ open class CometChatMessageBubble: UITableViewCell {
         containerStackView.addArrangedSubview(leadingView)
         containerStackView.addArrangedSubview(middleStackView)
         containerStackView.addArrangedSubview(trailingSpacer)
+        
+        // Set flexible priorities for spacers to handle window resizing
+        leadingSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        trailingSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
         
         buildAvatarView()
         buildMiddleStackView()

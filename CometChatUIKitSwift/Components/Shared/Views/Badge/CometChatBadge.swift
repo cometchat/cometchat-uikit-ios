@@ -83,9 +83,10 @@ import CometChatSDK
         self.backgroundColor = style.backgroundColor
         self.clipsToBounds = true
         self.textAlignment = .center
-        self.setContentHuggingPriority(.required, for: .horizontal)
-        self.setContentCompressionResistancePriority(.required, for: .horizontal)
-        self.setContentCompressionResistancePriority(.required, for: .vertical)
+        // Use high priority instead of required to prevent constraint conflicts during iPad window resizing
+        self.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        self.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        self.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
         self.numberOfLines = 1
         self.lineBreakMode = .byTruncatingTail
         self.adjustsFontSizeToFitWidth = true

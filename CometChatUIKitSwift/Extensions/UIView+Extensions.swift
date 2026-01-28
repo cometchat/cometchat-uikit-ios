@@ -348,6 +348,22 @@ extension UIView {
     var currentLanguageIsRightToLeftDirection: Bool {
         traitCollection.layoutDirection == .rightToLeft
     }
+    
+    /// Safely updates layout for iPad flexible window resizing.
+    /// Call this method during window size transitions to prevent constraint conflicts.
+    func updateLayoutForWindowResize() {
+        // Temporarily lower constraint priorities to prevent conflicts
+        constraints.forEach { constraint in
+            if constraint.priority == .required {
+                // Don't modify required constraints as they may be intentional
+            } else if constraint.priority.rawValue > UILayoutPriority.cometChatHigh.rawValue {
+                constraint.priority = .cometChatHigh
+            }
+        }
+        
+        setNeedsLayout()
+        layoutIfNeeded()
+    }
 }
 
 
@@ -413,5 +429,52 @@ extension UIView {
             self.addSubview(backgroundImageView)
             self.sendSubviewToBack(backgroundImageView)
         }
+    }
+}
+
+// MARK: - Keyboard Height Calculation for iPad Flexible Window
+extension UIView {
+    
+    /// Calculates the effective keyboard height relative to this view's window.
+    /// This method properly handles iPad flexible window positioning where the keyboard
+    /// frame is reported in screen coordinates but the app window may not extend to
+    /// the bottom of the screen.
+    ///
+    /// - Parameter keyboardFrame: The keyboard frame from the notification's userInfo,
+    ///   typically from `UIResponder.keyboardFrameEndUserInfoKey`
+    /// - Returns: The effective keyboard height that overlaps with this view's window,
+    ///   or 0 if the keyboard doesn't overlap
+    func keyboardHeightInWindow(from keyboardFrame: CGRect) -> CGFloat {
+        guard let window = self.window else {
+            // Fallback to screen-based calculation if no window
+            return max(0, UIScreen.main.bounds.height - keyboardFrame.origin.y)
+        }
+        
+        // Convert keyboard frame from screen coordinates to window coordinates
+        let keyboardFrameInWindow = window.convert(keyboardFrame, from: nil)
+        
+        // Calculate the keyboard height relative to the window bottom
+        let windowHeight = window.bounds.height
+        let keyboardTopInWindow = keyboardFrameInWindow.origin.y
+        
+        // If keyboard is below the window (not visible), return 0
+        if keyboardTopInWindow >= windowHeight {
+            return 0
+        }
+        
+        // Return the keyboard height relative to the window
+        return max(0, windowHeight - keyboardTopInWindow)
+    }
+    
+    /// Calculates the effective keyboard height accounting for safe area insets.
+    /// Use this when the view is constrained to the safe area layout guide.
+    ///
+    /// - Parameters:
+    ///   - keyboardFrame: The keyboard frame from the notification's userInfo
+    ///   - safeAreaInsets: The safe area insets to subtract from the keyboard height
+    /// - Returns: The effective keyboard height minus the bottom safe area inset
+    func keyboardHeightInWindow(from keyboardFrame: CGRect, subtractingSafeArea safeAreaInsets: UIEdgeInsets) -> CGFloat {
+        let keyboardHeight = keyboardHeightInWindow(from: keyboardFrame)
+        return max(0, keyboardHeight - safeAreaInsets.bottom)
     }
 }

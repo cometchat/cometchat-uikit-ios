@@ -63,7 +63,6 @@ open class CometChatGroupMembers: CometChatListBase {
     open func defaultSetup() {
         
         self.prefersLargeTitles = false
-        self.hideSearch = false
         
         title = "MEMBERS".localize()
         

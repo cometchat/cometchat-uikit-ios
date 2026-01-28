@@ -106,8 +106,6 @@ open class CometChatGroups: CometChatListBase {
         super.viewDidLoad() // Calls the superclass implementation.
         // Sets up the table view with a grouped style and enables refresh control.
         setupTableView(style: .plain, withRefreshControl: true)
-        // Enables the search feature in the view.
-        hideSearch = false
         // Registers custom cells for the table view.
         registerCells()
         // Displays a loading view while data is being fetched.
