@@ -16,6 +16,7 @@ public struct AssetConstants {
     static let forward = UIImage()
     static let copy = UIImage(systemName: "doc.on.doc")?.withRenderingMode(.alwaysTemplate)
     static let share = UIImage(systemName: "square.and.arrow.up")?.withRenderingMode(.alwaysTemplate)
+    static let markAsUnread = UIImage(systemName: "message.badge")?.withRenderingMode(.alwaysTemplate)
     static let translate = UIImage(named: "translate-icon", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
     static let messageInfo = UIImage(systemName: "info.circle")?.withRenderingMode(.alwaysTemplate)
     static let reply = UIImage(systemName: "arrowshape.turn.up.left")?.withRenderingMode(.alwaysTemplate)

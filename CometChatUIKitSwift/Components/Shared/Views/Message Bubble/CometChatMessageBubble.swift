@@ -387,7 +387,7 @@ open class CometChatMessageBubble: UITableViewCell {
         guard let view = messagePreview else {
             replayView.isHidden = true
             // Reset background to clear when no reply
-            if baseMessage?.messageType == .custom, let customMsg = baseMessage as? CustomMessage, customMsg.type == "extension_sticker" {
+            if let customMsg = baseMessage as? CustomMessage, customMsg.type == "extension_sticker" {
                 set(backgroundColor: .clear)
             }
             return self

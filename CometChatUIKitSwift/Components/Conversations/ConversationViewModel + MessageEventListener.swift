@@ -40,6 +40,7 @@ extension ConversationsViewModel: CometChatMessageEventListener {
     
     func ccMessageSent(message: BaseMessage, status: MessageStatus) {
         if status == .success {
+            latestMessageId = message.id
             if checkForConversationUpdate(message: message) {
                 update(lastMessage: message)
             }
@@ -47,6 +48,7 @@ extension ConversationsViewModel: CometChatMessageEventListener {
     }
     
     public func onTextMessageReceived(textMessage: TextMessage) {
+        latestMessageId = textMessage.id
         if checkForConversationUpdate(message: textMessage) {
             newMessageReceived?(textMessage)
             update(lastMessage: textMessage)
@@ -55,6 +57,7 @@ extension ConversationsViewModel: CometChatMessageEventListener {
     }
     
     public func onMediaMessageReceived(mediaMessage: MediaMessage) {
+        latestMessageId = mediaMessage.id
         if checkForConversationUpdate(message: mediaMessage) {
             newMessageReceived?(mediaMessage)
             update(lastMessage: mediaMessage)
@@ -62,6 +65,7 @@ extension ConversationsViewModel: CometChatMessageEventListener {
     }
     
     public func onCustomMessageReceived(customMessage: CustomMessage) {
+        latestMessageId = customMessage.id
         if checkForConversationUpdate(message: customMessage) {
             newMessageReceived?(customMessage)
             update(lastMessage: customMessage)

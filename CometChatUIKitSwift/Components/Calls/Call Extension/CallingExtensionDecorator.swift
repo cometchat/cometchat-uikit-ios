@@ -64,12 +64,11 @@ class CallingExtensionDecorator: DataSourceDecorator {
     }
     
     override func getAllMessageCategories() -> [String]? {
-        if let categories = super.getAllMessageCategories(), !categories.contains(obj: MessageCategoryConstants.custom) {
-            var messageCategories = categories
+        var messageCategories = super.getAllMessageCategories() ?? []
+        if !messageCategories.contains(obj: callCategoryConstant) {
             messageCategories.append(callCategoryConstant)
-            return messageCategories
         }
-        return super.getAllMessageCategories()
+        return messageCategories
     }
     
     override func getAllMessageTemplates(additionalConfiguration: AdditionalConfiguration?) -> [CometChatMessageTemplate] {

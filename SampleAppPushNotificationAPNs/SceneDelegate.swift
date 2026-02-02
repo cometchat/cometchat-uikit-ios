@@ -105,6 +105,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 .set(region: AppConstants.REGION)
                 .setExtensionGroupID(id: "group.com.cometchat.internal.swift.notification")
                 .subscribePresenceForAllUsers()
+//                .overrideAdminHost("\(AppConstants.APP_ID).api-\(AppConstants.REGION).cometchat-staging.com")
+//                .overrideClientHost("\(AppConstants.APP_ID).apiclient-\(AppConstants.REGION).cometchat-staging.com")
                 .enable(inAppIncomingCall: false)
                 .build()
             

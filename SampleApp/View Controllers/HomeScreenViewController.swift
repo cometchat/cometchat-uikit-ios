@@ -11,6 +11,8 @@ import CometChatUIKitSwift
 import CometChatSDK
 import SystemConfiguration
 
+var isBugseeLaunched = false
+
 class HomeScreenViewController: UITabBarController {
     
     lazy var conversations: CometChatConversations = {
@@ -58,8 +60,16 @@ class HomeScreenViewController: UITabBarController {
                     }
                 } else {
                     let messagesVC = MessagesVC() // or your custom MessageViewController
-                    messagesVC.user = loggedInUID == message.sender?.uid ? (message.receiver as? CometChatSDK.User) : message.sender
-                    messagesVC.group = message.receiver as? Group
+                    
+                    if message.receiverType == .user {
+                        if loggedInUID == message.sender?.uid {
+                            messagesVC.user = message.receiver as? CometChatSDK.User
+                        } else {
+                            messagesVC.user = message.sender
+                        }
+                    } else if message.receiverType == .group {
+                        messagesVC.group = message.receiver as? Group
+                    }
                     messagesVC.targetMessageId = message.id
 
                     self?.navigationController?.pushViewController(messagesVC, animated: true)

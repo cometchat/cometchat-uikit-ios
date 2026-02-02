@@ -243,16 +243,6 @@ extension CometChatMessageList {
         return self
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     @discardableResult
     public func set(controller: UIViewController) -> Self {
         self.controller = controller
@@ -353,6 +343,11 @@ extension CometChatMessageList {
         if let mentionFormatter = viewModel.textFormatters.first(where: { $0 is CometChatMentionsFormatter }) as? CometChatMentionsFormatter {
             mentionFormatter.setMentionAllLabel(id: id, label: label)
         }
+        return self
+    }
+    
+    public func set(newMessageIndicatorView: UIView) -> Self {
+        self.newMessageIndicatorCustomView = newMessageIndicatorView
         return self
     }
     

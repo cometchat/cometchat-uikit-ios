@@ -28,6 +28,14 @@ public class CometChatConversationEvents {
             observer.ccConversationDeleted?(conversation: conversation)
         }
     }
+    
+    public static func ccUpdateConversation(conversation: Conversation) {
+        
+        let objectEnumerator = self.observer.objectEnumerator()
+        while let observer = objectEnumerator?.nextObject() as? CometChatConversationEventListener {
+            observer.ccUpdateConversation?(conversation: conversation)
+        }
+    }
 }
 
 //MARK: Deprecated Function

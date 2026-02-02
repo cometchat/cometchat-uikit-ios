@@ -53,6 +53,10 @@ final public class CometChatUIKitHelper {
         CometChatConversationEvents.ccConversationDeleted(conversation: conversation)
     }
     
+    public static func onUpdateConversation(conversation: Conversation) {
+        CometChatConversationEvents.ccUpdateConversation(conversation: conversation)
+    }
+    
     ///Methods related to groups
     public static func onGroupCreated(group: Group) {
         CometChatGroupEvents.ccGroupCreated(group: group)

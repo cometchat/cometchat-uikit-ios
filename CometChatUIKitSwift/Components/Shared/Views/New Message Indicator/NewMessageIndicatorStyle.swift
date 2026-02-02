@@ -8,7 +8,7 @@ import UIKit
 
 public struct NewMessageIndicatorStyle {
     
-    public var textFont: UIFont = CometChatTypography.Body.medium
+    public var textFont: UIFont = CometChatTypography.Caption1.medium
     public var textColor: UIColor = CometChatTheme.white
     public var textBackgroundColor: UIColor = CometChatTheme.primaryColor
     public var imageTint: UIColor = CometChatTheme.iconColorSecondary

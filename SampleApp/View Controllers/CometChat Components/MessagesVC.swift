@@ -231,7 +231,8 @@ class MessagesVC: UIViewController {
             messageListView.messageBubbleStyle.outgoing.textBubbleStyle.backgroundColor = CometChatTheme.neutralColor300
             messageListView.messageBubbleStyle.outgoing.dateStyle.textColor = CometChatTheme.neutralColor600
         }
-
+        messageListView.showMarkAsUnreadOption = true
+        messageListView.startFromUnreadMessages = true
         return messageListView
     }()
     

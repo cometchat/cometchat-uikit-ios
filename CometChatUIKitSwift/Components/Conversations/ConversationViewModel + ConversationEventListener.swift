@@ -14,4 +14,8 @@ extension ConversationsViewModel: CometChatConversationEventListener {
         self.remove(conversation: conversation)
     }
     
+    func ccUpdateConversation(conversation: Conversation) {
+        self.update(conversation: conversation)
+    }
+    
 }

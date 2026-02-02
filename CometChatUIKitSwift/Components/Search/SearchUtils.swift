@@ -180,14 +180,32 @@ public class SearchUtils {
         textFormatter: [CometChatTextFormatter]?,
         searchKeyword: String
     ) -> UIView {
+
         let label = UILabel()
         label.font = searchStyle.listItemSubTitleFont
         label.textColor = searchStyle.listItemSubTitleTextColor
         label.numberOfLines = 1
 
         let content = (message as? TextMessage)?.text ?? ""
-        
-        var attributedText: NSMutableAttributedString
+        let isGroupMessage = message.receiverType == .group
+
+        // Sender name (only for group)
+        let senderName: String? = {
+            guard isGroupMessage else { return nil }
+            return message.sender?.name
+        }()
+
+        let attributedText = NSMutableAttributedString()
+
+        if let senderName {
+            let senderAttributes: [NSAttributedString.Key: Any] = [
+                .font: searchStyle.listItemSubTitleFont,
+                .foregroundColor: searchStyle.listItemSubTitleTextColor
+            ]
+            attributedText.append(
+                NSAttributedString(string: "\(senderName): ", attributes: senderAttributes)
+            )
+        }
 
         if let formatters = textFormatter,
            !formatters.isEmpty,
@@ -198,15 +216,19 @@ public class SearchUtils {
                 textFormatter: formatters,
                 formattingType: .MESSAGE_BUBBLE
             )
-            attributedText = NSMutableAttributedString(attributedString: processed)
-//            {
-//                
-//            } else {
-//                attributedText = NSMutableAttributedString(string: content)
-//            }
+
+            attributedText.append(processed)
 
         } else {
-            attributedText = NSMutableAttributedString(string: content)
+            attributedText.append(
+                NSAttributedString(
+                    string: content,
+                    attributes: [
+                        .font: searchStyle.listItemSubTitleFont,
+                        .foregroundColor: searchStyle.listItemSubTitleTextColor
+                    ]
+                )
+            )
         }
 
         if !searchKeyword.isEmpty {
@@ -214,7 +236,9 @@ public class SearchUtils {
                 to: attributedText,
                 keyword: searchKeyword,
                 normalFont: searchStyle.listItemSubTitleFont,
-                highlightFont: UIFont.boldSystemFont(ofSize: searchStyle.listItemSubTitleFont.pointSize)
+                highlightFont: UIFont.boldSystemFont(
+                    ofSize: searchStyle.listItemSubTitleFont.pointSize
+                )
             )
         }
 

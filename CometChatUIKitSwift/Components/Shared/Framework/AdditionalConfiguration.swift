@@ -38,7 +38,7 @@ public class AdditionalConfiguration {
     public var hideMessageInfoOption: Bool = false
     public var hideShareMessageOption: Bool = false
     public var hideReplyMessageOption: Bool = false
-    
+    public var showMarkAsUnreadOption: Bool = false
     public var hideVideoCallButton: Bool = false
     public var hideVoiceCallButton: Bool = false
     

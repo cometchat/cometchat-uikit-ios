@@ -63,6 +63,8 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
     
     var isFetching = false
     
+    var latestMessageId: Int = -1
+    
     
     public func setRequestBuilder(conversationRequestBuilder: ConversationRequest.ConversationRequestBuilder) {
         self.conversationRequestBuilder = conversationRequestBuilder.with(blockedInfo: true)
@@ -237,6 +239,10 @@ extension ConversationsViewModel  {
             return $0.conversationId == conversation.conversationId
         }) {
             conversations[currentRow] = conversation
+            conversations[currentRow].unreadMessageCount = conversation.unreadMessageCount
+            conversations[currentRow].lastMessage = conversation.lastMessage
+            conversations[currentRow].lastReadMessageId = conversation.lastReadMessageId
+
             self.reloadAtIndex?(IndexPath(row: currentRow, section: 0))
         }
     }

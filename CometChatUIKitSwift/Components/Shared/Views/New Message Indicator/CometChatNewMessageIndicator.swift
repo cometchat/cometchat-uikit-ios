@@ -13,7 +13,6 @@ public class CometChatNewMessageIndicator: UIStackView {
     //MARK: - Declaration of Outlets
     public lazy var title: UILabel = {
         var title = UILabel().withoutAutoresizingMaskConstraints()
-        title.pin(anchors: [.height, .width], to: 20)
         title.textAlignment = .center
         title.isHidden = true
         return title
@@ -43,7 +42,7 @@ public class CometChatNewMessageIndicator: UIStackView {
     @discardableResult
     public func set(count : Int) -> Self {
         self.count = count
-        self.title.text = "\(count)"
+        title.text = count > 999 ? "999+" : "\(count)"
         return self
     }
     
@@ -62,18 +61,37 @@ public class CometChatNewMessageIndicator: UIStackView {
        return self
     }
     
+    func setUnreadCount(count: Int) {
+        self.set(count: count)
+        
+        if title.isHidden == true {
+            iconImageView.removeFromSuperview()
+            addArrangedSubview(title)
+            addArrangedSubview(iconImageView)
+            self.title.isHidden = false
+            super.layoutSubviews()
+        }
+    }
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+
+        let minSide = min(bounds.width, bounds.height)
+        layer.cornerRadius = minSide / 2
+        clipsToBounds = true
+
+        // Title badge rounding (small pill)
+        title.layer.cornerRadius = min(title.bounds.width, title.bounds.height) / 2
+        title.clipsToBounds = true
+    }
+
+    
     @discardableResult
     public func reset() -> Self {
         self.title.isHidden = true
         self.title.removeFromSuperview()
         self.count = 0
         return self
-    }
-    
-    public override func layoutSubviews() {
-        super.layoutSubviews()
-        title.roundViewCorners(corner: .init(cornerRadius: 9))
-        roundViewCorners(corner: .init(cornerRadius: bounds.width/2)) //rounded corner
     }
     
     public override func willMove(toSuperview newSuperview: UIView?) {
@@ -94,6 +112,8 @@ public class CometChatNewMessageIndicator: UIStackView {
     open func setupStyle() {
         if let cornerRadius = style.cornerRadius {
             roundViewCorners(corner: cornerRadius)
+        } else {
+            roundViewCorners(corner: .init(cornerRadius: 20))
         }
         backgroundColor = style.backgroundColor
         borderWith(width: style.borderWidth)
@@ -108,7 +128,12 @@ public class CometChatNewMessageIndicator: UIStackView {
     open func buildUI() {
         
         withoutAutoresizingMaskConstraints()
-        pin(anchors: [.height, .width], to: 32)
+        
+        heightAnchor.constraint(greaterThanOrEqualToConstant: 40).isActive = true
+        widthAnchor.constraint(greaterThanOrEqualToConstant: 40).isActive = true
+        title.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
+        title.widthAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
+
         
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTap)))
         

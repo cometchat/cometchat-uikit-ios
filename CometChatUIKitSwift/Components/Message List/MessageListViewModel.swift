@@ -63,6 +63,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     var appendAtIndex: ((_ section: Int, _ row: Int, _ baseMessage: BaseMessage, _ isNewSectionAdded: Bool) -> Void)?
 
     var updateAtIndex: ((Int, Int, BaseMessage) -> Void)?
+    var updateConversationCount: (() -> Void)?
     var deleteAtIndex: ((Int, Int, BaseMessage) -> Void)?
     var hideHeaderView: ((Bool) -> Void)?
     var hideFooterView: ((Bool) -> Void)?
@@ -90,6 +91,8 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     var placeholder: StreamMessage?
     var streamPlaceholderRunId: Int?
     var isThinkingHidden = false
+    
+    var currentConversation: Conversation?
     
     var messageBubbleStyle = CometChatMessageBubble.style {
         didSet {
@@ -178,6 +181,13 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
     private var pendingAIMessages: [Int: AIAssistantMessage] = [:]
     
+    public var showMarkAsUnreadOption: Bool = true{
+        didSet{
+            additionalConfiguration.showMarkAsUnreadOption = showMarkAsUnreadOption
+        }
+    }
+    
+    
     public override init() {
         messagesRequestBuilder = MessagesRequest.MessageRequestBuilder()
         isUIUpdating = true
@@ -244,6 +254,49 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         return messages
             .flatMap { $0.messages }
             .contains(where: { $0.id == id })
+    }
+    
+    // MARK: - Mark as unread flow
+    
+    func getConversation(conversationWith: String, conversationType: CometChat.ConversationType, completion: @escaping(Conversation) -> ()) {
+        CometChat.getConversation(
+            conversationWith: conversationWith,
+            conversationType: conversationType,
+            onSuccess: { [weak self] conversation in
+                guard let this = self, let conversation = conversation else { return }
+                this.currentConversation = conversation
+                completion(conversation)
+            },
+            onError: { error in
+                print("Error fetching conversation: \(error?.errorDescription ?? "")")
+            }
+        )
+    }
+    
+    func markConversationAsRead(_ conversationWith: String, _ conversationType: CometChat.ReceiverType) {
+        CometChat.markConversationAsRead(
+            conversationWithId: conversationWith,
+            receiverType: conversationType
+        ) { message in
+            print(message)
+            if let currentConversation = self.currentConversation {
+                currentConversation.unreadMessageCount = 0
+                currentConversation.lastReadMessageId = 0
+                CometChatConversationEvents.ccUpdateConversation(conversation: currentConversation)
+            }
+        } onError: { error in
+            print("Error marking conversation as read: \(error.errorDescription)")
+        }
+    }
+    
+    func markMessageAsUnread(_ message: BaseMessage, completion: @escaping(Conversation) -> (), failure: @escaping() -> ()) {
+        CometChat.markMessageAsUnread(baseMessage: message) { conversation in
+            CometChatConversationEvents.ccUpdateConversation(conversation: conversation)
+            completion(conversation)
+        } onError: { error in
+            print(error?.errorDescription ?? "")
+            failure()
+        }
     }
     
     // MARK: - Go To Message 
@@ -676,7 +729,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
     private func groupMessages(messages: [BaseMessage], atBottom: Bool = false) {
         
-        if let lastMessage = messages.last {
+        if let lastMessage = messages.last{
             if lastMessage.deliveredAt == 0.0 {
                 self.markAsDelivered(message: lastMessage)
             }
@@ -801,6 +854,9 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
                         if baseMessage.id == message.parentMessageId {
                             baseMessage.replyCount = (baseMessage.replyCount + 1)
                             this.updateAtIndex?(sectionIndex, rowIndex, baseMessage)
+                            if !LoggedInUserInformation.isLoggedInUser(uid: message.sender?.uid ?? ""){
+                                this.updateConversationCount?()
+                            }
                             return
                         }
                     }
@@ -884,6 +940,9 @@ extension MessageListViewModel {
         if isMessageForThisUser(message: message){
             markAsRead(message: message)
             markAsDelivered(message: message)
+            if !LoggedInUserInformation.isLoggedInUser(uid: message.sender?.uid ?? ""){
+                updateConversationCount?()
+            }
         }
         
         

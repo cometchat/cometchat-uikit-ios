@@ -729,7 +729,11 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
                     return UITableViewCell()
                 }
                 listItem.hide(avatar: true)
-                listItem.set(title: isLoggedInUser ? "You" : message.sender?.name ?? "")
+                if message.receiverType == .group {
+                    listItem.set(title: (message.receiver as? Group)?.name ?? "")
+                } else {
+                    listItem.set(title: isLoggedInUser ? "You" : message.sender?.name ?? "")
+                }
                 style.listItemTitleTextColor = CometChatTheme.textColorSecondary
                 listItem.style = style
                 listItem.set(subtitle: SearchUtils.configureMessageSubtitleView(

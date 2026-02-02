@@ -8,6 +8,11 @@
 import Foundation
 import UIKit
 
+enum UnreadSeparatorMode {
+    case markAsUnread
+    case navigateFromConversation
+}
+
 extension CometChatMessageList {
 
     public func goToMessage(withId id: Int, highlight: Bool = true) {
@@ -18,7 +23,7 @@ extension CometChatMessageList {
         if viewModel.isMessageAlreadyLoaded(id) {
 
             DispatchQueue.main.async {
-                self.scrollToMessage(withId: id)
+                self.scrollToMessage(withId: id, isPagination: !highlight)
             }
             return
         }
@@ -378,9 +383,6 @@ extension CometChatMessageList {
 
 // Swift
 extension CometChatMessageList {
-    
-    // swift
-    // Add / replace in `CometChatMessageList.swift`
 
     // Safe highlight: add non-interactive overlay inside the cell's contentView and animate its alpha.
     func applyHighlightSafely(to cell: CometChatMessageBubble, color: UIColor = UIColor.systemYellow.withAlphaComponent(0.35), duration: TimeInterval = 1.2) {
@@ -420,82 +422,5 @@ extension CometChatMessageList {
                 })
             })
         }
-    }    
-    
-    
-    
-    
-    
-    
-    
-    /// Safely highlight a message cell without triggering layout shifts.
-    /// - Parameters:
-    ///   - cell: the CometChatMessageBubble to highlight
-    ///   - color: highlight color (defaults to system yellow with alpha)
-    ///   - duration: total duration of the highlight animation
-//    func applyHighlightSafely(to cell: CometChatMessageBubble, color: UIColor = UIColor.systemYellow.withAlphaComponent(0.35), duration: TimeInterval = 1.2) {
-//        DispatchQueue.main.async {
-//            // Remove any stray animations that might be shifting the cell
-//            cell.layer.removeAllAnimations()
-//            cell.contentView.layer.removeAllAnimations()
-//
-//            let highlightTag = 0xDEADBEEF
-//            // Remove existing overlay if present
-//            if let existing = cell.contentView.viewWithTag(highlightTag) {
-//                existing.removeFromSuperview()
-//            }
-//
-//            // Create overlay that won't affect layout
-//            let overlay = UIView()
-//            overlay.tag = highlightTag
-//            overlay.translatesAutoresizingMaskIntoConstraints = false
-//            overlay.backgroundColor = color
-//            overlay.isUserInteractionEnabled = false
-//            overlay.alpha = 0.0
-//
-//            // Match overlay corner radius to bubble (avoid changing cell constraints)
-//            overlay.layer.masksToBounds = true
-//            // If bubble has rounded corners on a subview, copy them safely:
-//            overlay.layer.cornerRadius = cell.contentView.layer.cornerRadius
-//
-//            cell.contentView.addSubview(overlay)
-//            NSLayoutConstraint.activate([
-//                overlay.topAnchor.constraint(equalTo: cell.contentView.topAnchor),
-//                overlay.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor),
-//                overlay.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor),
-//                overlay.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor)
-//            ])
-//
-//            // Ensure layout changes happen without implicit animations
-//            UIView.performWithoutAnimation {
-//                cell.contentView.layoutIfNeeded()
-//            }
-//
-//            // Use keyframe animation to fade in/out the overlay only (no layout changes)
-//            UIView.animateKeyframes(withDuration: duration, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState], animations: {
-//                UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.2) {
-//                    overlay.alpha = 1.0
-//                }
-//                UIView.addKeyframe(withRelativeStartTime: 0.2, relativeDuration: 0.6) {
-//                    overlay.alpha = 0.6
-//                }
-//                UIView.addKeyframe(withRelativeStartTime: 0.8, relativeDuration: 0.2) {
-//                    overlay.alpha = 0.0
-//                }
-//            }, completion: { _ in
-//                overlay.removeFromSuperview()
-//            })
-//        }
-//    }
-
-    /// Convenience: highlight a visible message by id (if cell visible)
-//    func applyHighlightIfVisible(messageId: Int, color: UIColor = UIColor.systemYellow.withAlphaComponent(0.35), duration: TimeInterval = 1.2) {
-//        DispatchQueue.main.async {
-//            guard let indexPath = self.visibleIndexPath(forMessageId: messageId),
-//                  let cell = self.tableView.cellForRow(at: indexPath) as? CometChatMessageBubble else {
-//                return
-//            }
-//            self.applyHighlightSafely(to: cell, color: color, duration: duration)
-//        }
-//    }
+    }
 }

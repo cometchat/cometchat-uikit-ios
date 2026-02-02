@@ -154,6 +154,7 @@ open class CometChatMessageList: UIView {
     var onError: ((_ error: CometChatException) -> Void)?
     var onEmpty: (() -> Void)?
     var onLoad: (([BaseMessage]) -> Void)?
+    var newMessageIndicatorCustomView: UIView?
     public var hideAvatar: Bool?
     public var hideGroupActionMessages: Bool = false
     public var hideFlagRemarkFeild: Bool = false
@@ -220,6 +221,13 @@ open class CometChatMessageList: UIView {
 
     public var hideModerationStatus: Bool = false
     
+    public var showMarkAsUnreadOption: Bool = false {
+        didSet {
+            viewModel.showMarkAsUnreadOption = showMarkAsUnreadOption
+        }
+    }
+    public var startFromUnreadMessages: Bool = false 
+    
     //AI Variables
     public var enableConversationStarters: Bool = false
     public var enableSmartReplies: Bool = false
@@ -272,6 +280,11 @@ open class CometChatMessageList: UIView {
     var messageIndicator : CometChatNewMessageIndicator?
     var viewModel = MessageListViewModel()
     var lastContentOffset: CGFloat = 0
+    
+    var unreadSeparatorMessageId: Int?
+    var scrolledToUnread: Bool = false
+    var unreadMessageCount: Int = 0
+    var scrollRestored = false
     private var isViewActive: Bool = true  // Flag to track if view is still active for updates
     lazy var onTapGesture: UITapGestureRecognizer = {
         let onTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -293,6 +306,8 @@ open class CometChatMessageList: UIView {
 
     var fetchNextAnchorSnapshot: AnchorSnapshot?
     var gotoMessageId: Int = 0
+    
+    var unreadSeparatorMode: UnreadSeparatorMode?
     
     public var textFormatter: [CometChatTextFormatter] = [CometChatMentionsFormatter()]
     
@@ -349,7 +364,7 @@ open class CometChatMessageList: UIView {
         isViewActive = false  // Prevent any pending async operations from updating tableView
         CometChatAIStreamService.shared.cleanupAll()
             disconnect()
-            CometChatAIStreamService.shared.isAIBusy = false
+        CometChatAIStreamService.shared.isAIBusy = false
     }
     
     // ------ END: life cycle functions ---- //
@@ -509,7 +524,63 @@ open class CometChatMessageList: UIView {
         if gotoMessageId != 0 {
             self.goToMessage(withId: gotoMessageId)
         } else {
-            viewModel.fetchPreviousMessages()
+            let conversationWith: String
+            let conversationType: CometChat.ConversationType
+            let receiverType: CometChat.ReceiverType
+            
+            if let user = viewModel.user {
+                conversationWith = user.uid ?? ""
+                conversationType = .user
+                receiverType = .user
+            } else if let group = viewModel.group {
+                conversationWith = group.guid
+                conversationType = .group
+                receiverType = .group
+            } else {
+                return
+            }
+            
+            // Skip unread separator logic for thread views
+            let isThreadView = viewModel.parentMessage != nil && (viewModel.parentMessage?.id ?? 0) > 0
+            
+            if isThreadView {
+                // For thread views, just fetch messages without unread separator logic
+                viewModel.fetchPreviousMessages()
+                return
+            }
+            
+            viewModel.getConversation(conversationWith: conversationWith, conversationType: conversationType) { [weak self] conversation in
+                guard let this = self else { return }
+                if this.startFromUnreadMessages && conversation.unreadMessageCount > 0 && this.gotoMessageId <= 0 {
+                    let lastReadMessageId = conversation.lastReadMessageId
+                    if lastReadMessageId <= 0 {
+                        this.viewModel.fetchPreviousMessages()
+                        print("unread message detected with last read message less than equal to 0")
+                    } else {
+                        this.unreadSeparatorMessageId = lastReadMessageId
+                        this.unreadSeparatorMode = .navigateFromConversation
+                        this.unreadMessageCount = conversation.unreadMessageCount
+                        this.scrolledToUnread = true
+                        this.viewModel.goToMessage(messageId: lastReadMessageId)
+                        
+                        print("unread message detected")
+                        print("lastReadMessageId \(lastReadMessageId)")
+                    }
+                    
+                } else {
+                    print("unread message not detected")
+                    print("conversation count is: \(conversation.unreadMessageCount)")
+                    print("conversation last read message id is: \(conversation.lastReadMessageId)")
+                    if conversation.unreadMessageCount > 0 {
+                        let lastReadMessageId = conversation.lastReadMessageId
+                        this.unreadSeparatorMessageId = lastReadMessageId
+                        this.unreadSeparatorMode = .navigateFromConversation
+                        print("go to message but unread count more than 0")
+                    }
+                    this.viewModel.fetchPreviousMessages()
+                }
+                this.viewModel.markConversationAsRead(conversationWith, receiverType)
+            }
         }
     }
     
@@ -532,6 +603,7 @@ open class CometChatMessageList: UIView {
             })
             messageIndicator!.onClick = { [weak self] in
                 guard let this = self else { return }
+                this.unreadMessageCount = 0
                 this.messageIndicator?.reset()
                 this.messageIndicator?.isHidden = true
                 this.fetchBottomMessages()
@@ -546,6 +618,9 @@ open class CometChatMessageList: UIView {
         viewModel.isAllMessagesFetchedInPrevious = false
         
         viewModel.messages.removeAll()
+        tableView.reloadData()
+        showLoadingView()
+        
         gotoMessageId = 0
         if let user = viewModel.user, !user.isAgentic {
             viewModel.set(messagesRequestBuilder: MessagesRequest.MessageRequestBuilder()
@@ -562,7 +637,24 @@ open class CometChatMessageList: UIView {
                 .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
                 .set(messageID: -1))
         }
-        fetchData()
+//        fetchData()
+       let conversationWith: String
+       let conversationType: CometChat.ConversationType
+       let receiverType: CometChat.ReceiverType
+       
+       if let user = viewModel.user {
+           conversationWith = user.uid ?? ""
+           conversationType = .user
+           receiverType = .user
+       } else if let group = viewModel.group {
+           conversationWith = group.guid
+           conversationType = .group
+           receiverType = .group
+       } else {
+           return
+       }
+       viewModel.fetchPreviousMessages()
+       viewModel.markConversationAsRead(conversationWith, receiverType)
     }
     
     //MARK: - State Views
@@ -646,6 +738,68 @@ open class CometChatMessageList: UIView {
         viewModel.scrollToMessageId = { [weak self] id, isPagination in
             guard let this = self, this.isViewActive else { return }
             
+            if this.startFromUnreadMessages && this.gotoMessageId <= 0 {
+                print("check index to scroll")
+                if let unreadId = this.unreadSeparatorMessageId,
+                   let unreadIndexPath = this.viewModel.indexPathForMessageId(unreadId) {
+
+                    // Separator is always AFTER unread message in inverted table
+                    let separatorIndexPath = IndexPath(
+                        row: unreadIndexPath.row - 1,
+                        section: unreadIndexPath.section
+                    )
+
+                    let visibleIndexPaths = this.tableView.indexPathsForVisibleRows ?? []
+                    let isSeparatorCellVisible = this.tableView.visibleCells.contains {
+                            $0 is UnreadSeparatorCell
+                        }
+                    
+                    // If separator is already visible, or target is at row 0 and visible → just show separator, don't scroll
+                    if visibleIndexPaths.contains(separatorIndexPath) || isSeparatorCellVisible {
+                        this.startFromUnreadMessages = false
+                        this.messageIndicator?.isHidden = this.unreadMessageCount > 0 ? false : true
+//                        this.messageIndicator?.setUnreadCount(count: this.unreadMessageCount)
+                        this.removeLoadingView()
+                        print("unreadSeparatorMessageId is \(unreadId)")
+                        print("unreadIndexPath: \(unreadIndexPath)")
+                        return
+                    }
+
+                    print("Unread separator not visible. Will scroll. section=\(separatorIndexPath.section), row=\(separatorIndexPath.row)")
+
+                    // First scroll to the unread message to ensure it's loaded
+                    this.tableView.scrollToRow(
+                        at: unreadIndexPath,
+                        at: .bottom,
+                        animated: false
+                    )
+
+
+                    this.startFromUnreadMessages = false
+                    
+                    // Position the separator near the top of the visible area
+                    // so user sees unread messages below and knows to scroll down
+                    DispatchQueue.main.async {
+                        guard let rectForUnread = self?.tableView.rectForRow(at: unreadIndexPath) else { return }
+                        
+                        // In inverted table, we want the separator near the top (which is bottom in normal coordinates)
+                        // Calculate offset to position the unread message near the top with some padding
+                        let visibleHeight = self?.tableView.bounds.height ?? 0
+                        let topPadding: CGFloat = 100 // Padding from top to show some context above separator
+                        
+                        let targetOffsetY = rectForUnread.origin.y - topPadding
+                        let maxOffset = max(0, (self?.tableView.contentSize.height ?? 0) - visibleHeight)
+                        let clampedOffset = max(0, min(targetOffsetY, maxOffset))
+                        
+                        self?.tableView.setContentOffset(CGPoint(x: 0, y: clampedOffset), animated: false)
+                        
+                        this.messageIndicator?.isHidden = this.unreadMessageCount > 0 ? false : true
+                    }
+                }
+                this.removeLoadingView()
+                return
+            }
+            
             this.oldContentHeight = this.tableView.contentSize.height
             
             this.newHeight = this.tableView.contentSize.height
@@ -665,19 +819,25 @@ open class CometChatMessageList: UIView {
                     self.tableView.isScrollEnabled = true
                 }
             }
+            self?.removeLoadingView()
         }
         
         viewModel.reload = { [weak self]  in
             guard let this = self, this.isViewActive else { return }
             DispatchQueue.main.async {
                 guard this.isViewActive, this.tableView.window != nil else { return }
-                this.removeLoadingView()
+                
+                if this.gotoMessageId <= 0 {
+                    this.removeLoadingView()
+                }
+                
                 this.reload()
                                 
                 if this.viewModel.messages.isEmpty {
                     if let onEmpty = this.onEmpty?(){
                         onEmpty
                     }
+                    this.scrollRestored = true
                    if !this.hideEmptyView{
                        if let user = this.viewModel.user, user.isAgentic{
                            this.showAIView()
@@ -685,6 +845,7 @@ open class CometChatMessageList: UIView {
                         this.showEmptyView()
                     }
                 } else {
+                    this.scrollRestored = false
                     this.showTableView()
                     this.removeEmptyView()
                     this.removeErrorView()
@@ -695,6 +856,11 @@ open class CometChatMessageList: UIView {
                 
                 this.hideTopSpinner()
             }
+        }
+        
+        viewModel.updateConversationCount = { [weak self] in
+            self?.unreadMessageCount += 1
+            self?.messageIndicator?.setUnreadCount(count: self?.unreadMessageCount ?? 0)
         }
         
         viewModel.appendAtIndex = { [weak self] section , row, message, isNewSectionAdded in
@@ -745,7 +911,7 @@ open class CometChatMessageList: UIView {
                     shouldScrollToBottom = true
                 } else {
                     if this.tableView.contentOffset.y > 300 {
-                        this.messageIndicator?.incrementCount()
+                        this.messageIndicator?.setUnreadCount(count: this.unreadMessageCount ?? 0)
                         this.messageIndicator?.isHidden = false
                     } else {
                         shouldScrollToBottom = true
@@ -1214,6 +1380,7 @@ open class CometChatMessageList: UIView {
     fileprivate func registerCells() {
         tableView.register(CometChatMessageBubble.self, forCellReuseIdentifier: CometChatMessageBubble.identifier)
         tableView.register(CometChatStreamBubble.self, forCellReuseIdentifier: "CometChatStreamBubble")
+        tableView.register(UnreadSeparatorCell.self, forCellReuseIdentifier: UnreadSeparatorCell.identifier)
     }
     
 }
@@ -1261,15 +1428,80 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
             !(hideGroupActionMessages && message.messageCategory == .action && message.receiverType == .group)
         }
         
-        return filteredMessages?.count ?? 0
+        var messagesCount = filteredMessages?.count ?? 0
+        
+        if let unreadId = unreadSeparatorMessageId,
+           filteredMessages?.contains(where: { $0.id == unreadId }) ?? false {
+            messagesCount += 1
+        }
+        
+        return messagesCount
     }
 
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let filteredMessages = viewModel.messages[safe: indexPath.section]?.messages.filter({ message in
                 !(hideGroupActionMessages && message.messageCategory == .action && message.receiverType == .group)
-            }), let message = filteredMessages[safe: indexPath.row] else {
+            }) else {
                 return UITableViewCell()
             }
+        
+        // Check if we need to show separator in this section
+        if let unreadId = unreadSeparatorMessageId,
+           let markedIndex = filteredMessages.firstIndex(where: { $0.id == unreadId }) {
+
+            let separatorIndex: Int
+
+            switch unreadSeparatorMode {
+            case .markAsUnread:
+                separatorIndex = markedIndex + 1
+
+            case .navigateFromConversation:
+                separatorIndex = markedIndex
+
+            case .none:
+                separatorIndex = markedIndex + 1
+            }
+
+            if indexPath.row == separatorIndex {
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: UnreadSeparatorCell.identifier,
+                    for: indexPath
+                ) as! UnreadSeparatorCell
+                
+                if let customUnreadView = newMessageIndicatorCustomView{
+                    cell.setCustomView(customUnreadView)
+                }
+                cell.setStyle(style)
+                cell.contentView.transform = CGAffineTransform(scaleX: 1, y: -1)
+                return cell
+            }
+
+            let adjustedRow = indexPath.row > separatorIndex
+                ? indexPath.row - 1
+                : indexPath.row
+
+            guard let message = filteredMessages[safe: adjustedRow] else {
+                return UITableViewCell()
+            }
+
+            return createMessageCell(
+                for: message,
+                at: indexPath,
+                in: tableView,
+                filteredMessages: filteredMessages
+            )
+        }
+        
+        // No separator - use original indexing
+        guard let message = filteredMessages[safe: indexPath.row] else {
+            return UITableViewCell()
+        }
+        
+        // Continue with normal message cell creation
+        return createMessageCell(for: message, at: indexPath, in: tableView, filteredMessages: filteredMessages)
+    }
+    
+    private func createMessageCell(for message: BaseMessage, at indexPath: IndexPath, in tableView: UITableView, filteredMessages: [BaseMessage]) -> UITableViewCell {
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
         var bubbleStyle = isLoggedInUser ? messageBubbleStyle.outgoing : messageBubbleStyle.incoming
         let messageTypeStyle = MessageUtils.getSpecificMessageTypeStyle(message: message, from: messageBubbleStyle)
@@ -1585,9 +1817,9 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         let isScrollingUp = delta > deltaThreshold  // scrolling up (towards older messages)
         let isScrollingDown = delta < -deltaThreshold  // scrolling down (towards newer messages)
         
-        if (scrollView.isDragging || scrollView.isDecelerating) && offsetY > lastContentOffset && offsetY >= 400 {
-            self.messageIndicator?.isHidden = false
-        }
+//        if (scrollView.isDragging || scrollView.isDecelerating) && offsetY > lastContentOffset && offsetY >= 400 {
+//            self.messageIndicator?.isHidden = false
+//        }
         
         if isScrollingUp,
            !viewModel.isAllMessagesFetchedInPrevious,
@@ -1610,10 +1842,23 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
             viewModel.fetchNextMessagesForPagination()
         }
         
-        if offsetY <= 50 {
-            self.messageIndicator?.reset()
-            self.messageIndicator?.isHidden = true
+        let shouldHide = shouldHideMessageIndicator(
+            scrollView: scrollView,
+            offsetY: offsetY
+        )
+
+        if shouldHide {
+            messageIndicator?.reset()
+            messageIndicator?.isHidden = true
+        } else {
+            if unreadMessageCount > 0 && unreadSeparatorMode != .navigateFromConversation {
+                messageIndicator?.setUnreadCount(count: unreadMessageCount)
+            } else {
+                messageIndicator?.reset()
+            }
+            messageIndicator?.isHidden = false
         }
+
         
         lastContentOffset = offsetY
     }
@@ -1630,13 +1875,41 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         return nil  // Return nil if not found
     }
 
+    private func shouldHideMessageIndicator(
+        scrollView: UIScrollView,
+        offsetY: CGFloat
+    ) -> Bool {
+
+        // 1. Never hide during unread navigation
+        if startFromUnreadMessages {
+            return false
+        }
+
+        // 2. Never hide during gotoMessage jump
+        if gotoMessageId > 0 {
+            return false
+        }
+
+        // 3. Never hide during pagination or restoration
+        if viewModel.isFetchingNext || scrollRestored {
+            return false
+        }
+
+        // 4. Hide when user reaches bottom (dragging or decelerating) and no more messages to load
+        let isAtBottom = offsetY <= 80
+        let isUserScrolling = scrollView.isDragging || scrollView.isDecelerating
+        let isPaginationComplete = viewModel.isAllMessagesFetchedInNext
+        
+        if isAtBottom && isUserScrolling && isPaginationComplete {
+            return true
+        }
+
+        return false
+    }
+
     
     open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let messageIndicator = self.messageIndicator else { return }
-        if indexPath.section == 0 && indexPath.row == 0  {
-            self.messageIndicator?.reset()
-            self.messageIndicator?.isHidden = true
-        }
+
     }
     
     open func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
@@ -1747,6 +2020,24 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
     func onItemClick(messageOption: CometChatMessageOption, forMessage: BaseMessage?, indexPath: IndexPath?) {
         if let message = forMessage {
             switch messageOption.id {
+            case MessageOptionConstants.markMessageAsUnread:
+                viewModel.markMessageAsUnread(message, completion: { conversation in
+                    DispatchQueue.main.async { [weak self] in
+                        self?.unreadSeparatorMessageId = message.id
+                        self?.unreadSeparatorMode = .markAsUnread
+                        self?.unreadMessageCount = conversation.unreadMessageCount
+                        if conversation.unreadMessageCount > 0{
+                            self?.messageIndicator?.setUnreadCount(count: conversation.unreadMessageCount)
+                        }
+                        print("message marked as unread is \(message.id)")
+                        
+                        self?.reload()
+                    }
+                }, failure: {
+                    DispatchQueue.main.async {
+                        self.controller?.showAlert(message: "Something went wrong. Please try again later.")
+                    }
+                })
             case MessageOptionConstants.replyMessage :
                 if messageOption.onItemClick == nil {
                     CometChatMessageEvents.ccReplyToMessage(message: message, status: .inProgress)

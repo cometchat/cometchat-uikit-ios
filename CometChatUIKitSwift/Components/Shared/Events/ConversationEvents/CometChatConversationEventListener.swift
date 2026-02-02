@@ -12,6 +12,8 @@ import CometChatSDK
     
     @objc optional func ccConversationDeleted(conversation: Conversation)
     
+    @objc optional func ccUpdateConversation(conversation: Conversation)
+    
     @available(*, deprecated, message: "Use `onTransientMessageReceived(_ message: TransientMessage)` instead")
     @objc optional func onConversationDelete(conversation: Conversation)
     

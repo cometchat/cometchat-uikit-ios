@@ -36,6 +36,10 @@ public class MessagesDataSource: DataSource {
         return CometChatMessageOption(id: MessageOptionConstants.shareMessage, title: "SHARE".localize(), icon: AssetConstants.share)
     }
     
+    public func getMarkAsUnreadOption(controller: UIViewController?) -> CometChatMessageOption {
+        return CometChatMessageOption(id: MessageOptionConstants.markMessageAsUnread, title: "Mark as Unread".localize(), icon: AssetConstants.markAsUnread)
+    }
+    
     public func getMessagePrivatelyOption(controller: UIViewController?) -> CometChatMessageOption {
         return CometChatMessageOption(id: MessageOptionConstants.messagePrivately, title: "MESSAGE_PRIVATELY".localize(), icon: AssetConstants.privately)
     }
@@ -91,6 +95,10 @@ public class MessagesDataSource: DataSource {
         
         if isMessageCategory(message: messageObject) && !additionalConfiguration.hideShareMessageOption {
             messageOptions.append(getShareOption(controller: controller))
+        }
+        
+        if additionalConfiguration.showMarkAsUnreadOption && !isSentByMe && messageObject.parentMessageId <= 0 {
+            messageOptions.append(getMarkAsUnreadOption(controller: controller))
         }
         
         if !additionalConfiguration.hideCopyMessageOption{
@@ -508,6 +516,10 @@ public class MessagesDataSource: DataSource {
         
         if !additionalConfiguration.hideReplyMessageOption {
             options.append(getReplyToMessageOption(controller: controller))
+        }
+        
+        if additionalConfiguration.showMarkAsUnreadOption && !isSentByMe && messageObject.parentMessageId <= 0 {
+            options.append(getMarkAsUnreadOption(controller: controller))
         }
         
         if (messageObject.parentMessageId == 0) && !additionalConfiguration.hideReplyInThreadOption {

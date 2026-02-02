@@ -58,6 +58,12 @@ public struct MessageListStyle {
     public var emptyChatGreetingSubtitleTextColor: UIColor? = CometChatTheme.neutralColor600
     
     public var emptyChatGreetingSubtitleTextFont: UIFont? = CometChatTypography.Body.regular
+    
+    public var newMessageIndicatorTextColor: UIColor = CometChatTheme.errorColor
+    
+    public var newMessageIndicatorBackgroundColor: UIColor = CometChatTheme.errorColor
+    
+    public var newMessageIndicatorTextFont: UIFont = CometChatTypography.Caption1.medium
             
     public init() {  }
 }
