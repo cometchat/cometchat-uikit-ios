@@ -3644,7 +3644,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 5.1.7;
+				MARKETING_VERSION = 5.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cometchat.swift.ai.sampleapp.AISampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -3683,7 +3683,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 5.1.7;
+				MARKETING_VERSION = 5.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cometchat.swift.ai.sampleapp.AISampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -3722,7 +3722,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 5.1.7;
+				MARKETING_VERSION = 5.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jitvar.test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -3758,7 +3758,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 5.1.7;
+				MARKETING_VERSION = 5.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jitvar.test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3800,7 +3800,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 5.1.7;
+				MARKETING_VERSION = 5.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cometchat.internal.swift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -3844,7 +3844,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 5.1.7;
+				MARKETING_VERSION = 5.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cometchat.internal.swift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

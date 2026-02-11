@@ -194,10 +194,24 @@ extension CometChatUIKit {
         
         CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.inProgress)
         CometChat.sendTextMessage(message: message) { textMessage in
-            CometChatMessageEvents.ccMessageSent(message: textMessage, status: MessageStatus.success)
+            // iOS 26 fix: Ensure callback is on main thread
+            if Thread.isMainThread {
+                CometChatMessageEvents.ccMessageSent(message: textMessage, status: MessageStatus.success)
+            } else {
+                DispatchQueue.main.async {
+                    CometChatMessageEvents.ccMessageSent(message: textMessage, status: MessageStatus.success)
+                }
+            }
         } onError: { (error) in
-            if let error =  error {
-                CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.error)
+            if let error = error {
+                // iOS 26 fix: Ensure callback is on main thread
+                if Thread.isMainThread {
+                    CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.error)
+                } else {
+                    DispatchQueue.main.async {
+                        CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.error)
+                    }
+                }
             }
         }
     }
@@ -210,13 +224,29 @@ extension CometChatUIKit {
         
         CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.inProgress)
         CometChat.sendCustomMessage(message: message) { customMessage in
-            if let _ = customMessage.quotedMessage {
-                CometChatMessageEvents.ccReplyToMessage(message: customMessage, status: .success)
+            // iOS 26 fix: Ensure callback is on main thread
+            let successBlock = {
+                if let _ = customMessage.quotedMessage {
+                    CometChatMessageEvents.ccReplyToMessage(message: customMessage, status: .success)
+                }
+                CometChatMessageEvents.ccMessageSent(message: customMessage, status: MessageStatus.success)
             }
-            CometChatMessageEvents.ccMessageSent(message: customMessage, status: MessageStatus.success)
+            
+            if Thread.isMainThread {
+                successBlock()
+            } else {
+                DispatchQueue.main.async { successBlock() }
+            }
         } onError: { error in
-            if let error =  error {
-                CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.error)
+            if let error = error {
+                // iOS 26 fix: Ensure callback is on main thread
+                if Thread.isMainThread {
+                    CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.error)
+                } else {
+                    DispatchQueue.main.async {
+                        CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.error)
+                    }
+                }
             }
         }
     }
@@ -229,10 +259,24 @@ extension CometChatUIKit {
         
         CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.inProgress)
         CometChat.sendMediaMessage(message: message) { mediaMessage in
-            CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: MessageStatus.success)
+            // iOS 26 fix: Ensure callback is on main thread
+            if Thread.isMainThread {
+                CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: MessageStatus.success)
+            } else {
+                DispatchQueue.main.async {
+                    CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: MessageStatus.success)
+                }
+            }
         } onError: { error in
-            if let error =  error {
-                CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.error)
+            if let error = error {
+                // iOS 26 fix: Ensure callback is on main thread
+                if Thread.isMainThread {
+                    CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.error)
+                } else {
+                    DispatchQueue.main.async {
+                        CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.error)
+                    }
+                }
             }
         }
     }
@@ -261,14 +305,30 @@ extension CometChatUIKit {
         
         CometChatMessageEvents.ccMessageSent(message: formMessage, status: MessageStatus.inProgress)
         CometChat.sendInteractiveMessage(message: interactiveMessage, onSuccess: { interactiveMessage in
-            let formMessage = FormMessage.toFormMessage(interactiveMessage)
-            onSuccess(formMessage)
-            CometChatMessageEvents.ccMessageSent(message: formMessage, status: MessageStatus.success)
-        }) { error in
-            if let error =  error {
-                CometChatMessageEvents.ccMessageSent(message: formMessage, status: MessageStatus.error)
+            // iOS 26 fix: Ensure callback is on main thread
+            let successBlock = {
+                let formMessage = FormMessage.toFormMessage(interactiveMessage)
+                onSuccess(formMessage)
+                CometChatMessageEvents.ccMessageSent(message: formMessage, status: MessageStatus.success)
             }
-            onError(error)
+            if Thread.isMainThread {
+                successBlock()
+            } else {
+                DispatchQueue.main.async { successBlock() }
+            }
+        }) { error in
+            // iOS 26 fix: Ensure callback is on main thread
+            let errorBlock = {
+                if let error = error {
+                    CometChatMessageEvents.ccMessageSent(message: formMessage, status: MessageStatus.error)
+                }
+                onError(error)
+            }
+            if Thread.isMainThread {
+                errorBlock()
+            } else {
+                DispatchQueue.main.async { errorBlock() }
+            }
         }
         
     }
@@ -288,14 +348,30 @@ extension CometChatUIKit {
         
         CometChatMessageEvents.ccMessageSent(message: cardMessage, status: MessageStatus.inProgress)
         CometChat.sendInteractiveMessage(message: interactiveMessage, onSuccess: { interactiveMessage in
-            let cardMessage = CardMessage.toCardMessage(interactiveMessage)
-            onSuccess(cardMessage)
-            CometChatMessageEvents.ccMessageSent(message: cardMessage, status: MessageStatus.success)
-        }) { error in
-            if let error =  error {
-                CometChatMessageEvents.ccMessageSent(message: cardMessage, status: MessageStatus.error)
+            // iOS 26 fix: Ensure callback is on main thread
+            let successBlock = {
+                let cardMessage = CardMessage.toCardMessage(interactiveMessage)
+                onSuccess(cardMessage)
+                CometChatMessageEvents.ccMessageSent(message: cardMessage, status: MessageStatus.success)
             }
-            onError(error)
+            if Thread.isMainThread {
+                successBlock()
+            } else {
+                DispatchQueue.main.async { successBlock() }
+            }
+        }) { error in
+            // iOS 26 fix: Ensure callback is on main thread
+            let errorBlock = {
+                if let error = error {
+                    CometChatMessageEvents.ccMessageSent(message: cardMessage, status: MessageStatus.error)
+                }
+                onError(error)
+            }
+            if Thread.isMainThread {
+                errorBlock()
+            } else {
+                DispatchQueue.main.async { errorBlock() }
+            }
         }
         
     }
@@ -309,12 +385,28 @@ extension CometChatUIKit {
         
         CometChatMessageEvents.ccMessageSent(message: schedulerMessage, status: MessageStatus.inProgress)
         CometChat.sendInteractiveMessage(message: interactiveMessage, onSuccess: { interactiveMessage in
-            let schedulerMessage = SchedulerMessage.toSchedulerMessage(interactiveMessage)
-            onSuccess(schedulerMessage)
-            CometChatMessageEvents.ccMessageSent(message: schedulerMessage, status: MessageStatus.success)
+            // iOS 26 fix: Ensure callback is on main thread
+            let successBlock = {
+                let schedulerMessage = SchedulerMessage.toSchedulerMessage(interactiveMessage)
+                onSuccess(schedulerMessage)
+                CometChatMessageEvents.ccMessageSent(message: schedulerMessage, status: MessageStatus.success)
+            }
+            if Thread.isMainThread {
+                successBlock()
+            } else {
+                DispatchQueue.main.async { successBlock() }
+            }
         }) { error in
-            if let error =  error { CometChatMessageEvents.ccMessageSent(message: schedulerMessage, status: MessageStatus.error) }
-            onError(error)
+            // iOS 26 fix: Ensure callback is on main thread
+            let errorBlock = {
+                if let error = error { CometChatMessageEvents.ccMessageSent(message: schedulerMessage, status: MessageStatus.error) }
+                onError(error)
+            }
+            if Thread.isMainThread {
+                errorBlock()
+            } else {
+                DispatchQueue.main.async { errorBlock() }
+            }
         }
         
     }

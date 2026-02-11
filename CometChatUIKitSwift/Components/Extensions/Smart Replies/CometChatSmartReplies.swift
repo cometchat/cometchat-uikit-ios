@@ -156,11 +156,25 @@ protocol CometChatSmartRepliesDelegate: AnyObject {
         if let textMessage = textMessage {
             CometChatMessageEvents.ccMessageSent(message: textMessage, status: .inProgress)
             CometChat.sendTextMessage(message: textMessage) { updatedTextMessage in
-                CometChatMessageEvents.ccMessageSent(message: updatedTextMessage, status: .success)
+                // iOS 26 fix: Ensure callback is on main thread
+                if Thread.isMainThread {
+                    CometChatMessageEvents.ccMessageSent(message: updatedTextMessage, status: .success)
+                } else {
+                    DispatchQueue.main.async {
+                        CometChatMessageEvents.ccMessageSent(message: updatedTextMessage, status: .success)
+                    }
+                }
             } onError: { error in
                 if error != nil {
                     textMessage.metaData = ["error": true]
-                    CometChatMessageEvents.ccMessageSent(message: textMessage, status: .error)
+                    // iOS 26 fix: Ensure callback is on main thread
+                    if Thread.isMainThread {
+                        CometChatMessageEvents.ccMessageSent(message: textMessage, status: .error)
+                    } else {
+                        DispatchQueue.main.async {
+                            CometChatMessageEvents.ccMessageSent(message: textMessage, status: .error)
+                        }
+                    }
                 }
             }
         }

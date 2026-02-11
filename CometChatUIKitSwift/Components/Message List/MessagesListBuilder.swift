@@ -60,9 +60,23 @@ public class MessagesListBuilder {
     
     static func editMessage(message: BaseMessage, completion: @escaping (MessageActionResult) -> Void) {
         CometChat.edit(message: message) { editedMessage in
-            completion(.success(editedMessage))
+            // iOS 26 fix: Ensure callback is on main thread
+            if Thread.isMainThread {
+                completion(.success(editedMessage))
+            } else {
+                DispatchQueue.main.async {
+                    completion(.success(editedMessage))
+                }
+            }
         } onError: { error in
-            completion(.failure(error))
+            // iOS 26 fix: Ensure callback is on main thread
+            if Thread.isMainThread {
+                completion(.failure(error))
+            } else {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
         }
     }
     

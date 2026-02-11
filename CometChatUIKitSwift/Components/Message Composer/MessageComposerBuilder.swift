@@ -16,27 +16,70 @@ enum MessageComposerBuilderResult {
 public class MessageComposerBuilder {
     static func textMessage(message: TextMessage, completion: @escaping (MessageComposerBuilderResult) -> Void) {
         CometChat.sendTextMessage(message: message) { updatedTextMessage in
-            completion(.success(updatedTextMessage))
+            // iOS 26 fix: Ensure callback is delivered on main thread
+            // The SDK may deliver callbacks on background threads in iOS 26
+            if Thread.isMainThread {
+                completion(.success(updatedTextMessage))
+            } else {
+                DispatchQueue.main.async {
+                    completion(.success(updatedTextMessage))
+                }
+            }
         } onError: { error in
             guard let error = error else { return }
-            completion(.failure(error)) 
+            // iOS 26 fix: Ensure callback is delivered on main thread
+            if Thread.isMainThread {
+                completion(.failure(error))
+            } else {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
         }
     }
     
     static func mediaMessage(message: MediaMessage, completion: @escaping (MessageComposerBuilderResult) -> Void) {
         CometChat.sendMediaMessage(message: message)  { updatedMediaMessage in
-            completion(.success(updatedMediaMessage))
+            // iOS 26 fix: Ensure callback is delivered on main thread
+            if Thread.isMainThread {
+                completion(.success(updatedMediaMessage))
+            } else {
+                DispatchQueue.main.async {
+                    completion(.success(updatedMediaMessage))
+                }
+            }
         } onError: { error in
             guard let error = error else { return }
-            completion(.failure(error))
+            // iOS 26 fix: Ensure callback is delivered on main thread
+            if Thread.isMainThread {
+                completion(.failure(error))
+            } else {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
         }
     }
     
     static func editMessage(message: TextMessage, completion: @escaping (MessageComposerBuilderResult) -> Void) {
         CometChat.edit(message: message) { updateTextMessage in
-            completion(.success(updateTextMessage))
+            // iOS 26 fix: Ensure callback is delivered on main thread
+            if Thread.isMainThread {
+                completion(.success(updateTextMessage))
+            } else {
+                DispatchQueue.main.async {
+                    completion(.success(updateTextMessage))
+                }
+            }
         } onError: { error in
-            completion(.failure(error))
+            // iOS 26 fix: Ensure callback is delivered on main thread
+            if Thread.isMainThread {
+                completion(.failure(error))
+            } else {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
         }
     }
     
