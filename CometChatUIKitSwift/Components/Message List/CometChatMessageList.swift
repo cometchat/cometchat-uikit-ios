@@ -551,6 +551,14 @@ open class CometChatMessageList: UIView {
             
             viewModel.getConversation(conversationWith: conversationWith, conversationType: conversationType) { [weak self] conversation in
                 guard let this = self else { return }
+                
+                // Handle new chat scenario (no existing conversation)
+                guard let conversation = conversation else {
+                    print("No existing conversation found - treating as new chat")
+                    this.viewModel.fetchPreviousMessages()
+                    return
+                }
+                
                 if this.startFromUnreadMessages && conversation.unreadMessageCount > 0 && this.gotoMessageId <= 0 {
                     let lastReadMessageId = conversation.lastReadMessageId
                     if lastReadMessageId <= 0 {

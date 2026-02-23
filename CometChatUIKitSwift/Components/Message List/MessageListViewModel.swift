@@ -258,17 +258,18 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
     // MARK: - Mark as unread flow
     
-    func getConversation(conversationWith: String, conversationType: CometChat.ConversationType, completion: @escaping(Conversation) -> ()) {
+    func getConversation(conversationWith: String, conversationType: CometChat.ConversationType, completion: @escaping(Conversation?) -> ()) {
         CometChat.getConversation(
             conversationWith: conversationWith,
             conversationType: conversationType,
             onSuccess: { [weak self] conversation in
-                guard let this = self, let conversation = conversation else { return }
+                guard let this = self else { return }
                 this.currentConversation = conversation
                 completion(conversation)
             },
             onError: { error in
                 print("Error fetching conversation: \(error?.errorDescription ?? "")")
+                completion(nil)
             }
         )
     }
