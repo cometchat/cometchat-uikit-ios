@@ -74,7 +74,13 @@ extension MediaRecorderViewModel {
             case .success(let updatedMediaMessage):
                 CometChatMessageEvents.ccMessageSent(message: updatedMediaMessage, status: .success)
             case .failure(let error):
-                mediaMessage.metaData = ["error": true]
+                var errorMetaData: [String: Any] = mediaMessage.metaData ?? [:]
+                errorMetaData["error"] = true
+                if error.errorCode == "ERR_PERMISSION_DENIED" {
+                    errorMetaData["rbac_permission_denied"] = true
+                    errorMetaData["error_message"] = error.errorDescription
+                }
+                mediaMessage.metaData = errorMetaData
                 CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
             }
         }
@@ -96,9 +102,16 @@ extension MediaRecorderViewModel {
             switch result {
             case .success(let updatedMediaMessage):
                 CometChatMessageEvents.ccMessageSent(message: updatedMediaMessage, status: .success)
-            case .failure(_):
-                mediaMessage.metaData = ["error": true]
-                CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)            }
+            case .failure(let error):
+                var errorMetaData: [String: Any] = mediaMessage.metaData ?? [:]
+                errorMetaData["error"] = true
+                if error.errorCode == "ERR_PERMISSION_DENIED" {
+                    errorMetaData["rbac_permission_denied"] = true
+                    errorMetaData["error_message"] = error.errorDescription
+                }
+                mediaMessage.metaData = errorMetaData
+                CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
+            }
         }
     }
 }

@@ -486,6 +486,7 @@ open class CometChatMessageBubble: UITableViewCell {
     }
 
     public override func prepareForReuse() {
+        super.prepareForReuse()
         
         messagePreview = nil
         replayView.isHidden = true
@@ -499,6 +500,7 @@ open class CometChatMessageBubble: UITableViewCell {
         self.viewReplyView.subviews.forEach({ $0.removeFromSuperview() })
         self.replayView.subviews.forEach({ $0.removeFromSuperview() })
         self.statusInfoView.subviews.forEach({ $0.removeFromSuperview() })
+        self.bottomView.subviews.forEach({ $0.removeFromSuperview() }) // Clear moderation view on reuse
         self.bubbleStackView.setCustomSpacing(0, after: messageContentView) //reseting spacing for x statusInfoView
         self.messageContentView.subviews.forEach({ $0.removeFromSuperview() })
         self.avatar.layer.sublayers?.forEach({ $0.removeFromSuperlayer() })
@@ -532,6 +534,9 @@ open class CometChatMessageBubble: UITableViewCell {
         if disableSwipeToReply { return }
         
         if MessageUtils.isMessageModerationDisapproved(message: message) { return }
+        
+        // Disable swipe to reply for error messages (including RBAC errors)
+        if message.metaData?["error"] as? Bool == true { return }
         
         if message.id <= 0 {
             return

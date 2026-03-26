@@ -486,23 +486,68 @@ extension CometChatCreatePoll: UITableViewDelegate, UITableViewDataSource {
             }
             cell.editingEnd = { [weak self] _ in
                 guard let self = self else { return }
-                for (index, optionText) in self.items.enumerated().reversed() {
+                
+                // Remove empty items from the middle (not the last one which is "Add Option")
+                var indicesToRemove: [Int] = []
+                for (index, optionText) in self.items.enumerated() {
                     if optionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && index != self.items.count - 1 && self.items.count > 2 {
-                        self.items.remove(at: index)
-                        let options = self.items.filter { !$0.isEmpty }
-                        self.firstOptionString = options.first ?? ""
-                        self.secondOptionString = options.last ?? ""
-                        self.validateSendButtonState()
-                        tableView.deleteRows(at: [IndexPath(row: index, section: 1)], with: .automatic)
-                        tableView.reloadData()
+                        indicesToRemove.append(index)
                     }
+                }
+                
+                // Remove in reverse order to maintain correct indices
+                for index in indicesToRemove.reversed() {
+                    self.items.remove(at: index)
+                    // Append "Add Option" for each removed middle item
+                    self.items.append("")
+                }
+                
+                // Ensure only one empty "Add Option" at the end
+                while self.items.count > 2 && self.items.last?.isEmpty == true && self.items[self.items.count - 2].isEmpty {
+                    self.items.removeLast()
+                }
+                
+                // Update first and second option strings
+                let filledOptions = self.items.filter { !$0.isEmpty }
+                self.firstOptionString = filledOptions.count > 0 ? filledOptions[0] : ""
+                self.secondOptionString = filledOptions.count > 1 ? filledOptions[1] : ""
+                self.validateSendButtonState()
+                
+                if !indicesToRemove.isEmpty {
+                    tableView.reloadData()
                 }
             }
             cell.deleteOption = { [weak self] in
-                guard let self = self, self.items.count > 2, indexPath.row != (items.count - 1) else { return }
-                self.items.remove(at: indexPath.row)
-                tableView.deleteRows(at: [IndexPath(row: indexPath.row, section: 1)], with: .automatic)
-                tableView.reloadData()
+                guard let self = self, self.items.count > 2 else { return }
+                
+                let isLastFilledOption = indexPath.row == self.items.count - 1 || 
+                    (indexPath.row == self.items.count - 2 && self.items.last?.isEmpty == true)
+                
+                if isLastFilledOption && self.items.last?.isEmpty == false {
+                    // If deleting the last filled option (no empty "Add Option" exists), 
+                    // just clear it to become "Add Option"
+                    self.items[indexPath.row] = ""
+                    tableView.reloadData()
+                } else if isLastFilledOption {
+                    // Last filled option but there's already an empty "Add Option" at end
+                    // Clear this one and remove the duplicate empty at end
+                    self.items[indexPath.row] = ""
+                    if self.items.count > 2 && self.items.last?.isEmpty == true && indexPath.row != self.items.count - 1 {
+                        self.items.removeLast()
+                    }
+                    tableView.reloadData()
+                } else {
+                    // Deleting from middle - remove the item and append "Add Option"
+                    self.items.remove(at: indexPath.row)
+                    self.items.append("")
+                    tableView.reloadData()
+                }
+                
+                // Update first and second option strings
+                let filledOptions = self.items.filter { !$0.isEmpty }
+                self.firstOptionString = filledOptions.count > 0 ? filledOptions[0] : ""
+                self.secondOptionString = filledOptions.count > 1 ? filledOptions[1] : ""
+                self.validateSendButtonState()
             }
             cell.reorderButton.tintColor = style.dragButtonTintColor
             cell.reorderButton.setImage(style.dragButtonImage, for: .normal)

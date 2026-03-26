@@ -286,3 +286,8 @@
 "SPAM" = "Spam";
 "SEXUAL_CONTENT" = "Szexuális tartalom";
 "HARASSMENT_BULLYING" = "Zaklatás/zaklatás";
+
+"FILE_TYPE_NOT_ALLOWED" = "Ez a fájltípus nem engedélyezett.";
+"AUDIO_LIBRARY" = "Hangkönyvtár";
+
+"AI_AGENTS" = "AI asszisztensek";

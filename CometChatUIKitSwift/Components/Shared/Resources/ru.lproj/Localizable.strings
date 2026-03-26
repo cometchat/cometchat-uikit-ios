@@ -506,3 +506,8 @@
 "SPAM" = "Спам";
 "SEXUAL_CONTENT" = "Контент сексуального характера";
 "HARASSMENT_BULLYING" = "Преследование и травля";
+
+"FILE_TYPE_NOT_ALLOWED" = "Этот тип файла не разрешён.";
+"AUDIO_LIBRARY" = "Аудиотека";
+
+"AI_AGENTS" = "ИИ-ассистенты";

@@ -278,13 +278,17 @@ extension MessageComposerViewModel {
         }
     }
     
-    public func sendMediaMessageToUser(url: String, type: CometChat.MessageType) {
+    public func sendMediaMessageToUser(url: String, type: CometChat.MessageType, audioDuration: Int? = nil) {
         guard let uid =  self.user?.uid else { return }
         let mediaMessage = MediaMessage(receiverUid: uid, fileurl: url, messageType: type, receiverType: .user)
         mediaMessage.muid = "\(NSDate().timeIntervalSince1970)"
         mediaMessage.sentAt = Int(Date().timeIntervalSince1970)
         mediaMessage.sender = CometChat.getLoggedInUser()
-        mediaMessage.metaData = ["fileURL": url]
+        var metaData: [String: Any] = ["fileURL": url]
+        if let duration = audioDuration {
+            metaData["audioDuration"] = duration
+        }
+        mediaMessage.metaData = metaData
         mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
         if let parentMessageId = parentMessageId {
             mediaMessage.parentMessageId = parentMessageId
@@ -311,13 +315,20 @@ extension MessageComposerViewModel {
                 }
             case .failure(let error):
                 self.failure?(error)
-                mediaMessage.metaData = ["error": true]
+                var errorMetaData: [String: Any] = mediaMessage.metaData ?? [:]
+                errorMetaData["error"] = true
+                if error.errorCode == "ERR_PERMISSION_DENIED" {
+                    errorMetaData["rbac_permission_denied"] = true
+                    errorMetaData["error_message"] = error.errorDescription
+                }
+                mediaMessage.metaData = errorMetaData
+                
                 CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
             }
         }
     }
     
-    public func sendMediaMessageToGroup(url: String, type: CometChat.MessageType) {
+    public func sendMediaMessageToGroup(url: String, type: CometChat.MessageType, audioDuration: Int? = nil) {
         guard let uid =  self.group?.guid else { return }
         let mediaMessage = MediaMessage(receiverUid: uid, fileurl: url, messageType: type, receiverType: .group)
         if let parentMessageId = parentMessageId {
@@ -326,7 +337,11 @@ extension MessageComposerViewModel {
         mediaMessage.muid = "\(NSDate().timeIntervalSince1970)"
         mediaMessage.sentAt = Int(Date().timeIntervalSince1970)
         mediaMessage.sender = CometChat.getLoggedInUser()
-        mediaMessage.metaData = ["fileURL": url]
+        var metaData: [String: Any] = ["fileURL": url]
+        if let duration = audioDuration {
+            metaData["audioDuration"] = duration
+        }
+        mediaMessage.metaData = metaData
         mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
         isSoundForMessageEnabled?()
         if let quotedMessageId = quotedMessageId {
@@ -348,7 +363,14 @@ extension MessageComposerViewModel {
                 }
             case .failure(let error):
                 self.failure?(error)
-                mediaMessage.metaData = ["error": true]
+                var errorMetaData: [String: Any] = mediaMessage.metaData ?? [:]
+                errorMetaData["error"] = true
+                if error.errorCode == "ERR_PERMISSION_DENIED" {
+                    errorMetaData["rbac_permission_denied"] = true
+                    errorMetaData["error_message"] = error.errorDescription
+                }
+                mediaMessage.metaData = errorMetaData
+                
                 CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
             }
         }

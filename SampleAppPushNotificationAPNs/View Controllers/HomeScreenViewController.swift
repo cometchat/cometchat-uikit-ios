@@ -9,10 +9,7 @@ import UIKit
 import AVFoundation
 import CometChatUIKitSwift
 import CometChatSDK
-
 import SystemConfiguration
-
-var isBugseeLaunched = false
 
 class HomeScreenViewController: UITabBarController {
     
@@ -121,14 +118,24 @@ class HomeScreenViewController: UITabBarController {
                 
         let groups = CometChatGroups()
         groups.hideSearch = false
-        groups.rightBarButtonItem = [
-            UIBarButtonItem(
-                image: UIImage(named: "groups-create"),
-                style: .done,
-                target: self,
-                action: #selector(tapCreate)
-            )
-        ]
+        
+        if #available(iOS 26, *) {
+            // iOS 26 fix: Use custom button to prevent inverted colors
+            let button = UIButton(type: .custom)
+            button.setImage(UIImage(named: "groups-create")?.withRenderingMode(.alwaysTemplate), for: .normal)
+            button.tintColor = CometChatTheme.primaryColor
+            button.addTarget(self, action: #selector(tapCreate), for: .touchUpInside)
+            groups.rightBarButtonItem = [UIBarButtonItem(customView: button)]
+        } else {
+            groups.rightBarButtonItem = [
+                UIBarButtonItem(
+                    image: UIImage(named: "groups-create"),
+                    style: .done,
+                    target: self,
+                    action: #selector(tapCreate)
+                )
+            ]
+        }
         groups.joinPasswordProtectedGroup = { [weak self] group in
             let joinGroupVC = JoinPasswordProtectedGroupVC()
             joinGroupVC.group = group
@@ -241,17 +248,6 @@ class HomeScreenViewController: UITabBarController {
     func buildAvatarBarButtonItem() {
         
         let customButton = UIButton(type: .custom)
-        customButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        var widthAnchor = customButton.widthAnchor.constraint(equalToConstant: 24)
-        // Use high priority instead of required to prevent constraint conflicts during iPad window resizing
-        widthAnchor.priority = .defaultHigh
-        widthAnchor.isActive = true
-        
-        var heightAnchor = customButton.heightAnchor.constraint(equalToConstant: 24)
-        // Use high priority instead of required to prevent constraint conflicts during iPad window resizing
-        heightAnchor.priority = .defaultHigh
-        heightAnchor.isActive = true
 
         if let imageURL = URL(string: "\(CometChat.getLoggedInUser()?.avatar ?? "")") {
             UIImageView.downloaded(from: imageURL) { image in
@@ -269,8 +265,39 @@ class HomeScreenViewController: UITabBarController {
             customButton.setImage(AvatarUtils.setImageSnap(text: CometChat.getLoggedInUser()?.name ?? "", color: CometChatTheme.primaryColor, textAttributes: [.font: CometChatTypography.Caption1.medium, .foregroundColor: CometChatTheme.white], view: image), for: .normal)
         }
         
-        customButton.imageView?.layer.cornerRadius = 12
+        // Set fixed size on the button itself for consistent sizing across devices
+        customButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            customButton.widthAnchor.constraint(equalToConstant: 30),
+            customButton.heightAnchor.constraint(equalToConstant: 30)
+        ])
+        customButton.imageView?.contentMode = .scaleAspectFill
         customButton.imageView?.clipsToBounds = true
+        
+        if #available(iOS 26, *) {
+            // iOS 26 fix: White circular background with image fitted inside
+            customButton.backgroundColor = .white
+            customButton.clipsToBounds = true
+            customButton.layer.cornerRadius = 15
+            
+            // Constrain imageView to fit inside with minimal padding
+            if let imageView = customButton.imageView {
+                imageView.translatesAutoresizingMaskIntoConstraints = false
+                NSLayoutConstraint.activate([
+                    imageView.widthAnchor.constraint(equalToConstant: 32),
+                    imageView.heightAnchor.constraint(equalToConstant: 32),
+                    imageView.centerXAnchor.constraint(equalTo: customButton.centerXAnchor),
+                    imageView.centerYAnchor.constraint(equalTo: customButton.centerYAnchor)
+                ])
+                imageView.layer.cornerRadius = 16
+                imageView.clipsToBounds = true
+            }
+        } else {
+            // Apply corner radius after layout to ensure perfect circle
+            customButton.layoutIfNeeded()
+            customButton.imageView?.layer.cornerRadius = 15
+        }
+        
         let logoutBarButtonItem = UIBarButtonItem(customView: customButton)
     
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
@@ -279,6 +306,9 @@ class HomeScreenViewController: UITabBarController {
                 let startNewConversationNVC = CreateConversationVC()
                 startNewConversationNVC.hidesBottomBarWhenPushed = true
                 self.navigationController?.pushViewController(startNewConversationNVC, animated: true)
+            }),
+            UIAction(title: "AI_AGENTS".localize(), image: UIImage(systemName: "sparkles"), handler: { [weak self] _ in
+                self?.openAIAgents()
             }),
             UIAction(title: "\(CometChat.getLoggedInUser()?.name ?? "")", image: UIImage(systemName: "person.circle"), handler: { _ in
 
@@ -301,28 +331,50 @@ class HomeScreenViewController: UITabBarController {
     //Logging out
     @objc func logoutTapped() {
         if Reachability.isConnectedToNetwork(){
-            CometChatNotifications.unregisterPushToken { success in
-            } onError: { error in
-                print(error.errorDescription)
+            // First unregister push token, then logout
+            CometChatNotifications.unregisterPushToken { [weak self] success in
+                print("unregisterPushToken success: \(success)")
+                self?.clearStoredTokensAndLogout()
+            } onError: { [weak self] error in
+                print("unregisterPushToken error: \(error.errorDescription)")
+                // Still logout even if unregister fails
+                self?.clearStoredTokensAndLogout()
             }
-            CometChat.logout(onSuccess: { success in
-                UserDefaults.standard.removeObject(forKey: "appID")
-                UserDefaults.standard.removeObject(forKey: "region")
-                UserDefaults.standard.removeObject(forKey: "authKey")
-                AppConstants.APP_ID = ""
-                AppConstants.AUTH_KEY = ""
-                AppConstants.REGION = ""
-                
-                //Changing root window
-                let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as! SceneDelegate
-                sceneDelegate.setRootViewController(UINavigationController(rootViewController: LoginWithUidVC()))
-            }, onError: { error in
-                print("logout failed with error: \(error.errorDescription)")
-            })
-
         }else{
             print("logout failed with error: internet not connected")
         }
+    }
+    
+    private func clearStoredTokensAndLogout() {
+        // Clear stored push tokens to prevent re-registration
+        UserDefaults.standard.removeObject(forKey: "apnspuToken")
+        UserDefaults.standard.removeObject(forKey: "voipToken")
+        
+        performLogout()
+    }
+    
+    private func performLogout() {
+        CometChat.logout(onSuccess: { success in
+            // Clear badge count
+            DispatchQueue.main.async {
+                UIApplication.shared.applicationIconBadgeNumber = 0
+            }
+            
+            UserDefaults.standard.removeObject(forKey: "appID")
+            UserDefaults.standard.removeObject(forKey: "region")
+            UserDefaults.standard.removeObject(forKey: "authKey")
+            AppConstants.APP_ID = ""
+            AppConstants.AUTH_KEY = ""
+            AppConstants.REGION = ""
+            
+            //Changing root window
+            DispatchQueue.main.async {
+                let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as! SceneDelegate
+                sceneDelegate.setRootViewController(UINavigationController(rootViewController: LoginWithUidVC()))
+            }
+        }, onError: { error in
+            print("logout failed with error: \(error.errorDescription)")
+        })
     }
     
     @objc func tapCreate(){
@@ -333,6 +385,46 @@ class HomeScreenViewController: UITabBarController {
             self?.navigationController?.pushViewController(messages, animated: true)
         }
         presentViewControllerBottomSheet(from: self, to: vc, height: 356)
+    }
+    
+    private func openAIAgents() {
+        let agenticUsersRequestBuilder = UsersRequest.UsersRequestBuilder()
+            .set(limit: 30)
+            .set(roles: ["@agentic"])
+        
+        let aiAgentsVC = CometChatUsers(usersRequestBuilder: agenticUsersRequestBuilder)
+        aiAgentsVC.title = "AI_AGENTS".localize()
+        aiAgentsVC.hidesBottomBarWhenPushed = true
+        
+        // Configure navigation bar and search bar to match Users tab UI
+        aiAgentsVC.hideNavigationBar = false
+        aiAgentsVC.hideBackButton = false
+        aiAgentsVC.prefersLargeTitles = true
+        aiAgentsVC.searchController.hidesNavigationBarDuringPresentation = false
+        
+        // Custom back button action to return to home screen
+        aiAgentsVC.set(onBack: { [weak self] in
+            self?.navigationController?.setNavigationBarHidden(true, animated: true)
+            self?.navigationController?.popViewController(animated: true)
+        })
+        
+        aiAgentsVC.set(onItemClick: { [weak self] user, _ in
+            let messages = MessagesVC()
+            messages.user = user
+            if let splitScreenCallBack = self?.splitScreenCallBack {
+                splitScreenCallBack(messages)
+            } else {
+                self?.navigationController?.pushViewController(messages, animated: true)
+            }
+        })
+        
+        if let splitScreenCallBack {
+            splitScreenCallBack(aiAgentsVC)
+        } else {
+            // Show navigation bar before pushing
+            self.navigationController?.setNavigationBarHidden(false, animated: true)
+            navigationController?.pushViewController(aiAgentsVC, animated: true)
+        }
     }
     
     func setupTabs() {

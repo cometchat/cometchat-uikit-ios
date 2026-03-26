@@ -283,3 +283,8 @@
 "SPAM" = "Spam";
 "SEXUAL_CONTENT" = "Kandungan Seksual";
 "HARASSMENT_BULLYING" = "Gangguan/Buli";
+
+"FILE_TYPE_NOT_ALLOWED" = "Jenis fail ini tidak dibenarkan.";
+"AUDIO_LIBRARY" = "Pustaka Audio";
+
+"AI_AGENTS" = "Pembantu AI";

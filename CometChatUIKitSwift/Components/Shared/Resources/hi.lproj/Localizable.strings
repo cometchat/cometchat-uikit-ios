@@ -300,3 +300,8 @@
 "SPAM" = "स्पैम";
 "SEXUAL_CONTENT" = "सेक्सुअल कॉन्टेंट";
 "HARASSMENT_BULLYING" = "उत्पीड़न/धमकाना";
+
+"FILE_TYPE_NOT_ALLOWED" = "इस फ़ाइल प्रकार की अनुमति नहीं है।";
+"AUDIO_LIBRARY" = "ऑडियो लाइब्रेरी";
+
+"AI_AGENTS" = "एआई असिस्टेंट्स";

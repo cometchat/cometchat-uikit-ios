@@ -20,7 +20,7 @@ public class CometChatStickerBubble: UIStackView {
         let activityIndicator = UIActivityIndicatorView().withoutAutoresizingMaskConstraints()
         activityIndicator.backgroundColor = CometChatTheme.neutralColor100
         activityIndicator.style = .medium
-        activityIndicator.startAnimating()
+        activityIndicator.isHidden = true  // Hidden by default, only show when actually loading
         return activityIndicator
     }()
     
@@ -99,14 +99,25 @@ public class CometChatStickerBubble: UIStackView {
     
     public func set(imageUrl: String) {
         guard let itemUrl = URL(string: imageUrl) else { return }
-
-        imageRequest = ImageService().image(for: itemUrl, cacheType: .normal) { [weak self] image in
+        
+        // Check if image is already cached - if so, don't show loading spinner
+        if let cachedImage = ImageService.imageCache.object(forKey: itemUrl as AnyObject) as? UIImage {
+            activityIndicator.stopAnimating()
+            activityIndicator.isHidden = true
+            imageView.image = cachedImage
+            return
+        }
+        
+        // Show loading spinner only for non-cached images
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+        
+        imageRequest = imageService.image(for: itemUrl, cacheType: .normal) { [weak self] image in
             guard let this = self else { return }
             if let image = image {
                 this.set(image: image)
             }
         }
-        
     }
     
     public func set(controller: UIViewController?) {

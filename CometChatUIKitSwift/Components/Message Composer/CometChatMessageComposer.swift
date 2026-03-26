@@ -629,15 +629,15 @@ open class CometChatMessageComposer: UIView {
         } else if let group = viewModel.group {
             cometChatMediaRecorder.viewModel = MediaRecorderViewModel(group: group)
         }
-        cometChatMediaRecorder.setSubmit(onSubmit: {url in
+        cometChatMediaRecorder.setSubmit(onSubmit: {url, duration in
             if self.onSendButtonClick != nil {
                 self.onSendButtonClick?(self.viewModel.setupBaseMessage(url: url))
                 self.viewModel.reset?(true)
             } else {
                 if self.viewModel.user != nil {
-                    self.viewModel.sendMediaMessageToUser(url: url, type: .audio)
+                    self.viewModel.sendMediaMessageToUser(url: url, type: .audio, audioDuration: duration)
                 } else {
-                    self.viewModel.sendMediaMessageToGroup(url: url, type: .audio)
+                    self.viewModel.sendMediaMessageToGroup(url: url, type: .audio, audioDuration: duration)
                 }
             }
         })
@@ -954,7 +954,6 @@ extension CometChatMessageComposer {
         if let message = message as? TextMessage {
             self.viewModel.message = message
             self.messageComposerMode = .edit
-            self.originalEditText = message.text
             
             selectedFormatters.removeAll()
             endOnGoingTextFormatting()
@@ -974,6 +973,10 @@ extension CometChatMessageComposer {
                 attributedString = NSMutableAttributedString(attributedString: processedString.0)
             }
             textView.attributedText = attributedString
+            
+            // Store the displayed text (after formatting) for comparison
+            self.originalEditText = textView.text
+            
             updateSendButtonState()
             
             presentEditPreview(for: message)

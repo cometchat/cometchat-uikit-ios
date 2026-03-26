@@ -278,3 +278,8 @@
 "SPAM" = "Spam";
 "SEXUAL_CONTENT" = "Contenuti sessuali";
 "HARASSMENT_BULLYING" = "Molestie/bullismo";
+
+"FILE_TYPE_NOT_ALLOWED" = "Šis failo tipas neleidžiamas.";
+"AUDIO_LIBRARY" = "Garso biblioteka";
+
+"AI_AGENTS" = "AI asistentai";

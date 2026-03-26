@@ -32,13 +32,9 @@ public struct MessageBubbleStyle {
     public var threadedIndicatorTextColor: UIColor = CometChatTheme.textColorPrimary
     public var threadedIndicatorImageTint: UIColor = CometChatTheme.iconColorSecondary
     
-    public lazy var avatarStyle: AvatarStyle = {
-        var avatarStyle = CometChatAvatar.style
-        avatarStyle.textFont = CometChatTypography.Heading4.bold
-        return avatarStyle
-    }()
-    public lazy var dateStyle: DateStyle = CometChatDate.style
-    public lazy var receiptStyle: ReceiptStyle = CometChatReceipt.style
+    public var avatarStyle: AvatarStyle
+    public var dateStyle: DateStyle
+    public var receiptStyle: ReceiptStyle
     
     public var textBubbleStyle: TextBubbleStyle
     public var aiAssistantBubbleStyle: AIAssistantBubbleStyle
@@ -57,12 +53,19 @@ public struct MessageBubbleStyle {
     public var moderationStyle: ModerationStyle
     public var messagePreviewStyle: MessagePreviewStyle
     
-    public lazy var reactionsStyle: ReactionsStyle = {
-        var reactionsStyle = CometChatReactions.style
-        return reactionsStyle
-    }()
+    public var reactionsStyle: ReactionsStyle
     
     public init() {
+        // Initialize avatar style
+        var avatarStyleInit = CometChatAvatar.style
+        avatarStyleInit.textFont = CometChatTypography.Heading4.bold
+        avatarStyle = avatarStyleInit
+        
+        // Initialize other styles
+        dateStyle = CometChatDate.style
+        receiptStyle = CometChatReceipt.style
+        reactionsStyle = CometChatReactions.style
+        
         callBubbleStyle = CallBubbleStyle()
         linkPreviewBubbleStyle = LinkPreviewBubbleStyle()
         textBubbleStyle = TextBubbleStyle()
@@ -83,6 +86,16 @@ public struct MessageBubbleStyle {
     
     //for default values according to the bubble type
     public init(styleType: BubbleStyleType) {
+        // Initialize avatar style
+        var avatarStyleInit = CometChatAvatar.style
+        avatarStyleInit.textFont = CometChatTypography.Heading4.bold
+        avatarStyle = avatarStyleInit
+        
+        // Initialize other styles
+        dateStyle = CometChatDate.style
+        receiptStyle = CometChatReceipt.style
+        reactionsStyle = CometChatReactions.style
+        
         textBubbleStyle = TextBubbleStyle(styleType: styleType)
         aiAssistantBubbleStyle = AIAssistantBubbleStyle()
         imageBubbleStyle = ImageBubbleStyle(styleType: styleType)

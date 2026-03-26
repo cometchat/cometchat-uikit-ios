@@ -18,6 +18,8 @@ extension CometChatMessageComposer : CometChatActionSheetDelegate {
             photoLibraryPressed()
         } else if item.id == ComposerAttachmentConstants.video {
             videoLibraryPressed()
+        } else if item.id == ComposerAttachmentConstants.audio {
+            audioLibraryPressed()
         } else if item.id == ComposerAttachmentConstants.file {
             documentPressed()
         } else {
@@ -65,6 +67,20 @@ extension CometChatMessageComposer : CometChatActionSheetDelegate {
                     this.viewModel.sendMediaMessageToUser(url: videoURL, type: .video)
                 }else if let _ = this.viewModel.group {
                     this.viewModel.sendMediaMessageToGroup(url: videoURL, type: .video)
+                }
+            }
+        }
+    }
+    
+    private func audioLibraryPressed() {
+        if let controller = controller {
+            CameraHandler.shared.presentAudioLibrary(for: controller)
+            CameraHandler.shared.audioPickedBlock = { [weak self] (audioURL) in
+                guard let this = self else { return }
+                if let _ = this.viewModel.user {
+                    this.viewModel.sendMediaMessageToUser(url: audioURL, type: .audio)
+                } else if let _ = this.viewModel.group {
+                    this.viewModel.sendMediaMessageToGroup(url: audioURL, type: .audio)
                 }
             }
         }

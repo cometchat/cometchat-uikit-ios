@@ -301,3 +301,8 @@
 "SPAM" = "垃圾邮件";
 "SEXUAL_CONTENT" = "色情内容";
 "HARASSMENT_BULLYING" = "骚扰/欺凌";
+
+"FILE_TYPE_NOT_ALLOWED" = "不允许此文件类型。";
+"AUDIO_LIBRARY" = "音频库";
+
+"AI_AGENTS" = "AI助手";

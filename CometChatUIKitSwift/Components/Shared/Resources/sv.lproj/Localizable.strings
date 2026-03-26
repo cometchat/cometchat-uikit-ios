@@ -278,3 +278,8 @@
 "SPAM" = "Skräppost";
 "SEXUAL_CONTENT" = "Sexuellt innehåll";
 "HARASSMENT_BULLYING" = "Trakasserier och mobbning";
+
+"FILE_TYPE_NOT_ALLOWED" = "Denna filtyp är inte tillåten.";
+"AUDIO_LIBRARY" = "Ljudbibliotek";
+
+"AI_AGENTS" = "AI-assistenter";

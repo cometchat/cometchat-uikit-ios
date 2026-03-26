@@ -287,3 +287,8 @@
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Je bericht werd geblokkeerd vanwege het moderatiebeleid.";
 "PHOTO_LIBRARY" = "Fotobibliotheek";
 "VIDEO_LIBRARY" = "Videobibliotheek";
+
+"FILE_TYPE_NOT_ALLOWED" = "Dit bestandstype is niet toegestaan.";
+"AUDIO_LIBRARY" = "Audiobibliotheek";
+
+"AI_AGENTS" = "AI-assistenten";

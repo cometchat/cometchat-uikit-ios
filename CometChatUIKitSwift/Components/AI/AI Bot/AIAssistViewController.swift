@@ -192,7 +192,8 @@ open class AIAssistViewController: CometChatListBase {
         tableView.separatorStyle = .none
         tableView.backgroundColor = CometChatTheme_v4.palatte.background
         
-        self.registerCellWith(title: CometChatMessageBubble.identifier)
+        // Register cell class directly instead of using nib to avoid nib/code mismatch
+        tableView.register(CometChatMessageBubble.self, forCellReuseIdentifier: CometChatMessageBubble.identifier)
     }
     
     @objc func dismissKeyboard() {

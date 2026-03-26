@@ -21,6 +21,7 @@ protocol MessageListViewModelProtocol {
     var newMessageReceived: ((_ message: BaseMessage) -> Void)? { get set }
     var appendAtIndex: ((_ section: Int, _ row: Int, _ baseMessage: BaseMessage, _ isNewSectionAdded: Bool) -> Void)? { get set }
     var updateAtIndex: ((Int, Int, BaseMessage) -> Void)? { get set }
+    var updateReceiptAtIndex: ((Int, Int, BaseMessage) -> Void)? { get set }
     var deleteAtIndex: ((Int, Int, BaseMessage) -> Void)? { get set }
     var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     func fetchNextMessages()
@@ -63,6 +64,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     var appendAtIndex: ((_ section: Int, _ row: Int, _ baseMessage: BaseMessage, _ isNewSectionAdded: Bool) -> Void)?
 
     var updateAtIndex: ((Int, Int, BaseMessage) -> Void)?
+    var updateReceiptAtIndex: ((Int, Int, BaseMessage) -> Void)?
     var updateConversationCount: (() -> Void)?
     var deleteAtIndex: ((Int, Int, BaseMessage) -> Void)?
     var hideHeaderView: ((Bool) -> Void)?
@@ -1019,22 +1021,53 @@ extension MessageListViewModel {
                 for (section, currentMessages) in messages.enumerated() {
                     for (row, message) in currentMessages.messages.enumerated() {
                         if message.senderUid == loggedInUid {
-                            if receipt.receiptType == .read && message.readAt == 0.0 {
-                                message.readAt = Double(receipt.timeStamp)
+                            // Check if this receipt applies to this message
+                            let isMatchingMessage = String(message.id) == receipt.messageId || message.id <= Int(receipt.messageId) ?? 0
+                            
+                            if receipt.receiptType == .read && message.readAt == 0.0 && isMatchingMessage {
                                 DispatchQueue.main.async { [weak self] in
                                     guard let this = self else { return }
+                                    // Update receipt value on main thread to avoid race conditions
+                                    message.readAt = Double(receipt.timeStamp)
                                     this.messages[section].messages[row] = message
-                                    this.updateAtIndex?(section, row, message)
+                                    // Use updateReceiptAtIndex if available, fallback to updateAtIndex for backward compatibility
+                                    if let receiptUpdate = this.updateReceiptAtIndex {
+                                        receiptUpdate(section, row, message)
+                                    } else {
+                                        this.updateAtIndex?(section, row, message)
+                                    }
                                 }
-                            } else if receipt.receiptType == .delivered && message.deliveredAt == 0.0 {
-                                message.deliveredAt = Double(receipt.timeStamp)
+                            } else if receipt.receiptType == .delivered && message.deliveredAt == 0.0 && isMatchingMessage {
                                 DispatchQueue.main.async { [weak self] in
                                     guard let this = self else { return }
+                                    // Update receipt value on main thread to avoid race conditions
+                                    message.deliveredAt = Double(receipt.timeStamp)
                                     this.messages[section].messages[row] = message
-                                    this.updateAtIndex?(section, row, message)
+                                    // Use updateReceiptAtIndex if available, fallback to updateAtIndex for backward compatibility
+                                    if let receiptUpdate = this.updateReceiptAtIndex {
+                                        receiptUpdate(section, row, message)
+                                    } else {
+                                        this.updateAtIndex?(section, row, message)
+                                    }
                                 }
                             } else if String(message.id) == receipt.messageId {
-                                updateAtIndex?(section, row, message) ///updating last message because it was conflicting with conversation's update
+                                // Ensure receipt values are up to date even if already set
+                                DispatchQueue.main.async { [weak self] in
+                                    guard let this = self else { return }
+                                    // Update receipt values if the incoming receipt has newer data
+                                    if receipt.receiptType == .read && message.readAt == 0.0 {
+                                        message.readAt = Double(receipt.timeStamp)
+                                    } else if receipt.receiptType == .delivered && message.deliveredAt == 0.0 {
+                                        message.deliveredAt = Double(receipt.timeStamp)
+                                    }
+                                    this.messages[section].messages[row] = message
+                                    // Use updateReceiptAtIndex if available, fallback to updateAtIndex for backward compatibility
+                                    if let receiptUpdate = this.updateReceiptAtIndex {
+                                        receiptUpdate(section, row, message)
+                                    } else {
+                                        this.updateAtIndex?(section, row, message)
+                                    }
+                                }
                             }
                         }
                     }
@@ -1046,21 +1079,49 @@ extension MessageListViewModel {
                     for (row, message) in currentMessages.messages.enumerated() {
                         
                         if receipt.receiptType == .readByAll && message.readAt == 0.0 {
-                            message.readAt = Double(receipt.timeStamp)
                             DispatchQueue.main.async { [weak self] in
                                 guard let this = self else { return }
+                                // Update receipt value on main thread to avoid race conditions
+                                message.readAt = Double(receipt.timeStamp)
                                 this.messages[section].messages[row] = message
-                                this.updateAtIndex?(section, row, message)
+                                // Use updateReceiptAtIndex if available, fallback to updateAtIndex for backward compatibility
+                                if let receiptUpdate = this.updateReceiptAtIndex {
+                                    receiptUpdate(section, row, message)
+                                } else {
+                                    this.updateAtIndex?(section, row, message)
+                                }
                             }
                         } else if receipt.receiptType == .deliveredToAll && message.deliveredAt == 0.0 {
-                            message.deliveredAt = Double(receipt.timeStamp)
                             DispatchQueue.main.async { [weak self] in
                                 guard let this = self else { return }
+                                // Update receipt value on main thread to avoid race conditions
+                                message.deliveredAt = Double(receipt.timeStamp)
                                 this.messages[section].messages[row] = message
-                                this.updateAtIndex?(section, row, message)
+                                // Use updateReceiptAtIndex if available, fallback to updateAtIndex for backward compatibility
+                                if let receiptUpdate = this.updateReceiptAtIndex {
+                                    receiptUpdate(section, row, message)
+                                } else {
+                                    this.updateAtIndex?(section, row, message)
+                                }
                             }
                         } else if String(message.id) == receipt.messageId {
-                            updateAtIndex?(section, row, message) ///updating last message because it was conflicting with conversation's update
+                            // Ensure receipt values are up to date even if already set
+                            DispatchQueue.main.async { [weak self] in
+                                guard let this = self else { return }
+                                // Update receipt values if the incoming receipt has newer data
+                                if receipt.receiptType == .readByAll && message.readAt == 0.0 {
+                                    message.readAt = Double(receipt.timeStamp)
+                                } else if receipt.receiptType == .deliveredToAll && message.deliveredAt == 0.0 {
+                                    message.deliveredAt = Double(receipt.timeStamp)
+                                }
+                                this.messages[section].messages[row] = message
+                                // Use updateReceiptAtIndex if available, fallback to updateAtIndex for backward compatibility
+                                if let receiptUpdate = this.updateReceiptAtIndex {
+                                    receiptUpdate(section, row, message)
+                                } else {
+                                    this.updateAtIndex?(section, row, message)
+                                }
+                            }
                         }
                         
                     }
@@ -1317,9 +1378,9 @@ extension MessageListViewModel: CometChatMessageEventListener {
                     startStreaming(runId: message.id, assistant: user!)
                 }
             }
-                update(message: message)
-            }
+            update(message: message)
         }
+    }
     
     public func removeMarkedFailedStreamMessages() {
         DispatchQueue.main.async { [weak self] in

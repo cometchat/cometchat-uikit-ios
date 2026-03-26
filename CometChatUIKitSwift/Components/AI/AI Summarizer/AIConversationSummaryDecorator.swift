@@ -87,6 +87,10 @@ class AIConversationSummaryDecorator: DataSourceDecorator {
             .set(configuration: self.configuration)
             .set(id: id)
         
+        summaryView.onCloseButtonTapped = { [weak self] in
+            CometChatUIEvents.hidePanel(id: id, alignment: .composerTop)
+        }
+        
         if let configurationLoadingView = self.configuration?.loadingView {
             CometChatUIEvents.showPanel(id: id, alignment: .messageListBottom, view: configurationLoadingView)
         }else{

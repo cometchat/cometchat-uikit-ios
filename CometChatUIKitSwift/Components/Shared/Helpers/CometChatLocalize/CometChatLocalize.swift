@@ -101,7 +101,26 @@ public class CometChatLocalize: Bundle {
      - Copyright:  ©  2022 CometChat Inc.
      */
     public class func getLocale() -> String {
-        return UserDefaults.standard.value(forKey: "lang") as? String ?? Locale.current.languageCode as! String
+        // First check if user has explicitly set a language
+        if let savedLang = UserDefaults.standard.value(forKey: "lang") as? String {
+            return savedLang
+        }
+        
+        // Get system language from preferred languages
+        if let preferredLanguage = Locale.preferredLanguages.first {
+            // Extract just the language code (e.g., "hi" from "hi-IN" or "hi-Deva-IN")
+            let languageCode = Locale(identifier: preferredLanguage).languageCode ?? "en"
+            return languageCode
+        }
+        
+        // Fallback to Locale.current
+        if #available(iOS 16, *) {
+            let languageCode = Locale.current.language.languageCode?.identifier ?? "en"
+            return languageCode
+        } else {
+            let languageCode = Locale.current.languageCode ?? "en"
+            return languageCode
+        }
     }
     
     

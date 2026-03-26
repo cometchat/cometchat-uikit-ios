@@ -262,6 +262,15 @@ open class MessageUtils {
         view.messageTextColor = bubbleStyle.moderationStyle.moderationTextColor
         view.messageFont = bubbleStyle.moderationStyle.moderationTextFont
         view.iconViewTintColor = bubbleStyle.moderationStyle.moderationImageTint
+        
+        // Check if this is an RBAC permission denied error and set appropriate message
+        if let metaData = message.metaData, metaData["rbac_permission_denied"] as? Bool == true, message.messageCategory == .message {
+            view.messageLabel.text = "FILE_TYPE_NOT_ALLOWED".localize()
+            view.messageLabel.numberOfLines = 1
+            view.messageLabel.adjustsFontSizeToFitWidth = true
+            view.messageLabel.minimumScaleFactor = 0.7
+        }
+        
         bubble.set(bottomView: view)
     }
     
@@ -275,11 +284,17 @@ open class MessageUtils {
     }
     
     public static func isMessageModerationDisapproved(message: BaseMessage) -> Bool {
+        // Check for traditional moderation disapproval
         if (message as? TextMessage)?.getModerationStatus() == "disapproved" || (message as? MediaMessage)?.getModerationStatus() == "disapproved" {
-             return true
-         }
-         return false
-     }
+            return true
+        }
+        // Check for RBAC permission denied (e.g., MIME type not allowed)
+        // Only apply to actual messages, not action messages (like "user added to group")
+        if let metaData = message.metaData, metaData["rbac_permission_denied"] as? Bool == true, message.messageCategory == .message {
+            return true
+        }
+        return false
+    }
     
     public static func isMessageModerationPending(message: BaseMessage) -> Bool {
         if (message as? TextMessage)?.getModerationStatus() == "pending" || (message as? MediaMessage)?.getModerationStatus() == "pending" {
@@ -316,6 +331,10 @@ open class MessageUtils {
         
         if !addtionalConfiguration.hideVideoAttachmentOption{
             composerAction.append(CometChatMessageComposerAction(id: MessageTypeConstants.video, text: "VIDEO_LIBRARY".localize(), startIcon:  UIImage(systemName: "video.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil))
+        }
+        
+        if !addtionalConfiguration.hideAudioAttachmentOption{
+            composerAction.append(CometChatMessageComposerAction(id: MessageTypeConstants.audio, text: "AUDIO_LIBRARY".localize(), startIcon:  UIImage(systemName: "music.note") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil))
         }
         
         if !addtionalConfiguration.hideFileAttachmentOption{

@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0650A21BE1B0E1F13A6C8D6B /* Pods_SampleApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DD8BF6B1161A7E9E897A5F6 /* Pods_SampleApp.framework */; };
-		11404D992D60CA29002AF66F /* NotificationExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 11404D922D60CA29002AF66F /* NotificationExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		181664A02C858FFC009F53B7 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1816649F2C858FFC009F53B7 /* UIView+Extensions.swift */; };
 		18583DAB2C7D0D8800B3E11C /* CometChatTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18583DAA2C7D0D8800B3E11C /* CometChatTheme.swift */; };
 		18583DAE2C7D190000B3E11C /* CometChatColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18583DAD2C7D190000B3E11C /* CometChatColorExtensions.swift */; };
@@ -31,13 +30,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		11404D972D60CA29002AF66F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8466DBF62AA7B5DD00093E91 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 11404D912D60CA29002AF66F;
-			remoteInfo = NotificationExtension;
-		};
 		18364DB52D25B17300769643 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8466DBF62AA7B5DD00093E91 /* Project object */;
@@ -54,19 +46,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				11404D992D60CA29002AF66F /* NotificationExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		11404DA32D60CB06002AF66F /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -178,7 +159,6 @@
 		11006EE161725C8711B65328 /* DataSourceDecorator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataSourceDecorator.swift; path = CometChatUIKitSwift/Components/Shared/Framework/DataSourceDecorator.swift; sourceTree = "<group>"; };
 		11299AD2F04B3F249D827351 /* File Type=.word, Size=Icon@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "File Type=.word, Size=Icon@2x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/cometchat_word_file_icon.imageset/File Type=.word, Size=Icon@2x.png"; sourceTree = "<group>"; };
 		1138FA4AAB8E99909184128D /* Selection.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = Selection.png; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/selected-option-image.imageset/Selection.png"; sourceTree = "<group>"; };
-		11404D922D60CA29002AF66F /* NotificationExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1164849E34F6F0E1D0937244 /* TimeSlotView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeSlotView.swift; path = "CometChatUIKitSwift/Components/Shared/Views/Scheduler Bubble/InternalViews/TimeSlotView.swift"; sourceTree = "<group>"; };
 		11E808762EC4B820005AFB7C /* AISampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AISampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		126173591049D1837103FD24 /* File Type=_, Size=Icon@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "File Type=_, Size=Icon@3x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/cometchat_unknown_file_icon.imageset/File Type=_, Size=Icon@3x.png"; sourceTree = "<group>"; };
@@ -290,6 +270,7 @@
 		251F4B707E25690998855988 /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/messages-media-play.imageset/Contents.json"; sourceTree = "<group>"; };
 		25245942DA61797187D01154 /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/message-document.imageset/Contents.json"; sourceTree = "<group>"; };
 		254FC6EA7D3F44C6F46BB038 /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "SampleAppPushNotificationAPNs/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		255F68F1E55F2F6F48F0F00B /* Pods-NotificationExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationExtension.release.xcconfig"; path = "Target Support Files/Pods-NotificationExtension/Pods-NotificationExtension.release.xcconfig"; sourceTree = "<group>"; };
 		2586DF1632B650E182E1B0F2 /* CometChatGroupMemberOption.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatGroupMemberOption.swift; path = CometChatUIKitSwift/Components/Shared/Models/CometChatGroupMemberOption.swift; sourceTree = "<group>"; };
 		25EA08E6DA56B082391BFE6D /* UIView+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UIView+Extensions.swift"; path = "CometChatUIKitSwift/Extensions/UIView+Extensions.swift"; sourceTree = "<group>"; };
 		26297C44DEB5D42E90E9F680 /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/messages-emoji-keyboard-food.imageset/Contents.json"; sourceTree = "<group>"; };
@@ -644,6 +625,7 @@
 		68C56B2906DE43AF2549E095 /* DeleteBubbleStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeleteBubbleStyle.swift; path = "CometChatUIKitSwift/Components/Shared/Views/Delete Bubble/DeleteBubbleStyle.swift"; sourceTree = "<group>"; };
 		68D985CB8897D5A3C4548F30 /* SmartRepliesStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SmartRepliesStyle.swift; path = "CometChatUIKitSwift/Components/Extensions/Smart Replies/SmartRepliesStyle.swift"; sourceTree = "<group>"; };
 		690189FE91499351F566E885 /* Contents.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Contents.json; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/messages-incoming-audio-call.imageset/Contents.json"; sourceTree = "<group>"; };
+		6904717FB396DDAA64398A5E /* Pods_NotificationExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NotificationExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		695D02CFF94C053FDC1DA17F /* CollaborativeDocumentBubbleConfiguration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CollaborativeDocumentBubbleConfiguration.swift; path = "CometChatUIKitSwift/Components/Extensions/Collaborative Document/CometChatDocument/CollaborativeDocumentBubbleConfiguration.swift"; sourceTree = "<group>"; };
 		697E5C5A3980AB92BB8251D7 /* Frame@1x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "Frame@1x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/calendar.imageset/Frame@1x.png"; sourceTree = "<group>"; };
 		69A476D61635158738E272E7 /* iOS Icons@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = "iOS Icons@2x.png"; path = "CometChatUIKitSwift/Components/Resources/messages-assets.xcassets/add_reaction.imageset/iOS Icons@2x.png"; sourceTree = "<group>"; };
@@ -1046,6 +1028,7 @@
 		B23E19027566B3D89A333385 /* CometChatNewMessageIndicator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatNewMessageIndicator.swift; path = "CometChatUIKitSwift/Components/Shared/Views/New Message Indicator/CometChatNewMessageIndicator.swift"; sourceTree = "<group>"; };
 		B2718FCDD2FF061F4773C781 /* BannedMembersViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BannedMembersViewModel.swift; path = "SampleAppPushNotificationAPNs/View Controllers/CometChat Components/Banned Members/BannedMembersViewModel.swift"; sourceTree = "<group>"; };
 		B2D59ECF67E78CEB928C3DDC /* 87.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = 87.png; path = SampleApp/Assets.xcassets/AppIcon.appiconset/87.png; sourceTree = "<group>"; };
+		B2EBF239E37C1D9790DD6EFA /* Pods-NotificationExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationExtension.debug.xcconfig"; path = "Target Support Files/Pods-NotificationExtension/Pods-NotificationExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		B349D7CC9D80368D777A69B7 /* CometChatMessageEvents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatMessageEvents.swift; path = CometChatUIKitSwift/Components/Shared/Events/MessageEvents/CometChatMessageEvents.swift; sourceTree = "<group>"; };
 		B359A2C5F3A0E6CDE459926F /* CometChatPollsExtension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CometChatPollsExtension.swift; path = CometChatUIKitSwift/Components/Extensions/Polls/CometChatPollsExtension.swift; sourceTree = "<group>"; };
 		B37758CCD9DB35267C053BCA /* AIRepliesCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AIRepliesCell.swift; path = "CometChatUIKitSwift/Components/AI/AI Shared Views/AI Replies View/AIRepliesCell.swift"; sourceTree = "<group>"; };
@@ -1462,13 +1445,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		11404D9D2D60CA29002AF66F /* Exceptions for "NotificationExtension" folder in "NotificationExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 11404D912D60CA29002AF66F /* NotificationExtension */;
-		};
 		11E819952EC4E5D7005AFB7C /* Exceptions for "AISampleApp" folder in "AISampleApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -1495,9 +1471,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		11404D932D60CA29002AF66F /* NotificationExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				11404D9D2D60CA29002AF66F /* Exceptions for "NotificationExtension" folder in "NotificationExtension" target */,
-			);
 			path = NotificationExtension;
 			sourceTree = "<group>";
 		};
@@ -1533,13 +1506,6 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		11404D8F2D60CA29002AF66F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		11E808732EC4B820005AFB7C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1635,6 +1601,7 @@
 				5DD8BF6B1161A7E9E897A5F6 /* Pods_SampleApp.framework */,
 				3992540EA2DE94DB523495DC /* Pods_SampleAppPushNotificationAPNs.framework */,
 				CD60171279B5D7E9E72F4AFE /* Pods_AISampleApp.framework */,
+				6904717FB396DDAA64398A5E /* Pods_NotificationExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -3010,6 +2977,8 @@
 				4AF6206F6A56EF0DA9422555 /* Pods-SampleAppPushNotificationAPNs.release.xcconfig */,
 				1EC0003D363ED168B156FB1F /* Pods-AISampleApp.debug.xcconfig */,
 				E9EC2BA0F9E17CD3305666C0 /* Pods-AISampleApp.release.xcconfig */,
+				B2EBF239E37C1D9790DD6EFA /* Pods-NotificationExtension.debug.xcconfig */,
+				255F68F1E55F2F6F48F0F00B /* Pods-NotificationExtension.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -3043,7 +3012,6 @@
 				8466DBFF2AA7B5DD00093E91 /* CometChatUIKitSwift.framework */,
 				18A541DE2CC12E1700AA055A /* SampleAppPushNotificationAPNs.app */,
 				186590D62D25B9E500B5C767 /* SampleApp.app */,
-				11404D922D60CA29002AF66F /* NotificationExtension.appex */,
 				11E808762EC4B820005AFB7C /* AISampleApp.app */,
 			);
 			name = Products;
@@ -3077,27 +3045,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		11404D912D60CA29002AF66F /* NotificationExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 11404D9A2D60CA29002AF66F /* Build configuration list for PBXNativeTarget "NotificationExtension" */;
-			buildPhases = (
-				11404D8E2D60CA29002AF66F /* Sources */,
-				11404D8F2D60CA29002AF66F /* Frameworks */,
-				11404D902D60CA29002AF66F /* Resources */,
-				11404DA32D60CB06002AF66F /* Embed Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				11404D932D60CA29002AF66F /* NotificationExtension */,
-			);
-			name = NotificationExtension;
-			productName = NotificationExtension;
-			productReference = 11404D922D60CA29002AF66F /* NotificationExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		11E808752EC4B820005AFB7C /* AISampleApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 11E808882EC4B822005AFB7C /* Build configuration list for PBXNativeTarget "AISampleApp" */;
@@ -3161,7 +3108,6 @@
 			);
 			dependencies = (
 				18364DB62D25B17300769643 /* PBXTargetDependency */,
-				11404D982D60CA29002AF66F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				18A541DF2CC12E1700AA055A /* SampleAppPushNotificationAPNs */,
@@ -3202,9 +3148,6 @@
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
-					11404D912D60CA29002AF66F = {
-						CreatedOnToolsVersion = 16.2;
-					};
 					11E808752EC4B820005AFB7C = {
 						CreatedOnToolsVersion = 26.1;
 					};
@@ -3255,20 +3198,12 @@
 				8466DBFE2AA7B5DD00093E91 /* CometChatUIKitSwift */,
 				18A541DD2CC12E1700AA055A /* SampleAppPushNotificationAPNs */,
 				186590D52D25B9E500B5C767 /* SampleApp */,
-				11404D912D60CA29002AF66F /* NotificationExtension */,
 				11E808752EC4B820005AFB7C /* AISampleApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		11404D902D60CA29002AF66F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		11E808742EC4B820005AFB7C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3309,9 +3244,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleApp/Pods-SampleApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleApp/Pods-SampleApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3348,9 +3287,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AISampleApp/Pods-AISampleApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AISampleApp/Pods-AISampleApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3365,9 +3308,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleAppPushNotificationAPNs/Pods-SampleAppPushNotificationAPNs-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleAppPushNotificationAPNs/Pods-SampleAppPushNotificationAPNs-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3404,9 +3351,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleAppPushNotificationAPNs/Pods-SampleAppPushNotificationAPNs-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleAppPushNotificationAPNs/Pods-SampleAppPushNotificationAPNs-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3465,9 +3416,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AISampleApp/Pods-AISampleApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AISampleApp/Pods-AISampleApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3482,9 +3437,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleApp/Pods-SampleApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SampleApp/Pods-SampleApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3494,13 +3453,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		11404D8E2D60CA29002AF66F /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		11E808722EC4B820005AFB7C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3543,11 +3495,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		11404D982D60CA29002AF66F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 11404D912D60CA29002AF66F /* NotificationExtension */;
-			targetProxy = 11404D972D60CA29002AF66F /* PBXContainerItemProxy */;
-		};
 		18364DB62D25B17300769643 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8466DBFE2AA7B5DD00093E91 /* CometChatUIKitSwift */;
@@ -3556,69 +3503,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		11404D9B2D60CA29002AF66F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CODE_SIGN_ENTITLEMENTS = NotificationExtension/NotificationExtension.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = T9F7QDSC2S;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = NotificationExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = NotificationExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.cometchat.internal.swift.NotificationExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		11404D9C2D60CA29002AF66F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CODE_SIGN_ENTITLEMENTS = NotificationExtension/NotificationExtension.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = T9F7QDSC2S;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = NotificationExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = NotificationExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.cometchat.internal.swift.NotificationExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		11E808892EC4B822005AFB7C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1EC0003D363ED168B156FB1F /* Pods-AISampleApp.debug.xcconfig */;
@@ -3775,6 +3659,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "";
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = SampleAppPushNotificationAPNs/SampleAppPushNotificationAPNs.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -3819,6 +3704,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "";
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = SampleAppPushNotificationAPNs/SampleAppPushNotificationAPNs.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -4072,15 +3958,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		11404D9A2D60CA29002AF66F /* Build configuration list for PBXNativeTarget "NotificationExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				11404D9B2D60CA29002AF66F /* Debug */,
-				11404D9C2D60CA29002AF66F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		11E808882EC4B822005AFB7C /* Build configuration list for PBXNativeTarget "AISampleApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

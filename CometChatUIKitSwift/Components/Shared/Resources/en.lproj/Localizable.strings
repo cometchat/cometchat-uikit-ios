@@ -308,3 +308,7 @@
 "SPAM" = "Spam";
 "SEXUAL_CONTENT" = "Sexual Content";
 "HARASSMENT_BULLYING" = "Harassment / Bullying";
+"FILE_TYPE_NOT_ALLOWED" = "This file type is not allowed.";
+"AUDIO_LIBRARY" = "Audio Library";
+
+"AI_AGENTS" = "AI Assistants";

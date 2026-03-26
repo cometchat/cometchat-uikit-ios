@@ -19,6 +19,7 @@ public class AdditionalConfiguration {
     
     public var hideImageAttachmentOption: Bool = false
     public var hideVideoAttachmentOption: Bool = false
+    public var hideAudioAttachmentOption: Bool = false
     public var hideFileAttachmentOption: Bool = false
     public var hidePollsOption: Bool = false
     public var hideCollaborativeDocumentOption: Bool = false

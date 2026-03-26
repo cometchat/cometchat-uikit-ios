@@ -298,3 +298,8 @@
 "REASON" = "Reason";
 "OPTIONAL" = "Optional";
 "REPORT_MESSAGE_PLACEHOLDER" = "Provide additional context for your report…";
+
+"FILE_TYPE_NOT_ALLOWED" = "This file type is not allowed.";
+"AUDIO_LIBRARY" = "Audio Library";
+
+"AI_AGENTS" = "AI Assistants";

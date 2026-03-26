@@ -140,6 +140,13 @@ public class CometChatVideoBubble: UIStackView {
         if thumbnailRetryCount < 5 {
             if let url = URL(string: thumnailImageUrl) {
                 thumbnailImageUrl = url
+                
+                // Check cache synchronously first to avoid flicker
+                if let cachedImage = ImageService.imageCache.object(forKey: url as AnyObject) as? UIImage {
+                    self.placeHolderImageView.image = cachedImage
+                    return
+                }
+                
                 imageRequest = imageService.image(for: url, cacheType: .normal) { [weak self] image in
                     guard let this = self else { return }
                     if let image = image {
@@ -158,6 +165,12 @@ public class CometChatVideoBubble: UIStackView {
     public func set(videoURL: String) {
         self.videoURL = videoURL
         if thumbnailImageUrl == nil, let url = URL(string: videoURL) {
+            // Check cache synchronously first to avoid flicker
+            if let cachedImage = ImageService.imageCache.object(forKey: url as AnyObject) as? UIImage {
+                self.placeHolderImageView.image = cachedImage
+                return
+            }
+            
             generateThumbnail(from: url) { [weak self] image in
                 if let image = image {
                     self?.set(placeholderImage: image)

@@ -25,91 +25,109 @@ class MessagesVC: UIViewController {
         if let user = user { headerView.set(user: user) }
         if let group = group { headerView.set(group: group) }
         headerView.set(controller: self) //passing controller needs to be mandatory
-//        headerView.set(trailView: { [weak self] user, group in
-//            guard let this = self else { return UIView() }
-//            return this.getInfoButton()
-//        })
-        var options = [CometChatPopupMenu.MenuItem]()
-        let option1 = CometChatPopupMenu.MenuItem(title: "Search", icon: UIImage(systemName: "magnifyingglass")!, action: { [weak self] in
-            let searchVC = CometChatSearch()
-            searchVC.hidesBottomBarWhenPushed = true
-            searchVC.set(searchIn: [.messages])
-            if let user = self?.user {
-                searchVC.user = user
-            }
-            if let group = self?.group { searchVC.group = group }
-            searchVC.onMessageClicked = { [weak self] message in
-                guard let nav = self?.navigationController else { return }
-                
-                if message.parentMessageId > 0{
-                    CometChat.getMessageDetails(message.parentMessageId) { parentmessage in
-                        let threadedView = ThreadedMessagesVC()
-                        threadedView.parentMessage = parentmessage
-                        threadedView.user = self?.user
-                        threadedView.targetMessageId = message.id
-                        threadedView.parentMessageView.controller = self
-                        threadedView.parentMessageView.set(parentMessage: parentmessage)
-                        nav.pushViewController(threadedView, animated: true)
-                    } onError: { error in
-                        print(error?.errorDescription ?? "")
-                    }
+        
+        // Only show three dots menu for non-AI agents
+        if user?.isAgentic != true {
+            var options = [CometChatPopupMenu.MenuItem]()
+            let option1 = CometChatPopupMenu.MenuItem(title: "Search", icon: UIImage(systemName: "magnifyingglass")!, action: { [weak self] in
+                let searchVC = CometChatSearch()
+                searchVC.hidesBottomBarWhenPushed = true
+                searchVC.set(searchIn: [.messages])
+                if let user = self?.user {
+                    searchVC.user = user
+                }
+                if let group = self?.group { searchVC.group = group }
+                searchVC.onMessageClicked = { [weak self] message in
+                    guard let nav = self?.navigationController else { return }
+                    
+                    if message.parentMessageId > 0{
+                        CometChat.getMessageDetails(message.parentMessageId) { parentmessage in
+                            let threadedView = ThreadedMessagesVC()
+                            threadedView.parentMessage = parentmessage
+                            threadedView.user = self?.user
+                            threadedView.targetMessageId = message.id
+                            threadedView.parentMessageView.controller = self
+                            threadedView.parentMessageView.set(parentMessage: parentmessage)
+                            nav.pushViewController(threadedView, animated: true)
+                        } onError: { error in
+                            print(error?.errorDescription ?? "")
+                        }
 
-                }else{
-                    let loggedInUID = CometChat.getLoggedInUser()?.uid
-                    if let existingMessagesVC = nav.viewControllers.first(where: { $0 is MessagesVC }) as? MessagesVC {
-                        self?.messageListView.goToMessage(withId: message.id)
-                        if let receiver = message.receiver as? Group {
-                            existingMessagesVC.group = message.receiver as? Group
+                    }else{
+                        let loggedInUID = CometChat.getLoggedInUser()?.uid
+                        if let existingMessagesVC = nav.viewControllers.first(where: { $0 is MessagesVC }) as? MessagesVC {
+                            self?.messageListView.goToMessage(withId: message.id)
+                            if let receiver = message.receiver as? Group {
+                                existingMessagesVC.group = message.receiver as? Group
+                            } else {
+                                existingMessagesVC.user = loggedInUID == message.sender?.uid ? (message.receiver as? CometChatSDK.User) : message.sender
+                            }
+                            nav.popToViewController(existingMessagesVC, animated: true)
+                            
                         } else {
-                            existingMessagesVC.user = loggedInUID == message.sender?.uid ? (message.receiver as? CometChatSDK.User) : message.sender
+                            let newVC = MessagesVC()
+                            newVC.user = loggedInUID == message.sender?.uid ? (message.receiver as? CometChatSDK.User) : message.sender
+                            newVC.group = message.receiver as? Group
+                            self?.messageListView.goToMessage(withId: message.id)
+                            nav.pushViewController(newVC, animated: true)
                         }
-                        nav.popToViewController(existingMessagesVC, animated: true)
-                        
-                    } else {
-                        let newVC = MessagesVC()
-                        newVC.user = loggedInUID == message.sender?.uid ? (message.receiver as? CometChatSDK.User) : message.sender
-                        newVC.group = message.receiver as? Group
-                        self?.messageListView.goToMessage(withId: message.id)
-                        nav.pushViewController(newVC, animated: true)
+                    }
+                    
+                }
+                self?.navigationController?.pushViewController(searchVC, animated: true)
+            })
+            let option2 = CometChatPopupMenu.MenuItem(title: "Conversation Summary", icon: UIImage(systemName: "message")!, action: { [weak self] in
+                print("enableConversationSummary: \(String(describing: self?.messageListView.enableConversationSummary))")
+                self?.messageListView.getConversationSummary()
+            })
+            var text = ""
+            if let group = self.group{
+                text = "Group Info"
+            } else if let user = self.user {
+                text = "User Info"
+            }
+            let option3 = CometChatPopupMenu.MenuItem(title: text, icon: UIImage(systemName: "info.circle")!, action: { [weak self] in
+                DispatchQueue.main.async {
+                    guard let this = self else { return }
+                    if let group = this.group{
+                        let detailsView = GroupDetailsViewController()
+                        detailsView.group = self?.headerView.viewModel.group
+                        detailsView.onExitGroup = { group in
+                            self?.group = group
+                            if !(group.hasJoined){
+                                //Handle bann members real time update here
+                            }
+                        }
+                        this.navigationController?.pushViewController(detailsView, animated: true)
+                    }else{
+                        let detailsView = UserDetailsViewController()
+                        detailsView.user = self?.headerView.viewModel.user
+                        this.navigationController?.pushViewController(detailsView, animated: true)
                     }
                 }
-                
-            }
-            self?.navigationController?.pushViewController(searchVC, animated: true)
-        })
-        let option2 = CometChatPopupMenu.MenuItem(title: "Conversation Summary", icon: UIImage(systemName: "message")!, action: { [weak self] in
-            self?.messageListView.getConversationSummary()
-        })
-        var text = ""
-        if let group = self.group{
-            text = "Group Info"
-        } else if let user = self.user {
-            text = "User Info"
+            })
+            options.append(option1)
+            options.append(option2)
+            options.append(option3)
+            headerView.set(options: options)
         }
-        let option3 = CometChatPopupMenu.MenuItem(title: text, icon: UIImage(systemName: "info.circle")!, action: { [weak self] in
-            DispatchQueue.main.async {
-                guard let this = self else { return }
-                if let group = this.group{
-                    let detailsView = GroupDetailsViewController()
-                    detailsView.group = self?.headerView.viewModel.group
-                    detailsView.onExitGroup = { group in
-                        self?.group = group
-                        if !(group.hasJoined){
-                            //Handle bann members real time update here
-                        }
-                    }
-                    this.navigationController?.pushViewController(detailsView, animated: true)
-                }else{
-                    let detailsView = UserDetailsViewController()
-                    detailsView.user = self?.headerView.viewModel.user
-                    this.navigationController?.pushViewController(detailsView, animated: true)
+
+        // Custom back navigation for AI agents - go directly to HomeScreenViewController
+        if let user = user, user.isAgentic {
+            headerView.hideBackButton = false
+            headerView.set(onBack: { [weak self] in
+                guard let self = self,
+                      let navController = self.navigationController else { return }
+                
+                // Find HomeScreenViewController in the navigation stack and pop to it
+                if let homeVC = navController.viewControllers.first(where: { $0 is HomeScreenViewController }) {
+                    navController.popToViewController(homeVC, animated: true)
+                } else {
+                    // Fallback to standard back navigation
+                    navController.popViewController(animated: true)
                 }
-            }
-        })
-        options.append(option1)
-        options.append(option2)
-        options.append(option3)
-        headerView.set(options: options)
+            })
+        }
 
         headerView.onAiNewChatClicked = { [weak self] user in
             guard let self = self, let navController = self.navigationController else { return }
@@ -290,22 +308,23 @@ class MessagesVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         navigationItem.hidesBackButton = true
         
-        // setting this for notification
-        // (notification will not be displayed if that users or groups chat is active on screen)
-        CometChatPNHelper.currentActiveGroup = group
-        CometChatPNHelper.currentActiveUser = user
-        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
+        // Show navigation bar when leaving, except when pushing to another MessagesVC
+        let topVC = self.navigationController?.viewControllers.last
+        let isPushingToMessagesVC = topVC is MessagesVC && topVC !== self
         
-        CometChatPNHelper.currentActiveGroup = nil
-        CometChatPNHelper.currentActiveUser = nil
+        if !isPushingToMessagesVC {
+            self.navigationController?.setNavigationBarHidden(false, animated: true)
+        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
+        // Only restore navigation bar when popping back
+        if self.isMovingFromParent || self.isBeingDismissed {
+            self.navigationController?.setNavigationBarHidden(false, animated: true)
+        }
     }
     
     deinit {

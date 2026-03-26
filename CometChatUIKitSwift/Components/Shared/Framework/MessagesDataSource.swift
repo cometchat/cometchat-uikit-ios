@@ -74,6 +74,12 @@ public class MessagesDataSource: DataSource {
         let isGroupOwner = group?.owner == loggedInUser.uid
         var messageOptions = [CometChatMessageOption]()
         
+        // For RBAC permission denied errors, return empty options (no context menu)
+        // Only apply to actual messages, not action messages (like "user added to group")
+        if let metaData = messageObject.metaData, metaData["rbac_permission_denied"] as? Bool == true, messageObject.messageCategory == .message {
+            return messageOptions
+        }
+        
         if MessageUtils.isMessageModerationDisapproved(message: messageObject) {
             if !additionalConfiguration.hideCopyMessageOption {
                 messageOptions.append(getCopyOption(controller: controller))
@@ -506,6 +512,12 @@ public class MessagesDataSource: DataSource {
         var options = [CometChatMessageOption]()
         let isSentByMe = isSentByMe(loggedInUser: loggedInUser, message: messageObject)
         
+        // For RBAC permission denied errors, return empty options (no context menu)
+        // Only apply to actual messages, not action messages (like "user added to group")
+        if let metaData = messageObject.metaData, metaData["rbac_permission_denied"] as? Bool == true, messageObject.messageCategory == .message {
+            return options
+        }
+        
         if MessageUtils.isMessageModerationDisapproved(message: messageObject) {
             if (isSentByMe || group?.scope == .admin || group?.scope == .moderator) &&
                 !additionalConfiguration.hideDeleteMessageOption {
@@ -582,6 +594,10 @@ public class MessagesDataSource: DataSource {
         return   CometChatMessageComposerAction(id: ComposerAttachmentConstants.video, text: "VIDEO_LIBRARY".localize(), startIcon:  UIImage(systemName: "video.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil)
     }
     
+    public func audioLibraryOption(controller: UIViewController?) -> CometChatMessageComposerAction{
+        return   CometChatMessageComposerAction(id: ComposerAttachmentConstants.audio, text: "AUDIO_LIBRARY".localize(), startIcon:  UIImage(systemName: "music.note") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil)
+    }
+    
     public func fileAttachmentOption(controller: UIViewController?) -> CometChatMessageComposerAction{
         return    CometChatMessageComposerAction(id: ComposerAttachmentConstants.file, text: "CUSTOM_MESSAGE_DOCUMENT".localize(), startIcon: UIImage(systemName: "doc.on.doc.fill") ?? UIImage(), endIcon: nil, startIconTint: nil, endIconTint: nil, textColor: nil, textFont: nil)
     }
@@ -598,6 +614,10 @@ public class MessagesDataSource: DataSource {
         
         if !additionalConfiguration.hideVideoAttachmentOption{
             composerAction.append(videoLibraryOption(controller: controller))
+        }
+        
+        if !additionalConfiguration.hideAudioAttachmentOption{
+            composerAction.append(audioLibraryOption(controller: controller))
         }
         
         if !additionalConfiguration.hideFileAttachmentOption{
@@ -734,7 +754,10 @@ public class MessagesDataSource: DataSource {
         let audioBubble = CometChatAudioBubble()
         audioBubble.pin(anchors: [.height], to: 50)
         audioBubble.pin(anchors: [.width], to: 240)
-        audioBubble.set(fileURL: message?.attachment?.fileUrl ?? "")
+        
+        // Get duration from metadata if available
+        let audioDuration = message?.metaData?["audioDuration"] as? Int
+        audioBubble.set(fileURL: message?.attachment?.fileUrl ?? "", localFileURL: message?.metaData?["fileURL"] as? String, audioDuration: audioDuration)
         
         
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)

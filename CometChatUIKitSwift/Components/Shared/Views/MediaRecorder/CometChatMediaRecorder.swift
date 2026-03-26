@@ -130,7 +130,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
         return stackView
     }()
     
-    private(set) var onSubmit: ((String) -> Void)?
+    private(set) var onSubmit: ((String, Int) -> Void)?
     private var currentState: AudioRecodingState = .ready
     var audioViewModel = ViewModel()
     var viewModel: MediaRecorderViewModel?
@@ -455,7 +455,9 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
     @objc func onSubmitButtonPressed(sender: UIButton) {
         // Handle submission logic
         if let url = didAudioNoteSendPressed() {
-            onSubmit?(url)
+            // totalSecond is 1 ahead because it's incremented after display, so subtract 1
+            let actualDuration = max(0, totalSecond - 1)
+            onSubmit?(url, actualDuration)
             dismiss(animated: true, completion: nil)
         }
     }
@@ -495,6 +497,10 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
     private func stopRecordingAndUpdateUI() {
 //        mediaRecorderBackView.stopAnimation()
         do {
+            // Stop the timer first to capture the correct duration
+            timer?.invalidate()
+            timer = nil
+            
             try audioViewModel.stopRecording()
             currentState = .recorded
 
@@ -579,7 +585,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
     }
     
     @discardableResult
-    public func setSubmit(onSubmit: @escaping ((String) -> Void)) -> Self {
+    public func setSubmit(onSubmit: @escaping ((String, Int) -> Void)) -> Self {
         self.onSubmit = onSubmit
         return self
     }

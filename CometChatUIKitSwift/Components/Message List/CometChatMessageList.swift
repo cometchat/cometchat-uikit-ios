@@ -334,6 +334,10 @@ open class CometChatMessageList: UIView {
     open override func willMove(toWindow newWindow: UIWindow?) {
         if newWindow != nil {
             
+            // Reload table to show any updates that happened while view was not visible
+            // (e.g., thread reply count updates)
+            tableView.reloadData()
+
             if viewModel.user?.isAgentic ?? false{
                 hideDateSeparator = true
                 viewModel.streamingSpeed = streamingSpeed
@@ -892,26 +896,6 @@ open class CometChatMessageList: UIView {
                     return
                 }
                 
-                // Calculate the actual row index after filtering
-                var actualRow = row
-                guard let messages = this.viewModel.messages[safe: section]?.messages else {
-                    this.tableView.reloadData()
-                    this.removeEmptyView()
-                    this.removeErrorView()
-                    return
-                }
-                
-                let filteredMessages = messages.filter { msg in
-                    !(this.hideGroupActionMessages && msg.messageCategory == .action && msg.receiverType == .group)
-                }
-                
-                if let messageIndex = filteredMessages.firstIndex(where: { $0.muid == message.muid }) {
-                    actualRow = messageIndex
-                } else {
-                    this.removeEmptyView()
-                    this.removeErrorView()
-                    return
-                }
                 let wasNextPagination = this.viewModel.isFetchingNext
 
                 var shouldScrollToBottom = false
@@ -926,95 +910,22 @@ open class CometChatMessageList: UIView {
                     }
                 }
                 
-                // Defer removeMarkedFailedStreamMessages to avoid data source mutation during batch updates
-                // This will be called after the current batch update completes
-                DispatchQueue.main.async {
-                    this.viewModel.removeMarkedFailedStreamMessages()
+                // Use reloadData() for safety - it always works regardless of data source state
+                // This prevents the NSInternalInconsistencyException crash that occurs when
+                // multiple messages are added rapidly and the data source count doesn't match
+                // the expected count during batch updates
+                this.tableView.reloadData()
+                
+                // Removing error/empty view if presented
+                this.removeEmptyView()
+                this.removeErrorView()
+                
+                if !wasNextPagination && shouldScrollToBottom {
+                    this.scrollToBottom()
                 }
                 
-                // VALIDATION: Check current state - must match data source EXACTLY at this moment
-                let currentSectionCount = this.tableView.numberOfSections
-                let currentRowCount = section < currentSectionCount ? this.tableView.numberOfRows(inSection: section) : 0
-                
-                // For insert to succeed: data source count must equal currentRowCount + 1
-                // (the message was already added to viewModel.messages before this callback)
-                let expectedRowCountAfterInsert = currentRowCount + 1
-                
-                // If data source doesn't match expectations, reload instead of batch update
-                if filteredMessages.count != expectedRowCountAfterInsert {
-                    this.tableView.reloadData()
-                    this.removeEmptyView()
-                    this.removeErrorView()
-                    if shouldScrollToBottom {
-                        this.scrollToBottom()
-                    }
-                    return
-                }
-                
-                // Validate section exists or should be created
-                if isNewSectionAdded && section < currentSectionCount {
-                    // Section already exists, reload instead
-                    this.tableView.reloadData()
-                    this.removeEmptyView()
-                    this.removeErrorView()
-                    if shouldScrollToBottom {
-                        this.scrollToBottom()
-                    }
-                    return
-                }
-                
-                if !isNewSectionAdded && section >= currentSectionCount {
-                    // Section doesn't exist, reload instead
-                    this.tableView.reloadData()
-                    this.removeEmptyView()
-                    this.removeErrorView()
-                    if shouldScrollToBottom {
-                        this.scrollToBottom()
-                    }
-                    return
-                }
-                
-                // Final validation right before batch update
-                let recheckSectionCount = this.tableView.numberOfSections
-                let recheckRowCount = section < recheckSectionCount ? this.tableView.numberOfRows(inSection: section) : 0
-                
-                // Double-check consistency one more time
-                let isStillConsistent = isNewSectionAdded ?
-                    (section == recheckSectionCount && recheckRowCount == 0) :
-                    (section < recheckSectionCount && filteredMessages.count == recheckRowCount + 1)
-                
-                guard isStillConsistent else {
-                    this.tableView.reloadData()
-                    this.removeEmptyView()
-                    this.removeErrorView()
-                    if shouldScrollToBottom {
-                        this.scrollToBottom()
-                    }
-                    return
-                }
-                
-                // Safe to perform batch update
-                this.tableView.performBatchUpdates({
-                    if isNewSectionAdded {
-                        this.tableView.insertSections([section], with: .top)
-                    }
-                    this.tableView.insertRows(at: [IndexPath(row: actualRow, section: section)], with: .top)
-                }, completion: { success in
-                    if !success {
-                        // Defer a reload to fix any inconsistency
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            this.tableView.reloadData()
-                        }
-                    }
-                    
-                    // Removing error/empty view if presented
-                    this.removeEmptyView()
-                    this.removeErrorView()
-                    
-                    if !wasNextPagination && shouldScrollToBottom {
-                        this.scrollToBottom()
-                    }
-                })
+                // Clean up failed stream messages
+                this.viewModel.removeMarkedFailedStreamMessages()
             }
         }
         
@@ -1026,48 +937,11 @@ open class CometChatMessageList: UIView {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self, self.isViewActive, table.window != nil else { return }
                 
-                // Validate table view state before performing updates
-                let currentSections = table.numberOfSections
+                // Only perform if there are valid operations
+                guard !deletions.isEmpty || !emptySections.isEmpty else { return }
                 
-                // Filter out invalid deletions
-                let validDeletions = deletions.filter { section, row, msg in
-                    guard section < currentSections else {
-                        return false
-                    }
-                    let rowsInSection = table.numberOfRows(inSection: section)
-                    guard row < rowsInSection else {
-                        return false
-                    }
-                    return true
-                }
-                
-                // Filter out invalid empty sections
-                let validEmptySections = emptySections.filter { section in
-                    guard section < currentSections else {
-                        return false
-                    }
-                    return true
-                }
-                
-                // Only perform batch updates if there are valid operations
-                guard !validDeletions.isEmpty || !validEmptySections.isEmpty else { return }
-                
-                table.performBatchUpdates({
-                    // Delete rows first
-                    if !validDeletions.isEmpty {
-                        let indexPaths = validDeletions.map { IndexPath(row: $0.row, section: $0.section) }
-                        table.deleteRows(at: indexPaths, with: .fade)
-                    }
-                    
-                    // Then delete empty sections
-                    if !validEmptySections.isEmpty {
-                        table.deleteSections(IndexSet(validEmptySections), with: .fade)
-                    }
-                }, completion: { finished in
-                    if !finished {
-                        print("Batch update did not complete successfully")
-                    }
-                })
+                // Use reloadData() for safety - it always works regardless of data source state
+                table.reloadData()
             }
         }
 
@@ -1098,26 +972,61 @@ open class CometChatMessageList: UIView {
                                      this.viewModel.messages[section].messages.count : 0
                 
                 guard dataSourceCount == currentRows else {
-                    // Schedule a deferred section reload to fix the inconsistency
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
-                        guard let this = self, this.isViewActive else { return }
-                        if section < this.tableView.numberOfSections {
-                            this.tableView.reloadSections(IndexSet(integer: section), with: .none)
-                        }
-                    }
+                    // Use reloadData for safety
+                    this.tableView.reloadData()
                     return
                 }
                 
                 let indexPath = IndexPath(row: row, section: section)
                 
-                // Step 5: Only update visible cells (performance optimization)
-                guard this.tableView.indexPathsForVisibleRows?.contains(indexPath) == true else {
-                    return
-                }
-                
-                // Step 6: Safely reload the specific row for receipt updates
+                // Step 5: Safely reload the specific row
+                // Reload regardless of visibility to ensure receipt updates are applied
                 UIView.performWithoutAnimation {
                     this.tableView.reloadRows(at: [indexPath], with: .none)
+                }
+            }
+        }
+        
+        // Receipt-only updates - update just the status info view without reloading the entire cell
+        // This prevents sticker flickering when read receipts are updated
+        viewModel.updateReceiptAtIndex = { [weak self] section, row, message in
+            guard let this = self, this.isViewActive else { return }
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let this = self, this.isViewActive, this.tableView.window != nil else { return }
+                
+                let indexPath = IndexPath(row: row, section: section)
+                
+                // If cell is visible, update just the status info view for smooth UI
+                if this.tableView.indexPathsForVisibleRows?.contains(indexPath) == true,
+                   let cell = this.tableView.cellForRow(at: indexPath) as? CometChatMessageBubble {
+                    
+                    // Update the cell's message reference to ensure consistency
+                    cell.set(message: message)
+                    
+                    // Update only the status info view (receipt) without reloading the entire cell
+                    let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
+                    let bubbleStyle = isLoggedInUser ? this.messageBubbleStyle.outgoing : this.messageBubbleStyle.incoming
+                    let messageTypeStyle = MessageUtils.getSpecificMessageTypeStyle(message: message, from: this.messageBubbleStyle)
+                    
+                    // Clear and rebuild only the status info view
+                    cell.statusInfoView.subviews.forEach { $0.removeFromSuperview() }
+                    MessageUtils.buildStatusInfo(
+                        from: cell,
+                        messageTypeStyle: messageTypeStyle,
+                        bubbleStyle: bubbleStyle,
+                        message: message,
+                        hideReceipt: this.hideReceipts,
+                        messageAlignment: this.messageAlignment,
+                        timePattern: this.timePattern,
+                        dateTimeFormatter: this.dateTimeFormatter,
+                        isModerated: false
+                    )
+                } else {
+                    // Cell not visible - reload the row so it shows correct receipt when scrolled into view
+                    if section < this.tableView.numberOfSections && row < this.tableView.numberOfRows(inSection: section) {
+                        this.tableView.reloadRows(at: [indexPath], with: .none)
+                    }
                 }
             }
         }
@@ -1125,37 +1034,8 @@ open class CometChatMessageList: UIView {
         viewModel.deleteAtIndex = { [weak self] section , row, message in
             guard let this = self else { return }
             DispatchQueue.main.async {
-                // Capture current state
-                let currentSections = this.tableView.numberOfSections
-                let currentRows = section < currentSections ? this.tableView.numberOfRows(inSection: section) : 0
-                
-                // Validate section
-                guard section < currentSections else { return }
-                
-                let deleteRow = row - 1
-                
-                // Validate row
-                guard deleteRow >= 0 && deleteRow < currentRows else { return }
-                
-                // Verify data source will be consistent after delete
-                let dataSourceCount = this.viewModel.messages.count > section ?
-                                     this.viewModel.messages[section].messages.count : 0
-                
-                let expectedCountAfterDelete = currentRows - 1
-                guard dataSourceCount == expectedCountAfterDelete else {
-                    // Use section reload as fallback
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                        if section < this.tableView.numberOfSections {
-                            this.tableView.reloadSections(IndexSet(integer: section), with: .automatic)
-                        }
-                    }
-                    return
-                }
-                
-                // Safe delete
-                UIView.performWithoutAnimation {
-                    this.tableView.deleteRows(at: [IndexPath(row: deleteRow, section: section)], with: .automatic)
-                }
+                // Use reloadData() for safety - it always works regardless of data source state
+                this.tableView.reloadData()
             }
         }
         
@@ -1175,6 +1055,17 @@ open class CometChatMessageList: UIView {
             guard let this = self else { return }
             if status == .inProgress {
                 this.updateAIOnNewMessageReceived(message: message)
+                
+                // Clear the "New" separator when user sends their own message
+                // This prevents the separator from showing after user interacts with the chat
+                if this.unreadSeparatorMessageId != nil {
+                    this.unreadSeparatorMessageId = nil
+                    this.unreadMessageCount = 0
+                    DispatchQueue.main.async {
+                        this.tableView.reloadData()
+                    }
+                }
+
             }
         }
         
@@ -1599,6 +1490,8 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 // For action messages
                 if message.messageCategory == .action || message.messageCategory == .call {
                     cell.set(bubbleAlignment: .center)
+                    // Clear bottomView to prevent reused cell from showing previous message's moderation view
+                    cell.set(bottomView: nil)
                     if let contentView = template.contentView?(message, cell.alignment, controller) {
                         cell.set(contentView: contentView)
                         cell.set(backgroundColor: .clear)
@@ -1661,10 +1554,12 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
                 
+                let isErrorMessage = message.metaData?["error"] as? Bool == true
+                
                 if let footerView = template.footerView?(message, cell.alignment, controller) {
                     cell.set(footerView: footerView)
                 } else {
-                    if message.deletedAt == 0 && !isModerated {
+                    if message.deletedAt == 0 && !isModerated && !isErrorMessage {
                         buildReactionsView(
                             forMessage: message,
                             cell: cell,
@@ -1674,7 +1569,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
                 
-                if message.deletedAt == 0 && !isModerated{
+                if message.deletedAt == 0 && !isModerated && !isErrorMessage {
                     if let user = viewModel.user, user.isAgentic{
                         
                     }else{
@@ -1716,6 +1611,18 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 if message.id > 0 &&  viewModel.user?.isAgentic != true{
                     // Setting up context menu
                     setupContextMenu(for: cell, message: message)
+                } else {
+                    // Clear long press handler for messages with id <= 0 (including error messages)
+                    // This is needed because cells are reused and might have a handler from a previous message
+                    cell.onLongPressGestureRecognized = nil
+                }
+                
+                // Also clear long press for RBAC error messages regardless of message id
+                // Only apply to actual messages, not action messages (like "user added to group")
+                let isRBACError = message.metaData?["rbac_permission_denied"] as? Bool == true && message.messageCategory == .message
+                let isError = message.metaData?["error"] as? Bool == true && message.messageCategory == .message
+                if isRBACError || isError {
+                    cell.onLongPressGestureRecognized = nil
                 }
                 
                 return cell
@@ -1813,7 +1720,8 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        if scrollView.contentOffset.y < 0 {
+        // Only prevent overscroll if alwaysBounceVertical is false
+        if !tableView.alwaysBounceVertical && scrollView.contentOffset.y < 0 {
             scrollView.contentOffset = CGPoint(x: 0, y: 0)
         }
         
@@ -1855,7 +1763,9 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
             offsetY: offsetY
         )
 
-        if shouldHide {
+        let isAtBottom = offsetY <= 80
+        
+        if shouldHide || isAtBottom {
             messageIndicator?.reset()
             messageIndicator?.isHidden = true
         } else {

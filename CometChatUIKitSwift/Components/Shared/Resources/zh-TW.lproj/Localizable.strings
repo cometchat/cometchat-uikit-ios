@@ -322,3 +322,8 @@
 "SPAM" = "垃圾郵件";
 "SEXUAL_CONTENT" = "性內容";
 "HARASSMENT_BULLYING" = "騷擾 ／ 欺凌";
+
+"FILE_TYPE_NOT_ALLOWED" = "不允許此檔案類型。";
+"AUDIO_LIBRARY" = "音訊庫";
+
+"AI_AGENTS" = "AI助理";

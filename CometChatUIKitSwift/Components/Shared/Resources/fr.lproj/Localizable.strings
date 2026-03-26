@@ -278,3 +278,8 @@
 "SPAM" = "Spam";
 "SEXUAL_CONTENT" = "Contenu sexuel";
 "HARASSMENT_BULLYING" = "Harcèlement/Harcèlement";
+
+"FILE_TYPE_NOT_ALLOWED" = "Ce type de fichier n'est pas autorisé.";
+"AUDIO_LIBRARY" = "Bibliothèque audio";
+
+"AI_AGENTS" = "Assistants IA";

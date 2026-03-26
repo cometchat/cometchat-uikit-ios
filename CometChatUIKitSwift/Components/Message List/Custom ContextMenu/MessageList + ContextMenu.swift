@@ -22,12 +22,22 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
         
         //Adding this for Context Menu
         cell.onLongPressGestureRecognized = { [weak self, weak cell, weak message] in
-            if let self,
-               let cell,
-               let message,
-               message.deletedAt == 0,
+            guard let self, let cell, let message else { return }
+            
+            let isModerated = MessageUtils.isMessageModerationDisapproved(message: message)
+            // Only apply error checks to actual messages, not action messages (like "user added to group")
+            let isError = message.metaData?["error"] as? Bool == true && message.messageCategory == .message
+            let isRBACError = message.metaData?["rbac_permission_denied"] as? Bool == true && message.messageCategory == .message
+            
+            // Block context menu for RBAC errors and error messages
+            if isRBACError || isError {
+                return
+            }
+            
+            if message.deletedAt == 0,
                message.id > 0,
-               !isContextMenuActive
+               !isContextMenuActive,
+               !isModerated
             {
                 self.controller?.view.endEditing(true)
                 isContextMenuActive = true
@@ -94,7 +104,10 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
         
         
         popupView.buildUI()
-        popupView.reactionView.isHidden = (hideReactionOption || MessageUtils.isMessageModerationDisapproved(message: message) || (message is AIAssistantMessage))
+        // Only apply error checks to actual messages, not action messages (like "user added to group")
+        let isErrorMessage = message.metaData?["error"] as? Bool == true && message.messageCategory == .message
+        let isRBACErrorMessage = message.metaData?["rbac_permission_denied"] as? Bool == true && message.messageCategory == .message
+        popupView.reactionView.isHidden = (hideReactionOption || MessageUtils.isMessageModerationDisapproved(message: message) || (message is AIAssistantMessage) || isErrorMessage || isRBACErrorMessage)
         popupView.modalPresentationStyle = .overFullScreen
         popupView.transitioningDelegate = self
         controller?.present(popupView, animated: true)

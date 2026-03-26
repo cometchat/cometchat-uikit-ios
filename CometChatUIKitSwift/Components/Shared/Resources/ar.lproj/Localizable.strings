@@ -318,3 +318,8 @@
 "SPAM" = "بريد مؤذي";
 "SEXUAL_CONTENT" = "المحتوى الجنسي";
 "HARASSMENT_BULLYING" = "التحرش والتنمر";
+
+"FILE_TYPE_NOT_ALLOWED" = "هذا النوع من الملفات غير مسموح به.";
+"AUDIO_LIBRARY" = "مكتبة الصوت";
+
+"AI_AGENTS" = "مساعدو الذكاء الاصطناعي";

@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import MediaPlayer
 
 class CameraHandler: NSObject{
     static let shared = CameraHandler()
@@ -18,6 +19,34 @@ class CameraHandler: NSObject{
     
     var imagePickedBlock: ((String) -> Void)?
     var videoPickedBlock: ((String) -> Void)?
+    var audioPickedBlock: ((String) -> Void)?
+    
+    /// Copies a file from a temporary location to the app's cache directory
+    /// This is needed because files from photo picker are in temporary locations that get deleted
+    private func copyToPersistentLocation(from sourceURL: URL, fileExtension: String) -> URL? {
+        let fileManager = FileManager.default
+        guard let cacheDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        
+        let fileName = "media_\(Int(Date().timeIntervalSince1970 * 1000)).\(fileExtension)"
+        let destinationURL = cacheDirectory.appendingPathComponent(fileName)
+        
+        // Remove existing file if any
+        if fileManager.fileExists(atPath: destinationURL.path) {
+            do {
+                try fileManager.removeItem(at: destinationURL)
+            } catch { }
+        }
+        
+        do {
+            try fileManager.copyItem(at: sourceURL, to: destinationURL)
+            return destinationURL
+        } catch {
+            return nil
+        }
+    }
+    
     func presentCamera(for view: UIViewController){
         currentVC = view
         if UIImagePickerController.isSourceTypeAvailable(.camera){
@@ -51,6 +80,14 @@ class CameraHandler: NSObject{
         }
     }
     
+    func presentAudioLibrary(for view: UIViewController) {
+        currentVC = view
+        let documentPicker = UIDocumentPickerViewController(documentTypes: ["public.audio"], in: .import)
+        documentPicker.delegate = self
+        documentPicker.allowsMultipleSelection = false
+        currentVC?.present(documentPicker, animated: true, completion: nil)
+    }
+    
     func showActionSheet(vc: UIViewController) {
         currentVC = vc
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -77,12 +114,26 @@ extension CameraHandler: UIImagePickerControllerDelegate, UINavigationController
         switch picker.sourceType {
         case .photoLibrary:
             
-            if let  videoURL = info[UIImagePickerController.InfoKey.mediaURL] as? NSURL {
-                self.videoPickedBlock?(videoURL.absoluteString ?? "")
+            if let videoURL = info[UIImagePickerController.InfoKey.mediaURL] as? URL {
+                // Copy video to persistent location to prevent deletion of temp file
+                let fileExtension = videoURL.pathExtension.isEmpty ? "mov" : videoURL.pathExtension
+                if let persistentURL = copyToPersistentLocation(from: videoURL, fileExtension: fileExtension) {
+                    self.videoPickedBlock?(persistentURL.absoluteString)
+                } else {
+                    // Fallback to original URL if copy fails
+                    self.videoPickedBlock?(videoURL.absoluteString)
+                }
             }
             
-            if let imageURL = info[UIImagePickerController.InfoKey.imageURL] as? NSURL {
-                self.imagePickedBlock?(imageURL.absoluteString ?? "")
+            if let imageURL = info[UIImagePickerController.InfoKey.imageURL] as? URL {
+                // Copy image to persistent location to prevent deletion of temp file
+                let fileExtension = imageURL.pathExtension.isEmpty ? "jpg" : imageURL.pathExtension
+                if let persistentURL = copyToPersistentLocation(from: imageURL, fileExtension: fileExtension) {
+                    self.imagePickedBlock?(persistentURL.absoluteString)
+                } else {
+                    // Fallback to original URL if copy fails
+                    self.imagePickedBlock?(imageURL.absoluteString)
+                }
             }
         case .camera:
             guard let image = info[.originalImage] as? UIImage else {
@@ -135,4 +186,24 @@ extension CameraHandler: UIImagePickerControllerDelegate, UINavigationController
         return nil
     }
     
+}
+
+
+extension CameraHandler: UIDocumentPickerDelegate {
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let selectedFileURL = urls.first else { return }
+        
+        // Copy audio to persistent location to prevent deletion of temp file
+        let fileExtension = selectedFileURL.pathExtension.isEmpty ? "m4a" : selectedFileURL.pathExtension
+        if let persistentURL = copyToPersistentLocation(from: selectedFileURL, fileExtension: fileExtension) {
+            self.audioPickedBlock?(persistentURL.absoluteString)
+        } else {
+            // Fallback to original URL if copy fails
+            self.audioPickedBlock?(selectedFileURL.absoluteString)
+        }
+    }
+    
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        currentVC?.dismiss(animated: true, completion: nil)
+    }
 }

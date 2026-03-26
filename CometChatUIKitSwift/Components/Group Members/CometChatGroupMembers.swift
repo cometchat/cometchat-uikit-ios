@@ -587,18 +587,35 @@ extension UIImage {
         label.text = text
         label.font = CometChatTypography.Caption1.medium
         label.textColor = CometChatTheme.white
+        label.sizeToFit()
         
-        let tempView = UIStackView(frame: CGRect(x: 0, y: 0, width: 48, height: 40))
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        let imageSize: CGFloat = 22
+        let spacing: CGFloat = 2
+        let labelHeight = label.frame.height
+        let totalHeight = imageSize + spacing + labelHeight
+        let totalWidth = max(label.frame.width, imageSize) + 8
+        
+        let tempView = UIStackView(frame: CGRect(x: 0, y: 0, width: totalWidth, height: totalHeight))
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: imageSize, height: imageSize))
         imageView.tintColor = imageTint
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         
         tempView.axis = .vertical
         tempView.alignment = .center
-        tempView.spacing = 4
+        tempView.spacing = spacing
+        tempView.distribution = .fill
         imageView.image = self
         tempView.addArrangedSubview(imageView)
         tempView.addArrangedSubview(label)
+        
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: imageSize),
+            imageView.heightAnchor.constraint(equalToConstant: imageSize)
+        ])
+        
+        tempView.layoutIfNeeded()
+        
         let renderer = UIGraphicsImageRenderer(bounds: tempView.bounds)
         let image = renderer.image { rendererContext in
             tempView.layer.render(in: rendererContext.cgContext)

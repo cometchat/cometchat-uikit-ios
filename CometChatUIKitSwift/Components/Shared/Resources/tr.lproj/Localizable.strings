@@ -287,3 +287,8 @@
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "Mesajınız moderasyon politikaları nedeniyle engellendi.";
 "PHOTO_LIBRARY" = "Fotoğraf Kütüphanesi";
 "VIDEO_LIBRARY" = "Video Kütüphanesi";
+
+"FILE_TYPE_NOT_ALLOWED" = "Bu dosya türüne izin verilmiyor.";
+"AUDIO_LIBRARY" = "Ses Kütüphanesi";
+
+"AI_AGENTS" = "AI Asistanları";
