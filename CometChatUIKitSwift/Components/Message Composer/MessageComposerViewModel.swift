@@ -215,20 +215,26 @@ extension MessageComposerViewModel {
         var locationDifference = 0
         var messageText = message.text
         
-        for (range, item, _) in textFormatterArray {
-            let updatedRange = NSRange(location: range.location + locationDifference, length: range.length)
-            if updatedRange.lowerBound >= 0 && updatedRange.upperBound <= messageText.utf16.count && updatedRange.length <= messageText.utf16.count { //We are going this to insure crash
-                messageText = (messageText as NSString).replacingCharacters(in: updatedRange, with: item.underlyingText ?? "")
-                locationDifference = locationDifference + ((item.underlyingText?.count ?? 0) - range.length)
+        // Check if mention tags are already present in the text (from convertToMarkdown)
+        // If so, skip the text replacement as it's already been done
+        let mentionTagsAlreadyPresent = messageText.contains("<@uid:") || messageText.contains("<@all:")
+        
+        if !mentionTagsAlreadyPresent {
+            for (range, item, _) in textFormatterArray {
+                let updatedRange = NSRange(location: range.location + locationDifference, length: range.length)
+                if updatedRange.lowerBound >= 0 && updatedRange.upperBound <= messageText.utf16.count && updatedRange.length <= messageText.utf16.count { //We are going this to insure crash
+                    messageText = (messageText as NSString).replacingCharacters(in: updatedRange, with: item.underlyingText ?? "")
+                    locationDifference = locationDifference + ((item.underlyingText?.count ?? 0) - range.length)
+                }
             }
+            message.text = messageText
         }
         
+        // Always call handlePreMessageSend to add mentioned users to the message
         suggestionItemCollection.forEach { (key, arg1) in
             let (formatter, items) = arg1
             formatter.handlePreMessageSend(baseMessage: message, suggestionItemList: items)
         }
-        
-        message.text = messageText
         
     }
     

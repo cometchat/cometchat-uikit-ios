@@ -127,20 +127,24 @@ public class SearchUtils {
         let additionalConfiguration = AdditionalConfiguration()
         additionalConfiguration.searchStyle = searchStyle
         additionalConfiguration.textFormatter = textFormatter
-        let content = ChatConfigurator.getDataSource()
-            .getLastConversationMessage(conversation: conversation, additionalConfiguration: additionalConfiguration)?
-            .string ?? ""
+        
+        // Get the formatted attributed string from getLastConversationMessage
+        let formattedContent = ChatConfigurator.getDataSource()
+            .getLastConversationMessage(conversation: conversation, additionalConfiguration: additionalConfiguration)
+            ?? NSAttributedString(string: "")
 
         if let keyword = CometChatSearch.sharedSearchKeyword, !keyword.isEmpty {
-            let highlighted = highlightKeyword(
-                in: content,
+            // Apply search highlighting to the formatted content
+            let mutableContent = NSMutableAttributedString(attributedString: formattedContent)
+            applySearchHighlight(
+                to: mutableContent,
                 keyword: keyword,
-                font: searchStyle.listItemSubTitleFont,
+                normalFont: searchStyle.listItemSubTitleFont,
                 highlightFont: UIFont.boldSystemFont(ofSize: searchStyle.listItemSubTitleFont.pointSize)
             )
-            lastMessage.attributedText = highlighted
+            lastMessage.attributedText = mutableContent
         } else {
-            lastMessage.attributedText = NSAttributedString(string: content)
+            lastMessage.attributedText = formattedContent
         }
         
         if let lastMessage = conversation.lastMessage, lastMessage.parentMessageId != 0 {
@@ -186,7 +190,24 @@ public class SearchUtils {
         label.textColor = searchStyle.listItemSubTitleTextColor
         label.numberOfLines = 1
 
-        let content = (message as? TextMessage)?.text ?? ""
+        // Parse markdown from text message content with formatting
+        let rawContent = (message as? TextMessage)?.text ?? ""
+        let font = searchStyle.listItemSubTitleFont
+        let color = searchStyle.listItemSubTitleTextColor
+        
+        // Parse markdown with formatting (no newlines around code blocks for single-line display)
+        var parsedContent = RichTextFormatterManager.shared.parseMarkdown(
+            rawContent,
+            baseFont: font,
+            baseColor: color,
+            addNewlinesAroundCodeBlocks: false
+        )
+        
+        // Flatten to single line: replace newlines with spaces
+        let mutableParsed = NSMutableAttributedString(attributedString: parsedContent)
+        let fullRange = NSRange(location: 0, length: mutableParsed.length)
+        mutableParsed.mutableString.replaceOccurrences(of: "\n", with: " ", options: [], range: fullRange)
+        
         let isGroupMessage = message.receiverType == .group
 
         // Sender name (only for group)
@@ -207,28 +228,59 @@ public class SearchUtils {
             )
         }
 
+        // Apply text formatters (like mentions) on top of the parsed markdown
         if let formatters = textFormatter,
            !formatters.isEmpty,
            let textMessage = message as? TextMessage {
 
-            let processed = MessageUtils.processTextFormatter(
-                message: textMessage,
+            // Create a copy with original text for mention processing
+            // We use the original textMessage.text because it contains the mention tags <@uid:...>
+            let formattedMessage = TextMessage(
+                receiverUid: textMessage.receiverUid,
+                text: textMessage.text,
+                receiverType: textMessage.receiverType
+            )
+            formattedMessage.sender = textMessage.sender
+            formattedMessage.senderUid = textMessage.senderUid
+            formattedMessage.mentionedUsers = textMessage.mentionedUsers
+            formattedMessage.mentionedMe = textMessage.mentionedMe
+
+            // Process mentions - this will convert <@uid:...> to @username with proper styling
+            let mentionProcessed = MessageUtils.processTextFormatter(
+                message: formattedMessage,
                 textFormatter: formatters,
                 formattingType: .MESSAGE_BUBBLE
             )
 
-            attributedText.append(processed)
+            // Now parse the mention-processed text for markdown formatting
+            let mentionProcessedText = mentionProcessed.string
+            let finalParsed = RichTextFormatterManager.shared.parseMarkdown(
+                mentionProcessedText,
+                baseFont: font,
+                baseColor: color,
+                addNewlinesAroundCodeBlocks: false
+            )
+            
+            // Flatten to single line
+            let finalMutable = NSMutableAttributedString(attributedString: finalParsed)
+            let finalRange = NSRange(location: 0, length: finalMutable.length)
+            finalMutable.mutableString.replaceOccurrences(of: "\n", with: " ", options: [], range: finalRange)
+
+            // Apply mention styling from the processed text
+            mentionProcessed.enumerateAttributes(in: NSRange(location: 0, length: mentionProcessed.length), options: []) { attrs, range, _ in
+                if attrs[.link] != nil || (attrs[.foregroundColor] as? UIColor) == CometChatTheme.primaryColor {
+                    if range.location + range.length <= finalMutable.length {
+                        for (key, value) in attrs {
+                            finalMutable.addAttribute(key, value: value, range: range)
+                        }
+                    }
+                }
+            }
+            
+            attributedText.append(finalMutable)
 
         } else {
-            attributedText.append(
-                NSAttributedString(
-                    string: content,
-                    attributes: [
-                        .font: searchStyle.listItemSubTitleFont,
-                        .foregroundColor: searchStyle.listItemSubTitleTextColor
-                    ]
-                )
-            )
+            attributedText.append(mutableParsed)
         }
 
         if !searchKeyword.isEmpty {

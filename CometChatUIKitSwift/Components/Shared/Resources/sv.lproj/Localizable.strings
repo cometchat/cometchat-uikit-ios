@@ -283,3 +283,12 @@
 "AUDIO_LIBRARY" = "Ljudbibliotek";
 
 "AI_AGENTS" = "AI-assistenter";
+
+// Link Dialog
+"LINK" = "Länk";
+"EDIT_LINK" = "Redigera länk";
+"ADD_LINK" = "Lägg till länk";
+"ENTER_TEXT" = "Ange text";
+"ENTER_LINK_URL" = "Ange länk-URL";
+"REMOVE" = "Ta bort";
+

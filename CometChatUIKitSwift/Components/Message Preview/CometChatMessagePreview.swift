@@ -130,7 +130,7 @@ open class CometChatMessagePreview: UIView {
         constrainsToActivate += [
             subtitleStack.topAnchor.pin(equalTo: titleLabel.bottomAnchor, constant: CometChatSpacing.Padding.p1),
             subtitleStack.leadingAnchor.pin(equalTo: titleLabel.leadingAnchor),
-            subtitleStack.trailingAnchor.pin(equalTo: closeButton.leadingAnchor),
+            subtitleStack.trailingAnchor.pin(equalTo: closeButton.leadingAnchor, constant: -CometChatSpacing.Padding.p1),
             subtitleStack.bottomAnchor.pin(equalTo: bottomAnchor, constant: -CometChatSpacing.Padding.p2)
         ]
         
@@ -153,7 +153,12 @@ open class CometChatMessagePreview: UIView {
             let type = message.messageType
             switch type {
             case .text:
-                break
+                // Check if text message contains a URL - show link icon
+                if let textMsg = message as? TextMessage {
+                    if RichTextFormatterManager.shared.containsURLs(textMsg.text) {
+                        setIcon(UIImage(systemName: "link"))
+                    }
+                }
             case .image:
                 setIcon(UIImage(systemName: "photo"))
             case .video:
@@ -195,8 +200,8 @@ open class CometChatMessagePreview: UIView {
         closeButton.setImage(style.previewCloseIcon, for: .normal)
         titleLabel.textColor = style.titleTextColor
         titleLabel.font = style.titleTextFont
-        subtitleLabel.textColor = style.subtitleTextColor
-        subtitleLabel.font = style.subtitleTextFont
+        // Don't set subtitleLabel.font and textColor here - they override the attributed string's formatting
+        // The attributed string already has the correct font and color from markdown parsing
         accentView.backgroundColor = style.indicatorViewBackgroundColor
         leadingIconView.tintColor = style.subtitleImageTintColor
     }
@@ -238,49 +243,143 @@ open class CometChatMessagePreview: UIView {
         // Title
         let senderName = isLoggedInUser ? "You" : (message.sender?.name ?? message.senderUid)
         
-        // Default text
-        var attributed = NSAttributedString(string: MessageUtils.quotedMessageText(for: message))
+        // Use the effective style for consistent font and color
+        let effectiveStyle = style ?? CometChatMessagePreview.style
+        
+        // Default text with style's font and color
+        var attributed = NSAttributedString(
+            string: MessageUtils.quotedMessageText(for: message),
+            attributes: [
+                .font: effectiveStyle.subtitleTextFont,
+                .foregroundColor: effectiveStyle.subtitleTextColor
+            ]
+        )
         
         // Attempt to process text formatters only if we can cast them to expected type
         if let textMsg = message as? TextMessage,
            textMsg.deletedAt <= 0 {
             
-            if let tf = textFormatters as? [Any], !tf.isEmpty {
+            // First, check if message contains markdown formatting and parse it
+            if RichTextFormatterManager.shared.containsMarkdownFormatting(textMsg.text) {
+                // First, process text formatters to convert mention tags to display names
+                var processedText = textMsg.text
+                if let tf = textFormatters as? [Any], !tf.isEmpty {
+                    if let realTF = tf as? [CometChatTextFormatter] {
+                        let processedAttributedString = MessageUtils.processTextFormatter(
+                            message: textMsg,
+                            textFormatter: realTF,
+                            formattingType: formattingType
+                        )
+                        processedText = processedAttributedString.string
+                    } else if let single = textFormatters as? CometChatTextFormatter {
+                        let processedAttributedString = MessageUtils.processTextFormatter(
+                            message: textMsg,
+                            textFormatter: [single],
+                            formattingType: formattingType
+                        )
+                        processedText = processedAttributedString.string
+                    }
+                } else if let tf = textFormatters as? CometChatTextFormatter {
+                    let processedAttributedString = MessageUtils.processTextFormatter(
+                        message: textMsg,
+                        textFormatter: [tf],
+                        formattingType: formattingType
+                    )
+                    processedText = processedAttributedString.string
+                }
+                
+                // Parse markdown to create formatted attributed string
+                // effectiveStyle is already defined at the top of the method
+                let baseFont = effectiveStyle.subtitleTextFont
+                let baseColor = effectiveStyle.subtitleTextColor
+                
+                // Determine if this is an outgoing-style preview (white text on colored background)
+                // by checking if the subtitle color is white
+                let isOutgoingStyle = baseColor == CometChatTheme.white
+                
+                // For outgoing style, use white-based colors for code; otherwise use defaults
+                let inlineCodeBgColor: UIColor? = isOutgoingStyle ? CometChatTheme.white.withAlphaComponent(0.2) : nil
+                let codeBlockBgColor: UIColor? = isOutgoingStyle ? CometChatTheme.white.withAlphaComponent(0.15) : nil
+                let inlineCodeTextColor: UIColor? = isOutgoingStyle ? CometChatTheme.white : nil
+                let codeTextColor: UIColor? = isOutgoingStyle ? CometChatTheme.white : nil
+                
+                attributed = RichTextFormatterManager.shared.parseMarkdown(
+                    processedText,
+                    baseFont: baseFont,
+                    baseColor: baseColor,
+                    inlineCodeBackgroundColor: inlineCodeBgColor,
+                    codeBlockBackgroundColor: codeBlockBgColor,
+                    codeTextColor: codeTextColor,
+                    inlineCodeTextColor: inlineCodeTextColor,
+                    addNewlinesAroundCodeBlocks: false
+                )
+            } else if let tf = textFormatters as? [Any], !tf.isEmpty {
                 // If library's TextFormatter type exists, MessageUtils.processTextFormatter expects it.
                 // Try to cast to the real type, otherwise skip formatting.
+                // effectiveStyle is already defined at the top of the method
+                
                 if let realTF = tf as? [CometChatTextFormatter] {
-                    attributed = MessageUtils.processTextFormatter(message: textMsg,
+                    let processedAttr = MessageUtils.processTextFormatter(message: textMsg,
                                                                    textFormatter: realTF,
                                                                    formattingType: formattingType)
+                    // Apply the style's font and color to the entire attributed string
+                    let mutableAttr = NSMutableAttributedString(attributedString: processedAttr)
+                    let fullRange = NSRange(location: 0, length: mutableAttr.length)
+                    mutableAttr.addAttribute(.font, value: effectiveStyle.subtitleTextFont, range: fullRange)
+                    mutableAttr.addAttribute(.foregroundColor, value: effectiveStyle.subtitleTextColor, range: fullRange)
+                    attributed = mutableAttr
                 } else {
                     // If user passed a single formatter object or different collection type, try one-level cast
                     if let single = textFormatters as? CometChatTextFormatter {
-                        attributed = MessageUtils.processTextFormatter(message: textMsg,
+                        let processedAttr = MessageUtils.processTextFormatter(message: textMsg,
                                                                        textFormatter: [single],
                                                                        formattingType: formattingType)
+                        // Apply the style's font and color to the entire attributed string
+                        let mutableAttr = NSMutableAttributedString(attributedString: processedAttr)
+                        let fullRange = NSRange(location: 0, length: mutableAttr.length)
+                        mutableAttr.addAttribute(.font, value: effectiveStyle.subtitleTextFont, range: fullRange)
+                        mutableAttr.addAttribute(.foregroundColor, value: effectiveStyle.subtitleTextColor, range: fullRange)
+                        attributed = mutableAttr
                     }
                     // else leave attributed as default quoted text
                 }
             } else if let tf = textFormatters as? CometChatTextFormatter {
                 // single formatter object
-                attributed = MessageUtils.processTextFormatter(message: textMsg,
+                // effectiveStyle is already defined at the top of the method
+                let processedAttr = MessageUtils.processTextFormatter(message: textMsg,
                                                                textFormatter: [tf],
                                                                formattingType: formattingType)
+                // Apply the style's font and color to the entire attributed string
+                let mutableAttr = NSMutableAttributedString(attributedString: processedAttr)
+                let fullRange = NSRange(location: 0, length: mutableAttr.length)
+                mutableAttr.addAttribute(.font, value: effectiveStyle.subtitleTextFont, range: fullRange)
+                mutableAttr.addAttribute(.foregroundColor, value: effectiveStyle.subtitleTextColor, range: fullRange)
+                attributed = mutableAttr
             }
         }
         
         // Deleted message override
         if message.deletedAt > 0 {
-            attributed = NSAttributedString(string: "This message was deleted")
+            attributed = NSAttributedString(
+                string: "This message was deleted",
+                attributes: [
+                    .font: effectiveStyle.subtitleTextFont,
+                    .foregroundColor: effectiveStyle.subtitleTextColor
+                ]
+            )
         }
         
         // Build appropriate subtitle for CustomMessage
         var subtitleAttr: NSAttributedString = attributed
         if let cm = message as? CustomMessage {
+            let customMessageAttributes: [NSAttributedString.Key: Any] = [
+                .font: effectiveStyle.subtitleTextFont,
+                .foregroundColor: effectiveStyle.subtitleTextColor
+            ]
             if let convText = cm.conversationText, !convText.isEmpty {
-                subtitleAttr = NSAttributedString(string: cm.deletedAt > 0 ? "This message was deleted" : convText)
+                subtitleAttr = NSAttributedString(string: cm.deletedAt > 0 ? "This message was deleted" : convText, attributes: customMessageAttributes)
             } else if let push = cm.metaData?["pushNotification"] as? String {
-                subtitleAttr = NSAttributedString(string: cm.deletedAt > 0 ? "This message was deleted" : push)
+                subtitleAttr = NSAttributedString(string: cm.deletedAt > 0 ? "This message was deleted" : push, attributes: customMessageAttributes)
             } else {
                 var fallback = cm.type ?? ""
                 switch cm.type {
@@ -291,7 +390,7 @@ open class CometChatMessagePreview: UIView {
                 case "meeting": fallback = "Meeting"
                 default: break
                 }
-                subtitleAttr = NSAttributedString(string: cm.deletedAt > 0 ? "This message was deleted" : fallback)
+                subtitleAttr = NSAttributedString(string: cm.deletedAt > 0 ? "This message was deleted" : fallback, attributes: customMessageAttributes)
             }
         }
         
@@ -324,7 +423,16 @@ open class CometChatMessagePreview: UIView {
         } else {
             switch message.messageType {
             case .text:
-                preview.setIcon(nil)
+                // Check if text message contains a URL - show link icon
+                if let textMsg = message as? TextMessage {
+                    if RichTextFormatterManager.shared.containsURLs(textMsg.text) {
+                        preview.setIcon(UIImage(systemName: "link"))
+                    } else {
+                        preview.setIcon(nil)
+                    }
+                } else {
+                    preview.setIcon(nil)
+                }
             case .image:
                 preview.setIcon(UIImage(systemName: "photo"))
             case .video:

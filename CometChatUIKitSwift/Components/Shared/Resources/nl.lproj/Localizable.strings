@@ -288,6 +288,13 @@
 "PHOTO_LIBRARY" = "Fotobibliotheek";
 "VIDEO_LIBRARY" = "Videobibliotheek";
 
+// Link Dialog
+"LINK" = "Link";
+"EDIT_LINK" = "Link bewerken";
+"ADD_LINK" = "Link toevoegen";
+"ENTER_TEXT" = "Voer tekst in";
+"ENTER_LINK_URL" = "Voer link-URL in";
+"REMOVE" = "Verwijderen";
 "FILE_TYPE_NOT_ALLOWED" = "Dit bestandstype is niet toegestaan.";
 "AUDIO_LIBRARY" = "Audiobibliotheek";
 

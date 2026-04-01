@@ -279,6 +279,13 @@
 "SEXUAL_CONTENT" = "Contenuti sessuali";
 "HARASSMENT_BULLYING" = "Molestie/bullismo";
 
+// Link Dialog
+"LINK" = "Nuoroda";
+"EDIT_LINK" = "Redaguoti nuorodą";
+"ADD_LINK" = "Pridėti nuorodą";
+"ENTER_TEXT" = "Įveskite tekstą";
+"ENTER_LINK_URL" = "Įveskite nuorodos URL";
+"REMOVE" = "Pašalinti";
 "FILE_TYPE_NOT_ALLOWED" = "Šis failo tipas neleidžiamas.";
 "AUDIO_LIBRARY" = "Garso biblioteka";
 

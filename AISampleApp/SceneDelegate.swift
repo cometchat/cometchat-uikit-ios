@@ -9,6 +9,17 @@ import UIKit
 import CometChatUIKitSwift
 import CometChatSDK
 
+var userLoggedIn = false
+func isUserLoggedIn() -> Bool{
+    if CometChatUIKit.getLoggedInUser() != nil {
+
+        userLoggedIn = true  // User is logged in
+    } else {
+        userLoggedIn = false // User is not logged in
+    }
+    return userLoggedIn
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -105,7 +116,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             uikitSettings.set(appID: AppConstants.APP_ID)
                 .set(authKey: AppConstants.AUTH_KEY)
                 .set(region: AppConstants.REGION)
-                .setExtensionGroupID(id: "group.com.cometchat.aisampleapp.swift.notification")
+                .setExtensionGroupID(id: "group.com.cometchat.internal.swift.notification")
                 .subscribePresenceForAllUsers()
 //                .overrideAdminHost("\(AppConstants.APP_ID).api-\(AppConstants.REGION).cometchat-staging.com")
 //                .overrideClientHost("\(AppConstants.APP_ID).apiclient-\(AppConstants.REGION).cometchat-staging.com")

@@ -285,6 +285,7 @@ open class CometChatMessageList: UIView {
     var scrolledToUnread: Bool = false
     var unreadMessageCount: Int = 0
     var scrollRestored = false
+    var isScrollToBottomTapped = false  // Flag to keep indicator hidden after tap
     private var isViewActive: Bool = true  // Flag to track if view is still active for updates
     lazy var onTapGesture: UITapGestureRecognizer = {
         let onTapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -355,6 +356,10 @@ open class CometChatMessageList: UIView {
             }else{
                 if !viewModel.hasFetchedMessagesBefore {
                     fetchData()
+                } else {
+                    // Reload table view to reflect any updates that happened while view was not visible
+                    // (e.g., thread reply count updates)
+                    tableView.reloadData()
                 }
             }
             setupStyle()
@@ -616,6 +621,7 @@ open class CometChatMessageList: UIView {
             messageIndicator!.onClick = { [weak self] in
                 guard let this = self else { return }
                 this.unreadMessageCount = 0
+                this.isScrollToBottomTapped = true
                 this.messageIndicator?.reset()
                 this.messageIndicator?.isHidden = true
                 this.fetchBottomMessages()
@@ -903,7 +909,11 @@ open class CometChatMessageList: UIView {
                     shouldScrollToBottom = true
                 } else {
                     if this.tableView.contentOffset.y > 300 {
-                        this.messageIndicator?.setUnreadCount(count: this.unreadMessageCount ?? 0)
+                        if this.unreadMessageCount > 0 {
+                            this.messageIndicator?.setUnreadCount(count: this.unreadMessageCount)
+                        } else {
+                            this.messageIndicator?.reset()
+                        }
                         this.messageIndicator?.isHidden = false
                     } else {
                         shouldScrollToBottom = true
@@ -1798,27 +1808,36 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         offsetY: CGFloat
     ) -> Bool {
 
-        // 1. Never hide during unread navigation
+        // 1. Always hide if scroll-to-bottom was tapped (until user scrolls up)
+        if isScrollToBottomTapped {
+            let isAtBottom = offsetY <= 80
+            if isAtBottom {
+                return true
+            } else {
+                // User scrolled up, reset the flag
+                isScrollToBottomTapped = false
+            }
+        }
+
+        // 2. Never hide during unread navigation
         if startFromUnreadMessages {
             return false
         }
 
-        // 2. Never hide during gotoMessage jump
+        // 3. Never hide during gotoMessage jump
         if gotoMessageId > 0 {
             return false
         }
 
-        // 3. Never hide during pagination or restoration
-        if viewModel.isFetchingNext || scrollRestored {
+        // 4. Never hide during restoration
+        if scrollRestored {
             return false
         }
 
-        // 4. Hide when user reaches bottom (dragging or decelerating) and no more messages to load
+        // 5. Hide when at bottom (regardless of pagination state)
         let isAtBottom = offsetY <= 80
-        let isUserScrolling = scrollView.isDragging || scrollView.isDecelerating
-        let isPaginationComplete = viewModel.isAllMessagesFetchedInNext
         
-        if isAtBottom && isUserScrolling && isPaginationComplete {
+        if isAtBottom {
             return true
         }
 

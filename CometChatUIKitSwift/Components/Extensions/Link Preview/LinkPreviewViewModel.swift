@@ -35,7 +35,17 @@ public class LinkPreviewViewModel : DataSourceDecorator {
             let messageBubbleStyle = isLoggedInUser ? additionalConfiguration?.messageBubbleStyle.outgoing : additionalConfiguration?.messageBubbleStyle.incoming
             if let style = messageBubbleStyle?.linkPreviewBubbleStyle { linkPreviewBubble.style = style }
             
-            if let textFormatter = additionalConfiguration?.textFormatter, !textFormatter.isEmpty {
+            // Check if message text contains markdown formatting and parse it
+            let messageText = message.text
+            if RichTextFormatterManager.shared.containsMarkdownFormatting(messageText) {
+                // Parse markdown to create formatted attributed string
+                let attributedText = RichTextFormatterManager.shared.parseMarkdown(
+                    messageText,
+                    baseFont: linkPreviewBubble.style.messageTextFont ?? UIFont.systemFont(ofSize: 14),
+                    baseColor: linkPreviewBubble.style.messageTextColor ?? UIColor.label
+                )
+                linkPreviewBubble.set(attributedText: attributedText)
+            } else if let textFormatter = additionalConfiguration?.textFormatter, !textFormatter.isEmpty {
                 if let attributedText = MessageUtils.processTextFormatter(for: message, in: linkPreviewBubble.messageLabel, textFormatter: textFormatter, controller: controller, alignment: alignment) {
                     linkPreviewBubble.set(attributedText: attributedText)
                 }

@@ -301,6 +301,13 @@
 "SEXUAL_CONTENT" = "सेक्सुअल कॉन्टेंट";
 "HARASSMENT_BULLYING" = "उत्पीड़न/धमकाना";
 
+// Link Dialog
+"LINK" = "लिंक";
+"EDIT_LINK" = "लिंक संपादित करें";
+"ADD_LINK" = "लिंक जोड़ें";
+"ENTER_TEXT" = "टेक्स्ट दर्ज करें";
+"ENTER_LINK_URL" = "लिंक URL दर्ज करें";
+"REMOVE" = "हटाएं";
 "FILE_TYPE_NOT_ALLOWED" = "इस फ़ाइल प्रकार की अनुमति नहीं है।";
 "AUDIO_LIBRARY" = "ऑडियो लाइब्रेरी";
 

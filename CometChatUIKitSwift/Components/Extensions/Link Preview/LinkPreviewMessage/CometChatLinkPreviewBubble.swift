@@ -186,8 +186,66 @@ open class CometChatLinkPreviewBubble: UIView {
         for (range, values) in messageLabel.customAttributes {
             messageLabel.customAttributes[range]?.removeValue(forKey: .font)
         }
+        
+        // Set up custom link handlers BEFORE setting attributedText
+        // This ensures HyperlinkLabel parses them correctly when updateTextStorage is called
+        setupAttributedLinksBeforeDisplay(in: attributedText)
+        
         self.messageLabel.attributedText = attributedText
         return self
+    }
+    
+    /// Sets up custom hyperlink types for links in attributed text BEFORE setting attributedText
+    /// This ensures HyperlinkLabel parses them correctly when updateTextStorage is called
+    private func setupAttributedLinksBeforeDisplay(in attributedText: NSAttributedString) {
+        let fullRange = NSRange(location: 0, length: attributedText.length)
+        let customLinkKey = NSAttributedString.Key("CometChatLinkURL")
+        
+        // Check for both standard .link attribute and our custom CometChatLinkURL attribute
+        attributedText.enumerateAttributes(in: fullRange, options: []) { [weak self] attrs, range, _ in
+            guard let self = self else { return }
+            
+            // Check for our custom link attribute first, then fall back to standard .link
+            let link = attrs[customLinkKey] ?? attrs[.link]
+            guard let linkValue = link else { return }
+            
+            let urlString: String
+            if let url = linkValue as? URL {
+                urlString = url.absoluteString
+            } else if let str = linkValue as? String {
+                urlString = str
+            } else {
+                return
+            }
+            
+            // Get the text at this range
+            let linkText = (attributedText.string as NSString).substring(with: range)
+            
+            // Create a custom hyperlink type for this specific link
+            let escapedText = NSRegularExpression.escapedPattern(for: linkText)
+            let customType = HyperlinkType.custom(pattern: escapedText)
+            
+            // Add the custom type to enabled types if not already present
+            if !self.messageLabel.enabledTypes.contains(where: { type in
+                if case .custom(let pattern) = type, case .custom(let otherPattern) = customType {
+                    return pattern == otherPattern
+                }
+                return false
+            }) {
+                self.messageLabel.enabledTypes.append(customType)
+            }
+            
+            // Set the color and underline for this custom link type
+            self.messageLabel.customColor[customType] = self.style.textHighlightColor
+            self.messageLabel.customSelectedColor[customType] = self.style.textHighlightColor
+            self.messageLabel.addUnderline[customType] = true
+            
+            // Handle tap for this link
+            self.messageLabel.handleCustomTap(for: customType) { _ in
+                guard let url = URL(string: urlString) else { return }
+                UIApplication.shared.open(url)
+            }
+        }
     }
     
     /// Builds the UI components of the link preview bubble.

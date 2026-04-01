@@ -507,7 +507,16 @@
 "SEXUAL_CONTENT" = "Контент сексуального характера";
 "HARASSMENT_BULLYING" = "Преследование и травля";
 
+// Link Dialog
+"LINK" = "Ссылка";
+"EDIT_LINK" = "Редактировать ссылку";
+"ADD_LINK" = "Добавить ссылку";
+"ENTER_TEXT" = "Введите текст";
+"ENTER_LINK_URL" = "Введите URL ссылки";
+"REMOVE" = "Удалить";
+
 "FILE_TYPE_NOT_ALLOWED" = "Этот тип файла не разрешён.";
 "AUDIO_LIBRARY" = "Аудиотека";
 
 "AI_AGENTS" = "ИИ-ассистенты";
+

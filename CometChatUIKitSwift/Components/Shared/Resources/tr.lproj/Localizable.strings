@@ -288,6 +288,13 @@
 "PHOTO_LIBRARY" = "Fotoğraf Kütüphanesi";
 "VIDEO_LIBRARY" = "Video Kütüphanesi";
 
+// Link Dialog
+"LINK" = "Bağlantı";
+"EDIT_LINK" = "Bağlantıyı düzenle";
+"ADD_LINK" = "Bağlantı ekle";
+"ENTER_TEXT" = "Metin girin";
+"ENTER_LINK_URL" = "Bağlantı URL'sini girin";
+"REMOVE" = "Kaldır";
 "FILE_TYPE_NOT_ALLOWED" = "Bu dosya türüne izin verilmiyor.";
 "AUDIO_LIBRARY" = "Ses Kütüphanesi";
 

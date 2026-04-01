@@ -702,28 +702,83 @@ public class MessagesDataSource: DataSource {
     
     public func getTextMessageBubble(messageText: String?, message: CometChatSDK.TextMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
         
-        let textBubble = CometChatTextBubble()
-        textBubble.controller = controller
-        
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)
         let messageBubbleStyle = isLoggedInUser ? additionalConfiguration?.messageBubbleStyle.outgoing : additionalConfiguration?.messageBubbleStyle.incoming
+        
+        var textBubbleStyle: TextBubbleStyle
         if let style = messageBubbleStyle?.textBubbleStyle {
-            textBubble.style = style
+            textBubbleStyle = style
         } else {
-            // Set default style based on message alignment when additionalConfiguration is nil
             let bubbleType: BubbleStyleType = isLoggedInUser ? .outgoing : .incoming
-            textBubble.style = TextBubbleStyle(styleType: bubbleType)
+            textBubbleStyle = TextBubbleStyle(styleType: bubbleType)
         }
         
-        //processing for TextFormatter
         let textFormatter = additionalConfiguration?.textFormatter ?? []
-        if let attributedString = MessageUtils.processTextFormatter(for: message, customText: messageText, in: textBubble.label, textFormatter: textFormatter, controller: controller, alignment: alignment) {
+        let text = messageText ?? message?.text ?? ""
+        
+        // Standard text bubble
+        let textBubble = CometChatTextBubble()
+        textBubble.controller = controller
+        textBubble.style = textBubbleStyle
+        
+        // Set code block colors based on incoming/outgoing
+        // Outgoing: semi-transparent white for contrast on colored bubble
+        // Incoming: uses neutral colors that adapt to light/dark mode
+        let codeBackgroundColor: UIColor
+        let codeTextColor: UIColor
+        let baseTextColor: UIColor
+        if isLoggedInUser {
+            // Outgoing messages (on colored bubble)
+            codeBackgroundColor = CometChatTheme.white.withAlphaComponent(0.1)
+            codeTextColor = CometChatTheme.white
+            baseTextColor = CometChatTheme.white
+            textBubble.style.textColor = CometChatTheme.white
+        } else {
+            // Incoming messages
+            codeBackgroundColor = CometChatTheme.neutralColor200
+            codeTextColor = CometChatTheme.neutralColor900
+            baseTextColor = CometChatTheme.neutralColor900
+            textBubble.style.textColor = CometChatTheme.neutralColor900
+        }
+        
+        textBubble.codeBlockBackgroundColor = codeBackgroundColor
+        textBubble.inlineCodeBackgroundColor = codeBackgroundColor
+        
+        // Check if text contains markdown formatting and parse it
+        if containsMarkdownFormatting(text) {
+            // Pass message and formatters to text bubble for mention styling in addTextSegment
+            // Don't convert mentions here - let addTextSegment handle it with proper styling
+            if let message = message {
+                textBubble.message = message
+                textBubble.textFormatters = textFormatter
+                textBubble.alignment = alignment
+            }
+            
+            // Use setMarkdownText for proper code block rendering with padding and rounded corners
+            // Pass original text with mention tags - addTextSegment will process them with styling
+            // For incoming messages, explicitly use purple for inline code text
+            // For outgoing messages, use white for inline code text
+            let inlineCodeTextColor: UIColor? = isLoggedInUser ? CometChatTheme.white : CometChatTheme.extendedPrimaryColor700
+            
+            textBubble.setMarkdownText(
+                text,
+                baseFont: textBubble.style.textFont,
+                baseColor: baseTextColor,
+                codeTextColor: codeTextColor,
+                inlineCodeTextColor: inlineCodeTextColor
+            )
+        } else if let attributedString = MessageUtils.processTextFormatter(for: message, customText: messageText, in: textBubble.label, textFormatter: textFormatter, controller: controller, alignment: alignment) {
             textBubble.set(attributedText: attributedString)
         } else {
-            textBubble.set(text: messageText ?? message?.text ?? "")
+            textBubble.set(text: text)
         }
         
         return textBubble
+    }
+    
+    /// Checks if text contains markdown formatting syntax
+    private func containsMarkdownFormatting(_ text: String) -> Bool {
+        return RichTextFormatterManager.shared.containsMarkdownFormatting(text)
     }
     
     public func getImageMessageBubble(imageUrl: String?, caption: String?, message: CometChatSDK.MediaMessage?, controller: UIViewController?, style: ImageBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
@@ -860,12 +915,93 @@ public class MessagesDataSource: DataSource {
                 case .message:
                     switch currentMessage.messageType {
                     case .text:
-                        if let textMessage = currentMessage as? TextMessage {
-                            if let textFormatter = textFormatter, !textFormatter.isEmpty {
-                                attributedLastMessage = MessageUtils.processTextFormatter(message: textMessage, textFormatter: textFormatter, formattingType: .CONVERSATION_LIST)
+                        if let textMessage = currentMessage as? TextMessage, let additionalConfiguration {
+                            // Determine font and color from either conversationsStyle or searchStyle
+                            let font: UIFont
+                            let color: UIColor
+                            
+                            // Check if searchStyle was explicitly set (different from default)
+                            // by comparing with the conversationsStyle - if they differ, use the appropriate one
+                            if additionalConfiguration.searchStyle.listItemSubTitleFont != CometChatSearch.style.listItemSubTitleFont ||
+                               additionalConfiguration.searchStyle.listItemSubTitleTextColor != CometChatSearch.style.listItemSubTitleTextColor {
+                                // searchStyle was explicitly set
+                                font = additionalConfiguration.searchStyle.listItemSubTitleFont
+                                color = additionalConfiguration.searchStyle.listItemSubTitleTextColor
                             } else {
-                                lastMessage = textMessage.text
+                                // Use conversationsStyle (default behavior)
+                                font = additionalConfiguration.conversationsStyle.listItemSubTitleFont
+                                color = additionalConfiguration.conversationsStyle.listItemSubTitleTextColor
                             }
+                            
+                            // Parse markdown with formatting (no newlines around code blocks for single-line display)
+                            let parsedText = RichTextFormatterManager.shared.parseMarkdown(
+                                textMessage.text,
+                                baseFont: font,
+                                baseColor: color,
+                                addNewlinesAroundCodeBlocks: false
+                            )
+                            
+                            // Flatten to single line: replace newlines with spaces
+                            let mutableParsed = NSMutableAttributedString(attributedString: parsedText)
+                            let fullRange = NSRange(location: 0, length: mutableParsed.length)
+                            mutableParsed.mutableString.replaceOccurrences(of: "\n", with: " ", options: [], range: fullRange)
+                            
+                            // Apply text formatters (like mentions) on top of the parsed markdown
+                            if let textFormatter = textFormatter, !textFormatter.isEmpty {
+                                // Create a copy of the message with the original text for mention processing
+                                // We use the original textMessage.text because it contains the mention tags <@uid:...>
+                                let formattedMessage = TextMessage(
+                                    receiverUid: textMessage.receiverUid,
+                                    text: textMessage.text,
+                                    receiverType: textMessage.receiverType
+                                )
+                                formattedMessage.sender = textMessage.sender
+                                formattedMessage.senderUid = textMessage.senderUid
+                                formattedMessage.mentionedUsers = textMessage.mentionedUsers
+                                formattedMessage.mentionedMe = textMessage.mentionedMe
+                                
+                                // Process mentions - this will convert <@uid:...> to @username with proper styling
+                                let mentionProcessed = MessageUtils.processTextFormatter(
+                                    message: formattedMessage,
+                                    textFormatter: textFormatter,
+                                    formattingType: .CONVERSATION_LIST
+                                )
+                                
+                                // Now parse the mention-processed text for markdown formatting
+                                // This ensures mentions are converted first, then markdown is applied
+                                let mentionProcessedText = mentionProcessed.string
+                                let finalParsed = RichTextFormatterManager.shared.parseMarkdown(
+                                    mentionProcessedText,
+                                    baseFont: font,
+                                    baseColor: color,
+                                    addNewlinesAroundCodeBlocks: false
+                                )
+                                
+                                // Flatten to single line
+                                let finalMutable = NSMutableAttributedString(attributedString: finalParsed)
+                                let finalRange = NSRange(location: 0, length: finalMutable.length)
+                                finalMutable.mutableString.replaceOccurrences(of: "\n", with: " ", options: [], range: finalRange)
+                                
+                                // Apply mention styling from the processed text
+                                mentionProcessed.enumerateAttributes(in: NSRange(location: 0, length: mentionProcessed.length), options: []) { attrs, range, _ in
+                                    // Check if this range has mention-specific attributes
+                                    if attrs[.link] != nil || (attrs[.foregroundColor] as? UIColor) == CometChatTheme.primaryColor {
+                                        // Apply mention styling to the same range in our final text
+                                        if range.location + range.length <= finalMutable.length {
+                                            for (key, value) in attrs {
+                                                finalMutable.addAttribute(key, value: value, range: range)
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                attributedLastMessage = finalMutable
+                            } else {
+                                attributedLastMessage = mutableParsed
+                            }
+                        } else if let textMessage = currentMessage as? TextMessage {
+                            // Fallback: strip markdown for plain text display
+                            lastMessage = RichTextFormatterManager.shared.stripMarkdown(textMessage.text)
                         }
                     case .image:
                         lastMessage = ConversationConstants.messageImage

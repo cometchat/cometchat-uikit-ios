@@ -240,7 +240,7 @@ class MessagesVC: UIViewController {
         }
         messageListView.onAIOptionSelected = { [weak self] option in
             self?.aiOptionSelected = option
-            self?.composerView.set(aiOptionsText: option)
+            // self?.composerView.set(aiOptionsText: option) // Not available in CometChatCompactMessageComposer
         }
         messageListView.set(textFormatters: [mentionsFormatter])
         
@@ -254,7 +254,9 @@ class MessagesVC: UIViewController {
         return messageListView
     }()
     
-    lazy var composerView: CometChatMessageComposer = {
+    // MARK: - Original CometChatMessageComposer (used for agentic users)
+    
+    lazy var oldComposerView: CometChatMessageComposer = {
         let messageComposer = CometChatMessageComposer(frame: .null)
         if let user = user { messageComposer.set(user: user) }
         if let group = group { messageComposer.set(group: group) }
@@ -265,6 +267,29 @@ class MessagesVC: UIViewController {
         messageComposer.translatesAutoresizingMaskIntoConstraints = false
         return messageComposer
     }()
+    
+    
+    // MARK: - CometChatCompactMessageComposer (used for regular users)
+    lazy var compactComposerView: CometChatCompactMessageComposer = {
+        let messageComposer = CometChatCompactMessageComposer(frame: .null)
+        if let user = user { messageComposer.set(user: user) }
+        if let group = group { messageComposer.set(group: group) }
+        messageComposer.set(controller: self)
+        if let mssg = parentMessage {
+            messageComposer.set(parentMessageId: mssg.id)
+        }
+        messageComposer.translatesAutoresizingMaskIntoConstraints = false
+        messageComposer.enableRichTextFormatting = true
+        messageComposer.showRichTextFormattingOptions = true
+        return messageComposer
+    }()
+    
+    var composerView: UIView {
+        if user?.isAgentic == true {
+            return oldComposerView
+        }
+        return compactComposerView
+    }
     
     lazy var blockedView: UIView = {
         let view = UIView(frame: .null)
@@ -308,6 +333,7 @@ class MessagesVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: true)
         navigationItem.hidesBackButton = true
         
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -318,6 +344,7 @@ class MessagesVC: UIViewController {
         if !isPushingToMessagesVC {
             self.navigationController?.setNavigationBarHidden(false, animated: true)
         }
+        
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -541,7 +568,11 @@ extension MessagesVC {
             composerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             composerView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        composerView.bottomConstant.constant = -CometChatSpacing.Margin.m8
+        if let compact = composerView as? CometChatCompactMessageComposer {
+            compact.bottomConstant.constant = -CometChatSpacing.Margin.m8
+        } else if let old = composerView as? CometChatMessageComposer {
+            old.bottomConstant.constant = -CometChatSpacing.Margin.m8
+        }
         UIView.animate(withDuration: 0.2) { [weak self] in
             self?.composerView.superview?.layoutIfNeeded()
         }

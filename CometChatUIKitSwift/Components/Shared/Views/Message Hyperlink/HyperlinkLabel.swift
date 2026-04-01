@@ -162,14 +162,36 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
         updateTextStorage()
     }
     
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        // Re-process the attributed text when trait collection changes
+        // This ensures dynamic colors are resolved correctly
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateTextStorage(parseText: false)
+        }
+    }
+    
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        // Re-process the attributed text when added to a window
+        // This ensures dynamic colors are resolved with the correct trait collection
+        if window != nil {
+            setNeedsDisplay()
+        }
+    }
+    
     public override func drawText(in rect: CGRect) {
         let range = NSRange(location: 0, length: textStorage.length)
         
         textContainer.size = rect.size
         let newOrigin = textOrigin(inRect: rect)
         
-        layoutManager.drawBackground(forGlyphRange: range, at: newOrigin)
-        layoutManager.drawGlyphs(forGlyphRange: range, at: newOrigin)
+        // Ensure we're drawing with the correct trait collection
+        // This helps dynamic colors resolve correctly
+        traitCollection.performAsCurrent {
+            layoutManager.drawBackground(forGlyphRange: range, at: newOrigin)
+            layoutManager.drawGlyphs(forGlyphRange: range, at: newOrigin)
+        }
     }
     
     
@@ -270,6 +292,22 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
         textContainer.lineBreakMode = lineBreakMode
         textContainer.maximumNumberOfLines = numberOfLines
         isUserInteractionEnabled = true
+        
+        // Add long press gesture for copy menu
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        longPressGesture.minimumPressDuration = 0.5
+        addGestureRecognizer(longPressGesture)
+    }
+    
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else { return }
+        
+        becomeFirstResponder()
+        
+        let menuController = UIMenuController.shared
+        if !menuController.isMenuVisible {
+            menuController.showMenu(from: self, rect: bounds)
+        }
     }
     
     fileprivate func updateTextStorage(parseText: Bool = true) {
@@ -286,17 +324,31 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
         
         if parseText {
             clearHyperlinkElements()
+            let originalString = mutAttrString.string
             let newString = parseTextAndExtractHyperlinkElements(mutAttrString)
-            mutAttrString.mutableString.setString(newString)
+            
+            // Only replace the string if it actually changed (e.g., URL shortening)
+            // This preserves the original attributed string's formatting (bold, italic, etc.)
+            if newString != originalString {
+                mutAttrString.mutableString.setString(newString)
+            }
         }
         
         hyperlinkElements.append(with: defaultHyperLinkElements)
         
         addLinkAttribute(mutAttrString)
+        
         textStorage.setAttributedString(mutAttrString)
-        _customizing = true
-        text = mutAttrString.string
-        _customizing = false
+        
+        // Invalidate layout to ensure colors are rendered correctly
+        layoutManager.invalidateLayout(forCharacterRange: NSRange(location: 0, length: textStorage.length), actualCharacterRange: nil)
+        layoutManager.invalidateDisplay(forCharacterRange: NSRange(location: 0, length: textStorage.length))
+        
+        // Note: We intentionally do NOT set self.text here because:
+        // 1. Setting text triggers didSet which calls updateTextStorage again
+        // 2. The text property only stores a plain String, losing all formatting
+        // 3. The textStorage already has the correct attributed string
+        // The label will display correctly from textStorage via drawText(in:)
         setNeedsDisplay()
     }
     
@@ -316,44 +368,76 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
     
     /// add link attribute
     fileprivate func addLinkAttribute(_ mutAttrString: NSMutableAttributedString) {
+        guard mutAttrString.length > 0 else { return }
+        
         var range = NSRange(location: 0, length: 0)
         var attributes = mutAttrString.attributes(at: 0, effectiveRange: &range)
         
-        attributes[NSAttributedString.Key.font] = font!
-        attributes[NSAttributedString.Key.foregroundColor] = textColor
-        mutAttrString.addAttributes(attributes, range: range)
+        // Only set font and color if not already set in the attributed string
+        // This preserves rich text formatting (bold, italic, etc.)
+        if attributes[NSAttributedString.Key.font] == nil {
+            attributes[NSAttributedString.Key.font] = font!
+        }
+        if attributes[NSAttributedString.Key.foregroundColor] == nil {
+            attributes[NSAttributedString.Key.foregroundColor] = textColor
+        }
+        
+        // Don't overwrite existing attributes - only add paragraph style if needed
+        let paragraphStyle = attributes[NSAttributedString.Key.paragraphStyle] as? NSMutableParagraphStyle ?? NSMutableParagraphStyle()
+        paragraphStyle.lineBreakMode = NSLineBreakMode.byWordWrapping
+        paragraphStyle.alignment = textAlignment
+        paragraphStyle.lineSpacing = lineSpacing
+        paragraphStyle.minimumLineHeight = minimumLineHeight > 0 ? minimumLineHeight: self.font.pointSize * 1.14
+        attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
+        
+        // Only apply default attributes to ranges that don't have custom formatting
+        // Enumerate through the string to preserve existing formatting
+        guard mutAttrString.length > 0 else { return }
+        mutAttrString.enumerateAttributes(in: NSRange(location: 0, length: mutAttrString.length), options: []) { existingAttrs, subRange, _ in
+            // If this range doesn't have a font, apply the default
+            if existingAttrs[NSAttributedString.Key.font] == nil {
+                mutAttrString.addAttribute(.font, value: font!, range: subRange)
+            }
+            // If this range doesn't have a foreground color, apply the default
+            if existingAttrs[NSAttributedString.Key.foregroundColor] == nil {
+                mutAttrString.addAttribute(.foregroundColor, value: textColor!, range: subRange)
+            }
+            // Always apply paragraph style
+            mutAttrString.addAttribute(.paragraphStyle, value: paragraphStyle, range: subRange)
+        }
         
         //attributes[NSAttributedString.Key.foregroundColor] = mentionColor
         
         for (type, elements) in hyperlinkElements {
+            var linkAttributes: [NSAttributedString.Key: Any] = [:]
             
             switch type {
-            case .mention: attributes[NSAttributedString.Key.foregroundColor] = mentionColor
-            case .hashtag: attributes[NSAttributedString.Key.foregroundColor] = hashtagColor
+            case .mention: linkAttributes[NSAttributedString.Key.foregroundColor] = mentionColor
+            case .hashtag: linkAttributes[NSAttributedString.Key.foregroundColor] = hashtagColor
             case .url:
-                attributes[NSAttributedString.Key.foregroundColor] = URLColor
-                attributes[NSAttributedString.Key.underlineStyle] = NSUnderlineStyle.single.rawValue
+                linkAttributes[NSAttributedString.Key.foregroundColor] = URLColor
+                linkAttributes[NSAttributedString.Key.underlineStyle] = NSUnderlineStyle.single.rawValue
             case .custom:
                 if addUnderline[type] ?? false {
-                    attributes[NSAttributedString.Key.underlineStyle] = NSUnderlineStyle.single.rawValue
+                    linkAttributes[NSAttributedString.Key.underlineStyle] = NSUnderlineStyle.single.rawValue
                 }
-                attributes[NSAttributedString.Key.foregroundColor] = customColor[type] ?? defaultCustomColor
-                if let customFont = customFont[type] { attributes[NSAttributedString.Key.font] = customFont }
+                linkAttributes[NSAttributedString.Key.foregroundColor] = customColor[type] ?? defaultCustomColor
+                if let customFont = customFont[type] { linkAttributes[NSAttributedString.Key.font] = customFont }
             }
             
             if let highlightFont = hightlightFont, customFont[type] == nil {
-                attributes[NSAttributedString.Key.font] = highlightFont
+                linkAttributes[NSAttributedString.Key.font] = highlightFont
             }
             
             if let configureLinkAttribute = configureLinkAttribute {
-                attributes = configureLinkAttribute(type, attributes, false)
+                linkAttributes = configureLinkAttribute(type, linkAttributes, false)
             }
             
             for element in elements {
                 if let preAddedAttributes = customAttributes[element.range] {
-                    mutAttrString.setAttributes(preAddedAttributes, range: element.range)
+                    mutAttrString.addAttributes(preAddedAttributes, range: element.range)
                 } else {
-                    mutAttrString.setAttributes(attributes, range: element.range)
+                    mutAttrString.addAttributes(linkAttributes, range: element.range)
                 }
             }
         }
@@ -394,16 +478,14 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
     fileprivate func addLineBreak(_ attrString: NSAttributedString) -> NSMutableAttributedString {
         let mutAttrString = NSMutableAttributedString(attributedString: attrString)
         
-        var range = NSRange(location: 0, length: 0)
-        var attributes = mutAttrString.attributes(at: 0, effectiveRange: &range)
-        
-        let paragraphStyle = attributes[NSAttributedString.Key.paragraphStyle] as? NSMutableParagraphStyle ?? NSMutableParagraphStyle()
+        let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = NSLineBreakMode.byWordWrapping
         paragraphStyle.alignment = textAlignment
         paragraphStyle.lineSpacing = lineSpacing
         paragraphStyle.minimumLineHeight = minimumLineHeight > 0 ? minimumLineHeight: self.font.pointSize * 1.14
-        attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle
-        mutAttrString.setAttributes(attributes, range: range)
+        
+        // Only add paragraph style, don't overwrite other attributes
+        mutAttrString.addAttribute(.paragraphStyle, value: paragraphStyle, range: NSRange(location: 0, length: mutAttrString.length))
         
         return mutAttrString
     }
@@ -412,6 +494,9 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
         guard let selectedElement = selectedElement else {
             return
         }
+        
+        guard textStorage.length > 0 else { return }
+        guard selectedElement.range.location + selectedElement.range.length <= textStorage.length else { return }
         
         var attributes = textStorage.attributes(at: 0, effectiveRange: nil)
         let type = selectedElement.type
@@ -469,9 +554,11 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
         
         let index = layoutManager.glyphIndex(for: correctLocation, in: textContainer)
         
-        for element in hyperlinkElements.map({ $0.1 }).joined() {
-            if index >= element.range.location && index <= element.range.location + element.range.length {
-                return element
+        for (_, elements) in hyperlinkElements {
+            for element in elements {
+                if index >= element.range.location && index <= element.range.location + element.range.length {
+                    return element
+                }
             }
         }
         
@@ -550,5 +637,35 @@ extension HyperlinkLabel: UIGestureRecognizerDelegate {
     
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+}
+
+// MARK: - Copy Support
+extension HyperlinkLabel {
+    
+    public override var canBecomeFirstResponder: Bool {
+        return true
+    }
+    
+    public override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        return action == #selector(copy(_:))
+    }
+    
+    public override func copy(_ sender: Any?) {
+        // Copy both plain text and attributed text to pasteboard
+        // The attributed text allows the composer to detect formatting
+        if let attributedText = attributedText {
+            UIPasteboard.general.items = [[
+                "public.utf8-plain-text": attributedText.string,
+                "public.rtf": try? attributedText.data(from: NSRange(location: 0, length: attributedText.length), documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])
+            ].compactMapValues { $0 }]
+            
+            // Also set the attributed string directly if possible
+            // Convert to markdown for plain text fallback
+            let markdown = RichTextFormatterManager.shared.convertToMarkdown(attributedText)
+            UIPasteboard.general.string = markdown
+        } else if let text = text {
+            UIPasteboard.general.string = text
+        }
     }
 }

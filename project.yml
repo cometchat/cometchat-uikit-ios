@@ -1,0 +1,144 @@
+name: CometChatUIKitSwift
+options:
+  bundleIdPrefix: com.cometchat
+  deploymentTarget:
+    iOS: "13.0"
+  xcodeVersion: "16.0"
+packages:
+  CometChatUIKitSwift:
+    path: CometChatUIKitSwift
+  CometChatCallsSDK:
+    url: https://github.com/cometchat/calls-sdk-ios.git
+    exactVersion: 4.2.2
+  CometChatSDK:
+    url: https://github.com/cometchat/chat-sdk-ios.git
+    exactVersion: 4.1.2
+targets:
+  SampleApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: SampleApp
+        excludes:
+          - Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jitvar.test
+        MARKETING_VERSION: "5.1.9"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        DEVELOPMENT_TEAM: ""
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+    info:
+      path: SampleApp/Info.plist
+      properties:
+        CFBundleName: "$(PRODUCT_NAME)"
+        CFBundleIdentifier: "$(PRODUCT_BUNDLE_IDENTIFIER)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundlePackageType: "$(PRODUCT_BUNDLE_TYPE)"
+        CFBundleExecutable: "$(EXECUTABLE_NAME)"
+        UILaunchStoryboardName: LaunchScreen
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: "Default Configuration"
+                UISceneDelegateClassName: "$(PRODUCT_MODULE_NAME).SceneDelegate"
+    dependencies:
+      - package: CometChatUIKitSwift
+        product: CometChatUIKitSwift
+      - package: CometChatCallsSDK
+        product: CometChatCallsSDK
+      - package: CometChatSDK
+        product: CometChatSDK
+    entitlements:
+      path: SampleApp/SampleApp.entitlements
+
+  SampleAppPushNotificationAPNs:
+    type: application
+    platform: iOS
+    sources:
+      - path: SampleAppPushNotificationAPNs
+        excludes:
+          - Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.internal.swift
+        MARKETING_VERSION: "5.1.9"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        DEVELOPMENT_TEAM: ""
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+    info:
+      path: SampleAppPushNotificationAPNs/Info.plist
+      properties:
+        CFBundleName: "$(PRODUCT_NAME)"
+        CFBundleIdentifier: "$(PRODUCT_BUNDLE_IDENTIFIER)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundlePackageType: "$(PRODUCT_BUNDLE_TYPE)"
+        CFBundleExecutable: "$(EXECUTABLE_NAME)"
+        UILaunchStoryboardName: LaunchScreen
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: "Default Configuration"
+                UISceneDelegateClassName: "$(PRODUCT_MODULE_NAME).SceneDelegate"
+        UIBackgroundModes:
+          - fetch
+          - remote-notification
+    dependencies:
+      - package: CometChatUIKitSwift
+        product: CometChatUIKitSwift
+      - package: CometChatCallsSDK
+        product: CometChatCallsSDK
+      - package: CometChatSDK
+        product: CometChatSDK
+    entitlements:
+      path: SampleAppPushNotificationAPNs/SampleAppPushNotificationAPNs.entitlements
+
+  AISampleApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: AISampleApp
+        excludes:
+          - Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.swift.ai.sampleapp.AISampleApp
+        MARKETING_VERSION: "5.1.9"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        DEVELOPMENT_TEAM: ""
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+    info:
+      path: AISampleApp/Info.plist
+      properties:
+        CFBundleName: "$(PRODUCT_NAME)"
+        CFBundleIdentifier: "$(PRODUCT_BUNDLE_IDENTIFIER)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundlePackageType: "$(PRODUCT_BUNDLE_TYPE)"
+        CFBundleExecutable: "$(EXECUTABLE_NAME)"
+        UILaunchStoryboardName: LaunchScreen
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: "Default Configuration"
+                UISceneDelegateClassName: "$(PRODUCT_MODULE_NAME).SceneDelegate"
+    dependencies:
+      - package: CometChatUIKitSwift
+        product: CometChatUIKitSwift
+      - package: CometChatCallsSDK
+        product: CometChatCallsSDK
+      - package: CometChatSDK
+        product: CometChatSDK
+    entitlements:
+      path: AISampleApp/AISampleApp.entitlements

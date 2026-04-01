@@ -88,8 +88,7 @@ class MessagePreviewView: UIView {
         let subtitleLabel = UILabel().withoutAutoresizingMaskConstraints()
         subtitleLabel.attributedText = subTitle
         subtitleLabel.numberOfLines = 2
-        subtitleLabel.textColor = style.editPreviewMessageTextColor
-        subtitleLabel.font = style.editPreviewMessageTextFont
+        // Don't set font and textColor here - they override the attributed string's formatting
         addSubview(subtitleLabel)
         constrainsToActivate += [
             subtitleLabel.topAnchor.pin(equalTo: titleLabel.bottomAnchor, constant: CometChatSpacing.Padding.p1),

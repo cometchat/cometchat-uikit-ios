@@ -287,6 +287,19 @@
 "MODERATION_MESSAGE_BLOCKED_ERROR" = "あなたのメッセージはモデレーションポリシーによりブロックされました。";
 "PHOTO_LIBRARY" = "写真ライブラリ";
 "VIDEO_LIBRARY" = "ビデオライブラリ";
+"FILE_TYPE_NOT_ALLOWED" = "このファイル形式は許可されていません。";
+"AUDIO_LIBRARY" = "オーディオライブラリ";
+
+"AI_AGENTS" = "AIアシスタント";
+
+// Link Dialog
+"LINK" = "リンク";
+"EDIT_LINK" = "リンクを編集";
+"ADD_LINK" = "リンクを追加";
+"ENTER_TEXT" = "テキストを入力";
+"ENTER_LINK_URL" = "リンクURLを入力";
+"REMOVE" = "削除";
+
 
 
 "FILE_TYPE_NOT_ALLOWED" = "このファイル形式は許可されていません。";

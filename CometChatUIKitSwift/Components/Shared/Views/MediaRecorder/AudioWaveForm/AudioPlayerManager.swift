@@ -68,13 +68,32 @@ final class AudioPlayerManager: NSObject {
 	// MARK: - Resume and pause current if exists
 
 	func resume() throws -> TimeInterval {
-        try AudioRecorderManager.shared.resume()
+		guard let audioPlayer = self.audioPlayer else {
+			print("Audio Player did fail to resume: no audio player instance")
+			throw AudioErrorType.notCurrentlyPlaying
+		}
+		
+		if audioPlayer.isPlaying {
+			print("Audio Player is already playing, cannot resume")
+			throw AudioErrorType.alreadyPlaying
+		}
+		
+		audioPlayer.play()
+		return audioPlayer.duration
 	}
 
 	func pause() throws {
-        
-        try AudioRecorderManager.shared.pause()
+		guard let audioPlayer = self.audioPlayer else {
+			print("Audio Player did fail to pause: no audio player instance")
+			throw AudioErrorType.notCurrentlyPlaying
+		}
 		
+		if !audioPlayer.isPlaying {
+			print("Audio Player did fail to pause: not currently playing")
+			throw AudioErrorType.notCurrentlyPlaying
+		}
+		
+		audioPlayer.pause()
 	}
 
 	func stop() throws {

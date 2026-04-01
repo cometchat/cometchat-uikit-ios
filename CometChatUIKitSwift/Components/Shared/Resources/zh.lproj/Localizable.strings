@@ -302,6 +302,13 @@
 "SEXUAL_CONTENT" = "色情内容";
 "HARASSMENT_BULLYING" = "骚扰/欺凌";
 
+// Link Dialog
+"LINK" = "链接";
+"EDIT_LINK" = "编辑链接";
+"ADD_LINK" = "添加链接";
+"ENTER_TEXT" = "输入文本";
+"ENTER_LINK_URL" = "输入链接URL";
+"REMOVE" = "移除";
 "FILE_TYPE_NOT_ALLOWED" = "不允许此文件类型。";
 "AUDIO_LIBRARY" = "音频库";
 

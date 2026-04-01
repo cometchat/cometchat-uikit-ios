@@ -206,4 +206,18 @@ extension CometChatMessageComposer {
         return self
     }
     
+    // MARK: - Rich Text Formatting
+    
+    @discardableResult
+    public func show(richTextFormattingOptions: Bool) -> Self {
+        self.showRichTextFormattingOptions = richTextFormattingOptions
+        return self
+    }
+    
+    @discardableResult
+    public func enable(richTextFormatting: Bool) -> Self {
+        self.enableRichTextFormatting = richTextFormatting
+        return self
+    }
+    
 }

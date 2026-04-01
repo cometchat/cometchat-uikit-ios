@@ -1,44 +1,26 @@
 # Xcode
 *.xcuserstate
-*.xcworkspace
-!*.xcworkspace/contents.xcworkspacedata
-!*.xcworkspace/contents.xcworkspacedata/*
+xcuserdata/
 
 # CocoaPods
+Podfile
+Podfile.lock
 Pods/
-*.lock
 
 # Swift Package Manager
 .build/
 .swiftpm/
 Package.resolved
 
-
 # Build Artifacts
 build/
+DerivedData/
 *.app
 *.ipa
 *.dSYM
 
-
 # Code Coverage
 *.xccoverage
 
-# Dependency Managers
-Pods/
-
-
-# xcuserdata
-*.xcuserdatad/
-
-# IDE Workspace Checkpoints
-*.xcworkspace/
-
-# Generated Schemes
-xcuserdata/
-
-
-# Swift Package Manager
-.build/
-DerivedData/
-
+# Downloaded xcframeworks (local dev only)
+CometChatUIKitSwift/CometChatUIKitSwift.xcframework/

@@ -288,3 +288,12 @@
 "AUDIO_LIBRARY" = "Pustaka Audio";
 
 "AI_AGENTS" = "Pembantu AI";
+
+// Link Dialog
+"LINK" = "Pautan";
+"EDIT_LINK" = "Edit Pautan";
+"ADD_LINK" = "Tambah Pautan";
+"ENTER_TEXT" = "Masukkan teks";
+"ENTER_LINK_URL" = "Masukkan URL pautan";
+"REMOVE" = "Alih keluar";
+

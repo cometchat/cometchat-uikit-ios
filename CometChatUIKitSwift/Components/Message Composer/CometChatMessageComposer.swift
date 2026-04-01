@@ -24,6 +24,10 @@ open class CometChatMessageComposer: UIView {
         growingTextView.maxHeight = style.textFiledFont.lineHeight * 5
         growingTextView.minHeight = 12
         growingTextView.backgroundColor = .clear
+        // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+        // growingTextView.onFormatAction = { [weak self] format in
+        //     self?.applyFormat(format)
+        // }
         return growingTextView
     }()
     
@@ -53,12 +57,48 @@ open class CometChatMessageComposer: UIView {
         
         stackView.addArrangedSubview(messagePreview)
         stackView.addArrangedSubview(topContainerView)
+        stackView.addArrangedSubview(richTextToolbarContainerView)
         stackView.addArrangedSubview(dividerView)
         stackView.addArrangedSubview(bottomContainerView)
         
         return stackView
     }()
     
+    // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+    /*
+    public lazy var topContainerView: UIView = {
+        let view = UIView().withoutAutoresizingMaskConstraints()
+        
+        // Add code block background view behind text view
+        view.addSubview(codeBlockBackgroundView)
+        view.addSubview(textView)
+        NSLayoutConstraint.activate([
+            // Code block background view (same position as text view but slightly larger for padding)
+            codeBlockBackgroundView.leadingAnchor.pin(equalTo: view.leadingAnchor, constant: CometChatSpacing.Padding.p3 - 4),
+            codeBlockBackgroundView.trailingAnchor.pin(equalTo: view.trailingAnchor, constant: -CometChatSpacing.Padding.p3 + 4),
+            codeBlockBackgroundView.topAnchor.pin(equalTo: view.topAnchor, constant: CometChatSpacing.Padding.p1 - 2),
+            codeBlockBackgroundView.bottomAnchor.pin(equalTo: view.bottomAnchor, constant: -CometChatSpacing.Padding.p1 + 2),
+            
+            textView.leadingAnchor.pin(equalTo: view.leadingAnchor, constant: CometChatSpacing.Padding.p3),
+            textView.trailingAnchor.pin(equalTo: view.trailingAnchor, constant: -CometChatSpacing.Padding.p3),
+            textView.topAnchor.pin(equalTo: view.topAnchor, constant: CometChatSpacing.Padding.p1),
+            textView.bottomAnchor.pin(equalTo: view.bottomAnchor, constant: -CometChatSpacing.Padding.p1),
+        ])
+        
+        return view
+    }()
+    
+    /// Background view for code block mode - provides full-width background
+    public lazy var codeBlockBackgroundView: UIView = {
+        let view = UIView().withoutAutoresizingMaskConstraints()
+        view.backgroundColor = CometChatTheme.neutralColor300
+        view.layer.cornerRadius = 8
+        view.isHidden = true
+        return view
+    }()
+    */
+    
+    // Simplified topContainerView without code block background
     public lazy var topContainerView: UIView = {
         let view = UIView().withoutAutoresizingMaskConstraints()
         
@@ -73,9 +113,46 @@ open class CometChatMessageComposer: UIView {
         return view
     }()
     
+    /// Stub for code block background view (not used)
+    public lazy var codeBlockBackgroundView: UIView = {
+        let view = UIView().withoutAutoresizingMaskConstraints()
+        view.isHidden = true
+        return view
+    }()
+    
     public lazy var bottomContainerView: UIView = {
         let view = UIView().withoutAutoresizingMaskConstraints()
         view.pin(anchors: [.height], to: 48)
+        return view
+    }()
+    
+    // MARK: - Rich Text Toolbar Components (COMMENTED OUT - using CompactMessageComposer only)
+    /*
+    public lazy var richTextToolbar: CometChatRichTextToolbar = {
+        let toolbar = CometChatRichTextToolbar().withoutAutoresizingMaskConstraints()
+        toolbar.onFormatSelected = { [weak self] format in
+            self?.applyFormat(format)
+        }
+        return toolbar
+    }()
+    
+    public lazy var richTextToolbarContainerView: UIView = {
+        let view = UIView().withoutAutoresizingMaskConstraints()
+        view.isHidden = true
+        return view
+    }()
+    */
+    
+    // Stub views to prevent compilation errors
+    public lazy var richTextToolbar: UIView = {
+        let view = UIView().withoutAutoresizingMaskConstraints()
+        view.isHidden = true
+        return view
+    }()
+    
+    public lazy var richTextToolbarContainerView: UIView = {
+        let view = UIView().withoutAutoresizingMaskConstraints()
+        view.isHidden = true
         return view
     }()
     
@@ -264,6 +341,12 @@ open class CometChatMessageComposer: UIView {
     public var hideAttachmentButton: Bool = false
     public var hideVoiceRecordingButton: Bool = false
     public var hideStickersButton: Bool = false
+    
+    // MARK: - Rich Text Formatting Properties (COMMENTED OUT - using CompactMessageComposer only)
+    // public var showRichTextFormattingOptions: Bool = false
+    // public var enableRichTextFormatting: Bool = false
+    public var showRichTextFormattingOptions: Bool = true  // Keep for API compatibility but always false
+    public var enableRichTextFormatting: Bool = true  // Keep for API compatibility but always false
     
     //Internal variables
     internal var typingWorkItem: DispatchWorkItem?
@@ -486,6 +569,18 @@ open class CometChatMessageComposer: UIView {
         secondaryStackView.addArrangedSubview(attachmentButton)
         secondaryStackView.addArrangedSubview(microphoneButton)
         
+        // Setup rich text toolbar container
+        richTextToolbarContainerView.addSubview(richTextToolbar)
+        constraintsToActivate += [
+            richTextToolbarContainerView.leadingAnchor.pin(equalTo: composerBoxContainerStackView.leadingAnchor),
+            richTextToolbarContainerView.trailingAnchor.pin(equalTo: composerBoxContainerStackView.trailingAnchor),
+            
+            richTextToolbar.topAnchor.pin(equalTo: richTextToolbarContainerView.topAnchor, constant: CometChatSpacing.Padding.p1),
+            richTextToolbar.leadingAnchor.pin(equalTo: richTextToolbarContainerView.leadingAnchor, constant: CometChatSpacing.Padding.p3),
+            richTextToolbar.trailingAnchor.pin(equalTo: richTextToolbarContainerView.trailingAnchor, constant: -CometChatSpacing.Padding.p3),
+            richTextToolbar.bottomAnchor.pin(equalTo: richTextToolbarContainerView.bottomAnchor, constant: -CometChatSpacing.Padding.p2)
+        ]
+        
         NSLayoutConstraint.activate(constraintsToActivate)
         
         updateSendButtonState()
@@ -579,6 +674,19 @@ open class CometChatMessageComposer: UIView {
         if hideVoiceRecordingButton{
             microphoneButton.isHidden = true
         }
+        
+        // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+        // Rich text toolbar visibility based on showRichTextFormattingOptions property
+        // richTextToolbarContainerView.isHidden = !showRichTextFormattingOptions
+        // richTextToolbar.isHidden = !showRichTextFormattingOptions
+        
+        // Also control formatting menu in text selection context menu
+        // textView.showFormattingMenu = showRichTextFormattingOptions
+        
+        // Always hide rich text toolbar in MessageComposer
+        richTextToolbarContainerView.isHidden = true
+        richTextToolbar.isHidden = true
+        textView.showFormattingMenu = false
     }
     
     open func setupAuxiliaryButton() {
@@ -666,8 +774,18 @@ open class CometChatMessageComposer: UIView {
         impactFeedbackLight.impactOccurred()
         
         if let onSendButtonClick = onSendButtonClick {
-            if let text = textView.text, !text.isEmpty {
-                let message = viewModel.setupBaseMessage(message: text, textFormatter: selectedFormatters)
+            // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+            // Convert attributed text to markdown if rich text formatting is enabled
+            // let messageText: String
+            // if enableRichTextFormatting, let attributedText = textView.attributedText {
+            //     messageText = RichTextFormatterManager.shared.convertToMarkdown(attributedText)
+            // } else {
+            //     messageText = textView.text ?? ""
+            // }
+            let messageText = textView.text ?? ""
+            
+            if !messageText.isEmpty {
+                let message = viewModel.setupBaseMessage(message: messageText, textFormatter: selectedFormatters)
                 onSendButtonClick(message)
                 viewModel.reset?(true)
             }
@@ -681,16 +799,26 @@ open class CometChatMessageComposer: UIView {
     }
     
     open func didDefaultSendButtonClicked() {
+        // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+        // Convert attributed text to markdown if rich text formatting is enabled
+        // let messageText: String
+        // if enableRichTextFormatting, let attributedText = textView.attributedText {
+        //     messageText = RichTextFormatterManager.shared.convertToMarkdown(attributedText)
+        // } else {
+        //     messageText = textView.text ?? ""
+        // }
+        let messageText = textView.text ?? ""
+        
         switch messageComposerMode {
         case .draft:
-            if let _ = viewModel.user, !textView.text.isEmpty {
-                viewModel.sendTextMessageToUser(message: textView.text, textFormatter: selectedFormatters)
-            } else if let _ = viewModel.group, !textView.text.isEmpty {
-                viewModel.sendTextMessageToGroup(message: textView.text, textFormatter: selectedFormatters)
+            if let _ = viewModel.user, !messageText.isEmpty {
+                viewModel.sendTextMessageToUser(message: messageText, textFormatter: selectedFormatters)
+            } else if let _ = viewModel.group, !messageText.isEmpty {
+                viewModel.sendTextMessageToGroup(message: messageText, textFormatter: selectedFormatters)
             }
         case .edit:
-            if let currentMessage = self.viewModel.message as? TextMessage, !textView.text.isEmpty {
-                viewModel.editTextMessage(textMessage: currentMessage, message: textView.text, textFormatter: selectedFormatters)
+            if let currentMessage = self.viewModel.message as? TextMessage, !messageText.isEmpty {
+                viewModel.editTextMessage(textMessage: currentMessage, message: messageText, textFormatter: selectedFormatters)
             }
         case .reply: break
             
@@ -753,6 +881,8 @@ open class CometChatMessageComposer: UIView {
         messageComposerMode = .draft
         originalEditText = nil
         textView.text = ""
+        selectedFormatters.removeAll()
+        removeLimitView()
         messagePreview.subviews.forEach({ $0.removeFromSuperview() })
         messagePreview.isHidden = true
         UIView.animate(withDuration: 0.3) { [weak self] in
@@ -959,11 +1089,29 @@ extension CometChatMessageComposer {
             endOnGoingTextFormatting()
             removeLimitView()
             
-            //Processing Message for textFormatters
-            var attributedString = NSMutableAttributedString(string: message.text, attributes: [
-                .font: style.textFiledFont,
-                .foregroundColor: style.textFiledColor
-            ])
+            // Parse markdown text to attributed string for editing
+            // This ensures that when editing a message, the formatted text is shown
+            // instead of raw markdown (e.g., **bold** shows as bold text)
+            var attributedString: NSMutableAttributedString
+            if enableRichTextFormatting && RichTextFormatterManager.shared.containsMarkdownFormatting(message.text) {
+                // Parse the markdown to create formatted attributed string
+                attributedString = NSMutableAttributedString(
+                    attributedString: RichTextFormatterManager.shared.parseMarkdown(
+                        message.text,
+                        baseFont: style.textFiledFont,
+                        baseColor: style.textFiledColor,
+                        addNewlinesAroundCodeBlocks: false
+                    )
+                )
+            } else {
+                // No markdown formatting, use plain text
+                attributedString = NSMutableAttributedString(string: message.text, attributes: [
+                    .font: style.textFiledFont,
+                    .foregroundColor: style.textFiledColor
+                ])
+            }
+            
+            // Processing Message for textFormatters (mentions, etc.)
             for (character, formatter) in viewModel.textFormatterMap {
                 let regex = formatter.getRegex()
                 let processedString = MessageUtils.processMessageForTextFormatter(attributedString, regex: regex) { regexText in
@@ -978,6 +1126,12 @@ extension CometChatMessageComposer {
             self.originalEditText = textView.text
             
             updateSendButtonState()
+            
+            // Check if the message being edited already has 10 or more mentions
+            // If so, show the limit view to prevent adding more
+            if getUniqueSelectedTextFormatterCount() >= 10 {
+                addLimitView()
+            }
             
             presentEditPreview(for: message)
         }

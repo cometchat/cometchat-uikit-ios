@@ -298,8 +298,15 @@
 "REASON" = "Reason";
 "OPTIONAL" = "Optional";
 "REPORT_MESSAGE_PLACEHOLDER" = "Provide additional context for your report…";
-
 "FILE_TYPE_NOT_ALLOWED" = "This file type is not allowed.";
 "AUDIO_LIBRARY" = "Audio Library";
 
 "AI_AGENTS" = "AI Assistants";
+
+// Link Dialog
+"LINK" = "Link";
+"EDIT_LINK" = "Edit Link";
+"ADD_LINK" = "Add Link";
+"ENTER_TEXT" = "Enter text";
+"ENTER_LINK_URL" = "Enter link URL";
+"REMOVE" = "Remove";

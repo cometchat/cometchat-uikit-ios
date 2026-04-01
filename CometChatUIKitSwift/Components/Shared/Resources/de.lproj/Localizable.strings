@@ -296,3 +296,11 @@
 "AUDIO_LIBRARY" = "Audiobibliothek";
 
 "AI_AGENTS" = "KI-Assistenten";
+
+// Link Dialog
+"LINK" = "Link";
+"EDIT_LINK" = "Link bearbeiten";
+"ADD_LINK" = "Link hinzufügen";
+"ENTER_TEXT" = "Text eingeben";
+"ENTER_LINK_URL" = "Link-URL eingeben";
+"REMOVE" = "Entfernen";

@@ -279,6 +279,13 @@
 "SEXUAL_CONTENT" = "Contenu sexuel";
 "HARASSMENT_BULLYING" = "Harcèlement/Harcèlement";
 
+// Link Dialog
+"LINK" = "Lien";
+"EDIT_LINK" = "Modifier le lien";
+"ADD_LINK" = "Ajouter un lien";
+"ENTER_TEXT" = "Entrez le texte";
+"ENTER_LINK_URL" = "Entrez l'URL du lien";
+"REMOVE" = "Supprimer";
 "FILE_TYPE_NOT_ALLOWED" = "Ce type de fichier n'est pas autorisé.";
 "AUDIO_LIBRARY" = "Bibliothèque audio";
 

@@ -327,3 +327,12 @@
 "AUDIO_LIBRARY" = "音訊庫";
 
 "AI_AGENTS" = "AI助理";
+
+// Link Dialog
+"LINK" = "連結";
+"EDIT_LINK" = "編輯連結";
+"ADD_LINK" = "新增連結";
+"ENTER_TEXT" = "輸入文字";
+"ENTER_LINK_URL" = "輸入連結網址";
+"REMOVE" = "移除";
+

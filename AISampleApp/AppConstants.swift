@@ -13,6 +13,7 @@ class AppConstants {
     static var APP_ID: String = ""
     static var AUTH_KEY: String = ""
     static var REGION: String = ""
+    static var PROVIDER_ID: String = ""
 }
 
 

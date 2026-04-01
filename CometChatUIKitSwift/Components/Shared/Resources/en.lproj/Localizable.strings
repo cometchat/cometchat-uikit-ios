@@ -312,3 +312,11 @@
 "AUDIO_LIBRARY" = "Audio Library";
 
 "AI_AGENTS" = "AI Assistants";
+// Link Dialog
+"LINK" = "Link";
+"EDIT_LINK" = "Edit Link";
+"ADD_LINK" = "Add Link";
+"ENTER_TEXT" = "Enter text";
+"ENTER_LINK_URL" = "Enter link URL";
+"REMOVE" = "Remove";
+

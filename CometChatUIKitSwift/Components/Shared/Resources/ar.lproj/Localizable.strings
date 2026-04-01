@@ -318,8 +318,15 @@
 "SPAM" = "بريد مؤذي";
 "SEXUAL_CONTENT" = "المحتوى الجنسي";
 "HARASSMENT_BULLYING" = "التحرش والتنمر";
-
 "FILE_TYPE_NOT_ALLOWED" = "هذا النوع من الملفات غير مسموح به.";
 "AUDIO_LIBRARY" = "مكتبة الصوت";
 
 "AI_AGENTS" = "مساعدو الذكاء الاصطناعي";
+
+// Link Dialog
+"LINK" = "رابط";
+"EDIT_LINK" = "تعديل الرابط";
+"ADD_LINK" = "إضافة رابط";
+"ENTER_TEXT" = "أدخل النص";
+"ENTER_LINK_URL" = "أدخل عنوان URL للرابط";
+"REMOVE" = "إزالة";

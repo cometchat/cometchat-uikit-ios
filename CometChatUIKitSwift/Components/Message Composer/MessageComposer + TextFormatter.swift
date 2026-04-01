@@ -13,7 +13,21 @@ extension CometChatMessageComposer: UITextViewDelegate {
     
     public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
 //        remove(footerView: true)
-        // Reset typing attributes to ensure correct text color when typing or pasting
+        // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+        // Set typing attributes based on persistent formats (or default if none)
+        // if RichTextFormatterManager.shared.persistentFormats.isEmpty {
+        //     textView.typingAttributes = [
+        //         .font: style.textFiledFont,
+        //         .foregroundColor: style.textFiledColor
+        //     ]
+        // } else {
+        //     textView.typingAttributes = RichTextFormatterManager.shared.getTypingAttributes(
+        //         baseFont: style.textFiledFont,
+        //         baseColor: style.textFiledColor
+        //     )
+        // }
+        
+        // Always use default typing attributes
         textView.typingAttributes = [
             .font: style.textFiledFont,
             .foregroundColor: style.textFiledColor
@@ -22,6 +36,12 @@ extension CometChatMessageComposer: UITextViewDelegate {
     }
     
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+        // Handle paste with markdown formatting when enableRichTextFormatting is true
+        // if enableRichTextFormatting && text.count > 1 && (RichTextFormatterManager.shared.containsMarkdownFormatting(text) || RichTextFormatterManager.shared.containsURLs(text)) {
+        //     ... (all the markdown paste handling code)
+        // }
+        
         if let currentText = textView.text as NSString? {
                 let updatedText = currentText.replacingCharacters(in: range, with: text)
                 onTextChangedListener?(updatedText)
@@ -39,6 +59,9 @@ extension CometChatMessageComposer: UITextViewDelegate {
             if this.viewModel.textFormatterMap.isEmpty == false {
                 this.onCursorUpdated(growingTextView: textView as! GrowingTextView)
             }
+            // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+            // Update toolbar active formats when selection changes
+            // this.updateToolbarActiveFormats()
         }
     }
     
@@ -59,6 +82,31 @@ extension CometChatMessageComposer: UITextViewDelegate {
 
             // Update send button state based on text changes
             this.updateSendButtonState()
+            
+            // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+            // Update active formats in toolbar
+            // this.updateToolbarActiveFormats()
+            
+            // Ensure typing attributes reflect current mode
+            // if RichTextFormatterManager.shared.isInBlockquoteMode {
+            //     textView.typingAttributes = [
+            //         .font: this.style.textFiledFont,
+            //         .foregroundColor: UIColor.secondaryLabel
+            //     ]
+            // } else if RichTextFormatterManager.shared.isInCodeBlockMode {
+            //     let monoFont = UIFont.monospacedSystemFont(ofSize: this.style.textFiledFont.pointSize, weight: .regular)
+            //     // Use inline background styling for code block
+            //     textView.typingAttributes = [
+            //         .font: monoFont,
+            //         .foregroundColor: CometChatTheme.neutralColor900,
+            //         .backgroundColor: CometChatTheme.neutralColor300
+            //     ]
+            // } else if !RichTextFormatterManager.shared.persistentFormats.isEmpty {
+            //     textView.typingAttributes = RichTextFormatterManager.shared.getTypingAttributes(
+            //         baseFont: this.style.textFiledFont,
+            //         baseColor: this.style.textFiledColor
+            //     )
+            // }
         }
     }
     
@@ -271,7 +319,38 @@ extension CometChatMessageComposer {
         let oldText = textView.text! as NSString
         let oldString = textView.text!
         
-        textView.typingAttributes = [.font: style.textFiledFont, .foregroundColor: style.textFiledColor]
+        // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+        // Set typing attributes based on current mode - blockquote/codeBlock takes priority, then persistent formats
+        // if RichTextFormatterManager.shared.isInBlockquoteMode {
+        //     textView.typingAttributes = [
+        //         .font: style.textFiledFont,
+        //         .foregroundColor: UIColor.secondaryLabel
+        //     ]
+        // } else if RichTextFormatterManager.shared.isInCodeBlockMode {
+        //     let monoFont = UIFont.monospacedSystemFont(ofSize: style.textFiledFont.pointSize, weight: .regular)
+        //     // Monospace font with inline background for code block
+        //     textView.typingAttributes = [
+        //         .font: monoFont,
+        //         .foregroundColor: CometChatTheme.neutralColor900,
+        //         .backgroundColor: CometChatTheme.neutralColor300
+        //     ]
+        // } else if !RichTextFormatterManager.shared.persistentFormats.isEmpty {
+        //     textView.typingAttributes = RichTextFormatterManager.shared.getTypingAttributes(
+        //         baseFont: style.textFiledFont, 
+        //         baseColor: style.textFiledColor
+        //     )
+        // } else {
+        //     textView.typingAttributes = [
+        //         .font: style.textFiledFont, 
+        //         .foregroundColor: style.textFiledColor
+        //     ]
+        // }
+        
+        // Always use default typing attributes
+        textView.typingAttributes = [
+            .font: style.textFiledFont, 
+            .foregroundColor: style.textFiledColor
+        ]
         
         //going through already added text-formatter
         for (character, value) in selectedFormatters {
@@ -512,7 +591,361 @@ extension CometChatMessageComposer {
         return newRange
     }
     
+    // COMMENTED OUT - Rich text formatting disabled for MessageComposer
+    // /// Updates the toolbar to show active formats at current cursor position
+    // func updateToolbarActiveFormats() {
+    //     guard let selectedRange = textView.selectedTextRange else { return }
+    //     
+    //     let start = textView.offset(from: textView.beginningOfDocument, to: selectedRange.start)
+    //     let length = textView.offset(from: selectedRange.start, to: selectedRange.end)
+    //     let range = NSRange(location: start, length: max(1, length))
+    //     
+    //     let activeFormats = RichTextFormatterManager.shared.detectActiveFormats(
+    //         in: textView.attributedText ?? NSAttributedString(),
+    //         at: range
+    //     )
+    //     
+    //     // Also check list modes and persistent formats
+    //     var formats = activeFormats
+    //     if RichTextFormatterManager.shared.isInBulletListMode {
+    //         formats.insert(.bulletList)
+    //     }
+    //     if RichTextFormatterManager.shared.isInNumberedListMode {
+    //         formats.insert(.numberedList)
+    //     }
+    //     if RichTextFormatterManager.shared.isInBlockquoteMode {
+    //         formats.insert(.blockquote)
+    //     }
+    //     if RichTextFormatterManager.shared.isInCodeBlockMode {
+    //         formats.insert(.codeBlock)
+    //     }
+    //     
+    //     // Include persistent formats (formats that will be applied to new text)
+    //     formats.formUnion(RichTextFormatterManager.shared.persistentFormats)
+    //     
+    //     richTextToolbar.setActiveFormats(formats)
+    // }
+    
 }
+
+// COMMENTED OUT - Rich text formatting disabled for MessageComposer
+// // MARK: - Rich Text Formatting
+// extension CometChatMessageComposer {
+//     
+//     /// Applies the selected format from the rich text toolbar
+//     func applyFormat(_ format: FormatType) {
+//         guard let selectedRange = textView.selectedTextRange else { return }
+//         
+//         let start = textView.offset(from: textView.beginningOfDocument, to: selectedRange.start)
+//         let length = textView.offset(from: selectedRange.start, to: selectedRange.end)
+//         let range = NSRange(location: start, length: length)
+//         
+//         let attributedString = NSMutableAttributedString(attributedString: textView.attributedText ?? NSAttributedString())
+//         
+//         // Handle link format - show alert dialog for text and URL input
+//         if format == .link {
+//             showAddLinkAlert(at: range)
+//             return
+//         }
+//         
+//         // Handle list formats differently - they work at cursor position
+//         if format == .bulletList || format == .numberedList {
+//             RichTextFormatterManager.shared.applyFormat(format, to: range, in: attributedString, baseFont: style.textFiledFont)
+//             textView.attributedText = attributedString
+//             
+//             // Move cursor to end of inserted prefix
+//             let lineInfo = getLineInfo(at: start, in: attributedString.string)
+//             var newCursorPosition = lineInfo.start
+//             
+//             if format == .bulletList {
+//                 newCursorPosition += 2 // "• " length
+//             } else if format == .numberedList {
+//                 newCursorPosition += 3 // "1. " length
+//             }
+//             
+//             // Add the original offset within the line
+//             newCursorPosition += (start - lineInfo.start)
+//             
+//             if let newPosition = textView.position(from: textView.beginningOfDocument, offset: min(newCursorPosition, attributedString.length)) {
+//                 textView.selectedTextRange = textView.textRange(from: newPosition, to: newPosition)
+//             }
+//             
+//             updateToolbarActiveFormats()
+//             updateSendButtonState()
+//             return
+//         }
+//         
+//         // Handle blockquote - applies to current line with left border visual
+//         if format == .blockquote {
+//             RichTextFormatterManager.shared.applyFormat(format, to: range, in: attributedString, baseFont: style.textFiledFont)
+//             textView.attributedText = attributedString
+//             
+//             // Move cursor after the blockquote prefix "▎ "
+//             let newCursorPosition = start + 2  // "▎ " is 2 characters
+//             if let newPosition = textView.position(from: textView.beginningOfDocument, offset: min(newCursorPosition, attributedString.length)) {
+//                 textView.selectedTextRange = textView.textRange(from: newPosition, to: newPosition)
+//             }
+//             
+//             // Set typing attributes for blockquote text (secondary color)
+//             if RichTextFormatterManager.shared.isInBlockquoteMode {
+//                 textView.typingAttributes = [
+//                     .font: style.textFiledFont,
+//                     .foregroundColor: UIColor.secondaryLabel
+//                 ]
+//             }
+//             
+//             updateToolbarActiveFormats()
+//             updateSendButtonState()
+//             return
+//         }
+//         
+//         // Handle code block - block-level format
+//         if format == .codeBlock {
+//             // Toggle off if already in code block mode
+//             if RichTextFormatterManager.shared.isInCodeBlockMode {
+//                 RichTextFormatterManager.shared.isInCodeBlockMode = false
+//                 codeBlockBackgroundView.isHidden = true
+//                 RichTextFormatterManager.shared.persistentFormats.remove(.codeBlock)
+//                 textView.typingAttributes = [
+//                     .font: style.textFiledFont,
+//                     .foregroundColor: style.textFiledColor
+//                 ]
+//                 updateToolbarActiveFormats()
+//                 updateSendButtonState()
+//                 return
+//             }
+//             
+//             // Enter code block mode
+//             RichTextFormatterManager.shared.isInBulletListMode = false
+//             RichTextFormatterManager.shared.isInNumberedListMode = false
+//             RichTextFormatterManager.shared.isInBlockquoteMode = false
+//             RichTextFormatterManager.shared.currentListNumber = 1
+//             RichTextFormatterManager.shared.isInCodeBlockMode = true
+//             
+//             let monoFont = UIFont.monospacedSystemFont(ofSize: style.textFiledFont.pointSize, weight: .regular)
+//             let codeBlockBgColor = CometChatTheme.neutralColor300
+//             
+//             // Case 1: Text is selected - apply inline code styling to selected text only
+//             if length > 0 {
+//                 attributedString.addAttribute(.font, value: monoFont, range: range)
+//                 attributedString.addAttribute(.backgroundColor, value: codeBlockBgColor, range: range)
+//                 textView.attributedText = attributedString
+//                 
+//                 // Restore cursor position after selection
+//                 if let newPosition = textView.position(from: textView.beginningOfDocument, offset: start + length) {
+//                     textView.selectedTextRange = textView.textRange(from: newPosition, to: newPosition)
+//                 }
+//                 
+//                 // Don't show full background - using inline styling
+//                 codeBlockBackgroundView.isHidden = true
+//             }
+//             // Case 2: No selection, but has existing text - insert newline and start code block on new line
+//             else if attributedString.length > 0 {
+//                 let newlineAttr = NSAttributedString(string: "\n", attributes: [
+//                     .font: style.textFiledFont,
+//                     .foregroundColor: style.textFiledColor
+//                 ])
+//                 attributedString.insert(newlineAttr, at: start)
+//                 textView.attributedText = attributedString
+//                 
+//                 // Move cursor after newline
+//                 let newCursorPosition = start + 1
+//                 if let newPosition = textView.position(from: textView.beginningOfDocument, offset: newCursorPosition) {
+//                     textView.selectedTextRange = textView.textRange(from: newPosition, to: newPosition)
+//                 }
+//                 
+//                 // Don't show full background - new code will use inline styling
+//                 codeBlockBackgroundView.isHidden = true
+//             }
+//             // Case 3: Empty text view - show full background container
+//             else {
+//                 codeBlockBackgroundView.isHidden = false
+//             }
+//             
+//             // Set typing attributes for code block mode (with inline background)
+//             textView.typingAttributes = [
+//                 .font: monoFont,
+//                 .foregroundColor: CometChatTheme.neutralColor900,
+//                 .backgroundColor: codeBlockBgColor
+//             ]
+//             
+//             updateToolbarActiveFormats()
+//             updateSendButtonState()
+//             return
+//         }
+//         
+//         // For inline formats without selection, toggle persistent format for future typing
+//         if length == 0 {
+//             RichTextFormatterManager.shared.togglePersistentFormat(format)
+//             // Update typing attributes to reflect persistent formats
+//             textView.typingAttributes = RichTextFormatterManager.shared.getTypingAttributes(
+//                 baseFont: style.textFiledFont,
+//                 baseColor: style.textFiledColor
+//             )
+//             updateToolbarActiveFormats()
+//             return
+//         }
+//         
+//         // Check if format is already active
+//         let activeFormats = RichTextFormatterManager.shared.detectActiveFormats(in: attributedString, at: range)
+//         
+//         if activeFormats.contains(format) {
+//             // Remove format
+//             RichTextFormatterManager.shared.removeFormat(format, from: range, in: attributedString, baseFont: style.textFiledFont)
+//         } else {
+//             // Apply format
+//             RichTextFormatterManager.shared.applyFormat(format, to: range, in: attributedString, baseFont: style.textFiledFont)
+//         }
+//         
+//         textView.attributedText = attributedString
+//         
+//         // Restore selection
+//         if let newStart = textView.position(from: textView.beginningOfDocument, offset: start),
+//            let newEnd = textView.position(from: newStart, offset: length) {
+//             textView.selectedTextRange = textView.textRange(from: newStart, to: newEnd)
+//         }
+//         
+//         updateToolbarActiveFormats()
+//         updateSendButtonState()
+//     }
+//     
+//     /// Shows a native iOS alert dialog for adding a link with text and URL fields
+//     private func showAddLinkAlert(at range: NSRange) {
+//         let alert = UIAlertController(
+//             title: "ADD LINK".localize(),
+//             message: nil,
+//             preferredStyle: .alert
+//         )
+//         
+//         // Get selected text if any to pre-fill the text field
+//         var selectedText = ""
+//         if range.length > 0, let attributedText = textView.attributedText {
+//             selectedText = (attributedText.string as NSString).substring(with: range)
+//         }
+//         
+//         // Add text field for display text
+//         alert.addTextField { textField in
+//             textField.placeholder = "ENTER TEXT".localize()
+//             textField.text = selectedText
+//             textField.autocapitalizationType = .sentences
+//             textField.clearButtonMode = .whileEditing
+//         }
+//         
+//         // Add text field for URL
+//         alert.addTextField { textField in
+//             textField.placeholder = "ENTER LINK URL".localize()
+//             textField.keyboardType = .URL
+//             textField.autocapitalizationType = .none
+//             textField.autocorrectionType = .no
+//             textField.clearButtonMode = .whileEditing
+//         }
+//         
+//         // Cancel action
+//         let cancelAction = UIAlertAction(title: "CANCEL".localize(), style: .cancel) { [weak self] _ in
+//             self?.textView.becomeFirstResponder()
+//         }
+//         
+//         // Save action
+//         let saveAction = UIAlertAction(title: "SAVE".localize(), style: .default) { [weak self] _ in
+//             guard let self = self else { return }
+//             
+//             let displayText = alert.textFields?[0].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+//             let urlString = alert.textFields?[1].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+//             
+//             // Validate inputs
+//             guard !displayText.isEmpty, !urlString.isEmpty else {
+//                 self.textView.becomeFirstResponder()
+//                 return
+//             }
+//             
+//             // Add https:// prefix if no scheme is provided
+//             var finalURLString = urlString
+//             if !urlString.lowercased().hasPrefix("http://") && !urlString.lowercased().hasPrefix("https://") {
+//                 finalURLString = "https://" + urlString
+//             }
+//             
+//             // Insert the link into the text view
+//             self.insertLink(displayText: displayText, url: finalURLString, at: range)
+//             self.textView.becomeFirstResponder()
+//         }
+//         
+//         alert.addAction(cancelAction)
+//         alert.addAction(saveAction)
+//         
+//         // Present the alert
+//         controller?.present(alert, animated: true)
+//     }
+//     
+//     /// Inserts a formatted link into the text view at the specified range
+//     private func insertLink(displayText: String, url: String, at range: NSRange) {
+//         let attributedString = NSMutableAttributedString(attributedString: textView.attributedText ?? NSAttributedString())
+//         
+//         // Create link attributes
+//         let linkAttributes: [NSAttributedString.Key: Any] = [
+//             .font: style.textFiledFont,
+//             .foregroundColor: UIColor.systemBlue,
+//             .underlineStyle: NSUnderlineStyle.single.rawValue,
+//             .link: url
+//         ]
+//         
+//         let linkAttributedString = NSAttributedString(string: displayText, attributes: linkAttributes)
+//         
+//         // Replace or insert the link
+//         if range.length > 0 {
+//             attributedString.replaceCharacters(in: range, with: linkAttributedString)
+//         } else {
+//             attributedString.insert(linkAttributedString, at: range.location)
+//         }
+//         
+//         // Add a space after the link with normal attributes
+//         let spaceAttributes: [NSAttributedString.Key: Any] = [
+//             .font: style.textFiledFont,
+//             .foregroundColor: style.textFiledColor
+//         ]
+//         let spaceString = NSAttributedString(string: " ", attributes: spaceAttributes)
+//         let insertPosition = range.location + displayText.count
+//         if insertPosition <= attributedString.length {
+//             attributedString.insert(spaceString, at: insertPosition)
+//         } else {
+//             attributedString.append(spaceString)
+//         }
+//         
+//         textView.attributedText = attributedString
+//         
+//         // Move cursor after the link and space
+//         let newCursorPosition = range.location + displayText.count + 1
+//         if let newPosition = textView.position(from: textView.beginningOfDocument, offset: min(newCursorPosition, attributedString.length)) {
+//             textView.selectedTextRange = textView.textRange(from: newPosition, to: newPosition)
+//         }
+//         
+//         // Reset typing attributes to normal
+//         textView.typingAttributes = [
+//             .font: style.textFiledFont,
+//             .foregroundColor: style.textFiledColor
+//         ]
+//         
+//         updateSendButtonState()
+//     }
+//     
+//     /// Gets line information (start and end indices) for the line containing the given position
+//     private func getLineInfo(at position: Int, in text: String) -> (start: Int, end: Int) {
+//         let nsString = text as NSString
+//         var lineStart = position
+//         var lineEnd = position
+//         
+//         // Find line start
+//         while lineStart > 0 && nsString.character(at: lineStart - 1) != 10 { // 10 is newline
+//             lineStart -= 1
+//         }
+//         
+//         // Find line end
+//         while lineEnd < nsString.length && nsString.character(at: lineEnd) != 10 {
+//             lineEnd += 1
+//         }
+//         
+//         return (lineStart, lineEnd)
+//     }
+// }
 
 
 //Helper for TextFormatter
