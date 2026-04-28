@@ -25,7 +25,7 @@ class LoginWithUidVC: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "SIGN_IN_COMETCHAT".localize()
-        label.font = CometChatTypography.Heading2.bold
+        label.font = .heading2(.bold)
         label.textColor = CometChatTheme.textColorPrimary
         return label
     }()
@@ -34,7 +34,7 @@ class LoginWithUidVC: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "CHOOSE_SAMPLE_USER".localize();
-        label.font = CometChatTypography.Body.medium
+        label.font = .body(.medium)
         label.textColor = CometChatTheme.textColorPrimary
         return label
     }()
@@ -66,7 +66,7 @@ class LoginWithUidVC: UIViewController {
         orLabel.text = "  \("OR".localize())  "
         orLabel.backgroundColor = CometChatTheme.backgroundColor01
         orLabel.textColor = CometChatTheme.neutralColor500
-        orLabel.font = CometChatTypography.Body.medium
+        orLabel.font = .body(.medium)
         view.addSubview(orLabel)
         
         NSLayoutConstraint.activate([
@@ -118,7 +118,7 @@ class LoginWithUidVC: UIViewController {
             range: (fullText as NSString).range(of: "CHANGE".localize())
         )
         button.setAttributedTitle(attributedText, for: .normal)
-        button.titleLabel?.font = CometChatTypography.Body.regular
+        button.titleLabel?.font = .body()
         button.addTarget(self, action: #selector(onAppCredentialChangeButtonClicked), for: .primaryActionTriggered)
         return button
     }()

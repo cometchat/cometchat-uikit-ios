@@ -132,7 +132,7 @@ class ThreadedMessagesVC: UIViewController {
         let title = UILabel()
         title.text = "THREAD".localize()
         title.textColor = CometChatTheme.textColorPrimary
-        title.font = CometChatTypography.Heading4.bold
+        title.font = .heading4(.bold)
         stackView.addArrangedSubview(title)
         
         // Subtitle Label

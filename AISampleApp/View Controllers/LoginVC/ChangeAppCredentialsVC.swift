@@ -30,7 +30,7 @@ class ChangeAppCredentialsVC: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "APP_CREDENTIALS".localize();
-        label.font = CometChatTypography.Heading2.bold
+        label.font = .heading2(.bold)
         label.textColor = CometChatTheme.textColorPrimary
         return label
     }()
@@ -39,7 +39,7 @@ class ChangeAppCredentialsVC: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "REGION".localize()
-        label.font = CometChatTypography.Body.medium
+        label.font = .body(.medium)
         label.textColor = CometChatTheme.textColorPrimary
         return label
     }()
