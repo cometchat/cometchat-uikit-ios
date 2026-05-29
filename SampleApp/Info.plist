@@ -11,7 +11,13 @@
 		<dict>
 			<key>CFBundleURLName</key>
 			<string>com.googleusercontent.apps.950141434859-rlq2ho5gi0bf9ujgdo1tn59o1rh28amh</string>
-		<key>UILaunchScreen</key>
+		<key>NSCameraUsageDescription</key>
+<string>CometChat needs access to your camera to enable video calls and share photos.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>CometChat needs access to your microphone to enable voice and video calls.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>CometChat needs access to your photo library to share photos in chat.</string>
+<key>UILaunchScreen</key>
 <dict/>
 </dict>
 	</array>
@@ -30,14 +36,32 @@
 					<string>Default Configuration</string>
 					<key>UISceneDelegateClassName</key>
 					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-				<key>UILaunchScreen</key>
+				<key>NSCameraUsageDescription</key>
+<string>CometChat needs access to your camera to enable video calls and share photos.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>CometChat needs access to your microphone to enable voice and video calls.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>CometChat needs access to your photo library to share photos in chat.</string>
+<key>UILaunchScreen</key>
 <dict/>
 </dict>
 			</array>
-		<key>UILaunchScreen</key>
+		<key>NSCameraUsageDescription</key>
+<string>CometChat needs access to your camera to enable video calls and share photos.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>CometChat needs access to your microphone to enable voice and video calls.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>CometChat needs access to your photo library to share photos in chat.</string>
+<key>UILaunchScreen</key>
 <dict/>
 </dict>
-	<key>UILaunchScreen</key>
+	<key>NSCameraUsageDescription</key>
+<string>CometChat needs access to your camera to enable video calls and share photos.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>CometChat needs access to your microphone to enable voice and video calls.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>CometChat needs access to your photo library to share photos in chat.</string>
+<key>UILaunchScreen</key>
 <dict/>
 </dict>
 	<key>UIBackgroundModes</key>
@@ -48,6 +72,12 @@
 		<string>remote-notification</string>
 		<string>voip</string>
 	</array>
+<key>NSCameraUsageDescription</key>
+<string>CometChat needs access to your camera to enable video calls and share photos.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>CometChat needs access to your microphone to enable voice and video calls.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>CometChat needs access to your photo library to share photos in chat.</string>
 <key>UILaunchScreen</key>
 <dict/>
 </dict>
