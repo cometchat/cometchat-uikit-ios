@@ -16,7 +16,6 @@ class AppConstants {
     static var PROVIDER_ID: String = ""
 }
 
-
 extension AppConstants{
     static func saveAppConstants(){
         UserDefaults.standard.set(APP_ID, forKey: "appID")

@@ -376,6 +376,8 @@ extension UserDetailsViewController: CometChatUserEventListener, CometChatUserDe
     func updateUserStatus(user:User){
         if user.status == .online {
             statusLabel.text = "ONLINE".localize()
+        }else if user.lastActiveAt == 0 {
+            statusLabel.text = "OFFLINE".localize()
         }else{
             let currentTime = Date()
             let dateTimeFormatterUtils = DateTimeFormatterUtils()

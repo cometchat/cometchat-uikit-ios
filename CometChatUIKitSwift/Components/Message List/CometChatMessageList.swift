@@ -965,6 +965,16 @@ open class CometChatMessageList: UIView {
                 
                 // Step 1: Capture current table view state
                 let currentSections = this.tableView.numberOfSections
+                let dataSourceSections = this.viewModel.messages.count
+                
+                // Verify section count consistency before any incremental update
+                // If they don't match, a concurrent insert changed the data source — reloadRows would crash
+                guard currentSections == dataSourceSections else {
+                    print("[CometChatMessageList] updateAtIndex: section count mismatch — tableView has \(currentSections) sections, dataSource has \(dataSourceSections). Falling back to reloadData().")
+                    this.tableView.reloadData()
+                    return
+                }
+                
                 let currentRows = section < currentSections ? this.tableView.numberOfRows(inSection: section) : 0
                 
                 // Step 2: Validate section exists
@@ -983,6 +993,7 @@ open class CometChatMessageList: UIView {
                 
                 guard dataSourceCount == currentRows else {
                     // Use reloadData for safety
+                    print("[CometChatMessageList] updateAtIndex: row count mismatch in section \(section) — tableView has \(currentRows) rows, dataSource has \(dataSourceCount). Falling back to reloadData().")
                     this.tableView.reloadData()
                     return
                 }
@@ -1033,10 +1044,8 @@ open class CometChatMessageList: UIView {
                         isModerated: false
                     )
                 } else {
-                    // Cell not visible - reload the row so it shows correct receipt when scrolled into view
-                    if section < this.tableView.numberOfSections && row < this.tableView.numberOfRows(inSection: section) {
-                        this.tableView.reloadRows(at: [indexPath], with: .none)
-                    }
+                    // Cell not visible — no action needed.
+                    // The cell will pick up the correct receipt state when dequeued on scroll.
                 }
             }
         }

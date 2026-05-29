@@ -226,8 +226,8 @@ public class RichTextFormatterManager {
         if text.contains("**") {
             return true
         }
-        // Italic: _text_ (single underscore)
-        if text.range(of: "(?<!_)_[^_]+_(?!_)", options: .regularExpression) != nil {
+        // Italic: _text_ (single underscore, but not mid-word like in URLs)
+        if text.range(of: "(?<![\\w/])_[^_]+_(?!\\w)", options: .regularExpression) != nil {
             return true
         }
         // Underline: <u>text</u> (HTML style only)
@@ -361,8 +361,8 @@ public class RichTextFormatterManager {
             }
         }
         
-        // Remove italic with underscore (_..._)
-        if let regex = try? NSRegularExpression(pattern: "(?<!_)_([^_]+)_(?!_)", options: []) {
+        // Remove italic with underscore (_..._) but not mid-word underscores (URLs)
+        if let regex = try? NSRegularExpression(pattern: "(?<![\\w/])_([^_]+)_(?!\\w)", options: []) {
             let range = NSRange(result.startIndex..., in: result)
             result = regex.stringByReplacingMatches(in: result, options: [], range: range, withTemplate: "$1")
         }
@@ -1974,6 +1974,28 @@ public class RichTextFormatterManager {
             
             // Check for italic with underscore (_text_)
             if text[index] == "_" {
+                // Skip underscore-based italic if the underscore is mid-word (e.g., inside URLs like product_id)
+                // A mid-word underscore has an alphanumeric or allowed URL character on both sides
+                let isIntraWord: Bool = {
+                    let hasPrevAlnum: Bool
+                    if index > text.startIndex {
+                        let prevChar = text[text.index(before: index)]
+                        hasPrevAlnum = prevChar.isLetter || prevChar.isNumber || prevChar == "/" || prevChar == "%" || prevChar == "~"
+                    } else {
+                        hasPrevAlnum = false
+                    }
+                    let afterIdx = text.index(after: index)
+                    let hasNextAlnum: Bool
+                    if afterIdx < text.endIndex {
+                        let nextChar = text[afterIdx]
+                        hasNextAlnum = nextChar.isLetter || nextChar.isNumber
+                    } else {
+                        hasNextAlnum = false
+                    }
+                    return hasPrevAlnum && hasNextAlnum
+                }()
+                
+                if !isIntraWord {
                 let afterMarker = text.index(after: index)
                 if afterMarker < text.endIndex {
                     // Find closing _
@@ -1981,6 +2003,31 @@ public class RichTextFormatterManager {
                     var foundClosing = false
                     while searchIdx < text.endIndex {
                         if text[searchIdx] == "_" {
+                            // Also check that the closing _ is not mid-word
+                            let closingIsIntraWord: Bool = {
+                                let hasPrevAlnum: Bool
+                                if searchIdx > text.startIndex {
+                                    let prevChar = text[text.index(before: searchIdx)]
+                                    hasPrevAlnum = prevChar.isLetter || prevChar.isNumber
+                                } else {
+                                    hasPrevAlnum = false
+                                }
+                                let nextIdx = text.index(after: searchIdx)
+                                let hasNextAlnum: Bool
+                                if nextIdx < text.endIndex {
+                                    let nextChar = text[nextIdx]
+                                    hasNextAlnum = nextChar.isLetter || nextChar.isNumber || nextChar == "/" || nextChar == "%" || nextChar == "~"
+                                } else {
+                                    hasNextAlnum = false
+                                }
+                                return hasPrevAlnum && hasNextAlnum
+                            }()
+                            
+                            if closingIsIntraWord {
+                                searchIdx = text.index(after: searchIdx)
+                                continue
+                            }
+                            
                             let content = String(text[afterMarker..<searchIdx])
                             
                             // Recursively parse the content for nested formatting (bold, etc.)
@@ -2032,6 +2079,7 @@ public class RichTextFormatterManager {
                         continue
                     }
                 }
+                } // end if !isIntraWord
             }
             
             // Check for HTML underline (<u>text</u>) - supports nested formatting

@@ -554,6 +554,9 @@ import CometChatSDK
                     if user.status == .online {
                         subtitleLabel.text = MessageHeaderConstants.online
                     }
+                    else if user.lastActiveAt == 0 {
+                        subtitleLabel.text = "OFFLINE".localize()
+                    }
                     else if let formatter = dateTimeFormatterUtils.getFormattedDateFromClosures(timeStamp: timestamp, dateTimeFormatter: dateTimeFormatter){
                         subtitleLabel.text = "\("LAST_SEEN".localize()) \(formatter)"
                     }else{

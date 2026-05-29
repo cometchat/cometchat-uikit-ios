@@ -9,6 +9,7 @@ import UIKit
 import AVFoundation
 import CometChatUIKitSwift
 import CometChatSDK
+import CometChatCardsSwift
 import SystemConfiguration
 
 
@@ -55,7 +56,6 @@ class HomeScreenViewController: UITabBarController {
                         threadedView.parentMessageView.set(parentMessage: parentMessage)
                         self?.navigationController?.pushViewController(threadedView, animated: true)
                     } onError: { error in
-                        print(error?.errorDescription ?? "")
                     }
                 } else {
                     let messagesVC = MessagesVC() // or your custom MessageViewController
@@ -249,54 +249,66 @@ class HomeScreenViewController: UITabBarController {
     func buildAvatarBarButtonItem() {
         
         let customButton = UIButton(type: .custom)
-
-        if let imageURL = URL(string: "\(CometChat.getLoggedInUser()?.avatar ?? "")") {
-            UIImageView.downloaded(from: imageURL) { image in
-                if image == nil {
-                    let image = UIImageView(frame: .init(origin: .zero, size: CGSize(width: 24, height: 24)))
-                    customButton.setImage(AvatarUtils.setImageSnap(text: CometChat.getLoggedInUser()?.name ?? "", color: CometChatTheme.primaryColor, textAttributes: [.font: CometChatTypography.Caption1.medium, .foregroundColor: CometChatTheme.white], view: image), for: .normal)
-
-                } else {
-                    customButton.setImage(image, for: .normal)
-                    customButton.imageView?.contentMode = .scaleAspectFill
-                }
-            }
-        } else {
-            let image = UIImageView(frame: .init(origin: .zero, size: CGSize(width: 24, height: 24)))
-            customButton.setImage(AvatarUtils.setImageSnap(text: CometChat.getLoggedInUser()?.name ?? "", color: CometChatTheme.primaryColor, textAttributes: [.font: CometChatTypography.Caption1.medium, .foregroundColor: CometChatTheme.white], view: image), for: .normal)
-        }
-        
-        // Set fixed size on the button itself for consistent sizing across devices
         customButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             customButton.widthAnchor.constraint(equalToConstant: 30),
             customButton.heightAnchor.constraint(equalToConstant: 30)
         ])
-        customButton.imageView?.contentMode = .scaleAspectFill
-        customButton.imageView?.clipsToBounds = true
         
-        if #available(iOS 26, *) {
-            // iOS 26 fix: White circular background with image fitted inside
-            customButton.backgroundColor = .white
-            customButton.clipsToBounds = true
-            customButton.layer.cornerRadius = 15
-            
-            // Constrain imageView to fit inside with minimal padding
-            if let imageView = customButton.imageView {
-                imageView.translatesAutoresizingMaskIntoConstraints = false
-                NSLayoutConstraint.activate([
-                    imageView.widthAnchor.constraint(equalToConstant: 32),
-                    imageView.heightAnchor.constraint(equalToConstant: 32),
-                    imageView.centerXAnchor.constraint(equalTo: customButton.centerXAnchor),
-                    imageView.centerYAnchor.constraint(equalTo: customButton.centerYAnchor)
-                ])
-                imageView.layer.cornerRadius = 16
-                imageView.clipsToBounds = true
+        let avatarURLString = CometChat.getLoggedInUser()?.avatar ?? ""
+        
+        // Renders any image into a 30x30 circle with aspect-fill and transparent background
+        let makeCircularImage: (UIImage) -> UIImage = { image in
+            let size = CGSize(width: 30, height: 30)
+            let renderer = UIGraphicsImageRenderer(size: size)
+            return renderer.image { _ in
+                let rect = CGRect(origin: .zero, size: size)
+                UIBezierPath(ovalIn: rect).addClip()
+                // Aspect-fill: scale to fill the square, crop overflow
+                let imageSize = image.size
+                let scale = max(size.width / imageSize.width, size.height / imageSize.height)
+                let drawWidth = imageSize.width * scale
+                let drawHeight = imageSize.height * scale
+                let drawRect = CGRect(
+                    x: (size.width - drawWidth) / 2,
+                    y: (size.height - drawHeight) / 2,
+                    width: drawWidth,
+                    height: drawHeight
+                )
+                image.draw(in: drawRect)
             }
-        } else {
-            // Apply corner radius after layout to ensure perfect circle
-            customButton.layoutIfNeeded()
-            customButton.imageView?.layer.cornerRadius = 15
+        }
+        
+        // Helper to generate initials placeholder
+        let makePlaceholder: () -> UIImage? = {
+            let placeholderView = UIImageView(frame: CGRect(origin: .zero, size: CGSize(width: 30, height: 30)))
+            return AvatarUtils.setImageSnap(
+                text: CometChat.getLoggedInUser()?.name ?? "",
+                color: CometChatTheme.primaryColor,
+                textAttributes: [
+                    .font: CometChatTypography.Caption1.medium,
+                    .foregroundColor: CometChatTheme.white
+                ],
+                view: placeholderView
+            )
+        }
+        
+        // Set placeholder
+        if let placeholder = makePlaceholder() {
+            customButton.setImage(makeCircularImage(placeholder), for: .normal)
+        }
+        customButton.imageView?.contentMode = .scaleAspectFit
+        
+        if let imageURL = URL(string: avatarURLString), !avatarURLString.isEmpty {
+            URLSession.shared.dataTask(with: imageURL) { data, response, error in
+                if let data = data, error == nil, let downloadedImage = UIImage(data: data) {
+                    let circularImage = makeCircularImage(downloadedImage)
+                    DispatchQueue.main.async {
+                        customButton.setImage(circularImage, for: .normal)
+                        customButton.imageView?.contentMode = .scaleAspectFit
+                    }
+                }
+            }.resume()
         }
         
         let logoutBarButtonItem = UIBarButtonItem(customView: customButton)
@@ -334,15 +346,13 @@ class HomeScreenViewController: UITabBarController {
         if Reachability.isConnectedToNetwork(){
             // First unregister push token, then logout
             CometChatNotifications.unregisterPushToken { [weak self] success in
-                print("unregisterPushToken success: \(success)")
                 self?.clearStoredTokensAndLogout()
             } onError: { [weak self] error in
-                print("unregisterPushToken error: \(error.errorDescription)")
                 // Still logout even if unregister fails
                 self?.clearStoredTokensAndLogout()
             }
         }else{
-            print("logout failed with error: internet not connected")
+            // No internet connection
         }
     }
     
@@ -374,7 +384,6 @@ class HomeScreenViewController: UITabBarController {
                 sceneDelegate.setRootViewController(UINavigationController(rootViewController: LoginWithUidVC()))
             }
         }, onError: { error in
-            print("logout failed with error: \(error.errorDescription)")
         })
     }
     
@@ -428,6 +437,88 @@ class HomeScreenViewController: UITabBarController {
         }
     }
     
+    lazy var notifications: CometChatNotificationFeed = {
+        let feed = CometChatNotificationFeed()
+        feed.set(showBackButton: false)
+        feed.set(onItemClick: { [weak self] feedItem in
+        })
+        feed.set(onActionClick: { [weak self] feedItem, actionEvent in
+            guard let self = self else { return }
+            
+            // Report engagement on any button click
+            CometChat.reportFeedEngagement(feedItem, interactionString: "button_clicked", onSuccess: {
+            }, onError: { error in
+            })
+            
+            // Show toast with action details
+            switch actionEvent.action {
+            case .openUrl(let url, let label):
+                let toastMessage = "Action: openUrl\nLabel: \(label ?? "N/A")\nURL: \(url)"
+                self.showToast(message: toastMessage)
+                
+                if let linkURL = URL(string: url) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        UIApplication.shared.open(linkURL)
+                    }
+                }
+            default:
+                let toastMessage = "Action: \(actionEvent.action)"
+                self.showToast(message: toastMessage)
+            }
+        })
+        return feed
+    }()
+    
+    private func showToast(message: String) {
+        guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else { return }
+        
+        let toastLabel = UILabel()
+        toastLabel.text = message
+        toastLabel.numberOfLines = 0
+        toastLabel.textColor = .white
+        toastLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        toastLabel.textAlignment = .left
+        toastLabel.backgroundColor = UIColor.black.withAlphaComponent(0.85)
+        toastLabel.layer.cornerRadius = 10
+        toastLabel.clipsToBounds = true
+        
+        let padding: CGFloat = 16
+        let maxWidth = window.frame.width - 40
+        let size = toastLabel.sizeThatFits(CGSize(width: maxWidth - (padding * 2), height: .greatestFiniteMagnitude))
+        toastLabel.frame = CGRect(
+            x: 20,
+            y: window.frame.height - size.height - (padding * 2) - 100,
+            width: maxWidth,
+            height: size.height + (padding * 2)
+        )
+        
+        // Add padding via text insets (using a wrapper)
+        let containerView = UIView(frame: toastLabel.frame)
+        containerView.backgroundColor = UIColor.black.withAlphaComponent(0.85)
+        containerView.layer.cornerRadius = 10
+        containerView.clipsToBounds = true
+        
+        toastLabel.frame = CGRect(x: padding, y: padding, width: size.width, height: size.height)
+        toastLabel.backgroundColor = .clear
+        containerView.addSubview(toastLabel)
+        containerView.frame.size = CGSize(width: maxWidth, height: size.height + (padding * 2))
+        containerView.center.x = window.center.x
+        containerView.frame.origin.y = window.frame.height - containerView.frame.height - 100
+        containerView.alpha = 0
+        
+        window.addSubview(containerView)
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            containerView.alpha = 1.0
+        }) { _ in
+            UIView.animate(withDuration: 0.3, delay: 2.0, options: .curveEaseOut, animations: {
+                containerView.alpha = 0.0
+            }) { _ in
+                containerView.removeFromSuperview()
+            }
+        }
+    }
+    
     func setupTabs() {
         conversations.tabBarItem = UITabBarItem(title: "CHATS".localize(), image: UIImage(systemName: "message"), tag: 0)
         conversations.tabBarItem.selectedImage = UIImage(systemName: "message.fill")
@@ -443,6 +534,9 @@ class HomeScreenViewController: UITabBarController {
         groups.tabBarItem = UITabBarItem(title: "GROUPS".localize(), image: UIImage(systemName: "person.2"), tag: 1)
         groups.tabBarItem.selectedImage = UIImage(systemName: "person.2.fill")
         
+        notifications.tabBarItem = UITabBarItem(title: "Notifications", image: UIImage(systemName: "bell"), tag: 4)
+        notifications.tabBarItem.selectedImage = UIImage(systemName: "bell.fill")
+        
         
         #if canImport(CometChatCallsSDK)
         viewControllers = [
@@ -450,12 +544,14 @@ class HomeScreenViewController: UITabBarController {
             UINavigationController(rootViewController: calls),
             UINavigationController(rootViewController: users),
             UINavigationController(rootViewController: groups),
+            UINavigationController(rootViewController: notifications),
         ]
         #else
         viewControllers = [
             UINavigationController(rootViewController: conversations),
             UINavigationController(rootViewController: users),
             UINavigationController(rootViewController: groups),
+            UINavigationController(rootViewController: notifications),
         ]
         #endif
         

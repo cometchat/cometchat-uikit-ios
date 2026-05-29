@@ -2,42 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
-	<key>CFBundlePackageType</key>
-	<string>$(PRODUCT_BUNDLE_TYPE)</string>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.cometchat.background-refresh</string>
+	</array>
 	<key>CFBundleURLSchemes</key>
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
 			<string>com.googleusercontent.apps.950141434859-rlq2ho5gi0bf9ujgdo1tn59o1rh28amh</string>
-		</dict>
-	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.950141434859-mimmjt77oiagrq66nma4r6384acvfohs</string>
-			</array>
-		</dict>
+		<key>UILaunchScreen</key>
+<dict/>
+</dict>
 	</array>
 	<key>CometChatSDK</key>
-	<string>4.0.55</string>
-	<key>GIDClientID</key>
-	<string>YOUR_DOT_REVERSED_IOS_CLIENT_ID</string>
+	<string>4.1.3</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -51,14 +30,16 @@
 					<string>Default Configuration</string>
 					<key>UISceneDelegateClassName</key>
 					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-				</dict>
+				<key>UILaunchScreen</key>
+<dict/>
+</dict>
 			</array>
-		</dict>
-	</dict>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app requires access to the microphone to make audio and video calls.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>This app requires access to the camera to make video calls.</string>
+		<key>UILaunchScreen</key>
+<dict/>
+</dict>
+	<key>UILaunchScreen</key>
+<dict/>
+</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
@@ -67,5 +48,7 @@
 		<string>remote-notification</string>
 		<string>voip</string>
 	</array>
+<key>UILaunchScreen</key>
+<dict/>
 </dict>
 </plist>

@@ -737,6 +737,7 @@
 				F0023FE81C7C5FA61C13AF31 /* CometChatUIKitSwift */,
 				FF20CC7DA837EBC35F5B6999 /* CometChatCallsSDK */,
 				2B0FE126A31B81C5B6F5629F /* CometChatSDK */,
+				D1E2F3A4B5C6D7E8F9A0B1C2 /* CometChatCardsSwift */,
 			);
 			productName = AISampleApp;
 			productReference = F2E3D900B72C1FE9ED1BF7CA /* AISampleApp.app */;
@@ -759,6 +760,7 @@
 				BA81B4B5365FC1DB9368BC6D /* CometChatUIKitSwift */,
 				3BFF8D40EC627545C1F7D68C /* CometChatCallsSDK */,
 				5803B15060476D5EB21DBBAB /* CometChatSDK */,
+				D1E2F3A4B5C6D7E8F9A0B1C3 /* CometChatCardsSwift */,
 			);
 			productName = SampleApp;
 			productReference = E0E85E221B0A6717C00FC91B /* SampleApp.app */;
@@ -781,6 +783,7 @@
 				C4628CE02E71EA09AED98B18 /* CometChatUIKitSwift */,
 				741E52C6E5D9BC57A7E45C9E /* CometChatCallsSDK */,
 				4851426F7B85D10642AE2CB0 /* CometChatSDK */,
+				D1E2F3A4B5C6D7E8F9A0B1C4 /* CometChatCardsSwift */,
 			);
 			productName = SampleAppPushNotificationAPNs;
 			productReference = 892A6DEC607611011E317144 /* SampleAppPushNotificationAPNs.app */;
@@ -809,6 +812,7 @@
 				14440BF9D99EE50F6CDC186F /* XCRemoteSwiftPackageReference "calls-sdk-ios" */,
 				5E03AD328DADDD5367C198BF /* XCRemoteSwiftPackageReference "chat-sdk-ios" */,
 				15109CEA1056070E803C4D6F /* XCLocalSwiftPackageReference "CometChatUIKitSwift" */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* XCRemoteSwiftPackageReference "cards-sdk-ios" */,
 			);
 			projectDirPath = "";
 			projectRoot = "";
@@ -998,7 +1002,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
-				INFOPLIST_FILE = AISampleApp/Info.plist;
+				GENERATE_INFOPLIST_FILE = YES;
+INFOPLIST_FILE = AISampleApp/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1021,7 +1026,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
-				INFOPLIST_FILE = SampleAppPushNotificationAPNs/Info.plist;
+				GENERATE_INFOPLIST_FILE = YES;
+INFOPLIST_FILE = SampleAppPushNotificationAPNs/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1044,7 +1050,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
-				INFOPLIST_FILE = AISampleApp/Info.plist;
+				GENERATE_INFOPLIST_FILE = YES;
+INFOPLIST_FILE = AISampleApp/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1067,7 +1074,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
-				INFOPLIST_FILE = SampleAppPushNotificationAPNs/Info.plist;
+				GENERATE_INFOPLIST_FILE = YES;
+INFOPLIST_FILE = SampleAppPushNotificationAPNs/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1090,7 +1098,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
-				INFOPLIST_FILE = SampleApp/Info.plist;
+				GENERATE_INFOPLIST_FILE = YES;
+INFOPLIST_FILE = SampleApp/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1113,7 +1122,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
-				INFOPLIST_FILE = SampleApp/Info.plist;
+				GENERATE_INFOPLIST_FILE = YES;
+INFOPLIST_FILE = SampleApp/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1309,7 +1319,15 @@
 			repositoryURL = "https://github.com/cometchat/chat-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 4.1.2;
+				version = 4.1.4;
+			};
+		};
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* XCRemoteSwiftPackageReference "cards-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cometchat/cards-sdk-ios.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -1356,6 +1374,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 14440BF9D99EE50F6CDC186F /* XCRemoteSwiftPackageReference "calls-sdk-ios" */;
 			productName = CometChatCallsSDK;
+		};
+		D1E2F3A4B5C6D7E8F9A0B1C2 /* CometChatCardsSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3D4E5F6A7B8C9D0E1F2 /* XCRemoteSwiftPackageReference "cards-sdk-ios" */;
+			productName = CometChatCardsSwift;
+		};
+		D1E2F3A4B5C6D7E8F9A0B1C3 /* CometChatCardsSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3D4E5F6A7B8C9D0E1F2 /* XCRemoteSwiftPackageReference "cards-sdk-ios" */;
+			productName = CometChatCardsSwift;
+		};
+		D1E2F3A4B5C6D7E8F9A0B1C4 /* CometChatCardsSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3D4E5F6A7B8C9D0E1F2 /* XCRemoteSwiftPackageReference "cards-sdk-ios" */;
+			productName = CometChatCardsSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
