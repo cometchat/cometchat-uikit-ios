@@ -12,7 +12,7 @@ packages:
     exactVersion: 4.2.2
   CometChatSDK:
     url: https://github.com/cometchat/chat-sdk-ios.git
-    exactVersion: 4.1.2
+    exactVersion: 4.1.5
 targets:
   SampleApp:
     type: application

@@ -1319,7 +1319,7 @@ INFOPLIST_FILE = SampleApp/Info.plist;
 			repositoryURL = "https://github.com/cometchat/chat-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 4.1.4;
+				version = 4.1.5;
 			};
 		};
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* XCRemoteSwiftPackageReference "cards-sdk-ios" */ = {
