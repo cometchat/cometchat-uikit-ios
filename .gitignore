@@ -1,3 +1,6 @@
+# macOS
+.DS_Store
+
 # Xcode
 *.xcuserstate
 xcuserdata/
@@ -24,3 +27,6 @@ DerivedData/
 
 # Downloaded xcframeworks (local dev only)
 CometChatUIKitSwift/CometChatUIKitSwift.xcframework/
+
+# Repo snapshot archives (local dev only)
+*.zip
