@@ -51,7 +51,7 @@ class SampleUserCVCell: UICollectionViewCell {
         imageView.image = UIImage(systemName: "checkmark.square.fill")
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 8
-        imageView.layer.maskedCorners = [.layerMinXMinYCorner,.layerMaxXMaxYCorner]
+        imageView.layer.maskedCorners = [.layerMinXMaxYCorner,.layerMaxXMinYCorner]
         return imageView
     }()
     
@@ -118,7 +118,7 @@ class SampleUserCVCell: UICollectionViewCell {
         containerView.addSubview(selectedImageView)
         NSLayoutConstraint.activate([
             selectedImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0),
-            selectedImageView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 0)
+            selectedImageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 0)
         ])
     }
     

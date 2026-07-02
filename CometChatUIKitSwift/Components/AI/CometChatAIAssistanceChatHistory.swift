@@ -263,7 +263,10 @@ open class CometChatAIAssistanceChatHistory: UIViewController {
             let builder = MessagesRequest.MessageRequestBuilder()
                 .set(uid: user.uid ?? "")
                 .hideReplies(hide: true)
-                .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+                .set(categories: [MessageCategoryConstants.message])
+                .set(types: [MessageTypeConstants.text])
+                .hideDeletedMessages(hide: true)
+                .set(limit: 20)
             
             viewModel.set(user: user, messagesRequestBuilder: builder, parentMessage: nil)
         }

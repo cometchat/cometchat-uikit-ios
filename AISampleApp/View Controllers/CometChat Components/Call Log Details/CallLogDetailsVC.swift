@@ -39,7 +39,20 @@ public class CallLogDetailsVC: UIViewController {
                 menu?.distribution = .fillEqually
                 menu?.alignment = .center
                 menu?.spacing = 8
-                menu?.widthAnchor.constraint(equalToConstant: 100).isActive = true
+                menu?.widthAnchor.constraint(equalToConstant: 110).isActive = true
+                
+                // Add border with padding to each call button in the menu
+                if let stackView = menu {
+                    for subview in stackView.arrangedSubviews {
+                        subview.layer.borderWidth = 1
+                        subview.layer.borderColor = CometChatTheme.borderColorDefault.cgColor
+                        subview.layer.cornerRadius = 8
+                        if let button = subview as? UIButton {
+                            button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+                        }
+                    }
+                }
+                
                 return menu ?? UIView()
                 
             } else {
@@ -53,8 +66,24 @@ public class CallLogDetailsVC: UIViewController {
                     callSettingsBuilder = callSettingsBuilder.setDefaultAudioMode(isAudioOnly ? "EARPIECE" : "SPEAKER")
                     return callSettingsBuilder
                 })
+                callButton.style.audioCallButtonBorder = 1
+                callButton.style.audioCallButtonBorderColor = CometChatTheme.borderColorDefault
+                callButton.style.audioCallButtonCornerRadius = CometChatCornerStyle(cornerRadius: 8)
+                callButton.style.videoCallButtonBorder = 1
+                callButton.style.videoCallButtonBorderColor = CometChatTheme.borderColorDefault
+                callButton.style.videoCallButtonCornerRadius = CometChatCornerStyle(cornerRadius: 8)
                 callButton.distribution = .fillEqually
-                callButton.widthAnchor.constraint(equalToConstant: 60).isActive = true
+                callButton.spacing = 8
+                callButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+                
+                // Add padding inside each button after they are built
+                if let voiceBtn = callButton.voiceCallButton {
+                    voiceBtn.contentEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+                }
+                if let videoBtn = callButton.videoCallButton {
+                    videoBtn.contentEdgeInsets = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+                }
+                
                 return callButton
             }
         })

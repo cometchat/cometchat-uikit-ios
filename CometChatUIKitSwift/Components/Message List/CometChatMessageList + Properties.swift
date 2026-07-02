@@ -29,6 +29,15 @@ extension CometChatMessageList {
         self.streamingSpeed = streamingSpeed
         return self
     }
+
+    /// Configures whether the message list should load the most recent previous agent
+    /// conversation when it appears. Only applies when the conversation is with an AI agent.
+    /// Defaults to `false`, in which case the agent chat always opens fresh.
+    @discardableResult
+    public func set(loadLastAgentConversation: Bool) -> Self {
+        self.loadLastAgentConversation = loadLastAgentConversation
+        return self
+    }
     
     //MARK: Data
     @discardableResult

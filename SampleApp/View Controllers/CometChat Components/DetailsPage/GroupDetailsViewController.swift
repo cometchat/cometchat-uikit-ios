@@ -48,7 +48,7 @@ class GroupDetailsViewController: UIViewController {
     public let messageLabel: UILabel = {
         let label = UILabel()
         label.text = "NO_LONGER_IN_GROUP_ERROR".localize()
-        label.font = CometChatTypography.Heading4.regular
+        label.font = CometChatTypography.Body.regular
         label.textColor = CometChatTheme.textColorPrimary
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -130,7 +130,7 @@ class GroupDetailsViewController: UIViewController {
         // Ensure content is centered
         button.contentHorizontalAlignment = .center
         button.contentVerticalAlignment = .center
-        button.titleLabel?.font = CometChatTypography.Heading4.regular
+        button.titleLabel?.font = CometChatTypography.Body.regular
         button.addTarget(self, action: #selector(showLeaveGroupAlert), for: .primaryActionTriggered)
         return button
     }()
@@ -154,7 +154,7 @@ class GroupDetailsViewController: UIViewController {
         // Ensure content is centered
         button.contentHorizontalAlignment = .center
         button.contentVerticalAlignment = .center
-        button.titleLabel?.font = CometChatTypography.Heading4.regular
+        button.titleLabel?.font = CometChatTypography.Body.regular
         button.addTarget(self, action: #selector(showDeleteChatAlert), for: .primaryActionTriggered)
         return button
     }()
@@ -178,7 +178,7 @@ class GroupDetailsViewController: UIViewController {
         // Ensure content is centered
         button.contentHorizontalAlignment = .center
         button.contentVerticalAlignment = .center
-        button.titleLabel?.font = CometChatTypography.Heading4.regular
+        button.titleLabel?.font = CometChatTypography.Body.regular
         button.addTarget(self, action: #selector(showDeleteGroupAlert), for: .primaryActionTriggered)
         
         return button

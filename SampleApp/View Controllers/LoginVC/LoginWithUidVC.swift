@@ -98,6 +98,14 @@ class LoginWithUidVC: UIViewController {
         return button
     }()
     
+    lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.alwaysBounceVertical = true
+        return scrollView
+    }()
+    
     lazy var containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -172,7 +180,8 @@ class LoginWithUidVC: UIViewController {
         self.view.removeGestureRecognizer(keyboardDismissGusture)
         let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.3
         UIView.animate(withDuration: animationDuration, animations: { [weak self] in
-            self?.containerView.transform = .identity
+            self?.scrollView.contentInset = .zero
+            self?.scrollView.scrollIndicatorInsets = .zero
         })
     }
     
@@ -182,8 +191,12 @@ class LoginWithUidVC: UIViewController {
             let keyboardHeight = calculateKeyboardHeight(from: keyboardFrame)
             let animationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.3
             UIView.animate(withDuration: animationDuration, animations: { [weak self] in
-                self?.containerView.transform = CGAffineTransform(translationX: 0, y: -(keyboardHeight/2))
+                self?.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
+                self?.scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
             })
+            // Scroll to make the text field visible
+            let textFieldFrame = uidTextField.convert(uidTextField.bounds, to: scrollView)
+            scrollView.scrollRectToVisible(textFieldFrame.insetBy(dx: 0, dy: -60), animated: true)
         }
     }
     
@@ -212,12 +225,21 @@ class LoginWithUidVC: UIViewController {
         
         view.backgroundColor = CometChatTheme.backgroundColor01
         
-        view.addSubview(containerView)
+        view.addSubview(scrollView)
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40),
-            containerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        scrollView.addSubview(containerView)
+        NSLayoutConstraint.activate([
+            containerView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 40),
+            containerView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -20),
+            containerView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 20),
+            containerView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -20),
+            containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, constant: -40)
         ])
         
         containerView.addSubview(logoImageView)
@@ -243,7 +265,7 @@ class LoginWithUidVC: UIViewController {
             sampleUserCollectionView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             sampleUserCollectionView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             sampleUserCollectionView.topAnchor.constraint(equalTo: chooseSampleUserLabel.bottomAnchor, constant: 8),
-            sampleUserCollectionView.heightAnchor.constraint(equalToConstant: 270)
+            sampleUserCollectionView.heightAnchor.constraint(equalToConstant: 250)
         ])
         
         containerView.addSubview(dividerView)
@@ -271,6 +293,7 @@ class LoginWithUidVC: UIViewController {
         NSLayoutConstraint.activate([
             changeAppCredentialsLabel.topAnchor.constraint(equalTo: continueButton.bottomAnchor, constant: 10),
             changeAppCredentialsLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            changeAppCredentialsLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -10)
         ])
         
     }
@@ -356,6 +379,21 @@ extension LoginWithUidVC: UICollectionViewDelegate, UICollectionViewDataSource, 
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 8
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        let itemWidth: CGFloat = 115
+        let itemCount = CGFloat(sampleUsers.count)
+        let totalItemWidth = itemWidth * itemCount
+        let totalSpacing = max(0, itemCount - 1) * 0 // minimumInteritemSpacing
+        let totalContentWidth = totalItemWidth + totalSpacing
+        let collectionViewWidth = collectionView.bounds.width
+        
+        if totalContentWidth < collectionViewWidth {
+            let horizontalInset = (collectionViewWidth - totalContentWidth) / 2
+            return UIEdgeInsets(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
+        }
+        return .zero
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

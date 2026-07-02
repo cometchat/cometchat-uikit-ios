@@ -315,7 +315,7 @@ class HomeScreenViewController: UITabBarController {
     
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
         let menu = UIMenu(title: "\(appVersion ?? "v5.0.0")", children: [
-            UIAction(title: "CREATE_CONVERSATION".localize(), image: UIImage(systemName: "plus.bubble.fill"), handler: { _ in
+            UIAction(title: "CREATE_CONVERSATION".localize(), image: UIImage(systemName: "plus.bubble"), handler: { _ in
                 let startNewConversationNVC = CreateConversationVC()
                 startNewConversationNVC.hidesBottomBarWhenPushed = true
                 self.navigationController?.pushViewController(startNewConversationNVC, animated: true)

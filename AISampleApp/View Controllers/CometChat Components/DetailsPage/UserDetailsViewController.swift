@@ -136,7 +136,7 @@ class UserDetailsViewController: UIViewController, CometChatConversationEventLis
         button.addTarget(self, action: #selector(showBlockAlert), for: .primaryActionTriggered)
         button.contentHorizontalAlignment = .center
         button.contentVerticalAlignment = .center
-        button.titleLabel?.font = CometChatTypography.Heading4.regular
+        button.titleLabel?.font = CometChatTypography.Body.regular
         return button
     }()
     
@@ -154,7 +154,7 @@ class UserDetailsViewController: UIViewController, CometChatConversationEventLis
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: spacing, bottom: 0, right: -spacing)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -spacing, bottom: 0, right: 0)
         button.heightAnchor.constraint(equalToConstant: 24).isActive = true
-        button.titleLabel?.font = CometChatTypography.Heading4.regular
+        button.titleLabel?.font = CometChatTypography.Body.regular
         
         return button
     }()

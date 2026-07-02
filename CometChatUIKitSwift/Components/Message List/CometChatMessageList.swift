@@ -106,6 +106,18 @@ open class CometChatMessageList: UIView {
     var suggestedMessages: [String]?
     var emptyChatAIGreetingView: UIView?
     var streamingSpeed: Int = 0
+
+    /// When `true` and the conversation is with an AI agent, the message list loads the
+    /// most recent previous agent conversation thread instead of starting a fresh chat.
+    ///
+    /// If no previous conversation exists (or the fetch fails) it falls back to the default
+    /// behavior: showing the empty state with the AI greeting view and suggested messages.
+    ///
+    /// Default: `false` — existing integrations keep starting a new agent chat.
+    public var loadLastAgentConversation: Bool = false
+    /// Tracks whether we've already attempted to load the last agent conversation so the
+    /// fetch only runs once per appearance and doesn't re-trigger on every `willMove`.
+    private var didAttemptLoadLastAgentConversation = false
     
     //MARK: - Configuration
     public var reactionsConfiguration: ReactionsConfiguration?
@@ -269,6 +281,11 @@ open class CometChatMessageList: UIView {
     }
 
     public var onAIOptionSelected: ((_ option: String) -> Void)?
+    
+    /// Callback invoked when a previous agent conversation was successfully loaded.
+    /// The parameter is the parent message ID of the loaded thread.
+    /// Use this to configure the composer's parentMessageId for message continuation.
+    public var onLastAgentConversationLoaded: ((_ parentMessageId: Int) -> Void)?
 
     //MARK: - INTERNAL HELPER VARIABLE
     var newMessageIndicatorScrollOffSet: CGFloat = 150
@@ -342,14 +359,33 @@ open class CometChatMessageList: UIView {
             if viewModel.user?.isAgentic ?? false{
                 hideDateSeparator = true
                 viewModel.streamingSpeed = streamingSpeed
+                print("[AIAgent] willMove agentic: parentMessage.id=\(viewModel.parentMessage?.id ?? -1), threadedPArentMessageId=\(viewModel.threadedPArentMessageId), loadLastAgentConversation=\(loadLastAgentConversation), didAttempt=\(didAttemptLoadLastAgentConversation), hasFetchedBefore=\(viewModel.hasFetchedMessagesBefore)")
                 if viewModel.parentMessage != nil && viewModel.parentMessage?.id ?? 0 > 0{
+                    print("[AIAgent] willMove → fetchData (specific thread)")
                     fetchData()
                 } else if viewModel.threadedPArentMessageId > 0{
                     if viewModel.hasFetchedMessagesBefore {
+                        print("[AIAgent] willMove → fetchData (existing threadedParent)")
                         fetchData()
+                    } else {
+                        print("[AIAgent] willMove → no-op (threadedParent set but not fetched yet)")
                     }
+                } else if loadLastAgentConversation && !didAttemptLoadLastAgentConversation {
+                    print("[AIAgent] willMove → loadPreviousAgentConversation()")
+                    loadPreviousAgentConversation()
                 } else{
-                    buildAgenticView()
+                    // Only show the AI greeting view if we don't already have messages loaded
+                    // (prevents hiding the table after a message has been sent but before
+                    // threadedPArentMessageId is assigned from the success callback).
+                    if viewModel.messages.isEmpty && !viewModel.hasFetchedMessagesBefore {
+                        print("[AIAgent] willMove → buildAgenticView (new chat / fresh)")
+                        buildAgenticView()
+                    } else if viewModel.messages.isEmpty {
+                        print("[AIAgent] willMove → buildAgenticView (messages empty, previously fetched)")
+                        buildAgenticView()
+                    } else {
+                        print("[AIAgent] willMove → no-op (messages already present, table should be visible)")
+                    }
                 }
                 
                 
@@ -423,6 +459,40 @@ open class CometChatMessageList: UIView {
             view.heightAnchor.constraint(equalTo: aiScrollContainer.heightAnchor).isActive = true
         }
         showAIView()
+    }
+
+    /// Loads the most recent agent conversation thread and falls back to the default
+    /// new-chat (AI greeting) experience when no previous conversation is available
+    /// or the fetch fails.
+    func loadPreviousAgentConversation() {
+        didAttemptLoadLastAgentConversation = true
+        print("[AIAgent] loadPreviousAgentConversation: showing loading view")
+        showLoadingView()
+        viewModel.loadLastAgentConversation { [weak self] didLoad, parentId in
+            guard let this = self else {
+                print("[AIAgent] loadPreviousAgentConversation: self released")
+                return
+            }
+            print("[AIAgent] loadPreviousAgentConversation completed: didLoad=\(didLoad), parentId=\(parentId), isViewActive=\(this.isViewActive)")
+            guard this.isViewActive else { return }
+            if didLoad {
+                print("[AIAgent] loadPreviousAgentConversation → fetchData()")
+                // Notify listeners (e.g. composer) about the loaded thread parentMessageId
+                // so outgoing messages are correctly threaded.
+                var id = [String: Any]()
+                if let user = this.viewModel.user {
+                    id["uid"] = user.uid
+                }
+                id["parentMessageId"] = parentId
+                CometChatUIEvents.ccActiveChatChanged(id: id, lastMessage: nil, user: this.viewModel.user, group: nil)
+                this.onLastAgentConversationLoaded?(parentId)
+                this.fetchData()
+            } else {
+                print("[AIAgent] loadPreviousAgentConversation → fallback buildAgenticView")
+                this.removeLoadingView()
+                this.buildAgenticView()
+            }
+        }
     }
     
     func showAIView() {
@@ -526,6 +596,7 @@ open class CometChatMessageList: UIView {
     }
     
     private func fetchData() {
+        print("[AIAgent] fetchData: messages.isEmpty=\(viewModel.messages.isEmpty), parentMessage.id=\(viewModel.parentMessage?.id ?? -1), gotoMessageId=\(gotoMessageId)")
         if viewModel.messages.isEmpty {
             showLoadingView()
         }
@@ -647,6 +718,16 @@ open class CometChatMessageList: UIView {
                 .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
                 .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
                 .set(messageID: -1))
+        } else if let user = viewModel.user, user.isAgentic, viewModel.threadedPArentMessageId > 0 {
+            viewModel.messagesRequestBuilder = MessagesRequest.MessageRequestBuilder()
+                .set(uid: user.uid ?? "")
+                .setParentMessageId(parentMessageId: viewModel.threadedPArentMessageId)
+                .set(withParent: true)
+                .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+                .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
+                .set(messageID: -1)
+            viewModel.messagesRequest = viewModel.messagesRequestBuilder.build()
+            viewModel.isAllMessagesFetchedInNext = true
         } else if let group = viewModel.group {
             viewModel.set(messagesRequestBuilder: MessagesRequest.MessageRequestBuilder()
                 .set(guid: group.guid)
@@ -701,6 +782,7 @@ open class CometChatMessageList: UIView {
     open func showLoadingView() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
+            print("[AIAgent] showLoadingView: hideLoadingView=\(self.hideLoadingView), superview=\(self.loadingStateView.superview != nil)")
             if self.hideLoadingView { return }
             if let loadingStateView = self.loadingStateView as? CometChatMessageShimmerView {
                 loadingStateView.startShimmer()
@@ -713,6 +795,7 @@ open class CometChatMessageList: UIView {
     open func removeLoadingView() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
+            print("[AIAgent] removeLoadingView: hideLoadingView=\(self.hideLoadingView), wasInView=\(self.loadingStateView.superview != nil)")
             if self.hideLoadingView { return }
             if let loadingStateView = self.loadingStateView as? CometChatMessageShimmerView {
                 loadingStateView.stopShimmer()
@@ -843,7 +926,11 @@ open class CometChatMessageList: UIView {
         viewModel.reload = { [weak self]  in
             guard let this = self, this.isViewActive else { return }
             DispatchQueue.main.async {
-                guard this.isViewActive, this.tableView.window != nil else { return }
+                guard this.isViewActive, this.tableView.window != nil else {
+                    print("[AIAgent] reload: isViewActive=\(this.isViewActive), tableView.window=\(this.tableView.window != nil) — bailing")
+                    return
+                }
+                print("[AIAgent] reload fired: messages.isEmpty=\(this.viewModel.messages.isEmpty), gotoMessageId=\(this.gotoMessageId)")
                 
                 if this.gotoMessageId <= 0 {
                     this.removeLoadingView()
@@ -1356,6 +1443,26 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         return messagesCount
     }
 
+    /// Returns `true` only when the table view's currently-known section and row
+    /// counts exactly match what the data source would report right now.
+    ///
+    /// `beginUpdates()/endUpdates()` (used for height-only re-measurement, e.g. while
+    /// an AI message streams in) re-queries the data source and crashes with
+    /// "invalid number of rows in section" if the counts have drifted since the last
+    /// reload — which happens when a message arrives or the unread separator toggles
+    /// mid-stream. Callers use this guard to fall back to `reloadData()` on drift.
+    open func isTableViewConsistentWithDataSource() -> Bool {
+        let knownSections = tableView.numberOfSections
+        guard knownSections == numberOfSections(in: tableView) else { return false }
+        for section in 0..<knownSections {
+            if tableView.numberOfRows(inSection: section)
+                != self.tableView(tableView, numberOfRowsInSection: section) {
+                return false
+            }
+        }
+        return true
+    }
+
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let filteredMessages = viewModel.messages[safe: indexPath.section]?.messages.filter({ message in
                 !(hideGroupActionMessages && message.messageCategory == .action && message.receiverType == .group)
@@ -1419,6 +1526,33 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         return createMessageCell(for: message, at: indexPath, in: tableView, filteredMessages: filteredMessages)
     }
     
+    /// Reconstructs a quoted `BaseMessage` from a raw `quotedMessage` payload for cases where
+    /// the SDK doesn't populate `message.quotedMessage` (e.g. agentic AI replies, developer
+    /// cards). Dispatches to the appropriate public `fromJSON` parser by category/type, falling
+    /// back to a text parse so a preview still renders. Returns nil if it can't be parsed.
+    private func resolveQuotedMessage(from raw: [String: Any]) -> BaseMessage? {
+        let category = raw["category"] as? String
+        let type = raw["type"] as? String
+
+        switch category {
+        case MessageCategoryConstants.message:
+            switch type {
+            case MessageTypeConstants.image, MessageTypeConstants.video,
+                 MessageTypeConstants.audio, MessageTypeConstants.file:
+                return MediaMessage.mediaMessage(fromJSON: raw).0
+            default:
+                return TextMessage.textMessage(fromJSON: raw).0
+            }
+        case MessageCategoryConstants.custom:
+            return CustomMessage.customMessage(fromJSON: raw).0
+        case MessageCategoryConstants.action:
+            return ActionMessage.actionMessage(fromJSON: raw).0
+        default:
+            // interactive / agentic / card / unknown → best-effort text preview
+            return TextMessage.textMessage(fromJSON: raw).0
+        }
+    }
+
     private func createMessageCell(for message: BaseMessage, at indexPath: IndexPath, in tableView: UITableView, filteredMessages: [BaseMessage]) -> UITableViewCell {
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
         var bubbleStyle = isLoggedInUser ? messageBubbleStyle.outgoing : messageBubbleStyle.incoming
@@ -1434,7 +1568,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 cell.messageObj = message
                 cell.avatarView.setAvatar(avatarUrl: viewModel.user?.avatar, with: viewModel.user?.name)
                 
-                cell.updateUI = { [weak tableView] in
+                cell.updateUI = { [weak self, weak tableView] in
                     guard
                         let tableView = tableView,
                         tableView.window != nil,
@@ -1443,9 +1577,22 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
 
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
                         guard
+                            let this = self,
                             tableView.window != nil,
                             tableView.dataSource != nil
                         else { return }
+
+                        // beginUpdates/endUpdates re-queries numberOfRowsInSection for
+                        // every section but reports zero inserts/deletes. If a message
+                        // arrived (or the unread separator toggled) since the last reload,
+                        // the data-source count will have drifted from the table's cached
+                        // count and UIKit throws "invalid number of rows in section". Only
+                        // run the height-only update when the table is still in sync;
+                        // otherwise fall back to reloadData(), which is always safe.
+                        guard this.isTableViewConsistentWithDataSource() else {
+                            tableView.reloadData()
+                            return
+                        }
 
                         UIView.performWithoutAnimation {
                             tableView.beginUpdates()
@@ -1479,7 +1626,23 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 if let user = viewModel.user, user.isAgentic, !isLoggedInUser{
                     bubbleStyle.backgroundColor = .clear
                 }
-                cell.disableSwipeToReply = disableSwipeToReply
+                
+                // Apply optional agent bubble background for group AI agent messages
+                if message.receiverType == .group,
+                   let sender = message.sender, sender.isAgent, !isLoggedInUser {
+                    if let agentBg = AgentUIConfiguration.shared.agentBubbleBackgroundColor {
+                        bubbleStyle.backgroundColor = agentBg
+                    }
+                }
+                
+                // Disable swipe-to-reply for incoming agent messages — agent responses should
+                // not be replyable via swipe (ENG-36638). Covers 1:1 agentic chats and group AI
+                // agents; the logged-in user's own messages stay swipeable.
+                let isIncomingAgentMessage = !isLoggedInUser &&
+                    (message.messageCategory == .agentic
+                     || (message.sender?.isAnyAgent ?? false)
+                     || (viewModel.user?.isAgentic ?? false))
+                cell.disableSwipeToReply = disableSwipeToReply || isIncomingAgentMessage
                 cell.set(style: bubbleStyle, specificMessageTypeStyle: messageTypeStyle)
                 
                 // Overriding whole bubble
@@ -1494,6 +1657,16 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 }
                 
                 // Handle quoted / reply view
+                // Workaround: the SDK does not populate `quotedMessage` for some message
+                // categories (e.g. agentic AI replies, developer cards), even though the raw
+                // payload carries it. Reconstruct it from `rawMessage` so the reply preview
+                // renders. Only runs when `quotedMessage` is nil, so normal messages are
+                // unaffected; the parsed value is cached on the message so it parses once.
+                if message.quotedMessage == nil,
+                   let rawQuoted = message.rawMessage?["quotedMessage"] as? [String: Any] {
+                    message.quotedMessage = resolveQuotedMessage(from: rawQuoted)
+                }
+
                 if let quotedMessage = message.quotedMessage, message.deletedAt <= 0, !isModerated{
                     if let customReplyView = template.replyView?(message, cell.alignment, controller) {
                         cell.set(replyView: customReplyView)
@@ -1545,7 +1718,22 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                         nameLabel.font = messageTypeStyle?.headerTextFont ?? bubbleStyle.headerTextFont
                         nameLabel.textColor = messageTypeStyle?.headerTextColor ?? bubbleStyle.headerTextColor
                         
-                        cell.set(headerView: nameLabel)
+                        // Add agent badge next to the sender name if sender is an AI agent
+                        if let sender = message.sender, sender.isAgent, !isLoggedInUser {
+                            let headerStack = UIStackView()
+                            headerStack.axis = .horizontal
+                            headerStack.alignment = .center
+                            headerStack.spacing = CometChatSpacing.Spacing.s1
+                            headerStack.addArrangedSubview(nameLabel)
+                            
+                            let agentBadge = CometChatAgentBadge()
+                            agentBadge.style = AgentUIConfiguration.shared.agentBadgeStyle
+                            headerStack.addArrangedSubview(agentBadge)
+                            
+                            cell.set(headerView: headerStack)
+                        } else {
+                            cell.set(headerView: nameLabel)
+                        }
                     }
                 }
                 
@@ -1898,6 +2086,41 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         return nil
     }
 
+ /// Returns the table-view IndexPath for a given message ID, accounting for:
+ /// 1. hideGroupActionMessages filtering (action messages removed from display)
+ /// 2. Unread separator row insertion (+1 offset for messages after separator)
+ /// Use this instead of viewModel.indexPathForMessageId when passing to UIKit table-view APIs.
+    func tableViewIndexPath(forMessageId id: Int) -> IndexPath? {
+        for (sectionIndex, sectionTuple) in viewModel.messages.enumerated() {
+            // Apply the same filter as cellForRowAt
+            let filteredMessages = sectionTuple.messages.filter { message in
+                !(hideGroupActionMessages && message.messageCategory == .action && message.receiverType == .group)
+            }
+            guard let filteredRow = filteredMessages.firstIndex(where: { $0.id == id }) else {
+                continue
+            }
+            // Account for unread separator offset
+            var adjustedRow = filteredRow
+            if let unreadId = unreadSeparatorMessageId,
+               let markedIndex = filteredMessages.firstIndex(where: { $0.id == unreadId }) {
+                let separatorIndex: Int
+                switch unreadSeparatorMode {
+                case .markAsUnread:
+                    separatorIndex = markedIndex + 1
+                case .navigateFromConversation:
+                    separatorIndex = markedIndex
+                case .none:
+                    separatorIndex = markedIndex + 1
+                }
+                // If the target row is at or after the separator position, shift by +1
+                if filteredRow >= separatorIndex {
+                    adjustedRow = filteredRow + 1
+                }
+            }
+            return IndexPath(row: adjustedRow, section: sectionIndex)
+        }
+        return nil
+    }
     
 }
 

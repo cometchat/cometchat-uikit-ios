@@ -59,6 +59,8 @@ public protocol DataSource {
     func getSchedulerMessageTemplate(additionalConfiguration:AdditionalConfiguration?) -> CometChatMessageTemplate
         
     func getCardMessageTemplate(additionalConfiguration:AdditionalConfiguration?) -> CometChatMessageTemplate
+    
+    func getDeveloperCardMessageTemplate(additionalConfiguration:AdditionalConfiguration?) -> CometChatMessageTemplate
         
     func getAllMessageTemplates(additionalConfiguration:AdditionalConfiguration?) -> [CometChatMessageTemplate]
         

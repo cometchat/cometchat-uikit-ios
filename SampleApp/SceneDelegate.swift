@@ -8,6 +8,7 @@
 import UIKit
 import CometChatUIKitSwift
 import CometChatSDK
+import CometChatCardsSwift
 
 var userLoggedIn = false
 func isUserLoggedIn() -> Bool{
@@ -127,6 +128,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 switch result {
                 case .success(_):
                     CometChat.setSource(resource: "uikit-v5", platform: "ios", language: "swift")
+                    // Register card action listener for debugging
+                    CometChatCardEvents.addListener("sample-app-card-listener", CardActionHandler.shared)
                     completion()
                 case .failure(let error):
                     print("Initialization Error: \(error.localizedDescription)")

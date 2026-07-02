@@ -168,12 +168,13 @@ public class CometChatAudioBubble: UIView {
     ///   - localFileURL: An optional local file URL to use as fallback for duration calculation.
     ///   - audioDuration: An optional duration in seconds from metadata.
     public func set(fileURL: String, localFileURL: String? = nil, audioDuration: Int? = nil) {
-        self.fileURL = fileURL
+        self.fileURL = fileURL.isEmpty ? localFileURL : fileURL
+        print("[AudioBubble] fileURL='\(fileURL)' localFileURL='\(localFileURL ?? "nil")' resolved='\(self.fileURL ?? "nil")'")
         updateDurationLabel(localFileURL: localFileURL, audioDuration: audioDuration)
     }
 
     private func updateDurationLabel(localFileURL: String? = nil, audioDuration: Int? = nil) {
-        guard let fileURL = fileURL else { return }
+        guard let fileURL = fileURL, !fileURL.isEmpty else { return }
 
         // If we have duration from metadata, use it immediately
         if let audioDuration = audioDuration, audioDuration > 0 {
@@ -189,23 +190,50 @@ public class CometChatAudioBubble: UIView {
             self.audioTimeLineLabel.text = "00:00/\(cached)"
             return
         }
-
-        // Try local file URL first (for newly sent messages), then fall back to remote URL
-        let urlToLoad: URL?
-        if let localFileURL = localFileURL, let localURL = URL(string: localFileURL) {
-            urlToLoad = localURL
-        } else {
-            urlToLoad = URL(string: fileURL)
-        }
         
-        guard let url = urlToLoad else { return }
+        // Also check cache with local file URL key
+        if let localFileURL = localFileURL, let cached = CometChatAudioBubble.durationCache[localFileURL] {
+            self.duration = cached
+            self.audioTimeLineLabel.text = "00:00/\(cached)"
+            CometChatAudioBubble.durationCache[fileURL] = cached
+            return
+        }
 
-        let asset = AVURLAsset(url: url)
+        // Always prefer local file for duration (it's instant, no network needed)
+        if let localFileURL = localFileURL, !localFileURL.isEmpty {
+            var path = localFileURL
+            while path.hasPrefix("file://") {
+                path = String(path.dropFirst(7))
+            }
+            if path.hasPrefix("/") {
+                let localURL = URL(fileURLWithPath: path)
+                if FileManager.default.fileExists(atPath: path) {
+                    do {
+                        let audioPlayer = try AVAudioPlayer(contentsOf: localURL)
+                        let seconds = audioPlayer.duration
+                        if seconds > 0 {
+                            let duration = formatTime(seconds: seconds)
+                            self.duration = duration
+                            self.audioTimeLineLabel.text = "00:00/\(duration)"
+                            CometChatAudioBubble.durationCache[fileURL] = duration
+                            CometChatAudioBubble.durationCache[localFileURL] = duration
+                            return
+                        }
+                    } catch { }
+                }
+            }
+        }
+
+        // Fallback: load from remote URL asynchronously
+        guard let url = URL(string: fileURL) else { return }
+
+        let asset = AVURLAsset(url: url, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
         asset.loadValuesAsynchronously(forKeys: ["duration"]) { [weak self] in
             var error: NSError?
             let status = asset.statusOfValue(forKey: "duration", error: &error)
             if status == .loaded {
                 let seconds = CMTimeGetSeconds(asset.duration)
+                if seconds.isNaN || seconds.isInfinite { return }
                 let duration = self?.formatTime(seconds: seconds) ?? "00:00"
 
                 DispatchQueue.main.async {
@@ -227,8 +255,21 @@ public class CometChatAudioBubble: UIView {
     /// Sets up the AVPlayer to play the audio file from the specified URL.
     func setupAudioPlayer() {
         
-        guard let fileURL = fileURL, let url = URL(string: fileURL) else { return }
-        let item = AVPlayerItem(url: url)
+        guard let fileURL = fileURL, !fileURL.isEmpty else { return }
+        
+        let url: URL?
+        if fileURL.hasPrefix("file://") {
+            var path = fileURL
+            while path.hasPrefix("file://") {
+                path = String(path.dropFirst(7))
+            }
+            url = URL(fileURLWithPath: path)
+        } else {
+            url = URL(string: fileURL)
+        }
+        
+        guard let playerURL = url else { return }
+        let item = AVPlayerItem(url: playerURL)
 
         player = AVPlayer(playerItem: item)
         let session = AVAudioSession.sharedInstance()
@@ -248,6 +289,15 @@ public class CometChatAudioBubble: UIView {
         timeObserverToken = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
             guard let this = self else { return }
             let currentTimeInSeconds = this.formatTime(seconds: Double(CMTimeGetSeconds(time)))
+            
+            // If duration wasn't loaded yet, try to get it from the player item
+            if this.duration == "00:00", let playerItem = this.player?.currentItem {
+                let totalSeconds = CMTimeGetSeconds(playerItem.duration)
+                if !totalSeconds.isNaN && !totalSeconds.isInfinite && totalSeconds > 0 {
+                    this.duration = this.formatTime(seconds: totalSeconds)
+                }
+            }
+            
             this.audioTimeLineLabel.text = "\(currentTimeInSeconds)/\(this.duration)"
         }
         

@@ -116,17 +116,29 @@ public class CometChatImageBubble: UIStackView {
     func setPreviewImage(url: String) {
         
         previewMediaMessage(url: url, completion: { [weak self] success, fileLocation in
-            guard let this = self, let fileLocation = fileLocation else { return }
-            DispatchQueue.main.async(execute: {
+            guard let this = self, let fileLocation = fileLocation else {
+                return
+            }
+            let applyImage = {
                 this.activityIndicator.isHidden = true
                 do {
                     let imageData = try Data(contentsOf: fileLocation)
                     let image = UIImage(data: imageData as Data)
-                    this.previewItemURL = fileLocation as NSURL
-                    this.imageView.image = image
-                    this.activityIndicator.isHidden = true
-                } catch {  }
-            })
+                    if let image = image {
+                        this.previewItemURL = fileLocation as NSURL
+                        this.imageView.image = image
+                    } else {
+                        try? FileManager.default.removeItem(at: fileLocation)
+                    }
+                } catch {
+                    print("[ImageBubble] Data error: \(error)")
+                }
+            }
+            if Thread.isMainThread {
+                applyImage()
+            } else {
+                DispatchQueue.main.async(execute: applyImage)
+            }
         })
 
         
@@ -137,8 +149,15 @@ public class CometChatImageBubble: UIStackView {
         let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let destinationUrl = documentsDirectoryURL.appendingPathComponent(itemUrl?.lastPathComponent ?? "")
         if FileManager.default.fileExists(atPath: destinationUrl.path) {
-            completion(true, destinationUrl)
-        } else if (itemUrl?.checkFileExist())! {
+            // Validate cached file is not corrupt (not empty and can be decoded as image)
+            if let data = try? Data(contentsOf: destinationUrl), data.count > 0, UIImage(data: data) != nil {
+                completion(true, destinationUrl)
+            } else {
+                // Remove corrupt/empty cached file and re-download
+                try? FileManager.default.removeItem(at: destinationUrl)
+                downloadImage(url: itemUrl, completion: completion)
+            }
+        } else if (itemUrl?.checkFileExist()) == true {
             completion(true, destinationUrl)
         } else {
             downloadImage(url: itemUrl, completion: completion)
@@ -157,7 +176,20 @@ public class CometChatImageBubble: UIStackView {
                 self?.downloadImage(url: url, completion: completion)
                 return
             }
+            // Check for HTTP errors (e.g., 403 expired signature)
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                // Try the main image URL as fallback
+                if let fallbackURLString = self?.imageURL, let fallbackURL = URL(string: fallbackURLString), fallbackURL != url {
+                    self?.downloadImage(url: fallbackURL, completion: completion)
+                } else {
+                    completion(false, nil)
+                }
+                return
+            }
             do {
+                if FileManager.default.fileExists(atPath: destinationUrl.path) {
+                    try FileManager.default.removeItem(at: destinationUrl)
+                }
                 try FileManager.default.moveItem(at: tempLocation, to: destinationUrl)
                 completion(true, destinationUrl)
             } catch let error as NSError {

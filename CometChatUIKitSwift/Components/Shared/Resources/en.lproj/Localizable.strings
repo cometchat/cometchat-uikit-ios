@@ -312,6 +312,13 @@
 "AUDIO_LIBRARY" = "Audio Library";
 
 "AI_AGENTS" = "AI Assistants";
+
+// Agent in Group
+"AGENT_BADGE_LABEL" = "AI";
+"AGENT_FAILURE" = "Agent couldn't respond. Try again.";
+"AGENT_HANDOFF_MESSAGE" = "Connecting you with a team member…";
+"AGENT_MESSAGE_PREVIEW" = "AI Response";
+
 // Link Dialog
 "LINK" = "Link";
 "EDIT_LINK" = "Edit Link";

@@ -34,7 +34,7 @@ class MessagePopupViewController: UIViewController {
     }()
     
     lazy var blurBackgroundView: UIVisualEffectView = {
-        let blurEffect = UIBlurEffect(style: .systemChromeMaterial)
+        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
         let blurEffectView = UIVisualEffectView(effect: blurEffect)
         return blurEffectView
     }()

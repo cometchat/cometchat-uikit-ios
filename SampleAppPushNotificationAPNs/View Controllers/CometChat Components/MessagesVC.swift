@@ -16,6 +16,11 @@ class MessagesVC: UIViewController {
     lazy var randamID = Date().timeIntervalSince1970
     var parentMessage: BaseMessage? = nil
     var withParent: Bool = false
+    /// When `true`, an agent chat opens fresh even if a previous conversation exists.
+    /// Set this on the "New Chat" entry points so they behave like starting a brand new
+    /// session. Defaults to `false`, in which case the message list will load the most
+    /// recent agent conversation if one exists.
+    var isNewChat: Bool = false
     
     //Setting Up header
     lazy var headerView: CometChatMessageHeader = {
@@ -141,6 +146,7 @@ class MessagesVC: UIViewController {
             newMessagesVC.parentMessage = nil
             newMessagesVC.user = user
             newMessagesVC.withParent = false
+            newMessagesVC.isNewChat = true
             navController.pushViewController(newMessagesVC, animated: false)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak navController] in
@@ -200,6 +206,7 @@ class MessagesVC: UIViewController {
                 threadedView.parentMessage = nil
                 threadedView.user = user
                 threadedView.withParent = false
+                threadedView.isNewChat = true
                 vc.navigationController?.pushViewController(threadedView, animated: false)
             }
             self?.navigationController?.pushViewController(vc, animated: false)
@@ -213,7 +220,21 @@ class MessagesVC: UIViewController {
         let messageListView = CometChatMessageList(frame: .null)
         messageListView.translatesAutoresizingMaskIntoConstraints = false
         if let user = user {
+            // Only opt into loading the previous agent conversation when:
+            //   - the conversation is with an AI agent
+            //   - we aren't already opening a specific thread (chat history)
+            //   - the caller didn't explicitly request a fresh "New Chat"
+            let shouldLoadLastAgentConversation = user.isAgentic && !self.withParent && !self.isNewChat
+            messageListView.set(loadLastAgentConversation: shouldLoadLastAgentConversation)
+            
+            // Developer passes custom types they use for card messages
+            let builder = MessagesRequest.MessageRequestBuilder()
+                .set(uid: user.uid ?? "")
+                .hideReplies(hide: true)
+                .set(types: [MessageTypeConstants.text, MessageTypeConstants.image, MessageTypeConstants.video, MessageTypeConstants.audio, MessageTypeConstants.file, MessageTypeConstants.groupMember, MessageTypeConstants.form, MessageTypeConstants.card, MessageTypeConstants.scheduler, MessageTypeConstants.assistant, "product"])
+                .set(categories: [MessageCategoryConstants.message, MessageCategoryConstants.action, MessageCategoryConstants.custom, MessageCategoryConstants.agentic, MessageCategoryConstants.card])
             messageListView.set(user: user, parentMessage: parentMessage, withParent: self.withParent)
+            messageListView.set(messagesRequestBuilder: builder)
         }
         if let group = group { messageListView.set(group: group) }
         messageListView.set(controller: self)
@@ -240,13 +261,14 @@ class MessagesVC: UIViewController {
         }
         messageListView.onAIOptionSelected = { [weak self] option in
             self?.aiOptionSelected = option
-            // self?.composerView.set(aiOptionsText: option) // Not available in CometChatCompactMessageComposer
+            self?.oldComposerView.set(aiOptionsText: option)
+        }
+        messageListView.onLastAgentConversationLoaded = { [weak self] parentMessageId in
+            self?.oldComposerView.set(parentMessageId: parentMessageId)
         }
         messageListView.set(textFormatters: [mentionsFormatter])
         
         if let user = user, user.isAgentic {
-            messageListView.messageBubbleStyle.outgoing.textBubbleStyle.textColor = CometChatTheme.neutralColor900
-            messageListView.messageBubbleStyle.outgoing.textBubbleStyle.backgroundColor = CometChatTheme.neutralColor300
             messageListView.messageBubbleStyle.outgoing.dateStyle.textColor = CometChatTheme.neutralColor600
         }
         messageListView.showMarkAsUnreadOption = true

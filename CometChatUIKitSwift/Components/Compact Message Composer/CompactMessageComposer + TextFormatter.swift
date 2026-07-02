@@ -2549,7 +2549,31 @@ extension CometChatCompactMessageComposer {
         func onTextFormatterSelected(listItemModel: SuggestionItem) {
             
             if let ongoingTextFormatter = ongoingTextFormatter, let attributedComposerText = textView.attributedText {
-                
+
+                // The tracked mention range can go stale (text shortened after it was captured,
+                // e.g. fast delete / autocorrect) while the suggestion list is still tappable.
+                // Applying a stale range below would crash with "out of bounds". If it no longer
+                // fits both the plain and attributed text, invalidate state and bail safely.
+                let mentionRange = ongoingTextFormatter.range
+                let currentTextLength = ((textView.text ?? "") as NSString).length
+                let isMentionRangeValid = mentionRange.location != NSNotFound
+                    && mentionRange.location >= 0
+                    && mentionRange.length >= 0
+                    && mentionRange.location + mentionRange.length <= currentTextLength
+                    && mentionRange.location + mentionRange.length <= attributedComposerText.length
+
+                guard isMentionRangeValid else {
+                    // Invalidate synchronously so the stale range can't be reused, then clean up UI.
+                    self.ongoingTextFormatter = nil
+                    self.suggestionView?.removeFromSuperview()
+                    self.suggestionView = nil
+                    self.suggestionContainerView.isHidden = true
+                    richTextToolbar.enableAllButtons()
+                    updateToolbarActiveFormats()
+                    endOnGoingTextFormatting()
+                    return
+                }
+
                 let trackingCharacter = ongoingTextFormatter.textFormatter.getTrackingCharacter()
                 
                 self.ongoingTextFormatter = nil
@@ -2630,7 +2654,12 @@ extension CometChatCompactMessageComposer {
                     selectedRange.location = (newRange.upperBound + 1)
                 }
                 textView.selectedRange = selectedRange
-                
+
+                // Reset typing attributes so text typed AFTER the mention uses normal styling
+                // instead of inheriting the mention's (orange) color. Mirrors the trailing
+                // space's attributes so it stays correct in code-block / blockquote modes too.
+                textView.typingAttributes = spaceAttributes
+
                 if getUniqueSelectedTextFormatterCount() >= 10 {
                     endOnGoingTextFormatting()
                     addLimitView()
@@ -2681,11 +2710,11 @@ extension CometChatCompactMessageComposer {
                     self.suggestionView?.removeFromSuperview()
                     self.suggestionView = nil
                     self.suggestionContainerView.isHidden = true
-                    
+
                     // Re-enable toolbar buttons when mention typing ends
                     self.richTextToolbar.enableAllButtons()
                     self.updateToolbarActiveFormats()
-                    
+
                     UIView.animate(withDuration: 0.3) {
                         self.controller?.view.layoutIfNeeded()
                     }
@@ -2695,7 +2724,20 @@ extension CometChatCompactMessageComposer {
         
         @discardableResult
         internal func checkTextFormatter(textView: GrowingTextView, range: NSRange, text: String) -> Bool {
-            
+
+            // Safety net: `range` may be a stale mention span that no longer fits the current
+            // text (e.g. the text was shortened after the range was captured). Passing such a
+            // range to `replacingCharacters(in:)` crashes with "Range or index out of bounds".
+            // On the live-typing path UIKit always supplies a valid range, so this never fires
+            // there; it only guards the stored-range callers.
+            let nsCurrentText = (textView.text ?? "") as NSString
+            guard range.location != NSNotFound,
+                  range.location >= 0,
+                  range.length >= 0,
+                  range.location + range.length <= nsCurrentText.length else {
+                return true
+            }
+
             let updatedString = (textView.text as NSString?)?.replacingCharacters(in: range, with: text)
             let editLocation = range.location
             let oldText = textView.text! as NSString

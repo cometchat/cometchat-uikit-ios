@@ -170,9 +170,12 @@ open class SearchViewModel: NSObject {
             builder = builder.set(searchKeyword: searchText)
         }
 
+        // Filter by category only — NOT by type. Developer cards (category `card`) can carry
+        // any developer-defined type (e.g. "product"), and the SDK filters on the raw type sent.
+        // Enumerating types would drop cards whose type isn't in the fixed list, so they'd never
+        // appear in search results. The display layer keeps only text + card messages.
         builder = builder
             .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
-            .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
 
         if filterMessageRequest == nil {
             filterMessageRequest = builder.build()

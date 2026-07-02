@@ -189,9 +189,16 @@ public class SearchUtils {
         label.font = searchStyle.listItemSubTitleFont
         label.textColor = searchStyle.listItemSubTitleTextColor
         label.numberOfLines = 1
-
-        // Parse markdown from text message content with formatting
-        let rawContent = (message as? TextMessage)?.text ?? ""
+        
+        // Extract text content: TextMessage text, or CardMessage text/fallback
+        let rawContent: String
+        if let textMsg = message as? TextMessage {
+            rawContent = textMsg.text
+        } else if message.messageCategory == .card, let cardMsg = message as? CometChatSDK.CardMessage {
+            rawContent = cardMsg.getText() ?? cardMsg.getFallbackText() ?? "CARD_MESSAGE".localize()
+        } else {
+            rawContent = ""
+        }
         let font = searchStyle.listItemSubTitleFont
         let color = searchStyle.listItemSubTitleTextColor
         

@@ -197,18 +197,16 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
     }
 
     private func setupCollectionView() {
-        let layout = UICollectionViewFlowLayout()
+        let layout = LeftAlignedFlowLayout()
         layout.scrollDirection = .vertical
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        layout.itemSize = UICollectionViewFlowLayout.automaticSize
-        layout.minimumInteritemSpacing = 2
+        layout.minimumInteritemSpacing = 9999
         layout.minimumLineSpacing = 8
         layout.sectionInset = .zero
-        layout.sectionInsetReference = .fromContentInset
 
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.isScrollEnabled = false
+        collectionView.allowsMultipleSelection = true
 
         collectionView.register(
             FlagMessageCell.self,
@@ -283,8 +281,16 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
 
     private func updateCollectionHeight() {
         collectionView.layoutIfNeeded()
-        let height = collectionView.collectionViewLayout.collectionViewContentSize.height
-        collectionViewHeightConstraint.constant = height + 10
+        let contentHeight = collectionView.collectionViewLayout.collectionViewContentSize.height
+        // Each item is ~34pt + 8pt spacing = ~42pt per item. Cap at 5 items (~210pt)
+        let maxHeight: CGFloat = 210
+        if contentHeight > maxHeight {
+            collectionViewHeightConstraint.constant = maxHeight
+            collectionView.isScrollEnabled = true
+        } else {
+            collectionViewHeightConstraint.constant = contentHeight + 10
+            collectionView.isScrollEnabled = false
+        }
         view.layoutIfNeeded()
     }
 
@@ -386,11 +392,20 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
 
 // MARK: - Collection View
 
-extension CometChatFlagMessage: UICollectionViewDataSource, UICollectionViewDelegate {
+extension CometChatFlagMessage: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
 
     func collectionView(_ collectionView: UICollectionView,
                         numberOfItemsInSection section: Int) -> Int {
         reasons.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let item = reasons[indexPath.item]
+        let text = getLocalizedReason(reasonId: item.id, reasonName: item.name)
+        let font = CometChatTypography.Body.regular
+        let textWidth = (text as NSString).size(withAttributes: [.font: font]).width
+        let cellWidth = textWidth + 28
+        return CGSize(width: min(cellWidth, collectionView.bounds.width), height: 34)
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -443,5 +458,28 @@ extension CometChatFlagMessage: UICollectionViewDataSource, UICollectionViewDele
         if let idx = selectedReasons.firstIndex(where: { $0.id == reason.id }) {
             selectedReasons.remove(at: idx)
         }
+    }
+}
+
+// MARK: - Custom Layout that forces one item per line
+class LeftAlignedFlowLayout: UICollectionViewFlowLayout {
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
+        
+        var y: CGFloat = sectionInset.top
+        var prevMaxY: CGFloat = -1
+        
+        for attribute in attributes {
+            // Each item goes to a new line
+            if attribute.frame.origin.y >= prevMaxY {
+                y = attribute.frame.origin.y
+            }
+            attribute.frame.origin.x = sectionInset.left
+            attribute.frame.origin.y = y
+            prevMaxY = attribute.frame.maxY + minimumLineSpacing
+            y = prevMaxY
+        }
+        
+        return attributes
     }
 }

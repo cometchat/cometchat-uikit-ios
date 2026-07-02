@@ -215,6 +215,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             .hideReplies(hide: true)
             .setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
             .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+            .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
         self.messagesRequest = self.messagesRequestBuilder.build()
         self.fetchUnreadMessageCount()
     }
@@ -302,6 +303,101 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         }
     }
     
+    // MARK: - Load Last Agent Conversation
+
+    /// Attempts to load the most recent agent conversation thread for the current
+    /// AI agent user.
+    ///
+    /// Agent chats are modelled as threads: the first user message of a session becomes
+    /// the thread parent and every later turn is a reply to it. To find the latest
+    /// session we fetch the top-level (session-starter) messages with `hideReplies: true`,
+    /// pick the most recent one, and then reconfigure the request builder to load that
+    /// thread (`parentMessageId`, `hideReplies: false`, `withParent: true`).
+    ///
+    /// - Parameter didLoad: Invoked with `(true, parentMessageId)` when a previous
+    ///   conversation was found and the view model has been configured to load it.
+    ///   Invoked with `(false, 0)` when the user is not an agent, no previous
+    ///   conversation exists, or the fetch fails — the caller should then fall back to
+    ///   starting a new agent chat.
+    /// Retained reference for the last-agent-conversation request to prevent premature deallocation.
+    private var lastAgentConversationRequest: MessagesRequest?
+    
+    func loadLastAgentConversation(didLoad: @escaping (Bool, Int) -> Void) {
+        guard let user = user, user.isAgentic, let uid = user.uid else {
+            print("[AIAgent] VM.loadLastAgentConversation skipped - user is not an agent (user=\(String(describing: self.user)), isAgentic=\(self.user?.isAgentic ?? false))")
+            didLoad(false, 0)
+            return
+        }
+
+        print("[AIAgent] VM.loadLastAgentConversation: fetching parent messages for uid=\(uid)")
+
+        lastAgentConversationRequest = MessagesRequest.MessageRequestBuilder()
+            .set(uid: uid)
+            .hideReplies(hide: true)
+            .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+            .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
+            .set(limit: 30)
+            .build()
+
+        lastAgentConversationRequest?.fetchPrevious(onSuccess: { [weak self] fetchedMessages in
+            guard let this = self else {
+                print("[AIAgent] VM.loadLastAgentConversation: self released during fetchPrevious")
+                return
+            }
+            this.lastAgentConversationRequest = nil
+
+            print("[AIAgent] VM.loadLastAgentConversation: fetched \(fetchedMessages?.count ?? 0) parent candidates")
+
+            // Only true session starters (parentMessageId == 0) qualify as conversations.
+            let sessionStarters = (fetchedMessages ?? []).filter { $0.parentMessageId == 0 }
+
+            print("[AIAgent] VM.loadLastAgentConversation: \(sessionStarters.count) session starters after filter; ids=\(sessionStarters.map { $0.id })")
+
+            guard let latest = sessionStarters.max(by: { $0.id < $1.id }) else {
+                print("[AIAgent] VM.loadLastAgentConversation - no previous conversation found")
+                DispatchQueue.main.async { didLoad(false, 0) }
+                return
+            }
+
+            print("[AIAgent] VM.loadLastAgentConversation: picked latest parent id=\(latest.id), configuring builder with withParent: true")
+            this.configureForExistingAgentConversation(parentMessage: latest)
+            DispatchQueue.main.async { didLoad(true, latest.id) }
+        }, onError: { [weak self] error in
+            self?.lastAgentConversationRequest = nil
+            print("[AIAgent] VM.loadLastAgentConversation failed: \(error?.errorDescription ?? "unknown error")")
+            DispatchQueue.main.async { didLoad(false, 0) }
+        })
+    }
+
+    /// Reconfigures the view model so the next fetch loads the full thread for an existing
+    /// agent conversation.
+    ///
+    /// `setParentMessageId` alone fetches only the thread *replies* (the AI responses and
+    /// later turns) and excludes the root message, which is why the very first user message
+    /// would be missing. `set(withParent: true)` includes that parent message in the results.
+    ///
+    /// We use `set(messageID: -1)` to anchor at the latest messages (bottom of thread) and
+    /// paginate backwards, so the user sees the most recent conversation turn first.
+    func configureForExistingAgentConversation(parentMessage: BaseMessage) {
+        guard let user = user else { return }
+        self.parentMessage = parentMessage
+        self.threadedPArentMessageId = parentMessage.id
+        self.messagesRequestBuilder = MessagesRequest.MessageRequestBuilder()
+            .set(uid: user.uid ?? "")
+            .setParentMessageId(parentMessageId: parentMessage.id)
+            .set(withParent: true)
+            .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+            .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
+            .set(messageID: -1)
+        self.messagesRequest = self.messagesRequestBuilder.build()
+        // Reset pagination flags so the freshly configured thread is fetched cleanly.
+        self.isAllMessagesFetchedInPrevious = false
+        // We're anchored at the latest message (messageID: -1), so there are no newer
+        // messages to paginate forward into.
+        self.isAllMessagesFetchedInNext = true
+        self.hasFetchedMessagesBefore = false
+    }
+
     // MARK: - Go To Message 
 
     func goToMessage(messageId: Int) {
@@ -488,15 +584,23 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     }
     
     func fetchPreviousMessages(completion: (() -> Void)? = nil) {
-        guard let messagesRequest = messagesRequest else { return }
-        if isAllMessagesFetchedInPrevious == true { return }
+        guard let messagesRequest = messagesRequest else {
+            print("[AIAgent] VM.fetchPreviousMessages: messagesRequest is nil — bailing")
+            return
+        }
+        if isAllMessagesFetchedInPrevious == true {
+            print("[AIAgent] VM.fetchPreviousMessages: isAllMessagesFetchedInPrevious=true — bailing")
+            return
+        }
         isUIUpdating = true
         hasFetchedMessagesBefore = true
+        print("[AIAgent] VM.fetchPreviousMessages: starting fetchPrevious; parentMessage.id=\(parentMessage?.id ?? -1), threadedPArentMessageId=\(threadedPArentMessageId)")
         MessagesListBuilder.fetchPreviousMessages(messageRequest: messagesRequest) { [weak self] result in
             guard let this = self else { return }
             this.isUIUpdating = false
             switch result {
             case .success(let fetchedMessages):
+                print("[AIAgent] VM.fetchPreviousMessages success: \(fetchedMessages.count) messages")
                 
                 if let gotoMessage = this.gotoMessage{
                     if fetchedMessages.isEmpty {
@@ -517,17 +621,26 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
                     return !(messageType.contains("AIToolArgumentMessage") || messageType.contains("AIToolResultMessage"))
                 }
 
-                
-                if fetchedMessages.isEmpty {
+                // Drop messages that are already loaded on screen. Pagination pages are normally
+                // disjoint, but loading a previous agent conversation uses `set(withParent: true)`,
+                // which makes the SDK re-include the thread parent (the first message) on every
+                // page. Without this guard, scrolling up then back would re-append that first message.
+                let dedupedMessages = fetchedMessages.filter { !this.isMessageAlreadyLoaded($0.id) }
+                print("[AIAgent] VM.fetchPreviousMessages: deduped \(dedupedMessages.count) messages (before dedup: \(fetchedMessages.count))")
+
+                if dedupedMessages.isEmpty {
+                    print("[AIAgent] VM.fetchPreviousMessages: dedupedMessages empty → marking all fetched, calling appendMessagesAtTop")
                     this.isAllMessagesFetchedInPrevious = true
                     this.appendMessagesAtTop?(0, 0)
                 }
-                this.processMessageList(fetchedMessages, {fetchedMessages_ in
+                this.processMessageList(dedupedMessages, {fetchedMessages_ in
+                    print("[AIAgent] VM.fetchPreviousMessages: processMessageList → groupMessages with \(fetchedMessages_.count)")
                     this.groupMessages(messages: fetchedMessages_)
                 })
                 self?.sendActiveChatChangeEvent()
                 completion?()
             case .failure(let error):
+                print("[AIAgent] VM.fetchPreviousMessages failure: \(error.errorDescription)")
                 this.failure?(error)
                 completion?()
             }
@@ -587,10 +700,14 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
 
     // Modify fetchNextMessagesForPagination to use the above:
     func fetchNextMessagesForPagination(completion: ((Int) -> ())? = nil) {
-        if isAllMessagesFetchedInNext { return }
+        if isAllMessagesFetchedInNext {
+            print("[AIAgent] fetchNextMessagesForPagination: BLOCKED by isAllMessagesFetchedInNext=true")
+            return
+        }
         if isFetchingNext { return }
         
         isFetchingNext = true
+        print("[AIAgent] fetchNextMessagesForPagination: STARTING (isAllMessagesFetchedInNext was false)")
         
         let anchorMessageId = messages.first?.messages.first
         
@@ -732,6 +849,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
     private func groupMessages(messages: [BaseMessage], atBottom: Bool = false) {
         
+        print("[AIAgent] VM.groupMessages: called with \(messages.count) messages, atBottom=\(atBottom)")
         if let lastMessage = messages.last{
             if lastMessage.deliveredAt == 0.0 {
                 self.markAsDelivered(message: lastMessage)
@@ -761,6 +879,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         }
         self.messages = self.messages.sorted(by: { $0.date.compare($1.date) == .orderedDescending})
         
+        print("[AIAgent] VM.groupMessages: total grouped sections=\(self.messages.count), total messages=\(self.messages.flatMap{$0.messages}.count) → calling reload")
         self.reload?()
 
     }
@@ -1272,6 +1391,16 @@ extension MessageListViewModel: CometChatMessageEventListener {
         }
     }
     
+    public func onNewCardMessageReceived(cardMessage: BaseMessage) {
+        
+        if self.getTemplate(for: cardMessage) == nil { return }
+        ifThreadedMessageUpdateCount(message: cardMessage)
+        if checkThreadedMessageBelongsToThisConversation(message: cardMessage) {
+            self.newMessageReceived?(cardMessage)
+            self.add(message: cardMessage)
+        }
+    }
+    
     
     public func onTextMessageReceived(textMessage: TextMessage) {
         
@@ -1679,13 +1808,10 @@ extension MessageListViewModel: AIAssistantEventsDelegate, QueueCompletionCallba
             CometChatAIStreamService.shared.aiAssistantMessages[runId] = message
             CometChatAIStreamService.shared.setQueueCompletionCallback(runId: runId, callback: self)
         }
-        
-        print("onAIAssistantMessageReceived is called.....end of streaming")
     }
     
     public func onAIAssistantEventReceived(_ event: AIAssistantBaseEvent) {
         let runId = event.id
-        print("Received AI Event: \(event.type) for Run ID: \(runId)")
         
         CometChatAIStreamService.shared.handleIncomingEvent(runId: runId, event: event)
         if CometChatAIStreamService.shared.runExists(runId: runId) {

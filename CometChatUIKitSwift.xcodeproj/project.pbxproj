@@ -56,7 +56,13 @@
 		7447F1A5937E98FCFB2F1ACE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8F37EE4840CC2A66762CC67B /* LaunchScreen.storyboard */; };
 		759823C499F63A5B0412F9B0 /* HomeScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6622A4375565FE8509FE25D /* HomeScreenViewController.swift */; };
 		8270EC3E3C53CE80177BC410 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C46CBB62DA680D082C8478D /* AppConstants.swift */; };
+		846BA9AA2FF688AD00FEF3BC /* CardActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846BA9A92FF687CF00FEF3BC /* CardActionHandler.swift */; };
+		846BA9AC2FF6998E00FEF3BC /* CardActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846BA9AB2FF6998E00FEF3BC /* CardActionHandler.swift */; };
+		846BA9AE2FF69AF300FEF3BC /* CardActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846BA9AD2FF69AF300FEF3BC /* CardActionHandler.swift */; };
 		84C768CE5C11D49FD44B55F9 /* UserDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A689BE6989C7840FCA6C682B /* UserDetailsViewController.swift */; };
+		84D9C43F2FF66A8C003673B5 /* CometChatCardsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D1E2F3A4B5C6D7E8F9A0B1C2 /* CometChatCardsSwift */; };
+		84D9C4402FF66A8C003673B5 /* CometChatCardsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D1E2F3A4B5C6D7E8F9A0B1C3 /* CometChatCardsSwift */; };
+		84D9C4412FF66A8C003673B5 /* CometChatCardsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D1E2F3A4B5C6D7E8F9A0B1C4 /* CometChatCardsSwift */; };
 		8536F5DCDCB799529E506353 /* SampleUserCVCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3EE1AB110417E6662A8762 /* SampleUserCVCell.swift */; };
 		87223D809921A022950B1724 /* MessagesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3AEA83E87D66BD76768AD5 /* MessagesVC.swift */; };
 		878CDBD7E59488A581BBCF89 /* AddMembersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C54DBB8A5B090A812D331170 /* AddMembersViewModel.swift */; };
@@ -169,6 +175,9 @@
 		766E1817D9A47C93C14FAACB /* CallLogDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallLogDetailsVC.swift; sourceTree = "<group>"; };
 		7C8FC30FBF9AFBA248386D29 /* CallHistoyTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallHistoyTVC.swift; sourceTree = "<group>"; };
 		83AD2F95447BBFC74E72610F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		846BA9A92FF687CF00FEF3BC /* CardActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardActionHandler.swift; sourceTree = "<group>"; };
+		846BA9AB2FF6998E00FEF3BC /* CardActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardActionHandler.swift; sourceTree = "<group>"; };
+		846BA9AD2FF69AF300FEF3BC /* CardActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardActionHandler.swift; sourceTree = "<group>"; };
 		846EB6B169F147CAD160DEF8 /* CallLogHistoryVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallLogHistoryVC.swift; sourceTree = "<group>"; };
 		84E2FB9476F6DA69B8E4B2C9 /* GroupDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDetailsViewController.swift; sourceTree = "<group>"; };
 		85FEF658E0B9CE4D94980EDD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -221,6 +230,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84D9C4402FF66A8C003673B5 /* CometChatCardsSwift in Frameworks */,
 				C4AECAA5387810B20CFD36B8 /* CometChatUIKitSwift in Frameworks */,
 				3E4F071EE736FFCA54F1E8F9 /* CometChatCallsSDK in Frameworks */,
 				27C7ED252C0833B572EDFF91 /* CometChatSDK in Frameworks */,
@@ -231,6 +241,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84D9C4412FF66A8C003673B5 /* CometChatCardsSwift in Frameworks */,
 				CAC84608906F71DA3F08C045 /* CometChatUIKitSwift in Frameworks */,
 				8EB255FE173C8021CFD77F42 /* CometChatCallsSDK in Frameworks */,
 				93066294C4C90B257502EE36 /* CometChatSDK in Frameworks */,
@@ -241,6 +252,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84D9C43F2FF66A8C003673B5 /* CometChatCardsSwift in Frameworks */,
 				6383C06F977F140A847D4B65 /* CometChatUIKitSwift in Frameworks */,
 				2469D7EF562CDA74054271C7 /* CometChatCallsSDK in Frameworks */,
 				538697465B453CF6966FDB9F /* CometChatSDK in Frameworks */,
@@ -453,6 +465,7 @@
 		746E8B233E79225091EEC2D1 /* SampleApp */ = {
 			isa = PBXGroup;
 			children = (
+				846BA9AB2FF6998E00FEF3BC /* CardActionHandler.swift */,
 				4C46CBB62DA680D082C8478D /* AppConstants.swift */,
 				118632BB9F155319B0E00CC4 /* AppDelegate.swift */,
 				71EE5846923AFC68EFA7C445 /* Assets.xcassets */,
@@ -623,6 +636,7 @@
 		D6F8F5788DDE668D22B94DA4 /* AISampleApp */ = {
 			isa = PBXGroup;
 			children = (
+				846BA9A92FF687CF00FEF3BC /* CardActionHandler.swift */,
 				C0144A6E024F3660F194F0A7 /* AISampleApp.entitlements */,
 				5346D686CD426001553A0837 /* AppConstants.swift */,
 				4A50819995008C5E5DDC2C4F /* AppDelegate.swift */,
@@ -656,6 +670,7 @@
 		F22F8E722F90EB185FF379A6 /* SampleAppPushNotificationAPNs */ = {
 			isa = PBXGroup;
 			children = (
+				846BA9AD2FF69AF300FEF3BC /* CardActionHandler.swift */,
 				CCB33313777BD5204D5BC116 /* AppConstants.swift */,
 				CD8C64476DA38D3E2014ADD2 /* AppDelegate.swift */,
 				85FEF658E0B9CE4D94980EDD /* Assets.xcassets */,
@@ -866,6 +881,7 @@
 				99EB94B27286F8B19CEF7924 /* BannedMembersVC.swift in Sources */,
 				3400D87B1629DAF8F44793E8 /* BannedMembersViewModel.swift in Sources */,
 				E07EA96F2A4B41FAD03D1BBB /* CallHistoyTVC.swift in Sources */,
+				846BA9AA2FF688AD00FEF3BC /* CardActionHandler.swift in Sources */,
 				F5B5EB1DD8EA99AE3FD85BEA /* CallLogDetailsVC.swift in Sources */,
 				00B368FE3F834D5E03A5D855 /* CallLogHistoryVC.swift in Sources */,
 				B16B50AB9E91272D9F902969 /* CallLogParticipantsVC.swift in Sources */,
@@ -901,6 +917,7 @@
 				F34532C74614BCC50AA6890E /* BannedMembersVC.swift in Sources */,
 				CA2E9921389C1D5687A46AAC /* BannedMembersViewModel.swift in Sources */,
 				4E473E17C77C8159E12B109A /* CallHistoyTVC.swift in Sources */,
+				846BA9AC2FF6998E00FEF3BC /* CardActionHandler.swift in Sources */,
 				940D8E5FF297F83A59CDC562 /* CallLogDetailsVC.swift in Sources */,
 				ECF9ABDDC7E540F5DD66B838 /* CallLogHistoryVC.swift in Sources */,
 				1A02E8BC99D2641C8B312D6F /* CallLogParticipantsVC.swift in Sources */,
@@ -939,6 +956,7 @@
 				2B41A91E424C2421FABE674C /* BannedMembersViewModel.swift in Sources */,
 				2B0EE581937BD82843043E3F /* CallHistoyTVC.swift in Sources */,
 				87CECB353C5508CA45CAED4E /* CallLogDetailsVC.swift in Sources */,
+				846BA9AE2FF69AF300FEF3BC /* CardActionHandler.swift in Sources */,
 				4C22D6E25A08485FDE827BF2 /* CallLogHistoryVC.swift in Sources */,
 				404806AE7C3930C873D1258B /* CallLogParticipantsVC.swift in Sources */,
 				4304511AA61E7044060D84C7 /* CallLogRecordingsVC.swift in Sources */,
@@ -1003,7 +1021,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
 				GENERATE_INFOPLIST_FILE = YES;
-INFOPLIST_FILE = AISampleApp/Info.plist;
+				INFOPLIST_FILE = AISampleApp/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1027,7 +1045,7 @@ INFOPLIST_FILE = AISampleApp/Info.plist;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
 				GENERATE_INFOPLIST_FILE = YES;
-INFOPLIST_FILE = SampleAppPushNotificationAPNs/Info.plist;
+				INFOPLIST_FILE = SampleAppPushNotificationAPNs/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1051,7 +1069,7 @@ INFOPLIST_FILE = SampleAppPushNotificationAPNs/Info.plist;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
 				GENERATE_INFOPLIST_FILE = YES;
-INFOPLIST_FILE = AISampleApp/Info.plist;
+				INFOPLIST_FILE = AISampleApp/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1075,7 +1093,7 @@ INFOPLIST_FILE = AISampleApp/Info.plist;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
 				GENERATE_INFOPLIST_FILE = YES;
-INFOPLIST_FILE = SampleAppPushNotificationAPNs/Info.plist;
+				INFOPLIST_FILE = SampleAppPushNotificationAPNs/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1099,7 +1117,7 @@ INFOPLIST_FILE = SampleAppPushNotificationAPNs/Info.plist;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
 				GENERATE_INFOPLIST_FILE = YES;
-INFOPLIST_FILE = SampleApp/Info.plist;
+				INFOPLIST_FILE = SampleApp/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1123,7 +1141,7 @@ INFOPLIST_FILE = SampleApp/Info.plist;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T9F7QDSC2S;
 				GENERATE_INFOPLIST_FILE = YES;
-INFOPLIST_FILE = SampleApp/Info.plist;
+				INFOPLIST_FILE = SampleApp/Info.plist;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1319,7 +1337,7 @@ INFOPLIST_FILE = SampleApp/Info.plist;
 			repositoryURL = "https://github.com/cometchat/chat-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 4.1.5;
+				version = 4.1.6;
 			};
 		};
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* XCRemoteSwiftPackageReference "cards-sdk-ios" */ = {
@@ -1327,7 +1345,7 @@ INFOPLIST_FILE = SampleApp/Info.plist;
 			repositoryURL = "https://github.com/cometchat/cards-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.0.0;
+				version = 1.1.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -1366,15 +1384,6 @@ INFOPLIST_FILE = SampleApp/Info.plist;
 			isa = XCSwiftPackageProductDependency;
 			productName = CometChatUIKitSwift;
 		};
-		F0023FE81C7C5FA61C13AF31 /* CometChatUIKitSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = CometChatUIKitSwift;
-		};
-		FF20CC7DA837EBC35F5B6999 /* CometChatCallsSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 14440BF9D99EE50F6CDC186F /* XCRemoteSwiftPackageReference "calls-sdk-ios" */;
-			productName = CometChatCallsSDK;
-		};
 		D1E2F3A4B5C6D7E8F9A0B1C2 /* CometChatCardsSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A1B2C3D4E5F6A7B8C9D0E1F2 /* XCRemoteSwiftPackageReference "cards-sdk-ios" */;
@@ -1389,6 +1398,15 @@ INFOPLIST_FILE = SampleApp/Info.plist;
 			isa = XCSwiftPackageProductDependency;
 			package = A1B2C3D4E5F6A7B8C9D0E1F2 /* XCRemoteSwiftPackageReference "cards-sdk-ios" */;
 			productName = CometChatCardsSwift;
+		};
+		F0023FE81C7C5FA61C13AF31 /* CometChatUIKitSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CometChatUIKitSwift;
+		};
+		FF20CC7DA837EBC35F5B6999 /* CometChatCallsSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 14440BF9D99EE50F6CDC186F /* XCRemoteSwiftPackageReference "calls-sdk-ios" */;
+			productName = CometChatCallsSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -312,3 +312,9 @@
 "AUDIO_LIBRARY" = "ऑडियो लाइब्रेरी";
 
 "AI_AGENTS" = "एआई असिस्टेंट्स";
+
+// Agent in Group
+"AGENT_BADGE_LABEL" = "AI";
+"AGENT_FAILURE" = "एजेंट जवाब नहीं दे सका। पुनः प्रयास करें।";
+"AGENT_HANDOFF_MESSAGE" = "आपको एक टीम सदस्य से जोड़ रहे हैं…";
+"AGENT_MESSAGE_PREVIEW" = "AI प्रतिक्रिया";

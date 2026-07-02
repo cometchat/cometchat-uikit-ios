@@ -43,6 +43,8 @@ extension CometChat.MessageCategory {
             return "custom"
         case .interactive:
             return "interactive"
+        case .card:
+            return "card"
         @unknown default:
             return ""
         }

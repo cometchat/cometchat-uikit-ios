@@ -106,6 +106,8 @@ open class MessageUtils {
             break
         case .agentic:
             break
+        case .card:
+            break
         @unknown default:
             break
         }
@@ -251,6 +253,7 @@ open class MessageUtils {
         case .action: 
             return "groupMember"
         case .agentic: return "assistant"
+        case .card: return "developer_card"
         default: return (message as? CustomMessage)?.type ?? ""
         }
     }
@@ -316,6 +319,7 @@ open class MessageUtils {
         case .action: return "action"
         case .interactive: return "interactive"
         case .agentic: return "agentic"
+        case .card: return "card"
         default: return "message"
         }
     }
@@ -532,6 +536,11 @@ open class MessageUtils {
             }
         }
         
+        // Developer card messages (category "card")
+        if let cardMessage = message as? CometChatSDK.CardMessage {
+            return cardMessage.getText() ?? "Card Message"
+        }
+        
         return "Message"
     }
     
@@ -540,5 +549,17 @@ open class MessageUtils {
 extension User {
     public var isAgentic: Bool {
         return role == "@agentic"
+    }
+    
+    /// Returns true if this user is an AI agent in a group context.
+    /// Uses the `ai-agent` role assigned by the backend for group AI agents.
+    /// Returns false on nil/missing role — never throws.
+    public var isAgent: Bool {
+        return role == "ai-agent"
+    }
+    
+    /// Returns true if this user is any type of AI agent (1:1 agentic OR group agent).
+    public var isAnyAgent: Bool {
+        return isAgentic || isAgent
     }
 }

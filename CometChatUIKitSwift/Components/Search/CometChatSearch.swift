@@ -20,7 +20,7 @@ import CometChatSDK
         }
         
         // Mixed types – keep only TextMessage instances
-        return messages.filter { $0 is TextMessage }
+        return messages.filter { $0 is TextMessage || $0.messageCategory == .card }
     }
 }
 

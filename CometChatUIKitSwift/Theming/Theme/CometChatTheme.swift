@@ -344,6 +344,29 @@ public class CometChatTheme {
     
     public static var messageReadColor: UIColor = UIColor(hex: "#56E8A7")
     
+    // MARK: - Agent Badge & Bubble Colors
+    
+    /// Background color for the AI agent badge pill
+    static var _agentBadgeBackground: UIColor?
+    public static var agentBadgeBackground: UIColor {
+        get { _agentBadgeBackground ?? CometChatTheme.extendedPrimaryColor100 }
+        set { _agentBadgeBackground = newValue }
+    }
+    
+    /// Text/icon color for the AI agent badge
+    static var _agentBadgeText: UIColor?
+    public static var agentBadgeText: UIColor {
+        get { _agentBadgeText ?? CometChatTheme.primaryColor }
+        set { _agentBadgeText = newValue }
+    }
+    
+    /// Optional distinct bubble background for agent messages (default = same as incoming member bubble)
+    static var _agentBubbleBackground: UIColor?
+    public static var agentBubbleBackground: UIColor {
+        get { _agentBubbleBackground ?? CometChatTheme.backgroundColor03 }
+        set { _agentBubbleBackground = newValue }
+    }
+    
     //MARK: Alert Bubble Colors
     public static var infoColor = UIColor.dynamicColor(
         lightModeColor: UIColor(hex: "#0B7BEA"),

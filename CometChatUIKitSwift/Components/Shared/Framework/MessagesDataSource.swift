@@ -8,6 +8,7 @@
 import Foundation
 import CometChatSDK
 import UIKit
+import CometChatCardsSwift
 
 public class MessagesDataSource: DataSource {
     
@@ -224,6 +225,10 @@ public class MessagesDataSource: DataSource {
             guard let textMessage = message as? TextMessage else { return nil }
             return ChatConfigurator.getDataSource().getBottomView(message: textMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
+            // In group context, provide copy-only action for agent messages
+            if group != nil, let aiMessage = message as? AIAssistantMessage, !aiMessage.text.isEmpty {
+                return [CometChatMessageOption(id: MessageOptionConstants.copyMessage, title: "COPY".localize(), icon: AssetConstants.copy)]
+            }
             return []
         }
     }
@@ -333,6 +338,29 @@ public class MessagesDataSource: DataSource {
         
     }
     
+    /// Template for developer card messages (SDK's CardMessage with category "card").
+    /// Uses a sentinel type "developer_card" to avoid collisions with the interactive "card" type.
+    public func getDeveloperCardMessageTemplate(additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate {
+        return CometChatMessageTemplate(category: MessageCategoryConstants.card, type: "developer_card", contentView: { message, alignment, controller in
+            guard let cardMessage = message as? CometChatSDK.CardMessage else { return UIView() }
+            if (cardMessage.deletedAt != 0.0) {
+                if let deletedBubble = self.getDeleteMessageBubble(messageObject: cardMessage, additionalConfiguration: additionalConfiguration) {
+                    return deletedBubble
+                }
+            }
+            let bubble = CometChatCardBubble()
+            bubble.set(cardMessage: cardMessage)
+            return bubble
+            
+        }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
+            guard let message = message else { return nil }
+            return ChatConfigurator.getDataSource().getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+        } options: { message, group, controller in
+            guard let message = message, let user = LoggedInUserInformation.getUser() else { return [] }
+            return ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+        }
+    }
+    
     public func getVideoMessageTemplate(additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate {
         return CometChatMessageTemplate(category: MessageCategoryConstants.message, type: MessageTypeConstants.video, contentView: { message, alignment, controller in
             guard let mediaMessage = message as? MediaMessage else { return UIView() }
@@ -429,13 +457,19 @@ public class MessagesDataSource: DataSource {
             ChatConfigurator.getDataSource().getFormMessageTemplate(additionalConfiguration: additionalConfiguration),
             ChatConfigurator.getDataSource().getCardMessageTemplate(additionalConfiguration: additionalConfiguration),
             ChatConfigurator.getDataSource().getSchedulerMessageTemplate(additionalConfiguration: additionalConfiguration),
-            ChatConfigurator.getDataSource().getAIAssistantMessageTemplate(additionalConfiguration: additionalConfiguration)
+            ChatConfigurator.getDataSource().getAIAssistantMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getDeveloperCardMessageTemplate(additionalConfiguration: additionalConfiguration)
         ]
     }
     
     public func getMessageTemplate(messageType: String, messageCategory: String, additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate? {
         var template : CometChatMessageTemplate?
         if (messageCategory != MessageCategoryConstants.call) {
+            // Developer card messages (category "card") have arbitrary types — resolve by category
+            if messageCategory == MessageCategoryConstants.card {
+                template = ChatConfigurator.getDataSource()
+                    .getDeveloperCardMessageTemplate(additionalConfiguration: additionalConfiguration)
+            } else {
             switch (messageType) {
             case MessageTypeConstants.text:
                 template = ChatConfigurator.getDataSource()
@@ -472,6 +506,7 @@ public class MessagesDataSource: DataSource {
                 template = ChatConfigurator.getDataSource()
                     .getCardMessageTemplate(additionalConfiguration: additionalConfiguration)
                 default: break }
+            }
         }
         return template
     }
@@ -504,6 +539,10 @@ public class MessagesDataSource: DataSource {
                 options = ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration)
             default: break
             }
+        }
+        // Developer card messages (category "card")
+        if messageObject.messageCategory == .card {
+            options = ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration)
         }
         return options
     }
@@ -577,6 +616,8 @@ public class MessagesDataSource: DataSource {
             subtitle = "FORM".localize()
         case MessageTypeConstants.card:
             subtitle = "CARD".localize()
+        case MessageTypeConstants.assistant:
+            subtitle = "AGENT_MESSAGE_PREVIEW".localize()
         default: break
         }
         return subtitle
@@ -647,7 +688,7 @@ public class MessagesDataSource: DataSource {
     }
     
     public func getAllMessageCategories() -> [String]? {
-        return [MessageCategoryConstants.message, MessageCategoryConstants.action, MessageCategoryConstants.custom, MessageCategoryConstants.agentic]
+        return [MessageCategoryConstants.message, MessageCategoryConstants.action, MessageCategoryConstants.custom, MessageCategoryConstants.interactive, MessageCategoryConstants.agentic, MessageCategoryConstants.card]
     }
     
     public func getAuxiliaryOptions(user: CometChatSDK.User?, group: CometChatSDK.Group?, controller: UIViewController?, id: [String : Any]?) -> UIView? {
@@ -690,6 +731,12 @@ public class MessagesDataSource: DataSource {
     
     public func getAIAssistantMessageBubble(messageText: String?, message: CometChatSDK.AIAssistantMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AIAssistantBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
         
+        // Check if the message contains structured elements (text + card mix)
+        if let message = message, let elements = message.getElements(), !elements.isEmpty {
+            return buildElementsView(for: message, elements: elements, additionalConfiguration: additionalConfiguration)
+        }
+        
+        // Fallback: render plain markdown text
         let aiBubble = CometChatAIAssistantBubble().withoutAutoresizingMaskConstraints()
         aiBubble.set(text: messageText ?? "")
         let messageBubbleStyle =  additionalConfiguration?.messageBubbleStyle.incoming
@@ -698,6 +745,94 @@ public class MessagesDataSource: DataSource {
         }
         
         return aiBubble
+    }
+    
+    /// Builds a stack view walking through AIAssistantMessage elements in order.
+    private func buildElementsView(for message: AIAssistantMessage, elements: [AIAssistantElement], additionalConfiguration: AdditionalConfiguration?) -> UIView {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 8
+        stackView.alignment = .fill
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        for element in elements {
+            let elementType = element.getType()
+            
+            if elementType == "text" {
+                // Render text element as markdown
+                // SDK spec: getData() for type "text" returns the text string directly
+                let text: String?
+                if let directString = element.getData() as? String {
+                    text = directString
+                } else if let dataDict = element.getData() as? [String: Any], let t = dataDict["text"] as? String {
+                    // Fallback for any legacy format where value might be wrapped
+                    text = t
+                } else {
+                    text = nil
+                }
+                
+                if let text = text, !text.isEmpty {
+                    let textBubble = CometChatAIAssistantBubble().withoutAutoresizingMaskConstraints()
+                    textBubble.set(text: text)
+                    let messageBubbleStyle = additionalConfiguration?.messageBubbleStyle.incoming
+                    if let style = messageBubbleStyle?.aiAssistantBubbleStyle {
+                        textBubble.style = style
+                    }
+                    stackView.addArrangedSubview(textBubble)
+                }
+            } else if elementType == "card" {
+                // Render card element using CometChatCardView
+                if let data = element.getData() {
+                    let cardDict: [String: Any]
+                    if let dataDict = data as? [String: Any], let card = dataDict["card"] as? [String: Any] {
+                        cardDict = card
+                    } else if let dataDict = data as? [String: Any] {
+                        cardDict = dataDict
+                    } else {
+                        continue
+                    }
+                    
+                    if let jsonData = try? JSONSerialization.data(withJSONObject: cardDict, options: []),
+                       let jsonString = String(data: jsonData, encoding: .utf8) {
+                        let cardView = CometChatCardView()
+                        cardView.translatesAutoresizingMaskIntoConstraints = false
+                        cardView.themeMode = .auto
+                        
+                        // Set action callback before cardJson (triggers render)
+                        cardView.actionCallback = { event in
+                            CometChatCardEvents.ccCardActionClicked(message: message, action: event)
+                        }
+                        cardView.cardJson = jsonString
+                        
+                        // Wrap in a padded container for clean presentation
+                        let cardContainer = UIView()
+                        cardContainer.translatesAutoresizingMaskIntoConstraints = false
+                        cardContainer.addSubview(cardView)
+
+                        // Constrain the card to a responsive width so it doesn't span the full
+                        // screen. Use the portrait width (shorter screen dimension) so the size is
+                        // stable across rotation, take ~68% of it on phones, and cap it so cards
+                        // don't sprawl on iPad / large screens. Left-align via leading + trailing(<=).
+                        let portraitWidth = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+                        let cardWidth = min(portraitWidth * 0.68, 440)
+                        let cardWidthConstraint = cardView.widthAnchor.constraint(equalToConstant: cardWidth)
+                        cardWidthConstraint.priority = .required
+
+                        NSLayoutConstraint.activate([
+                            cardView.topAnchor.constraint(equalTo: cardContainer.topAnchor, constant: 4),
+                            cardView.leadingAnchor.constraint(equalTo: cardContainer.leadingAnchor),
+                            cardView.trailingAnchor.constraint(lessThanOrEqualTo: cardContainer.trailingAnchor),
+                            cardView.bottomAnchor.constraint(equalTo: cardContainer.bottomAnchor, constant: -4),
+                            cardWidthConstraint
+                        ])
+
+                        stackView.addArrangedSubview(cardContainer)
+                    }
+                }
+            }
+        }
+        
+        return stackView
     }
     
     public func getTextMessageBubble(messageText: String?, message: CometChatSDK.TextMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
@@ -1068,6 +1203,19 @@ public class MessagesDataSource: DataSource {
                     }
                 case .call:
                     break
+                case .card:
+                    if let cardMessage = currentMessage as? CometChatSDK.CardMessage {
+                        lastMessage = cardMessage.getText() ?? "Card Message"
+                    } else {
+                        lastMessage = "Card Message"
+                    }
+                case .agentic:
+                    // AI agent response — show truncated text or fallback label
+                    if let aiMessage = currentMessage as? AIAssistantMessage, !aiMessage.text.isEmpty {
+                        lastMessage = RichTextFormatterManager.shared.stripMarkdown(aiMessage.text)
+                    } else {
+                        lastMessage = "AGENT_MESSAGE_PREVIEW".localize()
+                    }
                 @unknown default:
                     break
                 }

@@ -35,7 +35,7 @@ public class CometChatAIAssistantBubble: UIView {
         self.withoutAutoresizingMaskConstraints()
         
         NSLayoutConstraint.activate([
-            widthAnchor.pin(lessThanOrEqualToConstant: UIScreen.main.bounds.width/1.2),
+            widthAnchor.pin(lessThanOrEqualToConstant: UIScreen.main.bounds.width * 0.65),
         ])
     }
     

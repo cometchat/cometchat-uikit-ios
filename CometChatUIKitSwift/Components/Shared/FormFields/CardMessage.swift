@@ -8,7 +8,7 @@
 import Foundation
 import CometChatSDK
 
-@objc public class CardMessage: InteractiveMessage {
+@objc(CometChatUIKitCardMessage) public class CardMessage: InteractiveMessage {
     private var imageUrl:String?
     private var cardActions:[ElementEntity]?
     private var text:String?

@@ -57,7 +57,8 @@ open class AIAssistanceChatHistoryViewModel: NSObject, AIAssistanceChatHistoryVi
             .set(uid: user.uid ?? "")
             .hideReplies(hide: true)
             .setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
-            .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+            .set(categories: [MessageCategoryConstants.message])
+            .set(types: [MessageTypeConstants.text])
         
         self.messagesRequest = self.messagesRequestBuilder.build()
         fetchUnreadMessageCount()
@@ -70,7 +71,8 @@ open class AIAssistanceChatHistoryViewModel: NSObject, AIAssistanceChatHistoryVi
             .set(guid: group.guid)
             .hideReplies(hide: true)
             .setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
-            .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
+            .set(categories: [MessageCategoryConstants.message])
+            .set(types: [MessageTypeConstants.text])
         self.messagesRequest = self.messagesRequestBuilder.build()
         self.fetchUnreadMessageCount()
     }
@@ -126,36 +128,28 @@ open class AIAssistanceChatHistoryViewModel: NSObject, AIAssistanceChatHistoryVi
         // Sort messages by sentAt in descending order (newest first)
         let sortedMessages = messages.sorted { $0.sentAt > $1.sentAt }
         
+        // Group by date for display (each message = one conversation tab)
         let groupedMessages = Dictionary(grouping: sortedMessages) { (element) -> Date in
             let date = Date(timeIntervalSince1970: TimeInterval(element.sentAt))
             return date.reduceToMonthDayYear()
         }
         
-        // Create temporary array
         var tempMessages = self.messages
         
         for (date, messagesForDate) in groupedMessages {
             if let existingIndex = tempMessages.firstIndex(where: { $0.date == date }) {
-                if atBottom {
-                    // For pagination, append to the beginning of the section
-                    tempMessages[existingIndex].messages = messagesForDate + tempMessages[existingIndex].messages
-                } else {
-                    // For new messages, append to the end
-                    tempMessages[existingIndex].messages.append(contentsOf: messagesForDate)
-                }
+                // Deduplicate: only add messages not already present
+                let existingIds = Set(tempMessages[existingIndex].messages.map { $0.id })
+                let newMessages = messagesForDate.filter { !existingIds.contains($0.id) }
+                tempMessages[existingIndex].messages.append(contentsOf: newMessages)
+                tempMessages[existingIndex].messages.sort { $0.sentAt > $1.sentAt }
             } else {
-                // New date section
                 tempMessages.append((date: date, messages: messagesForDate))
             }
         }
         
         // Sort sections by date (newest first)
         tempMessages.sort(by: { $0.date.compare($1.date) == .orderedDescending })
-        
-        // Sort messages within each section by sentAt (newest first)
-        for i in 0..<tempMessages.count {
-            tempMessages[i].messages.sort { $0.sentAt > $1.sentAt }
-        }
         
         self.messages = tempMessages
         self.reload?()
@@ -166,38 +160,13 @@ open class AIAssistanceChatHistoryViewModel: NSObject, AIAssistanceChatHistoryVi
         var messagesList = [BaseMessage]()
 
         for message in messageList {
-
             if let textMessage = message as? TextMessage {
-                // Only add TextMessages with non-empty text and muid
-                if !textMessage.text.isEmpty, !textMessage.muid.isEmpty {
+                // Only add TextMessages with non-empty text
+                if !textMessage.text.isEmpty {
                     messagesList.append(textMessage)
                 }
-            }
-            else if let interactiveMessage = message as? InteractiveMessage,
-                    interactiveMessage.messageCategory == .interactive {
-
-                let processedMessage: BaseMessage
-                switch interactiveMessage.type {
-                case MessageTypeConstants.form:
-                    processedMessage = FormMessage.toFormMessage(interactiveMessage)
-                case MessageTypeConstants.card:
-                    processedMessage = CardMessage.toCardMessage(interactiveMessage)
-                case MessageTypeConstants.scheduler:
-                    processedMessage = SchedulerMessage.toSchedulerMessage(interactiveMessage)
-                default:
-                    processedMessage = CustomInteractiveMessage.toCustomInteractiveMessage(interactiveMessage)
-                }
-                messagesList.append(processedMessage)
-            }
-            else {
-                // For any other BaseMessage type: only append if not TextMessage with empty text/muid
-                if let textMessage = message as? TextMessage {
-                    if !textMessage.text.isEmpty, !textMessage.muid.isEmpty {
-                        messagesList.append(textMessage)
-                    }
-                } else {
-                    messagesList.append(message)
-                }
+            } else {
+                messagesList.append(message)
             }
         }
 

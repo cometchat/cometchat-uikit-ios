@@ -241,6 +241,14 @@ public class CometChatMessageEvents {
         }
     }
 
+    public static func onNewCardMessageReceived(cardMessage: BaseMessage) {
+        
+        let objectEnumerator = self.observer.objectEnumerator()
+        while let value = objectEnumerator?.nextObject() as? CometChatMessageEventListener {
+            value.onNewCardMessageReceived(cardMessage: cardMessage)
+        }
+    }
+
 }
 
 

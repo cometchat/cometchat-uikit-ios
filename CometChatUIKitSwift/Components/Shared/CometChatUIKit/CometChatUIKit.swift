@@ -57,6 +57,107 @@ final public class CometChatUIKit {
         }
     }
     
+    // :nodoc:
+    /// Initializes CometChatUIKit by reading configuration from `cometchat-settings.json`
+    /// bundled in the app's main bundle. Delegates to the Chat SDK's `initFromSettings`
+    /// which sets `integrationSource = "ai-agent"` for telemetry attribution.
+    ///
+    /// - Important: This method is NOT intended for developer use. It exists exclusively
+    ///   for AI agent skills integration. It will NOT appear in public documentation.
+    ///
+    /// - Parameter completion: Called with `(true, nil)` on success, or `(false, error)` on failure.
+    public static func initFromSettings(completion: @escaping (Bool, CometChatException?) -> Void) {
+        
+        // 1. Read and parse cometchat-settings.json from the app bundle
+        guard let fileURL = Bundle.main.url(forResource: "cometchat-settings", withExtension: "json") else {
+            let error = CometChatException(errorCode: "SETTINGS_FILE_NOT_FOUND", errorDescription: "cometchat-settings.json not found. Ensure the file exists in the app bundle.")
+            completion(false, error)
+            return
+        }
+        
+        let data: Data
+        do {
+            data = try Data(contentsOf: fileURL)
+        } catch {
+            let exception = CometChatException(errorCode: "SETTINGS_FILE_READ_ERROR", errorDescription: "Failed to read cometchat-settings.json: \(error.localizedDescription)")
+            completion(false, exception)
+            return
+        }
+        
+        let json: [String: Any]
+        do {
+            guard let parsed = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                let exception = CometChatException(errorCode: "SETTINGS_INVALID_JSON", errorDescription: "cometchat-settings.json is not valid JSON.")
+                completion(false, exception)
+                return
+            }
+            json = parsed
+        } catch {
+            let exception = CometChatException(errorCode: "SETTINGS_INVALID_JSON", errorDescription: "cometchat-settings.json is not valid JSON.")
+            completion(false, exception)
+            return
+        }
+        
+        // 2. Validate required fields
+        guard let appId = json["appId"] as? String, !appId.isEmpty else {
+            let error = CometChatException(errorCode: "SETTINGS_MISSING_APP_ID", errorDescription: "appId is required in cometchat-settings.json.")
+            completion(false, error)
+            return
+        }
+        
+        guard let region = json["region"] as? String, !region.isEmpty else {
+            let error = CometChatException(errorCode: "SETTINGS_MISSING_REGION", errorDescription: "region is required in cometchat-settings.json.")
+            completion(false, error)
+            return
+        }
+        
+        // 3. Parse optional sections
+        let credentials = json["credentials"] as? [String: Any]
+        let authKey = credentials?["authKey"] as? String ?? ""
+        
+        let uiKitSection = json["uiKit"] as? [String: Any]
+        let subscribePresenceForAllUsers = uiKitSection?["subscribePresenceForAllUsers"] as? Bool ?? true
+        
+        // 4. Build UIKitSettings from parsed values
+        let uiKitSettings = UIKitSettings()
+            .set(appID: appId)
+            .set(region: region)
+            .set(authKey: authKey)
+        
+        if subscribePresenceForAllUsers {
+            uiKitSettings.subscribePresenceForAllUsers()
+        }
+        
+        uiKitSettings.build()
+        
+        // 5. Delegate to Chat SDK's initFromSettings (sets integrationSource = "ai-agent")
+        print("[CometChatUIKit] initFromSettings: Delegating to Chat SDK's initFromSettings (integrationSource will be set to 'ai-agent')")
+        CometChat.initFromSettings(onSuccess: { isSuccess in
+            print("[CometChatUIKit] initFromSettings: Chat SDK init succeeded = \(isSuccess), integrationSource = 'ai-agent' persisted to UserDefaults")
+            CometChatUIKit.uiKitSettings = uiKitSettings
+            if isSuccess {
+                CometChat.setSource(resource: "uikit-v5", platform: "ios", language: "swift", version: UIKitConstants.version)
+                #if canImport(CometChatCallsSDK)
+                if !uiKitSettings.isCallingDisabled {
+                    if let customCallingExtension = uiKitSettings.callingExtensions {
+                        CometChatUIKit.callingExtension = customCallingExtension
+                    } else {
+                        CometChatUIKit.callingExtension = CallingExtension()
+                    }
+                    CometChatUIKit.callingExtension?.enable()
+                }
+                #endif
+                CometChatUIKit.sdkEventInitializer = SDKEventInitializer()
+                CometChatUIKit.configureAI(extensions: uiKitSettings.aiExtensions)
+                CometChatUIKit.configureExtensions(extensions: uiKitSettings.extensions)
+            }
+            FlagReasonsManager.shared.getFlagReasons()
+            completion(isSuccess, nil)
+        }, onError: { error in
+            completion(false, error)
+        })
+    }
+    
     // Registered Push Notification.
     private static func registerForPushNotification(with token: String?) {
         guard let token = token, token != "" else { return }
@@ -130,7 +231,14 @@ final public class CometChatUIKit {
     }
     
     static public func login(uid: String, result: @escaping (ApiStatus) -> Void) {
-        guard let authKey = CometChatUIKit.uiKitSettings?.authKey else { return result(.onError(uiKitError))}
+        // Try UIKitSettings authKey first, then fall back to Chat SDK's getAuthKeyFromSettings()
+        let authKey: String? = {
+            if let key = CometChatUIKit.uiKitSettings?.authKey, !key.isEmpty {
+                return key
+            }
+            return CometChat.getAuthKeyFromSettings()
+        }()
+        guard let authKey = authKey, !authKey.isEmpty else { return result(.onError(uiKitError)) }
         CometChat.login(UID: uid, authKey: authKey) { user in
             registerNotificationAndVOIP()
             result(.success(user))

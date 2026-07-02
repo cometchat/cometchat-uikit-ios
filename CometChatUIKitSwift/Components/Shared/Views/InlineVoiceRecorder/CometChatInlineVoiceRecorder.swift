@@ -91,7 +91,7 @@ public class CometChatInlineVoiceRecorder: UIView {
     private(set) var onSubmit: ((String) -> Void)?
     private(set) var onCancel: (() -> Void)?
     
-    private var currentState: InlineVoiceRecorderState = .idle
+    private var currentState: InlineVoiceRecorderState = .recording
     private var audioViewModel = ViewModel()
     private var timer: Timer?
     private var totalSeconds: Int = 0
@@ -342,18 +342,26 @@ public class CometChatInlineVoiceRecorder: UIView {
     }
     
     private func startRecording() {
+        // Stop any playing audio bubbles
+        NotificationCenter.default.post(name: Notification.Name("RecordingStarted"), object: nil)
+        
+        // Update UI immediately to recording state
+        currentState = .recording
+        updateUIForState()
+        startTimer()
+        
         // Set the metering interval for waveform updates (50ms = 20 updates per second)
         audioViewModel.audioVisualizationTimeInterval = 0.05
         
         audioViewModel.startRecording { [weak self] soundRecord, error in
             if let error = error {
-                self?.parentViewController?.showAlert(error: error)
+                DispatchQueue.main.async {
+                    self?.currentState = .idle
+                    self?.updateUIForState()
+                    self?.stopTimer()
+                    self?.parentViewController?.showAlert(error: error)
+                }
                 return
-            }
-            DispatchQueue.main.async {
-                self?.currentState = .recording
-                self?.updateUIForState()
-                self?.startTimer()
             }
         }
     }

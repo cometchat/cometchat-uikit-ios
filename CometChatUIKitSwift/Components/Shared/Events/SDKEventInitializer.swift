@@ -80,4 +80,8 @@ public class SDKEventInitializer : CometChatMessageDelegate {
         CometChatMessageEvents.onAIAssistantMessageReceived(message: message)
     }
     
+    public func onCardMessageReceived(cardMessage: CometChatSDK.CardMessage) {
+        CometChatMessageEvents.onNewCardMessageReceived(cardMessage: cardMessage)
+    }
+    
 }

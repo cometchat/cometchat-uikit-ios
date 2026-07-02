@@ -39,7 +39,7 @@ extension CometChatMessageList {
         guard id != 0 else { return }
 
 //        guard let indexPath = visibleIndexPath(forMessageId: id) else { return }
-        guard let indexPath = viewModel.indexPathForMessageId(id) else { return }
+        guard let indexPath = tableViewIndexPath(forMessageId: id) else { return }
 
 
         if isPagination {
@@ -73,7 +73,7 @@ extension CometChatMessageList {
         highlightRetryCount -= 1
 
         // Check if the target cell is stable and visible
-        guard let indexPath = visibleIndexPath(forMessageId: id),
+        guard let indexPath = tableViewIndexPath(forMessageId: id),
               let cell = tableView.cellForRow(at: indexPath),
               cell.window != nil,
               cell.bounds.height > 10 else
@@ -126,9 +126,9 @@ extension CometChatMessageList {
             guard token == highlightToken else { return }
 
             guard
-                let indexPath = self.viewModel.indexPathForMessageId(messageId),
+                let indexPath = self.tableViewIndexPath(forMessageId: messageId),
                 let cell = self.tableView.cellForRow(at: indexPath),
-                let msg = self.viewModel.messageAt(indexPath: indexPath),
+                let rawIP = self.viewModel.indexPathForMessageId(messageId), let msg = self.viewModel.messageAt(indexPath: rawIP),
                 msg.id == messageId
             else {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.016) {
@@ -210,7 +210,7 @@ extension CometChatMessageList {
             }
 
             var distanceFromTop: CGFloat? = nil
-            if let id = anchorMessageId, let ip = self.viewModel.indexPathForMessageId(id) {
+            if let id = anchorMessageId, let ip = self.tableViewIndexPath(forMessageId: id) {
                 let rect = self.tableView.rectForRow(at: ip)
                 distanceFromTop = rect.origin.y - oldOffsetY
             }
@@ -240,7 +240,7 @@ extension CometChatMessageList {
 
             // If we captured a snapshot with an anchor id, prefer that method:
             if let snap = self.fetchNextAnchorSnapshot, let anchorId = snap.messageId, anchorId > 0 {
-                if let newIndexPath = self.viewModel.indexPathForMessageId(anchorId) {
+                if let newIndexPath = self.tableViewIndexPath(forMessageId: anchorId) {
                     // anchor still exists — compute rect and restore original distance
                     let newRect = self.tableView.rectForRow(at: newIndexPath)
                     if let distance = snap.distanceFromTop {
@@ -323,7 +323,7 @@ extension CometChatMessageList {
         }
 
         // 2) find index path for message
-        guard let indexPath = viewModel.indexPathForMessageId(messageId) else { return }
+        guard let indexPath = tableViewIndexPath(forMessageId: messageId) else { return }
 
         // 3) get cell rect (in table's coordinate space)
         let rowRect = tableView.rectForRow(at: indexPath)

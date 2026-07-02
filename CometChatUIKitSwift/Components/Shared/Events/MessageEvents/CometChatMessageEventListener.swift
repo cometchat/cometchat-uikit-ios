@@ -86,6 +86,9 @@ public protocol CometChatMessageEventListener {
     ///[onMessagesDeliveredToAll] is called when a group message is marked as delivered by all the group members
     func onMessagesDeliveredToAll(receipt: MessageReceipt)
     
+    ///[onNewCardMessageReceived] is called when a developer card message (category "card") is received
+    func onNewCardMessageReceived(cardMessage: BaseMessage)
+    
     ///MARK: Deprecated Functions
     @available(*, deprecated, message: "This method is now deprecated")
     func onMessageReply(message: BaseMessage, status: MessageStatus)
@@ -168,6 +171,7 @@ public extension CometChatMessageEventListener {
     func onMessagesDeliveredToAll(receipt: MessageReceipt) {}
     func onMessageModerated(message: BaseMessage) {}
     func onAIAssistantMessageReceived(message: AIAssistantMessage) {}
+    func onNewCardMessageReceived(cardMessage: BaseMessage) {}
 }
 
 //MARK: Deprecated methods

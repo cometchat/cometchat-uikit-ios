@@ -131,6 +131,10 @@ public class DataSourceDecorator: DataSource {
         return dataSource.getCardMessageTemplate(additionalConfiguration: additionalConfiguration)
     }
     
+    public func getDeveloperCardMessageTemplate(additionalConfiguration:AdditionalConfiguration?) -> CometChatMessageTemplate {
+        return dataSource.getDeveloperCardMessageTemplate(additionalConfiguration: additionalConfiguration)
+    }
+    
     public func getMessageTemplate(messageType: String, messageCategory: String, additionalConfiguration:AdditionalConfiguration?) -> CometChatMessageTemplate? {
         return dataSource.getMessageTemplate(messageType: messageType, messageCategory: messageCategory, additionalConfiguration: additionalConfiguration)
     }

@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import CometChatSDK
+import CometChatCardsSwift
 
 public class CometChatStreamBubble: UITableViewCell, StreamCallback {
 
@@ -131,6 +132,7 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
             bubbleStack.alignment = .fill
             bubbleStack.translatesAutoresizingMaskIntoConstraints = false
             bubbleView.addSubview(bubbleStack)
+            self.bubbleStack = bubbleStack
 
             NSLayoutConstraint.activate([
                 bubbleStack.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 3),
@@ -318,8 +320,148 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
                     self.originalMessageText.removeValue(forKey: toolEnd.runId)
                     self.updateUI?()
                 }
+                
+            case let cardStarted as AIAssistantCardStartedEvent:
+                self.showCardLoading(executionText: cardStarted.executionText)
+                self.updateUI?()
+                
+            case let cardReceived as AIAssistantCardReceivedEvent:
+                self.showStreamedCard(cardReceived)
+                self.updateUI?()
+                
+            case is AIAssistantCardEndedEvent:
+                // No-op: card is already rendered by cardReceived
+                break
+                
             default:
                 break
+            }
+        }
+    }
+    
+    // MARK: - Streaming Card Helpers
+    
+    private var cardLoadingView: UIView?
+    private var streamedCardView: CometChatCardView?
+    
+    /// Reference to the bubble's vertical stack (set during setupUI)
+    private weak var bubbleStack: UIStackView?
+    
+    private func showCardLoading(executionText: String? = nil) {
+        hideThinking()
+        
+        // Remove any existing card views
+        cardLoadingView?.removeFromSuperview()
+        streamedCardView?.removeFromSuperview()
+        
+        let loadingContainer = UIView()
+        loadingContainer.translatesAutoresizingMaskIntoConstraints = false
+        
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        spinner.startAnimating()
+        
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = (executionText?.isEmpty == false) ? executionText : "Loading card..."
+        label.font = CometChatTypography.Caption1.regular
+        label.textColor = CometChatTheme.textColorSecondary
+        
+        loadingContainer.addSubview(spinner)
+        loadingContainer.addSubview(label)
+        
+        NSLayoutConstraint.activate([
+            spinner.leadingAnchor.constraint(equalTo: loadingContainer.leadingAnchor, constant: 8),
+            spinner.centerYAnchor.constraint(equalTo: loadingContainer.centerYAnchor),
+            label.leadingAnchor.constraint(equalTo: spinner.trailingAnchor, constant: 8),
+            label.centerYAnchor.constraint(equalTo: loadingContainer.centerYAnchor),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: loadingContainer.trailingAnchor, constant: -8),
+            loadingContainer.heightAnchor.constraint(equalToConstant: 44)
+        ])
+        
+        // Add to the bubbleStack so it flows inline with text
+        if let stack = bubbleStack {
+            stack.addArrangedSubview(loadingContainer)
+        }
+        
+        cardLoadingView = loadingContainer
+        
+        // Force the cell to recalculate its height
+        self.setNeedsLayout()
+        self.layoutIfNeeded()
+        self.invalidateIntrinsicContentSize()
+        if let tableView = self.superview as? UITableView {
+            UIView.performWithoutAnimation {
+                tableView.beginUpdates()
+                tableView.endUpdates()
+            }
+        }
+    }
+    
+    private func showStreamedCard(_ event: AIAssistantCardReceivedEvent) {
+        // Remove loading placeholder
+        if let loading = cardLoadingView {
+            loading.removeFromSuperview()
+            cardLoadingView = nil
+        }
+        if let existing = streamedCardView {
+            existing.removeFromSuperview()
+            streamedCardView = nil
+        }
+        
+        guard let card = event.getCard() else {
+            return
+        }
+        
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: card, options: []),
+              let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+        
+        let cardView = CometChatCardView()
+        cardView.translatesAutoresizingMaskIntoConstraints = false
+        cardView.themeMode = .auto
+        
+        // Set action callback before cardJson (triggers render)
+        cardView.actionCallback = { [weak self] actionEvent in
+            guard let self = self, let msg = self.messageObj else { return }
+            CometChatCardEvents.ccCardActionClicked(message: msg, action: actionEvent)
+        }
+        cardView.cardJson = jsonString
+        
+        // Wrap in a padded container for clean presentation
+        let cardContainer = UIView()
+        cardContainer.translatesAutoresizingMaskIntoConstraints = false
+        cardContainer.addSubview(cardView)
+        NSLayoutConstraint.activate([
+            cardView.topAnchor.constraint(equalTo: cardContainer.topAnchor, constant: 4),
+            cardView.leadingAnchor.constraint(equalTo: cardContainer.leadingAnchor),
+            cardView.trailingAnchor.constraint(equalTo: cardContainer.trailingAnchor),
+            cardView.bottomAnchor.constraint(equalTo: cardContainer.bottomAnchor, constant: -4)
+        ])
+        
+        // Add to the bubbleStack
+        if let stack = bubbleStack {
+            stack.addArrangedSubview(cardContainer)
+        }
+        
+        streamedCardView = cardView
+        
+        // Force the cell to recalculate its height after the card is added
+        self.setNeedsLayout()
+        self.layoutIfNeeded()
+        self.invalidateIntrinsicContentSize()
+        
+        // Allow card to overflow the bubble's constrained width (no clipping)
+        self.contentView.clipsToBounds = false
+        self.clipsToBounds = false
+        bubbleView.clipsToBounds = false
+        bubbleStack?.clipsToBounds = false
+        containerStackView.clipsToBounds = false
+        
+        // Tell the table view to recalculate this cell's height
+        if let tableView = self.superview as? UITableView {
+            UIView.performWithoutAnimation {
+                tableView.beginUpdates()
+                tableView.endUpdates()
             }
         }
     }

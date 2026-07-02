@@ -290,3 +290,9 @@
 "AUDIO_LIBRARY" = "Bibliothèque audio";
 
 "AI_AGENTS" = "Assistants IA";
+
+// Agent in Group
+"AGENT_BADGE_LABEL" = "IA";
+"AGENT_FAILURE" = "L'agent n'a pas pu répondre. Réessayez.";
+"AGENT_HANDOFF_MESSAGE" = "Connexion avec un membre de l'équipe…";
+"AGENT_MESSAGE_PREVIEW" = "Réponse IA";

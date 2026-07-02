@@ -38,6 +38,13 @@ extension ConversationsViewModel: CometChatMessageEventListener {
         }
     }
     
+    public func onNewCardMessageReceived(cardMessage: BaseMessage) {
+        if checkForConversationUpdate(message: cardMessage) {
+            newMessageReceived?(cardMessage)
+            update(lastMessage: cardMessage)
+        }
+    }
+    
     func ccMessageSent(message: BaseMessage, status: MessageStatus) {
         if status == .success {
             latestMessageId = message.id
