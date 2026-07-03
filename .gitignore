@@ -5,6 +5,12 @@
 *.xcuserstate
 xcuserdata/
 
+# E2E secrets — never commit (copy from TestSecrets.swift.example, then fill in)
+/SampleAppUITests/Helpers/TestSecrets.swift
+
+# Local test plans hold E2E secrets — never commit
+*.local.xctestplan
+
 # CocoaPods
 Podfile
 Podfile.lock

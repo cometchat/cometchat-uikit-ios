@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "D294C9A6-BFAD-41D3-AF7E-7E8E91403BD7",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "parallelizable" : false,
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:CometChatUIKitSwift.xcodeproj",
+      "identifier" : "E544800B51EBD2B167158DBA",
+      "name" : "SampleApp"
+    },
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:CometChatUIKitSwift.xcodeproj",
+        "identifier" : "C4AA806A2FE96592007A25CE",
+        "name" : "SampleAppUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -338,6 +338,18 @@ class HomeScreenViewController: UITabBarController {
         }
         
         logoutBarButtonItem.tintColor = CometChatTheme.primaryColor
+
+        #if DEBUG
+        // The avatar's `showsMenuAsPrimaryAction` pull-down isn't openable by XCUITest, so under
+        // -UITestMode expose a plain bar button that invokes the same logout path (Apple Forums 690882).
+        if ProcessInfo.processInfo.arguments.contains("-UITestMode") {
+            let uiTestLogout = UIBarButtonItem(title: "uiTestLogout", style: .plain, target: self, action: #selector(logoutTapped))
+            uiTestLogout.accessibilityIdentifier = "uiTestLogout"
+            conversations.rightBarButtonItem = [logoutBarButtonItem, uiTestLogout]
+            return
+        }
+        #endif
+
         conversations.rightBarButtonItem = [logoutBarButtonItem]
     }
     

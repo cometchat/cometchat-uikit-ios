@@ -8,8 +8,21 @@
 	<array>
 		<string>com.cometchat.background-refresh</string>
 	</array>
+	<key>CFBundleURLSchemes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.googleusercontent.apps.950141434859-rlq2ho5gi0bf9ujgdo1tn59o1rh28amh</string>
+		</dict>
+	</array>
 	<key>CometChatSDK</key>
 	<string>4.1.6</string>
+	<key>NSCameraUsageDescription</key>
+	<string>CometChat needs access to your camera to enable video calls and share photos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>CometChat needs access to your microphone to enable voice and video calls.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>CometChat needs access to your photo library to share photos in chat.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

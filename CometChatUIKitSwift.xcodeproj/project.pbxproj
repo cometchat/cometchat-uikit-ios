@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -74,6 +74,7 @@
 		99EB94B27286F8B19CEF7924 /* BannedMembersVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90604A06710A0E4F12B21606 /* BannedMembersVC.swift */; };
 		9D95FD6D98B7C5A7B90C1222 /* CustomTextFiled.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A37D176069E53C3CDC677D /* CustomTextFiled.swift */; };
 		9F7A6D689F182AD6745B0446 /* Extentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE1CF0FB89E90A3EB7A44501 /* Extentions.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* CometChatSDK in Frameworks */ = {isa = PBXBuildFile; productRef = B2C3D4E5F60718293A4B5C6D /* CometChatSDK */; };
 		A3834C692C97F7D196712F19 /* ChangeAppCredentialsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D27D025D496A8482E0846F61 /* ChangeAppCredentialsVC.swift */; };
 		A9108F57C63A65FC2F399A32 /* AppDelegate + VoIP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 090A10A46B0A3FC5A4151632 /* AppDelegate + VoIP.swift */; };
 		AD9BD27B2972A54AB07249C5 /* CreateConversations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C281F7983116D32D986EBEA /* CreateConversations.swift */; };
@@ -117,6 +118,16 @@
 		F8094152A35984BF6D86D0F5 /* Extentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB3BB5E1BD05B34A2E531AB /* Extentions.swift */; };
 		F8B3716AAADAAFA6648BC1FF /* Extentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08D19A081A52CB79378E77DD /* Extentions.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C4AA80712FE96592007A25CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCD714C42F0285A95EFECC78 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E544800B51EBD2B167158DBA;
+			remoteInfo = SampleApp;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		00A77BDDE1BB3D115FC71BE8 /* CreateConversations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateConversations.swift; sourceTree = "<group>"; };
@@ -201,6 +212,8 @@
 		BBBC560C064080B8EBD1F3C9 /* JoinPasswordProtectedGroupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinPasswordProtectedGroupVC.swift; sourceTree = "<group>"; };
 		C0144A6E024F3660F194F0A7 /* AISampleApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AISampleApp.entitlements; sourceTree = "<group>"; };
 		C32FBDA691FB350071C71797 /* BannedMembersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannedMembersViewModel.swift; sourceTree = "<group>"; };
+		C4818D582FE9724E001C80DB /* SampleApp.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SampleApp.xctestplan; sourceTree = "<group>"; };
+		C4AA806B2FE96592007A25CE /* SampleAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SampleAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C54DBB8A5B090A812D331170 /* AddMembersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMembersViewModel.swift; sourceTree = "<group>"; };
 		C88640927D9756CE85F71886 /* ThreadedMessagesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadedMessagesVC.swift; sourceTree = "<group>"; };
 		CBCA03B17BD16C050F929C0E /* CreateGroupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupVC.swift; sourceTree = "<group>"; };
@@ -225,6 +238,10 @@
 		FFD005A9D20BCA79552F9F91 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		C4AA806C2FE96592007A25CE /* SampleAppUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SampleAppUITests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		65CCD95F05272AE46DB0F6C7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -245,6 +262,14 @@
 				CAC84608906F71DA3F08C045 /* CometChatUIKitSwift in Frameworks */,
 				8EB255FE173C8021CFD77F42 /* CometChatCallsSDK in Frameworks */,
 				93066294C4C90B257502EE36 /* CometChatSDK in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4AA80682FE96592007A25CE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D4E5F60718293A4B5C /* CometChatSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,10 +331,12 @@
 		16B5F999B4745CD30492372D = {
 			isa = PBXGroup;
 			children = (
+				C4818D582FE9724E001C80DB /* SampleApp.xctestplan */,
 				D6F8F5788DDE668D22B94DA4 /* AISampleApp */,
 				3452194FDD2B51473F70C1DA /* Packages */,
 				746E8B233E79225091EEC2D1 /* SampleApp */,
 				F22F8E722F90EB185FF379A6 /* SampleAppPushNotificationAPNs */,
+				C4AA806C2FE96592007A25CE /* SampleAppUITests */,
 				5D0F92A53EBBF934005A644B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -429,6 +456,7 @@
 				F2E3D900B72C1FE9ED1BF7CA /* AISampleApp.app */,
 				E0E85E221B0A6717C00FC91B /* SampleApp.app */,
 				892A6DEC607611011E317144 /* SampleAppPushNotificationAPNs.app */,
+				C4AA806B2FE96592007A25CE /* SampleAppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -735,6 +763,30 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C4AA806A2FE96592007A25CE /* SampleAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C4AA80752FE96592007A25CE /* Build configuration list for PBXNativeTarget "SampleAppUITests" */;
+			buildPhases = (
+				C4AA80672FE96592007A25CE /* Sources */,
+				C4AA80682FE96592007A25CE /* Frameworks */,
+				C4AA80692FE96592007A25CE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C4AA80722FE96592007A25CE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C4AA806C2FE96592007A25CE /* SampleAppUITests */,
+			);
+			name = SampleAppUITests;
+			packageProductDependencies = (
+				B2C3D4E5F60718293A4B5C6D /* CometChatSDK */,
+			);
+			productName = SampleAppUITests;
+			productReference = C4AA806B2FE96592007A25CE /* SampleAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		E049ED065B297AC241A0FF9F /* AISampleApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8A2DA60FBA1803D87321E6DA /* Build configuration list for PBXNativeTarget "AISampleApp" */;
@@ -811,7 +863,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					C4AA806A2FE96592007A25CE = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = E544800B51EBD2B167158DBA;
+					};
+				};
 			};
 			buildConfigurationList = F08B5BB19831231A47159F1A /* Build configuration list for PBXProject "CometChatUIKitSwift" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -835,6 +894,7 @@
 				E049ED065B297AC241A0FF9F /* AISampleApp */,
 				E544800B51EBD2B167158DBA /* SampleApp */,
 				F55CC868F4197978C7A7F68A /* SampleAppPushNotificationAPNs */,
+				C4AA806A2FE96592007A25CE /* SampleAppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -855,6 +915,13 @@
 			files = (
 				BD28672BDEECCBE7885104B0 /* Assets.xcassets in Resources */,
 				7447F1A5937E98FCFB2F1ACE /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4AA80692FE96592007A25CE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -942,6 +1009,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C4AA80672FE96592007A25CE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F8449C4FD5464B4ACA359BBB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -983,6 +1057,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C4AA80722FE96592007A25CE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E544800B51EBD2B167158DBA /* SampleApp */;
+			targetProxy = C4AA80712FE96592007A25CE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		39ACFACD28EA46A98D6A938F /* LaunchScreen.storyboard */ = {
@@ -1156,6 +1238,62 @@
 			};
 			name = Debug;
 		};
+		C4AA80732FE96592007A25CE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cometchat.SampleAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SampleApp;
+			};
+			name = Debug;
+		};
+		C4AA80742FE96592007A25CE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cometchat.SampleAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SampleApp;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		C5DB1E0A38078D1978DD2195 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1296,6 +1434,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
+		C4AA80752FE96592007A25CE /* Build configuration list for PBXNativeTarget "SampleAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C4AA80732FE96592007A25CE /* Debug */,
+				C4AA80742FE96592007A25CE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		F08B5BB19831231A47159F1A /* Build configuration list for PBXProject "CometChatUIKitSwift" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1375,6 +1522,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 14440BF9D99EE50F6CDC186F /* XCRemoteSwiftPackageReference "calls-sdk-ios" */;
 			productName = CometChatCallsSDK;
+		};
+		B2C3D4E5F60718293A4B5C6D /* CometChatSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5E03AD328DADDD5367C198BF /* XCRemoteSwiftPackageReference "chat-sdk-ios" */;
+			productName = CometChatSDK;
 		};
 		BA81B4B5365FC1DB9368BC6D /* CometChatUIKitSwift */ = {
 			isa = XCSwiftPackageProductDependency;
