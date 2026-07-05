@@ -52,6 +52,55 @@ final class EdgeCasesTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not responsive after a burst")
     }
 
+    /// RT-EDGE-005: A and B send interleaved in rapid alternation; both directions render and the screen
+    /// stays stable. Distinct from `simultaneousSend` (a single A+B pair) — this is a sustained back-and-forth.
+    func test_RT_EDGE_interleavedBidirectionalSends() throws {
+        openSeeded()
+        let stamp = UUID().uuidString.prefix(6)
+        try runBlocking {
+            for i in 0..<5 { _ = try await PeerActions.sendTextMessage("EdgeB-\(stamp)-\(i)") }
+        }
+        for i in 0..<5 {
+            let composer = ComponentQueries.composer(app)
+            composer.tap(); composer.typeText("EdgeA-\(stamp)-\(i)")
+            ComponentQueries.sendButton(app).tap()
+        }
+        XCTAssertTrue(ComponentQueries.waitForBubbleContaining(app, substring: "EdgeA-\(stamp)", timeout: 20),
+                      "A's interleaved messages did not render")
+        XCTAssertTrue(ComponentQueries.waitForBubbleContaining(app, substring: "EdgeB-\(stamp)", timeout: 20),
+                      "B's interleaved messages did not render")
+        XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not stable after interleaved sends")
+    }
+
+    /// RT-EDGE-006: A can send while an inbound burst from B is arriving; the composer stays usable and A's
+    /// own message renders (send-under-load, not just receive-under-load like `burstNoCrash`).
+    func test_RT_EDGE_sendWhileReceivingBurst() throws {
+        openSeeded()
+        let stamp = UUID().uuidString.prefix(6)
+        let aToken = "EdgeSWR-A-\(stamp)"
+        // Kick off B's burst, then immediately have A send into the same window.
+        try runBlocking {
+            for i in 0..<12 { _ = try await PeerActions.sendTextMessage("EdgeSWR-B-\(stamp)-\(i)") }
+        }
+        ComponentQueries.typeAndSend(app, text: aToken)
+        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: aToken, timeout: 18),
+                      "A's message did not send while receiving a burst")
+        XCTAssertTrue(ComponentQueries.composer(app).exists, "Composer not usable during an inbound burst")
+    }
+
+    /// RT-EDGE-007: scrolling the list while messages arrive live keeps the screen stable and responsive.
+    func test_RT_EDGE_scrollDuringLiveInbound() throws {
+        openSeeded()
+        let stamp = UUID().uuidString.prefix(6)
+        try runBlocking {
+            for i in 0..<15 { _ = try await PeerActions.sendTextMessage("EdgeScroll-\(stamp)-\(i)") }
+        }
+        XCTAssertTrue(ComponentQueries.waitForBubbleContaining(app, substring: "EdgeScroll-\(stamp)", timeout: 20),
+                      "No inbound message arrived to scroll through")
+        app.swipeUp(); app.swipeDown(); app.swipeUp()
+        XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not responsive while scrolling live inbound")
+    }
+
     /// A message B sends is not duplicated on A's side.
     func test_RT_EDGE_noDuplicateMessage() throws {
         openSeeded()

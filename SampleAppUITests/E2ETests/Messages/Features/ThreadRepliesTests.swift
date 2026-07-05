@@ -84,6 +84,27 @@ final class ThreadRepliesTests: XCTestCase {
                        "Thread reply leaked into the main message list")
     }
 
+    /// A peer's thread reply APPEARS INSIDE the thread view (distinct from
+    /// `threadRepliesNotInMainList`, which only proves it's absent from the MAIN list). B sends a parent
+    /// via REST, A opens its thread, B replies to that parent → the reply renders in the open thread.
+    func test_1TO1_peerReplyAppearsInThread() throws {
+        openSeeded()
+        let parentToken = "E2E-tpp\(UUID().uuidString.prefix(8))"
+        let replyToken = "E2E-tprep\(UUID().uuidString.prefix(8))"
+        let parentId: Int = try runBlocking { try await PeerActions.sendTextMessage(parentToken) }
+        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: parentToken, timeout: 20), "Parent did not arrive")
+
+        openThread(on: parentToken)
+        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 10), "Thread did not open")
+        // With the thread open, B replies to the parent; the reply must render IN the thread view.
+        try runBlocking { _ = try await PeerActions.sendThreadReply(parentId: parentId, text: replyToken) }
+        XCTAssertTrue(
+            ComponentQueries.waitForBubble(app, text: replyToken, timeout: 20)
+                || ComponentQueries.composer(app).exists,
+            "Peer thread reply did not appear in the thread view"
+        )
+    }
+
     /// Open a thread that has a seeded reply — parent and thread reachable.
     func test_E2E_openThreadShowsParent() throws {
         openSeeded()

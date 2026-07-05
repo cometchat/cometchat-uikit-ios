@@ -131,6 +131,41 @@ final class GroupLifecycleTests: XCTestCase {
         XCTAssertTrue(added, "Selected user was not added to the group on the backend")
     }
 
+    // MARK: - Delete and exit
+
+    /// GRP-069: as the owner, "Delete and Exit" removes the group. Open Group Info → tap "Delete and Exit"
+    /// → confirm → assert on the BACKEND that the group no longer exists. Operates on a THROWAWAY group.
+    /// Distinct from Leave (GRP-066, which only removes the member and leaves the group intact) — this
+    /// deletes the whole group, verified by `groupExists` going false.
+    func test_GRP_deleteAndExitGroup() throws {
+        let testGroup = try runBlocking { try await SeedData.createTestGroupWithMember() } // A = owner
+        group = testGroup
+
+        // Precondition: the group exists before the UI delete.
+        XCTAssertTrue(try runBlocking { await PeerActions.groupExists(guid: testGroup.guid) },
+                      "Precondition failed: throwaway group was not created")
+
+        openGroupInfo(name: testGroup.name)
+
+        tapCard("Delete and Exit")
+        // Confirm card — the destructive verb varies ("Delete and Exit" / "Delete" / "Yes"); tap the
+        // hittable confirm.
+        XCTAssertTrue(
+            tapHittable("Delete and Exit", timeout: 6)
+                || tapHittable("Delete", timeout: 4)
+                || tapHittable("Yes", timeout: 4),
+            "Delete-and-Exit confirmation did not appear"
+        )
+
+        // Backend truth: the group is gone.
+        let gone = waitForBackend(timeout: 20) {
+            !(await PeerActions.groupExists(guid: testGroup.guid))
+        }
+        XCTAssertTrue(gone, "Group still exists on the backend after Delete and Exit")
+        // Already deleted — avoid a redundant teardown delete of a gone group.
+        if gone { group = nil }
+    }
+
     // MARK: - Banned members list
 
     /// A member banned via REST appears in the Banned Members list.

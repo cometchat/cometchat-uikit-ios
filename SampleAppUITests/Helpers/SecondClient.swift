@@ -23,12 +23,14 @@ actor SecondClient {
         case initFailed(String)
         case loginFailed(String)
         case groupActionFailed(String)
+        case callActionFailed(String)
 
         var description: String {
             switch self {
             case let .initFailed(m):  return "SecondClient init failed: \(m)"
             case let .loginFailed(m): return "SecondClient login failed: \(m)"
             case let .groupActionFailed(m): return "SecondClient group action failed: \(m)"
+            case let .callActionFailed(m): return "SecondClient call action failed: \(m)"
             }
         }
     }
@@ -138,11 +140,57 @@ actor SecondClient {
         }
     }
 
+    // MARK: - Calls
+
+    /// The session id of B's last initiated call, so `cancelActiveCall` can end exactly that call.
+    private var activeCallSessionID: String?
+
+    /// User B places a real call to User A. This fires `onIncomingCallReceived` on A's SDK; whether A's
+    /// app presents an incoming-call surface depends on the app's `inAppIncomingCall` setting (the sample
+    /// app ships it OFF, so this is used with an "overlay OR stable" assertion, matching the Flutter suite).
+    /// `initiateCall` and the `Call` type are on the base `CometChatSDK` — no Calls SDK required here.
+    /// Returns the session id (nil if the backend didn't return one).
+    @discardableResult
+    func initiateCall(toUser uid: String, video: Bool) async throws -> String? {
+        let call = Call(receiverId: uid, callType: video ? .video : .audio, receiverType: .user)
+        let session: String? = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<String?, Error>) in
+            var resumed = false
+            CometChat.initiateCall(call: call, onSuccess: { initiated in
+                guard !resumed else { return }; resumed = true
+                cont.resume(returning: initiated?.sessionID)
+            }, onError: { error in
+                guard !resumed else { return }; resumed = true
+                cont.resume(throwing: ClientError.callActionFailed(error?.errorDescription ?? "initiateCall(\(uid))"))
+            })
+        }
+        activeCallSessionID = session
+        return session
+    }
+
+    /// End B's active call (models "caller cancels" / "call ended"). Best-effort — never throws, so it's
+    /// safe in teardown and after an assertion. No-op if there's no active call.
+    func cancelActiveCall() async {
+        guard let session = activeCallSessionID else { return }
+        activeCallSessionID = nil
+        await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+            var resumed = false
+            CometChat.endCall(sessionID: session, onSuccess: { _ in
+                guard !resumed else { return }; resumed = true
+                cont.resume()
+            }, onError: { _ in
+                guard !resumed else { return }; resumed = true
+                cont.resume()
+            })
+        }
+    }
+
     // MARK: - Teardown
 
     /// Release B's socket session so it can't race REST-driven B tests (`goOnline`/`goOffline`).
-    /// Never throws — teardown must not mask the test result.
+    /// Never throws — teardown must not mask the test result. Ends any active call first so a ringing
+    /// call can't leak into a later test.
     func logout() async {
+        await cancelActiveCall()
         await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
             var resumed = false
             CometChat.logout(onSuccess: { _ in

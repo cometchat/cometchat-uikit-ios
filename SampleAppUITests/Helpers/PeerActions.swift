@@ -297,6 +297,24 @@ enum PeerActions {
                                    mimeType: "application/pdf", name: "test_document.pdf", ext: "pdf",
                                    receiver: receiver, receiverType: receiverType)
     }
+
+    /// Convenience: User B sends a video (hosted URL, no upload). For the receive-side media cases.
+    @discardableResult
+    static func sendVideoToA(receiver: String = TestConfig.userAUid,
+                             receiverType: String = "user") async throws -> Int {
+        try await sendMediaMessage(type: "video", url: MediaURL.video,
+                                   mimeType: "video/mp4", name: "test_video.mp4", ext: "mp4",
+                                   receiver: receiver, receiverType: receiverType)
+    }
+
+    /// Convenience: User B sends an audio message (hosted URL, no upload).
+    @discardableResult
+    static func sendAudioToA(receiver: String = TestConfig.userAUid,
+                             receiverType: String = "user") async throws -> Int {
+        try await sendMediaMessage(type: "audio", url: MediaURL.audio,
+                                   mimeType: "audio/mpeg", name: "test_audio.mp3", ext: "mp3",
+                                   receiver: receiver, receiverType: receiverType)
+    }
     
     // MARK: - Presence (drive User B's session — fires onUserOnline / onUserOffline)
     
@@ -405,6 +423,19 @@ enum PeerActions {
         guard let url = URL(string: "\(baseURL)/groups/\(guid)") else { return }
         _ = try? await send(url: url, method: "DELETE", body: nil,
                             onBehalfOf: owner, operation: "deleteGroup")
+    }
+
+    /// Whether a group still exists — GET `/groups/{guid}` (admin read). A deleted group 404s, which `send`
+    /// surfaces as `PeerError.http(status: 404)`; this returns `false` for it (and any non-2xx) and `true`
+    /// on success. Used to assert a UI "Delete and Exit" actually removed the group on the backend.
+    static func groupExists(guid: String) async -> Bool {
+        guard let url = URL(string: "\(baseURL)/groups/\(guid)") else { return false }
+        do {
+            _ = try await send(url: url, method: "GET", body: nil, onBehalfOf: nil, operation: "groupExists")
+            return true
+        } catch {
+            return false
+        }
     }
 
     /// The member UIDs of a group. NOTE: on this backend a BANNED member is still returned here — so this

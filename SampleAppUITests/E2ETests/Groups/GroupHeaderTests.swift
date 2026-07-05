@@ -33,6 +33,23 @@ final class GroupHeaderTests: XCTestCase {
         XCTAssertTrue(app.staticTexts[name].waitForExistence(timeout: 10), "Group header did not render")
     }
     
+    /// Header exposes a voice-call button (group-call affordance). Located by the same voice/audio/"Call"
+    /// predicate proven for the 1:1 header — deliberately not `CONTAINS 'call'`, which would also resolve
+    /// the video control. If a build ships the group header without call buttons, this reveals it (red),
+    /// which is the intended signal rather than a silent skip.
+    func test_GRP_voiceCallButtonVisible() throws {
+        _ = openGroup()
+        XCTAssertTrue(voiceCallButton().waitForExistence(timeout: 8),
+                      "Voice-call button not present in the group header")
+    }
+
+    /// Header exposes a video-call button (group-call affordance).
+    func test_GRP_videoCallButtonVisible() throws {
+        _ = openGroup()
+        XCTAssertTrue(videoCallButton().waitForExistence(timeout: 8),
+                      "Video-call button not present in the group header")
+    }
+
     /// The details menu navigates to Group Info.
     func test_GRP_detailsNavigatesToGroupInfo() throws {
         _ = openGroup()
@@ -60,8 +77,21 @@ final class GroupHeaderTests: XCTestCase {
         )
     }
     
+    // MARK: - Header locators
+
+    private func voiceCallButton() -> XCUIElement {
+        // Voice/audio or an EXACT "Call" label — not `CONTAINS 'call'`, which would also match "Video Call".
+        app.buttons.matching(
+            NSPredicate(format: "label CONTAINS[c] 'voice' OR label CONTAINS[c] 'audio' OR label ==[c] 'call'")
+        ).firstMatch
+    }
+
+    private func videoCallButton() -> XCUIElement {
+        app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'video'")).firstMatch
+    }
+
     // MARK: - Helpers
-    
+
     @discardableResult
     private func openGroup() -> String {
         let testGroup = try? runBlocking { try await SeedData.createTestGroupWithMember() }

@@ -342,7 +342,7 @@ final class E2EFullAppTests: XCTestCase {
     func test_E2E_callLogsLoad() throws {
         AppLauncher.launchAndWaitForHome(app)
         guard AppLauncher.navigateToTab(app, title: AppLauncher.TabLabel.calls) else {
-            throw XCTSkip("Calls tab not present in this build (CometChatCallsSDK not linked)")
+            throw XCTSkip("Calls tab not visible (CometChatCallsSDK is linked; tab absent only if a build strips it)")
         }
         // Either call-log cells render or an empty-state shows; the tab bar staying up proves no crash.
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Calls screen did not load")
@@ -352,7 +352,7 @@ final class E2EFullAppTests: XCTestCase {
     func test_E2E_callLogsPaginationScrolls() throws {
         AppLauncher.launchAndWaitForHome(app)
         guard AppLauncher.navigateToTab(app, title: AppLauncher.TabLabel.calls) else {
-            throw XCTSkip("Calls tab not present in this build (CometChatCallsSDK not linked)")
+            throw XCTSkip("Calls tab not visible (CometChatCallsSDK is linked; tab absent only if a build strips it)")
         }
         app.swipeUp()
         XCTAssertTrue(app.tabBars.firstMatch.exists, "Home tab bar vanished after scrolling call logs")
@@ -491,11 +491,9 @@ final class E2EFullAppTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 12), "Composer did not appear")
 
         // The composer has the send control plus at least one attachment/add control.
-        XCTAssertTrue(ComponentQueries.attachmentAffordanceExists(app),
-                      "Composer exposed no attachment affordance alongside send")
+        XCTAssertTrue(
+            ComponentQueries.attachmentAffordanceExists(app),
+            "Composer exposed no attachment affordance alongside send"
+        )
     }
-
-    // Note: the `waitForCondition` / `waitForBackend` helpers now live once in `AsyncTestSupport`
-    // (XCTestCase extension). The commented-out delete-conversation block above still resolves against them
-    // if it is ever restored — the shared signatures are identical.
 }

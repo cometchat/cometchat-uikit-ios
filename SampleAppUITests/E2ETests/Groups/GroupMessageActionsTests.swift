@@ -61,6 +61,25 @@ final class GroupMessageActionsTests: XCTestCase {
         )
     }
 
+    /// GRP-024: cancelling an edit leaves the original group message unchanged; the group variant of
+    /// `test_1TO1_cancelEditRestoresComposer`.
+    func test_GRP_cancelEditRestoresComposer() throws {
+        openGroup()
+        let token = "E2E-gcancel\(UUID().uuidString.prefix(8))"
+        ComponentQueries.typeAndSend(app, text: token)
+        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Original did not send")
+
+        XCTAssertTrue(ComponentQueries.openMessageOptions(app, bubbleText: token), "Long-press failed")
+        XCTAssertTrue(ComponentQueries.tapMessageOption(app, label: ComponentQueries.MessageOption.edit), "Edit missing")
+        // Cancel the edit — a close/X on the edit preview bar (falls back to leaving it untouched).
+        for label in ["Close", "Cancel", "close", "cancel"] where app.buttons[label].exists {
+            app.buttons[label].tap(); break
+        }
+        // The original bubble survives, unchanged.
+        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 8),
+                      "Original group message lost after cancelling edit")
+    }
+
     /// Copy option present in a group message popup.
     func test_GRP_copyGroupMessage() throws {
         openGroup()

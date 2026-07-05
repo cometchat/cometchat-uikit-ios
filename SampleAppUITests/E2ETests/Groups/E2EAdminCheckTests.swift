@@ -60,8 +60,7 @@ final class E2EAdminCheckTests: XCTestCase {
         app.cells.containing(.staticText, identifier: TestConfig.userBDisplayName).firstMatch
     }
 
-    /// Swipe-reveal the member-row actions (Kick / Ban / Scope) and return whether they surfaced. A
-    /// plain `swipeLeft()` on the row reveals them (verified); a coordinate drag does not.
+    /// Swipe-reveal the member-row actions (Kick / Ban / Scope) and return whether they surfaced.
     @discardableResult
     private func revealMemberActions() -> Bool {
         let row = memberRow()
