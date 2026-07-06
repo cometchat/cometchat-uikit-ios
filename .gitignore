@@ -36,3 +36,7 @@ CometChatUIKitSwift/CometChatUIKitSwift.xcframework/
 
 # Repo snapshot archives (local dev only)
 *.zip
+
+# Local coverage matrices and KT docs (local dev only)
+/SampleAppUITests/coverage/
+/SampleAppUITests/docs/
