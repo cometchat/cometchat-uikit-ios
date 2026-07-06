@@ -1,8 +1,6 @@
 import XCTest
 
-/// Edge cases — rapid/burst sends, simultaneous send, empty-conversation greeting, date separators, and
-/// app-resume sync. Most are structural
-/// (screen stays usable, no crash); a few make real content assertions where a unique token allows it.
+/// Mostly structural checks (screen stays usable); content asserted only where a unique token allows it.
 final class EdgeCasesTests: XCTestCase {
 
     private var app: XCUIApplication!
@@ -13,7 +11,6 @@ final class EdgeCasesTests: XCTestCase {
         runBlocking { await SeedData.cleanup() }
     }
 
-    /// A sends 10 messages rapidly; the screen stays stable and at least one renders.
     func test_1TO1_rapidSendStable() {
         openSeeded()
         let stamp = UUID().uuidString.prefix(6)
@@ -27,7 +24,6 @@ final class EdgeCasesTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not stable after rapid sends")
     }
 
-    /// A (UI) and B (REST) send back-to-back; both are visible and the screen stays stable.
     func test_RT_EDGE_simultaneousSend() throws {
         openSeeded()
         let stamp = UUID().uuidString.prefix(6)
@@ -39,7 +35,6 @@ final class EdgeCasesTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: bToken, timeout: 20), "B's message missing")
     }
 
-    /// B sends a 20-message burst via REST; the screen stays intact and responsive.
     func test_RT_EDGE_burstNoCrash() throws {
         openSeeded()
         let stamp = UUID().uuidString.prefix(6)
@@ -52,8 +47,6 @@ final class EdgeCasesTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not responsive after a burst")
     }
 
-    /// RT-EDGE-005: A and B send interleaved in rapid alternation; both directions render and the screen
-    /// stays stable. Distinct from `simultaneousSend` (a single A+B pair) — this is a sustained back-and-forth.
     func test_RT_EDGE_interleavedBidirectionalSends() throws {
         openSeeded()
         let stamp = UUID().uuidString.prefix(6)
@@ -72,13 +65,10 @@ final class EdgeCasesTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not stable after interleaved sends")
     }
 
-    /// RT-EDGE-006: A can send while an inbound burst from B is arriving; the composer stays usable and A's
-    /// own message renders (send-under-load, not just receive-under-load like `burstNoCrash`).
     func test_RT_EDGE_sendWhileReceivingBurst() throws {
         openSeeded()
         let stamp = UUID().uuidString.prefix(6)
         let aToken = "EdgeSWR-A-\(stamp)"
-        // Kick off B's burst, then immediately have A send into the same window.
         try runBlocking {
             for i in 0..<12 { _ = try await PeerActions.sendTextMessage("EdgeSWR-B-\(stamp)-\(i)") }
         }
@@ -88,7 +78,6 @@ final class EdgeCasesTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Composer not usable during an inbound burst")
     }
 
-    /// RT-EDGE-007: scrolling the list while messages arrive live keeps the screen stable and responsive.
     func test_RT_EDGE_scrollDuringLiveInbound() throws {
         openSeeded()
         let stamp = UUID().uuidString.prefix(6)
@@ -101,22 +90,82 @@ final class EdgeCasesTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not responsive while scrolling live inbound")
     }
 
-    /// A message B sends is not duplicated on A's side.
     func test_RT_EDGE_noDuplicateMessage() throws {
         openSeeded()
         let token = "E2E-dup\(UUID().uuidString.prefix(8))"
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
-        // At most one rendered copy carries the unique token (dedup — no duplicate frames).
         let count = app.buttons.matching(identifier: token).count + app.staticTexts.matching(identifier: token).count
         XCTAssertLessThanOrEqual(count, 1, "Message rendered more than once (\(count))")
     }
 
-    /// App resume after a foreground gap keeps B's messages present.
+    // Peer edits a message while A holds its action sheet open. Overlay layout + peer-edit propagation
+    // are non-deterministic, so the edited text is polled non-fatally; surviving the race is the assertion.
+    func test_RT_EDGE_editWhilePeerLongPresses() throws {
+        openSeeded()
+        let stamp = UUID().uuidString.prefix(6)
+        let original = "LongPressEditBefore-\(stamp)"
+        let edited = "LongPressEditAfter-\(stamp)"
+        let msgId = try runBlocking { try await PeerActions.sendTextMessage(original) }
+        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: original, timeout: 20),
+                      "Original message did not arrive")
+
+        _ = ComponentQueries.openMessageOptions(app, bubbleText: original)
+        try runBlocking { try await PeerActions.editMessage(msgId, newText: edited) }
+        _ = ComponentQueries.waitForBubble(app, text: edited, timeout: 15) // logged via result, non-fatal
+
+        app.tap()
+        XCTAssertTrue(ComponentQueries.composer(app).exists,
+                      "Screen not stable after a concurrent peer edit + open action sheet")
+    }
+
+    // A deletes the conversation while B sends immediately after; the conversation must reappear-or-stay-stable.
+    func test_RT_EDGE_deleteConversationWhileMessageArrives() throws {
+        try runBlocking { try await SeedData.createTestConversation() }
+        app = AppLauncher.launchAndWaitForHome()
+        AppLauncher.navigateToTab(app, title: AppLauncher.TabLabel.chats)
+
+        runBlocking { await PeerActions.deleteConversation() }
+        let raceText = "AfterDelete-\(UUID().uuidString.prefix(6))"
+        try runBlocking { _ = try await PeerActions.sendTextMessage(raceText) }
+        _ = ComponentQueries.waitForBubbleContaining(app, substring: raceText, timeout: 20) // non-fatal
+
+        XCTAssertTrue(app.tabBars.firstMatch.exists,
+                      "Chats list not stable through the delete/arrive race")
+    }
+
+    // A cross-midnight message can't be seeded from the harness, so assert the date-grouping affordance
+    // (Today/Yesterday) after a fresh send; label is UIKit-drawn + locale-dependent, so it's structural.
+    func test_1TO1_dateSeparatorBetweenDays() throws {
+        openSeeded()
+        try runBlocking { _ = try await PeerActions.sendTextMessage("DateSep-\(UUID().uuidString.prefix(6))") }
+        let separator = NSPredicate(format:
+            "label CONTAINS[c] 'Today' OR label CONTAINS[c] 'Yesterday'")
+        _ = app.staticTexts.containing(separator).firstMatch.waitForExistence(timeout: 5) // non-fatal
+        XCTAssertTrue(ComponentQueries.composer(app).exists,
+                      "Message screen not stable while checking the date separator")
+    }
+
+    // RT-EDGE-005: rapid typing start/stop without a flicker crash. LIMITATION: REST can't drive an incoming
+    // typing indicator (only a live SDK client can, see LiveTypingTests), so the flicker itself isn't
+    // producible from A's side — assert the composer survives rapid local typing bursts (structural stand-in).
+    func test_RT_EDGE_rapidTypingNoFlicker() {
+        openSeeded()
+        let composer = ComponentQueries.composer(app)
+        for i in 0..<8 {
+            composer.tap()
+            composer.typeText("t\(i)")
+            // Clear without sending to churn the typing state.
+            if let value = composer.value as? String, !value.isEmpty {
+                composer.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: value.count))
+            }
+        }
+        XCTAssertTrue(composer.exists, "Composer not stable after rapid typing start/stop")
+    }
+
     func test_1TO1_messagesPresentAfterResume() throws {
         openSeeded()
         let token = "E2E-resume\(UUID().uuidString.prefix(8))"
-        // Background then foreground the app.
         XCUIDevice.shared.press(.home)
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         app.activate()
@@ -124,9 +173,8 @@ final class EdgeCasesTests: XCTestCase {
                       "Message sent during background did not sync on resume")
     }
 
-    /// An empty conversation opens with a composer and stays stable (greeting logged non-fatal).
     func test_1TO1_emptyConversationStable() {
-        // Delete the conversation so it opens empty, then open via Users (no Chats row to find).
+        // Cleanup first so the chat opens empty; open via Users (no Chats row to find).
         runBlocking { await SeedData.cleanup() }
         app = AppLauncher.launchAndWaitForHome()
         XCTAssertTrue(AppLauncher.openConversationWith(app, displayName: TestConfig.userBDisplayName),

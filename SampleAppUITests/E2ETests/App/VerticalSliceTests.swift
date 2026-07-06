@@ -1,10 +1,6 @@
 import XCTest
 
-/// Happy-path slice exercising launch, auto-login, REST seed, content queries, and the WebSocket
-/// round-trip: launch → open seeded conversation → type → send → assert the bubble renders.
-///
-/// Synchronous by necessity: `XCUIApplication.launch()` requires the main thread, so REST work goes
-/// through `runBlocking`.
+/// XCUIApplication.launch() requires the main thread, so REST seeding goes through runBlocking.
 final class VerticalSliceTests: XCTestCase {
 
     private var app: XCUIApplication!
@@ -27,7 +23,6 @@ final class VerticalSliceTests: XCTestCase {
         let opened = AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName)
         XCTAssertTrue(opened, "Could not open conversation with \(TestConfig.userBDisplayName)")
 
-        // Unique token guards against matching a stale bubble on the shared backend.
         let token = "E2E-slice-\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
 

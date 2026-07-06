@@ -1,12 +1,7 @@
 import XCTest
 
-/// Realtime receive: User B sends via REST (`PeerActions`, headless peer) and the message must arrive in
-/// User A's open chat over the SDK WebSocket. No second device — the
-/// REST peer fires real socket events into the app under test.
-///
-/// Each test seeds + opens the 1:1, then B sends a UNIQUE per-run token so the assertion matches exactly
-/// what this run sent (never a stale bubble). Arrival is asserted with `waitForBubble`, which polls for the
-/// async delivery rather than sleeping. Screen-stability is the fallback fatal assertion.
+/// User B is a headless REST peer whose sends fire real socket events into the app — no second device.
+/// Unique per-run tokens keep assertions from matching stale bubbles on the shared backend.
 final class ReceiveMessageTests: XCTestCase {
 
     private var app: XCUIApplication!
@@ -21,7 +16,6 @@ final class ReceiveMessageTests: XCTestCase {
         runBlocking { await SeedData.cleanup() }
     }
 
-    /// B sends a text; it arrives in A's open chat in real time.
     func test_1TO1_receiveTextRealtime() throws {
         openSeeded()
         let token = "E2E-recv-\(UUID().uuidString.prefix(8))"
@@ -30,8 +24,6 @@ final class ReceiveMessageTests: XCTestCase {
                       "Message from B did not arrive: \(token)")
     }
 
-    /// B sends 5 messages; the last (newest, at the bottom) arrives and an earlier one is loadable by
-    /// scrolling up. Paced sends keep ordering deterministic.
     func test_1TO1_receiveMultipleInOrder() throws {
         openSeeded()
         let stamp = UUID().uuidString.prefix(6)
@@ -44,10 +36,8 @@ final class ReceiveMessageTests: XCTestCase {
                 try await Task.sleep(nanoseconds: 250_000_000)
             }
         }
-        // The newest lands at the bottom and is visible.
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: tokens.last!, timeout: 25),
                       "Last message did not arrive")
-        // The first may have scrolled above the fold; scroll up to surface it.
         if !ComponentQueries.waitForBubble(app, text: tokens.first!, timeout: 3) {
             app.swipeDown(); app.swipeDown()
         }
@@ -55,7 +45,6 @@ final class ReceiveMessageTests: XCTestCase {
                       "First message did not arrive/load")
     }
 
-    /// B's message arrives and the UI stays stable (sound not directly assertable).
     func test_1TO1_receivePlaysSoundStable() throws {
         openSeeded()
         let token = "E2E-sound-\(UUID().uuidString.prefix(8))"
@@ -65,36 +54,22 @@ final class ReceiveMessageTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not stable after receiving")
     }
 
-    /// A is on a different tab when B sends; returning to the chat shows the message.
-    /// Start from home (not inside the chat), send while on the Users tab, then open the chat once.
     func test_1TO1_receiveWhileOnDifferentTab() throws {
         try runBlocking { try await SeedData.createTestConversation() }
         app = AppLauncher.launchAndWaitForHome()
 
-        // Sit on the Users tab while B sends.
         AppLauncher.navigateToTab(app, title: AppLauncher.TabLabel.users)
         let token = "E2E-tab-\(UUID().uuidString.prefix(8))"
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
 
-        // Open the conversation and assert the message that arrived while away is present.
         XCTAssertTrue(AppLauncher.openConversationWith(app, displayName: TestConfig.userBDisplayName),
                       "Could not open conversation")
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20),
                       "Message sent while away did not appear on return")
     }
 
-    /// B's new message shows in the conversation preview on the Chats list.
-    /// Send the token BEFORE the first Chats visit: the list re-fetches on tab entry, so the token is the
-    /// newest message when the preview loads. The Conversations list does NOT reliably re-render a preview
-    /// from a passive incoming socket event while already on-screen (verified), so navigating in — as the
-    /// proven delete-preview case does — is what surfaces the new text.
-    ///
-    /// The assertion reads the BACKEND `lastMessage`, which is the exact value the preview renders. We do
-    /// NOT poll the Chats list's accessibility tree: the shared backend's list is huge, and a full-tree a11y
-    /// predicate over hundreds of cells can hang the accessibility bridge hard enough to SIGKILL the whole
-    /// test process — a crash no fallback can catch (see [[e2e-conversation-preview-a11y-limitation]]). The
-    /// test still drives the real UI flow (launch → send → open Chats); it just verifies the preview's source
-    /// of truth on the server instead of scraping the frozen, snapshot-hostile list.
+    // Send before entering Chats: the list re-fetches on tab entry but won't re-render a preview in place.
+    // Assert via backend lastMessage — a11y-scraping the huge shared Chats list can SIGKILL the test process.
     func test_1TO1_conversationPreviewUpdates() throws {
         try runBlocking { try await SeedData.createTestConversation() }
         app = AppLauncher.launchAndWaitForHome()
@@ -103,7 +78,6 @@ final class ReceiveMessageTests: XCTestCase {
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         AppLauncher.navigateToTab(app, title: AppLauncher.TabLabel.chats)
 
-        // Load-bearing: the backend's last-message for this conversation IS what the preview shows.
         let backendReflects = waitForBackend(timeout: 12) {
             await PeerActions.lastConversationMessageText() == token
         }
@@ -111,8 +85,20 @@ final class ReceiveMessageTests: XCTestCase {
                       "Conversation preview did not update with the new message")
     }
 
-    /// A sends via UI; the message appears (despite the "RT" name, no live peer). Serves as
-    /// the send-side control alongside the receive cases.
+    // Preview-after-edit asserted via backend `lastMessage` — the Chats a11y walk SIGKILLs here.
+    func test_RT_EDIT_editUpdatesConversationPreview() throws {
+        try runBlocking { try await SeedData.createTestConversation() }
+        app = AppLauncher.launchAndWaitForHome()
+
+        let edited = "E2E-edited-preview-\(UUID().uuidString.prefix(8))"
+        let msgId = try runBlocking { try await PeerActions.sendTextMessage("E2E-orig-\(UUID().uuidString.prefix(6))") }
+        try runBlocking { try await PeerActions.editMessage(msgId, newText: edited) }
+        AppLauncher.navigateToTab(app, title: AppLauncher.TabLabel.chats)
+
+        XCTAssertTrue(waitForBackend(timeout: 15) { await PeerActions.lastConversationMessageText() == edited },
+                      "Conversation preview did not update to the edited text")
+    }
+
     func test_RT_MSG_ownMessageAppears() throws {
         openSeeded()
         let token = "E2E-own-\(UUID().uuidString.prefix(8))"
@@ -121,7 +107,6 @@ final class ReceiveMessageTests: XCTestCase {
                       "Own message did not appear")
     }
 
-    /// B sends a long (1000+ char) message; the tail arrives.
     func test_RT_MSG_receiveLongText() throws {
         openSeeded()
         let tail = "recvtail-\(UUID().uuidString.prefix(8))"
@@ -130,14 +115,9 @@ final class ReceiveMessageTests: XCTestCase {
                       "Long received message tail did not arrive")
     }
 
-    /// B sends an emoji message; it is received without breaking the screen. NOTE: a bubble
-    /// whose text contains emoji does NOT reliably expose a matching accessibility label on iOS (verified:
-    /// the message delivers — REST returns an id — but no queryable button/staticText carries the token).
-    /// So this asserts a plain-text control message arrives AND the screen stays stable when an emoji
-    /// message follows — a tolerant "received, no crash" check.
+    // Emoji bubbles expose no queryable a11y label; assert a plain control token arrives + screen stability.
     func test_RT_MSG_receiveEmojiMessage() throws {
         openSeeded()
-        // A plain control token proves delivery is flowing; the emoji message then exercises the render path.
         let control = "emoctl\(UUID().uuidString.prefix(6))"
         try runBlocking {
             _ = try await PeerActions.sendTextMessage(control)
@@ -148,21 +128,42 @@ final class ReceiveMessageTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not stable after emoji message")
     }
 
-    /// Bi-directional exchange: A sends 3 via UI, B sends 3 via REST; both sides appear.
     func test_RT_MSG_bidirectionalExchange() throws {
         openSeeded()
         let stamp = UUID().uuidString.prefix(6)
-        // A sends via UI.
         let aToken = "E2E-A-\(stamp)"
         ComponentQueries.typeAndSend(app, text: aToken)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: aToken, timeout: 14), "A's message missing")
-        // B sends via REST.
         let bToken = "E2E-B-\(stamp)"
         try runBlocking { _ = try await PeerActions.sendTextMessage(bToken) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: bToken, timeout: 20), "B's message missing")
     }
 
-    // MARK: - Helpers
+    // RT-MSG-009: a message A sends from ANOTHER device (same user) syncs into A's open chat. A REST send AS
+    // User A produces exactly this — A's app receives its own outbound message over its socket, no second app
+    // client needed.
+    func test_RT_MSG_selfMessageFromOtherDevice() throws {
+        openSeeded()
+        let token = "E2E-otherdev-\(UUID().uuidString.prefix(8))"
+        try runBlocking { _ = try await PeerActions.sendTextMessageAsA(token) }
+        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20),
+                      "A's message from another device did not sync into the open chat")
+    }
+
+    // RT-MSG-015: a brand-new conversation appears when the first message arrives. The Chats-list row isn't
+    // reliably in the a11y tree (scraping the busy list SIGKILLs), so surfacing is asserted at the backend
+    // conversation list + Chats-tab stable.
+    func test_RT_MSG_newConversationAppears() throws {
+        runBlocking { await SeedData.cleanup() } // start with no A↔B conversation
+        app = AppLauncher.launchAndWaitForHome()
+        AppLauncher.navigateToTab(app, title: AppLauncher.TabLabel.chats)
+        let token = "E2E-newconv-\(UUID().uuidString.prefix(6))"
+        try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
+        // Read the conversation LIST (GET /conversations/{id} is empty for a 1:1) — the new convo's lastMessage.
+        XCTAssertTrue(waitForBackend(timeout: 15) { await PeerActions.lastConversationMessageText() == token },
+                      "New conversation did not surface in A's conversation list")
+        XCTAssertTrue(app.tabBars.firstMatch.exists, "Chats tab not stable when a new conversation arrived")
+    }
 
     private func openSeeded() {
         try? runBlocking { try await SeedData.createTestConversation() }

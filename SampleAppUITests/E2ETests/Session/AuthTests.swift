@@ -1,13 +1,6 @@
 import XCTest
 
-/// Authentication flows.
-///
-/// Assertions are screen-presence only: each test proves the app routes to the right screen after an
-/// auth action, not anything deeper.
-///
-/// Tests are synchronous (`XCUIApplication.launch()` needs the main thread). Each test owns its launch
-/// path — logged-out via `launchToLogin`, logged-in via `launchAndWaitForHome` — so they are
-/// order-independent.
+/// Each test owns its launch path (launchToLogin vs launchAndWaitForHome), so tests are order-independent.
 final class AuthTests: XCTestCase {
 
     private var app: XCUIApplication!
@@ -21,10 +14,7 @@ final class AuthTests: XCTestCase {
         app = nil
     }
 
-    // MARK: - Valid login navigates to home
-
     func test_validLoginNavigatesToHome() {
-        // `-UITestUID` auto-logs-in User A; home is ready when the tab bar appears.
         app = AppLauncher.launch()
         AppLauncher.waitForHome(app)
 
@@ -34,10 +24,7 @@ final class AuthTests: XCTestCase {
         )
     }
 
-    // MARK: - Invalid credentials show an error
-
     func test_invalidCredentialsShowsError() {
-        // Start on the Login screen, then drive the UI by hand with a bad UID.
         app = AppLauncher.launchToLogin()
         XCTAssertTrue(app.buttons[Login.continueButton].waitForExistence(timeout: 15), "Login screen did not appear")
 
@@ -48,26 +35,21 @@ final class AuthTests: XCTestCase {
 
         app.buttons[Login.continueButton].tap()
 
-        // A failed login surfaces the error alert (presentSomethingWentWrongAlert), located by title.
         XCTAssertTrue(
             app.alerts[Login.errorAlertTitle].waitForExistence(timeout: 30),
             "Invalid login did not show the error alert"
         )
-        // Login did not succeed → Home never appeared.
         XCTAssertFalse(
             app.tabBars.buttons[AppLauncher.TabLabel.chats].exists,
             "Invalid login unexpectedly navigated to Home"
         )
     }
 
-    // MARK: - Logout returns to login
-
     func test_logoutReturnsToLogin() {
         app = AppLauncher.launchAndWaitForHome()
 
-        // The avatar's real logout is a `showsMenuAsPrimaryAction` pull-down on a custom-view bar
-        // button, which XCUITest can't open. The app exposes a DEBUG-only
-        // `uiTestLogout` bar button under -UITestMode that invokes the SAME logout path.
+        // Real logout is a menu-as-primary-action pull-down XCUITest can't open; the DEBUG-only
+        // uiTestLogout button (-UITestMode) invokes the same logout path.
         let logout = app.buttons["uiTestLogout"]
         XCTAssertTrue(logout.waitForExistence(timeout: 10), "Test logout button not found")
         logout.tap()
@@ -78,16 +60,10 @@ final class AuthTests: XCTestCase {
         )
     }
 
-    // MARK: - Existing session skips login on relaunch
-
     func test_existingSessionSkipsLogin() {
-        // First launch establishes and persists the SDK session.
         app = AppLauncher.launchAndWaitForHome()
         app.terminate()
 
-        // Relaunch the SAME install: with a persisted session, auto-login short-circuits
-        // (`getLoggedInUser() != nil`) and routing goes straight to Home — the Login screen never
-        // appears. Reuse the same args so the only difference is the now-persisted session.
         AppLauncher.launch(app)
 
         XCTAssertTrue(

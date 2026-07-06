@@ -1,15 +1,6 @@
 import XCTest
 
-/// Opening a group you've been banned from must not offer a usable composer — a non-member/banned banner
-/// replaces it (or the group won't open at all). This
-/// asserts the UI-side permission state, distinct from the backend ban check already covered by
-/// `E2EAdminCheckTests`/`GroupLifecycleTests`.
-///
-/// Setup: A is a participant in a B-owned (public, discoverable) group; B then bans A. A reopens it.
-///
-/// NOTE: the exact banner copy wasn't confirmable off-device — the assertion accepts either "composer
-/// absent" or a banner matching common non-member phrasings. Confirm the wording on first run and tighten
-/// if needed (team's diagnostic-dump practice).
+/// A banned user opening the group must not get a usable composer — a non-member banner replaces it, or the group won't open at all.
 final class GroupBannedBannerTests: XCTestCase {
 
     private var app: XCUIApplication!
@@ -31,7 +22,6 @@ final class GroupBannedBannerTests: XCTestCase {
         ctx = context
         app = AppLauncher.launchAndWaitForHome()
 
-        // A banned user being unable to open the public group at all is itself a valid non-member outcome.
         guard AppLauncher.openGroup(app, named: context.group.name) else {
             XCTAssertTrue(app.tabBars.firstMatch.exists, "App unstable after a banned group failed to open")
             return

@@ -1,16 +1,7 @@
 import XCTest
 
-/// Smoke tests for the 1:1 message bucket: sending text, the composer clearing after send, and the
-/// conversation header showing the peer's name.
-///
-/// Each test seeds a 1:1 conversation with User B via REST (`SeedData.createTestConversation`) so the
-/// peer lands at the top of Chats, then opens it with `AppLauncher.openConversationFromChats` — the
-/// canonical entry point (Users is long/unsorted). All assertions are screen/content
-/// presence only. Bubbles surface as buttons, so content
-/// assertions go through `ComponentQueries.waitForBubble`, never a raw `staticTexts[text]`.
-///
-/// Synchronous by necessity: `XCUIApplication.launch()` requires the main thread, so REST seed/cleanup
-/// bridge through `runBlocking`.
+/// Bubbles surface as buttons — assert via `ComponentQueries.waitForBubble`, never raw `staticTexts`.
+/// REST seed/cleanup bridge through `runBlocking`; `XCUIApplication.launch()` requires the main thread.
 final class MessageSmokeTests: XCTestCase {
 
     private var app: XCUIApplication!
@@ -25,7 +16,6 @@ final class MessageSmokeTests: XCTestCase {
         runBlocking { await SeedData.cleanup() }
     }
 
-    /// Sending a text message into a 1:1 renders its bubble.
     func test_sendTextMessageAppears() throws {
         try runBlocking { try await SeedData.createTestConversation() }
 
@@ -45,7 +35,6 @@ final class MessageSmokeTests: XCTestCase {
         )
     }
 
-    /// After sending, the composer returns to empty.
     func test_composerClearsAfterSend() throws {
         try runBlocking { try await SeedData.createTestConversation() }
 
@@ -58,7 +47,6 @@ final class MessageSmokeTests: XCTestCase {
         let token = "E2E-clear-\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
 
-        // Wait for the send to land (bubble rendered) before checking the composer is reset.
         XCTAssertTrue(
             ComponentQueries.waitForBubble(app, text: token, timeout: 12),
             "Sent message '\(token)' did not appear"
@@ -69,7 +57,6 @@ final class MessageSmokeTests: XCTestCase {
         )
     }
 
-    /// The 1:1 conversation header shows the peer's display name.
     func test_headerShowsName() throws {
         try runBlocking { try await SeedData.createTestConversation() }
 
@@ -79,8 +66,6 @@ final class MessageSmokeTests: XCTestCase {
             "Could not open conversation with \(TestConfig.userBDisplayName)"
         )
 
-        // The message-list header renders the peer name as a staticText; the composer appearing
-        // confirms the list is up before we assert the name.
         XCTAssertTrue(
             ComponentQueries.composer(app).waitForExistence(timeout: 15),
             "Message list did not open (composer not found)"
@@ -91,10 +76,6 @@ final class MessageSmokeTests: XCTestCase {
         )
     }
 
-    // MARK: - Send variants
-
-    /// A whitespace-only message is not sent: typing spaces and tapping Send creates no whitespace bubble
-    /// and the message screen stays stable (the UIKit composer trims/rejects blank input).
     func test_1TO1_whitespaceMessageBlocked() throws {
         openSeeded()
         let composer = ComponentQueries.composer(app)
@@ -102,13 +83,10 @@ final class MessageSmokeTests: XCTestCase {
         composer.typeText("     ")
         let send = app.buttons["Send"]
         if send.exists && send.isHittable { send.tap() }
-        // No blank bubble should have been created, and the composer is still present (screen stable).
         XCTAssertFalse(app.buttons["     "].exists, "A whitespace-only bubble was unexpectedly sent")
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Composer vanished after blank send attempt")
     }
 
-    /// A long (1000+ char) message sends and its tail renders. Assert on a unique tail token contained in
-    /// the (large) bubble label.
     func test_1TO1_longTextMessageSends() throws {
         openSeeded()
         let tail = "longtail-\(UUID().uuidString.prefix(8))"
@@ -118,8 +96,7 @@ final class MessageSmokeTests: XCTestCase {
                       "Long message tail '\(tail)' did not render")
     }
 
-    /// A message containing an @mention text sends; the trailing words render. (Mention resolution is
-    /// not asserted — only the trailing plain words are checked.)
+    // Mention resolution isn't asserted — only the trailing plain words.
     func test_1TO1_messageWithMentionSends() throws {
         openSeeded()
         let tail = "mention-\(UUID().uuidString.prefix(8))"
@@ -128,8 +105,6 @@ final class MessageSmokeTests: XCTestCase {
                       "Mention message tail did not render")
     }
 
-    /// A message containing a URL sends and the trailing token renders (the bubble label includes the URL
-    /// plus our token, so match on the token as a substring).
     func test_1TO1_messageWithURLSends() throws {
         openSeeded()
         let tail = "url-\(UUID().uuidString.prefix(8))"
@@ -138,13 +113,11 @@ final class MessageSmokeTests: XCTestCase {
                       "URL message tail did not render")
     }
 
-    /// A markdown-bold message sends; the inner word renders. NOTE: no underscores in test text — the
-    /// UIKit formatter treats `_x_` as italic and strips them; use `**bold**`.
+    // No underscores in test text — the formatter strips `_x_` as italic; use `**bold**`.
     func test_1TO1_markdownBoldSends() throws {
         openSeeded()
         let word = "boldword\(UUID().uuidString.prefix(6))"
         ComponentQueries.typeAndSend(app, text: "**\(word)**")
-        // The rendered bubble may show the inner word with bold styling; assert the word is present.
         XCTAssertTrue(
             ComponentQueries.waitForBubble(app, text: word, timeout: 12)
                 || app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", word)).firstMatch.exists,
@@ -152,7 +125,6 @@ final class MessageSmokeTests: XCTestCase {
         )
     }
 
-    /// The send affordance is present once text is typed (composer exposes a Send control).
     func test_1TO1_sendButtonActivatesOnText() throws {
         openSeeded()
         let composer = ComponentQueries.composer(app)
@@ -162,16 +134,12 @@ final class MessageSmokeTests: XCTestCase {
                       "Send affordance not present after typing")
     }
 
-    /// Opening a 1:1 keeps the message screen stable (the "cannot send when blocked" full behavior lives
-    /// in the block suite; here we only assert screen stability).
+    // Full blocked-send behavior lives in the block suite; only screen stability here.
     func test_1TO1_screenStableForBlockedCase() throws {
         openSeeded()
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Message screen not stable")
     }
 
-    // MARK: - Helpers
-
-    /// Seed a 1:1 with User B and open it from Chats. Asserts the open succeeded.
     private func openSeeded() {
         try? runBlocking { try await SeedData.createTestConversation() }
         app = AppLauncher.launchAndWaitForHome()

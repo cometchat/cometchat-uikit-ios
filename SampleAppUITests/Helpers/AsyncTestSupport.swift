@@ -1,9 +1,6 @@
 import XCTest
 
-/// Bridges async REST helpers into synchronous test bodies. `XCUIApplication.launch()` requires the
-/// main thread, but an `async` XCTest method runs its body on a background cooperative thread, so UI
-/// tests stay synchronous and run REST work to completion here. Spins the run loop on an expectation
-/// so the awaited continuation can hop back to the main actor without deadlocking.
+/// Bridges async REST into synchronous test bodies; spins the run loop so the continuation can hop back to the main thread without deadlocking.
 extension XCTestCase {
 
     func runBlocking<T>(timeout: TimeInterval = 60,
@@ -28,9 +25,6 @@ extension XCTestCase {
         wait(for: [expectation], timeout: timeout)
     }
 
-    /// Poll an async (REST) backend condition until it's true or `timeout` elapses. A thrown error (e.g.
-    /// a transient REST failure) counts as "not yet". Lets a test assert the source of truth — the
-    /// backend — instead of a UI that may lag or have a refresh glitch.
     func waitForBackend(timeout: TimeInterval, _ condition: @escaping () async throws -> Bool) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         repeat {
@@ -40,8 +34,6 @@ extension XCTestCase {
         return false
     }
 
-    /// Poll a synchronous UI condition until it's true or `timeout` elapses — waits on a deterministic
-    /// signal rather than sleeping on a fixed delay.
     func waitForCondition(timeout: TimeInterval, _ condition: () -> Bool) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
@@ -51,9 +43,7 @@ extension XCTestCase {
         return condition()
     }
 
-    /// Spin the run loop for `seconds` without failing the test — a fresh `XCTWaiter` on an unfulfilled
-    /// expectation times out silently (unlike `XCTestCase.wait`, which records a failure). Used only to
-    /// pace polling loops, never as a substitute for waiting on a real element.
+    /// A fresh `XCTWaiter` times out silently, unlike `XCTestCase.wait` which records a failure.
     private func pause(_ seconds: TimeInterval) {
         _ = XCTWaiter().wait(for: [XCTestExpectation(description: "poll-pace")], timeout: seconds)
     }

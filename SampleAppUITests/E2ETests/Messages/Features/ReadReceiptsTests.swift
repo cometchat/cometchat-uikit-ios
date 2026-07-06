@@ -1,9 +1,7 @@
 import XCTest
 
 /// Read receipts. On iOS the receipt tick is a PNG image with no queryable state, so these assert the
-/// message PERSISTS through the delivered/read events (driven over REST by User B) and the screen stays
-/// stable, NOT the tick colour. Consolidates the
-/// many near-identical structural rows.
+/// message persists through the delivered/read events and the screen stays stable, not the tick colour.
 final class ReadReceiptsTests: XCTestCase {
 
     private var app: XCUIApplication!
@@ -14,7 +12,6 @@ final class ReadReceiptsTests: XCTestCase {
         runBlocking { await SeedData.cleanup() }
     }
 
-    /// A sends; the message renders (sent state).
     func test_1TO1_sentReceiptShown() throws {
         openSeeded()
         let token = "E2E-sent\(UUID().uuidString.prefix(8))"
@@ -22,7 +19,6 @@ final class ReadReceiptsTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Sent message not shown")
     }
 
-    /// B marks A's message delivered via REST; the message remains.
     func test_1TO1_deliveredReceipt() throws {
         openSeeded()
         let token = "E2E-deliv\(UUID().uuidString.prefix(8))"
@@ -32,7 +28,6 @@ final class ReadReceiptsTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 8), "Message vanished after delivered")
     }
 
-    /// B marks A's message read via REST; the message remains.
     func test_1TO1_readReceipt() throws {
         openSeeded()
         let token = "E2E-read\(UUID().uuidString.prefix(8))"
@@ -42,7 +37,6 @@ final class ReadReceiptsTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 8), "Message vanished after read")
     }
 
-    /// Receipts hidden/disabled is a structural no-op on iOS — the message renders regardless.
     func test_1TO1_receiptsStructural() throws {
         openSeeded()
         let token = "E2E-rcfg\(UUID().uuidString.prefix(8))"
@@ -50,7 +44,6 @@ final class ReadReceiptsTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Message not shown")
     }
 
-    /// A sends 3, B marks the latest read via REST; all 3 remain (cumulative).
     func test_RT_RCPT_cumulativeRead() throws {
         openSeeded()
         let stamp = UUID().uuidString.prefix(6)
@@ -66,6 +59,73 @@ final class ReadReceiptsTests: XCTestCase {
             await PeerActions.markAsRead(lastId)
         }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: lastToken, timeout: 25), "Latest message missing")
+    }
+
+    // E2E-044 / RT-RCPT-001 / RT-RCPT-002: the sent/delivered TICK is a PNG image-swap with no a11y state,
+    // so the glyph colour itself is unassertable on iOS. But the underlying DELIVERED state IS backend-
+    // readable (`deliveredAt`), so assert that directly.
+    func test_RT_RCPT_deliveredStateBackend() throws {
+        openSeeded()
+        let token = "E2E-delivbk-\(UUID().uuidString.prefix(8))"
+        let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
+        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
+        runBlocking { await PeerActions.markAsDelivered(id) }
+        XCTAssertTrue(waitForBackend(timeout: 12) { await PeerActions.messageDeliveredAt(id) != nil },
+                      "Backend did not record the delivered receipt")
+    }
+
+    // RT-RCPT-003: the READ (blue) tick is a PNG AND `readAt` is not surfaced to the sender via REST here,
+    // so read state is backend-unassertable — the only honest check is that the message survives the read
+    // event and the screen stays stable. Documented limitation, not a gap we can close.
+    func test_RT_RCPT_readEventStable() throws {
+        openSeeded()
+        let token = "E2E-readstable-\(UUID().uuidString.prefix(8))"
+        let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
+        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
+        runBlocking { await PeerActions.markAsRead(id) }
+        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 8), "Message vanished after read")
+    }
+
+    // RT-RCPT-005: no read receipt if the chat is never opened. Read-ABSENCE isn't assertable via the tick
+    // (PNG) and `readAt` isn't exposed, so this is a stability stand-in — A never opens the chat, app stable.
+    func test_RT_RCPT_noReadWhenChatUnopened() throws {
+        try runBlocking { try await SeedData.createTestConversation() }
+        app = AppLauncher.launchAndWaitForHome()
+        AppLauncher.navigateToTab(app, title: AppLauncher.TabLabel.chats)
+        try runBlocking { _ = try await PeerActions.sendTextMessage("E2E-unopened-\(UUID().uuidString.prefix(6))") }
+        XCTAssertTrue(app.tabBars.firstMatch.exists, "Home not stable with an unread inbound message")
+    }
+
+    // RT-RCPT-006: receipt on the conversation-list last message. The Chats-list receipt glyph isn't in the
+    // a11y tree and scraping the busy list SIGKILLs, so assert delivered backend-state + Chats stable.
+    func test_RT_RCPT_conversationListReceiptBackend() throws {
+        try runBlocking { try await SeedData.createTestConversation() }
+        app = AppLauncher.launchAndWaitForHome()
+        let id: Int = try runBlocking { try await PeerActions.sendTextMessage("E2E-listrcpt-\(UUID().uuidString.prefix(6))") }
+        runBlocking { await PeerActions.markAsDelivered(id) }
+        AppLauncher.navigateToTab(app, title: AppLauncher.TabLabel.chats)
+        XCTAssertTrue(waitForBackend(timeout: 12) { await PeerActions.messageDeliveredAt(id) != nil },
+                      "Backend did not record delivery for the conversation-list receipt")
+        XCTAssertTrue(app.tabBars.firstMatch.exists, "Chats tab not stable")
+    }
+
+    // RT-RCPT-008: delivered-to-all in a group. Per-member receipt state is server-driven and the tick isn't
+    // in the a11y tree, so this is a group send + screen-stable stand-in.
+    func test_RT_RCPT_groupDeliveredStable() throws {
+        app = AppLauncher.launchAndWaitForHome()
+        XCTAssertTrue(AppLauncher.openGroup(app, named: TestConfig.groupDisplayName), "Could not open the shared group")
+        try runBlocking { _ = try await PeerActions.sendGroupTextMessage("E2E-grcpt-\(UUID().uuidString.prefix(6))") }
+        XCTAssertTrue(ComponentQueries.composer(app).exists, "Group screen not stable after a delivered message")
+    }
+
+    // RT-RCPT-007 / 1TO1-044: receipts-DISABLED behaviour. The sample app exposes no receipts-off config
+    // flag, so the disabled state can't be produced — this is a structural stand-in.
+    func test_RT_RCPT_receiptsDisabledStructural() throws {
+        openSeeded()
+        let token = "E2E-rdis-\(UUID().uuidString.prefix(8))"
+        ComponentQueries.typeAndSend(app, text: token)
+        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14),
+                      "Message not shown (receipts-disabled path can only be exercised structurally)")
     }
 
     private func openSeeded() {

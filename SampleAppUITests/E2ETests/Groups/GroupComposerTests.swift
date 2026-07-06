@@ -1,8 +1,6 @@
 import XCTest
 
-/// Sending messages in a group. Uses a throwaway
-/// per-run group (User A owner, User B member) so the shared `supergroup` is never touched. Mirrors the
-/// 1:1 send-variant depth: unique tokens, bubble presence, composer-clears.
+/// Throwaway per-run group (A owner, B member) so the shared `supergroup` is never touched.
 final class GroupComposerTests: XCTestCase {
 
     private var app: XCUIApplication!
@@ -15,7 +13,6 @@ final class GroupComposerTests: XCTestCase {
         runBlocking { await SeedData.deleteTestGroup(capturedGroup) }
     }
 
-    /// Send text in a group; the bubble renders.
     func test_GRP_sendTextInGroup() throws {
         openGroup()
         let token = "E2E-gsend\(UUID().uuidString.prefix(8))"
@@ -23,7 +20,6 @@ final class GroupComposerTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Group message did not render")
     }
 
-    /// Empty message cannot be sent in a group.
     func test_GRP_emptyMessageBlocked() throws {
         openGroup()
         let send = app.buttons["Send"]
@@ -31,7 +27,6 @@ final class GroupComposerTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composerIsEmpty(app), "Empty group message should not send")
     }
 
-    /// Long text sends in a group; the tail renders.
     func test_GRP_longTextSends() throws {
         openGroup()
         let tail = "gtail\(UUID().uuidString.prefix(8))"
@@ -40,7 +35,6 @@ final class GroupComposerTests: XCTestCase {
                       "Long group message tail did not render")
     }
 
-    /// Composer clears after a successful group send.
     func test_GRP_composerClearsAfterSend() throws {
         openGroup()
         let token = "E2E-gclear\(UUID().uuidString.prefix(8))"
@@ -49,7 +43,6 @@ final class GroupComposerTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composerIsEmpty(app), "Composer did not clear after group send")
     }
 
-    /// A mention message sends in a group; trailing words render.
     func test_GRP_mentionSends() throws {
         openGroup()
         let tail = "gmention\(UUID().uuidString.prefix(8))"
@@ -58,8 +51,6 @@ final class GroupComposerTests: XCTestCase {
                       "Group mention tail did not render")
     }
 
-    /// GRP-015: a whitespace-only group message is not sent (composer trims/rejects blanks); the group
-    /// variant of `test_1TO1_whitespaceMessageBlocked`.
     func test_GRP_whitespaceMessageBlocked() throws {
         openGroup()
         let composer = ComponentQueries.composer(app)
@@ -70,9 +61,7 @@ final class GroupComposerTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Composer vanished after a blank group send attempt")
     }
 
-    /// GRP-017: an emoji-only group message sends. The emoji glyph is not reliably in the a11y tree, so
-    /// this appends a unique text tail to the emoji and asserts the tail renders (bubble-or-stable is the
-    /// realistic depth for the glyph itself — same as Flutter, which degrades emoji bubbles too).
+    /// Emoji glyph isn't reliably in the a11y tree — send with a unique text tail and assert the tail.
     func test_GRP_emojiMessageSends() throws {
         openGroup()
         let tail = "gemoji\(UUID().uuidString.prefix(8))"
@@ -84,8 +73,6 @@ final class GroupComposerTests: XCTestCase {
         )
     }
 
-    /// GRP-087: a special-character group message renders. The characters are plain text (in the a11y
-    /// tree), so this asserts the unique tail bubble arrives — a real content check, deeper than stability.
     func test_GRP_specialCharacterMessageSends() throws {
         openGroup()
         let tail = "gspecial\(UUID().uuidString.prefix(8))"
@@ -94,9 +81,6 @@ final class GroupComposerTests: XCTestCase {
                       "Special-character group message did not render")
     }
 
-    /// GRP-021: a message with a URL sends in a group; the trailing token renders. The group variant of
-    /// `test_1TO1_messageWithURLSends` — the bubble label includes the URL plus our token, so match the
-    /// token as a substring (a real content check on plain text in the a11y tree).
     func test_GRP_urlMessageSends() throws {
         openGroup()
         let tail = "gurl\(UUID().uuidString.prefix(8))"
@@ -105,9 +89,7 @@ final class GroupComposerTests: XCTestCase {
                       "Group URL message tail did not render")
     }
 
-    /// GRP-022: a markdown-bold message sends in a group; the inner word renders. Group variant of
-    /// `test_1TO1_markdownBoldSends` — no underscores (the UIKit formatter strips `_x_` as italic); use
-    /// `**bold**` and assert the inner word is present.
+    /// No underscores — the UIKit formatter strips `_x_` as italic.
     func test_GRP_markdownBoldSends() throws {
         openGroup()
         let word = "gbold\(UUID().uuidString.prefix(6))"

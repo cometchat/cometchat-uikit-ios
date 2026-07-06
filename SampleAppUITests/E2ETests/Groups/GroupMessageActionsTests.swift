@@ -1,7 +1,6 @@
 import XCTest
 
 /// Message actions in a group — edit/delete own messages, the long-press popup, copy.
-/// Throwaway per-run group.
 final class GroupMessageActionsTests: XCTestCase {
 
     private var app: XCUIApplication!
@@ -14,7 +13,6 @@ final class GroupMessageActionsTests: XCTestCase {
         runBlocking { await SeedData.deleteTestGroup(capturedGroup) }
     }
 
-    /// Edit an own group message; the edited text renders.
     func test_GRP_editOwnGroupMessage() throws {
         openGroup()
         let token = "E2E-gedit\(UUID().uuidString.prefix(8))"
@@ -30,7 +28,6 @@ final class GroupMessageActionsTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.waitForBubbleContaining(app, substring: token, timeout: 12), "Edit did not render")
     }
 
-    /// Edited group message shows an Edited marker.
     func test_GRP_editedShowsMarker() throws {
         openGroup()
         let token = "E2E-gmark\(UUID().uuidString.prefix(8))"
@@ -45,7 +42,6 @@ final class GroupMessageActionsTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.waitForEditedMarker(app, timeout: 12), "Edited marker did not appear")
     }
 
-    /// Delete an own group message; the placeholder replaces it.
     func test_GRP_deleteOwnGroupMessage() throws {
         openGroup()
         let token = "E2E-gdel\(UUID().uuidString.prefix(8))"
@@ -61,8 +57,6 @@ final class GroupMessageActionsTests: XCTestCase {
         )
     }
 
-    /// GRP-024: cancelling an edit leaves the original group message unchanged; the group variant of
-    /// `test_1TO1_cancelEditRestoresComposer`.
     func test_GRP_cancelEditRestoresComposer() throws {
         openGroup()
         let token = "E2E-gcancel\(UUID().uuidString.prefix(8))"
@@ -71,16 +65,13 @@ final class GroupMessageActionsTests: XCTestCase {
 
         XCTAssertTrue(ComponentQueries.openMessageOptions(app, bubbleText: token), "Long-press failed")
         XCTAssertTrue(ComponentQueries.tapMessageOption(app, label: ComponentQueries.MessageOption.edit), "Edit missing")
-        // Cancel the edit — a close/X on the edit preview bar (falls back to leaving it untouched).
         for label in ["Close", "Cancel", "close", "cancel"] where app.buttons[label].exists {
             app.buttons[label].tap(); break
         }
-        // The original bubble survives, unchanged.
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 8),
                       "Original group message lost after cancelling edit")
     }
 
-    /// Copy option present in a group message popup.
     func test_GRP_copyGroupMessage() throws {
         openGroup()
         let token = "E2E-gcopy\(UUID().uuidString.prefix(8))"
@@ -94,7 +85,6 @@ final class GroupMessageActionsTests: XCTestCase {
         )
     }
 
-    /// Long-press a group message shows the action popup with at least one known option.
     func test_GRP_longPressShowsActionPopup() throws {
         openGroup()
         let token = "E2E-glp\(UUID().uuidString.prefix(8))"
@@ -106,8 +96,6 @@ final class GroupMessageActionsTests: XCTestCase {
         }
         XCTAssertTrue(anyOption, "Group message action popup did not present options")
     }
-
-    // MARK: - Helpers
 
     private func openGroup() {
         let testGroup = try? runBlocking { try await SeedData.createTestGroupWithMember() }

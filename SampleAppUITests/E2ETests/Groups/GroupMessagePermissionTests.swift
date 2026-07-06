@@ -1,17 +1,6 @@
 import XCTest
 
-/// Permission-enforcing message actions in a group — who may edit/delete ANOTHER member's message,
-/// keyed by the acting user's role. These carry real regression value: they prove the framework hides
-/// Edit/Delete for messages the current user isn't allowed to modify, and shows Delete for admins/moderators.
-///
-/// Setup: the acted-upon message is authored by User B (via REST) so User A is always acting on SOMEONE
-/// ELSE's message. User A's role in the group is varied per case:
-/// - participant  → cannot edit or delete B's message
-/// - admin/owner  → can delete B's message
-/// - moderator    → can delete B's message
-///
-/// A throwaway per-run group is used throughout. For the participant/moderator cases the group is owned
-/// by B (so A can be a non-owner); for the admin case A owns the group (default seed).
+/// B authors the acted-upon message via REST so A always acts on ANOTHER member's message; A's role varies per case.
 final class GroupMessagePermissionTests: XCTestCase {
 
     private var app: XCUIApplication!
@@ -24,7 +13,6 @@ final class GroupMessagePermissionTests: XCTestCase {
         runBlocking { await SeedData.deleteTestGroup(capturedContext) }
     }
 
-    /// A regular participant cannot EDIT another member's message — the Edit option is absent.
     func test_GRP_participantCannotEditOthersMessage() throws {
         let token = openGroupWithBMessage(aScope: "participant")
         XCTAssertTrue(ComponentQueries.openMessageOptions(app, bubbleText: token), "Long-press on B's message failed")
@@ -32,7 +20,6 @@ final class GroupMessagePermissionTests: XCTestCase {
                        "A participant should NOT see Edit on another member's message")
     }
 
-    /// An admin/owner can DELETE another member's message — the placeholder replaces it.
     func test_GRP_adminDeletesOthersMessage() throws {
         let token = openGroupWithBMessage(aScope: "admin") // admin path = A owns the group
         XCTAssertTrue(ComponentQueries.openMessageOptions(app, bubbleText: token), "Long-press on B's message failed")
@@ -46,7 +33,6 @@ final class GroupMessagePermissionTests: XCTestCase {
         )
     }
 
-    /// A regular participant cannot DELETE another member's message — the Delete option is absent.
     func test_GRP_participantCannotDeleteOthersMessage() throws {
         let token = openGroupWithBMessage(aScope: "participant")
         XCTAssertTrue(ComponentQueries.openMessageOptions(app, bubbleText: token), "Long-press on B's message failed")
@@ -54,7 +40,6 @@ final class GroupMessagePermissionTests: XCTestCase {
                        "A participant should NOT see Delete on another member's message")
     }
 
-    /// A moderator can DELETE another member's message — the placeholder replaces it.
     func test_GRP_moderatorDeletesOthersMessage() throws {
         let token = openGroupWithBMessage(aScope: "moderator")
         XCTAssertTrue(ComponentQueries.openMessageOptions(app, bubbleText: token), "Long-press on B's message failed")
@@ -70,28 +55,20 @@ final class GroupMessagePermissionTests: XCTestCase {
 
     // MARK: - Helpers
 
-    /// Whether an option row is present in the (already-open) message-options popup. A missing option is
-    /// the load-bearing assertion for the permission cases, so this must NOT tap — only probe existence.
     private func messageOptionPresent(_ label: String) -> Bool {
-        // Confirm the options popup actually RENDERED before probing for a (possibly absent) row: wait for
-        // an option that is always present for any message (Copy). Without this, a slow/failed popup would
-        // read the restricted option as "absent" and false-pass the negative permission assertion.
+        // Wait for an always-present option (Copy) first — a slow popup would read the restricted option as absent and false-pass.
         let copy = ComponentQueries.MessageOption.copy
         let popupUp = app.buttons[copy].waitForExistence(timeout: 6) || app.staticTexts[copy].exists
         XCTAssertTrue(popupUp, "Message-options popup did not present — cannot assert '\(label)' visibility")
         return app.buttons[label].exists || app.staticTexts[label].exists
     }
 
-    /// Seed a throwaway group with User A at `aScope` and a message authored by User B, open it, and wait
-    /// for B's bubble. Returns the unique token so the caller can long-press exactly that message.
-    /// - "admin" → the default seed where A owns the group; otherwise a B-owned group with A at `aScope`.
     private func openGroupWithBMessage(aScope: String) -> String {
         let token = "E2E-gperm\(UUID().uuidString.prefix(8))"
         let context: SeedData.TestGroupContext? = try? runBlocking {
             let created = aScope == "admin"
                 ? try await SeedData.createGroupOwnedByA()
                 : try await SeedData.createGroupOwnedByBWithAAs(aScope)
-            // B authors the message A will act on.
             _ = try await PeerActions.sendGroupTextMessage(token, groupId: created.group.guid)
             return created
         }
