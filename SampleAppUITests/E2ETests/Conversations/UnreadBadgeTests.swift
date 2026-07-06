@@ -51,8 +51,10 @@ final class UnreadBadgeTests: XCTestCase {
         ComponentQueries.headerBackButton(app)?.tap()
 
         // Back on the list, B's row no longer carries an unread badge.
-        XCTAssertTrue(waitForBadgeCleared(rowNamed: TestConfig.userBDisplayName, timeout: 12),
-                      "Unread badge did not clear after opening the conversation")
+        XCTAssertTrue(
+            waitForBadgeCleared(rowNamed: TestConfig.userBDisplayName, timeout: 12),
+                      "Unread badge did not clear after opening the conversation"
+        )
     }
 
     // MARK: - Helpers
