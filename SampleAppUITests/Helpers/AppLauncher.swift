@@ -7,6 +7,7 @@ enum AppLauncher {
     /// -UITestUID auto-login idempotently establishes User A's session regardless of prior state, so no reset is needed.
     @discardableResult
     static func launch(_ app: XCUIApplication = XCUIApplication()) -> XCUIApplication {
+        TestConfig.validate()
         app.launchArguments = [
             "-UITestMode",
             "-UITestAppID",    TestConfig.appId,
@@ -21,6 +22,7 @@ enum AppLauncher {
     /// -UITestStartLoggedOut forces the Login route without clearing the SDK's Keychain session; credentials are still injected to skip the credentials screen.
     @discardableResult
     static func launchToLogin(_ app: XCUIApplication = XCUIApplication()) -> XCUIApplication {
+        TestConfig.validate()
         app.launchArguments = [
             "-UITestMode",
             "-UITestStartLoggedOut",

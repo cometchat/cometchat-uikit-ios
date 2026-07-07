@@ -88,8 +88,11 @@ up — just build and run. The **SampleApp** scheme runs `SampleApp.xctestplan` 
 xcodebuild test \
   -project CometChatUIKitSwift.xcodeproj \
   -scheme SampleApp \
-  -destination 'platform=iOS Simulator,name=iPhone 16'
+  -destination 'platform=iOS Simulator,name=<your iOS 18+ Simulator>'
 ```
+
+Use any installed iOS 18+ Simulator for the destination name (for example
+`iPhone 17`); list what you have with `xcrun simctl list devices available`.
 
 Add `-only-testing:` to narrow the run:
 
@@ -97,3 +100,50 @@ Add `-only-testing:` to narrow the run:
 -only-testing:SampleAppUITests/MessageHeaderTests                              # one class
 -only-testing:SampleAppUITests/MessageHeaderTests/test_1TO1_headerShowsName    # one test
 ```
+
+## Running in CI
+
+The suite is CI-ready without committing any secret. Two things a fresh clone needs:
+
+1. **A `TestSecrets.swift` to compile against.** It is git-ignored, so a clean CI clone
+   doesn't have one. Generate a placeholder before building — it holds only `PASTE_…`
+   stubs, never real keys:
+
+   ```bash
+   ./Scripts/scaffold-test-secrets.sh   # idempotent: no-ops if the file already exists
+   ```
+
+2. **The real values, injected as environment variables.** `TestConfig` reads env first and
+   falls back to the file, so the env vars override the placeholder stub at runtime. Store
+   these as your CI's encrypted secrets (never as plaintext in the repo or logs):
+
+   | Env var | Meaning |
+   | ------------------------ | ------------------------------------ |
+   | `COMETCHAT_APP_ID`       | App ID |
+   | `COMETCHAT_REGION`       | `us`, `eu`, or `in` |
+   | `COMETCHAT_AUTH_KEY`     | Auth Key |
+   | `COMETCHAT_REST_API_KEY` | REST API Key |
+   | `TEST_USER_A_UID`        | User A UID |
+   | `TEST_USER_B_UID`        | User B UID |
+   | `TEST_GROUP_GUID`        | GUID of a group User A owns |
+   | `TEST_USER_A_NAME`       | User A display name (cells located by name) |
+   | `TEST_USER_B_NAME`       | User B display name |
+   | `TEST_GROUP_NAME`        | Group display name |
+
+A CI job then looks like:
+
+```bash
+./Scripts/scaffold-test-secrets.sh
+xcodebuild test \
+  -project CometChatUIKitSwift.xcodeproj \
+  -scheme SampleApp \
+  -destination 'platform=iOS Simulator,name=<your iOS 18+ Simulator>'
+```
+
+If any credential is still a placeholder or empty at launch, `TestConfig.validate()` fails
+the test immediately with a message naming the missing env vars — so a misconfigured CI run
+fails fast instead of timing out on a failed login.
+
+> Run tests serially in CI (the default test plan already uses no parallelization). Batching
+> UI tests back-to-back can trip the Simulator's accessibility bridge; if you shard, prefer
+> one Simulator per shard.
