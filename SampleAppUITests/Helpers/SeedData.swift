@@ -4,6 +4,9 @@ import Foundation
 enum SeedData {
 
     static func createTestConversation() async throws {
+        // Tests seed BEFORE AppLauncher runs, so validate here too — else placeholder creds make the seed's
+        // REST calls 4xx and the swallowed error resurfaces as a misleading "conversation missing" assertion.
+        TestConfig.validate()
         // A prior block test can leave B blocked (Unblock banner replaces the composer); unblock before seeding.
         await PeerActions.unblockUser()
         try await PeerActions.ensureConversationExists()

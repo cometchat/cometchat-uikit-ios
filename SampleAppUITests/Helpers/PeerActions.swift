@@ -108,12 +108,21 @@ enum PeerActions {
                             onBehalfOf: TestConfig.userAUid, operation: "deleteConversation")
     }
     
+    /// Matches on the peer's `uid` in A's conversation LIST — the app treats a 1:1 `conversationId` as an
+    /// opaque SDK value, so string-joining UIDs (`A_user_B`) is wrong: the canonical id is sender-first
+    /// (`B_user_A` after a B→A seed), and `GET /conversations/A_user_B` 403s `ERR_CONVERSATION_NOT_ACCESSIBLE`.
     static func userConversationExists() async -> Bool {
-        let conversationId = "\(TestConfig.userAUid)_user_\(TestConfig.userBUid)"
-        guard let url = URL(string: "\(baseURL)/conversations/\(conversationId)") else { return false }
-        let data = try? await send(url: url, method: "GET", body: nil,
-                                   onBehalfOf: TestConfig.userAUid, operation: "userConversationExists")
-        return data != nil
+        guard let url = URL(string: "\(baseURL)/users/\(TestConfig.userAUid)/conversations?conversationType=user&perPage=50") else {
+            return false
+        }
+        guard let data = try? await send(url: url, method: "GET", body: nil,
+                                         onBehalfOf: nil, operation: "userConversationExists"),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let list = root["data"] as? [[String: Any]]
+        else { return false }
+        return list.contains {
+            (($0["conversationWith"] as? [String: Any])?["uid"] as? String) == TestConfig.userBUid
+        }
     }
     
     /// Backend `lastMessage` text — polling the Chats-list preview stalls the a11y bridge. Reads the
@@ -132,6 +141,12 @@ enum PeerActions {
         }
         let lastMessage = match?["lastMessage"] as? [String: Any]
         return (lastMessage?["data"] as? [String: Any])?["text"] as? String
+    }
+
+    /// True when `text` is the conversation's current backend `lastMessage` (the Chats-list preview
+    /// source) — the preview itself is a11y-unassertable on the busy backend, so we poll this instead.
+    static func previewShowsLiveMessage(_ text: String, with uid: String = TestConfig.userBUid) async -> Bool {
+        await lastConversationMessageText(with: uid) == text
     }
 
     /// Group-conversation surfacing asserted here — the Groups/Chats a11y walk SIGKILLs on the busy backend.
@@ -175,8 +190,10 @@ enum PeerActions {
     static func unblockUser(_ uid: String = TestConfig.userBUid) async {
         guard let url = URL(string: "\(baseURL)/users/\(TestConfig.userAUid)/blockedusers") else { return }
         let body = try? JSONSerialization.data(withJSONObject: ["blockedUids": [uid]])
-        _ = try? await send(url: url, method: "DELETE", body: body,
-                            onBehalfOf: TestConfig.userAUid, operation: "unblockUser")
+        _ = try? await send(
+            url: url, method: "DELETE", body: body,
+            onBehalfOf: TestConfig.userAUid, operation: "unblockUser"
+        )
     }
     
     static func isBlocked(_ uid: String = TestConfig.userBUid) async -> Bool {

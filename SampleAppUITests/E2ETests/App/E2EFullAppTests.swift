@@ -40,17 +40,30 @@ final class E2EFullAppTests: XCTestCase {
         let named = app.cells.containing(.staticText, identifier: TestConfig.userBDisplayName)
         XCTAssertTrue(named.firstMatch.waitForExistence(timeout: 10), "Seeded conversation not found")
 
+        // The REST conversation-list projection lags the SDK socket that painted the row above, so poll.
         XCTAssertTrue(
-            (try? runBlocking { await PeerActions.userConversationExists() }) ?? false,
+            waitForBackend(timeout: 15) { await PeerActions.userConversationExists() },
             "Seeded conversation missing on backend before delete"
         )
 
-        // Anchor Y to the peer-name label: the recycled cell's own a11y frame is a bogus placeholder.
-        let nameLabel = app.staticTexts[TestConfig.userBDisplayName]
-        XCTAssertTrue(nameLabel.waitForExistence(timeout: 10), "Peer-name label not found")
-        let nameFrame = nameLabel.frame
-        XCTAssertTrue(nameFrame.midY.isFinite && nameFrame.width > 1, "Name frame unusable: \(nameFrame)")
-        let rowMidY = nameFrame.midY
+        // Anchor Y to the peer-name label, but a plain [name] query can resolve to a RECYCLED cell's label
+        // whose a11y frame is the {inf,inf,0,0} placeholder. Pick the first label with a real on-screen
+        // frame (usually only one), then fall back to the containing cell — never assert on the placeholder.
+        XCTAssertTrue(app.staticTexts[TestConfig.userBDisplayName].waitForExistence(timeout: 10), "Peer-name label not found")
+        func usableY(_ frame: CGRect) -> CGFloat? {
+            (frame.midY.isFinite && frame.width > 1 && frame.height > 1) ? frame.midY : nil
+        }
+        let labels = app.staticTexts.matching(identifier: TestConfig.userBDisplayName)
+        var rowMidY: CGFloat?
+        for i in 0..<labels.count {
+            if let y = usableY(labels.element(boundBy: i).frame) { rowMidY = y; break }
+        }
+        if rowMidY == nil {
+            rowMidY = usableY(named.firstMatch.frame)
+        }
+        guard let rowMidY else {
+            return XCTFail("No on-screen frame for \(TestConfig.userBDisplayName) row (all recycled placeholders)")
+        }
 
         let window = app.windows.firstMatch
         let winWidth = window.frame.width
@@ -342,11 +355,15 @@ final class E2EFullAppTests: XCTestCase {
         search.tap()
         search.typeText("zzzzz-no-such-user-\(UUID().uuidString.prefix(6))")
 
-        XCTAssertFalse(
-            app.cells.containing(.staticText, identifier: TestConfig.userBDisplayName).firstMatch.exists,
+        // Search debounces and re-fetches, so the stale list lingers briefly — wait for the row to clear.
+        let knownRow = app.cells.containing(.staticText, identifier: TestConfig.userBDisplayName).firstMatch
+        XCTAssertTrue(
+            knownRow.waitForNonExistence(timeout: 10),
             "Non-matching search unexpectedly surfaced a known user"
         )
-        XCTAssertTrue(app.navigationBars.firstMatch.exists || app.tabBars.firstMatch.exists, "Empty-state search crashed the screen")
+        XCTAssertTrue(
+            app.navigationBars.firstMatch.exists || app.tabBars.firstMatch.exists, "Empty-state search crashed the screen"
+        )
     }
 
     func test_E2E_sharedUIElementsRender() {
