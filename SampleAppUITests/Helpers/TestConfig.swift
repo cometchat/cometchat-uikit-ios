@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-/// Values come from git-ignored TestSecrets.swift (copy TestSecrets.swift.example; env vars of the same name win). See SampleAppUITests/README.md.
+/// Each value comes from TestSecrets.swift (fill it in to run), or a same-named env var (COMETCHAT_*/TEST_*) if set, which overrides it. See SampleAppUITests/README.md.
 enum TestConfig {
     static let appId      = env("COMETCHAT_APP_ID")       ?? TestSecrets.appId
     static let region     = env("COMETCHAT_REGION")       ?? TestSecrets.region
@@ -21,7 +21,7 @@ enum TestConfig {
         return (value?.isEmpty == false) ? value : nil
     }
 
-    /// Maps each resolved value to the env var that supplies it in CI (where TestSecrets.swift is a placeholder stub).
+    /// Maps each resolved value to the env var that can override it; the value itself comes from TestSecrets.swift otherwise.
     private static let requiredFields: [(env: String, value: String)] = [
         ("COMETCHAT_APP_ID", appId), ("COMETCHAT_REGION", region),
         ("COMETCHAT_AUTH_KEY", authKey), ("COMETCHAT_REST_API_KEY", restApiKey),
@@ -37,8 +37,8 @@ enum TestConfig {
             let vars = missing.map(\.env).joined(separator: ", ")
             XCTFail("""
                 E2E credentials are not set: \(vars).
-                Fill SampleAppUITests/Helpers/TestSecrets.swift, or set these env vars (they override the file). \
-                In CI, run Scripts/scaffold-test-secrets.sh and inject the vars as secrets. See SampleAppUITests/README.md.
+                Fill SampleAppUITests/Helpers/TestSecrets.swift with your values. \
+                See SampleAppUITests/README.md.
                 """, file: file, line: line)
             return
         }

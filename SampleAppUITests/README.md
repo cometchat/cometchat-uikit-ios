@@ -29,8 +29,7 @@ Test method names follow `test_<CATEGORY>_<behavior>` — a category prefix (`1T
 
 ## Prerequisites
 
-- **Xcode 16 or later** (the test target uses a synchronized file-system group).
-- An **iOS 18+ Simulator** (the test target's deployment target is iOS 18).
+- **Xcode 15 or later** with an **iOS 18+ Simulator** (the test target's deployment target is iOS 18).
 - A **CometChat app** you control, with:
   - two test users (User A and User B), and
   - one test group that User A owns.
@@ -43,16 +42,9 @@ Test method names follow `test_<CATEGORY>_<behavior>` — a category prefix (`1T
 
 ## Configuring credentials
 
-Credentials live in **`SampleAppUITests/Helpers/TestSecrets.swift`**, which is **git-ignored**
-so your keys are never committed. The test *logic* stays in the committed `TestConfig.swift`;
-only the values are ignored. Create your copy from the template:
-
-```bash
-cp SampleAppUITests/Helpers/TestSecrets.swift.example \
-   SampleAppUITests/Helpers/TestSecrets.swift
-```
-
-Then open `TestSecrets.swift` and replace each `PASTE_…` placeholder with your app's values:
+Credentials live in `SampleAppUITests/Helpers/TestSecrets.swift`, which holds only
+`PASTE_…` placeholders. **Fill it in to run the suite:** open the file and replace each `PASTE_…`
+with your value. It's compiled into the test target, so no environment setup is needed.
 
 | Field | Where to find it in the CometChat dashboard |
 | ---------------------------------------- | ------------------------------------------------------------ |
@@ -62,19 +54,14 @@ Then open `TestSecrets.swift` and replace each `PASTE_…` placeholder with your
 | `groupGuid`                              | **Groups** — a group User A owns                             |
 | `userAName`, `userBName`, `groupName`    | the **display names** shown in the app for those users/group (cells are located by name, so these must match exactly) |
 
-> Important:
-> Never commit real keys. `TestSecrets.swift` is git-ignored on purpose; commit only the
-> `TestSecrets.swift.example` template. If a key is ever pushed, rotate it at the CometChat
-> dashboard — editing history does not un-leak it.
->
-> Each value can also be overridden by an environment variable of the same name (for example
-> `COMETCHAT_AUTH_KEY`), which is handy for CI without editing the file.
+> **`TestSecrets.swift` is tracked.** Your filled-in values show up in `git status` — **never
+> commit real keys.** Treat the edit as local-only and do not `git add` it. If a key is ever
+> committed, rotate it at the CometChat dashboard — editing history does not un-leak it.
 
 ## Running
 
-Credentials are compiled in from `TestSecrets.swift`, so there is no environment to set
-up — just build and run. The **SampleApp** scheme runs `SampleApp.xctestplan` by default
-(random test order, no parallelization).
+Once `TestSecrets.swift` is filled in (above), just build and run. The **SampleApp** scheme runs
+`SampleApp.xctestplan` by default (random test order, no parallelization).
 
 ### From Xcode
 
@@ -100,52 +87,3 @@ Add `-only-testing:` to narrow the run:
 -only-testing:SampleAppUITests/MessageHeaderTests                              # one class
 -only-testing:SampleAppUITests/MessageHeaderTests/test_1TO1_headerShowsName    # one test
 ```
-
-## Running in CI
-
-The suite is CI-ready without committing any secret. Two things a fresh clone needs:
-
-1. **A `TestSecrets.swift` to compile against.** It is git-ignored, so a clean CI clone
-   doesn't have one. Copy it from the committed template before building — it holds only
-   `PASTE_…` stubs, never real keys:
-
-   ```bash
-   cp SampleAppUITests/Helpers/TestSecrets.swift.example \
-      SampleAppUITests/Helpers/TestSecrets.swift
-   ```
-
-2. **The real values, injected as environment variables.** `TestConfig` reads env first and
-   falls back to the file, so the env vars override the placeholder stub at runtime. Store
-   these as your CI's encrypted secrets (never as plaintext in the repo or logs):
-
-   | Env var | Meaning |
-   | ------------------------ | ------------------------------------ |
-   | `COMETCHAT_APP_ID`       | App ID |
-   | `COMETCHAT_REGION`       | `us`, `eu`, or `in` |
-   | `COMETCHAT_AUTH_KEY`     | Auth Key |
-   | `COMETCHAT_REST_API_KEY` | REST API Key |
-   | `TEST_USER_A_UID`        | User A UID |
-   | `TEST_USER_B_UID`        | User B UID |
-   | `TEST_GROUP_GUID`        | GUID of a group User A owns |
-   | `TEST_USER_A_NAME`       | User A display name (cells located by name) |
-   | `TEST_USER_B_NAME`       | User B display name |
-   | `TEST_GROUP_NAME`        | Group display name |
-
-A CI job then looks like:
-
-```bash
-cp SampleAppUITests/Helpers/TestSecrets.swift.example \
-   SampleAppUITests/Helpers/TestSecrets.swift
-xcodebuild test \
-  -project CometChatUIKitSwift.xcodeproj \
-  -scheme SampleApp \
-  -destination 'platform=iOS Simulator,name=<your iOS 18+ Simulator>'
-```
-
-If any credential is still a placeholder or empty at launch, `TestConfig.validate()` fails
-the test immediately with a message naming the missing env vars — so a misconfigured CI run
-fails fast instead of timing out on a failed login.
-
-> Run tests serially in CI (the default test plan already uses no parallelization). Batching
-> UI tests back-to-back can trip the Simulator's accessibility bridge; if you shard, prefer
-> one Simulator per shard.

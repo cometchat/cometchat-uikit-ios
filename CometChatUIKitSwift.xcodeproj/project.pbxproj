@@ -40,6 +40,7 @@
 		538697465B453CF6966FDB9F /* CometChatSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 2B0FE126A31B81C5B6F5629F /* CometChatSDK */; };
 		5482D98B15E410752DC4370A /* JoinPasswordProtectedGroupVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBC560C064080B8EBD1F3C9 /* JoinPasswordProtectedGroupVC.swift */; };
 		5792BB04133D20FBA96CE6C6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8C64476DA38D3E2014ADD2 /* AppDelegate.swift */; };
+		5882D2A58E60569BBE085348 /* TestSecrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97D87F06AAEB475E0542CB1F /* TestSecrets.swift */; };
 		58E1366A0AB2B524CF2792FE /* SampleUserCVCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92ABB5360E694E7F0F2CA856 /* SampleUserCVCell.swift */; };
 		5DE2746824E704BB55D8003A /* CometChatPNHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F788042034D0B4F6AB10477 /* CometChatPNHelper.swift */; };
 		6026325CC16185EB171BAD3E /* SplitScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2F6BDE43738D250FAA053B3 /* SplitScreenViewController.swift */; };
@@ -138,8 +139,6 @@
 		C468B1D53004D4800071A2FB /* GroupsSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C468B17E3004D47F0071A2FB /* GroupsSmokeTests.swift */; };
 		C468B1D63004D4800071A2FB /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C468B1A13004D47F0071A2FB /* SeedData.swift */; };
 		C468B1D73004D4800071A2FB /* SecondClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C468B1A03004D47F0071A2FB /* SecondClient.swift */; };
-		C468B1D83004D4800071A2FB /* TestSecrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = C468B1A33004D47F0071A2FB /* TestSecrets.swift */; };
-		C468B1D93004D4800071A2FB /* TestSecrets.swift.example in Resources */ = {isa = PBXBuildFile; fileRef = C468B1A43004D47F0071A2FB /* TestSecrets.swift.example */; };
 		C468B1DA3004D4800071A2FB /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C468B1A63004D47F0071A2FB /* README.md */; };
 		C4AECAA5387810B20CFD36B8 /* CometChatUIKitSwift in Frameworks */ = {isa = PBXBuildFile; productRef = BA81B4B5365FC1DB9368BC6D /* CometChatUIKitSwift */; };
 		CA2E9921389C1D5687A46AAC /* BannedMembersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DF11B0A0067CBCAE9EDC63 /* BannedMembersViewModel.swift */; };
@@ -249,6 +248,7 @@
 		8F1F32FF8EBFA4E73EEAAA14 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		90604A06710A0E4F12B21606 /* BannedMembersVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannedMembersVC.swift; sourceTree = "<group>"; };
 		92ABB5360E694E7F0F2CA856 /* SampleUserCVCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleUserCVCell.swift; sourceTree = "<group>"; };
+		97D87F06AAEB475E0542CB1F /* TestSecrets.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestSecrets.swift; sourceTree = "<group>"; };
 		989A6C43A08A8D7A2FA28755 /* JoinPasswordProtectedGroupVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinPasswordProtectedGroupVC.swift; sourceTree = "<group>"; };
 		9CE90E2726297C07025F624E /* MessagesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesVC.swift; sourceTree = "<group>"; };
 		9FB3BB5E1BD05B34A2E531AB /* Extentions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extentions.swift; sourceTree = "<group>"; };
@@ -311,8 +311,6 @@
 		C468B1A03004D47F0071A2FB /* SecondClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondClient.swift; sourceTree = "<group>"; };
 		C468B1A13004D47F0071A2FB /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
 		C468B1A23004D47F0071A2FB /* TestConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestConfig.swift; sourceTree = "<group>"; };
-		C468B1A33004D47F0071A2FB /* TestSecrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSecrets.swift; sourceTree = "<group>"; };
-		C468B1A43004D47F0071A2FB /* TestSecrets.swift.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestSecrets.swift.example; sourceTree = "<group>"; };
 		C468B1A63004D47F0071A2FB /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C4818D582FE9724E001C80DB /* SampleApp.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SampleApp.xctestplan; sourceTree = "<group>"; };
 		C4AA806B2FE96592007A25CE /* SampleAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SampleAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -861,8 +859,7 @@
 				C468B1A03004D47F0071A2FB /* SecondClient.swift */,
 				C468B1A13004D47F0071A2FB /* SeedData.swift */,
 				C468B1A23004D47F0071A2FB /* TestConfig.swift */,
-				C468B1A33004D47F0071A2FB /* TestSecrets.swift */,
-				C468B1A43004D47F0071A2FB /* TestSecrets.swift.example */,
+				97D87F06AAEB475E0542CB1F /* TestSecrets.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1121,6 +1118,7 @@
 				15109CEA1056070E803C4D6F /* XCLocalSwiftPackageReference "CometChatUIKitSwift" */,
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* XCRemoteSwiftPackageReference "cards-sdk-ios" */,
 			);
+			productRefGroup = 5D0F92A53EBBF934005A644B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -1155,7 +1153,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C468B1D93004D4800071A2FB /* TestSecrets.swift.example in Resources */,
 				C468B1DA3004D4800071A2FB /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1296,7 +1293,7 @@
 				C468B1D53004D4800071A2FB /* GroupsSmokeTests.swift in Sources */,
 				C468B1D63004D4800071A2FB /* SeedData.swift in Sources */,
 				C468B1D73004D4800071A2FB /* SecondClient.swift in Sources */,
-				C468B1D83004D4800071A2FB /* TestSecrets.swift in Sources */,
+				5882D2A58E60569BBE085348 /* TestSecrets.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

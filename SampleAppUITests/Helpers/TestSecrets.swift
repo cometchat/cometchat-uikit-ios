@@ -1,6 +1,11 @@
 import Foundation
 
-/// Copy to TestSecrets.swift (git-ignored) and fill in — see SampleAppUITests/README.md.
+/// E2E credentials. Replace each `PASTE_…` below with your CometChat app's values to run the suite
+/// (see SampleAppUITests/README.md for where each comes from). A same-named environment variable
+/// (`COMETCHAT_*` / `TEST_*`) overrides the value here if set.
+///
+/// This file is committed with placeholders only. **Never commit real keys** — treat your edits
+/// as a local-only change and do not `git add` them.
 enum TestSecrets {
     static let appId      = "PASTE_APP_ID"
     static let region     = "in"                 // us | eu | in

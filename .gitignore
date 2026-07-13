@@ -5,8 +5,8 @@
 *.xcuserstate
 xcuserdata/
 
-# E2E secrets — never commit (copy from TestSecrets.swift.example, then fill in)
-/SampleAppUITests/Helpers/TestSecrets.swift
+# Local E2E credentials env file — never commit
+/Scripts/e2e.env
 
 # Local test plans hold E2E secrets — never commit
 *.local.xctestplan
