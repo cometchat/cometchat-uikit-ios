@@ -93,12 +93,8 @@ final class GroupActionMessageTests: XCTestCase {
     }
 
     private func bringUpUserB() throws {
-        do {
-            try runBlocking(timeout: 60) { try await SecondClient.shared.ensureLoggedInAsUserB() }
-            secondClientActive = true
-        } catch {
-            throw XCTSkip("Second SDK client unavailable: \(error)")
-        }
+        try ensureUserBLoggedIn()
+        secondClientActive = true
     }
 
     private func openGroupMessages(name: String) {

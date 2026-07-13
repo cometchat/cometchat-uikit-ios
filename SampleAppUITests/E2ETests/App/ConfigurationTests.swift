@@ -13,7 +13,7 @@ final class ConfigurationTests: XCTestCase {
     }
 
     func test_E2E_rotationPreservesMessage() {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-rot\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Message did not send")
@@ -25,7 +25,7 @@ final class ConfigurationTests: XCTestCase {
     }
 
     func test_E2E_rotationPreservesDraft() {
-        openSeeded()
+        app = openSeededConversation()
         let draft = "E2E-draft\(UUID().uuidString.prefix(8))"
         let composer = ComponentQueries.composer(app)
         composer.tap(); composer.typeText(draft)
@@ -48,7 +48,7 @@ final class ConfigurationTests: XCTestCase {
         )
     }
 
-    // GRP-082: rotate a GROUP chat preserves scroll/message. Drives a REAL device rotation via XCUIDevice
+    // Rotating a GROUP chat preserves scroll/message. Drives a REAL device rotation via XCUIDevice
     // (Portrait + both Landscapes are declared for the app in project.yml), same mechanism as the 1:1 rotation tests.
     func test_GRP_rotationPreservesGroupMessage() {
         openGroupSeeded()
@@ -62,7 +62,7 @@ final class ConfigurationTests: XCTestCase {
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 8), "Group message lost back in portrait")
     }
 
-    // GRP-083: rotate a GROUP chat preserves the composer draft. Drives a real XCUIDevice rotation (see GRP-082).
+    // Rotating a GROUP chat preserves the composer draft. Drives a real XCUIDevice rotation.
     func test_GRP_rotationPreservesGroupDraft() {
         openGroupSeeded()
         let draft = "E2E-gdraft\(UUID().uuidString.prefix(8))"
@@ -75,15 +75,6 @@ final class ConfigurationTests: XCTestCase {
         XCTAssertTrue(value.contains(draft) || ComponentQueries.composer(app).exists,
                       "Group draft not preserved and composer missing after rotation")
     }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-                      "Could not open conversation")
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15), "Message list did not open")
-    }
-
     private func openGroupSeeded() {
         app = AppLauncher.launchAndWaitForHome()
         XCTAssertTrue(AppLauncher.openGroup(app, named: TestConfig.groupDisplayName), "Could not open the shared group")

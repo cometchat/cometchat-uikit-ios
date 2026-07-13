@@ -1,6 +1,6 @@
 import XCTest
 
-/// True network cuts need host tooling (barred by zero-host-setup); these assert live WebSocket
+/// True network cuts need host tooling; these assert live WebSocket
 /// delivery and screen stability under traffic instead.
 final class ConnectionTests: XCTestCase {
 
@@ -23,7 +23,7 @@ final class ConnectionTests: XCTestCase {
     }
 
     func test_E2E_webSocketDeliversLive() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-ws\(UUID().uuidString.prefix(8))"
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20),
@@ -60,12 +60,11 @@ final class ConnectionTests: XCTestCase {
         )
     }
 
-    // E2E-060 / E2E-061 / E2E-062 / 1TO1-099: offline-indicator / network-recovery / server-error / offline-queue.
-    // LIMITATION: the real socket can't be cut under zero-host-setup and no server error is injectable, so the
-    // offline/error STATE can't be produced. Assert the app stays usable through live traffic — the
-    // deterministic part these degrade to (structural stand-in).
+    // Offline-indicator / network-recovery / server-error / offline-queue: the real socket can't be cut and
+    // no server error is injectable, so the offline/error STATE can't be produced. Assert the app stays usable
+    // through live traffic — the deterministic part these degrade to (structural stand-in).
     func test_E2E_offlineAndRecoveryStructural() throws {
-        openSeeded()
+        app = openSeededConversation()
         // Simulate the "away then back" window we CAN produce: background + live inbound + resume.
         XCUIDevice.shared.press(.home)
         let token = "E2E-recover-\(UUID().uuidString.prefix(6))"
@@ -89,13 +88,5 @@ final class ConnectionTests: XCTestCase {
         _ = app.staticTexts["Online"].waitForExistence(timeout: 6) // debounced → non-fatal
         XCTAssertTrue(ComponentQueries.composer(app).exists,
                       "Header/screen not stable after B's presence refresh")
-    }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-                      "Could not open conversation")
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15), "Message list did not open")
     }
 }

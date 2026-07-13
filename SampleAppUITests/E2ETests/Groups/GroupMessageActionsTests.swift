@@ -98,11 +98,6 @@ final class GroupMessageActionsTests: XCTestCase {
     }
 
     private func openGroup() {
-        let testGroup = try? runBlocking { try await SeedData.createTestGroupWithMember() }
-        group = testGroup
-        XCTAssertNotNil(testGroup, "Could not create the test group")
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(AppLauncher.openGroup(app, named: testGroup!.name), "Could not open the test group")
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15), "Group message list did not open")
+        (app, group) = openSeededGroupWithMember()
     }
 }

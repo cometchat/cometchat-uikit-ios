@@ -13,7 +13,7 @@ final class TypingIndicatorTests: XCTestCase {
     }
     
     func test_1TO1_selfTypingNoIndicator() throws {
-        openSeeded()
+        app = openSeededConversation()
         let composer = ComponentQueries.composer(app)
         composer.tap(); composer.typeText("typing check")
         XCTAssertTrue(app.staticTexts[TestConfig.userBDisplayName].exists, "Header lost the peer name while typing")
@@ -21,7 +21,7 @@ final class TypingIndicatorTests: XCTestCase {
     }
 
     func test_RT_TYPE_typeThenSendClears() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-type\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Message not sent")
@@ -29,7 +29,7 @@ final class TypingIndicatorTests: XCTestCase {
     }
 
     func test_1TO1_peerHeaderStableNoTyping() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-peerhdr\(UUID().uuidString.prefix(8))"
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Peer message did not arrive")
@@ -46,21 +46,5 @@ final class TypingIndicatorTests: XCTestCase {
         try runBlocking { _ = try await PeerActions.sendGroupTextMessage(token, groupId: group.guid) }
         _ = ComponentQueries.waitForBubble(app, text: token, timeout: 20)
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Group header/screen not stable")
-    }
-    
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(
-            AppLauncher.openConversationFromChats(
-                app,
-                displayName: TestConfig.userBDisplayName
-            ),
-            "Could not open conversation"
-        )
-        XCTAssertTrue(
-            ComponentQueries.composer(app).waitForExistence(timeout: 15),
-            "Message list did not open"
-        )
     }
 }

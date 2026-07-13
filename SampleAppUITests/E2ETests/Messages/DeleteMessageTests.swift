@@ -17,7 +17,7 @@ final class DeleteMessageTests: XCTestCase {
     }
 
     func test_1TO1_deleteOwnMessage() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-del\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Original did not send")
@@ -34,7 +34,7 @@ final class DeleteMessageTests: XCTestCase {
     }
 
     func test_1TO1_deleteShowsConfirmation() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-delc\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Original did not send")
@@ -51,7 +51,7 @@ final class DeleteMessageTests: XCTestCase {
     }
 
     func test_1TO1_deletedShowsPlaceholder() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-delp\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Original did not send")
@@ -65,7 +65,7 @@ final class DeleteMessageTests: XCTestCase {
     }
 
     func test_1TO1_cannotDeletePeerMessage() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-pdel\(UUID().uuidString.prefix(8))"
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Peer message did not arrive")
@@ -78,7 +78,7 @@ final class DeleteMessageTests: XCTestCase {
     }
 
     func test_1TO1_peerDeletesLive() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-rtdel\(UUID().uuidString.prefix(8))"
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Peer message did not arrive")
@@ -104,16 +104,5 @@ final class DeleteMessageTests: XCTestCase {
         try runBlocking { try await PeerActions.deleteMessage(id) }
         XCTAssertTrue(waitForBackend(timeout: 15) { await PeerActions.previewShowsLiveMessage(token) == false },
                       "Preview still reflects the deleted message text")
-    }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(
-            AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-            "Could not open conversation with \(TestConfig.userBDisplayName)"
-        )
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15),
-                      "Message list did not open")
     }
 }

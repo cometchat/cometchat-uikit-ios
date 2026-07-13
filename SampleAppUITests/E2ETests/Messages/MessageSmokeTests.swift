@@ -77,7 +77,7 @@ final class MessageSmokeTests: XCTestCase {
     }
 
     func test_1TO1_whitespaceMessageBlocked() throws {
-        openSeeded()
+        app = openSeededConversation()
         let composer = ComponentQueries.composer(app)
         composer.tap()
         composer.typeText("     ")
@@ -88,7 +88,7 @@ final class MessageSmokeTests: XCTestCase {
     }
 
     func test_1TO1_longTextMessageSends() throws {
-        openSeeded()
+        app = openSeededConversation()
         let tail = "longtail-\(UUID().uuidString.prefix(8))"
         let body = String(repeating: "A", count: 1024) + tail
         ComponentQueries.typeAndSend(app, text: body)
@@ -98,7 +98,7 @@ final class MessageSmokeTests: XCTestCase {
 
     // Mention resolution isn't asserted — only the trailing plain words.
     func test_1TO1_messageWithMentionSends() throws {
-        openSeeded()
+        app = openSeededConversation()
         let tail = "mention-\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: "@\(TestConfig.userBDisplayName) hi \(tail)")
         XCTAssertTrue(ComponentQueries.waitForBubbleContaining(app, substring: tail, timeout: 12),
@@ -106,7 +106,7 @@ final class MessageSmokeTests: XCTestCase {
     }
 
     func test_1TO1_messageWithURLSends() throws {
-        openSeeded()
+        app = openSeededConversation()
         let tail = "url-\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: "see https://cometchat.com \(tail)")
         XCTAssertTrue(ComponentQueries.waitForBubbleContaining(app, substring: tail, timeout: 12),
@@ -115,7 +115,7 @@ final class MessageSmokeTests: XCTestCase {
 
     // No underscores in test text — the formatter strips `_x_` as italic; use `**bold**`.
     func test_1TO1_markdownBoldSends() throws {
-        openSeeded()
+        app = openSeededConversation()
         let word = "boldword\(UUID().uuidString.prefix(6))"
         ComponentQueries.typeAndSend(app, text: "**\(word)**")
         XCTAssertTrue(
@@ -126,7 +126,7 @@ final class MessageSmokeTests: XCTestCase {
     }
 
     func test_1TO1_sendButtonActivatesOnText() throws {
-        openSeeded()
+        app = openSeededConversation()
         let composer = ComponentQueries.composer(app)
         composer.tap()
         composer.typeText("hello")
@@ -136,18 +136,7 @@ final class MessageSmokeTests: XCTestCase {
 
     // Full blocked-send behavior lives in the block suite; only screen stability here.
     func test_1TO1_screenStableForBlockedCase() throws {
-        openSeeded()
+        app = openSeededConversation()
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Message screen not stable")
-    }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(
-            AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-            "Could not open conversation with \(TestConfig.userBDisplayName)"
-        )
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15),
-                      "Message list did not open")
     }
 }

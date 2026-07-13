@@ -17,13 +17,13 @@ final class MessageHeaderTests: XCTestCase {
     }
 
     func test_1TO1_headerShowsName() {
-        openSeeded()
+        app = openSeededConversation()
         XCTAssertTrue(app.staticTexts[TestConfig.userBDisplayName].waitForExistence(timeout: 10),
                       "Header did not show \(TestConfig.userBDisplayName)")
     }
 
     func test_1TO1_headerShowsAvatar() {
-        openSeeded()
+        app = openSeededConversation()
         XCTAssertTrue(app.staticTexts[TestConfig.userBDisplayName].waitForExistence(timeout: 10),
                       "Header name missing")
         XCTAssertTrue(app.images.firstMatch.exists || app.staticTexts[TestConfig.userBDisplayName].exists,
@@ -31,19 +31,19 @@ final class MessageHeaderTests: XCTestCase {
     }
 
     func test_1TO1_voiceCallButtonVisible() {
-        openSeeded()
+        app = openSeededConversation()
         XCTAssertTrue(voiceCallButton().waitForExistence(timeout: 8),
                       "Voice-call button not present in header")
     }
 
     func test_1TO1_videoCallButtonVisible() {
-        openSeeded()
+        app = openSeededConversation()
         XCTAssertTrue(videoCallButton().waitForExistence(timeout: 8),
                       "Video-call button not present in header")
     }
 
     func test_1TO1_infoNavigatesToUserInfo() {
-        openSeeded()
+        app = openSeededConversation()
         XCTAssertTrue(
             ComponentQueries.openHeaderDetails(app, infoLabel: ComponentQueries.HeaderMenu.userInfo),
             "Could not open User Info from header menu"
@@ -64,16 +64,5 @@ final class MessageHeaderTests: XCTestCase {
 
     private func videoCallButton() -> XCUIElement {
         app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'video'")).firstMatch
-    }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(
-            AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-            "Could not open conversation with \(TestConfig.userBDisplayName)"
-        )
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15),
-                      "Message list did not open")
     }
 }

@@ -17,7 +17,7 @@ final class EditMessageTests: XCTestCase {
     }
 
     func test_1TO1_editOwnMessageUpdatesText() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-edit\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Original did not send")
@@ -38,7 +38,7 @@ final class EditMessageTests: XCTestCase {
     }
 
     func test_1TO1_editShowsOriginalInComposer() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-orig\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Original did not send")
@@ -54,7 +54,7 @@ final class EditMessageTests: XCTestCase {
     }
 
     func test_1TO1_cancelEditRestoresComposer() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-cancel\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Original did not send")
@@ -70,7 +70,7 @@ final class EditMessageTests: XCTestCase {
     }
 
     func test_1TO1_editedMessageShowsMarker() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-mark\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Original did not send")
@@ -86,7 +86,7 @@ final class EditMessageTests: XCTestCase {
     }
 
     func test_1TO1_cannotEditPeerMessage() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-peer\(UUID().uuidString.prefix(8))"
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Peer message did not arrive")
@@ -97,7 +97,7 @@ final class EditMessageTests: XCTestCase {
     }
 
     func test_RT_EDIT_peerEditUpdatesLive() throws {
-        openSeeded()
+        app = openSeededConversation()
         let original = "E2E-rtorig\(UUID().uuidString.prefix(8))"
         let edited = "E2E-rtedit\(UUID().uuidString.prefix(8))"
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(original) }
@@ -109,7 +109,7 @@ final class EditMessageTests: XCTestCase {
     }
 
     func test_RT_EDIT_peerEditShowsMarker() throws {
-        openSeeded()
+        app = openSeededConversation()
         let original = "E2E-rtm-o\(UUID().uuidString.prefix(8))"
         let edited = "E2E-rtm-e\(UUID().uuidString.prefix(8))"
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(original) }
@@ -118,17 +118,5 @@ final class EditMessageTests: XCTestCase {
         try runBlocking { try await PeerActions.editMessage(id, newText: edited) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: edited, timeout: 20), "Edited text did not arrive")
         XCTAssertTrue(ComponentQueries.waitForEditedMarker(app, timeout: 12), "Edited marker did not appear")
-    }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(
-            AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-            "Could not open conversation with \(TestConfig.userBDisplayName)"
-        )
-        XCTAssertTrue(
-            ComponentQueries.composer(app).waitForExistence(timeout: 15), "Message list did not open"
-        )
     }
 }

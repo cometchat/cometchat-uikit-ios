@@ -12,7 +12,7 @@ final class EdgeCasesTests: XCTestCase {
     }
 
     func test_1TO1_rapidSendStable() {
-        openSeeded()
+        app = openSeededConversation()
         let stamp = UUID().uuidString.prefix(6)
         for i in 0..<10 {
             let composer = ComponentQueries.composer(app)
@@ -25,7 +25,7 @@ final class EdgeCasesTests: XCTestCase {
     }
 
     func test_RT_EDGE_simultaneousSend() throws {
-        openSeeded()
+        app = openSeededConversation()
         let stamp = UUID().uuidString.prefix(6)
         let aToken = "E2E-simA-\(stamp)"
         let bToken = "E2E-simB-\(stamp)"
@@ -36,7 +36,7 @@ final class EdgeCasesTests: XCTestCase {
     }
 
     func test_RT_EDGE_burstNoCrash() throws {
-        openSeeded()
+        app = openSeededConversation()
         let stamp = UUID().uuidString.prefix(6)
         try runBlocking {
             for i in 0..<20 { _ = try await PeerActions.sendTextMessage("Burst-\(stamp)-\(i)") }
@@ -48,7 +48,7 @@ final class EdgeCasesTests: XCTestCase {
     }
 
     func test_RT_EDGE_interleavedBidirectionalSends() throws {
-        openSeeded()
+        app = openSeededConversation()
         let stamp = UUID().uuidString.prefix(6)
         try runBlocking {
             for i in 0..<5 { _ = try await PeerActions.sendTextMessage("EdgeB-\(stamp)-\(i)") }
@@ -66,7 +66,7 @@ final class EdgeCasesTests: XCTestCase {
     }
 
     func test_RT_EDGE_sendWhileReceivingBurst() throws {
-        openSeeded()
+        app = openSeededConversation()
         let stamp = UUID().uuidString.prefix(6)
         let aToken = "EdgeSWR-A-\(stamp)"
         try runBlocking {
@@ -79,7 +79,7 @@ final class EdgeCasesTests: XCTestCase {
     }
 
     func test_RT_EDGE_scrollDuringLiveInbound() throws {
-        openSeeded()
+        app = openSeededConversation()
         let stamp = UUID().uuidString.prefix(6)
         try runBlocking {
             for i in 0..<15 { _ = try await PeerActions.sendTextMessage("EdgeScroll-\(stamp)-\(i)") }
@@ -91,7 +91,7 @@ final class EdgeCasesTests: XCTestCase {
     }
 
     func test_RT_EDGE_noDuplicateMessage() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-dup\(UUID().uuidString.prefix(8))"
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
@@ -102,7 +102,7 @@ final class EdgeCasesTests: XCTestCase {
     // Peer edits a message while A holds its action sheet open. Overlay layout + peer-edit propagation
     // are non-deterministic, so the edited text is polled non-fatally; surviving the race is the assertion.
     func test_RT_EDGE_editWhilePeerLongPresses() throws {
-        openSeeded()
+        app = openSeededConversation()
         let stamp = UUID().uuidString.prefix(6)
         let original = "LongPressEditBefore-\(stamp)"
         let edited = "LongPressEditAfter-\(stamp)"
@@ -137,7 +137,7 @@ final class EdgeCasesTests: XCTestCase {
     // A cross-midnight message can't be seeded from the harness, so assert the date-grouping affordance
     // (Today/Yesterday) after a fresh send; label is UIKit-drawn + locale-dependent, so it's structural.
     func test_1TO1_dateSeparatorBetweenDays() throws {
-        openSeeded()
+        app = openSeededConversation()
         try runBlocking { _ = try await PeerActions.sendTextMessage("DateSep-\(UUID().uuidString.prefix(6))") }
         let separator = NSPredicate(format:
             "label CONTAINS[c] 'Today' OR label CONTAINS[c] 'Yesterday'")
@@ -146,11 +146,11 @@ final class EdgeCasesTests: XCTestCase {
                       "Message screen not stable while checking the date separator")
     }
 
-    // RT-EDGE-005: rapid typing start/stop without a flicker crash. LIMITATION: REST can't drive an incoming
+    // Rapid typing start/stop without a flicker crash: REST can't drive an incoming
     // typing indicator (only a live SDK client can, see LiveTypingTests), so the flicker itself isn't
     // producible from A's side — assert the composer survives rapid local typing bursts (structural stand-in).
     func test_RT_EDGE_rapidTypingNoFlicker() {
-        openSeeded()
+        app = openSeededConversation()
         let composer = ComponentQueries.composer(app)
         for i in 0..<8 {
             composer.tap()
@@ -164,7 +164,7 @@ final class EdgeCasesTests: XCTestCase {
     }
 
     func test_1TO1_messagesPresentAfterResume() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-resume\(UUID().uuidString.prefix(8))"
         XCUIDevice.shared.press(.home)
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
@@ -181,13 +181,5 @@ final class EdgeCasesTests: XCTestCase {
                       "Could not open a fresh conversation")
         XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15),
                       "Empty conversation did not present a composer")
-    }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-                      "Could not open conversation")
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15), "Message list did not open")
     }
 }

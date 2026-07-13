@@ -17,7 +17,7 @@ final class ComposerTests: XCTestCase {
     }
 
     func test_1TO1_voiceRecordButtonPresent() {
-        openSeeded()
+        app = openSeededConversation()
         let micCandidates = ["Voice", "Record", "Microphone", "Mic"]
         let micVisible = micCandidates.contains { app.buttons[$0].exists }
             || app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'voice' OR label CONTAINS[c] 'record'")).firstMatch.exists
@@ -26,7 +26,7 @@ final class ComposerTests: XCTestCase {
     }
 
     func test_1TO1_richTextToolbarVisibleOrStable() {
-        openSeeded()
+        app = openSeededConversation()
         let composer = ComponentQueries.composer(app)
         composer.tap()
         composer.typeText("formatting check")
@@ -44,7 +44,7 @@ final class ComposerTests: XCTestCase {
             }
             return false
         }
-        openSeeded()
+        app = openSeededConversation()
         let mic = app.buttons.matching(
             NSPredicate(format: "label CONTAINS[c] 'voice' OR label CONTAINS[c] 'record' OR label CONTAINS[c] 'mic'")
         ).firstMatch
@@ -53,7 +53,7 @@ final class ComposerTests: XCTestCase {
     }
 
     func test_1TO1_replyPreviewShownOnSwipe() {
-        openSeeded()
+        app = openSeededConversation()
         let token = seedPeerMessage()
         ComponentQueries.bubble(app, text: token).swipeRight()
         XCTAssertTrue(replyPreviewVisible(quoting: token) || ComponentQueries.composer(app).exists,
@@ -61,7 +61,7 @@ final class ComposerTests: XCTestCase {
     }
 
     func test_1TO1_closeReplyPreview() {
-        openSeeded()
+        app = openSeededConversation()
         let token = seedPeerMessage()
         ComponentQueries.bubble(app, text: token).swipeRight()
         guard replyPreviewVisible(quoting: token) else {
@@ -95,16 +95,5 @@ final class ComposerTests: XCTestCase {
             _ = app.staticTexts.firstMatch.waitForExistence(timeout: 0.4)
         }
         return false
-    }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(
-            AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-            "Could not open conversation with \(TestConfig.userBDisplayName)"
-        )
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15),
-                      "Message list did not open")
     }
 }

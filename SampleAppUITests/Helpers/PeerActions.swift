@@ -42,7 +42,7 @@ enum PeerActions {
     }
     
     /// Sends as User A (the app-under-test's own user) to the B conversation — simulates A sending from a
-    /// SECOND device: A's app receives its own outbound message over its socket. Powers RT-MSG-009.
+    /// SECOND device: A's app receives its own outbound message over its socket.
     @discardableResult
     static func sendTextMessageAsA(_ text: String) async throws -> Int {
         try await sendMessage(receiver: TestConfig.userBUid,
@@ -104,8 +104,10 @@ enum PeerActions {
     static func deleteConversation() async {
         let path = "\(baseURL)/users/\(TestConfig.userAUid)/conversation/user_\(TestConfig.userBUid)"
         guard let url = URL(string: path) else { return }
-        _ = try? await send(url: url, method: "DELETE", body: nil,
-                            onBehalfOf: TestConfig.userAUid, operation: "deleteConversation")
+        _ = try? await send(
+            url: url, method: "DELETE", body: nil,
+            onBehalfOf: TestConfig.userAUid, operation: "deleteConversation"
+        )
     }
     
     /// Matches on the peer's `uid` in A's conversation LIST — the app treats a 1:1 `conversationId` as an
@@ -246,7 +248,36 @@ enum PeerActions {
                                   onBehalfOf: TestConfig.userBUid, operation: "sendThreadReply")
         return try parseMessageID(from: data)
     }
-    
+
+    /// Sends a developer card (category "card") — the path that renders via CometChatCardBubble.
+    /// `card` is the card JSON schema; `data.text` is the conversation-list preview subtitle.
+    /// Passing an empty `card` omits the card payload — the SDK's `getCard()` returns nil and the bubble
+    /// renders `fallbackText` instead (the invalid-card path).
+    @discardableResult
+    static func sendCardMessage(text: String,
+                                card: [String: Any],
+                                fallbackText: String? = nil,
+                                receiver: String = TestConfig.userAUid,
+                                receiverType: String = "user") async throws -> Int {
+        guard let url = URL(string: "\(baseURL)/messages") else {
+            throw PeerError.badURL("\(baseURL)/messages")
+        }
+        var data: [String: Any] = ["text": text]
+        if !card.isEmpty { data["card"] = card }
+        if let fallbackText { data["fallbackText"] = fallbackText }
+        let payload: [String: Any] = [
+            "receiver": receiver,
+            "receiverType": receiverType,
+            "category": "card",
+            "type": "card",
+            "data": data,
+        ]
+        let body = try JSONSerialization.data(withJSONObject: payload)
+        let out = try await send(url: url, method: "POST", body: body,
+                                 onBehalfOf: TestConfig.userBUid, operation: "sendCardMessage")
+        return try parseMessageID(from: out)
+    }
+
     @discardableResult
     static func sendMultipleThreadReplies(parentId: Int,
                                           count: Int,

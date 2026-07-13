@@ -16,7 +16,7 @@ final class LiveTypingTests: XCTestCase {
 
     func test_RT_TYPE_liveIncomingTypingShows1to1() throws {
         try runBlocking { try await SeedData.createTestConversation() }
-        try bringUpUserB()
+        try ensureUserBLoggedIn()
 
         app = AppLauncher.launchAndWaitForHome()
         XCTAssertTrue(
@@ -37,7 +37,7 @@ final class LiveTypingTests: XCTestCase {
     func test_RT_TYPE_liveIncomingTypingShowsGroup() throws {
         let group = try runBlocking { try await SeedData.createTestGroupWithMember() }
         defer { runBlocking { await SeedData.deleteTestGroup(group) } }
-        try bringUpUserB()
+        try ensureUserBLoggedIn()
 
         app = AppLauncher.launchAndWaitForHome()
         XCTAssertTrue(AppLauncher.openGroup(app, named: group.name), "Could not open the test group")
@@ -49,13 +49,5 @@ final class LiveTypingTests: XCTestCase {
             "Header did not show '\(TestConfig.userBDisplayName) is typing...' from live group typing"
         )
         runBlocking { await SecondClient.shared.endTyping() }
-    }
-
-    private func bringUpUserB() throws {
-        do {
-            try runBlocking(timeout: 60) { try await SecondClient.shared.ensureLoggedInAsUserB() }
-        } catch {
-            throw XCTSkip("Second SDK client unavailable: \(error)")
-        }
     }
 }

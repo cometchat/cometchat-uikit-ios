@@ -19,15 +19,17 @@ final class ThreadRepliesTests: XCTestCase {
     // MARK: - 1:1 threads
 
     func test_1TO1_openThreadFromLongPress() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = sendOwn()
         openThread(on: token)
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 10),
-                      "Thread composer did not appear")
+        XCTAssertTrue(
+            ComponentQueries.composer(app).waitForExistence(timeout: 10),
+            "Thread composer did not appear"
+        )
     }
 
     func test_1TO1_sendReplyInThread() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = sendOwn()
         openThread(on: token)
         XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 10), "Thread composer missing")
@@ -41,7 +43,7 @@ final class ThreadRepliesTests: XCTestCase {
     }
 
     func test_1TO1_backFromThreadReturnsToChat() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = sendOwn()
         openThread(on: token)
         XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 10), "Thread did not open")
@@ -54,7 +56,7 @@ final class ThreadRepliesTests: XCTestCase {
     }
 
     func test_1TO1_threadRepliesNotInMainList() throws {
-        openSeeded()
+        app = openSeededConversation()
         let parentToken = "E2E-tparent\(UUID().uuidString.prefix(8))"
         let replyToken = "E2E-treplyOnly\(UUID().uuidString.prefix(8))"
         let parentId: Int = try runBlocking { try await PeerActions.sendTextMessage(parentToken) }
@@ -69,10 +71,10 @@ final class ThreadRepliesTests: XCTestCase {
                        "Thread reply leaked into the main message list")
     }
 
-    // Also carries RT-THREAD-003 (reply appears LIVE in an open thread): REST drives the reply, no dual-device
-    // needed since A is the receiver.
+    // A peer reply appears LIVE in an open thread: REST drives the reply, no dual-device needed since A is
+    // the receiver.
     func test_1TO1_peerReplyAppearsInThread() throws {
-        openSeeded()
+        app = openSeededConversation()
         let parentToken = "E2E-tpp\(UUID().uuidString.prefix(8))"
         let replyToken = "E2E-tprep\(UUID().uuidString.prefix(8))"
         let parentId: Int = try runBlocking { try await PeerActions.sendTextMessage(parentToken) }
@@ -88,21 +90,21 @@ final class ThreadRepliesTests: XCTestCase {
         )
     }
 
-    // GRP-049: parent shows a reply-count badge. LIMITATION: the count badge is a custom-drawn glyph not in the
-    // a11y tree, so the number itself is unassertable; drive real replies and assert the parent + screen survive.
+    // Parent shows a reply-count badge: the count badge is a custom-drawn glyph not in the a11y tree, so the
+    // number itself is unassertable; drive real replies and assert the parent + screen survive.
     func test_1TO1_threadReplyCountStandIn() throws {
-        openSeeded()
+        app = openSeededConversation()
         let parentToken = "E2E-tcnt\(UUID().uuidString.prefix(8))"
         let parentId: Int = try runBlocking { try await PeerActions.sendTextMessage(parentToken) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: parentToken, timeout: 20), "Parent did not arrive")
         try runBlocking { _ = try await PeerActions.sendMultipleThreadReplies(parentId: parentId, count: 3) }
-        XCTAssertTrue(ComponentQueries.waitForBubble(app, text: parentToken, timeout: 10)
-                        || ComponentQueries.composer(app).exists,
-                      "Parent/screen not stable after replies (count badge glyph is not a11y-queryable)")
+        XCTAssertTrue(
+            ComponentQueries.waitForBubble(app, text: parentToken, timeout: 10) || ComponentQueries.composer(app).exists,
+            "Parent/screen not stable after replies (count badge glyph is not a11y-queryable)")
     }
 
     func test_E2E_openThreadShowsParent() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = sendOwn()
         openThread(on: token)
         XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 10), "Thread composer missing")
@@ -118,7 +120,7 @@ final class ThreadRepliesTests: XCTestCase {
     func test_GRP_openThreadFromGroupMessage() throws {
         let group = try runBlocking { try await SeedData.createTestGroupWithMember() }
         defer { runBlocking { await SeedData.deleteTestGroup(group) } }
-        openGroup(group)
+        app = openSeededGroup(group)
 
         let token = "E2E-gthread\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
@@ -130,7 +132,7 @@ final class ThreadRepliesTests: XCTestCase {
     func test_GRP_sendReplyInGroupThread() throws {
         let group = try runBlocking { try await SeedData.createTestGroupWithMember() }
         defer { runBlocking { await SeedData.deleteTestGroup(group) } }
-        openGroup(group)
+        app = openSeededGroup(group)
 
         let token = "E2E-gtr\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
@@ -161,22 +163,5 @@ final class ThreadRepliesTests: XCTestCase {
             ComponentQueries.tapMessageOption(app, label: $0, timeout: 2)
         }
         XCTAssertTrue(opened, "Could not open a thread from the message options")
-    }
-
-    private func openGroup(_ group: SeedData.TestGroup) {
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(AppLauncher.openGroup(app, named: group.name), "Could not open test group")
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15), "Group list did not open")
-    }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(
-            AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-            "Could not open conversation with \(TestConfig.userBDisplayName)"
-        )
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15),
-                      "Message list did not open")
     }
 }

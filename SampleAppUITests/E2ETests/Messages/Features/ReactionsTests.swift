@@ -19,7 +19,7 @@ final class ReactionsTests: XCTestCase {
     // MARK: - 1:1 reactions
 
     func test_RT_REACT_peerReactionArrives() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-react\(UUID().uuidString.prefix(8))"
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
@@ -30,7 +30,7 @@ final class ReactionsTests: XCTestCase {
     }
 
     func test_1TO1_ownReactionViaUI() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-uireact\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Message did not send")
@@ -45,7 +45,7 @@ final class ReactionsTests: XCTestCase {
     }
 
     func test_E2E_addReactionSmoke() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-rsmoke\(UUID().uuidString.prefix(8))"
         try runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
@@ -58,7 +58,7 @@ final class ReactionsTests: XCTestCase {
     }
 
     func test_RT_REACT_peerAddThenRemove() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-rar\(UUID().uuidString.prefix(8))"
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
@@ -72,7 +72,7 @@ final class ReactionsTests: XCTestCase {
     }
 
     func test_1TO1_peerReactionRealtime() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-prt\(UUID().uuidString.prefix(8))"
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
@@ -81,7 +81,7 @@ final class ReactionsTests: XCTestCase {
     }
 
     func test_1TO1_tapReactionStable() throws {
-        openSeeded()
+        app = openSeededConversation()
         let token = "E2E-tapr\(UUID().uuidString.prefix(8))"
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
@@ -185,16 +185,5 @@ final class ReactionsTests: XCTestCase {
         for label in ["React", "Add Reaction", "Add reaction"] where app.buttons[label].exists {
             app.buttons[label].firstMatch.tap(); return
         }
-    }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(
-            AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-            "Could not open conversation with \(TestConfig.userBDisplayName)"
-        )
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15),
-                      "Message list did not open")
     }
 }

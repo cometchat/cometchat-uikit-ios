@@ -30,7 +30,11 @@ final class E2EFullAppTests: XCTestCase {
     }
 
     func test_E2E_deleteConversationRemovesRow() {
-        try? runBlocking { try await SeedData.createTestConversation() }
+        do {
+            try runBlocking { try await SeedData.createTestConversation() }
+        } catch {
+            return XCTFail("Seeding the conversation failed: \(error)")
+        }
 
         AppLauncher.launchAndWaitForHome(app)
         AppLauncher.navigateToTab(app, title: AppLauncher.TabLabel.chats)
@@ -403,7 +407,7 @@ final class E2EFullAppTests: XCTestCase {
         )
     }
 
-    /// Sending real media needs the system picker (barred by zero-host-setup), so assert the affordance only.
+    /// Sending real media needs the system picker (which the suite can't drive), so assert the affordance only.
     func test_E2E_attachmentAffordancePresent() {
         try? runBlocking { try await SeedData.createTestConversation() }
         AppLauncher.launchAndWaitForHome(app)

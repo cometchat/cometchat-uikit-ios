@@ -18,7 +18,7 @@ final class CallsTests: XCTestCase {
     }
 
     func test_E2E_callButtonsInHeader() {
-        openSeeded()
+        app = openSeededConversation()
         let hasCall = app.buttons.matching(
             NSPredicate(format: "label CONTAINS[c] 'call' OR label CONTAINS[c] 'voice' OR label CONTAINS[c] 'video'")
         ).firstMatch.waitForExistence(timeout: 8)
@@ -27,21 +27,21 @@ final class CallsTests: XCTestCase {
 
     func test_1TO1_voiceCallInitiates() {
         monitorPermissionDialogs()
-        openSeeded()
+        app = openSeededConversation()
         tapCallButton(video: false)
         XCTAssertTrue(outgoingOrStable(), "Voice call neither showed outgoing UI nor stayed stable")
     }
 
     func test_1TO1_videoCallInitiates() {
         monitorPermissionDialogs()
-        openSeeded()
+        app = openSeededConversation()
         tapCallButton(video: true)
         XCTAssertTrue(outgoingOrStable(), "Video call neither showed outgoing UI nor stayed stable")
     }
 
     func test_1TO1_cancelCallReturnsToChat() {
         monitorPermissionDialogs()
-        openSeeded()
+        app = openSeededConversation()
         tapCallButton(video: false)
         for label in ["Cancel", "End", "End Call", "Decline", "Hang Up", "Close"] where app.buttons[label].exists {
             app.buttons[label].tap(); break
@@ -55,21 +55,21 @@ final class CallsTests: XCTestCase {
     /// shows no incoming surface today; these assert "a call surface appears OR the app stays stable".
     func test_RT_CALL_incomingVoiceCall() throws {
         try bringUpUserB()
-        openSeeded()
+        app = openSeededConversation()
         runBlocking { _ = try? await SecondClient.shared.initiateCall(toUser: TestConfig.userAUid, video: false) }
         XCTAssertTrue(incomingCallSurfaceOrStable(), "Incoming voice call: no call surface and app not stable")
     }
 
     func test_RT_CALL_incomingVideoCall() throws {
         try bringUpUserB()
-        openSeeded()
+        app = openSeededConversation()
         runBlocking { _ = try? await SecondClient.shared.initiateCall(toUser: TestConfig.userAUid, video: true) }
         XCTAssertTrue(incomingCallSurfaceOrStable(), "Incoming video call: no call surface and app not stable")
     }
 
     func test_RT_CALL_rejectReturnsToChat() throws {
         try bringUpUserB()
-        openSeeded()
+        app = openSeededConversation()
         runBlocking { _ = try? await SecondClient.shared.initiateCall(toUser: TestConfig.userAUid, video: false) }
         _ = incomingCallSurfaceOrStable()
         runBlocking { await SecondClient.shared.cancelActiveCall() }
@@ -78,7 +78,7 @@ final class CallsTests: XCTestCase {
 
     func test_RT_CALL_endedCallLeavesChatStable() throws {
         try bringUpUserB()
-        openSeeded()
+        app = openSeededConversation()
         runBlocking { _ = try? await SecondClient.shared.initiateCall(toUser: TestConfig.userAUid, video: false) }
         runBlocking { await SecondClient.shared.cancelActiveCall() }
         XCTAssertTrue(backOnChat(), "Chat not stable after a call ended")
@@ -86,7 +86,7 @@ final class CallsTests: XCTestCase {
 
     func test_RT_CALL_updatesConversationListStable() throws {
         try bringUpUserB()
-        openSeeded()
+        app = openSeededConversation()
         runBlocking { _ = try? await SecondClient.shared.initiateCall(toUser: TestConfig.userAUid, video: false) }
         runBlocking { await SecondClient.shared.cancelActiveCall() }
         // A lingering call surface can swallow the tab tap, so reaching Chats isn't required — stability is.
@@ -97,12 +97,8 @@ final class CallsTests: XCTestCase {
 
     /// Bring User B's in-process client up; skip (not fail) if the busy shared backend won't cooperate.
     private func bringUpUserB() throws {
-        do {
-            try runBlocking(timeout: 60) { try await SecondClient.shared.ensureLoggedInAsUserB() }
-            secondClientActive = true
-        } catch {
-            throw XCTSkip("Second SDK client unavailable: \(error)")
-        }
+        try ensureUserBLoggedIn()
+        secondClientActive = true
     }
 
     private func incomingCallSurfaceOrStable() -> Bool {
@@ -145,13 +141,5 @@ final class CallsTests: XCTestCase {
             app.staticTexts[$0].waitForExistence(timeout: 6) || app.buttons[$0].exists
         }
         return outgoing || ComponentQueries.composer(app).exists || app.staticTexts[TestConfig.userBDisplayName].exists
-    }
-
-    private func openSeeded() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-                      "Could not open conversation")
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15), "Message list did not open")
     }
 }

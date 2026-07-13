@@ -19,14 +19,9 @@ final class E2E1to1ConversationTests: XCTestCase {
         runBlocking { await SeedData.cleanup() }
     }
 
-    private func openSeededConversation() {
-        try? runBlocking { try await SeedData.createTestConversation() }
-        app = AppLauncher.launchAndWaitForHome(app)
-        XCTAssertTrue(
-            AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
-            "Could not open conversation with \(TestConfig.userBDisplayName)"
-        )
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15), "Message list did not open")
+    // Retains the launched app on `self.app`; named to avoid colliding with the `XCTestCase` extension helper.
+    private func openSeededConversationHere() {
+        app = openSeededConversation()
     }
 
     // Users list is long/unsorted; filter to the peer via search before tapping.
@@ -49,7 +44,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_backReturnsToHome() {
-        openSeededConversation()
+        openSeededConversationHere()
         // Message screen hides the nav bar; back is the header's image-only button.
         let back = ComponentQueries.headerBackButton(app)
         XCTAssertNotNil(back, "Header back button not found")
@@ -58,7 +53,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_infoOpensUserInfo() {
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(
             ComponentQueries.openHeaderDetails(app, infoLabel: ComponentQueries.HeaderMenu.userInfo),
             "Could not open User Info from header menu"
@@ -73,7 +68,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_sendEmojiMessage() {
-        openSeededConversation()
+        openSeededConversationHere()
 
         // Unique suffix keeps the bubble lookup deterministic on the shared backend.
         let token = "🎉E2E\(UUID().uuidString.prefix(6))"
@@ -82,7 +77,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_longPressShowsActionOverlay() {
-        openSeededConversation()
+        openSeededConversationHere()
 
         let token = "E2E-lp-\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
@@ -136,7 +131,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_swipeToReplyPeerMessage() {
-        openSeededConversation()
+        openSeededConversationHere()
         let token = "E2E-swr-\(UUID().uuidString.prefix(8))"
         try? runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Peer message did not arrive")
@@ -146,7 +141,7 @@ final class E2E1to1ConversationTests: XCTestCase {
 
     // Mark-as-Unread is best-effort; any popup row confirms presentation.
     func test_1TO1_markAsUnreadOption() {
-        openSeededConversation()
+        openSeededConversationHere()
         let token = "E2E-mau-\(UUID().uuidString.prefix(8))"
         try? runBlocking { _ = try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Peer message did not arrive")
@@ -158,7 +153,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     private func openOwnMessagePopup() {
-        openSeededConversation()
+        openSeededConversationHere()
         let token = "E2E-act-\(UUID().uuidString.prefix(8))"
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 12), "Message did not appear")
@@ -173,7 +168,7 @@ final class E2E1to1ConversationTests: XCTestCase {
 
     // Placeholder text is drawn, not accessible, on iOS; assert composer present + empty instead.
     func test_1TO1_composerPlaceholderShown() {
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Composer text input not present")
         XCTAssertTrue(
             ComponentQueries.composerShowsPlaceholder(app),
@@ -182,13 +177,13 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_attachmentButtonPresent() {
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(ComponentQueries.attachmentAffordanceExists(app),
                       "Composer exposed no attachment affordance beside send")
     }
 
     func test_1TO1_blockUserFromUserInfo() {
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(
             ComponentQueries.openHeaderDetails(app, infoLabel: ComponentQueries.HeaderMenu.userInfo),
             "Could not open User Info from header menu"
@@ -212,7 +207,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     // Blocked banner depends on block-event sync; screen stability is the fatal signal.
     func test_1TO1_blockedUserShowsBanner() {
         runBlocking { await PeerActions.blockUser() }
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(
             ComponentQueries.composer(app).exists
                 || app.buttons["Unblock"].exists
@@ -224,7 +219,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     // A receives the ccUserBlocked event (B needs no UI), so REST drives it. Banner is non-fatal;
     // screen stability is fatal.
     func test_1TO1_peerBlocksUserLive() {
-        openSeededConversation()
+        openSeededConversationHere()
         runBlocking { await PeerActions.blockUserA() }
         _ = app.buttons["Unblock"].waitForExistence(timeout: 6) // block-event sync is non-deterministic
         XCTAssertTrue(
@@ -238,7 +233,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     // Composer-disable depends on block-event sync; screen stability is the fatal signal.
     func test_1TO1_composerDisabledWhenBlocked() {
         runBlocking { await PeerActions.blockUser() }
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(
             ComponentQueries.composer(app).exists
                 || app.buttons["Unblock"].exists
@@ -249,7 +244,7 @@ final class E2E1to1ConversationTests: XCTestCase {
 
     func test_1TO1_unblockFromUserInfo() {
         runBlocking { await PeerActions.blockUser() }
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(openUserInfo(), "Could not open User Info")
         let unblock = app.buttons["Unblock"].exists ? app.buttons["Unblock"] : app.staticTexts["Unblock"]
         if unblock.waitForExistence(timeout: 8) {
@@ -264,7 +259,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_userInfoShowsAvatar() {
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(openUserInfo(), "Could not open User Info")
         XCTAssertTrue(
             app.images.firstMatch.waitForExistence(timeout: 8)
@@ -274,28 +269,28 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_userInfoShowsStatus() {
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(openUserInfo(), "Could not open User Info")
         XCTAssertTrue(app.staticTexts[TestConfig.userBDisplayName].waitForExistence(timeout: 8),
                       "User Info surface did not render")
     }
 
     func test_1TO1_userInfoCallButtons() {
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(openUserInfo(), "Could not open User Info")
         XCTAssertTrue(app.staticTexts[TestConfig.userBDisplayName].waitForExistence(timeout: 8),
                       "User Info surface did not render")
     }
 
     func test_1TO1_userInfoBlockOption() {
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(openUserInfo(), "Could not open User Info")
         XCTAssertTrue(blockOptionExists(timeout: 8) || app.buttons["Unblock"].exists || app.staticTexts["Unblock"].exists,
                       "No Block/Unblock option on User Info")
     }
 
     func test_1TO1_deleteChatNavigatesAway() {
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(openUserInfo(), "Could not open User Info")
         if !(app.staticTexts["Delete Chat"].exists || app.buttons["Delete Chat"].exists) { app.swipeUp() }
         let deleteChat = app.buttons["Delete Chat"].exists ? app.buttons["Delete Chat"] : app.staticTexts["Delete Chat"]
@@ -309,7 +304,7 @@ final class E2E1to1ConversationTests: XCTestCase {
 
     func test_1TO1_scrollToBottomStable() {
         runBlocking { _ = try? await PeerActions.sendMultipleMessages(12, prefix: "E2E-pg") }
-        openSeededConversation()
+        openSeededConversationHere()
         app.swipeDown(); app.swipeDown()
         app.swipeUp(); app.swipeUp()
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Message list not stable after scrolling")
@@ -321,7 +316,7 @@ final class E2E1to1ConversationTests: XCTestCase {
             _ = try? await PeerActions.sendMultipleMessages(10, prefix: "E2E-pgm")
             _ = try? await PeerActions.sendTextMessage(token)
         }
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Newest message not shown")
         app.swipeDown(); app.swipeDown()
         app.swipeUp(); app.swipeUp()
@@ -334,7 +329,7 @@ final class E2E1to1ConversationTests: XCTestCase {
             _ = try? await PeerActions.sendMultipleMessages(8, prefix: "E2E-ua")
             _ = try? await PeerActions.sendTextMessage(token)
         }
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20),
                       "Latest message not anchored at the bottom")
     }
@@ -360,7 +355,7 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_userInfoShowsName() {
-        openSeededConversation()
+        openSeededConversationHere()
         XCTAssertTrue(
             ComponentQueries.openHeaderDetails(app, infoLabel: ComponentQueries.HeaderMenu.userInfo),
             "Could not open User Info from header menu"
@@ -372,10 +367,10 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_deleteChatRemovesConversation() {
-        openSeededConversation()
+        openSeededConversationHere()
 
         XCTAssertTrue(
-            (try? runBlocking { await PeerActions.userConversationExists() }) ?? false,
+            waitForBackend(timeout: 15) { await PeerActions.userConversationExists() },
             "Seeded conversation was not present before delete"
         )
 
@@ -402,14 +397,14 @@ final class E2E1to1ConversationTests: XCTestCase {
     }
 
     func test_1TO1_scrollUpLoadsPrevious() {
-        openSeededConversation()
+        openSeededConversationHere()
         app.swipeDown()
         app.swipeDown()
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Composer vanished after scrolling messages")
     }
 
     func test_1TO1_rapidSendDoesNotCrash() {
-        openSeededConversation()
+        openSeededConversationHere()
 
         let run = UUID().uuidString.prefix(6)
         var last = ""
