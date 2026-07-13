@@ -106,11 +106,12 @@ Add `-only-testing:` to narrow the run:
 The suite is CI-ready without committing any secret. Two things a fresh clone needs:
 
 1. **A `TestSecrets.swift` to compile against.** It is git-ignored, so a clean CI clone
-   doesn't have one. Generate a placeholder before building — it holds only `PASTE_…`
-   stubs, never real keys:
+   doesn't have one. Copy it from the committed template before building — it holds only
+   `PASTE_…` stubs, never real keys:
 
    ```bash
-   ./Scripts/scaffold-test-secrets.sh   # idempotent: no-ops if the file already exists
+   cp SampleAppUITests/Helpers/TestSecrets.swift.example \
+      SampleAppUITests/Helpers/TestSecrets.swift
    ```
 
 2. **The real values, injected as environment variables.** `TestConfig` reads env first and
@@ -133,7 +134,8 @@ The suite is CI-ready without committing any secret. Two things a fresh clone ne
 A CI job then looks like:
 
 ```bash
-./Scripts/scaffold-test-secrets.sh
+cp SampleAppUITests/Helpers/TestSecrets.swift.example \
+   SampleAppUITests/Helpers/TestSecrets.swift
 xcodebuild test \
   -project CometChatUIKitSwift.xcodeproj \
   -scheme SampleApp \
