@@ -2,14 +2,32 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UILaunchScreen</key>
-	<dict/>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.cometchat.background-refresh</string>
 	</array>
+	<key>CFBundleURLSchemes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.googleusercontent.apps.000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</string>
+		</dict>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</string>
+			</array>
+		</dict>
+	</array>
 	<key>CometChatSDK</key>
-	<string>4.1.6</string>
+	<string>4.1.7</string>
+	<key>GIDClientID</key>
+	<string>YOUR_DOT_REVERSED_IOS_CLIENT_ID</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

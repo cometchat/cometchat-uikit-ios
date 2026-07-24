@@ -6,14 +6,16 @@
 //
 
 import UIKit
+import FirebaseAuth
 import CometChatUIKitSwift
 import CometChatSDK
 import CometChatCardsSwift
 
 var userLoggedIn = false
 func isUserLoggedIn() -> Bool{
-    if CometChatUIKit.getLoggedInUser() != nil {
-
+    if let loggedInUser = CometChatUIKit.getLoggedInUser(),
+       let currentUser = Auth.auth().currentUser,
+       loggedInUser.uid != currentUser.uid {
         userLoggedIn = true  // User is logged in
     } else {
         userLoggedIn = false // User is not logged in
@@ -33,8 +35,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         currentScene = scene
-                
+
+        #if DEBUG
+        injectTestCredentialsIfNeeded()
+        #endif
+
         initialisationCometChatUIKit(completion: {
+            #if DEBUG
+            if self.shouldForceLoggedOutForUITest {
+                self.setRootViewController(UINavigationController(rootViewController: LoginWithUidVC()))
+                return
+            }
+            #endif
             if CometChat.getLoggedInUser() != nil {
                 if UIDevice.current.userInterfaceIdiom == .pad {
                     self.setRootViewController(SplitViewController())
@@ -117,10 +129,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             uikitSettings.set(appID: AppConstants.APP_ID)
                 .set(authKey: AppConstants.AUTH_KEY)
                 .set(region: AppConstants.REGION)
-                .setExtensionGroupID(id: "group.com.cometchat.internal.swift.notification")
                 .subscribePresenceForAllUsers()
-//                .overrideAdminHost("\(AppConstants.APP_ID).api-\(AppConstants.REGION).cometchat-staging.com")
-//                .overrideClientHost("\(AppConstants.APP_ID).apiclient-\(AppConstants.REGION).cometchat-staging.com")
                 .enable(inAppIncomingCall: false)
                 .build()
             
@@ -130,7 +139,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                     CometChat.setSource(resource: "uikit-v5", platform: "ios", language: "swift")
                     // Register card action listener for debugging
                     CometChatCardEvents.addListener("sample-app-card-listener", CardActionHandler.shared)
+                    #if DEBUG
+                    self.loginTestUserIfNeeded(completion: completion)
+                    #else
                     completion()
+                    #endif
                 case .failure(let error):
                     print("Initialization Error: \(error.localizedDescription)")
                     completion()
@@ -140,3 +153,49 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 }
 
+
+#if DEBUG
+
+extension SceneDelegate {
+
+    /// When set, UI tests want a logged-out start: route to Login regardless of any persisted
+    /// session, without uninstalling (used by `launchToLogin`).
+    var shouldForceLoggedOutForUITest: Bool {
+        ProcessInfo.processInfo.arguments.contains("-UITestStartLoggedOut")
+    }
+
+    private func injectTestCredentialsIfNeeded() {
+        let args = ProcessInfo.processInfo.arguments
+        guard args.contains("-UITestMode") else { return }
+
+        func arg(after flag: String) -> String? {
+            guard let idx = args.firstIndex(of: flag), args.index(after: idx) < args.endIndex else { return nil }
+            return args[args.index(after: idx)]
+        }
+
+        if let appId = arg(after: "-UITestAppID") { AppConstants.APP_ID = appId }
+        if let authKey = arg(after: "-UITestAuthKey") { AppConstants.AUTH_KEY = authKey }
+        if let region = arg(after: "-UITestRegion") { AppConstants.REGION = region }
+        AppConstants.saveAppConstants()
+
+        if let uid = arg(after: "-UITestUID") {
+            UserDefaults.standard.set(uid, forKey: "uitest_uid")
+        }
+    }
+
+    /// Auto-login the injected test UID if no user is logged in, then route.
+    private func loginTestUserIfNeeded(completion: @escaping () -> ()) {
+        guard ProcessInfo.processInfo.arguments.contains("-UITestMode"),
+              CometChat.getLoggedInUser() == nil,
+              let uid = UserDefaults.standard.string(forKey: "uitest_uid") else {
+            completion()
+            return
+        }
+
+        CometChatUIKit.login(uid: uid) { _ in
+            DispatchQueue.main.async { completion() }
+        }
+    }
+}
+
+#endif

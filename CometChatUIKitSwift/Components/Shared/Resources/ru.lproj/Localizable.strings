@@ -520,3 +520,35 @@
 
 "AI_AGENTS" = "ИИ-ассистенты";
 
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ ещё";
+"file_list_show_less" = "Показать меньше";
+"attachment_count" = "%@ вложений";
+"preview_photos_count" = "%@ фото";
+"preview_videos_count" = "%@ видео";
+"preview_files_count" = "%@ файлов";
+"preview_audios_count" = "%@ аудиофайлов";
+"search_images_one" = "1 изображение";
+"search_images_count" = "%@ изображений";
+"search_videos_one" = "1 видео";
+"search_videos_count" = "%@ видео";
+"search_audios_count" = "%@ аудио";
+"search_files_count" = "%@ файлов";
+"attachment_tray_add" = "Добавить";
+"attachment_downloading" = "Загрузка…";
+"attachment_upload_failed" = "Ошибка загрузки";
+"attachment_upload_failed_retry" = "Нажмите, чтобы повторить";
+"attachment_retry" = "Повторить";
+"attachment_remove" = "Удалить";
+"attachment_count_exceeded" = "Можно прикрепить не более %@ файлов.";
+"attachment_size_exceeded" = "Файл превышает %@ МБ.";
+"attachment_type_not_allowed" = "Этот тип файла не разрешён.";
+"attachment_total_size_exceeded" = "Общий размер вложений слишком велик.";
+"attachment_size_unknown" = "Размер неизвестен";
+"attachment_upload_unavailable" = "Загрузка сейчас недоступна.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

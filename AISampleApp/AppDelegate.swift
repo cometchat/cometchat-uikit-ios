@@ -1,19 +1,29 @@
 //
 //  AppDelegate.swift
-//  Sample App v5
+//  CometChatAISampleApp
 //
-//  Created by Suryansh on 17/10/24.
+//  AI Agent Sample App — Firebase is used for Google login only (Auth).
 //
 
 import UIKit
+import FirebaseCore
+import FirebaseAuth
+import GoogleSignIn
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    
-    var window : UIWindow?
-    
+
+    var window: UIWindow?
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        FirebaseApp.configure()
         return true
+    }
+
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        return GIDSignIn.sharedInstance.handle(url)
     }
 
     // MARK: UISceneSession Lifecycle

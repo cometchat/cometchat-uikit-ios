@@ -693,23 +693,44 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
                     guard let listItem = tableView.dequeueReusableCell(withIdentifier: CometChatSearchListItemImageVideo.identifier, for: indexPath) as? CometChatSearchListItemImageVideo else {
                         return UITableViewCell()
                     }
-                    var senderName = ""
-                    if let group = group{
-                        senderName = isLoggedInUser ? "You" :  message.sender?.name ?? message.sender?.uid ?? ""
-                    }else{
-                        senderName = (message.receiver as? Group)?.name ?? message.sender?.name ?? message.sender?.uid ?? ""
+                    // Row anatomy per design: title = the CHAT name; subtitle =
+                    // "<You|Sender>: <glyph> <caption | N Images/Videos>".
+                    let chatName: String
+                    if message.receiverType == .group {
+                        chatName = (message.receiver as? Group)?.name ?? ""
+                    } else {
+                        chatName = isLoggedInUser
+                            ? ((message.receiver as? User)?.name ?? "")
+                            : (message.sender?.name ?? "")
                     }
-                    
-                    let thumbnailURL = URL(string: (message as? MediaMessage)?.attachment?.fileUrl ?? "")
-                    let fileName = (message as? MediaMessage)?.attachment?.fileName ?? ""
+                    let senderPrefix = isLoggedInUser ? "You" : (message.sender?.name ?? "")
+
+                    let media = message as? MediaMessage
+                    let attachments = media?.attachments ?? []
+                    let firstAttachment = attachments.first ?? media?.attachment
+                    let thumbnailURL = URL(string: firstAttachment?.fileUrl ?? "")
                     let isVideo = message.messageType == .video
-                    
+
+                    let caption = (media?.caption ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                    let summary: String
+                    if !caption.isEmpty {
+                        summary = caption
+                    } else {
+                        let count = max(attachments.count, 1)
+                        if isVideo {
+                            summary = count == 1 ? "search_videos_one".localize() : String(format: "search_videos_count".localize(), "\(count)")
+                        } else {
+                            summary = count == 1 ? "search_images_one".localize() : String(format: "search_images_count".localize(), "\(count)")
+                        }
+                    }
+                    let extraCount = max(0, attachments.count - 1)
+
                     if let message = message as? MediaMessage, let videoView = listItemViewForVideo?(message), isVideo {
                         listItem.set(customView: videoView)
                     } else if let message = message as? MediaMessage, let imageView = listItemViewForImage?(message), !isVideo {
                         listItem.set(customView: imageView)
                     } else{
-                        listItem.configure(senderName: senderName, fileName: fileName, thumbnailURL: thumbnailURL, isVideo: isVideo)
+                        listItem.configure(title: chatName, senderPrefix: senderPrefix, summary: summary, thumbnailURL: thumbnailURL, isVideo: isVideo, extraCount: extraCount)
                     }
                     return listItem
                 }else{

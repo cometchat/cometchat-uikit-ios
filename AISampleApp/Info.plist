@@ -2,14 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UILaunchScreen</key>
-	<dict/>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<key>CFBundleURLTypes</key>
 	<array>
-		<string>com.cometchat.background-refresh</string>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</string>
+			</array>
+		</dict>
 	</array>
 	<key>CometChatSDK</key>
-	<string>4.1.6</string>
+	<string>4.1.5</string>
+	<key>GIDClientID</key>
+	<string>950141434859-mimmjt77oiagrq66nma4r6384acvfohs.apps.googleusercontent.com</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -27,13 +34,5 @@
 			</array>
 		</dict>
 	</dict>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>audio</string>
-		<string>processing</string>
-		<string>remote-notification</string>
-		<string>voip</string>
-	</array>
 </dict>
 </plist>

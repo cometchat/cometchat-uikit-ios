@@ -1,13 +1,12 @@
 //
 //  LoginWithUidVC.swift
-//  master-app
+//  CometChatSampleApp
 //
 //  Created by Suryansh on 23/12/24.
 //
 
 import UIKit
 import CometChatUIKitSwift
-import CometChatSDK
 
 class LoginWithUidVC: UIViewController {
     

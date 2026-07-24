@@ -291,3 +291,35 @@
 "AUDIO_LIBRARY" = "Biblioteca de áudio";
 
 "AI_AGENTS" = "Assistentes de IA";
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ mais";
+"file_list_show_less" = "Mostrar menos";
+"attachment_count" = "%@ anexos";
+"preview_photos_count" = "%@ fotos";
+"preview_videos_count" = "%@ vídeos";
+"preview_files_count" = "%@ arquivos";
+"preview_audios_count" = "%@ arquivos de áudio";
+"search_images_one" = "1 imagem";
+"search_images_count" = "%@ imagens";
+"search_videos_one" = "1 vídeo";
+"search_videos_count" = "%@ vídeos";
+"search_audios_count" = "%@ áudios";
+"search_files_count" = "%@ arquivos";
+"attachment_tray_add" = "Adicionar";
+"attachment_downloading" = "Baixando…";
+"attachment_upload_failed" = "Falha no envio";
+"attachment_upload_failed_retry" = "Toque para tentar novamente";
+"attachment_retry" = "Tentar novamente";
+"attachment_remove" = "Remover";
+"attachment_count_exceeded" = "Você pode anexar até %@ arquivos.";
+"attachment_size_exceeded" = "O arquivo excede %@ MB.";
+"attachment_type_not_allowed" = "Este tipo de arquivo não é permitido.";
+"attachment_total_size_exceeded" = "O tamanho total dos anexos é muito grande.";
+"attachment_size_unknown" = "Tamanho desconhecido";
+"attachment_upload_unavailable" = "Os envios estão indisponíveis no momento.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

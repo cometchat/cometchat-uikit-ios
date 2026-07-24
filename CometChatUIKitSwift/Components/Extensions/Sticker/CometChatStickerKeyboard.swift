@@ -335,12 +335,17 @@ public class CometChatStickerKeyboard: UIView {
 
     /// Hides the loading view and stops the shimmer animation.
     func hideLoadingView() {
+        // Defensive: this touches UIKit, so always run on the main thread.
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in self?.hideLoadingView() }
+            return
+        }
         // Stop shimmer animation if loadingView is of type CometChatShimmerView.
         (loadingView as? CometChatShimmerView)?.stopShimmer()
-        
+
         // Mark the loading view as not visible.
         isLoadingViewVisible = false
-        
+
         // Remove the loadingView from its superview.
         loadingView.removeFromSuperview()
     }
@@ -402,13 +407,17 @@ public class CometChatStickerKeyboard: UIView {
                 }
             }
         }) { error in
-            // Handle error in fetching stickers.
-            self.hideLoadingView()
-            self.stickersCollectionView.isHidden = true
-            self.separatorLineView.isHidden = true
-            self.stickerSetCollectionView.isHidden = true
-            self.errorView.isHidden = false
-            self.emptyView.isHidden = true
+            // The SDK delivers this error callback on a background thread — all the UI
+            // updates below MUST run on main, otherwise UIKit corrupts and crashes
+            // (EXC_BAD_ACCESS in removeFromSuperview).
+            DispatchQueue.main.async {
+                self.hideLoadingView()
+                self.stickersCollectionView.isHidden = true
+                self.separatorLineView.isHidden = true
+                self.stickerSetCollectionView.isHidden = true
+                self.errorView.isHidden = false
+                self.emptyView.isHidden = true
+            }
             print("Error fetching stickers: \(error?.errorDescription ?? "Unknown error")")
         }
     }

@@ -292,3 +292,35 @@
 "ENTER_LINK_URL" = "Ange länk-URL";
 "REMOVE" = "Ta bort";
 
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ till";
+"file_list_show_less" = "Visa mindre";
+"attachment_count" = "%@ bilagor";
+"preview_photos_count" = "%@ foton";
+"preview_videos_count" = "%@ videor";
+"preview_files_count" = "%@ filer";
+"preview_audios_count" = "%@ ljudfiler";
+"search_images_one" = "1 bild";
+"search_images_count" = "%@ bilder";
+"search_videos_one" = "1 video";
+"search_videos_count" = "%@ videor";
+"search_audios_count" = "%@ ljudklipp";
+"search_files_count" = "%@ filer";
+"attachment_tray_add" = "Lägg till";
+"attachment_downloading" = "Laddar ner…";
+"attachment_upload_failed" = "Uppladdningen misslyckades";
+"attachment_upload_failed_retry" = "Tryck för att försöka igen";
+"attachment_retry" = "Försök igen";
+"attachment_remove" = "Ta bort";
+"attachment_count_exceeded" = "Du kan bifoga upp till %@ filer.";
+"attachment_size_exceeded" = "Filen överskrider %@ MB.";
+"attachment_type_not_allowed" = "Den här filtypen är inte tillåten.";
+"attachment_total_size_exceeded" = "Bilagornas totala storlek är för stor.";
+"attachment_size_unknown" = "Okänd storlek";
+"attachment_upload_unavailable" = "Uppladdningar är inte tillgängliga just nu.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

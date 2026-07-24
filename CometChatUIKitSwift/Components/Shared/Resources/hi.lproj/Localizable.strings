@@ -318,3 +318,35 @@
 "AGENT_FAILURE" = "एजेंट जवाब नहीं दे सका। पुनः प्रयास करें।";
 "AGENT_HANDOFF_MESSAGE" = "आपको एक टीम सदस्य से जोड़ रहे हैं…";
 "AGENT_MESSAGE_PREVIEW" = "AI प्रतिक्रिया";
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ और";
+"file_list_show_less" = "कम दिखाएँ";
+"attachment_count" = "%@ अटैचमेंट";
+"preview_photos_count" = "%@ फ़ोटो";
+"preview_videos_count" = "%@ वीडियो";
+"preview_files_count" = "%@ फ़ाइलें";
+"preview_audios_count" = "%@ ऑडियो फ़ाइलें";
+"search_images_one" = "1 छवि";
+"search_images_count" = "%@ छवियाँ";
+"search_videos_one" = "1 वीडियो";
+"search_videos_count" = "%@ वीडियो";
+"search_audios_count" = "%@ ऑडियो";
+"search_files_count" = "%@ फ़ाइलें";
+"attachment_tray_add" = "जोड़ें";
+"attachment_downloading" = "डाउनलोड हो रहा है…";
+"attachment_upload_failed" = "अपलोड विफल";
+"attachment_upload_failed_retry" = "पुनः प्रयास के लिए टैप करें";
+"attachment_retry" = "पुनः प्रयास करें";
+"attachment_remove" = "हटाएँ";
+"attachment_count_exceeded" = "आप अधिकतम %@ फ़ाइलें संलग्न कर सकते हैं।";
+"attachment_size_exceeded" = "फ़ाइल %@ MB से बड़ी है।";
+"attachment_type_not_allowed" = "इस प्रकार की फ़ाइल की अनुमति नहीं है।";
+"attachment_total_size_exceeded" = "अटैचमेंट का कुल आकार बहुत बड़ा है।";
+"attachment_size_unknown" = "अज्ञात आकार";
+"attachment_upload_unavailable" = "अपलोड अभी उपलब्ध नहीं हैं।";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

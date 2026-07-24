@@ -296,3 +296,35 @@
 "AGENT_FAILURE" = "L'agent n'a pas pu répondre. Réessayez.";
 "AGENT_HANDOFF_MESSAGE" = "Connexion avec un membre de l'équipe…";
 "AGENT_MESSAGE_PREVIEW" = "Réponse IA";
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ de plus";
+"file_list_show_less" = "Afficher moins";
+"attachment_count" = "%@ pièces jointes";
+"preview_photos_count" = "%@ photos";
+"preview_videos_count" = "%@ vidéos";
+"preview_files_count" = "%@ fichiers";
+"preview_audios_count" = "%@ fichiers audio";
+"search_images_one" = "1 image";
+"search_images_count" = "%@ images";
+"search_videos_one" = "1 vidéo";
+"search_videos_count" = "%@ vidéos";
+"search_audios_count" = "%@ audios";
+"search_files_count" = "%@ fichiers";
+"attachment_tray_add" = "Ajouter";
+"attachment_downloading" = "Téléchargement…";
+"attachment_upload_failed" = "Échec de l'envoi";
+"attachment_upload_failed_retry" = "Touchez pour réessayer";
+"attachment_retry" = "Réessayer";
+"attachment_remove" = "Supprimer";
+"attachment_count_exceeded" = "Vous pouvez joindre jusqu'à %@ fichiers.";
+"attachment_size_exceeded" = "Le fichier dépasse %@ Mo.";
+"attachment_type_not_allowed" = "Ce type de fichier n'est pas autorisé.";
+"attachment_total_size_exceeded" = "La taille totale des pièces jointes est trop grande.";
+"attachment_size_unknown" = "Taille inconnue";
+"attachment_upload_unavailable" = "Les envois sont actuellement indisponibles.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

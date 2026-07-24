@@ -59,6 +59,15 @@ extension CometChatMessageList {
         return self
     }
     
+    /// Enables (default) or disables the new per-type multi-attachment bubbles in the
+    /// message list. When disabled, messages carrying attachments fall back to the
+    /// deprecated single-attachment bubbles.
+    @discardableResult
+    public func set(enableMultipleAttachments: Bool) -> Self {
+        viewModel.enableMultipleAttachments = enableMultipleAttachments
+        return self
+    }
+
     @discardableResult
     public func set(templates: [CometChatMessageTemplate]) -> Self {
         viewModel.templates.removeAll()

@@ -169,7 +169,6 @@ public class CometChatAudioBubble: UIView {
     ///   - audioDuration: An optional duration in seconds from metadata.
     public func set(fileURL: String, localFileURL: String? = nil, audioDuration: Int? = nil) {
         self.fileURL = fileURL.isEmpty ? localFileURL : fileURL
-        print("[AudioBubble] fileURL='\(fileURL)' localFileURL='\(localFileURL ?? "nil")' resolved='\(self.fileURL ?? "nil")'")
         updateDurationLabel(localFileURL: localFileURL, audioDuration: audioDuration)
     }
 

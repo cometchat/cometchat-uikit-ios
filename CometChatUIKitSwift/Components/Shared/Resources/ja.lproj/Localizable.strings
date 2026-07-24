@@ -306,3 +306,35 @@
 "AUDIO_LIBRARY" = "オーディオライブラリ";
 
 "AI_AGENTS" = "AIアシスタント";
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@件";
+"file_list_show_less" = "折りたたむ";
+"attachment_count" = "%@件の添付ファイル";
+"preview_photos_count" = "%@枚の写真";
+"preview_videos_count" = "%@本の動画";
+"preview_files_count" = "%@個のファイル";
+"preview_audios_count" = "%@個の音声ファイル";
+"search_images_one" = "画像1枚";
+"search_images_count" = "画像%@枚";
+"search_videos_one" = "動画1本";
+"search_videos_count" = "動画%@本";
+"search_audios_count" = "音声%@件";
+"search_files_count" = "ファイル%@個";
+"attachment_tray_add" = "追加";
+"attachment_downloading" = "ダウンロード中…";
+"attachment_upload_failed" = "アップロードに失敗しました";
+"attachment_upload_failed_retry" = "タップして再試行";
+"attachment_retry" = "再試行";
+"attachment_remove" = "削除";
+"attachment_count_exceeded" = "添付できるファイルは最大%@個です。";
+"attachment_size_exceeded" = "ファイルが%@MBを超えています。";
+"attachment_type_not_allowed" = "このファイル形式は許可されていません。";
+"attachment_total_size_exceeded" = "添付ファイルの合計サイズが大きすぎます。";
+"attachment_size_unknown" = "サイズ不明";
+"attachment_upload_unavailable" = "現在アップロードは利用できません。";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

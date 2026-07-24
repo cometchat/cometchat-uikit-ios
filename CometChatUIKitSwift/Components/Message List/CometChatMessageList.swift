@@ -29,7 +29,12 @@ open class CometChatMessageList: UIView {
 
     open lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain).withoutAutoresizingMaskConstraints()
-        tableView.alwaysBounceVertical = false
+        // Natural rubber-band deceleration at the edges. With this off, scrollViewDidScroll's
+        // manual `contentOffset = .zero` clamp (guarded by !alwaysBounceVertical) fires on every
+        // frame the offset goes negative, hard-stopping a fast fling at the bottom — that shows
+        // up as the "stutter then snap to bottom" when you reverse scroll direction. Turning
+        // bounce on lets the scroll settle smoothly and makes that manual clamp inert.
+        tableView.alwaysBounceVertical = true
         tableView.backgroundColor = UIColor.clear
         tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         return tableView
@@ -297,7 +302,16 @@ open class CometChatMessageList: UIView {
     var messageIndicator : CometChatNewMessageIndicator?
     var viewModel = MessageListViewModel()
     var lastContentOffset: CGFloat = 0
-    
+
+    /// Snapshot of `(section date, table row count)` taken when a scroll-triggered
+    /// previous-page fetch starts. When the fetch resolves, `reload()` uses it to insert
+    /// only the newly-loaded older rows/sections via `performBatchUpdates` instead of a
+    /// full `reloadData()` — the latter re-measures every cell (walls of text, media grids,
+    /// giant bubbles) and is the source of the fast-scroll pagination stutter. `nil` unless
+    /// a scroll-driven previous-page fetch is in flight; any drift from the snapshot makes
+    /// the insert bail back to `reloadData()`, so it's safe.
+    private var prevPageSnapshot: [(date: Date, rows: Int)]?
+
     var unreadSeparatorMessageId: Int?
     var scrolledToUnread: Bool = false
     var unreadMessageCount: Int = 0
@@ -359,29 +373,23 @@ open class CometChatMessageList: UIView {
             if viewModel.user?.isAgentic ?? false{
                 hideDateSeparator = true
                 viewModel.streamingSpeed = streamingSpeed
-                print("[AIAgent] willMove agentic: parentMessage.id=\(viewModel.parentMessage?.id ?? -1), threadedPArentMessageId=\(viewModel.threadedPArentMessageId), loadLastAgentConversation=\(loadLastAgentConversation), didAttempt=\(didAttemptLoadLastAgentConversation), hasFetchedBefore=\(viewModel.hasFetchedMessagesBefore)")
                 if viewModel.parentMessage != nil && viewModel.parentMessage?.id ?? 0 > 0{
-                    print("[AIAgent] willMove → fetchData (specific thread)")
                     fetchData()
                 } else if viewModel.threadedPArentMessageId > 0{
                     if viewModel.hasFetchedMessagesBefore {
-                        print("[AIAgent] willMove → fetchData (existing threadedParent)")
                         fetchData()
                     } else {
                         print("[AIAgent] willMove → no-op (threadedParent set but not fetched yet)")
                     }
                 } else if loadLastAgentConversation && !didAttemptLoadLastAgentConversation {
-                    print("[AIAgent] willMove → loadPreviousAgentConversation()")
                     loadPreviousAgentConversation()
                 } else{
                     // Only show the AI greeting view if we don't already have messages loaded
                     // (prevents hiding the table after a message has been sent but before
                     // threadedPArentMessageId is assigned from the success callback).
                     if viewModel.messages.isEmpty && !viewModel.hasFetchedMessagesBefore {
-                        print("[AIAgent] willMove → buildAgenticView (new chat / fresh)")
                         buildAgenticView()
                     } else if viewModel.messages.isEmpty {
-                        print("[AIAgent] willMove → buildAgenticView (messages empty, previously fetched)")
                         buildAgenticView()
                     } else {
                         print("[AIAgent] willMove → no-op (messages already present, table should be visible)")
@@ -466,17 +474,13 @@ open class CometChatMessageList: UIView {
     /// or the fetch fails.
     func loadPreviousAgentConversation() {
         didAttemptLoadLastAgentConversation = true
-        print("[AIAgent] loadPreviousAgentConversation: showing loading view")
         showLoadingView()
         viewModel.loadLastAgentConversation { [weak self] didLoad, parentId in
             guard let this = self else {
-                print("[AIAgent] loadPreviousAgentConversation: self released")
                 return
             }
-            print("[AIAgent] loadPreviousAgentConversation completed: didLoad=\(didLoad), parentId=\(parentId), isViewActive=\(this.isViewActive)")
             guard this.isViewActive else { return }
             if didLoad {
-                print("[AIAgent] loadPreviousAgentConversation → fetchData()")
                 // Notify listeners (e.g. composer) about the loaded thread parentMessageId
                 // so outgoing messages are correctly threaded.
                 var id = [String: Any]()
@@ -592,9 +596,82 @@ open class CometChatMessageList: UIView {
     }
     
     open func reload() {
+        // Fast path: if a scroll-triggered previous-page fetch is pending, try to insert
+        // only the newly-loaded older rows/sections. Falls back to reloadData() on any drift.
+        if let snapshot = prevPageSnapshot {
+            prevPageSnapshot = nil
+            if insertPreviousPage(fromSnapshot: snapshot) { return }
+        }
         tableView.reloadData()
     }
-    
+
+    /// Sections the data source currently reports, paired with each section's table-row
+    /// count (already accounting for the display filter and the unread separator).
+    private func captureSectionSnapshot() -> [(date: Date, rows: Int)] {
+        (0..<viewModel.messages.count).map { section in
+            (date: viewModel.messages[section].date,
+             rows: self.tableView(tableView, numberOfRowsInSection: section))
+        }
+    }
+
+    /// Inserts just the older page (appended at the tail in the inverted table) via
+    /// `performBatchUpdates`, so on-screen cells aren't re-measured and the scroll isn't
+    /// disturbed. Returns `false` (caller then does a full `reloadData()`) if the change
+    /// isn't a clean tail-append, or if the table drifted from the snapshot since capture.
+    private func insertPreviousPage(fromSnapshot old: [(date: Date, rows: Int)]) -> Bool {
+        let oldCount = old.count
+        let newCount = viewModel.messages.count
+
+        // Need at least one existing section, and sections can only grow (never shrink)
+        // for a previous-page load.
+        guard oldCount > 0, newCount >= oldCount else { return false }
+
+        // The table must still match the snapshot exactly — otherwise something else
+        // mutated it since capture (e.g. an incoming message reloaded section 0), and the
+        // computed insert indices would be wrong. Bail to a full reload in that case.
+        guard tableView.numberOfSections == oldCount else { return false }
+        for section in 0..<oldCount {
+            guard tableView.numberOfRows(inSection: section) == old[section].rows else { return false }
+        }
+
+        // Older messages append at the tail: every existing section except the last (oldest
+        // loaded) must be byte-for-byte unchanged; the last may have grown at its end.
+        for section in 0..<oldCount {
+            guard viewModel.messages[section].date == old[section].date else { return false }
+            let newRows = self.tableView(tableView, numberOfRowsInSection: section)
+            if section < oldCount - 1 {
+                guard newRows == old[section].rows else { return false }
+            } else {
+                guard newRows >= old[section].rows else { return false }
+            }
+        }
+
+        let lastOld = oldCount - 1
+        let lastNewRows = self.tableView(tableView, numberOfRowsInSection: lastOld)
+        let appendedRows = lastNewRows - old[lastOld].rows
+        let newSections = newCount - oldCount
+
+        // Nothing actually changed (e.g. the page was fully deduped) — table already matches.
+        guard appendedRows > 0 || newSections > 0 else { return true }
+
+        // Inserted content sits below the viewport (the fetch triggers at ~70% toward the
+        // tail, so there's always content between the viewport and the tail), so we don't
+        // touch contentOffset — the visible position and any in-flight fling are preserved.
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        tableView.performBatchUpdates({
+            if appendedRows > 0 {
+                let paths = (old[lastOld].rows..<lastNewRows).map { IndexPath(row: $0, section: lastOld) }
+                tableView.insertRows(at: paths, with: .none)
+            }
+            if newSections > 0 {
+                tableView.insertSections(IndexSet(integersIn: oldCount..<newCount), with: .none)
+            }
+        }, completion: nil)
+        CATransaction.commit()
+        return true
+    }
+
     private func fetchData() {
         print("[AIAgent] fetchData: messages.isEmpty=\(viewModel.messages.isEmpty), parentMessage.id=\(viewModel.parentMessage?.id ?? -1), gotoMessageId=\(gotoMessageId)")
         if viewModel.messages.isEmpty {
@@ -782,7 +859,6 @@ open class CometChatMessageList: UIView {
     open func showLoadingView() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            print("[AIAgent] showLoadingView: hideLoadingView=\(self.hideLoadingView), superview=\(self.loadingStateView.superview != nil)")
             if self.hideLoadingView { return }
             if let loadingStateView = self.loadingStateView as? CometChatMessageShimmerView {
                 loadingStateView.startShimmer()
@@ -795,7 +871,6 @@ open class CometChatMessageList: UIView {
     open func removeLoadingView() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            print("[AIAgent] removeLoadingView: hideLoadingView=\(self.hideLoadingView), wasInView=\(self.loadingStateView.superview != nil)")
             if self.hideLoadingView { return }
             if let loadingStateView = self.loadingStateView as? CometChatMessageShimmerView {
                 loadingStateView.stopShimmer()
@@ -991,8 +1066,13 @@ open class CometChatMessageList: UIView {
                 
                 let wasNextPagination = this.viewModel.isFetchingNext
 
+                // The logged-in user's OWN message (a send) always jumps to the bottom,
+                // regardless of current scroll position — standard chat behavior, and it
+                // keeps batch/multi-attachment sends pinned to the newest message.
+                let isOwnMessage = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
+
                 var shouldScrollToBottom = false
-                if this.scrollToBottomOnNewMessages {
+                if this.scrollToBottomOnNewMessages || isOwnMessage {
                     shouldScrollToBottom = true
                 } else {
                     if this.tableView.contentOffset.y > 300 {
@@ -1018,6 +1098,13 @@ open class CometChatMessageList: UIView {
                 this.removeErrorView()
                 
                 if !wasNextPagination && shouldScrollToBottom {
+                    // Cancel any in-flight fling before animating to the bottom. Without this,
+                    // the scroll-to-bottom animation fights the ongoing deceleration — which is
+                    // exactly the jitter you see when a message arrives (or you send one) while
+                    // the list is still scrolling. Halting the momentum first makes it smooth.
+                    if this.tableView.isDragging || this.tableView.isDecelerating {
+                        this.tableView.setContentOffset(this.tableView.contentOffset, animated: false)
+                    }
                     this.scrollToBottom()
                 }
                 
@@ -1750,14 +1837,39 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     cell.set(bottomView: bottomView)
                 }
                 
-                // Adding date and read receipt
-                if let statusInfoView = template.statusInfoView?(message, cell.alignment, controller) {
-                    cell.set(statusInfoView: statusInfoView)
-                } else {
-                    if let user = viewModel.user, user.isAgentic && cell.alignment == .left{
-                        addAIActionBarView(on: cell, message: message)
-                    }else{
-                        buildMessageFooterView(on: cell, for: message, messageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle, isModerated: isModerated)
+                // Batch grouping: messages sharing a `batchId` (a single multi-attachment
+                // send, split into one message per type) render as one visual group —
+                // avatar & sender name only on the FIRST message, and the time/receipt
+                // only on the LAST message.
+                var isFirstOfBatch = true
+                var isLastOfBatch = true
+                if let batchId = message.metaData?["batchId"] as? String {
+                    if let batchIndex = message.metaData?["batchIndex"] as? Int,
+                       let batchSize = message.metaData?["batchSize"] as? Int, batchSize > 0 {
+                        // Deterministic: position is carried in the metadata, so grouping
+                        // holds regardless of delivery order or pagination.
+                        isFirstOfBatch = (batchIndex == 0)
+                        isLastOfBatch = (batchIndex == batchSize - 1)
+                    } else if let idx = filteredMessages.firstIndex(where: { $0 === message }) {
+                        // Legacy fallback (no batchIndex): infer from neighbors. The table
+                        // is inverted, so the older message is at idx+1, newer at idx-1.
+                        let olderBatchId = (idx + 1 < filteredMessages.count) ? (filteredMessages[idx + 1].metaData?["batchId"] as? String) : nil
+                        let newerBatchId = (idx - 1 >= 0) ? (filteredMessages[idx - 1].metaData?["batchId"] as? String) : nil
+                        isFirstOfBatch = (olderBatchId != batchId)
+                        isLastOfBatch = (newerBatchId != batchId)
+                    }
+                }
+
+                // Adding date and read receipt (only on the last message of a batch)
+                if isLastOfBatch {
+                    if let statusInfoView = template.statusInfoView?(message, cell.alignment, controller) {
+                        cell.set(statusInfoView: statusInfoView)
+                    } else {
+                        if let user = viewModel.user, user.isAgentic && cell.alignment == .left{
+                            addAIActionBarView(on: cell, message: message)
+                        }else{
+                            buildMessageFooterView(on: cell, for: message, messageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle, isModerated: isModerated)
+                        }
                     }
                 }
                 
@@ -1787,7 +1899,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 // Setting up avatar view
                 if let user = message.sender {
                     cell.set(avatarURL: user.avatar, avatarName: user.name)
-                    
+
                     // Setting header view
                     switch message.receiverType {
                     case .user:
@@ -1805,8 +1917,12 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                         }
                     case .group:
                         if cell.alignment == .left {
+                            // Keep the avatar column so batched bubbles stay aligned, but
+                            // show the avatar image & sender name only on the first (top)
+                            // message of a batch. alpha is set every pass, so reuse is safe.
                             cell.hide(avatar: hideAvatar ?? false)
-                            cell.hide(headerView: false)
+                            cell.avatarContainerView.alpha = isFirstOfBatch ? 1 : 0
+                            cell.hide(headerView: !isFirstOfBatch)
                         } else {
                             cell.hide(headerView: true)
                         }
@@ -1948,6 +2064,10 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
            !viewModel.isAllMessagesFetchedInPrevious,
            offsetY + visibleHeight >= (contentHeight * 0.70),
            !viewModel.isUIUpdating {
+            // Snapshot the current sections so reload() can insert just the incoming older
+            // page instead of reloading the whole table. Captured here (before the fetch)
+            // while the table and data source are still in sync.
+            prevPageSnapshot = captureSectionSnapshot()
             showTopSpinner()
             viewModel.fetchPreviousMessages()
         }
@@ -2326,13 +2446,19 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                 }
                 
             } else if message.messageType == .audio ||  message.messageType == .file ||  message.messageType == .image || message.messageType == .video {
-                
-                if let fileUrlString = (message as? MediaMessage)?.attachment?.fileUrl, let fileUrl = URL(string: fileUrlString) {
-                    downloadMediaMessage(url: fileUrl, completion: { [weak self] fileLocation in
-                        guard let this = self else { return }
-                        if let fileLocation = fileLocation {
-                            this.copyMedia(fileLocation)
-                        }
+
+                // Share EVERY attachment of the message (multi-attachment messages carry
+                // them in `attachments`; older messages only have the singular `attachment`).
+                if let mediaMessage = message as? MediaMessage {
+                    var attachmentList = mediaMessage.attachments ?? []
+                    if attachmentList.isEmpty, let single = mediaMessage.attachment {
+                        attachmentList = [single]
+                    }
+                    let fileUrls = attachmentList.compactMap { URL(string: $0.fileUrl) }
+                    guard !fileUrls.isEmpty else { return }
+                    downloadMediaMessages(urls: fileUrls, completion: { [weak self] fileLocations in
+                        guard let this = self, !fileLocations.isEmpty else { return }
+                        this.copyMedia(fileLocations)
                     })
                 }
             }
@@ -2342,22 +2468,30 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
     func copyMedia(_ item: Any) {
         DispatchQueue.main.async { [weak self] in
             guard let this = self else { return }
-            let activityViewController = UIActivityViewController(activityItems: [item], applicationActivities: nil)
+            // An array of items (multi-attachment share) becomes one activity item each.
+            let activityItems = (item as? [Any]) ?? [item]
+            let activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
             activityViewController.popoverPresentationController?.sourceView = this
             activityViewController.excludedActivityTypes = [.airDrop]
             this.controller?.present(activityViewController, animated: true, completion: nil)
         }
     }
-    
+
     func downloadMediaMessage(url: URL, completion: @escaping (_ fileLocation: URL?) -> Void){
-        
-        let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let destinationUrl = documentsDirectoryURL.appendingPathComponent(url.lastPathComponent)
+
+        // Key the cached copy by a stable hash of host+path, not just the filename — two
+        // different files that share a name (IMG_0001.jpg, Invoice.pdf, …) would otherwise
+        // collide and the wrong bytes would be shared. Reuses FileDownloadControl's helper,
+        // which already hashes host+path (and ignores rotating signed-URL query strings).
+        let destinationUrl = FileDownloadControl.localCopy(for: url.absoluteString, fileName: url.lastPathComponent)
         if FileManager.default.fileExists(atPath: destinationUrl.path) {
             completion(destinationUrl)
         } else {
             URLSession.shared.downloadTask(with: url, completionHandler: { (location, response, error) -> Void in
-                guard let tempLocation = location, error == nil else { return }
+                guard let tempLocation = location, error == nil else {
+                    completion(nil)
+                    return
+                }
                 do {
                     try FileManager.default.moveItem(at: tempLocation, to: destinationUrl)
                     completion(destinationUrl)
@@ -2365,6 +2499,24 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                     completion(nil)
                 }
             }).resume()
+        }
+    }
+
+    /// Downloads every URL (in parallel) and returns the successful local copies in the
+    /// original attachment order — so a 10-image share hands all 10 to the share sheet.
+    func downloadMediaMessages(urls: [URL], completion: @escaping (_ fileLocations: [URL]) -> Void) {
+        let group = DispatchGroup()
+        var results = [URL?](repeating: nil, count: urls.count)
+        let lock = NSLock()
+        for (index, url) in urls.enumerated() {
+            group.enter()
+            downloadMediaMessage(url: url) { fileLocation in
+                lock.lock(); results[index] = fileLocation; lock.unlock()
+                group.leave()
+            }
+        }
+        group.notify(queue: .main) {
+            completion(results.compactMap { $0 })
         }
     }
 }

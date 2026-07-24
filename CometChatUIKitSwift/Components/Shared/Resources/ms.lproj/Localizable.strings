@@ -297,3 +297,35 @@
 "ENTER_LINK_URL" = "Masukkan URL pautan";
 "REMOVE" = "Alih keluar";
 
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ lagi";
+"file_list_show_less" = "Tunjukkan kurang";
+"attachment_count" = "%@ lampiran";
+"preview_photos_count" = "%@ foto";
+"preview_videos_count" = "%@ video";
+"preview_files_count" = "%@ fail";
+"preview_audios_count" = "%@ fail audio";
+"search_images_one" = "1 imej";
+"search_images_count" = "%@ imej";
+"search_videos_one" = "1 video";
+"search_videos_count" = "%@ video";
+"search_audios_count" = "%@ audio";
+"search_files_count" = "%@ fail";
+"attachment_tray_add" = "Tambah";
+"attachment_downloading" = "Memuat turun…";
+"attachment_upload_failed" = "Muat naik gagal";
+"attachment_upload_failed_retry" = "Ketik untuk cuba semula";
+"attachment_retry" = "Cuba semula";
+"attachment_remove" = "Alih keluar";
+"attachment_count_exceeded" = "Anda boleh melampirkan sehingga %@ fail.";
+"attachment_size_exceeded" = "Fail melebihi %@ MB.";
+"attachment_type_not_allowed" = "Jenis fail ini tidak dibenarkan.";
+"attachment_total_size_exceeded" = "Jumlah saiz lampiran terlalu besar.";
+"attachment_size_unknown" = "Saiz tidak diketahui";
+"attachment_upload_unavailable" = "Muat naik tidak tersedia buat masa ini.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

@@ -161,6 +161,24 @@ open class CometChatMessageComposer: UIView {
         stackView.isHidden = true
         return stackView
     }()
+
+    // MARK: - Multi-attachment composer
+    /// Developer toggle. When `true` (default), the photo/video/file/camera/audio
+    /// attachment options stage into a multi-attachment preview tray and upload before
+    /// send. Set to `false` to restore the legacy single-attachment, send-immediately
+    /// behavior.
+    public var enableMultipleAttachments: Bool = true
+
+    /// Preview strip for staged (multi) attachments shown above the input box.
+    public lazy var attachmentTray: CometChatAttachmentTray = {
+        let tray = CometChatAttachmentTray().withoutAutoresizingMaskConstraints()
+        tray.isHidden = true
+        return tray
+    }()
+    /// Drives the SDK presigned uploads for the staged attachments.
+    public let uploadManager = AttachmentUploadManager()
+    /// Multi-select picker for images/videos/files.
+    public let mediaPicker = MultiMediaPicker()
     
     public lazy var suggestionContainerView : UIStackView = {
         let stackView = UIStackView().withoutAutoresizingMaskConstraints()
@@ -288,7 +306,17 @@ open class CometChatMessageComposer: UIView {
     public var disableTypingEvents = false
     public var hideHeaderView = true
     public var hideFooterView = true
-    public var messageComposerMode: MessageComposerMode =  .draft
+    public var messageComposerMode: MessageComposerMode =  .draft {
+        didSet { updateAttachmentButtonForEditState() }
+    }
+
+    /// Attachments can't be added while editing a message — dim and disable the +
+    /// button for the duration of the edit; restore it when the edit ends.
+    private func updateAttachmentButtonForEditState() {
+        let isEditing = messageComposerMode == .edit
+        attachmentButton.isEnabled = !isEditing
+        attachmentButton.alpha = isEditing ? 0.4 : 1.0
+    }
     public var auxiliaryButtonsAlignment: AuxilaryButtonAlignment = .left
     public var suggestionViewStyle: SuggestionViewStyle?
     public var disableMentions: Bool = false {
@@ -437,8 +465,14 @@ open class CometChatMessageComposer: UIView {
         let hasText = !(textView.text?.isEmpty ?? true)
         let isAIBusy = CometChatAIStreamService.shared.isAIBusy
         let isAgentic = viewModel.user?.isAgentic ?? false
-        
-        sendButton.isEnabled = hasText && !isAIBusy
+
+        // With staged attachments, send is gated on all uploads finishing (a caption
+        // is optional). Otherwise fall back to the text-based rule.
+        if uploadManager.hasAttachments {
+            sendButton.isEnabled = uploadManager.canSend && !isAIBusy
+        } else {
+            sendButton.isEnabled = hasText && !isAIBusy
+        }
         
         // Set background color based on user type
         if isAgentic {
@@ -582,7 +616,9 @@ open class CometChatMessageComposer: UIView {
         ]
         
         NSLayoutConstraint.activate(constraintsToActivate)
-        
+
+        setupAttachmentTray()
+
         updateSendButtonState()
         
     }
@@ -742,6 +778,8 @@ open class CometChatMessageComposer: UIView {
                 self.onSendButtonClick?(self.viewModel.setupBaseMessage(url: url))
                 self.viewModel.reset?(true)
             } else {
+                // Voice notes always send as their own standalone message — never
+                // staged into the multi-attachment tray.
                 if self.viewModel.user != nil {
                     self.viewModel.sendMediaMessageToUser(url: url, type: .audio, audioDuration: duration)
                 } else {
@@ -772,7 +810,13 @@ open class CometChatMessageComposer: UIView {
     @objc open func didSendButtonClicked() {
         let impactFeedbackLight = UIImpactFeedbackGenerator(style: .light)
         impactFeedbackLight.impactOccurred()
-        
+
+        // Staged multi-attachment message takes precedence over plain text.
+        if uploadManager.hasAttachments {
+            sendStagedAttachments()
+            return
+        }
+
         if let onSendButtonClick = onSendButtonClick {
             // COMMENTED OUT - Rich text formatting disabled for MessageComposer
             // Convert attributed text to markdown if rich text formatting is enabled

@@ -22,6 +22,11 @@ final public class CometChatUIKit {
     static var uiKitError: CometChatException = CometChatException(errorCode: "Err_101", errorDescription: "UIKit Settings are not initialised, Try calling CometChatUIKit.init method first.")
     static var sdkEventInitializer: SDKEventInitializer?
     static public let soundManager = CometChatSoundManager()
+
+    /// `true` when the UIKit was initialised via `initFromSettings` (AI agent skills path).
+    /// Used to route internal Calls SDK initialisation through `CometChatCalls.initFromSettings`
+    /// so `integrationSource = "ai-agent"` propagates to Calls telemetry as well.
+    static var isInitializedFromSettings: Bool = false
     
     #if canImport(CometChatCallsSDK)
     static var callingExtension: CallingExtension?
@@ -29,6 +34,7 @@ final public class CometChatUIKit {
     
     @discardableResult
     public init(uiKitSettings: UIKitSettings, result: @escaping (Result<Bool, Error>) -> Void) {
+        CometChatUIKit.isInitializedFromSettings = false
         CometChat.init(appId: uiKitSettings.appID, appSettings: AppSettings(builder: uiKitSettings.appSettingsBuilder)) { isSuccess  in
             CometChatUIKit.uiKitSettings = uiKitSettings
             if isSuccess {
@@ -131,6 +137,7 @@ final public class CometChatUIKit {
         uiKitSettings.build()
         
         // 5. Delegate to Chat SDK's initFromSettings (sets integrationSource = "ai-agent")
+        CometChatUIKit.isInitializedFromSettings = true
         print("[CometChatUIKit] initFromSettings: Delegating to Chat SDK's initFromSettings (integrationSource will be set to 'ai-agent')")
         CometChat.initFromSettings(onSuccess: { isSuccess in
             print("[CometChatUIKit] initFromSettings: Chat SDK init succeeded = \(isSuccess), integrationSource = 'ai-agent' persisted to UserDefaults")

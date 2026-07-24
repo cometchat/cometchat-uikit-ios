@@ -30,13 +30,19 @@ class CallingExtensionDecorator: DataSourceDecorator {
     public convenience init(dataSource: DataSource, configuration: CallingConfiguration?) {
         self.init(dataSource: dataSource)
         if let uiKitSettings = CometChatUIKit.uiKitSettings {
-            
-            let callAppSettings = CallAppSettingsBuilder()
-                .setAppId(uiKitSettings.appID)
-                .setRegion(uiKitSettings.region)
-                .build()
-            
-            CometChatCalls.init(callsAppSettings: callAppSettings) {_ in } onError: {_ in }
+
+            if CometChatUIKit.isInitializedFromSettings {
+                // AI agent skills path: telemetry-aware init reads cometchat-settings.json
+                // and reports integrationSource = "ai-agent" to Calls telemetry.
+                CometChatCalls.initFromSettings(onSuccess: {_ in }, onError: {_ in })
+            } else {
+                let callAppSettings = CallAppSettingsBuilder()
+                    .setAppId(uiKitSettings.appID)
+                    .setRegion(uiKitSettings.region)
+                    .build()
+
+                CometChatCalls.init(callsAppSettings: callAppSettings) {_ in } onError: {_ in }
+            }
         }
         self.callingConfiguration = configuration
         disconnect()

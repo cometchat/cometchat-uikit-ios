@@ -244,12 +244,36 @@ open class CometChatCompactMessageComposer: UIView {
     // MARK: - Configuration Properties
     
     public var viewModel = CompactMessageComposerViewModel()
+
+    // MARK: - Multi-attachment composer
+    /// Developer toggle. When `true` (default), attachment options stage into a
+    /// multi-attachment preview tray and upload before send. Set to `false` to restore
+    /// the legacy single-attachment, send-immediately behavior.
+    public var enableMultipleAttachments: Bool = true
+
+    public lazy var attachmentTray: CometChatAttachmentTray = {
+        let tray = CometChatAttachmentTray().withoutAutoresizingMaskConstraints()
+        tray.isHidden = true
+        return tray
+    }()
+    public let uploadManager = AttachmentUploadManager()
+    public let mediaPicker = MultiMediaPicker()
     public var placeholderText: String = "TYPE_A_MESSAGE".localize()
     public var disableSoundForMessages = false
     public var customSoundForMessage: URL?
     public var disableTypingEvents = false
     public var disableMentions: Bool = false
-    public var composerState: ComposerState = .draft
+    public var composerState: ComposerState = .draft {
+        didSet { updateAttachmentButtonForEditState() }
+    }
+
+    /// Attachments can't be added while editing a message — dim and disable the +
+    /// button for the duration of the edit; restore it when the edit ends.
+    private func updateAttachmentButtonForEditState() {
+        let isEditing = composerState == .edit
+        attachmentButton.isEnabled = !isEditing
+        attachmentButton.alpha = isEditing ? 0.4 : 1.0
+    }
     
     // MARK: - Visibility Properties
     
@@ -376,7 +400,7 @@ open class CometChatCompactMessageComposer: UIView {
     
     /// Resets all rich text formatting state to default
     /// Called when the composer appears to ensure a fresh start
-    private func resetRichTextFormattingState() {
+    internal func resetRichTextFormattingState() {
         // Reset the formatter manager's persistent state
         RichTextFormatterManager.shared.resetListMode()
         
@@ -621,7 +645,9 @@ open class CometChatCompactMessageComposer: UIView {
         ]
         
         NSLayoutConstraint.activate(constraintsToActivate)
-        
+
+        setupAttachmentTray()
+
         updateSendButtonState()
         updateMicrophoneButtonVisibility()
     }
@@ -760,9 +786,16 @@ open class CometChatCompactMessageComposer: UIView {
     public func updateSendButtonState() {
         // Check if text contains actual content beyond formatting markers
         let hasText = hasActualTextContent()
-        
+
+        // With staged attachments, send is gated on all uploads finishing.
+        if uploadManager.hasAttachments {
+            sendButton.isEnabled = uploadManager.canSend
+            sendButton.backgroundColor = sendButton.isEnabled ? style.activeSendButtonBackgroundColor : style.inactiveSendButtonBackgroundColor
+            return
+        }
+
         sendButton.isEnabled = hasText
-        
+
         if composerState == .edit {
             // Add null safety check for originalEditText
             guard let originalText = originalEditText else {
@@ -822,9 +855,9 @@ open class CometChatCompactMessageComposer: UIView {
         
         let isAgentic = viewModel.user?.isAgentic ?? false
         
-        // Hide mic when: has text, is agentic, OR is in code block mode
+        // Hide mic when: has text, has staged attachments, is agentic, OR in code block mode
         let isInCodeBlockMode = RichTextFormatterManager.shared.isInCodeBlockMode
-        let shouldHide = hasText || isAgentic || isInCodeBlockMode
+        let shouldHide = hasText || uploadManager.hasAttachments || isAgentic || isInCodeBlockMode
         
         // Skip animation if state hasn't changed
         let isCurrentlyHidden = microphoneButton.isHidden || microphoneButton.alpha == 0
@@ -875,7 +908,13 @@ open class CometChatCompactMessageComposer: UIView {
     @objc open func didSendButtonClicked() {
         let impactFeedbackLight = UIImpactFeedbackGenerator(style: .light)
         impactFeedbackLight.impactOccurred()
-        
+
+        // Staged multi-attachment message takes precedence over plain text.
+        if uploadManager.hasAttachments {
+            sendStagedAttachments()
+            return
+        }
+
         DispatchQueue.main.async { [weak self] in
             self?.messagePreview.arrangedSubviews.forEach { $0.removeFromSuperview() }
             self?.messagePreview.isHidden = true
@@ -898,6 +937,9 @@ open class CometChatCompactMessageComposer: UIView {
         
         if composerState == .edit, let message = viewModel.message as? TextMessage {
             viewModel.editTextMessage(textMessage: message, message: markdownText, textFormatter: selectedFormatters)
+        } else if composerState == .edit, let media = viewModel.message as? MediaMessage {
+            // Caption-only edit for media messages (attachments are read-only).
+            viewModel.editMediaCaption(mediaMessage: media, caption: markdownText)
         } else {
             if viewModel.user != nil {
                 viewModel.sendTextMessageToUser(message: markdownText, textFormatter: selectedFormatters)
@@ -964,7 +1006,7 @@ open class CometChatCompactMessageComposer: UIView {
     
     /// Removes empty list items (bullet or numbered) from the attributed text
     /// Empty list items are lines that contain only the list marker (• or N.) with no content
-    private func removeEmptyListItems(from attributedText: NSAttributedString) -> NSAttributedString {
+    internal func removeEmptyListItems(from attributedText: NSAttributedString) -> NSAttributedString {
         let text = attributedText.string
         let lines = text.components(separatedBy: "\n")
         var linesToKeep: [Int] = []
@@ -1160,10 +1202,12 @@ open class CometChatCompactMessageComposer: UIView {
         recorder.setSubmit { [weak self] url in
             guard let self = self else { return }
             self.hideInlineVoiceRecorder()
-            
+
             if self.onSendButtonClick != nil {
                 // Handle custom send - create a media message for callback
             } else {
+                // Voice notes always send as their own standalone message — never
+                // staged into the multi-attachment tray.
                 if self.viewModel.user != nil {
                     self.viewModel.sendMediaMessageToUser(url: url, type: .audio)
                 } else {
@@ -3268,9 +3312,9 @@ open class CometChatCompactMessageComposer: UIView {
             self.sendButton.backgroundColor = style.activeSendButtonBackgroundColor
         }
         
+        var previewSubtitle: NSAttributedString?
         if let textMessage = message as? TextMessage {
             // Parse markdown to show formatted text in preview instead of raw markdown
-            let previewText: NSAttributedString
             if enableRichTextFormatting && RichTextFormatterManager.shared.containsMarkdownFormatting(textMessage.text) {
                 // First, process text formatters to convert mention tags to display names
                 let processedAttributedString = MessageUtils.processTextFormatter(
@@ -3279,10 +3323,10 @@ open class CometChatCompactMessageComposer: UIView {
                     formattingType: .COMPOSER
                 )
                 let processedText = processedAttributedString.string
-                
+
                 // Parse markdown to create formatted attributed string for preview
                 let composerStyle = MessageComposerStyle()
-                previewText = RichTextFormatterManager.shared.parseMarkdown(
+                previewSubtitle = RichTextFormatterManager.shared.parseMarkdown(
                     processedText,
                     baseFont: composerStyle.editPreviewMessageTextFont,
                     baseColor: composerStyle.editPreviewMessageTextColor,
@@ -3290,9 +3334,15 @@ open class CometChatCompactMessageComposer: UIView {
                 )
             } else {
                 // No markdown, process text formatters (mentions, etc.)
-                previewText = MessageUtils.processTextFormatter(message: textMessage, textFormatter: viewModel.textFormatter, formattingType: .COMPOSER)
+                previewSubtitle = MessageUtils.processTextFormatter(message: textMessage, textFormatter: viewModel.textFormatter, formattingType: .COMPOSER)
             }
-            
+        } else if let media = message as? MediaMessage {
+            // Caption-only media edit: "🖼 6 photos · caption" — glyph + attachment
+            // summary + rendered caption.
+            previewSubtitle = mediaEditPreviewSubtitle(for: media)
+        }
+
+        if let previewText = previewSubtitle {
             let editPreviewView = MessagePreviewView(title: "EDIT_MESSAGE".localize(), subTitle: previewText, style: MessageComposerStyle())
             messagePreview.subviews.forEach({ $0.removeFromSuperview() })
             messagePreview.isHidden = false
@@ -3307,6 +3357,68 @@ open class CometChatCompactMessageComposer: UIView {
             }
         }
         updateSendButtonState()
+    }
+
+    /// Edit-banner subtitle for a media message: type glyph, attachment summary
+    /// ("6 photos" / "Photo"), then the caption — markdown rendered (bold shows bold),
+    /// flattened to one line, in a heavier weight so it reads apart from the summary.
+    private func mediaEditPreviewSubtitle(for media: MediaMessage) -> NSAttributedString {
+        let composerStyle = MessageComposerStyle()
+        let font = composerStyle.editPreviewMessageTextFont
+        let color = composerStyle.editPreviewMessageTextColor
+        let attachments = media.attachments ?? []
+        let mimes = attachments.map { $0.fileMimeType.lowercased() }
+
+        let glyph: String
+        if !mimes.isEmpty, mimes.allSatisfy({ $0.hasPrefix("video/") }) {
+            glyph = "video"
+        } else if !mimes.isEmpty, mimes.allSatisfy({ $0.hasPrefix("audio/") }) {
+            glyph = "music.note"
+        } else if !mimes.isEmpty, mimes.allSatisfy({ $0.hasPrefix("image/") }) {
+            glyph = "photo"
+        } else {
+            glyph = media.messageType == .image ? "photo" : "doc"
+        }
+
+        let summary: String
+        if attachments.count > 1 {
+            summary = MessagesDataSource.multiAttachmentPreviewText(for: attachments)
+        } else {
+            switch media.messageType {
+            case .image: summary = "MESSAGE_IMAGE".localize()
+            case .video: summary = "MESSAGE_VIDEO".localize()
+            case .audio: summary = "MESSAGE_AUDIO".localize()
+            default: summary = "MESSAGE_FILE".localize()
+            }
+        }
+
+        let result = NSMutableAttributedString()
+        if let image = UIImage(systemName: glyph)?.withTintColor(color, renderingMode: .alwaysOriginal) {
+            let attachment = NSTextAttachment(image: image)
+            let side = font.pointSize
+            attachment.bounds = CGRect(x: 0, y: (font.capHeight - side) / 2, width: side + 3, height: side)
+            result.append(NSAttributedString(attachment: attachment))
+            result.append(NSAttributedString(string: " ", attributes: [.font: font]))
+        }
+        result.append(NSAttributedString(string: summary, attributes: [.font: font, .foregroundColor: color]))
+
+        if let caption = media.caption, !caption.isEmpty {
+            result.append(NSAttributedString(string: " · ", attributes: [.font: font, .foregroundColor: color]))
+            let parsed = NSMutableAttributedString(
+                attributedString: RichTextFormatterManager.shared.parseMarkdown(
+                    caption,
+                    baseFont: CometChatTypography.Caption1.bold,
+                    baseColor: CometChatTheme.textColorPrimary,
+                    addNewlinesAroundCodeBlocks: false
+                )
+            )
+            parsed.mutableString.replaceOccurrences(
+                of: "\n", with: " ", options: [],
+                range: NSRange(location: 0, length: parsed.length)
+            )
+            result.append(parsed)
+        }
+        return result
     }
     
     func hideReplyPreview() {

@@ -4,6 +4,8 @@
 
 import Foundation
 import UIKit
+import UniformTypeIdentifiers
+import MobileCoreServices
 
 @objc public protocol GrowingTextViewDelegate: UITextViewDelegate {
     @objc optional func textViewDidChangeHeight(_ textView: GrowingTextView, height: CGFloat)
@@ -114,6 +116,13 @@ open class GrowingTextView: UITextView {
             }
         }
         
+        // Offer Paste when the clipboard holds images or files and attachment-paste
+        // is supported.
+        if action == #selector(paste(_:)) {
+            if onImagePaste != nil, UIPasteboard.general.hasImages { return true }
+            if onFilePaste != nil, GrowingTextView.pasteboardHasFileItems() { return true }
+        }
+
         // Allow default actions
         return super.canPerformAction(action, withSender: sender)
     }
@@ -213,7 +222,196 @@ open class GrowingTextView: UITextView {
     }
     
     // Override paste to handle markdown formatting when enabled
+    /// When set, pasted images from the clipboard are handed here (staged as
+    /// attachments) instead of being dropped.
+    public var onImagePaste: (([UIImage]) -> Void)?
+
+    /// Every image on the pasteboard, one per item, in item order. The system
+    /// `UIPasteboard.images` accessor drops items whose representation is raw image
+    /// DATA rather than a UIImage object — multi-select Copy from the Photos app
+    /// yields exactly that (one HEIC/JPEG data item per photo), so it often returns
+    /// only the first image. Decode each item manually instead.
+    private static func imagesFromPasteboard() -> [UIImage] {
+        let pasteboard = UIPasteboard.general
+        var result: [UIImage] = []
+        for item in pasteboard.items {
+            if let image = item.values.compactMap({ $0 as? UIImage }).first {
+                result.append(image)
+                continue
+            }
+            // Fall back to decoding any data representation (HEIC/JPEG/PNG…).
+            // Non-image data (RTF, plain text) simply fails UIImage(data:).
+            if let image = item.values.compactMap({ ($0 as? Data).flatMap(UIImage.init(data:)) }).first {
+                result.append(image)
+            }
+        }
+        // Last resort: whatever the system accessor can produce.
+        if result.isEmpty, let systemImages = pasteboard.images {
+            result = systemImages
+        }
+        return result
+    }
+
+    /// A non-image file lifted off the clipboard (name + bytes + mime), ready to be
+    /// staged as an attachment.
+    public struct PastedFileItem {
+        public let name: String
+        public let data: Data
+        public let mimeType: String
+    }
+
+    /// When set, pasted non-image files (PDFs, documents, audio, …) are handed here
+    /// (staged as attachments) instead of being dropped.
+    public var onFilePaste: (([PastedFileItem]) -> Void)?
+
+    /// Non-image files on the pasteboard, one per item, in item order. A copied file
+    /// URL (Files-app Copy) is read from disk and keeps its real filename; otherwise
+    /// the item's first file-like data representation is taken and named from its
+    /// type's preferred extension. Text, URLs and images are excluded — those belong
+    /// to the text/image paste paths.
+    private static func filesFromPasteboard() -> [PastedFileItem] {
+        var result: [PastedFileItem] = []
+        let pasteboard = UIPasteboard.general
+        let providers = pasteboard.itemProviders
+        for (index, item) in pasteboard.items.enumerated() {
+            // Image items are the image paste path's job.
+            if item.keys.contains(where: { utiIsImage($0) }) { continue }
+
+            if let url = fileURL(in: item),
+               let data = try? Data(contentsOf: url), !data.isEmpty {
+                result.append(PastedFileItem(
+                    name: url.lastPathComponent,
+                    data: data,
+                    mimeType: MultiMediaPicker.mimeType(forExtension: url.pathExtension)))
+                continue
+            }
+
+            guard let uti = item.keys.first(where: { utiIsFileCandidate($0) }) else { continue }
+            let data: Data?
+            switch item[uti] {
+            case let direct as Data: data = direct
+            case let url as URL: data = try? Data(contentsOf: url)
+            default: data = nil
+            }
+            guard let data = data, !data.isEmpty else { continue }
+            let ext = preferredExtension(forUTI: uti)
+            // Keep the ORIGINAL filename whenever the item still carries one: an
+            // (unreadable) file URL, or the item provider's suggestedName — the share
+            // sheet's Copy materializes bytes without a URL but keeps suggestedName.
+            // Only a truly nameless item gets the generated "pasted-file-…" name.
+            let name: String
+            if let originalName = fileURL(in: item)?.lastPathComponent, !originalName.isEmpty {
+                name = originalName
+            } else if index < providers.count,
+                      let suggested = providers[index].suggestedName, !suggested.isEmpty {
+                let hasExtension = !(suggested as NSString).pathExtension.isEmpty
+                name = hasExtension || ext.isEmpty ? suggested : "\(suggested).\(ext)"
+            } else {
+                name = "pasted-file-\(Int(Date().timeIntervalSince1970 * 1000))"
+                    + (ext.isEmpty ? "" : ".\(ext)")
+            }
+            result.append(PastedFileItem(name: name, data: data,
+                                         mimeType: preferredMIME(forUTI: uti)))
+        }
+        return result
+    }
+
+    /// Cheap gate for `canPerformAction` — inspects type identifiers (and at most the
+    /// pasteboard's URL values), never loads file data.
+    static func pasteboardHasFileItems() -> Bool {
+        let pasteboard = UIPasteboard.general
+        let typeLists = pasteboard.itemProviders.map { $0.registeredTypeIdentifiers }
+        if typeLists.contains(where: { types in
+            !types.contains(where: { utiIsImage($0) })
+                && types.contains(where: { utiIsFileCandidate($0) || $0 == "public.file-url" })
+        }) {
+            return true
+        }
+        // The share sheet's Copy writes file URLs as plain "public.url" — accept those
+        // items when the URL actually points at a file (web links stay text pastes).
+        if typeLists.contains(where: { $0.contains("public.url") }),
+           let urls = pasteboard.urls, urls.contains(where: { $0.isFileURL }) {
+            return true
+        }
+        return false
+    }
+
+    /// A file URL carried by the item — under "public.file-url" OR as a "public.url"
+    /// that points at a file (the share sheet's Copy uses the latter). Web URLs are
+    /// never returned; they belong to the text paste path.
+    private static func fileURL(in item: [String: Any]) -> URL? {
+        for key in ["public.file-url", "public.url"] {
+            guard let value = item[key] else { continue }
+            var url: URL?
+            if let direct = value as? URL {
+                url = direct
+            } else if let data = value as? Data, let string = String(data: data, encoding: .utf8) {
+                url = URL(string: string)
+            } else if let string = value as? String {
+                url = URL(string: string)
+            }
+            if let url = url, url.isFileURL { return url }
+        }
+        return nil
+    }
+
+    private static func utiIsImage(_ identifier: String) -> Bool {
+        if #available(iOS 14.0, *), let type = UTType(identifier) {
+            return type.conforms(to: .image)
+        }
+        return UTTypeConformsTo(identifier as CFString, kUTTypeImage)
+    }
+
+    /// File-like: carries data but isn't text, a URL, or an image.
+    private static func utiIsFileCandidate(_ identifier: String) -> Bool {
+        if #available(iOS 14.0, *) {
+            guard let type = UTType(identifier) else { return false }
+            return type.conforms(to: .data)
+                && !type.conforms(to: .text)
+                && !type.conforms(to: .url)
+                && !type.conforms(to: .image)
+        }
+        let cfIdentifier = identifier as CFString
+        return UTTypeConformsTo(cfIdentifier, kUTTypeData)
+            && !UTTypeConformsTo(cfIdentifier, kUTTypeText)
+            && !UTTypeConformsTo(cfIdentifier, kUTTypeURL)
+            && !UTTypeConformsTo(cfIdentifier, kUTTypeImage)
+    }
+
+    private static func preferredExtension(forUTI identifier: String) -> String {
+        if #available(iOS 14.0, *), let ext = UTType(identifier)?.preferredFilenameExtension {
+            return ext
+        }
+        return (UTTypeCopyPreferredTagWithClass(identifier as CFString, kUTTagClassFilenameExtension)?
+            .takeRetainedValue() as String?) ?? ""
+    }
+
+    private static func preferredMIME(forUTI identifier: String) -> String {
+        if #available(iOS 14.0, *), let mime = UTType(identifier)?.preferredMIMEType {
+            return mime
+        }
+        return (UTTypeCopyPreferredTagWithClass(identifier as CFString, kUTTagClassMIMEType)?
+            .takeRetainedValue() as String?) ?? "application/octet-stream"
+    }
+
     open override func paste(_ sender: Any?) {
+        // Clipboard images/files → attachment tray (multi-attachment paste support).
+        var handled = false
+        if let onImagePaste = onImagePaste, UIPasteboard.general.hasImages {
+            let images = GrowingTextView.imagesFromPasteboard()
+            if !images.isEmpty {
+                onImagePaste(images)
+                handled = true
+            }
+        }
+        if let onFilePaste = onFilePaste {
+            let files = GrowingTextView.filesFromPasteboard()
+            if !files.isEmpty {
+                onFilePaste(files)
+                handled = true
+            }
+        }
+        if handled { return }
         // First, check if there's RTF data on the pasteboard (attributed text)
         if let rtfData = UIPasteboard.general.data(forPasteboardType: "public.rtf"),
            let attributedString = try? NSAttributedString(data: rtfData, options: [.documentType: NSAttributedString.DocumentType.rtf], documentAttributes: nil) {

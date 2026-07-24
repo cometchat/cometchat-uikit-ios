@@ -7,7 +7,6 @@
 
 import UIKit
 import CometChatUIKitSwift
-import CometChatSDK
 
 class LoginWithUidVC: UIViewController {
     

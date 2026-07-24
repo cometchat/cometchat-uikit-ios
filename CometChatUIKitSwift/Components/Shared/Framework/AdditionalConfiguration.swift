@@ -42,7 +42,13 @@ public class AdditionalConfiguration {
     public var showMarkAsUnreadOption: Bool = false
     public var hideVideoCallButton: Bool = false
     public var hideVoiceCallButton: Bool = false
-    
+
+    /// When true (default), messages that carry attachments render with the new
+    /// per-type batch bubbles (Images/Video/Audios/Files). When false, they fall back
+    /// to the deprecated single-attachment bubbles. Mirrors the message list's
+    /// `enableMultipleAttachments` flag.
+    public var enableMultipleAttachments: Bool = true
+
     public init(){
         
     }

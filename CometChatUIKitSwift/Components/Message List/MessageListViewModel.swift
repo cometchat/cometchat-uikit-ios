@@ -188,7 +188,16 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             additionalConfiguration.showMarkAsUnreadOption = showMarkAsUnreadOption
         }
     }
-    
+
+    /// When true (default), messages that carry attachments render with the new
+    /// per-type batch bubbles (Images/Video/Audios/Files). When false, they fall back
+    /// to the deprecated single-attachment bubbles.
+    public var enableMultipleAttachments: Bool = true{
+        didSet{
+            additionalConfiguration.enableMultipleAttachments = enableMultipleAttachments
+        }
+    }
+
     
     public override init() {
         messagesRequestBuilder = MessagesRequest.MessageRequestBuilder()
@@ -576,7 +585,8 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         additionalConfiguration.messageBubbleStyle = messageBubbleStyle
         additionalConfiguration.actionBubbleStyle = actionBubbleStyle
         additionalConfiguration.callActionBubbleStyle = callActionBubbleStyle
-        
+        additionalConfiguration.enableMultipleAttachments = enableMultipleAttachments
+
         let messageTypes =  ChatConfigurator.getDataSource().getAllMessageTemplates(additionalConfiguration: additionalConfiguration)
         messageTypes.forEach { template in
             templates["\(template.category)_\(template.type)"] = template
@@ -600,7 +610,6 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             this.isUIUpdating = false
             switch result {
             case .success(let fetchedMessages):
-                print("[AIAgent] VM.fetchPreviousMessages success: \(fetchedMessages.count) messages")
                 
                 if let gotoMessage = this.gotoMessage{
                     if fetchedMessages.isEmpty {

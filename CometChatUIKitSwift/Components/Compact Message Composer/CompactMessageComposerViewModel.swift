@@ -285,6 +285,36 @@ extension CompactMessageComposerViewModel {
         }
     }
     
+    /// Caption-only edit for a media message: attachments stay untouched, only the
+    /// caption changes. metaData (batchId etc.) is preserved.
+    func editMediaCaption(mediaMessage: MediaMessage, caption: String?) {
+        let trimmed = caption?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !trimmed.isEmpty else { return }
+        mediaMessage.caption = trimmed
+        isSoundForMessageEnabled?()
+        MessagesListBuilder.editMessage(message: mediaMessage) { [weak self] result in
+            switch result {
+            case .success(let updated):
+                DispatchQueue.main.async { [weak self] in
+                    guard let this = self else { return }
+                    this.reset?(true)
+                    if let actionMessage = updated as? ActionMessage {
+                        mediaMessage.editedAt = Date().timeIntervalSince1970
+                        mediaMessage.editedBy = actionMessage.editedBy
+                    }
+                    CometChatMessageEvents.ccMessageEdited(message: mediaMessage, status: .success)
+                }
+            case .failure(let error):
+                DispatchQueue.main.async { [weak self] in
+                    guard let this = self else { return }
+                    this.failure?(error)
+                    this.reset?(true)
+                    CometChatMessageEvents.ccMessageEdited(message: mediaMessage, status: .error)
+                }
+            }
+        }
+    }
+
     func editTextMessage(textMessage: TextMessage, message: String?, textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]]) {
         let message: String = message?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if !message.isEmpty {
@@ -325,16 +355,18 @@ extension CompactMessageComposerViewModel {
         mediaMessage.muid = "\(NSDate().timeIntervalSince1970)"
         mediaMessage.sentAt = Int(Date().timeIntervalSince1970)
         mediaMessage.sender = CometChat.getLoggedInUser()
-        mediaMessage.metaData = ["fileURL": url]
+        var metaData: [String: Any] = ["fileURL": url]
+        if type == .audio { metaData["audioType"] = "voice_note" }
+        mediaMessage.metaData = metaData
         mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
         if let parentMessageId = parentMessageId {
             mediaMessage.parentMessageId = parentMessageId
         }
-        
+
         if let quotedMessageId = quotedMessageId {
             mediaMessage.quotedMessageId = quotedMessageId
         }
-        
+
         if let fullQuoted = quotedMessage {
             mediaMessage.quotedMessage = fullQuoted
         }
@@ -358,6 +390,121 @@ extension CompactMessageComposerViewModel {
         }
     }
     
+    /// Sends ONE media message carrying multiple already-uploaded attachments plus an
+    /// optional caption (compact-composer counterpart).
+    public func sendMultiAttachmentMessage(attachments: [Attachment], caption: String) {
+        guard !attachments.isEmpty else { return }
+
+        let receiverUid: String
+        let receiverType: CometChat.ReceiverType
+        if let uid = self.user?.uid {
+            receiverUid = uid
+            receiverType = .user
+        } else if let guid = self.group?.guid {
+            receiverUid = guid
+            receiverType = .group
+        } else {
+            return
+        }
+
+        // Split the tray into one message per attachment type, in a fixed order
+        // (images → videos → audios → files). Each message shares one batchId so the
+        // message list can group them (avatar/name on the first, receipt on the last).
+        let groups = MessageComposerViewModel.groupByType(attachments)
+        guard !groups.isEmpty else { return }
+
+        let batchId = UUID().uuidString
+        let trimmedCaption = caption.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lastIndex = groups.count - 1
+        let baseSentAt = Int(Date().timeIntervalSince1970)
+
+        isSoundForMessageEnabled?()
+
+        // Show all optimistic bubbles up front (ordered by staggered sentAt), then send
+        // SEQUENTIALLY so the server assigns ids in order — otherwise parallel sends can
+        // land out of order (e.g. audio before images) and the reload shows them swapped.
+        let messages: [MediaMessage] = groups.enumerated().map { index, group in
+            buildBatchMessage(attachments: group.attachments,
+                              type: group.type,
+                              caption: (index == lastIndex) ? trimmedCaption : "",
+                              batchId: batchId,
+                              batchIndex: index,
+                              batchSize: groups.count,
+                              sentAt: baseSentAt + index,
+                              applyQuote: index == 0,
+                              receiverUid: receiverUid,
+                              receiverType: receiverType)
+        }
+        messages.forEach { CometChatMessageEvents.ccMessageSent(message: $0, status: .inProgress) }
+        hideReplyView?()
+        quotedMessage = nil
+        quotedMessageId = nil
+        sendBatchSequentially(messages, at: 0)
+    }
+
+    /// Builds (does not send) one media message for a single attachment type in a batch.
+    private func buildBatchMessage(attachments: [Attachment],
+                                   type: CometChat.MessageType,
+                                   caption: String,
+                                   batchId: String,
+                                   batchIndex: Int,
+                                   batchSize: Int,
+                                   sentAt: Int,
+                                   applyQuote: Bool,
+                                   receiverUid: String,
+                                   receiverType: CometChat.ReceiverType) -> MediaMessage {
+        let mediaMessage = MediaMessage(receiverUid: receiverUid, files: [], messageType: type, receiverType: receiverType)
+        mediaMessage.files = nil
+        mediaMessage.attachments = attachments
+        if !caption.isEmpty {
+            mediaMessage.caption = caption
+        }
+        var metaData: [String: Any] = mediaMessage.metaData ?? [:]
+        metaData["batchId"] = batchId
+        metaData["batchIndex"] = batchIndex
+        metaData["batchSize"] = batchSize
+        mediaMessage.metaData = metaData
+        mediaMessage.muid = UUID().uuidString
+        mediaMessage.sentAt = sentAt
+        mediaMessage.sender = CometChat.getLoggedInUser()
+        mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+        if let parentMessageId = parentMessageId {
+            mediaMessage.parentMessageId = parentMessageId
+        }
+        if applyQuote {
+            if let quotedMessageId = quotedMessageId {
+                mediaMessage.quotedMessageId = quotedMessageId
+            }
+            if let fullQuoted = quotedMessage {
+                mediaMessage.quotedMessage = fullQuoted
+            }
+        }
+        return mediaMessage
+    }
+
+    /// Sends the batch one message at a time; each send waits for the previous to
+    /// complete so the server preserves order. Continues on failure.
+    private func sendBatchSequentially(_ messages: [MediaMessage], at index: Int) {
+        guard index < messages.count else { return }
+        let mediaMessage = messages[index]
+        MessageComposerBuilder.mediaMessage(message: mediaMessage) { [weak self] result in
+            switch result {
+            case .success(let updatedMediaMessage):
+                CometChatMessageEvents.ccMessageSent(message: updatedMediaMessage, status: .success)
+                if updatedMediaMessage.quotedMessage != nil {
+                    CometChatMessageEvents.ccReplyToMessage(message: updatedMediaMessage, status: .success)
+                }
+            case .failure(let error):
+                self?.failure?(error)
+                var errorMetaData: [String: Any] = mediaMessage.metaData ?? [:]
+                errorMetaData["error"] = true
+                mediaMessage.metaData = errorMetaData
+                CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
+            }
+            self?.sendBatchSequentially(messages, at: index + 1)
+        }
+    }
+
     public func sendMediaMessageToGroup(url: String, type: CometChat.MessageType) {
         guard let uid = self.group?.guid else { return }
         let mediaMessage = MediaMessage(receiverUid: uid, fileurl: url, messageType: type, receiverType: .group)
@@ -367,7 +514,9 @@ extension CompactMessageComposerViewModel {
         mediaMessage.muid = "\(NSDate().timeIntervalSince1970)"
         mediaMessage.sentAt = Int(Date().timeIntervalSince1970)
         mediaMessage.sender = CometChat.getLoggedInUser()
-        mediaMessage.metaData = ["fileURL": url]
+        var metaData: [String: Any] = ["fileURL": url]
+        if type == .audio { metaData["audioType"] = "voice_note" }
+        mediaMessage.metaData = metaData
         mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
         isSoundForMessageEnabled?()
         if let quotedMessageId = quotedMessageId {

@@ -6,14 +6,16 @@
 //
 
 import UIKit
+import FirebaseAuth
 import CometChatUIKitSwift
 import CometChatSDK
-import CometChatCardsSwift
+import CometChatPushNotificationsSwift
 
 var userLoggedIn = false
 func isUserLoggedIn() -> Bool{
-    if CometChatUIKit.getLoggedInUser() != nil {
-
+    if let loggedInUser = CometChatUIKit.getLoggedInUser(),
+       let currentUser = Auth.auth().currentUser,
+       loggedInUser.uid != currentUser.uid {
         userLoggedIn = true  // User is logged in
     } else {
         userLoggedIn = false // User is not logged in
@@ -62,7 +64,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-        UIApplication.shared.applicationIconBadgeNumber = 0
+        CometChatPushNotifications.shared.clearBadgeCount()
         print("Badge count cleared")
     }
 
@@ -117,10 +119,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             uikitSettings.set(appID: AppConstants.APP_ID)
                 .set(authKey: AppConstants.AUTH_KEY)
                 .set(region: AppConstants.REGION)
-                .setExtensionGroupID(id: "group.com.cometchat.internal.swift.notification")
                 .subscribePresenceForAllUsers()
-//                .overrideAdminHost("\(AppConstants.APP_ID).api-\(AppConstants.REGION).cometchat-staging.com")
-//                .overrideClientHost("\(AppConstants.APP_ID).apiclient-\(AppConstants.REGION).cometchat-staging.com")
                 .enable(inAppIncomingCall: false)
                 .build()
             
@@ -128,8 +127,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 switch result {
                 case .success(_):
                     CometChat.setSource(resource: "uikit-v5", platform: "ios", language: "swift")
-                    // Register card action listener for debugging
-                    CometChatCardEvents.addListener("sample-app-card-listener", CardActionHandler.shared)
+                    // Tell the push SDK the Calls stack is ready so a call that arrived
+                    // during cold start can be presented.
+                    CometChatPushNotifications.shared.notifyCallsSDKReady()
                     completion()
                 case .failure(let error):
                     print("Initialization Error: \(error.localizedDescription)")

@@ -263,6 +263,14 @@ public class MessagesDataSource: DataSource {
     }
     
     public func getAudioMessageContentView(message: CometChatSDK.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AudioBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
+        // A recorded voice note keeps the classic single audio bubble; picked audio
+        // files render with the new AudiosBubble. The cross-platform contract is
+        // metaData.audioType == "voice_note"; the legacy Bool key is still honored.
+        let isVoiceNote = (message.metaData?["audioType"] as? String) == "voice_note"
+            || (message.metaData?["voiceNote"] as? Bool == true)
+        if !isVoiceNote && useNewAttachmentBubbles(message, additionalConfiguration) {
+            return getAudiosBubbleContentView(message: message, controller: controller)
+        }
         return ChatConfigurator.getDataSource().getAudioMessageBubble(audioUrl: message.attachment?.fileUrl, title: message.attachment?.fileName, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
     }
     
@@ -381,6 +389,9 @@ public class MessagesDataSource: DataSource {
     }
     
     public func getVideoMessageContentView(message: CometChatSDK.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: VideoBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
+        if useNewAttachmentBubbles(message, additionalConfiguration) {
+            return getMediaGridBubbleContentView(VideoBubble(), message: message, controller: controller)
+        }
         return ChatConfigurator.getDataSource().getVideoMessageBubble(videoUrl: message.attachment?.fileUrl, thumbnailUrl: nil, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
     }
     
@@ -405,8 +416,77 @@ public class MessagesDataSource: DataSource {
     }
     
     public func getImageMessageContentView(message: CometChatSDK.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: ImageBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
-        
+        if useNewAttachmentBubbles(message, additionalConfiguration) {
+            return getMediaGridBubbleContentView(ImagesBubble(), message: message, controller: controller)
+        }
         return ChatConfigurator.getDataSource().getImageMessageBubble(imageUrl: message.attachment?.fileUrl, caption: message.caption, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
+    }
+
+    /// Total attachments on the message.
+    func galleryAttachmentCount(_ message: CometChatSDK.MediaMessage) -> Int {
+        return message.attachments?.count ?? 0
+    }
+
+    /// Whether a media message should render with the new per-type batch bubbles.
+    /// Gated by the `enableMultipleAttachments` flag (default true) and requires at
+    /// least one attachment; when false, the deprecated single-attachment bubbles are
+    /// used instead.
+    func useNewAttachmentBubbles(_ message: CometChatSDK.MediaMessage, _ additionalConfiguration: AdditionalConfiguration?) -> Bool {
+        let enabled = additionalConfiguration?.enableMultipleAttachments ?? true
+        return enabled && galleryAttachmentCount(message) >= 1
+    }
+
+    /// Builds an image/video grid bubble (ImagesBubble or VideoBubble). Tapping any
+    /// tile opens a fullscreen, swipeable viewer over the message's media.
+    /// Per-attachment server-generated thumbnail URLs from the thumbnail-generation
+    /// extension. Supports both the per-attachment shape (`attachments: [{url_small}]`)
+    /// and the legacy single-attachment shape (`url_small` at the root → index 0).
+    static func serverThumbnailURLs(for message: CometChatSDK.MediaMessage) -> [Int: String] {
+        guard let injected = message.metaData?["@injected"] as? [String: Any],
+              let extensions = injected["extensions"] as? [String: Any],
+              let thumb = extensions["thumbnail-generation"] as? [String: Any] else { return [:] }
+        var result: [Int: String] = [:]
+        if let list = thumb["attachments"] as? [[String: Any]] {
+            for (index, entry) in list.enumerated() {
+                if let url = (entry["url_small"] as? String) ?? (entry["url_medium"] as? String) {
+                    result[index] = url
+                }
+            }
+        }
+        if result.isEmpty, let url = (thumb["url_small"] as? String) ?? (thumb["url_medium"] as? String) {
+            result[0] = url
+        }
+        return result
+    }
+
+    func getMediaGridBubbleContentView(_ bubble: CometChatMediaGridBubble, message: CometChatSDK.MediaMessage, controller: UIViewController?) -> UIView {
+        if let controller = controller { bubble.set(controller: controller) }
+        bubble.isOutgoing = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
+        bubble.set(attachments: message.attachments ?? [], caption: message.caption,
+                   thumbnails: MessagesDataSource.serverThumbnailURLs(for: message))
+
+        let mediaItems = bubble.mediaAttachments
+        bubble.onMediaTap = { [weak controller] index, _ in
+            guard let controller = controller, !mediaItems.isEmpty else { return }
+            // Every tile — including a broken one (kind mismatch the viewer can't
+            // render) — opens the fullscreen viewer at its index. A broken page shows
+            // the black "no preview available" slide, identical to swiping to it, so
+            // tapping and sliding stay consistent.
+            let viewer = CometChatMediaViewer(mediaItems: mediaItems, startIndex: index)
+            controller.present(viewer, animated: true)
+        }
+        return bubble
+    }
+
+    /// Builds an audios bubble (one inline player per audio-file attachment).
+    func getAudiosBubbleContentView(message: CometChatSDK.MediaMessage, controller: UIViewController?) -> UIView {
+        let bubble = AudiosBubble()
+        if let controller = controller { bubble.set(controller: controller) }
+        bubble.isOutgoing = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
+        // No kind pre-filter: the bubble itself gives OS-undecodable formats a
+        // downloadable file card, so filtering here would silently drop them.
+        bubble.set(attachments: message.attachments ?? [], caption: message.caption)
+        return bubble
     }
    
     
@@ -443,9 +523,19 @@ public class MessagesDataSource: DataSource {
     }
     
     public func getFileMessageContentView(message: CometChatSDK.MediaMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: FileBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
+        if useNewAttachmentBubbles(message, additionalConfiguration) {
+            let bubble = FilesBubble()
+            if let controller = controller { bubble.set(controller: controller) }
+            bubble.isOutgoing = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
+            // No kind pre-filter: legacy mixed-kind file messages, and files another
+            // OS classifies as media (e.g. ogg sent from an old device, viewed where
+            // it's decodable), must all render — every attachment gets a file card.
+            bubble.set(attachments: message.attachments ?? [], caption: message.caption)
+            return bubble
+        }
         return ChatConfigurator.getDataSource().getFileMessageBubble(fileUrl: message.attachment?.fileUrl, fileMimeType: message.attachment?.fileMimeType, title: message.attachment?.fileName, id: message.id, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
     }
-    
+
     public func getAllMessageTemplates(additionalConfiguration: AdditionalConfiguration?) -> [CometChatMessageTemplate] {
         return [
             ChatConfigurator.getDataSource().getTextMessageTemplate(additionalConfiguration: additionalConfiguration),
@@ -580,6 +670,15 @@ public class MessagesDataSource: DataSource {
         if isMessageCategory(message: messageObject) {
             options.append(getShareOption(controller: controller))
         }
+
+        // Media messages with a caption are caption-editable (same permissions as text).
+        if let media = messageObject as? MediaMessage,
+           !(media.caption ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+           (isSentByMe || group?.scope == .admin || group?.scope == .moderator),
+           !additionalConfiguration.hideEditMessageOption {
+            options.append(getEditOption(controller: controller))
+        }
+
         if isSentByMe && !additionalConfiguration.hideMessageInfoOption {
             options.append(getInformationOption(controller: controller))
         }
@@ -599,6 +698,33 @@ public class MessagesDataSource: DataSource {
         return options
     }
     
+    /// Preview text for a media message: the multi-attachment summary ("N photos" /
+    /// "N videos" / "N files" / "N attachments") when it carries more than one
+    /// attachment, otherwise the supplied single-attachment string.
+    static func mediaPreviewText(message: BaseMessage, single: String) -> String {
+        guard let media = message as? MediaMessage,
+              let attachments = media.attachments, attachments.count > 1 else { return single }
+        return multiAttachmentPreviewText(for: attachments)
+    }
+
+    static func multiAttachmentPreviewText(for attachments: [Attachment]) -> String {
+        let count = attachments.count
+        let mimes = attachments.map { $0.fileMimeType.lowercased() }
+        if mimes.allSatisfy({ $0.hasPrefix("image/") }) {
+            return String(format: "preview_photos_count".localize(), "\(count)")
+        }
+        if mimes.allSatisfy({ $0.hasPrefix("video/") }) {
+            return String(format: "preview_videos_count".localize(), "\(count)")
+        }
+        if mimes.allSatisfy({ $0.hasPrefix("audio/") }) {
+            return String(format: "preview_audios_count".localize(), "\(count)")
+        }
+        if mimes.allSatisfy({ !$0.hasPrefix("image/") && !$0.hasPrefix("video/") && !$0.hasPrefix("audio/") }) {
+            return String(format: "preview_files_count".localize(), "\(count)")
+        }
+        return String(format: "attachment_count".localize(), "\(count)")
+    }
+
     public func getMessageTypeToSubtitle(messageType: String, controller: UIViewController) -> String? {
         var subtitle = messageType
         switch (messageType) {
@@ -1139,16 +1265,16 @@ public class MessagesDataSource: DataSource {
                             lastMessage = RichTextFormatterManager.shared.stripMarkdown(textMessage.text)
                         }
                     case .image:
-                        lastMessage = ConversationConstants.messageImage
+                        lastMessage = MessagesDataSource.mediaPreviewText(message: currentMessage, single: ConversationConstants.messageImage)
                         lastMessageImage = "messages-photo"
                     case .video:
-                        lastMessage = ConversationConstants.messageVideo
+                        lastMessage = MessagesDataSource.mediaPreviewText(message: currentMessage, single: ConversationConstants.messageVideo)
                         lastMessageImage = "VideoCall"
                     case .audio:
-                        lastMessage = ConversationConstants.messageAudio
+                        lastMessage = MessagesDataSource.mediaPreviewText(message: currentMessage, single: ConversationConstants.messageAudio)
                         lastMessageImage = "messages-audio-file"
                     case .file:
-                        lastMessage = ConversationConstants.messageFile
+                        lastMessage = MessagesDataSource.mediaPreviewText(message: currentMessage, single: ConversationConstants.messageFile)
                         lastMessageImage = "message-document"
                     case .custom:
                         if let customMessage = currentMessage as? CustomMessage {

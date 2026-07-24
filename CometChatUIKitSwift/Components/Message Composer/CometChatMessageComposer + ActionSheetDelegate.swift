@@ -29,67 +29,62 @@ extension CometChatMessageComposer : CometChatActionSheetDelegate {
 
     //Methods
     private func takeAPhotoPressed() {
-        if let controller = controller {
-            CameraHandler.shared.presentCamera(for: controller)
-            CameraHandler.shared.imagePickedBlock = { [weak self] (photoURL) in
-                DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) {
-                    guard let this = self else { return }
-                    if let _ = this.viewModel.user {
-                        this.viewModel.sendMediaMessageToUser(url: photoURL, type: .image)
-                    } else if let _ = this.viewModel.group {
-                        this.viewModel.sendMediaMessageToGroup(url: photoURL, type: .image)
-                    }
-                }
+        guard let controller = controller else { return }
+        CameraHandler.shared.presentCamera(for: controller)
+        CameraHandler.shared.imagePickedBlock = { [weak self] (photoURL) in
+            guard let this = self else { return }
+            if this.enableMultipleAttachments {
+                DispatchQueue.main.async { this.stageLocalMedia(urlString: photoURL) }
+            } else {
+                this.sendSingleMedia(url: photoURL, type: .image)
             }
         }
     }
-    
+
     private func photoLibraryPressed() {
-        if let controller = controller {
-            CameraHandler.shared.presentPhotoLibrary(for: controller)
-            CameraHandler.shared.imagePickedBlock = { [weak self] (photoURL) in
-                guard let this = self else { return }
-                if let _ = this.viewModel.user {
-                    this.viewModel.sendMediaMessageToUser(url: photoURL, type: .image)
-                } else if let _ = this.viewModel.group {
-                    this.viewModel.sendMediaMessageToGroup(url: photoURL, type: .image)
-                }
-            }
+        if enableMultipleAttachments { presentMultiMediaLibrary(); return }
+        guard let controller = controller else { return }
+        CameraHandler.shared.presentPhotoLibrary(for: controller)
+        CameraHandler.shared.imagePickedBlock = { [weak self] (photoURL) in
+            self?.sendSingleMedia(url: photoURL, type: .image)
         }
     }
-    
+
     private func videoLibraryPressed() {
-        if let controller = controller {
-            CameraHandler.shared.presentVideoLibrary(for: controller)
-            CameraHandler.shared.videoPickedBlock = { [weak self] (videoURL) in
-                guard let this = self else { return }
-                if let _ = this.viewModel.user {
-                    this.viewModel.sendMediaMessageToUser(url: videoURL, type: .video)
-                }else if let _ = this.viewModel.group {
-                    this.viewModel.sendMediaMessageToGroup(url: videoURL, type: .video)
-                }
-            }
+        if enableMultipleAttachments { presentMultiMediaLibrary(); return }
+        guard let controller = controller else { return }
+        CameraHandler.shared.presentVideoLibrary(for: controller)
+        CameraHandler.shared.videoPickedBlock = { [weak self] (videoURL) in
+            self?.sendSingleMedia(url: videoURL, type: .video)
         }
     }
-    
+
     private func audioLibraryPressed() {
-        if let controller = controller {
-            CameraHandler.shared.presentAudioLibrary(for: controller)
-            CameraHandler.shared.audioPickedBlock = { [weak self] (audioURL) in
-                guard let this = self else { return }
-                if let _ = this.viewModel.user {
-                    this.viewModel.sendMediaMessageToUser(url: audioURL, type: .audio)
-                } else if let _ = this.viewModel.group {
-                    this.viewModel.sendMediaMessageToGroup(url: audioURL, type: .audio)
-                }
+        guard let controller = controller else { return }
+        CameraHandler.shared.presentAudioLibrary(for: controller, allowsMultiple: enableMultipleAttachments)
+        CameraHandler.shared.audioPickedBlock = { [weak self] (audioURL) in
+            guard let this = self else { return }
+            if this.enableMultipleAttachments {
+                DispatchQueue.main.async { this.stageLocalMedia(urlString: audioURL) }
+            } else {
+                this.sendSingleMedia(url: audioURL, type: .audio)
             }
         }
     }
-    
+
     private func documentPressed() {
-        if let controller = controller {
-            self.documentPicker.modalPresentationStyle = UIModalPresentationStyle.fullScreen
-            controller.present(self.documentPicker, animated: true, completion: nil)
+        if enableMultipleAttachments { presentMultiDocumentPicker(); return }
+        guard let controller = controller else { return }
+        self.documentPicker.modalPresentationStyle = .fullScreen
+        controller.present(self.documentPicker, animated: true, completion: nil)
+    }
+
+    /// Legacy single-attachment send (used when `enableMultipleAttachments` is false).
+    private func sendSingleMedia(url: String, type: CometChat.MessageType) {
+        if viewModel.user != nil {
+            viewModel.sendMediaMessageToUser(url: url, type: type)
+        } else if viewModel.group != nil {
+            viewModel.sendMediaMessageToGroup(url: url, type: type)
         }
     }
 }

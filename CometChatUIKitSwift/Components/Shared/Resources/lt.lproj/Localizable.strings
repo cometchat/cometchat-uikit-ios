@@ -290,3 +290,35 @@
 "AUDIO_LIBRARY" = "Garso biblioteka";
 
 "AI_AGENTS" = "AI asistentai";
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ daugiau";
+"file_list_show_less" = "Rodyti mažiau";
+"attachment_count" = "%@ priedų";
+"preview_photos_count" = "%@ nuotraukų";
+"preview_videos_count" = "%@ vaizdo įrašų";
+"preview_files_count" = "%@ failų";
+"preview_audios_count" = "%@ garso failų";
+"search_images_one" = "1 vaizdas";
+"search_images_count" = "%@ vaizdų";
+"search_videos_one" = "1 vaizdo įrašas";
+"search_videos_count" = "%@ vaizdo įrašų";
+"search_audios_count" = "%@ garso įrašų";
+"search_files_count" = "%@ failų";
+"attachment_tray_add" = "Pridėti";
+"attachment_downloading" = "Atsisiunčiama…";
+"attachment_upload_failed" = "Įkelti nepavyko";
+"attachment_upload_failed_retry" = "Palieskite, kad bandytumėte dar kartą";
+"attachment_retry" = "Bandyti dar kartą";
+"attachment_remove" = "Pašalinti";
+"attachment_count_exceeded" = "Galite pridėti iki %@ failų.";
+"attachment_size_exceeded" = "Failas viršija %@ MB.";
+"attachment_type_not_allowed" = "Šio tipo failai neleidžiami.";
+"attachment_total_size_exceeded" = "Bendras priedų dydis per didelis.";
+"attachment_size_unknown" = "Nežinomas dydis";
+"attachment_upload_unavailable" = "Įkėlimas šiuo metu negalimas.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

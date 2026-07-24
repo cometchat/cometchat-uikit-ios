@@ -15,6 +15,8 @@ extension CometChatMessageComposer {
     @discardableResult
     public func set(user: User) -> Self {
         viewModel.set(user: user)
+        uploadManager.receiverId = user.uid ?? ""
+        uploadManager.receiverType = .user
         DispatchQueue.main.async { [weak self] in
             guard let this = self else { return }
             this.setupAuxiliaryButton()
@@ -26,6 +28,8 @@ extension CometChatMessageComposer {
     @discardableResult
     public func set(group: Group) -> Self {
         viewModel.set(group: group)
+        uploadManager.receiverId = group.guid
+        uploadManager.receiverType = .group
         DispatchQueue.main.async { [weak self] in
             guard let this = self else { return }
             this.setupAuxiliaryButton()
@@ -37,6 +41,8 @@ extension CometChatMessageComposer {
     @discardableResult
     public func set(parentMessageId: Int) ->  Self {
         viewModel.parentMessageId = parentMessageId
+        // Thread uploads must presign with the parent id (design doc §5.2/§7).
+        uploadManager.parentMessageId = parentMessageId
         return self
     }
     

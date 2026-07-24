@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MediaPlayer
+import UniformTypeIdentifiers
 
 class CameraHandler: NSObject{
     static let shared = CameraHandler()
@@ -80,11 +81,20 @@ class CameraHandler: NSObject{
         }
     }
     
-    func presentAudioLibrary(for view: UIViewController) {
+    func presentAudioLibrary(for view: UIViewController, allowsMultiple: Bool = false) {
         currentVC = view
-        let documentPicker = UIDocumentPickerViewController(documentTypes: ["public.audio"], in: .import)
+        // Copy-in pickers race their Inbox copies on multi-select and deliver only a
+        // subset of the selection (iOS 18). Open-in-place returns every selected URL
+        // immediately as a security-scoped reference; the delegate copies the bytes
+        // itself, so there is no system copy to race or drop.
+        let documentPicker: UIDocumentPickerViewController
+        if #available(iOS 14.0, *) {
+            documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [.audio])
+        } else {
+            documentPicker = UIDocumentPickerViewController(documentTypes: ["public.audio"], in: .open)
+        }
         documentPicker.delegate = self
-        documentPicker.allowsMultipleSelection = false
+        documentPicker.allowsMultipleSelection = allowsMultiple
         currentVC?.present(documentPicker, animated: true, completion: nil)
     }
     
@@ -191,15 +201,19 @@ extension CameraHandler: UIImagePickerControllerDelegate, UINavigationController
 
 extension CameraHandler: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        guard let selectedFileURL = urls.first else { return }
-        
-        // Copy audio to persistent location to prevent deletion of temp file
-        let fileExtension = selectedFileURL.pathExtension.isEmpty ? "m4a" : selectedFileURL.pathExtension
-        if let persistentURL = copyToPersistentLocation(from: selectedFileURL, fileExtension: fileExtension) {
-            self.audioPickedBlock?(persistentURL.absoluteString)
-        } else {
-            // Fallback to original URL if copy fails
-            self.audioPickedBlock?(selectedFileURL.absoluteString)
+        // Deliver every picked file (multi-select), preserving selection order.
+        // Open-in-place URLs are security-scoped — access must be held for the copy.
+        for selectedFileURL in urls {
+            let needsScope = selectedFileURL.startAccessingSecurityScopedResource()
+            defer { if needsScope { selectedFileURL.stopAccessingSecurityScopedResource() } }
+            // Copy audio to persistent location to prevent deletion of temp file
+            let fileExtension = selectedFileURL.pathExtension.isEmpty ? "m4a" : selectedFileURL.pathExtension
+            if let persistentURL = copyToPersistentLocation(from: selectedFileURL, fileExtension: fileExtension) {
+                self.audioPickedBlock?(persistentURL.absoluteString)
+            } else {
+                // Fallback to original URL if copy fails
+                self.audioPickedBlock?(selectedFileURL.absoluteString)
+            }
         }
     }
     

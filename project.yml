@@ -1,144 +1,181 @@
+# Merged public-repo project — generated/owned by the release CI.
+# UIKit is consumed as the RELEASED binary via the local CometChatUIKitSwift
+# package (its Package.swift binaryTarget is rewritten with each release's
+# url + checksum). All targets therefore share ONE package graph.
 name: CometChatUIKitSwift
 options:
   bundleIdPrefix: com.cometchat
   deploymentTarget:
-    iOS: "13.0"
+    iOS: "15.1"
   xcodeVersion: "16.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
 packages:
   CometChatUIKitSwift:
-    path: CometChatUIKitSwift
-  CometChatCallsSDK:
-    url: https://github.com/cometchat/calls-sdk-ios.git
-    exactVersion: 4.2.2
+    path: CometChatUIKitSwift        # local binaryTarget = the released xcframework
   CometChatSDK:
     url: https://github.com/cometchat/chat-sdk-ios.git
-    exactVersion: 4.1.5
+    from: "4.1.6"                    # product also vends CometChatStarscream (required by UIKit)
+  CometChatCallsSDK:
+    url: https://github.com/cometchat/calls-sdk-ios.git
+    from: "5.0.1"
+  CometChatCardsSwift:
+    url: https://github.com/cometchat/cards-sdk-ios.git
+    exactVersion: "1.1.0"            # released UIKit imports CometChatCardsSwift; public SPM package
+  CometChatPushNotifications:
+    # Public release repo (binaryTarget -> Cloudsmith xcframework). Never point this
+    # at the private cometchat-team dev repo — public consumers can't clone it.
+    url: https://github.com/cometchat/push-notifications-sdk-ios.git
+    exactVersion: "1.0.0"
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk.git
+    from: "10.16.0"                  # Google login (FirebaseAuth)
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS.git
+    from: "7.0.0"
+
 targets:
+  # ── Basic sample (converted from master-app) ──
   SampleApp:
     type: application
     platform: iOS
+    deploymentTarget: "15.1"
+    # E2ETests/ ships inside SampleApp/ so the suite travels with the app. Excluded from the
+    # app target because XcodeGen globs the path — without this the app would try to compile
+    # the test files and fail on `import XCTest`. The SampleAppUITests target claims them below.
     sources:
       - path: SampleApp
-        excludes:
-          - Info.plist
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.jitvar.test
-        MARKETING_VERSION: "5.1.9"
-        CURRENT_PROJECT_VERSION: "1"
-        SWIFT_VERSION: "5.0"
-        DEVELOPMENT_TEAM: ""
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-    info:
-      path: SampleApp/Info.plist
-      properties:
-        CFBundleName: "$(PRODUCT_NAME)"
-        CFBundleIdentifier: "$(PRODUCT_BUNDLE_IDENTIFIER)"
-        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
-        CFBundleShortVersionString: "$(MARKETING_VERSION)"
-        CFBundlePackageType: "$(PRODUCT_BUNDLE_TYPE)"
-        CFBundleExecutable: "$(EXECUTABLE_NAME)"
-        UILaunchStoryboardName: LaunchScreen
-        UIApplicationSceneManifest:
-          UIApplicationSupportsMultipleScenes: false
-          UISceneConfigurations:
-            UIWindowSceneSessionRoleApplication:
-              - UISceneConfigurationName: "Default Configuration"
-                UISceneDelegateClassName: "$(PRODUCT_MODULE_NAME).SceneDelegate"
+        excludes: [ "E2ETests/**" ]
     dependencies:
       - package: CometChatUIKitSwift
-        product: CometChatUIKitSwift
       - package: CometChatCallsSDK
-        product: CometChatCallsSDK
       - package: CometChatSDK
-        product: CometChatSDK
-    entitlements:
-      path: SampleApp/SampleApp.entitlements
+      - package: CometChatCardsSwift
+      - package: Firebase
+        product: FirebaseAuth
+      - package: GoogleSignIn
+        product: GoogleSignIn
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.sampleapp.ios
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: SampleApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: SampleApp/SampleApp.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "CometChat Sample"
+        INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "Access Camera"
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Access Microphone"
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Access Photos"
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Use Photos"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        IPHONEOS_DEPLOYMENT_TARGET: "15.1"
 
-  SampleAppPushNotificationAPNs:
-    type: application
+  # ── E2E UI tests for SampleApp — see SampleApp/E2ETests/README.md ──
+  # Sources ship inside SampleApp/E2ETests. CometChatSDK is the only SDK dependency:
+  # Helpers/SecondClient.swift drives a live second-user session in the runner process.
+  # Deliberately does NOT depend on CometChatCardsSwift — Cards is a static xcframework
+  # already absorbed into the CometChatUIKitSwift binary, so linking it again would
+  # duplicate every Cards class.
+  SampleAppUITests:
+    type: bundle.ui-testing
     platform: iOS
+    deploymentTarget: "15.1"
     sources:
-      - path: SampleAppPushNotificationAPNs
-        excludes:
-          - Info.plist
+      - path: SampleApp/E2ETests
+    dependencies:
+      - target: SampleApp
+      - package: CometChatSDK
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.internal.swift
-        MARKETING_VERSION: "5.1.9"
-        CURRENT_PROJECT_VERSION: "1"
-        SWIFT_VERSION: "5.0"
+        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.sampleapp.ios.uitests
         DEVELOPMENT_TEAM: ""
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-    info:
-      path: SampleAppPushNotificationAPNs/Info.plist
-      properties:
-        CFBundleName: "$(PRODUCT_NAME)"
-        CFBundleIdentifier: "$(PRODUCT_BUNDLE_IDENTIFIER)"
-        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
-        CFBundleShortVersionString: "$(MARKETING_VERSION)"
-        CFBundlePackageType: "$(PRODUCT_BUNDLE_TYPE)"
-        CFBundleExecutable: "$(EXECUTABLE_NAME)"
-        UILaunchStoryboardName: LaunchScreen
-        UIApplicationSceneManifest:
-          UIApplicationSupportsMultipleScenes: false
-          UISceneConfigurations:
-            UIWindowSceneSessionRoleApplication:
-              - UISceneConfigurationName: "Default Configuration"
-                UISceneDelegateClassName: "$(PRODUCT_MODULE_NAME).SceneDelegate"
-        UIBackgroundModes:
-          - fetch
-          - remote-notification
-    dependencies:
-      - package: CometChatUIKitSwift
-        product: CometChatUIKitSwift
-      - package: CometChatCallsSDK
-        product: CometChatCallsSDK
-      - package: CometChatSDK
-        product: CometChatSDK
-    entitlements:
-      path: SampleAppPushNotificationAPNs/SampleAppPushNotificationAPNs.entitlements
+        CODE_SIGN_STYLE: Automatic
+        TEST_TARGET_NAME: SampleApp
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1,2"
+        IPHONEOS_DEPLOYMENT_TARGET: "15.1"
 
+  # ── AI Agents sample ──
   AISampleApp:
     type: application
     platform: iOS
+    deploymentTarget: "15.6"
     sources:
       - path: AISampleApp
-        excludes:
-          - Info.plist
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.swift.ai.sampleapp.AISampleApp
-        MARKETING_VERSION: "5.1.9"
-        CURRENT_PROJECT_VERSION: "1"
-        SWIFT_VERSION: "5.0"
-        DEVELOPMENT_TEAM: ""
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-    info:
-      path: AISampleApp/Info.plist
-      properties:
-        CFBundleName: "$(PRODUCT_NAME)"
-        CFBundleIdentifier: "$(PRODUCT_BUNDLE_IDENTIFIER)"
-        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
-        CFBundleShortVersionString: "$(MARKETING_VERSION)"
-        CFBundlePackageType: "$(PRODUCT_BUNDLE_TYPE)"
-        CFBundleExecutable: "$(EXECUTABLE_NAME)"
-        UILaunchStoryboardName: LaunchScreen
-        UIApplicationSceneManifest:
-          UIApplicationSupportsMultipleScenes: false
-          UISceneConfigurations:
-            UIWindowSceneSessionRoleApplication:
-              - UISceneConfigurationName: "Default Configuration"
-                UISceneDelegateClassName: "$(PRODUCT_MODULE_NAME).SceneDelegate"
     dependencies:
       - package: CometChatUIKitSwift
-        product: CometChatUIKitSwift
-      - package: CometChatCallsSDK
-        product: CometChatCallsSDK
       - package: CometChatSDK
-        product: CometChatSDK
-    entitlements:
-      path: AISampleApp/AISampleApp.entitlements
+      - package: CometChatCardsSwift
+      - package: Firebase
+        product: FirebaseAuth
+      - package: GoogleSignIn
+        product: GoogleSignIn
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.ai.sampleapp.ios
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: AISampleApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: AISampleApp/CometChatAISampleApp.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "CometChat AI Sample"
+        INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "Access Camera"
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Access Microphone"
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Access Photos"
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Use Photos"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+
+  # ── APNs push + VoIP sample ──
+  SampleAppPushNotificationAPNs:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.1"
+    sources:
+      - path: SampleAppPushNotificationAPNs
+    dependencies:
+      - package: CometChatUIKitSwift
+      - package: CometChatCallsSDK
+      - package: CometChatSDK
+      - package: CometChatCardsSwift
+      - package: CometChatPushNotifications
+        product: CometChatPushNotificationsSwift
+      - package: Firebase
+        product: FirebaseAuth
+      - package: GoogleSignIn
+        product: GoogleSignIn
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cometchat.push.sampleapp.ios
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_STYLE: Automatic
+        INFOPLIST_FILE: SampleAppPushNotificationAPNs/Info.plist
+        CODE_SIGN_ENTITLEMENTS: SampleAppPushNotificationAPNs/CometChatPushNotificationSampleApp.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "CometChat Push Sample"
+        INFOPLIST_KEY_UILaunchStoryboardName: LaunchScreen
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "Access Camera"
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Access Microphone"
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Access Photos"
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Use Photos"
+        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "Turn on location services to share your location with everyone."
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        IPHONEOS_DEPLOYMENT_TARGET: "15.1"

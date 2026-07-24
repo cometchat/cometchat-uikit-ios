@@ -179,8 +179,8 @@ open class MessageUtils {
             }
             date.style = dateStyle
             
-            // adding edited tag for text message
-            if let textMessage = message as? TextMessage, textMessage.editedAt != 0 {
+            // adding edited tag for any edited message (text, media caption, etc.)
+            if message.editedAt != 0 {
                 date.text = "Edited  " + (date.text ?? "")
             }
             
@@ -505,6 +505,10 @@ open class MessageUtils {
         }
         
         if let mediaMsg = message as? MediaMessage {
+            // Multi-attachment: summarize ("N photos" / "N files" / "N attachments").
+            if let attachments = mediaMsg.attachments, attachments.count > 1 {
+                return MessagesDataSource.multiAttachmentPreviewText(for: attachments)
+            }
             if let fileName = mediaMsg.attachment?.fileName, !fileName.isEmpty {
                 return fileName
             }

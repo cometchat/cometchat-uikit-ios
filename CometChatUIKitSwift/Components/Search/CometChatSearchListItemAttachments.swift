@@ -87,16 +87,40 @@ final class CometChatSearchListItemAttachments: UITableViewCell {
     
     // MARK: - Configure
     func configure(with message: BaseMessage, localURL: URL? = nil) {
+        // Reuse-safety: reset the leading icon to its plain style. The audio branch
+        // overrides it into a purple play circle; every other row (file / link / image)
+        // must start from the plain style so a recycled audio cell doesn't keep the
+        // circle.
+        applyPlainIconStyle()
         switch message {
         case let mediaMessage as MediaMessage:
             configureMediaMessage(mediaMessage, localURL: localURL)
-            
+
         case let textMessage as TextMessage:
             configureTextMessage(textMessage)
-            
+
         default:
             break
         }
+    }
+
+    /// Default leading-icon look: transparent, lightly rounded, image scaled to fit.
+    private func applyPlainIconStyle() {
+        iconView.backgroundColor = .clear
+        iconView.layer.cornerRadius = 6
+        iconView.contentMode = .scaleAspectFit
+        iconView.tintColor = nil
+    }
+
+    /// Audio rows use a filled purple circle with a centered white play glyph — the same
+    /// affordance as the audio bubble/composer, so audio reads as "playable" in search.
+    private func applyAudioPlayCircleStyle() {
+        iconView.backgroundColor = CometChatTheme.primaryColor
+        iconView.layer.cornerRadius = 20   // half of the 40pt icon → a circle
+        iconView.contentMode = .center      // show the glyph at its point size, not stretched
+        iconView.image = UIImage(systemName: "play.fill",
+                                 withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold))?
+            .withTintColor(.white, renderingMode: .alwaysOriginal)
     }
     
     private func configureTextMessage(_ message: TextMessage) {
@@ -105,29 +129,53 @@ final class CometChatSearchListItemAttachments: UITableViewCell {
 
     
     private func configureMediaMessage(_ message: MediaMessage, localURL: URL? = nil) {
-        guard let attachment = message.attachment else { return }
-        
-        titleLabel.text = attachment.fileName
-        
-        let fileSize = formatBytes(Int(attachment.fileSize))
-        let fileType = (attachment.fileExtension).uppercased()
-        let senderName = message.sender?.name ?? "You"
-        subtitleLabel.text = "\(fileSize) · \(fileType) · \(senderName)"
-        
+        let attachments = message.attachments ?? []
+        guard let firstAttachment = attachments.first ?? message.attachment else { return }
+        let isLoggedInUser = message.sender?.uid == CometChat.getLoggedInUser()?.uid
+
+        // Title = the CHAT name (group name, or the peer in a 1:1).
         if message.receiverType == .group {
-            if let group = group{
-                titleLabel.text = message.sender?.name ?? ""
-            } else {
-                titleLabel.text = (message.receiver as? Group)?.name ?? ""
-            }
+            titleLabel.text = (message.receiver as? Group)?.name ?? ""
         } else {
-            titleLabel.text = message.sender?.uid == CometChat.getLoggedInUser()?.uid ? "You" : message.sender?.name
+            titleLabel.text = isLoggedInUser
+                ? ((message.receiver as? User)?.name ?? "")
+                : (message.sender?.name ?? "")
         }
-        subtitleLabel.text = attachment.fileName
-        
-        dateLabel.text = formatDate(from: message.sentAt)
-        
-        iconView.image = CometChatSearchListItemAttachments.getFileIcon(for: message, localURL: localURL)
+
+        // Subtitle = "<You|Sender>: <glyph> <summary>". Summary combines caption and
+        // count: "caption · N Audios" when both, "N Audios/Files" when uncaptioned
+        // multi, caption alone, filename as last resort.
+        let isAudio = message.messageType == .audio
+        let caption = (message.caption ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let countKey = isAudio ? "search_audios_count" : "search_files_count"
+        let countText = attachments.count > 1 ? String(format: countKey.localize(), "\(attachments.count)") : ""
+        let summary: String
+        switch (caption.isEmpty, countText.isEmpty) {
+        case (false, false): summary = "\(caption) · \(countText)"
+        case (true, false):  summary = countText
+        case (false, true):  summary = caption
+        case (true, true):   summary = firstAttachment.fileName
+        }
+        subtitleLabel.attributedText = CometChatSearchListItemImageVideo.subtitleText(
+            prefix: isLoggedInUser ? "You" : (message.sender?.name ?? ""),
+            glyph: isAudio ? "mic" : "doc.text",
+            summary: summary,
+            font: subtitleLabel.font,
+            color: .secondaryLabel
+        )
+
+        dateLabel.text = CometChatSearchListItemAttachments.relativeDay(from: message.sentAt)
+
+        // Audio → purple play circle (single or multi). A multi-FILE message shows the
+        // generic file badge (a per-type icon would lie about the rest); single files
+        // keep their specific type icon.
+        if isAudio {
+            applyAudioPlayCircleStyle()
+        } else if attachments.count > 1 {
+            iconView.image = UIImage(named: "file-type-generic", in: CometChatUIKit.bundle, compatibleWith: nil)
+        } else {
+            iconView.image = CometChatSearchListItemAttachments.getFileIcon(for: message, localURL: localURL)
+        }
     }
 
     
@@ -232,6 +280,23 @@ final class CometChatSearchListItemAttachments: UITableViewCell {
 
 
     
+    /// "Yesterday", weekday name within a week, else dd/MM/yy — per the search design.
+    static func relativeDay(from timestamp: Int) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) {
+            let formatter = DateFormatter(); formatter.timeStyle = .short
+            return formatter.string(from: date)
+        }
+        if calendar.isDateInYesterday(date) { return "YESTERDAY".localize() }
+        if let weekAgo = calendar.date(byAdding: .day, value: -7, to: Date()), date > weekAgo {
+            let formatter = DateFormatter(); formatter.dateFormat = "EEEE"
+            return formatter.string(from: date)
+        }
+        let formatter = DateFormatter(); formatter.dateFormat = "dd/MM/yy"
+        return formatter.string(from: date)
+    }
+
     // MARK: - Date formatting
     private func formatDate(from timestamp: Int) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
@@ -249,64 +314,16 @@ final class CometChatSearchListItemAttachments: UITableViewCell {
     }
     
     // MARK: - File icon logic
+    /// Uses the shared GalleryFileType classifier (MIME + extension, Android-parity
+    /// precedence) so search shows the SAME icon as the bubbles and the composer tray.
     public static func getFileIcon(for mediaMessage: MediaMessage, localURL: URL? = nil) -> UIImage? {
-        let bundle = CometChatUIKit.bundle
-        
-        let wordFileIcon = UIImage(named: "cometchat_word_file_icon", in: bundle, with: nil)
-        let pptFileIcon = UIImage(named: "cometchat_ppt_file_icon", in: bundle, with: nil)
-        let xlsxFileIcon = UIImage(named: "cometchat_xlsx_file_icon", in: bundle, with: nil)
-        let pdfFileIcon = UIImage(named: "cometchat_pdf_file_icon", in: bundle, with: nil)
-        let zipFileIcon = UIImage(named: "cometchat_zip_file_icon", in: bundle, with: nil)
-        let textFileIcon = UIImage(named: "cometchat_text_file_icon", in: bundle, with: nil)
-        let audioFileIcon = UIImage(named: "cometchat_audio_file_icon", in: bundle, with: nil)
-        let imageFileIcon = UIImage(named: "cometchat_image_file_icon", in: bundle, with: nil)
-        let videoFileIcon = UIImage(named: "cometchat_video_file_icon", in: bundle, with: nil)
-        let linkFileIcon = UIImage(named: "cometchat_link_file_icon", in: bundle, with: nil)
-        let unknownFileIcon = UIImage(named: "cometchat_unknown_file_icon", in: bundle, with: nil)
-        
-        func getFileIcon(for ext: String?) -> UIImage? {
-            guard let fileExtension = ext else { return nil }
-            switch fileExtension.lowercased() {
-            case "doc", "docx": return wordFileIcon
-            case "ppt", "pptx": return pptFileIcon
-            case "xls", "xlsx": return xlsxFileIcon
-            case "pdf": return pdfFileIcon
-            case "zip": return zipFileIcon
-            case "csv", "txt": return textFileIcon
-            case "mp3", "wav", "aac": return audioFileIcon
-            case "jpg", "jpeg", "png", "gif": return imageFileIcon
-            case "mp4", "mov": return videoFileIcon
-            case "html", "url": return linkFileIcon
-            default: return nil
-            }
-        }
-        
-        // Local URL check
-        if let imageFromLocalURL = getFileIcon(for: localURL?.pathExtension) {
-            return imageFromLocalURL
-        }
-        
-        if let attachment = mediaMessage.attachment {
-            let mimeType = attachment.fileMimeType
-            
-            if mimeType.contains("video") { return videoFileIcon }
-            if mimeType.contains("pdf") { return pdfFileIcon }
-            if mimeType.contains("zip") { return zipFileIcon }
-            if mimeType.contains("audio") { return audioFileIcon }
-            if mimeType.contains("image") { return imageFileIcon }
-            if mimeType.contains("text") { return textFileIcon }
-            if mimeType.contains("link") { return linkFileIcon }
-            
-            if mimeType.contains("octet-stream") {
-                if attachment.fileUrl.hasSuffix(".doc") { return wordFileIcon }
-                if attachment.fileUrl.hasSuffix(".ppt") { return pptFileIcon }
-                if attachment.fileUrl.hasSuffix(".xls") { return xlsxFileIcon }
-            }
-        }
-        
-        return unknownFileIcon
+        let attachment = mediaMessage.attachments?.first ?? mediaMessage.attachment
+        // A local copy's extension is the most reliable signal when present.
+        let url = localURL?.absoluteString ?? attachment?.fileUrl ?? ""
+        let mime = attachment?.fileMimeType ?? ""
+        return GalleryFileType.of(mimeType: mime, fileUrl: url).icon
     }
-    
+
     @discardableResult
     public func set(customView: UIView) -> Self {
         self.contentView.subviews.forEach { $0.removeFromSuperview() }

@@ -299,3 +299,35 @@
 "AUDIO_LIBRARY" = "Audiobibliotheek";
 
 "AI_AGENTS" = "AI-assistenten";
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ meer";
+"file_list_show_less" = "Minder tonen";
+"attachment_count" = "%@ bijlagen";
+"preview_photos_count" = "%@ foto's";
+"preview_videos_count" = "%@ video's";
+"preview_files_count" = "%@ bestanden";
+"preview_audios_count" = "%@ audiobestanden";
+"search_images_one" = "1 afbeelding";
+"search_images_count" = "%@ afbeeldingen";
+"search_videos_one" = "1 video";
+"search_videos_count" = "%@ video's";
+"search_audios_count" = "%@ audio's";
+"search_files_count" = "%@ bestanden";
+"attachment_tray_add" = "Toevoegen";
+"attachment_downloading" = "Downloaden…";
+"attachment_upload_failed" = "Uploaden mislukt";
+"attachment_upload_failed_retry" = "Tik om opnieuw te proberen";
+"attachment_retry" = "Opnieuw proberen";
+"attachment_remove" = "Verwijderen";
+"attachment_count_exceeded" = "Je kunt maximaal %@ bestanden bijvoegen.";
+"attachment_size_exceeded" = "Bestand is groter dan %@ MB.";
+"attachment_type_not_allowed" = "Dit bestandstype is niet toegestaan.";
+"attachment_total_size_exceeded" = "De totale grootte van de bijlagen is te groot.";
+"attachment_size_unknown" = "Onbekende grootte";
+"attachment_upload_unavailable" = "Uploads zijn momenteel niet beschikbaar.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

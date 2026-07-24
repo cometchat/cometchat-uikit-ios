@@ -291,3 +291,35 @@
 "ENTER_LINK_URL" = "Introducir URL del enlace";
 "REMOVE" = "Eliminar";
 
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ más";
+"file_list_show_less" = "Mostrar menos";
+"attachment_count" = "%@ archivos adjuntos";
+"preview_photos_count" = "%@ fotos";
+"preview_videos_count" = "%@ videos";
+"preview_files_count" = "%@ archivos";
+"preview_audios_count" = "%@ archivos de audio";
+"search_images_one" = "1 imagen";
+"search_images_count" = "%@ imágenes";
+"search_videos_one" = "1 video";
+"search_videos_count" = "%@ videos";
+"search_audios_count" = "%@ audios";
+"search_files_count" = "%@ archivos";
+"attachment_tray_add" = "Añadir";
+"attachment_downloading" = "Descargando…";
+"attachment_upload_failed" = "Error al subir";
+"attachment_upload_failed_retry" = "Toca para reintentar";
+"attachment_retry" = "Reintentar";
+"attachment_remove" = "Eliminar";
+"attachment_count_exceeded" = "Puedes adjuntar hasta %@ archivos.";
+"attachment_size_exceeded" = "El archivo supera los %@ MB.";
+"attachment_type_not_allowed" = "Este tipo de archivo no está permitido.";
+"attachment_total_size_exceeded" = "El tamaño total de los adjuntos es demasiado grande.";
+"attachment_size_unknown" = "Tamaño desconocido";
+"attachment_upload_unavailable" = "Las subidas no están disponibles en este momento.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

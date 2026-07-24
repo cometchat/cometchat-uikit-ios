@@ -327,3 +327,39 @@
 "ENTER_LINK_URL" = "Enter link URL";
 "REMOVE" = "Remove";
 
+/* Multiple attachments — gallery bubble */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ more";
+"file_list_show_less" = "Show less";
+
+/* Multiple attachments — message previews */
+"attachment_count" = "%@ attachments";
+"preview_photos_count" = "%@ photos";
+"preview_videos_count" = "%@ videos";
+"preview_files_count" = "%@ files";
+"preview_audios_count" = "%@ audio files";
+"search_images_one" = "1 Image";
+"search_images_count" = "%@ Images";
+"search_videos_one" = "1 Video";
+"search_videos_count" = "%@ Videos";
+"search_audios_count" = "%@ Audios";
+"search_files_count" = "%@ Files";
+
+/* Multiple attachments — composer tray */
+"attachment_tray_add" = "Add";
+"attachment_downloading" = "Downloading…";
+"attachment_upload_failed" = "Upload failed";
+"attachment_upload_failed_retry" = "Tap to retry";
+"attachment_retry" = "Retry";
+"attachment_remove" = "Remove";
+"attachment_count_exceeded" = "You can attach up to %@ files.";
+"attachment_size_exceeded" = "File exceeds %@ MB.";
+"attachment_type_not_allowed" = "This file type isn't allowed.";
+"attachment_total_size_exceeded" = "Total attachment size is too large.";
+"attachment_size_unknown" = "Unknown size";
+"attachment_upload_unavailable" = "Uploads are currently unavailable.";
+
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

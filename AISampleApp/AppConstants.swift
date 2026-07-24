@@ -10,10 +10,9 @@ import UIKit
 
 class AppConstants {
     
-    static var APP_ID: String = ""
-    static var AUTH_KEY: String = ""
-    static var REGION: String = ""
-    static var PROVIDER_ID: String = ""
+    static var APP_ID: String = "XXXXXXXXX"
+    static var AUTH_KEY: String = "XXXXXXXXX"
+    static var REGION: String = "XXXXXXXXX"
 }
 
 extension AppConstants{

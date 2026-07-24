@@ -205,9 +205,11 @@ open class CometChatMessageBubble: UITableViewCell {
         contentView.embed(
             containerStackView,
             insets: NSDirectionalEdgeInsets(
-                top: CometChatSpacing.Padding.p2,
+                // Each cell contributes p1 (4pt) top and bottom, so the visible gap
+                // between two adjacent bubbles is 8pt (matching the Flutter 4+4 spec).
+                top: CometChatSpacing.Padding.p1,
                 leading: CometChatSpacing.Padding.p4,
-                bottom: CometChatSpacing.Padding.p2,
+                bottom: CometChatSpacing.Padding.p1,
                 trailing: CometChatSpacing.Padding.p4
             )
         )

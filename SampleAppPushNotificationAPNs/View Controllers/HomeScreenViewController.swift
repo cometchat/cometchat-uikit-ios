@@ -9,9 +9,8 @@ import UIKit
 import AVFoundation
 import CometChatUIKitSwift
 import CometChatSDK
-import CometChatCardsSwift
+import FirebaseAuth
 import SystemConfiguration
-
 
 class HomeScreenViewController: UITabBarController {
     
@@ -320,9 +319,6 @@ class HomeScreenViewController: UITabBarController {
                 startNewConversationNVC.hidesBottomBarWhenPushed = true
                 self.navigationController?.pushViewController(startNewConversationNVC, animated: true)
             }),
-            UIAction(title: "AI_AGENTS".localize(), image: UIImage(systemName: "sparkles"), handler: { [weak self] _ in
-                self?.openAIAgents()
-            }),
             UIAction(title: "\(CometChat.getLoggedInUser()?.name ?? "")", image: UIImage(systemName: "person.circle"), handler: { _ in
 
             }),
@@ -344,24 +340,10 @@ class HomeScreenViewController: UITabBarController {
     //Logging out
     @objc func logoutTapped() {
         if Reachability.isConnectedToNetwork(){
-            // First unregister push token, then logout
-            CometChatNotifications.unregisterPushToken { [weak self] success in
-                self?.clearStoredTokensAndLogout()
-            } onError: { [weak self] error in
-                // Still logout even if unregister fails
-                self?.clearStoredTokensAndLogout()
-            }
+            performLogout()
         }else{
             // No internet connection
         }
-    }
-    
-    private func clearStoredTokensAndLogout() {
-        // Clear stored push tokens to prevent re-registration
-        UserDefaults.standard.removeObject(forKey: "apnspuToken")
-        UserDefaults.standard.removeObject(forKey: "voipToken")
-        
-        performLogout()
     }
     
     private func performLogout() {
@@ -397,45 +379,6 @@ class HomeScreenViewController: UITabBarController {
         presentViewControllerBottomSheet(from: self, to: vc, height: 356)
     }
     
-    private func openAIAgents() {
-        let agenticUsersRequestBuilder = UsersRequest.UsersRequestBuilder()
-            .set(limit: 30)
-            .set(roles: ["@agentic"])
-        
-        let aiAgentsVC = CometChatUsers(usersRequestBuilder: agenticUsersRequestBuilder)
-        aiAgentsVC.title = "AI_AGENTS".localize()
-        aiAgentsVC.hidesBottomBarWhenPushed = true
-        
-        // Configure navigation bar and search bar to match Users tab UI
-        aiAgentsVC.hideNavigationBar = false
-        aiAgentsVC.hideBackButton = false
-        aiAgentsVC.prefersLargeTitles = true
-        aiAgentsVC.searchController.hidesNavigationBarDuringPresentation = false
-        
-        // Custom back button action to return to home screen
-        aiAgentsVC.set(onBack: { [weak self] in
-            self?.navigationController?.setNavigationBarHidden(true, animated: true)
-            self?.navigationController?.popViewController(animated: true)
-        })
-        
-        aiAgentsVC.set(onItemClick: { [weak self] user, _ in
-            let messages = MessagesVC()
-            messages.user = user
-            if let splitScreenCallBack = self?.splitScreenCallBack {
-                splitScreenCallBack(messages)
-            } else {
-                self?.navigationController?.pushViewController(messages, animated: true)
-            }
-        })
-        
-        if let splitScreenCallBack {
-            splitScreenCallBack(aiAgentsVC)
-        } else {
-            // Show navigation bar before pushing
-            self.navigationController?.setNavigationBarHidden(false, animated: true)
-            navigationController?.pushViewController(aiAgentsVC, animated: true)
-        }
-    }
     
     lazy var notifications: CometChatNotificationFeed = {
         let feed = CometChatNotificationFeed()

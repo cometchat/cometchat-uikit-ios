@@ -336,3 +336,35 @@
 "ENTER_LINK_URL" = "輸入連結網址";
 "REMOVE" = "移除";
 
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ 項";
+"file_list_show_less" = "收合";
+"attachment_count" = "%@ 個附件";
+"preview_photos_count" = "%@ 張相片";
+"preview_videos_count" = "%@ 部影片";
+"preview_files_count" = "%@ 個檔案";
+"preview_audios_count" = "%@ 個音訊檔";
+"search_images_one" = "1 張圖片";
+"search_images_count" = "%@ 張圖片";
+"search_videos_one" = "1 部影片";
+"search_videos_count" = "%@ 部影片";
+"search_audios_count" = "%@ 個音訊";
+"search_files_count" = "%@ 個檔案";
+"attachment_tray_add" = "加入";
+"attachment_downloading" = "下載中…";
+"attachment_upload_failed" = "上傳失敗";
+"attachment_upload_failed_retry" = "點一下以重試";
+"attachment_retry" = "重試";
+"attachment_remove" = "移除";
+"attachment_count_exceeded" = "最多只能附加 %@ 個檔案。";
+"attachment_size_exceeded" = "檔案超過 %@ MB。";
+"attachment_type_not_allowed" = "不允許此檔案類型。";
+"attachment_total_size_exceeded" = "附件總大小過大。";
+"attachment_size_unknown" = "大小不明";
+"attachment_upload_unavailable" = "目前無法上傳。";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

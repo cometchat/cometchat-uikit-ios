@@ -1369,14 +1369,19 @@ public class RichTextFormatterManager {
                 
                 result += "```\n\(cleanCodeText)\n```"
             } else {
-                // Inline code - use single backticks
-                // But if the code contains newlines, convert to code block instead
-                // because inline code cannot span multiple lines in standard markdown
-                // However, we should strip trailing/leading newlines first as they might be
-                // artifacts from the text editing process
+                // Inline code - use single backticks. Inline code cannot span lines in
+                // markdown, but silently promoting the region to a ``` code block would
+                // CHANGE the formatting the user chose (the composer showed inline, the
+                // bubble would render a block, and a later edit would open in code-block
+                // mode). Emit one inline span per line instead — the newline between
+                // spans stays plain text.
                 let trimmedCodeText = codeTextWithShortcodes.trimmingCharacters(in: .newlines)
                 if trimmedCodeText.contains("\n") {
-                    result += "```\n\(trimmedCodeText)\n```"
+                    let inlineLines = trimmedCodeText.components(separatedBy: "\n").map { line -> String in
+                        let content = line.trimmingCharacters(in: .whitespaces)
+                        return content.isEmpty ? line : "`\(line)`"
+                    }
+                    result += inlineLines.joined(separator: "\n")
                 } else {
                     result += "`\(trimmedCodeText)`"
                 }

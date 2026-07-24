@@ -294,12 +294,17 @@ extension MessageComposerViewModel {
         if let duration = audioDuration {
             metaData["audioDuration"] = duration
         }
+        // A recorded audio is always a standalone voice note (never batched). Flag it so
+        // the message list renders it with the classic voice-note bubble.
+        if type == .audio {
+            metaData["audioType"] = "voice_note"
+        }
         mediaMessage.metaData = metaData
         mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
         if let parentMessageId = parentMessageId {
             mediaMessage.parentMessageId = parentMessageId
         }
-        
+
         if let quotedMessageId = quotedMessageId {
             mediaMessage.quotedMessageId = quotedMessageId
         }
@@ -347,6 +352,9 @@ extension MessageComposerViewModel {
         if let duration = audioDuration {
             metaData["audioDuration"] = duration
         }
+        if type == .audio {
+            metaData["audioType"] = "voice_note"
+        }
         mediaMessage.metaData = metaData
         mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
         isSoundForMessageEnabled?()
@@ -382,6 +390,144 @@ extension MessageComposerViewModel {
         }
     }
     
+    /// Sends ONE media message carrying multiple already-uploaded attachments plus an
+    /// optional caption. Mirrors the single-file send (optimistic `ccMessageSent`,
+    /// muid, sender, parent/quote) but sets `attachments` instead of a file URL.
+    public func sendMultiAttachmentMessage(attachments: [Attachment], caption: String, batchId: String? = nil) {
+        guard !attachments.isEmpty else { return }
+
+        let receiverUid: String
+        let receiverType: CometChat.ReceiverType
+        if let uid = self.user?.uid {
+            receiverUid = uid
+            receiverType = .user
+        } else if let guid = self.group?.guid {
+            receiverUid = guid
+            receiverType = .group
+        } else {
+            return
+        }
+
+        // Split the tray into one message per attachment type, in a fixed order
+        // (images → videos → audios → files). Each message shares one batchId so the
+        // message list can group them (avatar/name on the first, receipt on the last).
+        let groups = MessageComposerViewModel.groupByType(attachments)
+        guard !groups.isEmpty else { return }
+
+        // Prefer the upload request's batch id (design doc: the SDK owns the batch id;
+        // the send carries it as metadata.batchId); fall back to a fresh UUID.
+        let batchId = batchId ?? UUID().uuidString
+        let trimmedCaption = caption.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lastIndex = groups.count - 1
+        let baseSentAt = Int(Date().timeIntervalSince1970)
+
+        isSoundForMessageEnabled?()
+
+        // Build every message and show its optimistic bubble up front (so all bubbles
+        // appear immediately, ordered by the staggered sentAt), then send them
+        // SEQUENTIALLY. Sequential sending is what keeps the order consistent after a
+        // reload: the server assigns message ids in the order it receives them, so
+        // parallel sends would let (say) the audio land before the images. Sending one
+        // at a time guarantees images → videos → audios → files server-side too.
+        let messages: [MediaMessage] = groups.enumerated().map { index, group in
+            buildBatchMessage(attachments: group.attachments,
+                              type: group.type,
+                              caption: (index == lastIndex) ? trimmedCaption : "",
+                              batchId: batchId,
+                              batchIndex: index,
+                              batchSize: groups.count,
+                              sentAt: baseSentAt + index,
+                              applyQuote: index == 0,
+                              receiverUid: receiverUid,
+                              receiverType: receiverType)
+        }
+        messages.forEach { CometChatMessageEvents.ccMessageSent(message: $0, status: .inProgress) }
+        hideReplyView?()
+        quotedMessage = nil
+        quotedMessageId = nil
+        sendBatchSequentially(messages, at: 0)
+    }
+
+    /// Builds (does not send) one media message for a single attachment type in a batch.
+    private func buildBatchMessage(attachments: [Attachment],
+                                   type: CometChat.MessageType,
+                                   caption: String,
+                                   batchId: String,
+                                   batchIndex: Int,
+                                   batchSize: Int,
+                                   sentAt: Int,
+                                   applyQuote: Bool,
+                                   receiverUid: String,
+                                   receiverType: CometChat.ReceiverType) -> MediaMessage {
+        let mediaMessage = MediaMessage(receiverUid: receiverUid, files: [], messageType: type, receiverType: receiverType)
+        // We send pre-uploaded attachments, not files. An EMPTY (non-nil) files array
+        // is rejected by the SDK as an invalid message, so clear it.
+        mediaMessage.files = nil
+        mediaMessage.attachments = attachments
+        if !caption.isEmpty {
+            mediaMessage.caption = caption
+        }
+        var metaData: [String: Any] = mediaMessage.metaData ?? [:]
+        // batchId groups the messages; batchIndex/batchSize give deterministic ordering
+        // (first = 0, last = batchSize-1) independent of sentAt or delivery order.
+        metaData["batchId"] = batchId
+        metaData["batchIndex"] = batchIndex
+        metaData["batchSize"] = batchSize
+        mediaMessage.metaData = metaData
+        mediaMessage.muid = UUID().uuidString
+        mediaMessage.sentAt = sentAt
+        mediaMessage.sender = CometChat.getLoggedInUser()
+        mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+        if let parentMessageId = parentMessageId {
+            mediaMessage.parentMessageId = parentMessageId
+        }
+        if applyQuote {
+            if let quotedMessageId = quotedMessageId {
+                mediaMessage.quotedMessageId = quotedMessageId
+            }
+            if let fullQuoted = quotedMessage {
+                mediaMessage.quotedMessage = fullQuoted
+            }
+        }
+        return mediaMessage
+    }
+
+    /// Sends the batch one message at a time; each send waits for the previous to
+    /// complete so the server preserves order. Continues on failure so one bad message
+    /// doesn't block the rest of the batch.
+    private func sendBatchSequentially(_ messages: [MediaMessage], at index: Int) {
+        guard index < messages.count else { return }
+        let mediaMessage = messages[index]
+        MessageComposerBuilder.mediaMessage(message: mediaMessage) { [weak self] result in
+            switch result {
+            case .success(let updatedMediaMessage):
+                CometChatMessageEvents.ccMessageSent(message: updatedMediaMessage, status: .success)
+                if let _ = updatedMediaMessage.quotedMessage {
+                    CometChatMessageEvents.ccReplyToMessage(message: updatedMediaMessage, status: .success)
+                }
+            case .failure(let error):
+                self?.failure?(error)
+                var errorMetaData: [String: Any] = mediaMessage.metaData ?? [:]
+                errorMetaData["error"] = true
+                mediaMessage.metaData = errorMetaData
+                CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
+            }
+            self?.sendBatchSequentially(messages, at: index + 1)
+        }
+    }
+
+    /// Groups attachments by media kind into the fixed batch order
+    /// (images → videos → audios → files), dropping empty groups.
+    static func groupByType(_ attachments: [Attachment]) -> [(type: CometChat.MessageType, attachments: [Attachment])] {
+        let ordered: [(CometChat.MessageType, GalleryMediaKind)] = [
+            (.image, .image), (.video, .video), (.audio, .audio), (.file, .other)
+        ]
+        return ordered.compactMap { pair in
+            let matched = attachments.filter { galleryMediaKind(for: $0) == pair.1 }
+            return matched.isEmpty ? nil : (pair.0, matched)
+        }
+    }
+
     public func editTextMessage(textMessage: TextMessage, message: String?, textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]]) {
         let message: String = message?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if !message.isEmpty {

@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import FirebaseCore
+import FirebaseAuth
+import GoogleSignIn
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -13,7 +16,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window : UIWindow?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        FirebaseApp.configure()
         return true
+    }
+    
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+      return GIDSignIn.sharedInstance.handle(url)
     }
 
     // MARK: UISceneSession Lifecycle

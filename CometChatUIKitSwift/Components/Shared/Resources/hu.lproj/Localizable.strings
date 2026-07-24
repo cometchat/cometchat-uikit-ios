@@ -298,3 +298,35 @@
 "AUDIO_LIBRARY" = "Hangkönyvtár";
 
 "AI_AGENTS" = "AI asszisztensek";
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ további";
+"file_list_show_less" = "Kevesebb mutatása";
+"attachment_count" = "%@ melléklet";
+"preview_photos_count" = "%@ fotó";
+"preview_videos_count" = "%@ videó";
+"preview_files_count" = "%@ fájl";
+"preview_audios_count" = "%@ hangfájl";
+"search_images_one" = "1 kép";
+"search_images_count" = "%@ kép";
+"search_videos_one" = "1 videó";
+"search_videos_count" = "%@ videó";
+"search_audios_count" = "%@ hang";
+"search_files_count" = "%@ fájl";
+"attachment_tray_add" = "Hozzáadás";
+"attachment_downloading" = "Letöltés…";
+"attachment_upload_failed" = "Sikertelen feltöltés";
+"attachment_upload_failed_retry" = "Koppintson az újrapróbálkozáshoz";
+"attachment_retry" = "Újra";
+"attachment_remove" = "Eltávolítás";
+"attachment_count_exceeded" = "Legfeljebb %@ fájlt csatolhat.";
+"attachment_size_exceeded" = "A fájl meghaladja a(z) %@ MB-ot.";
+"attachment_type_not_allowed" = "Ez a fájltípus nem engedélyezett.";
+"attachment_total_size_exceeded" = "A mellékletek együttes mérete túl nagy.";
+"attachment_size_unknown" = "Ismeretlen méret";
+"attachment_upload_unavailable" = "A feltöltés jelenleg nem érhető el.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

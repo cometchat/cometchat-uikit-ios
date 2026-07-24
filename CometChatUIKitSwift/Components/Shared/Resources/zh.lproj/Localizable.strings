@@ -313,3 +313,35 @@
 "AUDIO_LIBRARY" = "音频库";
 
 "AI_AGENTS" = "AI助手";
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ 项";
+"file_list_show_less" = "收起";
+"attachment_count" = "%@ 个附件";
+"preview_photos_count" = "%@ 张照片";
+"preview_videos_count" = "%@ 个视频";
+"preview_files_count" = "%@ 个文件";
+"preview_audios_count" = "%@ 个音频文件";
+"search_images_one" = "1 张图片";
+"search_images_count" = "%@ 张图片";
+"search_videos_one" = "1 个视频";
+"search_videos_count" = "%@ 个视频";
+"search_audios_count" = "%@ 个音频";
+"search_files_count" = "%@ 个文件";
+"attachment_tray_add" = "添加";
+"attachment_downloading" = "下载中…";
+"attachment_upload_failed" = "上传失败";
+"attachment_upload_failed_retry" = "点按重试";
+"attachment_retry" = "重试";
+"attachment_remove" = "移除";
+"attachment_count_exceeded" = "最多只能添加 %@ 个文件。";
+"attachment_size_exceeded" = "文件超过 %@ MB。";
+"attachment_type_not_allowed" = "不允许上传此类型的文件。";
+"attachment_total_size_exceeded" = "附件总大小过大。";
+"attachment_size_unknown" = "大小未知";
+"attachment_upload_unavailable" = "当前无法上传。";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

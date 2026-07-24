@@ -330,3 +330,35 @@
 "ENTER_TEXT" = "أدخل النص";
 "ENTER_LINK_URL" = "أدخل عنوان URL للرابط";
 "REMOVE" = "إزالة";
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ أخرى";
+"file_list_show_less" = "عرض أقل";
+"attachment_count" = "%@ مرفقات";
+"preview_photos_count" = "%@ صور";
+"preview_videos_count" = "%@ مقاطع فيديو";
+"preview_files_count" = "%@ ملفات";
+"preview_audios_count" = "%@ ملفات صوتية";
+"search_images_one" = "صورة واحدة";
+"search_images_count" = "%@ صور";
+"search_videos_one" = "فيديو واحد";
+"search_videos_count" = "%@ مقاطع فيديو";
+"search_audios_count" = "%@ ملفات صوتية";
+"search_files_count" = "%@ ملفات";
+"attachment_tray_add" = "إضافة";
+"attachment_downloading" = "جارٍ التنزيل…";
+"attachment_upload_failed" = "فشل الرفع";
+"attachment_upload_failed_retry" = "انقر لإعادة المحاولة";
+"attachment_retry" = "إعادة المحاولة";
+"attachment_remove" = "إزالة";
+"attachment_count_exceeded" = "يمكنك إرفاق ما يصل إلى %@ ملفات.";
+"attachment_size_exceeded" = "حجم الملف يتجاوز %@ ميجابايت.";
+"attachment_type_not_allowed" = "نوع الملف هذا غير مسموح به.";
+"attachment_total_size_exceeded" = "الحجم الإجمالي للمرفقات كبير جدًا.";
+"attachment_size_unknown" = "حجم غير معروف";
+"attachment_upload_unavailable" = "الرفع غير متاح حاليًا.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";

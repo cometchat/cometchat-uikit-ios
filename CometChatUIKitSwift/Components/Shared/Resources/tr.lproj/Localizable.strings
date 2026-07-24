@@ -299,3 +299,35 @@
 "AUDIO_LIBRARY" = "Ses Kütüphanesi";
 
 "AI_AGENTS" = "AI Asistanları";
+
+/* Multiple attachments */
+"attachment_overflow" = "+%@";
+"file_list_show_more" = "+%@ daha";
+"file_list_show_less" = "Daha az göster";
+"attachment_count" = "%@ ek";
+"preview_photos_count" = "%@ fotoğraf";
+"preview_videos_count" = "%@ video";
+"preview_files_count" = "%@ dosya";
+"preview_audios_count" = "%@ ses dosyası";
+"search_images_one" = "1 Görsel";
+"search_images_count" = "%@ Görsel";
+"search_videos_one" = "1 Video";
+"search_videos_count" = "%@ Video";
+"search_audios_count" = "%@ Ses";
+"search_files_count" = "%@ Dosya";
+"attachment_tray_add" = "Ekle";
+"attachment_downloading" = "İndiriliyor…";
+"attachment_upload_failed" = "Yükleme başarısız";
+"attachment_upload_failed_retry" = "Yeniden denemek için dokunun";
+"attachment_retry" = "Yeniden dene";
+"attachment_remove" = "Kaldır";
+"attachment_count_exceeded" = "En fazla %@ dosya ekleyebilirsiniz.";
+"attachment_size_exceeded" = "Dosya %@ MB'ı aşıyor.";
+"attachment_type_not_allowed" = "Bu dosya türüne izin verilmiyor.";
+"attachment_total_size_exceeded" = "Eklerin toplam boyutu çok büyük.";
+"attachment_size_unknown" = "Bilinmeyen boyut";
+"attachment_upload_unavailable" = "Yüklemeler şu anda kullanılamıyor.";
+
+"attachment_no_preview_title" = "No preview available";
+"attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
+"attachment_download" = "Download";
