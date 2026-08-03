@@ -17,13 +17,17 @@ let package = Package(
         .library(name: "CometChatUIKitSwift", targets: ["CometChatUIKitSwift", "CometChatUIKitSwiftDependencies"])
     ],
     dependencies: [
-        .package(name: "CometChatCardsSwift", url: "https://github.com/cometchat/cards-sdk-ios.git", from: "1.1.0")
+        // Floor is 1.2.0 (ENG-37757): 1.1.0 crashes at launch on iOS 16/17, and 1.1.1
+        // fixed that but shipped static — which merged Cards into every consumer's link
+        // and duplicated its classes. 1.2.0 ships dynamic. Raising the floor forces SPM
+        // consumers whose Package.resolved still pins an older version onto the fix.
+        .package(name: "CometChatCardsSwift", url: "https://github.com/cometchat/cards-sdk-ios.git", from: "1.2.0")
     ],
     targets: [
         .binaryTarget(
             name: "CometChatUIKitSwift",
-            url: "https://dl.cloudsmith.io/public/cometchat/cometchat/raw/versions/5.1.17/CometChatUIKitSwift_5.1.17.xcframework.zip",
-            checksum: "dcfd1c45882c8a719aa651f771ca73f3e6e5d382557564a35edf6ef97c08195e"
+            url: "https://dl.cloudsmith.io/public/cometchat/cometchat/raw/versions/5.1.18/CometChatUIKitSwift_5.1.18.xcframework.zip",
+            checksum: "038506db73e51f9dcb7539ddbbd4dd10a5a66eee4352fbd0d3379f15d72f4df7"
         ),
         .target(
             name: "CometChatUIKitSwiftDependencies",

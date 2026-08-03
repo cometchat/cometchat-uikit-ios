@@ -1001,10 +1001,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E049ED065B297AC241A0FF9F /* AISampleApp */,
 				E544800B51EBD2B167158DBA /* SampleApp */,
-				F55CC868F4197978C7A7F68A /* SampleAppPushNotificationAPNs */,
 				33091C441E4A4C5BB0AA693A /* SampleAppUITests */,
+				E049ED065B297AC241A0FF9F /* AISampleApp */,
+				F55CC868F4197978C7A7F68A /* SampleAppPushNotificationAPNs */,
 			);
 		};
 /* End PBXProject section */
@@ -1668,7 +1668,7 @@
 			repositoryURL = "https://github.com/cometchat/cards-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.1.0;
+				version = 1.2.0;
 			};
 		};
 		E703884E5C1E9B8A6E0F3043 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {

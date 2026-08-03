@@ -25,7 +25,12 @@ packages:
     from: "5.0.1"
   CometChatCardsSwift:
     url: https://github.com/cometchat/cards-sdk-ios.git
-    exactVersion: "1.1.0"            # released UIKit imports CometChatCardsSwift; public SPM package
+    exactVersion: "1.2.0"            # released UIKit imports CometChatCardsSwift; public SPM package
+                                     # Must stay >= 1.2.0 (ENG-37757): 1.1.0's binary was built at
+                                     # deployment target 26.2 and references an iOS-18-only Foundation
+                                     # symbol, so it crashes at launch on iOS 16/17. 1.1.1 fixed that
+                                     # but shipped STATIC, which merged Cards into every consumer's
+                                     # link and duplicated its classes; 1.2.0 ships dynamic.
   CometChatPushNotifications:
     # Public release repo (binaryTarget -> Cloudsmith xcframework). Never point this
     # at the private cometchat-team dev repo — public consumers can't clone it.

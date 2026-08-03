@@ -6,7 +6,7 @@ public struct UIConstants {
 }
 
 internal struct UIKitConstants {
-    static var version = "5.1.17"
+    static var version = "5.1.18"
     static var messageId = "messageId"
     static var conversationId = "conversationId"
     static var senderId = "senderId"

@@ -8,7 +8,12 @@ import Foundation
 
 struct CometChatEmojiCategoryJSON {
     
-    private static var json =
+    // Defensive (ENG-37757): Data(_:utf8) emits no reference to Foundation's
+    // `data(using:allowLossyConversion:)` at all. At this target (15.1) the old call
+    // resolved to the StringProtocol overload, which back-deploys fine; the crashing
+    // concrete-String overload is only selected at a deployment target >= iOS 18.
+    // Using Data(_:utf8) keeps that true even if the target is ever raised.
+    private static var json = Data(
     """
     {
       "emojiCategory":
@@ -12006,7 +12011,7 @@ struct CometChatEmojiCategoryJSON {
           
     ]
     }
-    """.data(using: .utf8)!
+    """.utf8)
     
     static func getEmojis(completion: @escaping ((Data) -> Void)) {
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 0.1) {
