@@ -27,6 +27,83 @@ protocol MessageListViewModelProtocol {
     func fetchNextMessages()
     func fetchPreviousMessages(completion: (() -> Void)?)
     func fetchUnreadMessageCount()
+
+    var messagesRequest: MessagesRequest? { get set }
+    var messageBubbleStyle: (incoming: MessageBubbleStyle, outgoing: MessageBubbleStyle) { get set }
+    var actionBubbleStyle: GroupActionBubbleStyle { get set }
+    var callActionBubbleStyle: CallActionBubbleStyle { get set }
+    var additionalConfiguration: AdditionalConfiguration { get set }
+    var textFormatters: [CometChatTextFormatter] { get set }
+    var templates: [String: CometChatMessageTemplate] { get set }
+    var threadedPArentMessageId: Int { get set }
+    var hasFetchedMessagesBefore: Bool { get set }
+    var isAllMessagesFetchedInNext: Bool { get set }
+    var isAllMessagesFetchedInPrevious: Bool { get set }
+    var isFetchingNext: Bool { get set }
+    var isUIUpdating: Bool { get set }
+    var disableSwipeToReply: Bool { get set }
+    var hideCopyMessageOption: Bool { get set }
+    var hideDeleteMessageOption: Bool { get set }
+    var hideEditMessageOption: Bool { get set }
+    var hideFlagMessageOption: Bool { get set }
+    var hideMessageInfoOption: Bool { get set }
+    var hideMessagePrivatelyOption: Bool { get set }
+    var hideReactionOption: Bool { get set }
+    var hideReplyInThreadOption: Bool { get set }
+    var hideReplyMessageOption: Bool { get set }
+    var hideShareMessageOption: Bool { get set }
+    var hideTranslateMessageOption: Bool { get set }
+    var showMarkAsUnreadOption: Bool { get set }
+    var enableMultipleAttachments: Bool { get set }
+
+    var ccMessageSent: ((_ message: BaseMessage, _ status: MessageStatus) -> Void)? { get set }
+    var deleteBatch: (([(section: Int, row: Int, msg: BaseMessage)], [Int]) -> Void)? { get set }
+    var hideBottomSpinner: (() -> Void)? { get set }
+    var onFirstMessageFetch: (() -> Void)? { get set }
+    var updateConversationCount: (() -> Void)? { get set }
+    var hideHeaderView: ((Bool) -> Void)? { get set }
+    var hideFooterView: ((Bool) -> Void)? { get set }
+    var setHeaderView: ((UIView) -> Void)? { get set }
+    var setFooterView: ((UIView) -> Void)? { get set }
+    var scrollToMessageId: ((Int, Bool) -> Void)? { get set }
+    var captureAnchorMessageId: (() -> Int?)? { get set }
+    var restoreAnchor: ((Int) -> Void)? { get set }
+    var didCompleteFetchNextWithMetrics: ((_ oldOffsetY: CGFloat, _ oldContentHeight: CGFloat) -> Void)? { get set }
+    var willStartFetchNext: (() -> Void)? { get set }
+
+    func connect()
+    func disconnect()
+    func set(group: Group, messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder?, parentMessage: BaseMessage?)
+    func set(user: User, messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder?, parentMessage: BaseMessage?, withParent: Bool)
+    func set(messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder)
+    func fetchNextMessagesForPagination(completion: ((Int) -> ())?)
+    func getConversation(conversationWith: String, conversationType: CometChat.ConversationType, completion: @escaping(Conversation?) -> ())
+    func getIndexPath(for message: BaseMessage) -> IndexPath?
+    func getTemplate(for message: BaseMessage) -> CometChatMessageTemplate?
+    func goToMessage(messageId: Int)
+    func indexPathForMessageId(_ id: Int) -> IndexPath?
+    func loadLastAgentConversation(didLoad: @escaping (Bool, Int) -> Void)
+    func markConversationAsRead(_ conversationWith: String, _ conversationType: CometChat.ReceiverType)
+    func markMessageAsUnread(_ message: BaseMessage, completion: @escaping(Conversation) -> (), failure: @escaping() -> ())
+    func removeMarkedFailedStreamMessages()
+    @discardableResult func add(message: BaseMessage) -> Self
+    @discardableResult func update(message: BaseMessage) -> Self
+    @discardableResult func delete(message: BaseMessage) -> Self
+    @discardableResult func remove(message: BaseMessage) -> Self
+    @discardableResult func clearList() -> Self
+    func isMessageAlreadyLoaded(_ id: Int) -> Bool
+    func messageAt(indexPath: IndexPath) -> BaseMessage?
+}
+
+extension MessageListViewModelProtocol {
+    func fetchPreviousMessages() { fetchPreviousMessages(completion: nil) }
+    func fetchNextMessagesForPagination() { fetchNextMessagesForPagination(completion: nil) }
+    func set(user: User, messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder?) {
+        set(user: user, messagesRequestBuilder: messagesRequestBuilder, parentMessage: nil, withParent: false)
+    }
+    func set(group: Group, messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder?) {
+        set(group: group, messagesRequestBuilder: messagesRequestBuilder, parentMessage: nil)
+    }
 }
 
 open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
@@ -182,7 +259,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     }
     
     private var pendingAIMessages: [Int: AIAssistantMessage] = [:]
-    
+
     public var showMarkAsUnreadOption: Bool = true{
         didSet{
             additionalConfiguration.showMarkAsUnreadOption = showMarkAsUnreadOption
@@ -198,9 +275,18 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         }
     }
 
-    
+    /// Seam over the non-hermetic SDK request/response calls (fetch pages, unread
+    /// counts, logged-in user). Defaults to the live SDK-backed implementation so
+    /// existing callers are unaffected; tests inject a fake.
+    internal var service: MessageListServicing
+
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
+
     public override init() {
         messagesRequestBuilder = MessagesRequest.MessageRequestBuilder()
+        service = LiveMessageListService()
         isUIUpdating = true
         messages = []
         super.init()
@@ -215,7 +301,18 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             return
         }
     }
-    
+
+    /// Test/internal seam: inject a custom service. Mirrors the default init but
+    /// skips the agentic stream-cleanup branch (which needs a configured user).
+    internal init(service: MessageListServicing) {
+        messagesRequestBuilder = MessagesRequest.MessageRequestBuilder()
+        self.service = service
+        isUIUpdating = true
+        messages = []
+        super.init()
+        setUpDefaultTemplate()
+    }
+
     func set(group: Group, messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder?, parentMessage: BaseMessage? = nil) {
         self.group = group
         self.parentMessage = parentMessage
@@ -565,7 +662,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
 
     func fetchNextMessages() {
         guard let messagesRequest = messagesRequest else { return }
-        MessagesListBuilder.fetchNextMessages(messageRequest: messagesRequest) { [weak self] result in
+        service.fetchNextMessages(request: messagesRequest) { [weak self] result in
             guard let this = self else { return }
             switch result {
             case .success(let fetchedMessages):
@@ -605,7 +702,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         isUIUpdating = true
         hasFetchedMessagesBefore = true
         print("[AIAgent] VM.fetchPreviousMessages: starting fetchPrevious; parentMessage.id=\(parentMessage?.id ?? -1), threadedPArentMessageId=\(threadedPArentMessageId)")
-        MessagesListBuilder.fetchPreviousMessages(messageRequest: messagesRequest) { [weak self] result in
+        service.fetchPreviousMessages(request: messagesRequest) { [weak self] result in
             guard let this = self else { return }
             this.isUIUpdating = false
             switch result {
@@ -669,7 +766,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
     func fetchUnreadMessageCount() {
         if let uid = user?.uid {
-            CometChat.getUnreadMessageCountForUser(uid) { [weak self] countDic in
+            service.unreadMessageCountForUser(uid: uid) { [weak self] countDic in
                 guard let this = self else { return }
                 this.unReadMessageCount = countDic[uid] as? Int
             } onError: { [weak self] error in
@@ -678,9 +775,9 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             }
             return
         }
-        
+
         if let guid = group?.guid {
-            CometChat.getUnreadMessageCountForGroup(guid) { [weak self] countDic in
+            service.unreadMessageCountForGroup(guid: guid) { [weak self] countDic in
                 guard let this = self else { return }
                 this.unReadMessageCount = countDic[guid] as? Int
             } onError: { [weak self] error in
@@ -741,10 +838,10 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         let oldMetrics = captureScrollMetrics?() ?? (oldOffsetY: CGFloat(0), oldContentHeight: CGFloat(0))
         
         willStartFetchNext?()
-        
-        MessagesListBuilder.fetchNextMessages(messageRequest: request) { [weak self] result in
+
+        service.fetchNextMessages(request: request) { [weak self] result in
             guard let this = self else { return }
-            
+
             switch result {
             case .success(let fetched):
                 if fetched.isEmpty {
@@ -940,26 +1037,26 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
     // MARK:- connect message listener
     public func connect() {
-        CometChatUIEvents.addListener("message-list-event-listener\(currentRandomDate)", self as CometChatUIEventListener)
-        CometChat.addConnectionListener("messages-connection-sdk-listener\(currentRandomDate)", self)
-        CometChat.addCallListener("message-list-call-sdk-listner-\(currentRandomDate)", self)
-        CometChatCallEvents.addListener("message-list-call-event-listner-\(currentRandomDate)", self)
-        CometChatMessageEvents.addListener("event-listener-\(currentRandomDate)", self)
-        CometChat.addGroupListener("message-list-groups-sdk-listner-\(currentRandomDate)", self)
-        CometChatGroupEvents.addListener("message-list-groups-events-listener-\(currentRandomDate)", self)
-        CometChat.addAIAssistantListener("message-list-ai-events-listener-\(currentRandomDate)", self)
+        listeners.add(.uiEvents, id: "message-list-event-listener\(currentRandomDate)", listener: self as CometChatUIEventListener)
+        listeners.add(.connectionSDK, id: "messages-connection-sdk-listener\(currentRandomDate)", listener: self)
+        listeners.add(.callSDK, id: "message-list-call-sdk-listner-\(currentRandomDate)", listener: self)
+        listeners.add(.callEvents, id: "message-list-call-event-listner-\(currentRandomDate)", listener: self)
+        listeners.add(.messageEvents, id: "event-listener-\(currentRandomDate)", listener: self)
+        listeners.add(.groupSDK, id: "message-list-groups-sdk-listner-\(currentRandomDate)", listener: self)
+        listeners.add(.groupEvents, id: "message-list-groups-events-listener-\(currentRandomDate)", listener: self)
+        listeners.add(.aiAssistantSDK, id: "message-list-ai-events-listener-\(currentRandomDate)", listener: self)
     }
     
     // MARK:- disconnect message listener
     public func disconnect() {
-        CometChatUIEvents.removeListener("message-list-event-listener\(currentRandomDate)")
-        CometChat.removeConnectionListener("messages-connection-sdk-listener\(currentRandomDate)")
-        CometChat.removeCallListener("message-list-call-sdk-listner-\(currentRandomDate)")
-        CometChatMessageEvents.removeListener("event-listener-\(currentRandomDate)")
-        CometChatCallEvents.removeListener("message-list-call-event-listner-\(currentRandomDate)")
-        CometChat.removeGroupListener("message-list-groups-sdk-listner-\(currentRandomDate)")
-        CometChatGroupEvents.removeListener("message-list-groups-events-listener-\(currentRandomDate)")
-        CometChat.removeAIAssistantListener("message-list-ai-events-listener-\(currentRandomDate)")
+        listeners.remove(.uiEvents, id: "message-list-event-listener\(currentRandomDate)")
+        listeners.remove(.connectionSDK, id: "messages-connection-sdk-listener\(currentRandomDate)")
+        listeners.remove(.callSDK, id: "message-list-call-sdk-listner-\(currentRandomDate)")
+        listeners.remove(.messageEvents, id: "event-listener-\(currentRandomDate)")
+        listeners.remove(.callEvents, id: "message-list-call-event-listner-\(currentRandomDate)")
+        listeners.remove(.groupSDK, id: "message-list-groups-sdk-listner-\(currentRandomDate)")
+        listeners.remove(.groupEvents, id: "message-list-groups-events-listener-\(currentRandomDate)")
+        listeners.remove(.aiAssistantSDK, id: "message-list-ai-events-listener-\(currentRandomDate)")
     }
     
     func checkThreadedMessageBelongsToThisConversation(message: BaseMessage) -> Bool {

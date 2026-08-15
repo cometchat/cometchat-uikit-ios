@@ -60,7 +60,9 @@ extension CometChatGroupMembers {
     }
     
     @discardableResult
-    public func set(onItemLongClick: @escaping ((_ groupMember: GroupMember, _ indexPath: IndexPath) -> Void)) -> Self {
+    public func set(
+        onItemLongClick: @escaping ((_ groupMember: GroupMember, _ indexPath: IndexPath) -> Void)
+    ) -> Self {
         self.onItemLongClick = onItemLongClick
         return self
     }
@@ -68,43 +70,57 @@ extension CometChatGroupMembers {
     
     //MARK: Overrides
     @discardableResult
-    public func set(trailView: ((_ groupMember: GroupMember?) -> UIView)?) -> Self {
+    public func set(
+        trailView: ((_ groupMember: GroupMember?) -> UIView)?
+    ) -> Self {
         self.trailView = trailView
         return self
     }
     
     @discardableResult
-    public func set(leadingView: ((_ groupMember: GroupMember?) -> UIView)?) -> Self {
+    public func set(
+        leadingView: ((_ groupMember: GroupMember?) -> UIView)?
+    ) -> Self {
         self.leadingView = leadingView
         return self
     }
     
     @discardableResult
-    public func set(titleView: ((_ groupMember: GroupMember?) -> UIView)?) -> Self {
+    public func set(
+        titleView: ((_ groupMember: GroupMember?) -> UIView)?
+    ) -> Self {
         self.titleView = titleView
         return self
     }
     
     @discardableResult
-    public func set(subtitleView: ((_ groupMember: GroupMember?) -> UIView)?) -> Self {
+    public func set(
+        subtitleView: ((_ groupMember: GroupMember?) -> UIView)?
+    ) -> Self {
         self.subtitle = subtitleView
         return self
     }
     
     @discardableResult
-    public func set(listItemView: ((_ groupMember: GroupMember?) -> UIView)?) -> Self {
+    public func set(
+        listItemView: ((_ groupMember: GroupMember?) -> UIView)?
+    ) -> Self {
         self.listItemView = listItemView
         return self
     }
     
     @discardableResult
-    public func set(options: ((_ group: Group, _ groupMember: GroupMember?) -> [CometChatGroupMemberOption])?) -> Self {
+    public func set(
+        options: ((_ group: Group, _ groupMember: GroupMember?) -> [CometChatGroupMemberOption])?
+    ) -> Self {
         self.options = options
         return self
     }
     
     @discardableResult
-    public func add(options: ((_ group: Group, _ groupMember: GroupMember?) -> [CometChatGroupMemberOption])?) -> Self {
+    public func add(
+        options: ((_ group: Group, _ groupMember: GroupMember?) -> [CometChatGroupMemberOption])?
+    ) -> Self {
         self.addOptions = options
         return self
     }    

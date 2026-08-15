@@ -32,13 +32,25 @@ public class CallLogsViewModel {
         }
     }
 
+    /// Seam over the SDK fetch, so pagination, refresh and error paths are reachable
+    /// without a live Calls session. Defaults to the real SDK.
+    var service: CallLogsServicing = LiveCallLogsService()
+
     init() {
         callLogRequestBuilder = CometChatCallsSDK.CallLogsRequest.CallLogsBuilder()
             .set(authToken: CometChat.getUserAuthToken())
             .set(callCategory: .call)
         callLogRequest = callLogRequestBuilder.build()
     }
-    
+
+    internal init(service: CallLogsServicing) {
+        callLogRequestBuilder = CometChatCallsSDK.CallLogsRequest.CallLogsBuilder()
+            .set(authToken: CometChat.getUserAuthToken())
+            .set(callCategory: .call)
+        callLogRequest = callLogRequestBuilder.build()
+        self.service = service
+    }
+
     func fetchNext() {
         if isRefresh {
             isFetchedAll = false
@@ -46,7 +58,7 @@ public class CallLogsViewModel {
         if isFetchedAll { return }
         isFetching =  true
         
-        callLogRequest.fetchNext { [weak self] callLogs in
+        service.fetchNext(request: callLogRequest) { [weak self] callLogs in
             guard let this = self else { return }
             if !callLogs.isEmpty {
                 this.addCallLogs(newCallLogs: callLogs)

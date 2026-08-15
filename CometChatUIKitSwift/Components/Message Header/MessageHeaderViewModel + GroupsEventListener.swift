@@ -105,7 +105,7 @@ extension  MessageHeaderViewModel: CometChatGroupDelegate {
     
     public func onGroupMemberScopeChanged(action: CometChatSDK.ActionMessage, scopeChangeduser: CometChatSDK.User, scopeChangedBy: CometChatSDK.User, scopeChangedTo: String, scopeChangedFrom: String, group: CometChatSDK.Group) {
         
-        if scopeChangeduser.uid == CometChat.getLoggedInUser()?.uid {
+        if scopeChangeduser.uid == service.loggedInUser()?.uid {
             group.scope = CometChat.GroupMemberScopeType.from(string: scopeChangedTo) ?? group.scope
             action.receiver = group
             self.group = group

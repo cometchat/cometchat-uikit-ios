@@ -18,6 +18,10 @@ public protocol ThreadedMessageHeaderViewModelProtocol {
 }
 
 public class ThreadedMessageHeaderViewModel: ThreadedMessageHeaderViewModelProtocol {
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
+
     
     public var user: User?
     public var group: Group?
@@ -31,11 +35,11 @@ public class ThreadedMessageHeaderViewModel: ThreadedMessageHeaderViewModelProto
     public var templates: [String : CometChatMessageTemplate]?
     
     open func connect() {
-        CometChatMessageEvents.addListener("threaded-messages-message-listener", self)
+        listeners.add(.messageEvents, id: "threaded-messages-message-listener", listener: self)
     }
     
     open func disconnect() {
-        CometChatMessageEvents.removeListener("threaded-messages-message-listener")
+        listeners.remove(.messageEvents, id: "threaded-messages-message-listener")
     }
     
 }

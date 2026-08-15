@@ -107,6 +107,8 @@ open class CometChatMessageList: UIView {
             messageIndicator?.isHidden = hideNewMessageIndicator
         }
     }
+    /// Hides the "New" unread separator row inside the message list.Default: `false`.
+    public var hideUnreadSeparator = false
     public var hideSuggestedMessages = false
     var suggestedMessages: [String]?
     var emptyChatAIGreetingView: UIView?
@@ -300,7 +302,7 @@ open class CometChatMessageList: UIView {
     var baseMessage: BaseMessage?
     weak var controller: UIViewController?
     var messageIndicator : CometChatNewMessageIndicator?
-    var viewModel = MessageListViewModel()
+    var viewModel: MessageListViewModelProtocol = MessageListViewModel()
     var lastContentOffset: CGFloat = 0
 
     /// Snapshot of `(section date, table row count)` taken when a scroll-triggered
@@ -340,7 +342,18 @@ open class CometChatMessageList: UIView {
     var gotoMessageId: Int = 0
     
     var unreadSeparatorMode: UnreadSeparatorMode?
-    
+
+    /// Positions the "New" unread separator at `messageId`, or does nothing when the
+    /// integrator has set `hideUnreadSeparator`.
+    ///
+    /// The id and the mode must always move together — the row-count, cell and index-path
+    /// arithmetic all key off the id being non-nil — so this is the only place either is set.
+    func showUnreadSeparator(at messageId: Int, mode: UnreadSeparatorMode) {
+        guard !hideUnreadSeparator else { return }
+        unreadSeparatorMessageId = messageId
+        unreadSeparatorMode = mode
+    }
+
     public var textFormatter: [CometChatTextFormatter] = [CometChatMentionsFormatter()]
     
     public var flagReasonLocalizer: ((String) -> String)?
@@ -722,8 +735,7 @@ open class CometChatMessageList: UIView {
                         this.viewModel.fetchPreviousMessages()
                         print("unread message detected with last read message less than equal to 0")
                     } else {
-                        this.unreadSeparatorMessageId = lastReadMessageId
-                        this.unreadSeparatorMode = .navigateFromConversation
+                        this.showUnreadSeparator(at: lastReadMessageId, mode: .navigateFromConversation)
                         this.unreadMessageCount = conversation.unreadMessageCount
                         this.scrolledToUnread = true
                         this.viewModel.goToMessage(messageId: lastReadMessageId)
@@ -737,9 +749,7 @@ open class CometChatMessageList: UIView {
                     print("conversation count is: \(conversation.unreadMessageCount)")
                     print("conversation last read message id is: \(conversation.lastReadMessageId)")
                     if conversation.unreadMessageCount > 0 {
-                        let lastReadMessageId = conversation.lastReadMessageId
-                        this.unreadSeparatorMessageId = lastReadMessageId
-                        this.unreadSeparatorMode = .navigateFromConversation
+                        this.showUnreadSeparator(at: conversation.lastReadMessageId, mode: .navigateFromConversation)
                         print("go to message but unread count more than 0")
                     }
                     this.viewModel.fetchPreviousMessages()
@@ -759,9 +769,10 @@ open class CometChatMessageList: UIView {
                 messageIndicator!.bottomAnchor.pin(equalTo: self.tableView.bottomAnchor, constant: -8)
             ])
             
-            UIView.transition(with: messageIndicator!, duration: 0.4,
-                              options: .transitionCrossDissolve,
-                              animations: { [weak self] in
+            UIView.transition(
+                with: messageIndicator!, duration: 0.4,
+                options: .transitionCrossDissolve,
+                animations: { [weak self] in
                 guard let this = self else { return }
                 this.messageIndicator?.reset()
                 this.messageIndicator?.isHidden = true
@@ -2312,15 +2323,15 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
             case MessageOptionConstants.markMessageAsUnread:
                 viewModel.markMessageAsUnread(message, completion: { conversation in
                     DispatchQueue.main.async { [weak self] in
-                        self?.unreadSeparatorMessageId = message.id
-                        self?.unreadSeparatorMode = .markAsUnread
-                        self?.unreadMessageCount = conversation.unreadMessageCount
+                        guard let this = self else { return }
+                        this.showUnreadSeparator(at: message.id, mode: .markAsUnread)
+                        this.unreadMessageCount = conversation.unreadMessageCount
                         if conversation.unreadMessageCount > 0{
-                            self?.messageIndicator?.setUnreadCount(count: conversation.unreadMessageCount)
+                            this.messageIndicator?.setUnreadCount(count: conversation.unreadMessageCount)
                         }
                         print("message marked as unread is \(message.id)")
-                        
-                        self?.reload()
+
+                        this.reload()
                     }
                 }, failure: {
                     DispatchQueue.main.async {

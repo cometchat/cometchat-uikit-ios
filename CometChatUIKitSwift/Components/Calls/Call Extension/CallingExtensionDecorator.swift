@@ -30,7 +30,6 @@ class CallingExtensionDecorator: DataSourceDecorator {
     public convenience init(dataSource: DataSource, configuration: CallingConfiguration?) {
         self.init(dataSource: dataSource)
         if let uiKitSettings = CometChatUIKit.uiKitSettings {
-
             if CometChatUIKit.isInitializedFromSettings {
                 // AI agent skills path: telemetry-aware init reads cometchat-settings.json
                 // and reports integrationSource = "ai-agent" to Calls telemetry.

@@ -15,9 +15,45 @@ protocol MessageComposerViewModelProtocol {
     var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     var isSoundForMessageEnabled: (() -> ())? { get set }
     var typingIndicator: TypingIndicator? { get set }
+    var onMessageEdit: ((_ message: BaseMessage) -> ())? { get set }
+    var showReplyView: ((_ message: BaseMessage) -> ())? { get set }
+    var hideReplyView: (() -> ())? { get set }
+    var quotedMessage: BaseMessage? { get set }
+    var quotedMessageId: Int? { get set }
+    var textFormatter: [CometChatTextFormatter] { get set }
+    var textFormatterMap: [Character: CometChatTextFormatter] { get set }
+
+    func connect()
+    func disconnect()
+    func set(user: User)
+    func set(group: Group)
+    func startTyping()
+    func endTyping()
+    func checkBlockedStatus() -> Bool
+    func setupBaseMessage(message: String, textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]]) -> BaseMessage
+    func setupBaseMessage(url: String) -> BaseMessage
+    func sendTextMessageToUser(message: String, textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]])
+    func sendTextMessageToGroup(message: String, textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]])
+    func sendMediaMessageToUser(url: String, type: CometChat.MessageType, audioDuration: Int?)
+    func sendMediaMessageToGroup(url: String, type: CometChat.MessageType, audioDuration: Int?)
+    func sendMultiAttachmentMessage(attachments: [Attachment], caption: String, batchId: String?)
+    func editTextMessage(textMessage: TextMessage, message: String?, textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]])
+}
+
+extension MessageComposerViewModelProtocol {
+    func sendMediaMessageToUser(url: String, type: CometChat.MessageType) {
+        sendMediaMessageToUser(url: url, type: type, audioDuration: nil)
+    }
+    func sendMediaMessageToGroup(url: String, type: CometChat.MessageType) {
+        sendMediaMessageToGroup(url: url, type: type, audioDuration: nil)
+    }
 }
 
 open class MessageComposerViewModel: NSObject, MessageComposerViewModelProtocol {
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
+
     var isSoundForMessageEnabled: (() -> ())?
     var parentMessageId: Int?
     var reset: ((Bool) -> ())?
@@ -40,7 +76,24 @@ open class MessageComposerViewModel: NSObject, MessageComposerViewModelProtocol 
     var quotedMessageId: Int?
     var quotedMessage: BaseMessage?
 
-    
+    /// Seam over the non-hermetic SDK request/response calls (send text / media / edit,
+    /// transient live-reaction send, start/end typing, logged-in user). Defaults to the
+    /// live SDK-backed implementation so existing callers are unaffected; tests inject a fake.
+    internal var service: MessageComposerServicing
+
+    public override init() {
+        self.service = LiveMessageComposerService()
+        super.init()
+    }
+
+    /// Test/internal seam: inject a custom service. Listeners are registered separately
+    /// via `connect()` (called by the view), so this init registers no real SDK listeners.
+    internal init(service: MessageComposerServicing) {
+        self.service = service
+        super.init()
+    }
+
+
     var textFormatter: [CometChatTextFormatter] {
         get {
             var textFormatter = [CometChatTextFormatter]()
@@ -59,15 +112,15 @@ open class MessageComposerViewModel: NSObject, MessageComposerViewModelProtocol 
     }
     
     func connect() {
-        CometChatMessageEvents.addListener(eventID, self)
-        CometChatUserEvents.addListener(eventID, self)
-        CometChatMessageEvents.addListener("composer-reply-listener-\(eventID)", self)
+        listeners.add(.messageEvents, id: eventID, listener: self)
+        listeners.add(.userEvents, id: eventID, listener: self)
+        listeners.add(.messageEvents, id: "composer-reply-listener-\(eventID)", listener: self)
     }
     
     func disconnect() {
-        CometChatMessageEvents.removeListener(eventID)
-        CometChatUserEvents.removeListener(eventID)
-        CometChatMessageEvents.removeListener("composer-reply-listener-\(eventID)")
+        listeners.remove(.messageEvents, id: eventID)
+        listeners.remove(.userEvents, id: eventID)
+        listeners.remove(.messageEvents, id: "composer-reply-listener-\(eventID)")
     }
     
     func set(user: User) {
@@ -120,13 +173,13 @@ extension MessageComposerViewModel {
                 update(message: textMessage!, withSelected: textFormatter)
             }
             textMessage?.muid = "\(NSDate().timeIntervalSince1970)"
-            textMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
-            textMessage?.sender = CometChat.getLoggedInUser()
+            textMessage?.senderUid = service.loggedInUser()?.uid ?? ""
+            textMessage?.sender = service.loggedInUser()
             if let parentMessageId = parentMessageId {
                 textMessage?.parentMessageId = parentMessageId
             }
         }
-        
+
         isSoundForMessageEnabled?()
         return textMessage!
     }
@@ -140,13 +193,13 @@ extension MessageComposerViewModel {
                 mediaMessage = MediaMessage(receiverUid: guid, fileurl: url, messageType: .audio, receiverType: .group)
             }
             mediaMessage?.muid = "\(NSDate().timeIntervalSince1970)"
-            mediaMessage?.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
-            mediaMessage?.sender = CometChat.getLoggedInUser()
+            mediaMessage?.senderUid = service.loggedInUser()?.uid ?? ""
+            mediaMessage?.sender = service.loggedInUser()
             if let parentMessageId = parentMessageId {
                 mediaMessage?.parentMessageId = parentMessageId
             }
         }
-        
+
         isSoundForMessageEnabled?()
         return mediaMessage!
     }
@@ -162,12 +215,12 @@ extension MessageComposerViewModel {
             }
             textMessage.muid =  "\(NSDate().timeIntervalSince1970)"
             textMessage.sentAt = Int(Date().timeIntervalSince1970)
-            textMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
-            textMessage.sender = CometChat.getLoggedInUser()
+            textMessage.senderUid = service.loggedInUser()?.uid ?? ""
+            textMessage.sender = service.loggedInUser()
             if let parentMessageId = self.parentMessageId {
                 textMessage.parentMessageId = parentMessageId
             }
-            
+
             if let quotedMessageId = quotedMessageId {
                 textMessage.quotedMessageId = quotedMessageId
             }
@@ -178,7 +231,7 @@ extension MessageComposerViewModel {
             CometChatMessageEvents.ccMessageSent(message: textMessage, status: .inProgress)
             quotedMessage = nil
             quotedMessageId = nil
-            MessageComposerBuilder.textMessage(message: textMessage) { result in
+            service.sendTextMessage(message: textMessage) { result in
                 switch result {
                 case .success(let updatedTextMessage):
                     if let user = self.user, user.isAgentic, self.parentMessageId == nil {
@@ -249,12 +302,12 @@ extension MessageComposerViewModel {
             }
             textMessage.muid = "\(NSDate().timeIntervalSince1970)"
             textMessage.sentAt = Int(Date().timeIntervalSince1970)
-            textMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
-            textMessage.sender = CometChat.getLoggedInUser()
+            textMessage.senderUid = service.loggedInUser()?.uid ?? ""
+            textMessage.sender = service.loggedInUser()
             if let parentMessageId = parentMessageId {
                 textMessage.parentMessageId = parentMessageId
             }
-            
+
             if let quotedMessageId = quotedMessageId {
                 textMessage.quotedMessageId = quotedMessageId
             }
@@ -266,7 +319,7 @@ extension MessageComposerViewModel {
             CometChatMessageEvents.ccMessageSent(message: textMessage, status: .inProgress)
             quotedMessage = nil
             quotedMessageId = nil
-            MessageComposerBuilder.textMessage(message: textMessage) { result in
+            service.sendTextMessage(message: textMessage) { result in
                 switch result {
                 case .success(let updatedTextMessage):
                     CometChatMessageEvents.ccMessageSent(message: updatedTextMessage, status: .success)
@@ -289,7 +342,7 @@ extension MessageComposerViewModel {
         let mediaMessage = MediaMessage(receiverUid: uid, fileurl: url, messageType: type, receiverType: .user)
         mediaMessage.muid = "\(NSDate().timeIntervalSince1970)"
         mediaMessage.sentAt = Int(Date().timeIntervalSince1970)
-        mediaMessage.sender = CometChat.getLoggedInUser()
+        mediaMessage.sender = service.loggedInUser()
         var metaData: [String: Any] = ["fileURL": url]
         if let duration = audioDuration {
             metaData["audioDuration"] = duration
@@ -300,7 +353,7 @@ extension MessageComposerViewModel {
             metaData["audioType"] = "voice_note"
         }
         mediaMessage.metaData = metaData
-        mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+        mediaMessage.senderUid = service.loggedInUser()?.uid ?? ""
         if let parentMessageId = parentMessageId {
             mediaMessage.parentMessageId = parentMessageId
         }
@@ -308,7 +361,7 @@ extension MessageComposerViewModel {
         if let quotedMessageId = quotedMessageId {
             mediaMessage.quotedMessageId = quotedMessageId
         }
-        
+
         if let fullQuoted = quotedMessage {
             mediaMessage.quotedMessage = fullQuoted
         }
@@ -317,7 +370,7 @@ extension MessageComposerViewModel {
         hideReplyView?()
         quotedMessage = nil
         quotedMessageId = nil
-        MessageComposerBuilder.mediaMessage(message: mediaMessage) {(result) in
+        service.sendMediaMessage(message: mediaMessage) {(result) in
             switch result {
             case .success(let updatedMediaMessage):
                 CometChatMessageEvents.ccMessageSent(message: updatedMediaMessage, status: .success)
@@ -347,7 +400,7 @@ extension MessageComposerViewModel {
         }
         mediaMessage.muid = "\(NSDate().timeIntervalSince1970)"
         mediaMessage.sentAt = Int(Date().timeIntervalSince1970)
-        mediaMessage.sender = CometChat.getLoggedInUser()
+        mediaMessage.sender = service.loggedInUser()
         var metaData: [String: Any] = ["fileURL": url]
         if let duration = audioDuration {
             metaData["audioDuration"] = duration
@@ -356,7 +409,7 @@ extension MessageComposerViewModel {
             metaData["audioType"] = "voice_note"
         }
         mediaMessage.metaData = metaData
-        mediaMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+        mediaMessage.senderUid = service.loggedInUser()?.uid ?? ""
         isSoundForMessageEnabled?()
         if let quotedMessageId = quotedMessageId {
             mediaMessage.quotedMessageId = quotedMessageId
@@ -368,7 +421,7 @@ extension MessageComposerViewModel {
         CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .inProgress)
         quotedMessage = nil
         quotedMessageId = nil
-        MessageComposerBuilder.mediaMessage(message: mediaMessage) { (result) in
+        service.sendMediaMessage(message: mediaMessage) { (result) in
             switch result {
             case .success(let updatedMediaMessage):
                 CometChatMessageEvents.ccMessageSent(message: updatedMediaMessage, status: .success)
@@ -537,7 +590,7 @@ extension MessageComposerViewModel {
                 update(message: textMessage, withSelected: textFormatter)
             }
             isSoundForMessageEnabled?()
-            MessageComposerBuilder.editMessage(message: textMessage) { [weak self] result in
+            service.editMessage(message: textMessage) { [weak self] result in
                 switch result {
                 case .success(let updatedTextMessage):
                     DispatchQueue.main.async { [weak self] in
@@ -567,14 +620,14 @@ extension MessageComposerViewModel {
     public func onLiveReactionClick() {
         if let user = self.user {
             let liveReaction = TransientMessage(receiverID: user.uid ?? "", receiverType: .user, data: ["type":MetadataConstants.liveReaction, "reaction": "heart"])
-            CometChat.sendTransientMessage(message: liveReaction)
+            service.sendTransientMessage(message: liveReaction)
             // Broadcasting live reaction's event
             CometChatMessageEvents.ccLiveReaction(reaction: liveReaction)
-            
+
         } else if let group = self.group {
             // TODO:- Needs to ask receiverType is correct ?
             let liveReaction = TransientMessage(receiverID: group.guid , receiverType: .group, data: ["type":MetadataConstants.liveReaction, "reaction": "heart"])
-            CometChat.sendTransientMessage(message: liveReaction)
+            service.sendTransientMessage(message: liveReaction)
             // Broadcasting live reaction's event
             CometChatMessageEvents.ccLiveReaction(reaction: liveReaction)
         }
@@ -592,13 +645,13 @@ extension MessageComposerViewModel {
     
     public func startTyping() {
         if let typingIndicator = self.typingIndicator {
-            CometChat.startTyping(indicator: typingIndicator)
+            service.startTyping(indicator: typingIndicator)
         }
     }
-    
+
     public func endTyping() {
         if let typingIndicator = self.typingIndicator {
-            CometChat.endTyping(indicator: typingIndicator)
+            service.endTyping(indicator: typingIndicator)
         }
     }
     

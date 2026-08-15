@@ -21,6 +21,10 @@ protocol CompactMessageComposerViewModelProtocol {
 
 /// ViewModel for managing single line composer state and business logic
 open class CompactMessageComposerViewModel: NSObject, CompactMessageComposerViewModelProtocol {
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
+
     
     // MARK: - Properties
     
@@ -74,13 +78,13 @@ open class CompactMessageComposerViewModel: NSObject, CompactMessageComposerView
     var eventID = "CompactMessageComposerViewModel-\(Date().timeIntervalSince1970)"
     
     func connect() {
-        CometChatMessageEvents.addListener(eventID, self)
-        CometChatUserEvents.addListener(eventID, self)
+        listeners.add(.messageEvents, id: eventID, listener: self)
+        listeners.add(.userEvents, id: eventID, listener: self)
     }
     
     func disconnect() {
-        CometChatMessageEvents.removeListener(eventID)
-        CometChatUserEvents.removeListener(eventID)
+        listeners.remove(.messageEvents, id: eventID)
+        listeners.remove(.userEvents, id: eventID)
     }
     
     // MARK: - Configuration

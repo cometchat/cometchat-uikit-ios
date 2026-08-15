@@ -993,13 +993,11 @@ public class MessagesDataSource: DataSource {
             codeBackgroundColor = CometChatTheme.white.withAlphaComponent(0.1)
             codeTextColor = CometChatTheme.white
             baseTextColor = CometChatTheme.white
-            textBubble.style.textColor = CometChatTheme.white
         } else {
             // Incoming messages
             codeBackgroundColor = CometChatTheme.neutralColor200
             codeTextColor = CometChatTheme.neutralColor900
             baseTextColor = CometChatTheme.neutralColor900
-            textBubble.style.textColor = CometChatTheme.neutralColor900
         }
         
         textBubble.codeBlockBackgroundColor = codeBackgroundColor

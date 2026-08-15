@@ -9,19 +9,19 @@ import Foundation
 import CometChatSDK
 
 protocol GroupsViewModelProtocol {
-    
+
     var row: Int { get set }
     var isSearching: Bool { get set }
     var groups: [CometChatSDK.Group] { get set }
     var filteredGroups: [CometChatSDK.Group] { get set }
     var selectedGroups: [CometChatSDK.Group] { get set }
     var groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder { get set }
-    
+
     var reload: (() -> Void)? { get set }
     var reloadAt: ((Int) -> Void)? { get set }
     var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
     var hasJoined : ((Group) -> Void)?  { get set }
-    
+
     func fetchGroups()
     func filterGroups(text: String)
     func joinGroup(withGuid: String, name: String, groupType: CometChat.groupType, password: String, indexPath: IndexPath, completion: @escaping (_ joinedGroup: Group?) -> Void)
@@ -29,25 +29,29 @@ protocol GroupsViewModelProtocol {
 
 
 open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
+
     
     var row: Int = 0 {
         didSet {
             reloadAt?(row)
         }
     }
-    
+
     var groups: [Group] = [] {
         didSet {
             reload?()
         }
     }
-    
+
     var filteredGroups: [Group] = [] {
         didSet {
             reload?()
         }
     }
-    
+
     var isRefresh: Bool = false {
         didSet {
             if isRefresh {
@@ -55,10 +59,10 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
             }
         }
     }
-    
+
     var isFetching = false
     var isFetchedAll = false
-    
+
     var isSearching: Bool = false
     private var searchingText: String = ""
     var selectedGroups: [CometChatSDK.Group] = []
@@ -72,9 +76,24 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
     var failure: ((CometChatSDK.CometChatException) -> Void)?
     var hasJoined: ((CometChatSDK.Group) -> Void)?
     
+    /// Seam over the non-hermetic SDK request/response calls. Defaults to the live
+    /// SDK-backed implementation so existing callers are unaffected; tests inject a fake.
+    internal var service: GroupsServicing
+
     init(groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder) {
         self.groupsRequestBuilder = groupsRequestBuilder
         self.groupsRequest = groupsRequestBuilder.build()
+        self.service = LiveGroupsService()
+        super.init()
+    }
+
+    /// Test/internal seam: inject a custom service.
+    internal init(groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder,
+                  service: GroupsServicing) {
+        self.groupsRequestBuilder = groupsRequestBuilder
+        self.groupsRequest = groupsRequestBuilder.build()
+        self.service = service
+        super.init()
     }
     
     func reloadGroups() {
@@ -100,7 +119,7 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
         if isFetchedAll { return }
         
         isFetching =  true
-        GroupsBuilder.fetchGroups(groupRequest: groupsRequest) { [weak self] result in
+        service.fetchGroups(request: groupsRequest) { [weak self] result in
             guard let this = self else { return }
             switch result {
             case .success(let fetchedGroups):
@@ -127,7 +146,7 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
         self.searchingText = text
         self.filterGroupsRequest = self.groupsRequestBuilder.set(searchKeyword: text).build()
         guard let filterGroupsRequest = filterGroupsRequest else { return }
-        GroupsBuilder.getfilteredGroups(filterGroupRequest: filterGroupsRequest) { [weak self] result in
+        service.fetchFilteredGroups(request: filterGroupsRequest) { [weak self] result in
             guard let this = self else { return }
             switch result {
             case .success(let filteredGroups):
@@ -138,11 +157,11 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
         }
     }
     
-    internal func joinGroup(withGuid: String, name: String, groupType: CometChat.groupType, password: String, indexPath: IndexPath, completion: @escaping (_ joinedGroup: Group?) -> Void) {
-        CometChat.joinGroup(GUID: withGuid, groupType: groupType, password: password, onSuccess: { [weak self] (joinedGroup) in
+    func joinGroup(withGuid: String, name: String, groupType: CometChat.groupType, password: String, indexPath: IndexPath, completion: @escaping (_ joinedGroup: Group?) -> Void) {
+        service.joinGroup(guid: withGuid, groupType: groupType, password: password, onSuccess: { [weak self] (joinedGroup) in
             guard let this = self else { return }
             this.hasJoined?(joinedGroup)
-            if let user = CometChat.getLoggedInUser() {
+            if let user = this.service.loggedInUser() {
                 CometChatGroupEvents.ccGroupMemberJoined(joinedUser: user, joinedGroup: joinedGroup)
             }
             completion(joinedGroup)
@@ -155,13 +174,13 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
     
     func connect() {
         // New.
-        CometChat.addGroupListener("groups-groups-sdk-listener", self)
-        CometChatGroupEvents.addListener("groups-groups-events-listener", self)
+        listeners.add(.groupSDK, id: "groups-groups-sdk-listener", listener: self)
+        listeners.add(.groupEvents, id: "groups-groups-events-listener", listener: self)
     }
     
     func disconnect() {
-        CometChat.removeGroupListener("groups-groups-sdk-listener")
-        CometChatGroupEvents.removeListener("groups-groups-events-listener")
+        listeners.remove(.groupSDK, id: "groups-groups-sdk-listener")
+        listeners.remove(.groupEvents, id: "groups-groups-events-listener")
     }
 
     @discardableResult

@@ -9,7 +9,7 @@ import Foundation
 import CometChatSDK
 
 protocol UsersViewModelProtocol {
-    
+
     var reload: (() -> Void)? { get set }
     var reloadAtIndex: ((IndexPath) -> Void)? { get set }
     var failure: ((CometChatSDK.CometChatException) -> Void)? { get set }
@@ -19,7 +19,7 @@ protocol UsersViewModelProtocol {
     func fetchUsers()
     func filterUsers(text: String)
     var userRequestBuilder: UsersRequest.UsersRequestBuilder { get set }
-    
+
 }
 
 public class UsersViewModel: UsersViewModelProtocol {
@@ -29,7 +29,7 @@ public class UsersViewModel: UsersViewModelProtocol {
     var reloadAtIndex: ((IndexPath) -> Void)?
     var failure: ((CometChatSDK.CometChatException) -> Void)?
     var searchedUsers: [User] = []
-    
+
     var filteredUsers: [User] = [] {
         didSet { reload?() }
     }
@@ -48,9 +48,29 @@ public class UsersViewModel: UsersViewModelProtocol {
         }
     }
     
+    /// Seam over the non-hermetic SDK request/response calls. Defaults to the live
+    /// SDK-backed implementation so existing callers are unaffected; tests inject a fake.
+    internal var service: UsersServicing
+
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering
+
     init(userRequestBuilder: UsersRequest.UsersRequestBuilder) {
         self.userRequestBuilder = userRequestBuilder
         self.userRequest = userRequestBuilder.build()
+        self.service = LiveUsersService()
+        self.listeners = SDKListenerRegistrar.shared
+    }
+
+    /// Test/internal seam: inject a custom service.
+    internal init(userRequestBuilder: UsersRequest.UsersRequestBuilder,
+                  service: UsersServicing,
+                  listeners: ListenerRegistering = SDKListenerRegistrar.shared) {
+        self.userRequestBuilder = userRequestBuilder
+        self.userRequest = userRequestBuilder.build()
+        self.service = service
+        self.listeners = listeners
     }
     
     public func setRequestBuilder(userRequestBuilder: UsersRequest.UsersRequestBuilder) {
@@ -69,7 +89,7 @@ public class UsersViewModel: UsersViewModelProtocol {
         
         isFetching =  true
 
-        UsersBuilder.fetchUsers(userRequest: userRequest) { [weak self] result in
+        service.fetchUsers(request: userRequest) { [weak self] result in
             guard let this = self else { return }
             switch result {
             case .success(let fetchedUsers):
@@ -121,7 +141,7 @@ public class UsersViewModel: UsersViewModelProtocol {
     func filterUsers(text: String) {
         self.filterUserRequest = self.userRequestBuilder.set(searchKeyword: text).build()
         guard let filterUserRequest = filterUserRequest else { return }
-        UsersBuilder.getfilteredUsers(filterUserRequest: filterUserRequest) { [weak self] result in
+        service.fetchFilteredUsers(request: filterUserRequest) { [weak self] result in
             guard let this = self else { return }
             switch result {
             case .success(let filteredUser):
@@ -133,13 +153,13 @@ public class UsersViewModel: UsersViewModelProtocol {
     }
     
     func connect() {
-        CometChat.addUserListener(UsersListenerConstants.userListener, self)
-        CometChatUserEvents.addListener("user-listener", self)
+        listeners.add(.userSDK, id: UsersListenerConstants.userListener, listener: self)
+        listeners.add(.userEvents, id: "user-listener", listener: self)
     }
-    
+
     func disconnect() {
-        CometChat.removeUserListener(UsersListenerConstants.userListener)
-        CometChatUserEvents.removeListener("user-listerner")
+        listeners.remove(.userSDK, id: UsersListenerConstants.userListener)
+        listeners.remove(.userEvents, id: "user-listerner")
     }
     
     func getIndexPath(for user: User) -> IndexPath? {
@@ -168,7 +188,7 @@ extension UsersViewModel {
     
     @discardableResult
     func update(user: User) -> Self {
-        
+
         if let indexPath = getIndexPath(for: user) {
             self.users[indexPath.section][indexPath.row] = user
             self.reloadAtIndex?(indexPath)

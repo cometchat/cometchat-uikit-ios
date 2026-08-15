@@ -33,10 +33,10 @@ public class CometChatCallButtons: UIStackView {
     public var callSettingsBuilderCallBack: ((_ user: User?, _ group: Group?, _ isAudioOnly: Bool) -> Any)?
     private var disabled = false
     private var uniqueID = Date().timeIntervalSince1970
-    
+
     public static var style = CallButtonStyle()
     public var style = CometChatCallButtons.style
-    
+
     public init(width: CGFloat, height: CGFloat) {
         super.init(frame: CGRect(x: 0, y: 0, width: width, height: height))
         self.spacing = CometChatSpacing.Spacing.s2
@@ -44,6 +44,17 @@ public class CometChatCallButtons: UIStackView {
         self.alignment = .fill
         disconnect()
         connect()
+    }
+
+    /// Test seam: builds the view with no live listener registrations.
+    ///
+    /// `init` registers on three global registries; the ids are derived from
+    /// `uniqueID`, so the `disconnect()` here removes exactly what it registered
+    /// and leaves the shared registries as it found them.
+    internal static func makeForTesting(width: CGFloat, height: CGFloat) -> CometChatCallButtons {
+        let buttons = CometChatCallButtons(width: width, height: height)
+        buttons.disconnect()
+        return buttons
     }
     
     public override func willMove(toSuperview newSuperview: UIView?) {

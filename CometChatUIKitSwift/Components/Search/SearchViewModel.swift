@@ -9,6 +9,10 @@ import Foundation
 import CometChatSDK
 
 open class SearchViewModel: NSObject {
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
+
     
     public var isLoadingMessages = false
     public var hasMoreMessages = true
@@ -35,12 +39,24 @@ open class SearchViewModel: NSObject {
     var group: Group?
     
     public var activeScopes: [SearchScope] = []
-    
+
+    /// Seam over the logged-in user read by the event handlers. Defaults to the live
+    /// SDK-backed implementation so existing callers are unaffected; tests inject a fake.
+    internal var service: SearchServicing
+
     public override init() {
+        self.service = LiveSearchService()
         super.init()
         connect()
     }
-    
+
+    /// Test/internal seam: inject a custom service. Skips `connect()` so no real
+    /// SDK / event listeners are registered during hermetic unit tests.
+    internal init(service: SearchServicing) {
+        self.service = service
+        super.init()
+    }
+
     deinit {
         disconnect()
     }
@@ -123,18 +139,18 @@ open class SearchViewModel: NSObject {
     }
     
     public func connect() {
-        CometChat.addGroupListener("conversations-list-groups-sdk-listner-\(listenerRandomID)", self)
-        CometChatGroupEvents.addListener("conversations-list-groups-event-listner-\(listenerRandomID)", self)
-        CometChatMessageEvents.addListener("conversations-list-messages-event-listener-\(listenerRandomID)", self)
-        CometChatConversationEvents.addListener("user-details-conversations-event-listener-\(listenerRandomID)", self)
+        listeners.add(.groupSDK, id: "conversations-list-groups-sdk-listner-\(listenerRandomID)", listener: self)
+        listeners.add(.groupEvents, id: "conversations-list-groups-event-listner-\(listenerRandomID)", listener: self)
+        listeners.add(.messageEvents, id: "conversations-list-messages-event-listener-\(listenerRandomID)", listener: self)
+        listeners.add(.conversationEvents, id: "user-details-conversations-event-listener-\(listenerRandomID)", listener: self)
     }
     
     // MARK:- disconnect conversation listener
     public func disconnect() {
-        CometChat.removeGroupListener("conversations-list-groups-sdk-listner-\(listenerRandomID)")
-        CometChatGroupEvents.removeListener("conversations-list-groups-event-listner-\(listenerRandomID)")
-        CometChatMessageEvents.removeListener("conversations-list-messages-event-listener-\(listenerRandomID)")
-        CometChatConversationEvents.removeListener("user-details-conversations-event-listener-\(listenerRandomID)")
+        listeners.remove(.groupSDK, id: "conversations-list-groups-sdk-listner-\(listenerRandomID)")
+        listeners.remove(.groupEvents, id: "conversations-list-groups-event-listner-\(listenerRandomID)")
+        listeners.remove(.messageEvents, id: "conversations-list-messages-event-listener-\(listenerRandomID)")
+        listeners.remove(.conversationEvents, id: "user-details-conversations-event-listener-\(listenerRandomID)")
     }
     
     func fetchNextMessages(

@@ -71,7 +71,7 @@ extension SearchViewModel : CometChatMessageEventListener {
         }) {
             
             //updating last message receipt
-            if conversation.lastMessage?.senderUid == CometChat.getLoggedInUser()?.uid {
+            if conversation.lastMessage?.senderUid == service.loggedInUser()?.uid {
                 if receipt.receiverType == .user {
                     if receipt.receiptType == .read && conversation.lastMessage?.readAt == 0 {
                         conversation.lastMessage?.readAt = receipt.readAt

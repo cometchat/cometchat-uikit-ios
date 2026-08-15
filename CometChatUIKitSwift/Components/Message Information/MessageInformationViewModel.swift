@@ -14,6 +14,10 @@ public protocol MessageInformationViewModelProtocol {
 }
 
 open class MessageInformationViewModel: NSObject, MessageInformationViewModelProtocol {
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
+
     public var receipts: [CometChatSDK.MessageReceipt] = [CometChatSDK.MessageReceipt]()
     public var message: CometChatSDK.BaseMessage?
     public var onError: ((_ error: CometChatException?) -> Void)?
@@ -80,11 +84,11 @@ open class MessageInformationViewModel: NSObject, MessageInformationViewModelPro
     }
     
     open func connect() {
-        CometChatMessageEvents.addListener("message-inforamtion-messages-listener", self)
+        listeners.add(.messageEvents, id: "message-inforamtion-messages-listener", listener: self)
     }
     
     open func disconnect() {
-        CometChatMessageEvents.removeListener("message-inforamtion-messages-listener")
+        listeners.remove(.messageEvents, id: "message-inforamtion-messages-listener")
     }
     
     open func update(receipt: MessageReceipt) {

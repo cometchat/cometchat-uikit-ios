@@ -10,83 +10,87 @@ import UIKit
 import CometChatSDK
 
 public class CallUtils {
-    
+
+    /// Seam over the logged-in user lookup, so call direction (incoming vs outgoing) is
+    /// assertable without a live SDK session. Defaults to the real SDK.
+    internal var loggedInUser: () -> User? = { CometChat.getLoggedInUser() }
+
     public init() { }
-    
+
     public func setupCallDetail(call: Call) -> String {
 
             switch call.callStatus  {
-            case .initiated where call.callType == .audio   && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .initiated where call.callType == .audio   && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "OUTGOING_AUDIO_CALL".localize()
                 
-            case .initiated where call.callType == .audio && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .initiated where call.callType == .audio && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return  "INCOMING_AUDIO_CALL".localize()
                 
-            case .initiated where call.callType == .video  && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .initiated where call.callType == .video  && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "INCOMING_VIDEO_CALL".localize()
                 
-            case .initiated where call.callType == .video && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .initiated where call.callType == .video && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "OUTGOING_VIDEO_CALL".localize()
                 
-            case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "UNANSWERED_AUDIO_CALL".localize()
                 
-            case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .unanswered where call.callType == .audio  && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "MISSED_CALL".localize()
                 
-            case .unanswered where call.callType == .video   && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .unanswered where call.callType == .video   && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "UNANSWERED_VIDEO_CALL".localize()
                 
-            case .unanswered where call.callType == .video  && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .unanswered where call.callType == .video  && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "MISSED_CALL".localize()
                 
-            case .cancelled where call.callType == .audio && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .cancelled where call.callType == .audio && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "OUTGOING_AUDIO_CALL".localize()
                 
-            case .cancelled where call.callType == .audio && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .cancelled where call.callType == .audio && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "MISSED_CALL".localize()
                 
-            case .cancelled where call.callType == .video && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .cancelled where call.callType == .video && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "OUTGOING_VIDEO_CALL".localize()
                 
-            case .cancelled where call.callType == .video && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .cancelled where call.callType == .video && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "MISSED_CALL".localize()
                 
-            case .rejected where call.callType == .audio && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .rejected where call.callType == .audio && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "CALL_REJECTED".localize()
                 
-            case .rejected where call.callType == .audio && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .rejected where call.callType == .audio && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "REJECTED_CALL".localize()
                 
-            case .rejected where call.callType == .video && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .rejected where call.callType == .video && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "CALL_REJECTED".localize()
                 
-            case .rejected where call.callType == .video && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .rejected where call.callType == .video && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "REJECTED_CALL".localize()
                 
 
-            case .ongoing where call.callType == .audio && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .ongoing where call.callType == .audio && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                return "OUTGOING_AUDIO_CALL".localize()
                 
-            case .ongoing where call.callType == .audio && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .ongoing where call.callType == .audio && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "MISSED_CALL".localize()
                 
-            case .ongoing where call.callType == .video && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .ongoing where call.callType == .video && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "OUTGOING_VIDEO_CALL".localize()
                 
-            case .ongoing where call.callType == .video && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .ongoing where call.callType == .video && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "MISSED_CALL".localize()
                 
-            case .ended where call.callType == .audio && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .ended where call.callType == .audio && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "OUTGOING_AUDIO_CALL".localize()
                 
-            case .ended where call.callType == .audio && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .ended where call.callType == .audio && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "INCOMING_AUDIO_CALL".localize()
                 
-            case .ended where call.callType == .video && (call.callInitiator as? User)?.uid == CometChat.getLoggedInUser()?.uid:
+            case .ended where call.callType == .video && (call.callInitiator as? User)?.uid == loggedInUser()?.uid:
                 return "OUTGOING_VIDEO_CALL".localize()
                 
-            case .ended where call.callType == .video && (call.callInitiator as? User)?.uid != CometChat.getLoggedInUser()?.uid:
+            case .ended where call.callType == .video && (call.callInitiator as? User)?.uid != loggedInUser()?.uid:
                 return "INCOMING_VIDEO_CALL".localize()
                 
             case .rejected: break
@@ -169,7 +173,7 @@ extension CallUtils {
             return ("", "", UIImage())
         }
 
-        let loggedInUserId = CometChat.getLoggedInUser()?.uid
+        let loggedInUserId = loggedInUser()?.uid
         let isOutgoing = (call.initiator as? CallUser)?.uid == loggedInUserId
         let isAudio = call.type == .audio
         let isVideo = call.type == .video || call.type == .audioVideo

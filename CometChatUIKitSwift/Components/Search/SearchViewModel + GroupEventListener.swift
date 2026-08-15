@@ -15,7 +15,7 @@ extension SearchViewModel: CometChatGroupEventListener {
     }
     
     public func ccGroupLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
-        if CometChat.getLoggedInUser()?.uid == leftUser.uid {
+        if service.loggedInUser()?.uid == leftUser.uid {
             removeConversation(for: leftGroup)
         }
     }
@@ -29,13 +29,13 @@ extension SearchViewModel: CometChatGroupEventListener {
     }
     
     public func ccGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
-        if CometChat.getLoggedInUser()?.uid == kickedUser.uid {
+        if service.loggedInUser()?.uid == kickedUser.uid {
             removeConversation(for: kickedFrom)
         }
     }
     
     public func ccGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
-        if CometChat.getLoggedInUser()?.uid == bannedUser.uid {
+        if service.loggedInUser()?.uid == bannedUser.uid {
             removeConversation(for: bannedFrom)
         }
     }
@@ -77,19 +77,19 @@ extension SearchViewModel: CometChatGroupDelegate {
     }
     
     public func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
-        if CometChat.getLoggedInUser()?.uid == leftUser.uid {
+        if service.loggedInUser()?.uid == leftUser.uid {
             removeConversation(for: leftGroup)
         }
     }
     
     public func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
-        if CometChat.getLoggedInUser()?.uid == kickedUser.uid {
+        if service.loggedInUser()?.uid == kickedUser.uid {
             removeConversation(for: kickedFrom)
         }
     }
     
     public func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
-        if CometChat.getLoggedInUser()?.uid == bannedUser.uid {
+        if service.loggedInUser()?.uid == bannedUser.uid {
             removeConversation(for: bannedFrom)
         }
     }

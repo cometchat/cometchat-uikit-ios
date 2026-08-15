@@ -17,6 +17,10 @@ protocol IncomingCallViewModelProtocol {
 }
 
 class IncomingCallViewModel: IncomingCallViewModelProtocol {
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
+
    
     let listenerID = "incoming-call-listener"
     var onIncomingCallReceived: ((CometChatSDK.Call) -> Void)?
@@ -25,20 +29,28 @@ class IncomingCallViewModel: IncomingCallViewModelProtocol {
     var onCallRejected: ((CometChatSDK.Call) -> Void)?
     var onError: ((CometChatSDK.CometChatException) -> Void)?
     var call: Call?
-   
-    public init () { }
-    
+
+    let service: IncomingCallServicing
+
+    public init () {
+        self.service = LiveIncomingCallService()
+    }
+
+    internal init(service: IncomingCallServicing) {
+        self.service = service
+    }
+
     func connect() {
-        CometChat.addCallListener(listenerID, self)
+        listeners.add(.callSDK, id: listenerID, listener: self)
     }
     
     func disconnect() {
-        CometChat.removeCallListener(listenerID)
+        listeners.remove(.callSDK, id: listenerID)
     }
     
     func acceptCall(call: Call) {
         guard let sessionID = call.sessionID else { return }
-        CometChat.acceptCall(sessionID: sessionID) { call in
+        service.acceptCall(sessionID: sessionID) { call in
             guard let call = call else { return }
             CometChatCallEvents.ccCallAccepted(call: call)
             self.onCallAccepted?(call)
@@ -50,7 +62,7 @@ class IncomingCallViewModel: IncomingCallViewModelProtocol {
     
     func rejectCall(call: Call) {
         guard let sessionID = call.sessionID else { return }
-        CometChat.rejectCall(sessionID: sessionID, status: .rejected) { call in
+        service.rejectCall(sessionID: sessionID, status: .rejected) { call in
             guard let call = call else { return }
             CometChatCallEvents.ccCallRejected(call: call)
             self.onCallRejected?(call)

@@ -17,6 +17,10 @@ protocol OutgoingCallViewModelProtocol {
 }
 
 class OutgoingCallViewModel: OutgoingCallViewModelProtocol {
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
+
    
     let listenerID = "outgoing-call-listener"
     var onOutgoingCallAccepted: ((CometChatSDK.Call) -> Void)?
@@ -26,11 +30,11 @@ class OutgoingCallViewModel: OutgoingCallViewModelProtocol {
     public init () { }
     
     func connect() {
-        CometChat.addCallListener(listenerID, self)
+        listeners.add(.callSDK, id: listenerID, listener: self)
     }
     
     func disconnect() {
-        CometChat.removeCallListener(listenerID)
+        listeners.remove(.callSDK, id: listenerID)
     }
 }
 

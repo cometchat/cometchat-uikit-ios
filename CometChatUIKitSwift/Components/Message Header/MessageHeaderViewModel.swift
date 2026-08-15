@@ -39,10 +39,30 @@ public class MessageHeaderViewModel: NSObject, MessageHeaderViewModelProtocol {
     public var unHideUserStatus : (()->Void)?
     public var onUpdate: (() -> Void)? 
 
+    /// Seam over the non-hermetic SDK call (logged-in user, used by the group
+    /// scope-change handler). Defaults to the live SDK-backed implementation so
+    /// existing callers are unaffected; tests inject a fake.
+    internal var service: MessageHeaderServicing
+
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering
+
     public override init() {
+        self.service = LiveMessageHeaderService()
+        self.listeners = SDKListenerRegistrar.shared
         super.init()
     }
-    
+
+    /// Test/internal seam: inject a custom service. Listeners are registered separately
+    /// via `connect()` (called by the view), so this init registers no real SDK listeners.
+    internal init(service: MessageHeaderServicing,
+                  listeners: ListenerRegistering = SDKListenerRegistrar.shared) {
+        self.service = service
+        self.listeners = listeners
+        super.init()
+    }
+
     public func set(user: User) {
         self.user = user
     }
@@ -52,19 +72,19 @@ public class MessageHeaderViewModel: NSObject, MessageHeaderViewModelProtocol {
     }
 
     public func connect() {
-        CometChat.addUserListener("messages-header-user-listener-\(listenerRandomId)", self)
-        CometChatMessageEvents.addListener("messages-header-message-listener-\(listenerRandomId)", self)
-        CometChat.addGroupListener("messages-header-groups-sdk-listener-\(listenerRandomId)", self)
-        CometChatGroupEvents.addListener("messages-header-group-event-listener-\(listenerRandomId)", self)
-        CometChatUserEvents.addListener("messages-header-user-event-listener-\(listenerRandomId)", self)
+        listeners.add(.userSDK, id: "messages-header-user-listener-\(listenerRandomId)", listener: self)
+        listeners.add(.messageEvents, id: "messages-header-message-listener-\(listenerRandomId)", listener: self)
+        listeners.add(.groupSDK, id: "messages-header-groups-sdk-listener-\(listenerRandomId)", listener: self)
+        listeners.add(.groupEvents, id: "messages-header-group-event-listener-\(listenerRandomId)", listener: self)
+        listeners.add(.userEvents, id: "messages-header-user-event-listener-\(listenerRandomId)", listener: self)
     }
-    
+
     public func disconnect() {
-        CometChat.removeUserListener("messages-header-user-listener-\(listenerRandomId)")
-        CometChat.removeMessageListener("messages-header-message-listener-\(listenerRandomId)")
-        CometChat.removeGroupListener("messages-header-groups-sdk-listener-\(listenerRandomId)")
-        CometChatGroupEvents.removeListener("messages-header-group-event-listener-\(listenerRandomId)")
-        CometChatUserEvents.removeListener("messages-header-user-event-listener-\(listenerRandomId)")
+        listeners.remove(.userSDK, id: "messages-header-user-listener-\(listenerRandomId)")
+        listeners.remove(.messageSDK, id: "messages-header-message-listener-\(listenerRandomId)")
+        listeners.remove(.groupSDK, id: "messages-header-groups-sdk-listener-\(listenerRandomId)")
+        listeners.remove(.groupEvents, id: "messages-header-group-event-listener-\(listenerRandomId)")
+        listeners.remove(.userEvents, id: "messages-header-user-event-listener-\(listenerRandomId)")
     }
     
     

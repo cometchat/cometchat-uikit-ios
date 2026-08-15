@@ -30,6 +30,10 @@ public struct NotificationFeedTimestampGroup {
 }
 
 open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtocol {
+    /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
+    /// assertable without a live SDK. Defaults to the real registrar.
+    internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
+
     
     // MARK: - State
     var feedItems: [NotificationFeedItem] = []
@@ -260,12 +264,12 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
     // MARK: - Real-Time Listener
     func connect() {
         let listenerId = "notification-feed-listener-\(listenerRandomID)"
-        CometChat.addNotificationFeedListener(listenerId, self)
+        listeners.add(.notificationFeedSDK, id: listenerId, listener: self)
     }
     
     func disconnect() {
         let listenerId = "notification-feed-listener-\(listenerRandomID)"
-        CometChat.removeNotificationFeedListener(listenerId)
+        listeners.remove(.notificationFeedSDK, id: listenerId)
         visibilityTimers.values.forEach { $0.invalidate() }
         visibilityTimers.removeAll()
     }

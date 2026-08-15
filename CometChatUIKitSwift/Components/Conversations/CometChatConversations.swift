@@ -67,7 +67,7 @@ open class CometChatConversations: CometChatListBase {
         return ChatConfigurator.getDataSource().getTextFormatters()
     }()
     
-    var viewModel: ConversationsViewModel = ConversationsViewModel()
+    var viewModel: ConversationsViewModelProtocol = ConversationsViewModel()
     
     public var hideReceipts: Bool = false
     public var hideDeleteConversationOption: Bool = false
@@ -174,11 +174,6 @@ open class CometChatConversations: CometChatListBase {
     public func disconnect() {
         CometChat.removeConnectionListener("conversations-sdk-listener-\(viewModel.listenerRandomID)")
         viewModel.disconnect()
-    }
-    
-    // MARK:- fetch Data
-    private func fetchData() {
-        viewModel.fetchConversations()
     }
     
     // MARK:- reloadData
@@ -614,8 +609,9 @@ extension CometChatConversations {
 
 extension CometChatConversations: CometChatConnectionDelegate {
     public func connected() {
+        // Setting isRefresh already fetches via its didSet — a second explicit fetch here
+        // would issue a redundant request for the same reconnect.
         viewModel.isRefresh = true
-        fetchData()
     }
     
     public func connecting() {}
