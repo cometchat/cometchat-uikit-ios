@@ -65,7 +65,16 @@ public struct DeleteBubbleStyle: BaseMessageBubbleStyle {
     public var textFont: UIFont = CometChatTypography.Body.regular
     
     /// The tint color for the delete image icon shown in the delete bubble.
+    /// `nil` keeps the direction default: white on outgoing, grey on incoming.
     public var deleteImageTintColor: UIColor?
+
+    /// Direction default for the icon tint, used when `deleteImageTintColor`
+    /// is unset. Resolved at render time so an integrator's value survives.
+    internal var defaultDeleteImageTintColor: UIColor {
+        styleType == .outgoing ? CometChatTheme.white : CometChatTheme.neutralColor600
+    }
+
+    private var styleType: BubbleStyleType = .incoming
     
     public var reactionsStyle: ReactionsStyle?
     
@@ -77,13 +86,12 @@ public struct DeleteBubbleStyle: BaseMessageBubbleStyle {
     /// Initializes a `DeleteBubbleStyle` with default values based on the message bubble type (incoming or outgoing).
     /// - Parameter styleType: The type of the bubble, either `.incoming` or `.outgoing`. This sets default colors for the text and delete image.
     internal init(styleType: BubbleStyleType) {
+        self.styleType = styleType
         switch styleType {
         case .incoming:
             textColor = CometChatTheme.neutralColor600
-            deleteImageTintColor = CometChatTheme.neutralColor600
         case .outgoing:
             textColor = CometChatTheme.white
-            deleteImageTintColor = CometChatTheme.white
         }
     }
 }

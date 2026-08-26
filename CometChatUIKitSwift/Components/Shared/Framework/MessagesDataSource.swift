@@ -982,23 +982,16 @@ public class MessagesDataSource: DataSource {
         textBubble.controller = controller
         textBubble.style = textBubbleStyle
         
-        // Set code block colors based on incoming/outgoing
-        // Outgoing: semi-transparent white for contrast on colored bubble
-        // Incoming: uses neutral colors that adapt to light/dark mode
-        let codeBackgroundColor: UIColor
-        let codeTextColor: UIColor
-        let baseTextColor: UIColor
-        if isLoggedInUser {
-            // Outgoing messages (on colored bubble)
-            codeBackgroundColor = CometChatTheme.white.withAlphaComponent(0.1)
-            codeTextColor = CometChatTheme.white
-            baseTextColor = CometChatTheme.white
-        } else {
-            // Incoming messages
-            codeBackgroundColor = CometChatTheme.neutralColor200
-            codeTextColor = CometChatTheme.neutralColor900
-            baseTextColor = CometChatTheme.neutralColor900
-        }
+        // Code block backgrounds stay direction-derived: outgoing sits on the
+        // coloured bubble, incoming on the neutral one.
+        let codeBackgroundColor: UIColor = isLoggedInUser
+            ? CometChatTheme.white.withAlphaComponent(0.1)
+            : CometChatTheme.neutralColor200
+        
+        // Body text and code blocks follow style.textColor so an integrator's
+        // customisation reaches markdown, matching the plain-text path.
+        let baseTextColor = textBubble.style.textColor
+        let codeTextColor = textBubble.style.textColor
         
         textBubble.codeBlockBackgroundColor = codeBackgroundColor
         textBubble.inlineCodeBackgroundColor = codeBackgroundColor
@@ -1015,9 +1008,12 @@ public class MessagesDataSource: DataSource {
             
             // Use setMarkdownText for proper code block rendering with padding and rounded corners
             // Pass original text with mention tags - addTextSegment will process them with styling
-            // For incoming messages, explicitly use purple for inline code text
-            // For outgoing messages, use white for inline code text
-            let inlineCodeTextColor: UIColor? = isLoggedInUser ? CometChatTheme.white : CometChatTheme.extendedPrimaryColor700
+            // Inline code follows textColor once the integrator customises it;
+            // the built-in defaults keep the purple/white accent.
+            let defaultTextColor = isLoggedInUser ? CometChatTheme.white : CometChatTheme.neutralColor900
+            let inlineCodeTextColor: UIColor? = textBubble.style.textColor != defaultTextColor
+                ? textBubble.style.textColor
+                : (isLoggedInUser ? CometChatTheme.white : CometChatTheme.extendedPrimaryColor700)
             
             textBubble.setMarkdownText(
                 text,

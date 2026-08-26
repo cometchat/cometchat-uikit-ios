@@ -90,7 +90,9 @@ public class CometChatDeleteBubble: UIView {
     private func setupStyle() {
         message.textColor = style.textColor // Applying the text color from the style.
         message.font = style.textFont // Applying the text font from the style.
-        deleteImage.tintColor = style.deleteImageTintColor // Applying the tint color for the delete image.
+        // Falling back keeps the direction default; a nil tintColor would reset
+        // the image view to its inherited tint instead.
+        deleteImage.tintColor = style.deleteImageTintColor ?? style.defaultDeleteImageTintColor
     }
     
     // MARK: - Public Methods
