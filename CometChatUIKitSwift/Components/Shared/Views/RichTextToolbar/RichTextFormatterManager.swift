@@ -1582,9 +1582,9 @@ public class RichTextFormatterManager {
                 }
                 
                 if !urlString.isEmpty {
+                    // Build the link, then fall through: a link run can also be
+                    // bold or italic and must keep those markers.
                     formattedText = "[\(text)](\(urlString))"
-                    result += formattedText
-                    return
                 }
             }
             

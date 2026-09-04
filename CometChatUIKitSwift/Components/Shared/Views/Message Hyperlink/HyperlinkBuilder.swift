@@ -108,12 +108,25 @@ struct HyperlinkBuilder {
     }
 }
 
+/// NSDataDetector reports emails as `mailto:` and phone numbers as `tel:`, not
+/// only web links, so a detected range is classified by the scheme of its URL.
+enum DetectedEntity {
+    case link, phoneNumber, email
+
+    init(urlString: String) {
+        let scheme = urlString.lowercased()
+        if scheme.hasPrefix("mailto:") { self = .email }
+        else if scheme.hasPrefix("tel:") { self = .phoneNumber }
+        else { self = .link }
+    }
+}
+
 struct RegexParser {
 
     static let hashtagPattern = "(?:^|\\s|$)#[\\p{L}0-9_]*"
     static let mentionPattern = "(?:^|\\s|$|[.])@[\\p{L}0-9_]*"
-    static let phonePattern1 = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$"
-    static let phonePattern2 = "^\\+(?:[0-9]?){6,14}[0-9]$"
+    static let phonePattern1 = "(?<![\\w.@+/-])(\\+\\d{1,2}\\s)?(\\(\\d{3}\\)|\\d{3})[\\s.-]?\\d{3}[\\s.-]?\\d{4}(?![\\w@/]|[-.]\\d)"
+    static let phonePattern2 = "(?<![\\w+])\\+[0-9]{6,14}[0-9](?![\\w])"
     static let emailPattern = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}"
     static let urlPattern = "(^|[\\s.:;?\\-\\]<\\(])" +
         "((https?://|www\\.|pic\\.)[-\\w;/?:@&=+$\\|\\_.!~*\\|'()\\[\\]%#,☺]+[\\w/#](\\(\\))?)" +

@@ -53,9 +53,12 @@ public class CometChatDate: UILabel {
     }
     
     open func buildUI() {
-        self.numberOfLines = 0
+        self.numberOfLines = 1
+        self.lineBreakMode = .byTruncatingTail
         self.clipsToBounds = true
         self.textAlignment = .center
+        // Must outrank the title/subtitle labels, which sit at the 750 default.
+        self.setContentCompressionResistancePriority(.defaultHigh + 1, for: .horizontal)
     }
     
     open func setupStyle() {

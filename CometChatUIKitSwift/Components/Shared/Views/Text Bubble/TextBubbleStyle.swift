@@ -28,7 +28,17 @@ public struct TextBubbleStyle: BaseMessageBubbleStyle {
     public var textFont: UIFont = CometChatTypography.Body.regular
     public var textColor: UIColor = CometChatTheme.white
     public var textHighlightColor: UIColor = #colorLiteral(red: 0.01568627451, green: 0.1965779049, blue: 1, alpha: 1)
-    
+
+    /// Color for detected URLs and markdown links.
+    /// Falls back to `textHighlightColor` when nil.
+    public var textLinkColor: UIColor?
+
+    /// Color for detected phone numbers. Falls back to `textHighlightColor` when nil.
+    public var textPhoneNumberColor: UIColor?
+
+    /// Color for detected email addresses. Falls back to `textHighlightColor` when nil.
+    public var textEmailColor: UIColor?
+
     public var reactionsStyle: ReactionsStyle?
     
     public init() {

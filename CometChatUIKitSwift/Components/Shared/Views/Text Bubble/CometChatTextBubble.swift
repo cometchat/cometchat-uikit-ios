@@ -44,6 +44,14 @@ public class CometChatTextBubble: UIView {
     private let phoneParser1 = HyperlinkType.custom(pattern: RegexParser.phonePattern1)
     private let phoneParser2 = HyperlinkType.custom(pattern: RegexParser.phonePattern2)
     private let emailParser = HyperlinkType.custom(pattern: RegexParser.emailPattern)
+
+    private func entityColor(for urlString: String) -> UIColor? {
+        switch DetectedEntity(urlString: urlString) {
+        case .email:       return style.textEmailColor
+        case .phoneNumber: return style.textPhoneNumberColor
+        case .link:        return style.textLinkColor
+        }
+    }
     
     /// Code block background color (configurable)
     public var codeBlockBackgroundColor: UIColor = CometChatTheme.white.withAlphaComponent(0.1)
@@ -119,23 +127,25 @@ public class CometChatTextBubble: UIView {
         if !hasAttributedText {
             self.label.textColor = style.textColor
             self.label.font = style.textFont
+        }
+
+        // Entity colours are registered per link type, so they apply on the
+        // attributed path too. `addLinkAttribute` only fills a foreground colour
+        // where the range has none, leaving inline code and other rich formatting
+        // intact - unlike the blanket `textColor` write guarded above.
+        label.customize { label in
+            label.URLColor = style.textLinkColor ?? style.textHighlightColor
+            label.URLSelectedColor = style.textLinkColor ?? style.textHighlightColor
+            label.customColor[phoneParser1] = style.textPhoneNumberColor ?? style.textHighlightColor
+            label.customSelectedColor[phoneParser1] = style.textPhoneNumberColor ?? style.textHighlightColor
+            label.customColor[phoneParser2] = style.textPhoneNumberColor ?? style.textHighlightColor
+            label.customSelectedColor[phoneParser2] = style.textPhoneNumberColor ?? style.textHighlightColor
+            label.customColor[emailParser] = style.textEmailColor ?? style.textHighlightColor
+            label.customSelectedColor[emailParser] = style.textEmailColor ?? style.textHighlightColor
             
-            // Only customize hyperlink colors if not using attributed text
-            // The customize block calls updateTextStorage() which can interfere with attributed text colors
-            label.customize { label in
-                label.URLColor = style.textHighlightColor
-                label.URLSelectedColor = style.textHighlightColor
-                label.customColor[phoneParser1] = style.textHighlightColor
-                label.customSelectedColor[phoneParser1] = style.textHighlightColor
-                label.customColor[phoneParser2] = style.textHighlightColor
-                label.customSelectedColor[phoneParser2] = style.textHighlightColor
-                label.customColor[emailParser] = style.textHighlightColor
-                label.customSelectedColor[emailParser] = style.textHighlightColor
-                
-                label.addUnderline[phoneParser1] = true
-                label.addUnderline[phoneParser2] = true
-                label.addUnderline[emailParser] = true
-            }
+            label.addUnderline[phoneParser1] = true
+            label.addUnderline[phoneParser2] = true
+            label.addUnderline[emailParser] = true
         }
     }
     
@@ -159,7 +169,7 @@ public class CometChatTextBubble: UIView {
         }
         
         self.label.handleCustomTap(for: .custom(pattern: RegexParser.phonePattern2)) { (number) in
-            let number = number.components(separatedBy: CharacterSet.decimalDigits.inverted)
+            let number = number.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
             if let url = URL(string: "tel://\(number)"),
                UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -227,6 +237,44 @@ public class CometChatTextBubble: UIView {
             buildStackUI()
             parseAndDisplayMixedContent(markdown, baseFont: baseFont, baseColor: baseColor, codeTextColor: codeTextColor, inlineCodeTextColor: inlineCodeTextColor)
         } else {
+            // Mentions arrive as <@uid:...> tags and have to be resolved before the
+            // markdown is parsed, or the raw tag renders. Mirrors addTextSegment,
+            // which the code block and blockquote paths already go through.
+            if let message = message, !textFormatters.isEmpty,
+               let processedString = MessageUtils.processTextFormatter(
+                   for: message,
+                   customText: markdown,
+                   in: label,
+                   textFormatter: textFormatters,
+                   controller: controller,
+                   alignment: alignment
+               ) {
+                let markdownParsed = RichTextFormatterManager.shared.parseMarkdown(
+                    processedString.string,
+                    baseFont: baseFont,
+                    baseColor: baseColor,
+                    inlineCodeBackgroundColor: inlineCodeBackgroundColor,
+                    codeBlockBackgroundColor: codeBlockBackgroundColor,
+                    codeTextColor: codeTextColor,
+                    inlineCodeTextColor: inlineCodeTextColor
+                )
+
+                // Overlay the mention styling onto the parsed markdown.
+                let mutableResult = NSMutableAttributedString(attributedString: markdownParsed)
+                processedString.enumerateAttributes(in: NSRange(location: 0, length: processedString.length), options: []) { attrs, range, _ in
+                    guard range.location + range.length <= mutableResult.length else { return }
+                    if let bgColor = attrs[.backgroundColor] {
+                        mutableResult.addAttribute(.backgroundColor, value: bgColor, range: range)
+                    }
+                    if let fgColor = attrs[.foregroundColor] {
+                        mutableResult.addAttribute(.foregroundColor, value: fgColor, range: range)
+                    }
+                }
+
+                set(attributedText: mutableResult)
+                return
+            }
+
             // Simple case - just use attributed string for inline formatting
             let attributedString = RichTextFormatterManager.shared.parseMarkdown(
                 markdown,
@@ -598,9 +646,9 @@ public class CometChatTextBubble: UIView {
                 label.enabledTypes.append(customType)
             }
             
-            // Set the color and underline for this custom link type to match the text highlight color
-            label.customColor[customType] = self.style.textHighlightColor
-            label.customSelectedColor[customType] = self.style.textHighlightColor
+            // Markdown link types follow the link colour.
+            label.customColor[customType] = entityColor(for: urlString) ?? self.style.textHighlightColor
+            label.customSelectedColor[customType] = entityColor(for: urlString) ?? self.style.textHighlightColor
             label.addUnderline[customType] = true
             
             // Handle tap for this link
@@ -753,9 +801,9 @@ public class CometChatTextBubble: UIView {
                 self.label.enabledTypes.append(customType)
             }
             
-            // Set the color and underline for this custom link type to match the text highlight color
-            self.label.customColor[customType] = self.style.textHighlightColor
-            self.label.customSelectedColor[customType] = self.style.textHighlightColor
+            // Markdown link types follow the link colour.
+            self.label.customColor[customType] = entityColor(for: urlString) ?? self.style.textHighlightColor
+            self.label.customSelectedColor[customType] = entityColor(for: urlString) ?? self.style.textHighlightColor
             self.label.addUnderline[customType] = true
             
             // Handle tap for this link
@@ -807,9 +855,9 @@ public class CometChatTextBubble: UIView {
                 self.label.enabledTypes.append(customType)
             }
             
-            // Set the color and underline for this custom link type to match the text highlight color
-            self.label.customColor[customType] = self.style.textHighlightColor
-            self.label.customSelectedColor[customType] = self.style.textHighlightColor
+            // Markdown link types follow the link colour.
+            self.label.customColor[customType] = self.style.textLinkColor ?? self.style.textHighlightColor
+            self.label.customSelectedColor[customType] = self.style.textLinkColor ?? self.style.textHighlightColor
             self.label.addUnderline[customType] = true
             
             // Handle tap for this link

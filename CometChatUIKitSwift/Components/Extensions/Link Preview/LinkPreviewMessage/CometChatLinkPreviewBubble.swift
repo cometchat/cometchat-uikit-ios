@@ -235,9 +235,16 @@ open class CometChatLinkPreviewBubble: UIView {
                 self.messageLabel.enabledTypes.append(customType)
             }
             
+            let entityColor: UIColor?
+            switch DetectedEntity(urlString: urlString) {
+            case .email:       entityColor = self.style.textEmailColor
+            case .phoneNumber: entityColor = self.style.textPhoneNumberColor
+            case .link:        entityColor = self.style.textLinkColor
+            }
+
             // Set the color and underline for this custom link type
-            self.messageLabel.customColor[customType] = self.style.textHighlightColor
-            self.messageLabel.customSelectedColor[customType] = self.style.textHighlightColor
+            self.messageLabel.customColor[customType] = entityColor ?? self.style.textHighlightColor
+            self.messageLabel.customSelectedColor[customType] = entityColor ?? self.style.textHighlightColor
             self.messageLabel.addUnderline[customType] = true
             
             // Handle tap for this link
@@ -309,14 +316,14 @@ open class CometChatLinkPreviewBubble: UIView {
         linkIconImageView.roundViewCorners(corner: style.linkIconImageCornerRadios)
         
         messageLabel.customize { label in
-            label.URLColor = style.textHighlightColor
-            label.URLSelectedColor = style.textHighlightColor
-            label.customColor[phoneParser1] = style.textHighlightColor
-            label.customSelectedColor[phoneParser1] = style.textHighlightColor
-            label.customColor[phoneParser2] = style.textHighlightColor
-            label.customSelectedColor[phoneParser2] = style.textHighlightColor
-            label.customColor[emailParser] = style.textHighlightColor
-            label.customSelectedColor[emailParser] = style.textHighlightColor
+            label.URLColor = style.textLinkColor ?? style.textHighlightColor
+            label.URLSelectedColor = style.textLinkColor ?? style.textHighlightColor
+            label.customColor[phoneParser1] = style.textPhoneNumberColor ?? style.textHighlightColor
+            label.customSelectedColor[phoneParser1] = style.textPhoneNumberColor ?? style.textHighlightColor
+            label.customColor[phoneParser2] = style.textPhoneNumberColor ?? style.textHighlightColor
+            label.customSelectedColor[phoneParser2] = style.textPhoneNumberColor ?? style.textHighlightColor
+            label.customColor[emailParser] = style.textEmailColor ?? style.textHighlightColor
+            label.customSelectedColor[emailParser] = style.textEmailColor ?? style.textHighlightColor
             
             label.addUnderline[phoneParser1] = true
             label.addUnderline[phoneParser2] = true
@@ -339,7 +346,7 @@ open class CometChatLinkPreviewBubble: UIView {
             let number = number.components(separatedBy: CharacterSet.decimalDigits.inverted)
                 .joined()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                let url = URL(string: "tel://\(number)")!
+                guard let url = URL(string: "tel://\(number)") else { return }
                 UIApplication.shared.open(url, options: [:])
             }
         }
@@ -348,7 +355,7 @@ open class CometChatLinkPreviewBubble: UIView {
             let number = number.components(separatedBy: CharacterSet.decimalDigits.inverted)
                 .joined()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                let url = URL(string: "tel://\(number)")!
+                guard let url = URL(string: "tel://\(number)") else { return }
                 UIApplication.shared.open(url, options: [:])
             }
         }

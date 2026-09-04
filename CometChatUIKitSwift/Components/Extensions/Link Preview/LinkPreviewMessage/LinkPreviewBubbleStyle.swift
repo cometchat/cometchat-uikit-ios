@@ -66,19 +66,20 @@ public struct LinkPreviewBubbleStyle: BaseMessageBubbleStyle {
     /// The text color for the message in the bubble.
     public var messageTextColor: UIColor = CometChatTheme.textColorWhite
     
-    /// The text color for the title in the link preview.
+    /// The text color for the title on the link preview card.
     public var titleTextColor: UIColor = CometChatTheme.neutralColor900
     
     /// The font used for the title text in the link preview.
     public var titleTextFont: UIFont = CometChatTypography.Body.bold
     
-    /// The text color for the subtitle in the link preview.
+    /// The text color for the description on the link preview card.
     public var subtitleTextColor: UIColor = CometChatTheme.neutralColor900
     
     /// The font used for the subtitle text in the link preview.
     public var subtitleTextFont: UIFont = CometChatTypography.Caption1.regular
     
-    /// The text color for the link in the link preview.
+    /// The text color for the URL caption printed beneath the link preview card.
+    /// This is not the tappable link colour — use `textLinkColor` for that.
     public var linkTextColor: UIColor = CometChatTheme.neutralColor900.withAlphaComponent(0.6)
     
     /// The font used for the link text in the link preview.
@@ -89,7 +90,18 @@ public struct LinkPreviewBubbleStyle: BaseMessageBubbleStyle {
     
     /// The color used to highlight text links in the bubble.
     public var textHighlightColor: UIColor = #colorLiteral(red: 0.01568627451, green: 0.1965779049, blue: 1, alpha: 1)
-    
+
+    /// Color for detected URLs and markdown links.
+    /// Inherited from the sibling `textBubbleStyle` when left unset,
+    /// then falls back to `textHighlightColor`.
+    public var textLinkColor: UIColor?
+
+    /// Color for detected phone numbers. Falls back to `textHighlightColor` when nil.
+    public var textPhoneNumberColor: UIColor?
+
+    /// Color for detected email addresses. Falls back to `textHighlightColor` when nil.
+    public var textEmailColor: UIColor?
+
     /// The reaction style for the reactions displayed in the bubble.
     public var reactionsStyle: ReactionsStyle?
     

@@ -36,6 +36,9 @@ public struct MessageBubbleStyle {
     public var dateStyle: DateStyle
     public var receiptStyle: ReceiptStyle
     
+    /// Setting the link colours here also applies them to `linkPreviewBubbleStyle`,
+    /// unless that style sets its own. Messages that render a link preview then
+    /// match plain text messages without configuring both.
     public var textBubbleStyle: TextBubbleStyle
     public var aiAssistantBubbleStyle: AIAssistantBubbleStyle
     public var imageBubbleStyle: ImageBubbleStyle
@@ -48,7 +51,21 @@ public struct MessageBubbleStyle {
     public var messageTranslationBubbleStyle: MessageTranslationBubbleStyle
     public var deleteBubbleStyle: DeleteBubbleStyle
     public var pollBubbleStyle: PollBubbleStyle
-    public var linkPreviewBubbleStyle: LinkPreviewBubbleStyle
+    private var _linkPreviewBubbleStyle: LinkPreviewBubbleStyle
+    /// Link colours left unset here fall back to `textBubbleStyle`, so setting a
+    /// colour there covers link preview messages too. Resolved on read rather than
+    /// mirrored on write, so a later change to `textBubbleStyle` is picked up and an
+    /// explicit colour set here is never overwritten.
+    public var linkPreviewBubbleStyle: LinkPreviewBubbleStyle {
+        get {
+            var style = _linkPreviewBubbleStyle
+            style.textLinkColor = style.textLinkColor ?? textBubbleStyle.textLinkColor
+            style.textPhoneNumberColor = style.textPhoneNumberColor ?? textBubbleStyle.textPhoneNumberColor
+            style.textEmailColor = style.textEmailColor ?? textBubbleStyle.textEmailColor
+            return style
+        }
+        set { _linkPreviewBubbleStyle = newValue }
+    }
     public var callBubbleStyle: CallBubbleStyle
     public var moderationStyle: ModerationStyle
     public var messagePreviewStyle: MessagePreviewStyle
@@ -67,7 +84,7 @@ public struct MessageBubbleStyle {
         reactionsStyle = CometChatReactions.style
         
         callBubbleStyle = CallBubbleStyle()
-        linkPreviewBubbleStyle = LinkPreviewBubbleStyle()
+        _linkPreviewBubbleStyle = LinkPreviewBubbleStyle()
         textBubbleStyle = TextBubbleStyle()
         aiAssistantBubbleStyle = AIAssistantBubbleStyle()
         imageBubbleStyle = ImageBubbleStyle()
@@ -101,7 +118,7 @@ public struct MessageBubbleStyle {
         imageBubbleStyle = ImageBubbleStyle(styleType: styleType)
         videoBubbleStyle = VideoBubbleStyle(styleType: styleType)
         fileBubbleStyle = FileBubbleStyle(styleType: styleType)
-        linkPreviewBubbleStyle = LinkPreviewBubbleStyle(styleType: styleType)
+        _linkPreviewBubbleStyle = LinkPreviewBubbleStyle(styleType: styleType)
         collaborativeWhiteboardBubbleStyle = CollaborativeBubbleStyle(styleType: styleType)
         collaborativeDocumentBubbleStyle = CollaborativeBubbleStyle(styleType: styleType)
         stickersBubbleStyle = StickerBubbleStyle(styleType: styleType)
@@ -152,9 +169,10 @@ public struct MessageBubbleStyle {
         callBubbleStyle.messagePreviewStyle = messagePreviewStyle
         collaborativeWhiteboardBubbleStyle.messagePreviewStyle = messagePreviewStyle
         collaborativeDocumentBubbleStyle.messagePreviewStyle = messagePreviewStyle
-        linkPreviewBubbleStyle.messagePreviewStyle = messagePreviewStyle
+        _linkPreviewBubbleStyle.messagePreviewStyle = messagePreviewStyle
         messageTranslationBubbleStyle.messagePreviewStyle = messagePreviewStyle
     }
+
 }
 
 public protocol BaseMessageBubbleStyle {

@@ -171,7 +171,7 @@ public class CometChatMessageTranslationBubble: UIView, MFMailComposeViewControl
         }
 
         label.handleCustomTap(for: phoneParser2) { number in
-            let number = number.components(separatedBy: CharacterSet.decimalDigits.inverted)
+            let number = number.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
             if let url = URL(string: "tel://\(number)"),
                UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
