@@ -331,3 +331,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "메시지 고정";
+"UNPIN_MESSAGE" = "고정 해제";
+"SAVE_MESSAGE" = "메시지 저장";
+"UNSAVE_MESSAGE" = "저장 해제";
+"MESSAGE_PINNED_TOAST" = "메시지를 고정했습니다";
+"MESSAGE_UNPINNED_TOAST" = "고정을 해제했습니다";
+"MESSAGE_SAVED_TOAST" = "메시지를 저장했습니다";
+"MESSAGE_UNSAVED_TOAST" = "저장한 항목에서 삭제했습니다";
+"PIN_MESSAGE_LIMIT_REACHED" = "메시지는 %@개만 고정할 수 있습니다. 다른 메시지를 고정하려면 하나를 해제하세요.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "메시지는 최대 %@개까지 저장할 수 있습니다. 계속하려면 하나를 삭제하세요.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "여기에서 메시지를 고정할 권한이 없습니다.";
+"PIN_MESSAGE_FAILED" = "고정을 업데이트하지 못했습니다. 다시 시도해 주세요.";
+"SAVE_MESSAGE_FAILED" = "저장한 메시지를 업데이트하지 못했습니다. 다시 시도해 주세요.";
+"PINNED_MESSAGES_TITLE" = "고정된 메시지 %@개";
+"PINNED_MESSAGES_LABEL" = "고정된 메시지";
+"PINNED_MESSAGES_EMPTY_TITLE" = "아직 고정된 메시지가 없습니다";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "중요한 메시지를 고정하면 빠르게 찾을 수 있습니다.";
+"SAVED_MESSAGES_TITLE" = "저장한 메시지 %@개";
+"SAVED_MESSAGES_EMPTY_TITLE" = "아직 저장한 메시지가 없습니다";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "메시지를 저장하면 필요할 때 바로 찾아볼 수 있습니다.";
+"PINNED_INDICATOR" = "고정됨";
+"SAVED_INDICATOR" = "저장됨";
+"MESSAGE_EDITED" = "수정됨";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "더 보기…";
+"MORE_OPTIONS_EXPANDED" = "추가 옵션 표시 중";
+"MORE_OPTIONS_COLLAPSED" = "기본 옵션 표시 중";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "고정";
+"UNPIN_CONVERSATION" = "고정 해제";
+"CONVERSATION_PINNED" = "대화를 고정했습니다";
+"CONVERSATION_UNPINNED" = "대화 고정을 해제했습니다";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "채팅은 %@개만 고정할 수 있습니다. 다른 채팅을 고정하려면 하나를 해제하세요.";
+"PIN_CONVERSATION_FAILED" = "고정을 업데이트할 수 없습니다. 다시 시도해 주세요.";
+"PINNED" = "고정됨";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "이 대화는 아직 고정할 수 없습니다.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "이 대화를 고정할 권한이 없습니다.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "스레드 구독";
+"THREAD_UNSUBSCRIBE" = "스레드 구독 취소";
+"THREAD_SUBSCRIBED" = "팔로잉";
+"THREAD_UNSUBSCRIBED_TOAST" = "구독을 취소했습니다. 답글을 남기거나 언급될 때까지 알림이 꺼집니다.";
+"THREAD_SUBSCRIBED_TOAST" = "구독했습니다. 이 스레드의 새 답글을 알려드립니다.";
+"THREAD_SUBSCRIPTION_FAILED" = "업데이트하지 못했습니다. 다시 시도해 주세요.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "메시지 고정 해제";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "이 메시지의 고정을 해제하시겠습니까?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "메시지 저장 해제";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "이 메시지의 저장을 해제하시겠습니까?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "대화 고정 해제";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "이 대화의 고정을 해제하시겠습니까?";
+"UNPIN_ACTION" = "고정 해제";
+"UNSAVE_ACTION" = "저장 해제";

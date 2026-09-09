@@ -20,6 +20,11 @@ final public class UIKitSettings {
     var stripeKey = ""
     var isCallingDisabled: Bool = false
     var enableIncomingCall = false
+    /// Feature gate for the thread follow/unfollow surfaces (the message action-sheet
+    /// option and the threaded-header control). Defaults to false: with the gate off
+    /// neither surface renders and no thread-subscription request is made, whatever the
+    /// per-component `hideThreadSubscription*` flags say.
+    var enableThreadSubscription = false
     var appSettingsBuilder:  AppSettings.AppSettingsBuilder!
     var extensions:  [ExtensionDataSource]?
     var aiExtensions: [ExtensionDataSource]?
@@ -39,6 +44,12 @@ final public class UIKitSettings {
     @discardableResult
     public func enable(inAppIncomingCall: Bool) -> Self {
         self.enableIncomingCall = inAppIncomingCall
+        return self
+    }
+    
+    @discardableResult
+    public func enable(threadSubscription: Bool) -> Self {
+        self.enableThreadSubscription = threadSubscription
         return self
     }
     

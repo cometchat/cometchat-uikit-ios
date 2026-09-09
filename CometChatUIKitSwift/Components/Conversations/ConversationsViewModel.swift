@@ -38,6 +38,8 @@ protocol ConversationsViewModelProtocol: AnyObject {
     func setRequestBuilder(conversationRequestBuilder: ConversationRequest.ConversationRequestBuilder)
     func insert(conversation: Conversation, at: Int)
     func update(conversation: Conversation)
+    func isPinned(conversation: Conversation) -> Bool
+    func repositionForPinChange(conversation: Conversation)
     @discardableResult func remove(conversation: Conversation) -> Self
     func clearList()
 }
@@ -167,6 +169,11 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
                     this.conversations.append(contentsOf: conversations)
                 }
 
+                // The server returns pin-ordered results, but paging appends each page to the
+                // end — so a pinned row arriving on page 2 would sit below page 1's unpinned
+                // rows without this.
+                this.applyPinOrdering()
+
 
                 for conversation in this.conversations {
                     this.markAsDelivered(conversation: conversation)
@@ -280,7 +287,106 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
 
 
 extension ConversationsViewModel  {
-    
+
+    // MARK: - Pin ordering
+
+    /// Rank of a conversation in the pinned ordering: admin-global pins first, then the
+    /// user's own pins, then everything unpinned.
+    ///
+    /// `pinnedAt` uses a `0` sentinel, so *presence* — not `> 0` — is the pinned test.
+    private func pinRank(_ conversation: Conversation) -> Int {
+        guard conversation.pinnedAt != 0 else { return 2 }
+        return conversation.pinnedBy == ConversationConstants.systemPinner ? 0 : 1
+    }
+
+    /// Whether a conversation is pinned at all, by anyone.
+    func isPinned(conversation: Conversation) -> Bool {
+        return conversation.pinnedAt != 0
+    }
+
+    /// The index a conversation belongs at, respecting pin order.
+    ///
+    /// Unpinned conversations go to the top of the *unpinned* block rather than row 0 — that
+    /// is the whole point: an incoming message must not shove itself above pinned rows.
+    /// Within a pin tier the newest pin sorts first (`pinnedAt DESC`), matching the server.
+    ///
+    /// `excluding` skips a row being moved, so its own current position never affects the
+    /// destination it is being measured against.
+    private func insertionIndex(for conversation: Conversation, excluding: Int? = nil) -> Int {
+        let rank = pinRank(conversation)
+
+        var index = 0
+        for (offset, existing) in conversations.enumerated() {
+            if offset == excluding { continue }
+
+            let existingRank = pinRank(existing)
+            if existingRank < rank { index = offset + 1; continue }
+            if existingRank > rank { break }
+
+            // Same tier: hold position while the existing pin is newer.
+            if rank != 2 && existing.pinnedAt > conversation.pinnedAt {
+                index = offset + 1
+                continue
+            }
+            break
+        }
+        return index
+    }
+
+    /// Re-sorts the whole list into pin order, preserving the server's relative ordering
+    /// within each tier. Used after a fetch, where rows arrive as a batch.
+    ///
+    /// `enumerated` is the tiebreaker so the sort is stable — Swift's `sort` is not.
+    func applyPinOrdering() {
+        conversations = conversations.enumerated()
+            .sorted { lhs, rhs in
+                let lRank = pinRank(lhs.element)
+                let rRank = pinRank(rhs.element)
+                if lRank != rRank { return lRank < rRank }
+                if lRank != 2 && lhs.element.pinnedAt != rhs.element.pinnedAt {
+                    return lhs.element.pinnedAt > rhs.element.pinnedAt
+                }
+                return lhs.offset < rhs.offset
+            }
+            .map { $0.element }
+    }
+
+    /// Moves a row, converting `insertionIndex`'s result into post-removal coordinates.
+    ///
+    /// `insertionIndex` numbers offsets over the array with the moved row still present, so a
+    /// downward move (`destination > row`) is one too large once that row is removed — and
+    /// lands out of range entirely when nothing sorts after it. Returns the corrected index.
+    @discardableResult
+    private func move(_ conversation: Conversation, from row: Int, to destination: Int) -> Int {
+        conversations.remove(at: row)
+        let target = min(destination > row ? destination - 1 : destination, conversations.count)
+        conversations.insert(conversation, at: target)
+        return target
+    }
+
+    /// Moves a conversation to its correct position after its pin state changed, animating
+    /// the row rather than reloading the table.
+    public func repositionForPinChange(conversation: Conversation) {
+        guard let row = conversations.firstIndex(where: {
+            $0.conversationId == conversation.conversationId
+        }) else { return }
+
+        conversations[row] = conversation
+
+        let destination = insertionIndex(for: conversation, excluding: row)
+        guard destination != row else {
+            reloadAtIndex?(IndexPath(row: row, section: 0))
+            return
+        }
+
+        let target = move(conversation, from: row, to: destination)
+        guard target != row else {
+            reloadAtIndex?(IndexPath(row: row, section: 0))
+            return
+        }
+        moveRow?(IndexPath(row: row, section: 0), IndexPath(row: target, section: 0))
+    }
+
     /// add conversation.
     func add(conversation: Conversation) -> Self {
         if !self.conversations.contains(obj: conversation) {
@@ -289,11 +395,17 @@ extension ConversationsViewModel  {
         }
         return self
     }
-        
+
     /// insert conversation.
+    ///
+    /// `at` is a legacy hint kept for source compatibility. Pin order wins over it: every
+    /// existing caller passes the default `0`, which would otherwise drop an unpinned row
+    /// above the pinned block. A caller asking for a position *below* the computed one is
+    /// still honoured, since that cannot violate the ordering.
     func insert(conversation: Conversation, at: Int = 0) {
-        conversations.insert(conversation, at: at)
-        self.insertAtIndex?(IndexPath(row: at, section: 0))
+        let index = min(max(at, insertionIndex(for: conversation)), conversations.count)
+        conversations.insert(conversation, at: index)
+        self.insertAtIndex?(IndexPath(row: index, section: 0))
     }
     
     /// update conversation.
@@ -384,15 +496,30 @@ extension ConversationsViewModel  {
     }
     
     /// move to top
+    ///
+    /// "Top" means the top of the conversation's own pin tier, not row 0 — an incoming
+    /// message on an unpinned conversation must not displace pinned rows. For an unpinned
+    /// conversation with no pins in the list this is row 0, exactly as before.
     public func moveToTop(conversation: Conversation) {
         guard let row = conversations.firstIndex(where: {$0.conversationId == conversation.conversationId}) else { return }
-        
+
+        // Carry over the pin state, which the incoming conversation object may not have —
+        // it is often rebuilt from a message and would otherwise read as unpinned.
+        let existing = conversations[row]
+        if conversation.pinnedAt == 0 && existing.pinnedAt != 0 {
+            conversation.pinnedAt = existing.pinnedAt
+            conversation.pinnedBy = existing.pinnedBy
+        }
+
+        let destination = insertionIndex(for: conversation, excluding: row)
+        guard destination != row else { return }
+
         //Updating conversation data source
-        conversations.remove(at: row)
-        conversations.insert(conversation, at: 0)
-        
+        let target = move(conversation, from: row, to: destination)
+        guard target != row else { return }
+
         //Updating UI
-        moveRow?(IndexPath(row: row, section: 0), IndexPath(row: 0, section: 0))
+        moveRow?(IndexPath(row: row, section: 0), IndexPath(row: target, section: 0))
     }
     
     /// remove conversation at particular index.

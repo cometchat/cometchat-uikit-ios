@@ -350,3 +350,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "संदेश पिन करें";
+"UNPIN_MESSAGE" = "संदेश अनपिन करें";
+"SAVE_MESSAGE" = "संदेश सहेजें";
+"UNSAVE_MESSAGE" = "सहेजे गए से हटाएँ";
+"MESSAGE_PINNED_TOAST" = "संदेश पिन किया गया";
+"MESSAGE_UNPINNED_TOAST" = "संदेश अनपिन किया गया";
+"MESSAGE_SAVED_TOAST" = "संदेश सहेजा गया";
+"MESSAGE_UNSAVED_TOAST" = "संदेश सहेजे गए से हटाया गया";
+"PIN_MESSAGE_LIMIT_REACHED" = "आप केवल %@ संदेश पिन कर सकते हैं। दूसरा पिन करने के लिए एक अनपिन करें।";
+"SAVE_MESSAGE_LIMIT_REACHED" = "आप अधिकतम %@ संदेश सहेज सकते हैं। जारी रखने के लिए एक हटाएँ।";
+"PIN_MESSAGE_PERMISSION_DENIED" = "आपके पास यहाँ संदेश पिन करने की अनुमति नहीं है।";
+"PIN_MESSAGE_FAILED" = "पिन अपडेट नहीं हो सका। कृपया पुनः प्रयास करें।";
+"SAVE_MESSAGE_FAILED" = "सहेजे गए संदेश अपडेट नहीं हो सके। कृपया पुनः प्रयास करें।";
+"PINNED_MESSAGES_TITLE" = "%@ पिन किए गए संदेश";
+"PINNED_MESSAGES_LABEL" = "पिन किए गए संदेश";
+"PINNED_MESSAGES_EMPTY_TITLE" = "अभी तक कोई पिन किया गया संदेश नहीं";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "ज़रूरी संदेश पिन करें और उन्हें तुरंत ढूँढें।";
+"SAVED_MESSAGES_TITLE" = "%@ सहेजे गए संदेश";
+"SAVED_MESSAGES_EMPTY_TITLE" = "अभी तक कोई सहेजा गया संदेश नहीं";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "संदेश सहेजें ताकि ज़रूरत पड़ने पर वे आसानी से मिल जाएँ।";
+"PINNED_INDICATOR" = "पिन किया गया";
+"SAVED_INDICATOR" = "सहेजा गया";
+"MESSAGE_EDITED" = "संपादित";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "और…";
+"MORE_OPTIONS_EXPANDED" = "अधिक विकल्प दिखाए जा रहे हैं";
+"MORE_OPTIONS_COLLAPSED" = "मुख्य विकल्प दिखाए जा रहे हैं";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "पिन करें";
+"UNPIN_CONVERSATION" = "अनपिन करें";
+"CONVERSATION_PINNED" = "बातचीत पिन की गई";
+"CONVERSATION_UNPINNED" = "बातचीत अनपिन की गई";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "आप केवल %@ चैट पिन कर सकते हैं। दूसरी पिन करने के लिए एक अनपिन करें।";
+"PIN_CONVERSATION_FAILED" = "पिन अपडेट नहीं हो सका। कृपया पुनः प्रयास करें।";
+"PINNED" = "पिन किया गया";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "यह बातचीत अभी पिन नहीं की जा सकती।";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "आपके पास इस बातचीत को पिन करने की अनुमति नहीं है।";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "थ्रेड की सदस्यता लें";
+"THREAD_UNSUBSCRIBE" = "थ्रेड की सदस्यता छोड़ें";
+"THREAD_SUBSCRIBED" = "फ़ॉलो कर रहे हैं";
+"THREAD_UNSUBSCRIBED_TOAST" = "सदस्यता छोड़ दी। जब तक आप उत्तर नहीं देते या आपका उल्लेख नहीं होता, सूचनाएँ बंद रहेंगी।";
+"THREAD_SUBSCRIBED_TOAST" = "सदस्यता ले ली। इस थ्रेड में नए उत्तरों की सूचना आपको मिलती रहेगी।";
+"THREAD_SUBSCRIPTION_FAILED" = "अपडेट नहीं हो सका। कृपया पुनः प्रयास करें।";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "संदेश अनपिन करें";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "क्या आप इस संदेश को अनपिन करना चाहते हैं?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "संदेश सहेजना हटाएँ";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "क्या आप इस संदेश को सहेजी सूची से हटाना चाहते हैं?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "बातचीत अनपिन करें";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "क्या आप इस बातचीत को अनपिन करना चाहते हैं?";
+"UNPIN_ACTION" = "अनपिन करें";
+"UNSAVE_ACTION" = "सहेजना हटाएँ";

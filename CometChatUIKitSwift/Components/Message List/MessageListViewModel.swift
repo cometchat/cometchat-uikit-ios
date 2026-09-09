@@ -48,13 +48,17 @@ protocol MessageListViewModelProtocol {
     var hideFlagMessageOption: Bool { get set }
     var hideMessageInfoOption: Bool { get set }
     var hideMessagePrivatelyOption: Bool { get set }
+    var hidePinMessageOption: Bool { get set }
     var hideReactionOption: Bool { get set }
     var hideReplyInThreadOption: Bool { get set }
     var hideReplyMessageOption: Bool { get set }
+    var hideSaveMessageOption: Bool { get set }
     var hideShareMessageOption: Bool { get set }
     var hideTranslateMessageOption: Bool { get set }
     var showMarkAsUnreadOption: Bool { get set }
     var enableMultipleAttachments: Bool { get set }
+    var enablePinMessage: Bool { get set }
+    var enableSaveMessage: Bool { get set }
 
     var ccMessageSent: ((_ message: BaseMessage, _ status: MessageStatus) -> Void)? { get set }
     var deleteBatch: (([(section: Int, row: Int, msg: BaseMessage)], [Int]) -> Void)? { get set }
@@ -88,11 +92,13 @@ protocol MessageListViewModelProtocol {
     func removeMarkedFailedStreamMessages()
     @discardableResult func add(message: BaseMessage) -> Self
     @discardableResult func update(message: BaseMessage) -> Self
+    @discardableResult func updatePinSaveState(message: BaseMessage) -> Self
     @discardableResult func delete(message: BaseMessage) -> Self
     @discardableResult func remove(message: BaseMessage) -> Self
     @discardableResult func clearList() -> Self
     func isMessageAlreadyLoaded(_ id: Int) -> Bool
     func messageAt(indexPath: IndexPath) -> BaseMessage?
+    func applyThreadSubscription(parentMessageId: Int, isSubscribed: Bool)
 }
 
 extension MessageListViewModelProtocol {
@@ -198,6 +204,26 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     public var hideReplyInThreadOption: Bool = false{
         didSet{
             additionalConfiguration.hideReplyInThreadOption = hideReplyInThreadOption
+        }
+    }
+    public var enablePinMessage: Bool = false{
+        didSet{
+            additionalConfiguration.enablePinMessage = enablePinMessage
+        }
+    }
+    public var hidePinMessageOption: Bool = false{
+        didSet{
+            additionalConfiguration.hidePinMessageOption = hidePinMessageOption
+        }
+    }
+    public var enableSaveMessage: Bool = false{
+        didSet{
+            additionalConfiguration.enableSaveMessage = enableSaveMessage
+        }
+    }
+    public var hideSaveMessageOption: Bool = false{
+        didSet{
+            additionalConfiguration.hideSaveMessageOption = hideSaveMessageOption
         }
     }
     public var hideFlagMessageOption: Bool = false{
@@ -1045,8 +1071,9 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         listeners.add(.groupSDK, id: "message-list-groups-sdk-listner-\(currentRandomDate)", listener: self)
         listeners.add(.groupEvents, id: "message-list-groups-events-listener-\(currentRandomDate)", listener: self)
         listeners.add(.aiAssistantSDK, id: "message-list-ai-events-listener-\(currentRandomDate)", listener: self)
+        listeners.add(.threadEvents, id: "message-list-thread-events-listener-\(currentRandomDate)", listener: self)
     }
-    
+
     // MARK:- disconnect message listener
     public func disconnect() {
         listeners.remove(.uiEvents, id: "message-list-event-listener\(currentRandomDate)")
@@ -1057,8 +1084,9 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         listeners.remove(.groupSDK, id: "message-list-groups-sdk-listner-\(currentRandomDate)")
         listeners.remove(.groupEvents, id: "message-list-groups-events-listener-\(currentRandomDate)")
         listeners.remove(.aiAssistantSDK, id: "message-list-ai-events-listener-\(currentRandomDate)")
+        listeners.remove(.threadEvents, id: "message-list-thread-events-listener-\(currentRandomDate)")
     }
-    
+
     func checkThreadedMessageBelongsToThisConversation(message: BaseMessage) -> Bool {
         if (parentMessage == nil && message.parentMessageId == 0) {
             return true
@@ -1093,6 +1121,119 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         }
     }
     
+    // MARK: - Thread subscription
+
+    /// Writes the flag onto every message object this list holds for the thread, and
+    /// re-renders those rows. The message objects are the source of truth — there is no
+    /// kit-side cache — so a surface that changes the state must stamp them here.
+    ///
+    /// The cells need no write of their own: `cell.baseMessage` is weak and points at
+    /// these same instances, so stamping the array is enough. Re-rendering is not,
+    /// which is why `updateAtIndex` is called too.
+    func applyThreadSubscription(parentMessageId: Int, isSubscribed: Bool) {
+        guard parentMessageId > 0 else { return }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let this = self else { return }
+
+            if this.parentMessage?.id == parentMessageId {
+                this.parentMessage?.threadSubscribed = isSubscribed
+            }
+
+            for (sectionIndex, messageData) in this.messages.enumerated() {
+                for (rowIndex, baseMessage) in messageData.1.enumerated() {
+                    // The thread's root, and any reply already rendered in it.
+                    guard baseMessage.id == parentMessageId
+                            || baseMessage.parentMessageId == parentMessageId else { continue }
+
+                    baseMessage.threadSubscribed = isSubscribed
+                    this.updateAtIndex?(sectionIndex, rowIndex, baseMessage)
+                }
+            }
+        }
+    }
+
+    /// Reconciles a thread reply's subscription flag when it arrives, or is edited, in
+    /// real time.
+    ///
+    /// A socket frame never carries the flag, so it always reads `false` — which would
+    /// render a followed thread as unfollowed. Resolved as:
+    ///
+    /// - **Mentions me** (case 3) — from anyone, myself included, on a fresh reply or on
+    ///   an edit that adds or preserves the mention. The server subscribes me, so stamp
+    ///   the reply and the held parent and mirror the flip.
+    /// - **I authored it** (case 4) — a fresh threaded send subscribes me. Not on an edit:
+    ///   editing my own message does not re-subscribe me, so callers pass
+    ///   `ownAuthorshipSubscribes: false` there.
+    /// - **Any other reply** — the subscription is unchanged, so inherit the parent's
+    ///   current state onto the reply, correcting the socket's `false`.
+    /// - **My own root** (case 2) — relayed here from another device. Sending it
+    ///   subscribed me, so stamp it; anyone else's root leaves me unsubscribed.
+    ///
+    /// Safe to call for every message — a top-level mention never subscribes.
+    /// Mirrors only — the server has already made the write, and the next fetch confirms it.
+    func applyIncomingReplySubscription(message: BaseMessage,
+                                        ownAuthorshipSubscribes: Bool = true) {
+        let parentMessageId = message.parentMessageId
+        let isOwnReply = LoggedInUserInformation.isLoggedInUser(uid: message.sender?.uid ?? "")
+
+        guard parentMessageId > 0 else {
+            // Case 2 echo — a root we sent, relayed here from another device, arrives
+            // flagless like every socket frame. Sending it subscribed us, so stamp it;
+            // somebody else's root leaves us unsubscribed and is left alone. Not on an
+            // edit, which never subscribes anyone.
+            if isOwnReply, ownAuthorshipSubscribes, message.id > 0 {
+                message.threadSubscribed = true
+            }
+            return
+        }
+
+        // A mention counts whoever sent it — including an edit of my own message that
+        // mentions me — so this is deliberately not gated on the sender.
+        let mentionsMe = message.mentionedUsers.contains {
+            LoggedInUserInformation.isLoggedInUser(uid: $0.uid)
+        }
+
+        if mentionsMe || (isOwnReply && ownAuthorshipSubscribes) {
+            message.threadSubscribed = true
+            applyThreadSubscription(parentMessageId: parentMessageId, isSubscribed: true)
+            CometChatThreadEvents.ccThreadSubscriptionChanged(parentMessageId: parentMessageId,
+                                                              isSubscribed: true)
+        } else if let parentMessage, parentMessage.id == parentMessageId {
+            // Correct the socket's false from the parent we hold.
+            message.threadSubscribed = parentMessage.threadSubscribed
+        }
+    }
+
+    /// Cases 2 and 4 — we sent a message, and the server subscribed us to its thread.
+    /// Own sends never arrive on a listener, hence the separate entry point.
+    ///
+    /// - A **reply** (case 4) stamps the reply and mirrors the flip onto the whole
+    ///   thread, so the open thread view and its parent row follow at once.
+    /// - A **root** (case 2) stamps that one message only. Its thread cannot be open
+    ///   anywhere yet, so there is nothing to mirror and no event worth publishing —
+    ///   but the flag has to be written, or the action sheet reads the send result's
+    ///   default `false` and offers "subscribe" for a thread we already follow.
+    ///
+    /// No re-render for the root case: the caller stamps before handing this same
+    /// object to `update(message:)`, which swaps it in for the optimistic placeholder
+    /// and redraws the row.
+    func applyOwnMessageSent(message: BaseMessage) {
+        let parentMessageId = message.parentMessageId
+
+        guard parentMessageId > 0 else {
+            // An id is only assigned once the server accepts the message.
+            guard message.id > 0 else { return }
+            message.threadSubscribed = true
+            return
+        }
+
+        message.threadSubscribed = true
+        applyThreadSubscription(parentMessageId: parentMessageId, isSubscribed: true)
+        CometChatThreadEvents.ccThreadSubscriptionChanged(parentMessageId: parentMessageId,
+                                                          isSubscribed: true)
+    }
+
     func isReactionOfThisList(receipt: ReactionEvent) -> Bool {
         if let parentMessage = parentMessage, receipt.parentMessageId != 0 {
             if (receipt.parentMessageId == parentMessage.id) {
@@ -1197,45 +1338,101 @@ extension MessageListViewModel {
     @discardableResult
     public func update(message: BaseMessage) -> Self {
         processMessageList([message]) { [weak self] messages in
-            guard let this = self else { return }
-            guard var newMessage = messages.first else { return }
+            guard let messages_ = messages.first else { return }
 
-            if let section = this.messages.firstIndex(where: { (date: Date, messages: [BaseMessage]) in
-                if let muid = Double(newMessage.muid), muid != 0.0 {
-                    if date.timeIntervalSince1970 == 0.0 {
-                        return true
-                    } else {
-                        return String().compareDates(newTimeInterval: muid,
-                                                     currentTimeInterval: date.timeIntervalSince1970)
-                    }
-                   
-                } else {
-                    return String().compareDates(newTimeInterval: Double(newMessage.sentAt),
-                                                 currentTimeInterval: date.timeIntervalSince1970)
-                }
-            }),
-            let row = this.messages[section].messages.firstIndex(where: {
-                if newMessage.muid != "" {
-                    return $0.muid == newMessage.muid
-                } else {
-                    return $0.id == newMessage.id
-                }
-            }) {
-
-                let oldMessage = this.messages[section].messages[row]
-
-                if newMessage.quotedMessage == nil, let oldQuoted = oldMessage.quotedMessage {
-                    newMessage.quotedMessage = oldQuoted
-                }
-
-                this.messages[section].messages[row] = newMessage
-
-                this.updateAtIndex?(section, row, newMessage)
+            // `add(message:)` mutates `messages` on the main queue, so this has to as
+            // well. Sending a message produces .inProgress then .success; without the
+            // hop the ack could run its lookup before the queued insert had placed the
+            // placeholder, find nothing, and drop the update. The placeholder then
+            // stayed at `id == 0`, which leaves the cell's long-press handler nil —
+            // no context menu, so no pin or save on a just-sent message.
+            DispatchQueue.main.async { [weak self] in
+                guard let this = self else { return }
+                this.applyUpdate(newMessage: messages_)
             }
         }
         return self
     }
+
+    /// Replaces the stored copy of `newMessage` and reloads its row. Main queue only.
+    private func applyUpdate(newMessage: BaseMessage) {
+        var newMessage = newMessage
+
+        let located: (section: Int, row: Int)?
+
+        if let section = messages.firstIndex(where: { (date: Date, messages: [BaseMessage]) in
+            if let muid = Double(newMessage.muid), muid != 0.0 {
+                if date.timeIntervalSince1970 == 0.0 {
+                    return true
+                } else {
+                    return String().compareDates(newTimeInterval: muid,
+                                                 currentTimeInterval: date.timeIntervalSince1970)
+                }
+
+            } else {
+                return String().compareDates(newTimeInterval: Double(newMessage.sentAt),
+                                             currentTimeInterval: date.timeIntervalSince1970)
+            }
+        }),
+        let row = messages[section].messages.firstIndex(where: {
+            if newMessage.muid != "" {
+                return $0.muid == newMessage.muid
+            } else {
+                return $0.id == newMessage.id
+            }
+        }) {
+            located = (section, row)
+        } else {
+            // The date predicate above resolves a section from the message's own
+            // timestamp, which can miss when the stored copy sits in a section keyed on
+            // a different day — a placeholder inserted with a `muid`-derived date, or a
+            // message that changed section since. Fall back to identity across every
+            // section so a real match is not mistaken for "not in the list".
+            located = messages.enumerated().compactMap { section, entry -> (section: Int, row: Int)? in
+                guard let row = entry.messages.firstIndex(where: {
+                    ($0.muid != "" && $0.muid == newMessage.muid) || ($0.id != 0 && $0.id == newMessage.id)
+                }) else { return nil }
+                return (section, row)
+            }.first
+        }
+
+        guard let target = located else { return }
+        let section = target.section
+        let row = target.row
+
+        let oldMessage = messages[section].messages[row]
+
+        if newMessage.quotedMessage == nil, let oldQuoted = oldMessage.quotedMessage {
+            newMessage.quotedMessage = oldQuoted
+        }
+
+        messages[section].messages[row] = newMessage
+
+        updateAtIndex?(section, row, newMessage)
+    }
     
+    /// Refreshes a message whose pin/save state changed.
+    ///
+    /// Routes through `updateReceiptAtIndex`, which rebuilds only the status-info view,
+    /// rather than `update(message:)`'s full `reloadRows` — a pin or save touches nothing
+    /// but the meta row, and reloading the row makes stickers and media flicker. Falls
+    /// back to the full path when no receipt handler is wired.
+    @discardableResult
+    public func updatePinSaveState(message: BaseMessage) -> Self {
+        for (section, currentMessages) in messages.enumerated() {
+            guard let row = currentMessages.messages.firstIndex(where: { $0.id == message.id }) else { continue }
+
+            messages[section].messages[row] = message
+            if let receiptUpdate = updateReceiptAtIndex {
+                receiptUpdate(section, row, message)
+            } else {
+                updateAtIndex?(section, row, message)
+            }
+            return self
+        }
+        return self
+    }
+
     @discardableResult
     public func update(receipt: MessageReceipt) -> Self {
         if !disableReceipt {
@@ -1455,89 +1652,62 @@ extension MessageListViewModel {
     }
 }
 
+extension MessageListViewModel: CometChatThreadEventListener {
+
+    /// Another surface changed the subscription — keep the objects this list holds in step.
+    /// This is a write-back, not a server call: whoever published has already done that.
+    public func ccThreadSubscriptionChanged(parentMessageId: Int, isSubscribed: Bool) {
+        applyThreadSubscription(parentMessageId: parentMessageId, isSubscribed: isSubscribed)
+    }
+}
+
 extension MessageListViewModel: CometChatMessageEventListener {
-    
+
+    /// Every realtime message arrival lands here, whatever its type.
+    func onMessageReceived(message: BaseMessage) {
+
+        if self.getTemplate(for: message) == nil { return }
+        ifThreadedMessageUpdateCount(message: message)
+        // Stamp before the message is added, so it renders with the right state.
+        applyIncomingReplySubscription(message: message)
+        if checkThreadedMessageBelongsToThisConversation(message: message) {
+            self.newMessageReceived?(message)
+            self.add(message: message)
+        }
+    }
+
     public func onFormMessageReceived(message: FormMessage) {
-        
-        if self.getTemplate(for: message) == nil { return }
-        ifThreadedMessageUpdateCount(message: message)
-        if checkThreadedMessageBelongsToThisConversation(message: message) {
-            self.newMessageReceived?(message)
-            self.add(message: message)
-        }
+        onMessageReceived(message: message)
     }
-    
+
     public func onSchedulerMessageReceived(message: SchedulerMessage) {
-        
-        if self.getTemplate(for: message) == nil { return }
-        ifThreadedMessageUpdateCount(message: message)
-        if checkThreadedMessageBelongsToThisConversation(message: message) {
-            self.newMessageReceived?(message)
-            self.add(message: message)
-        }
+        onMessageReceived(message: message)
     }
-    
+
     public func onCustomInteractiveMessageReceived(message: CustomInteractiveMessage) {
-        
-        if self.getTemplate(for: message) == nil { return }
-        ifThreadedMessageUpdateCount(message: message)
-        if checkThreadedMessageBelongsToThisConversation(message: message) {
-            self.newMessageReceived?(message)
-            self.add(message: message)
-        }
+        onMessageReceived(message: message)
     }
-    
+
     public func onCardMessageReceived(message: CardMessage) {
-        
-        if self.getTemplate(for: message) == nil { return }
-        ifThreadedMessageUpdateCount(message: message)
-        if checkThreadedMessageBelongsToThisConversation(message: message) {
-            self.newMessageReceived?(message)
-            self.add(message: message)
-        }
+        onMessageReceived(message: message)
     }
-    
+
     public func onNewCardMessageReceived(cardMessage: BaseMessage) {
-        
-        if self.getTemplate(for: cardMessage) == nil { return }
-        ifThreadedMessageUpdateCount(message: cardMessage)
-        if checkThreadedMessageBelongsToThisConversation(message: cardMessage) {
-            self.newMessageReceived?(cardMessage)
-            self.add(message: cardMessage)
-        }
+        onMessageReceived(message: cardMessage)
     }
-    
-    
+
     public func onTextMessageReceived(textMessage: TextMessage) {
-        
-        if self.getTemplate(for: textMessage) == nil { return }
-        ifThreadedMessageUpdateCount(message: textMessage)
-        if checkThreadedMessageBelongsToThisConversation(message: textMessage) {
-            self.newMessageReceived?(textMessage)
-            self.add(message: textMessage)
-        }
+        onMessageReceived(message: textMessage)
     }
-    
+
     public func onMediaMessageReceived(mediaMessage: MediaMessage) {
-        
-        if self.getTemplate(for: mediaMessage) == nil { return }
-        ifThreadedMessageUpdateCount(message: mediaMessage)
-        if checkThreadedMessageBelongsToThisConversation(message: mediaMessage) {
-            self.newMessageReceived?(mediaMessage)
-            self.add(message: mediaMessage)
-        }
+        onMessageReceived(message: mediaMessage)
     }
-    
+
     public func onCustomMessageReceived(customMessage: CustomMessage) {
-                
-        if self.getTemplate(for: customMessage) == nil { return }
-        ifThreadedMessageUpdateCount(message: customMessage)
-        if checkThreadedMessageBelongsToThisConversation(message: customMessage) {
-            self.newMessageReceived?(customMessage)
-            self.add(message: customMessage)
-        }
+        onMessageReceived(message: customMessage)
     }
-    
+
     public func onMessagesDelivered(receipt: MessageReceipt) {
         update(receipt: receipt)
     }
@@ -1591,8 +1761,11 @@ extension MessageListViewModel: CometChatMessageEventListener {
         
         if status == .success {
             ifThreadedMessageUpdateCount(message: message)
+            // Cases 2 and 4: sending subscribes the sender server-side, for a thread
+            // reply and for a root alike — mirror it locally.
+            applyOwnMessageSent(message: message)
         }
-        
+
         if checkThreadedMessageBelongsToThisConversation(message: message) {
             switch status {
             case .inProgress:
@@ -1683,9 +1856,45 @@ extension MessageListViewModel: CometChatMessageEventListener {
 
     
     public func onMessageEdited(message: BaseMessage) {
+        // Case 5: an edited thread reply that mentions me subscribes me to the parent
+        // server-side, whoever edited it and whether the mention was just added or
+        // preserved. `ownAuthorshipSubscribes: false` because editing my own message
+        // does not re-subscribe me — only a mention does. A no-op on non-thread edits.
+        applyIncomingReplySubscription(message: message, ownAuthorshipSubscribes: false)
+
         if checkThreadedMessageBelongsToThisConversation(message: message) {
             self.update(message: message)
         }
+    }
+
+    /// The payload is the updated message, so the meta-row fast path is enough — no reload.
+    /// A message not in this conversation simply isn't found and is ignored.
+    public func onMessagePinned(message: BaseMessage) {
+        updatePinSaveState(message: message)
+    }
+
+    public func onMessageUnpinned(message: BaseMessage) {
+        updatePinSaveState(message: message)
+    }
+
+    public func onMessageSaved(message: BaseMessage) {
+        updatePinSaveState(message: message)
+    }
+
+    public func onMessageUnsaved(message: BaseMessage) {
+        updatePinSaveState(message: message)
+    }
+
+    /// This device already applied the change optimistically, so only a failure needs
+    /// acting on — the emitter carries the rolled-back message.
+    public func ccMessagePinned(message: BaseMessage, status: MessageStatus) {
+        guard status == .error else { return }
+        updatePinSaveState(message: message)
+    }
+
+    public func ccMessageSaved(message: BaseMessage, status: MessageStatus) {
+        guard status == .error else { return }
+        updatePinSaveState(message: message)
     }
 
     public func onMessageReactionAdded(reactionEvent: ReactionEvent) {

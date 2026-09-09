@@ -42,8 +42,32 @@ public class ConversationsUtils {
         
         badgeCount.pin(anchors: [.trailing, .bottom], to: tailView)
         badgeCount.topAnchor.pin(equalTo: dateLabel.bottomAnchor, constant: CometChatSpacing.Spacing.s2).isActive = true
-        dateLabel.pin(anchors: [.top, .trailing, .leading], to: tailView)
-        
+        dateLabel.pin(anchors: [.top, .trailing], to: tailView)
+
+        // Pin indicator sits to the leading side of the date, so an unpinned row lays out
+        // exactly as before. `pinnedAt` uses a 0 sentinel, so presence is the test.
+        if conversation.pinnedAt != 0 {
+            let pinIcon = UIImageView().withoutAutoresizingMaskConstraints()
+            pinIcon.image = UIImage(systemName: "pin.fill")
+            pinIcon.tintColor = dateStyle.textColor
+            pinIcon.contentMode = .scaleAspectFit
+            pinIcon.isAccessibilityElement = true
+            pinIcon.accessibilityLabel = ConversationConstants.pinnedIndicator
+            tailView.addSubview(pinIcon)
+
+            // Scales with the timestamp's font so the glyph tracks Dynamic Type instead of
+            // shrinking against enlarged text.
+            let glyphSize = max(12, dateStyle.textFont.pointSize * 0.9)
+            pinIcon.widthAnchor.pin(equalToConstant: glyphSize).isActive = true
+            pinIcon.heightAnchor.pin(equalToConstant: glyphSize).isActive = true
+            pinIcon.centerYAnchor.pin(equalTo: dateLabel.centerYAnchor).isActive = true
+            pinIcon.trailingAnchor.pin(equalTo: dateLabel.leadingAnchor,
+                                       constant: -CometChatSpacing.Spacing.s1).isActive = true
+            pinIcon.leadingAnchor.pin(greaterThanOrEqualTo: tailView.leadingAnchor).isActive = true
+        } else {
+            dateLabel.pin(anchors: [.leading], to: tailView)
+        }
+
         return tailView
     }
 

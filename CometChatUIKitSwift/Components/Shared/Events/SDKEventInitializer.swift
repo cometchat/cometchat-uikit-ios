@@ -43,7 +43,47 @@ public class SDKEventInitializer : CometChatMessageDelegate {
     public func onTransisentMessageReceived(_ message: TransientMessage) {
         CometChatMessageEvents.onTransientMessageReceived(message)
     }
+
+    /// A per-user conversation pin syncs from the user's other devices; an admin-global pin
+    /// (`pinnedBy` == `app_system`) broadcasts to everyone affected. Both land here.
+    ///
+    /// Forwarded onto the existing conversation update event rather than a new pin-specific
+    /// one: the payload is a full conversation carrying the new `pinnedAt`, and the list
+    /// already listens for this to reposition the row.
+    ///
+    /// > Important: the `conversation_pin` envelope these ride on is **unverified** — the SDK
+    /// > infers its shape from the confirmed `message_save` frame, both being per-user
+    /// > self-echoes, and no real frame has been captured yet. Message pin/save (below) is
+    /// > confirmed; this pair should be re-checked against live traffic.
+    public func onConversationPinned(conversation: Conversation) {
+        CometChatConversationEvents.ccUpdateConversation(conversation: conversation)
+    }
+    public func onConversationUnpinned(conversation: Conversation) {
+        CometChatConversationEvents.ccUpdateConversation(conversation: conversation)
+    }
     
+    /// Live frames, forwarded onto the kit's own bus.
+    ///
+    /// Pin is conversation-wide, so a pin reaches every participant; save is private and its
+    /// frames only ever reach the saving user's other devices. The acting device receives its
+    /// own echo here too, on top of the `ccMessagePinned`/`ccMessageSaved` the surface emits —
+    /// listeners must therefore tolerate both for one action.
+    public func onMessagePinned(message: BaseMessage) {
+        CometChatMessageEvents.onMessagePinned(message: message)
+    }
+
+    public func onMessageUnpinned(message: BaseMessage) {
+        CometChatMessageEvents.onMessageUnpinned(message: message)
+    }
+
+    public func onMessageSaved(message: BaseMessage) {
+        CometChatMessageEvents.onMessageSaved(message: message)
+    }
+
+    public func onMessageUnsaved(message: BaseMessage) {
+        CometChatMessageEvents.onMessageUnsaved(message: message)
+    }
+
     public func onMessagesReadByAll(receipt: MessageReceipt) {
         CometChatMessageEvents.onMessagesReadByAll(receipt: receipt)
     }

@@ -26,6 +26,7 @@ internal enum ListenerChannel: String, Hashable, CaseIterable {
     case groupEvents
     case callEvents
     case messageEvents
+    case threadEvents
     case conversationEvents
     case uiEvents
 }
@@ -135,6 +136,12 @@ internal final class SDKListenerRegistrar: ListenerRegistering {
             } else {
                 assertionFailure(Self.mismatch(channel, CometChatMessageEventListener.self, listener))
             }
+        case .threadEvents:
+            if let listener = listener as? CometChatThreadEventListener {
+                CometChatThreadEvents.addListener(id, listener)
+            } else {
+                assertionFailure(Self.mismatch(channel, CometChatThreadEventListener.self, listener))
+            }
         case .conversationEvents:
             if let listener = listener as? CometChatConversationEventListener {
                 CometChatConversationEvents.addListener(id, listener)
@@ -163,6 +170,7 @@ internal final class SDKListenerRegistrar: ListenerRegistering {
         case .groupEvents: CometChatGroupEvents.removeListener(id)
         case .callEvents: CometChatCallEvents.removeListener(id)
         case .messageEvents: CometChatMessageEvents.removeListener(id)
+        case .threadEvents: CometChatThreadEvents.removeListener(id)
         case .conversationEvents: CometChatConversationEvents.removeListener(id)
         case .uiEvents: CometChatUIEvents.removeListener(id)
         }

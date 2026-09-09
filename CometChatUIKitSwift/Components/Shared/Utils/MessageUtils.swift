@@ -181,16 +181,36 @@ open class MessageUtils {
             
             // adding edited tag for any edited message (text, media caption, etc.)
             if message.editedAt != 0 {
-                date.text = "Edited  " + (date.text ?? "")
+                date.text = "MESSAGE_EDITED".localize() + "  " + (date.text ?? "")
             }
             
             statusInfoView.addSubview(date)
             constraintToActive += [
                 date.topAnchor.pin(equalTo: statusInfoView.topAnchor),
                 date.bottomAnchor.pin(equalTo: statusInfoView.bottomAnchor),
-                date.leadingAnchor.pin(equalTo: statusInfoView.leadingAnchor, constant: CometChatSpacing.Padding.p1),
             ]
-            
+
+            // Pinned/saved indicators take the slot before the timestamp, so a message
+            // with neither lays out exactly as before. Both use a 0 sentinel, so
+            // presence is the test — never a `> 0` comparison.
+            let indicators = pinSaveIndicators(for: message, dateStyle: dateStyle)
+            var leadingAnchorForNext = statusInfoView.leadingAnchor
+            for indicator in indicators {
+                statusInfoView.addSubview(indicator)
+                let glyphSize = max(12, dateStyle.textFont.pointSize * 0.9)
+                constraintToActive += [
+                    indicator.widthAnchor.pin(equalToConstant: glyphSize),
+                    indicator.heightAnchor.pin(equalToConstant: glyphSize),
+                    indicator.centerYAnchor.pin(equalTo: date.centerYAnchor),
+                    indicator.leadingAnchor.pin(equalTo: leadingAnchorForNext,
+                                                constant: CometChatSpacing.Padding.p1),
+                ]
+                leadingAnchorForNext = indicator.trailingAnchor
+            }
+            constraintToActive += [
+                date.leadingAnchor.pin(equalTo: leadingAnchorForNext, constant: CometChatSpacing.Padding.p1),
+            ]
+
             if isReceiptVisible {
                 constraintToActive += [ date.trailingAnchor.pin(equalTo: receipt.leadingAnchor, constant: -CometChatSpacing.Padding.p1) ]
             } else {
@@ -286,6 +306,72 @@ open class MessageUtils {
         bubble.set(bottomView: view)
     }
     
+    /// The SDK collapses "never pinned" and an explicit `pinnedAt: 0` onto the same
+    /// sentinel, so a non-zero timestamp is the only safe read. Every call site goes
+    /// through here rather than comparing the field itself.
+    public static func isPinned(message: BaseMessage) -> Bool {
+        return message.pinnedAt != 0
+    }
+
+    public static func isSaved(message: BaseMessage) -> Bool {
+        return message.savedAt != 0
+    }
+
+    /// Meta-row glyphs for a pinned and/or saved message, in that order.
+    ///
+    /// Deleted messages are skipped: the actions are unreachable on them, and a
+    /// stale indicator on a "message deleted" placeholder reads as a live pin.
+    /// Filled variants are used rather than the option-menu outlines — an
+    /// indicator states a fact, where the menu icon offers an action.
+    static func pinSaveIndicators(for message: BaseMessage, dateStyle: DateStyle) -> [UIImageView] {
+        guard message.deletedAt == 0 else { return [] }
+
+        var glyphs = [(name: String, label: String)]()
+        if isPinned(message: message) {
+            glyphs.append((name: "pin.fill", label: "PINNED_INDICATOR".localize()))
+        }
+        if isSaved(message: message) {
+            glyphs.append((name: "bookmark.fill", label: "SAVED_INDICATOR".localize()))
+        }
+
+        return glyphs.map { glyph in
+            let icon = UIImageView().withoutAutoresizingMaskConstraints()
+            icon.image = UIImage(systemName: glyph.name)?.withRenderingMode(.alwaysTemplate)
+            icon.tintColor = dateStyle.textColor
+            icon.contentMode = .scaleAspectFit
+            icon.isAccessibilityElement = true
+            icon.accessibilityLabel = glyph.label
+            return icon
+        }
+    }
+
+    /// Reconstructs a quoted `BaseMessage` from a raw `quotedMessage` payload for cases where
+    /// the SDK doesn't populate `message.quotedMessage` (e.g. agentic AI replies, developer
+    /// cards). Dispatches to the appropriate public `fromJSON` parser by category/type, falling
+    /// back to a text parse so a preview still renders. Returns nil if it can't be parsed.
+    static func resolveQuotedMessage(from raw: [String: Any]) -> BaseMessage? {
+        let category = raw["category"] as? String
+        let type = raw["type"] as? String
+
+        switch category {
+        case MessageCategoryConstants.message:
+            switch type {
+            case MessageTypeConstants.image, MessageTypeConstants.video,
+                 MessageTypeConstants.audio, MessageTypeConstants.file:
+                return MediaMessage.mediaMessage(fromJSON: raw).0
+            default:
+                return TextMessage.textMessage(fromJSON: raw).0
+            }
+        case MessageCategoryConstants.custom:
+            return CustomMessage.customMessage(fromJSON: raw).0
+        case MessageCategoryConstants.action:
+            return ActionMessage.actionMessage(fromJSON: raw).0
+        default:
+            // interactive / agentic / card / unknown → best-effort text preview
+            return TextMessage.textMessage(fromJSON: raw).0
+        }
+    }
+
     public static func isMessageModerationDisapproved(message: BaseMessage) -> Bool {
         // Check for traditional moderation disapproval
         if (message as? TextMessage)?.getModerationStatus() == "disapproved" || (message as? MediaMessage)?.getModerationStatus() == "disapproved" {

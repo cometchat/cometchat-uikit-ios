@@ -211,6 +211,29 @@ import CometChatSDK
     public var hideNewChatButton: Bool = false
     public var hideChatHistoryButton: Bool = false
 
+    /// The thread's root message the subscription bell acts on. The bell renders
+    /// only when this is set — that is what puts the header in thread mode.
+    public var parentMessage: BaseMessage? {
+        didSet { addCustomViews() }
+    }
+    /// Master switch for the bell, mirroring the message list's own flag.
+    /// Hides the bell while leaving the feature on, for a host that already
+    /// renders its own control elsewhere on the screen.
+    public var hideThreadSubscriptionButton: Bool = false
+
+    /// Subscribe/unsubscribe control, in the header's trailing area.
+    public lazy var threadSubscriptionButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.imageView?.contentMode = .scaleAspectFit
+        button.addTarget(self, action: #selector(onThreadSubscriptionButtonTapped), for: .touchUpInside)
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 24),
+            button.heightAnchor.constraint(equalToConstant: 24)
+        ])
+        return button
+    }()
+
     // MARK: - Initialization
     override public init(frame: CGRect) {
         super.init(frame: UIScreen.main.bounds)
@@ -226,6 +249,25 @@ import CometChatSDK
         }
     }
     
+    /// Rebuilds the ⋮ menu from `options` onto the existing button.
+    ///
+    /// Split out of `addCustomViews()` so `set(options:)` can refresh the menu after the
+    /// header is already laid out — needed by any menu item whose title or icon depends on
+    /// state (a Pin/Unpin toggle, for instance), since `MenuItem` carries no toggle state
+    /// and its properties are not readable from outside the module.
+    internal func rebuildMenu(for options: [CometChatPopupMenu.MenuItem]) {
+        guard let button = menuButton else { return }
+
+        let actions = options.map { item in
+            UIAction(title: item.title, image: item.icon) { _ in item.action?() }
+        }
+
+        if #available(iOS 14.0, *) {
+            button.menu = UIMenu(title: "", children: actions)
+            button.showsMenuAsPrimaryAction = true
+        }
+    }
+
     func addCustomViews(){
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -261,21 +303,7 @@ import CometChatSDK
                     self.tailView.addArrangedSubview(button)
                     self.menuButton = button
 
-                    // Build UIMenu from options
-                    var actions: [UIAction] = []
-                    for item in options {
-                        let action = UIAction(title: item.title, image: item.icon) { _ in
-                            item.action?()
-                        }
-                        actions.append(action)
-                    }
-                    let menu = UIMenu(title: "", children: actions)
-                    if #available(iOS 14.0, *) {
-                        button.menu = menu
-                        button.showsMenuAsPrimaryAction = true
-                    } else {
-                        // Fallback on earlier versions
-                    }
+                    self.rebuildMenu(for: options)
 
                     // Optional button constraints
                     button.widthAnchor.constraint(equalToConstant: 24).isActive = true
@@ -283,6 +311,13 @@ import CometChatSDK
                 }
             }
             
+            // Thread mode: the bell replaces the conversation-level trailing items.
+            if self.shouldShowThreadSubscription {
+                self.tailView.alignment = .center
+                self.tailView.addArrangedSubview(self.threadSubscriptionButton)
+                self.updateThreadSubscriptionState()
+            }
+
             if let trailView = trailView?(viewModel.user, viewModel.group){
                 self.tailView.alignment = .center
                 self.tailView.addArrangedSubview(trailView)
@@ -491,13 +526,90 @@ import CometChatSDK
     // MARK: - Connectivity
     public func connect() {
         CometChat.addConnectionListener("messages-header-sdk-listener-\(viewModel.listenerRandomId)", self)
+        // Keeps the bell in step with a toggle made from the message action sheet.
+        CometChatThreadEvents.addListener("messages-header-thread-listener-\(viewModel.listenerRandomId)", self)
         setupViewModel()
         self.viewModel.connect()
     }
-    
+
     public func disconnect() {
         CometChat.removeConnectionListener("messages-header-sdk-listener-\(viewModel.listenerRandomId)")
+        CometChatThreadEvents.removeListener("messages-header-thread-listener-\(viewModel.listenerRandomId)")
         viewModel.disconnect()
+    }
+
+    // MARK: - Thread Subscription
+
+    /// The bell renders only in thread mode — a parent message is set, the feature is
+    /// on, and the host has not suppressed it in favour of its own control.
+    ///
+    /// Offered in 1-1 threads as well as groups, matching the action-sheet option:
+    /// subscribing applies to `receiverType: user` too, so there is no receiver-type gate.
+    var shouldShowThreadSubscription: Bool {
+        guard let parentMessage, parentMessage.id > 0 else { return false }
+        return CometChatUIKit.isThreadSubscriptionEnabled() && !hideThreadSubscriptionButton
+    }
+
+    /// Reads the flag off the parent message rather than tracking its own state, so the
+    /// bell and the action sheet never disagree. A message that arrived without the flag
+    /// renders as unsubscribed.
+    open func updateThreadSubscriptionState() {
+        guard let parentMessage, parentMessage.id > 0 else { return }
+        renderThreadSubscription(isSubscribed: parentMessage.threadSubscribed)
+    }
+
+    open func renderThreadSubscription(isSubscribed: Bool) {
+        threadSubscriptionButton.setImage(
+            isSubscribed ? AssetConstants.unfollowThread : AssetConstants.followThread,
+            for: .normal
+        )
+        threadSubscriptionButton.tintColor = isSubscribed
+            ? CometChatTheme.iconColorHighlight
+            : CometChatTheme.iconColorPrimary
+        // State-labelled, not action-labelled, so the name matches what is shown.
+        threadSubscriptionButton.accessibilityLabel = isSubscribed
+            ? "THREAD_SUBSCRIBED".localize()
+            : "THREAD_SUBSCRIBE".localize()
+    }
+
+    @objc open func onThreadSubscriptionButtonTapped() {
+        guard let parentMessage, parentMessage.id > 0 else { return }
+
+        let parentMessageId = parentMessage.id
+        let isSubscribed = parentMessage.threadSubscribed
+
+        // Flip now so the control responds to the tap; the original goes back on failure.
+        renderThreadSubscription(isSubscribed: !isSubscribed)
+        threadSubscriptionButton.isEnabled = false
+
+        let onSuccess: (String) -> Void = { [weak self] _ in
+            DispatchQueue.main.async {
+                guard let this = self else { return }
+                this.threadSubscriptionButton.isEnabled = true
+                // Stamp the message: it is the source of truth the bell reads back.
+                this.parentMessage?.threadSubscribed = !isSubscribed
+                CometChatThreadEvents.ccThreadSubscriptionChanged(parentMessageId: parentMessageId,
+                                                                  isSubscribed: !isSubscribed)
+                // Unsubscribing is not permanent, so say so rather than let the user discover it.
+                let toast = isSubscribed ? "THREAD_UNSUBSCRIBED_TOAST" : "THREAD_SUBSCRIBED_TOAST"
+                CometChatToast.show(message: toast.localize(), on: this.controller)
+            }
+        }
+
+        let onError: (CometChatException) -> Void = { [weak self] _ in
+            DispatchQueue.main.async {
+                guard let this = self else { return }
+                this.threadSubscriptionButton.isEnabled = true
+                this.renderThreadSubscription(isSubscribed: isSubscribed)
+                CometChatToast.show(message: "THREAD_SUBSCRIPTION_FAILED".localize(), on: this.controller)
+            }
+        }
+
+        if isSubscribed {
+            CometChat.unsubscribeFromThread(parentMessageId: parentMessageId, onSuccess: onSuccess, onError: onError)
+        } else {
+            CometChat.subscribeToThread(parentMessageId: parentMessageId, onSuccess: onSuccess, onError: onError)
+        }
     }
 
     // MARK: - Updates
@@ -634,6 +746,16 @@ extension CometChatMessageHeader {
         } else{
             subtitleLabel.textColor = style.subtitleTextColor
             subtitleLabel.font = style.subtitleTextFont
+        }
+    }
+}
+
+extension CometChatMessageHeader: CometChatThreadEventListener {
+
+    public func ccThreadSubscriptionChanged(parentMessageId: Int, isSubscribed: Bool) {
+        guard parentMessageId == parentMessage?.id else { return }
+        DispatchQueue.main.async { [weak self] in
+            self?.renderThreadSubscription(isSubscribed: isSubscribed)
         }
     }
 }

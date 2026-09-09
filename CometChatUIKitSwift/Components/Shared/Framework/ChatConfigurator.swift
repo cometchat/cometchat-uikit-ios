@@ -3,19 +3,20 @@
 public class ChatConfigurator {
     
     static var dataSource: DataSource = MessagesDataSource()
-    static var names = ["message utils"]
+    static var names = [MessagesDataSource().getId()]
     
     @discardableResult
     init(initialSource: DataSource?) {
         ChatConfigurator.dataSource = initialSource ?? MessagesDataSource()
-        ChatConfigurator.names = ["message utils"]
+        ChatConfigurator.names = [ChatConfigurator.dataSource.getId()]
     }
     
     static func enable(_ fun: (_ dataSource: DataSource) -> DataSource) {
         let oldSource = self.dataSource
         let newSource = fun(oldSource)
 
-        if names.contains(obj: newSource.getId()) {
+        // A decorator reporting its wrapped source's id must not stack again.
+        if newSource.getId() == oldSource.getId() || names.contains(obj: newSource.getId()) {
             debugPrint("Already added")
         } else {
             self.dataSource = newSource

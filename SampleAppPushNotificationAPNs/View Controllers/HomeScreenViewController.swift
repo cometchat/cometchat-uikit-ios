@@ -17,6 +17,7 @@ class HomeScreenViewController: UITabBarController {
     lazy var conversations: CometChatConversations = {
         let conversations = CometChatConversations()
         conversations.hideSearch = false
+        conversations.enablePinConversation = true
         conversations.set(onItemClick: { [weak self] conversation, indexPath in
             let messages = MessagesVC()
             messages.group = (conversation.conversationWith as? Group)
@@ -319,6 +320,11 @@ class HomeScreenViewController: UITabBarController {
                 startNewConversationNVC.hidesBottomBarWhenPushed = true
                 self.navigationController?.pushViewController(startNewConversationNVC, animated: true)
             }),
+            // Same key the screen titles itself with; the count slot stays empty here.
+            UIAction(title: String(format: "SAVED_MESSAGES_TITLE".localize(), "").trimmingCharacters(in: .whitespaces),
+                     image: UIImage(systemName: "bookmark"), handler: { [weak self] _ in
+                self?.openSavedMessages()
+            }),
             UIAction(title: "\(CometChat.getLoggedInUser()?.name ?? "")", image: UIImage(systemName: "person.circle"), handler: { _ in
 
             }),
@@ -377,6 +383,101 @@ class HomeScreenViewController: UITabBarController {
             self?.navigationController?.pushViewController(messages, animated: true)
         }
         presentViewControllerBottomSheet(from: self, to: vc, height: 356)
+    }
+
+    /// Saved messages are user-level and span conversations, so they open from here rather
+    /// than from inside a single conversation.
+    private func openSavedMessages() {
+        let savedVC = CometChatSavedMessages()
+        savedVC.hidesBottomBarWhenPushed = true
+
+        // The component supplies its own back chevron as a leftBarButtonItem, so the system
+        // back button stays suppressed — setting `hideBackButton = false` here would render
+        // both.
+        savedVC.hideNavigationBar = false
+
+        savedVC.set(onBack: { [weak self] in
+            self?.navigationController?.setNavigationBarHidden(true, animated: true)
+            self?.navigationController?.popViewController(animated: true)
+        })
+
+        // A row can belong to any conversation, so open the message's own chat.
+        savedVC.set(onMessageClicked: { [weak self] message in
+            self?.openConversation(for: message)
+        })
+
+        if let splitScreenCallBack {
+            splitScreenCallBack(savedVC)
+        } else {
+            // The Chats screen hides the bar, and setupNavigationBar() only fills the bar in
+            // — it never unhides it. Without this the title and back button never appear.
+            navigationController?.setNavigationBarHidden(false, animated: true)
+            navigationController?.pushViewController(savedVC, animated: true)
+        }
+    }
+
+    /// Pushes the conversation a saved message belongs to, scrolled to that message.
+    private func openConversation(for message: BaseMessage) {
+        // A saved reply lives in a thread, so the conversation itself never shows it —
+        // open the thread instead, the way the search results do.
+        if message.parentMessageId > 0 {
+            openThread(for: message)
+            return
+        }
+
+        // Qualified: FirebaseAuth also declares `User`.
+        let openMessages: (CometChatSDK.User?, Group?) -> Void = { [weak self] user, group in
+            guard let this = self, user != nil || group != nil else { return }
+
+            let messages = MessagesVC()
+            messages.user = user
+            messages.group = group
+            // Jump to the saved message and highlight it, rather than opening at the
+            // bottom of the conversation and leaving the user to find it.
+            messages.targetMessageId = message.id
+            if let splitScreenCallBack = this.splitScreenCallBack {
+                splitScreenCallBack(messages)
+            } else {
+                this.navigationController?.pushViewController(messages, animated: true)
+            }
+        }
+
+        if message.receiverType == .group {
+            CometChat.getGroup(GUID: message.receiverUid) { group in
+                DispatchQueue.main.async { openMessages(nil, group) }
+            } onError: { _ in }
+        } else {
+            // A received 1:1 message is addressed to the logged-in user, so the conversation
+            // is with its sender; one they sent is addressed to the other party.
+            let isReceived = message.receiverUid == CometChat.getLoggedInUser()?.uid
+            let uid = isReceived ? (message.sender?.uid ?? message.receiverUid) : message.receiverUid
+
+            CometChat.getUser(UID: uid) { user in
+                DispatchQueue.main.async { openMessages(user, nil) }
+            } onError: { _ in }
+        }
+    }
+
+    /// Opens the thread a saved reply belongs to, scrolled to that reply. The parent has
+    /// to be fetched first — a saved reply carries only its parent's id.
+    private func openThread(for message: BaseMessage) {
+        CometChat.getMessageDetails(message.parentMessageId) { [weak self] parentMessage in
+            DispatchQueue.main.async {
+                guard let this = self else { return }
+
+                let threadedView = ThreadedMessagesVC()
+                threadedView.parentMessage = parentMessage
+                threadedView.parentMessageView.controller = this
+                threadedView.targetMessageId = message.id
+                threadedView.parentMessageView.set(parentMessage: parentMessage)
+
+                if let splitScreenCallBack = this.splitScreenCallBack {
+                    splitScreenCallBack(threadedView)
+                } else {
+                    this.navigationController?.pushViewController(threadedView, animated: true)
+                }
+            }
+        } onError: { _ in }
     }
     
     

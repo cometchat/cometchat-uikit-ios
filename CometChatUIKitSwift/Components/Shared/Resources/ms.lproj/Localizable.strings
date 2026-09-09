@@ -297,7 +297,6 @@
 "ENTER_LINK_URL" = "Masukkan URL pautan";
 "REMOVE" = "Alih keluar";
 
-
 /* Multiple attachments */
 "attachment_overflow" = "+%@";
 "file_list_show_more" = "+%@ lagi";
@@ -329,3 +328,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Sematkan mesej";
+"UNPIN_MESSAGE" = "Nyahsemat mesej";
+"SAVE_MESSAGE" = "Simpan mesej";
+"UNSAVE_MESSAGE" = "Alih keluar daripada simpanan";
+"MESSAGE_PINNED_TOAST" = "Mesej disematkan";
+"MESSAGE_UNPINNED_TOAST" = "Sematan mesej dialih keluar";
+"MESSAGE_SAVED_TOAST" = "Mesej disimpan";
+"MESSAGE_UNSAVED_TOAST" = "Mesej dialih keluar daripada simpanan";
+"PIN_MESSAGE_LIMIT_REACHED" = "Anda hanya boleh menyematkan %@ mesej. Nyahsemat satu untuk menyemat yang lain.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "Anda boleh menyimpan sehingga %@ mesej. Alih keluar satu untuk meneruskan.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "Anda tiada kebenaran untuk menyematkan mesej di sini.";
+"PIN_MESSAGE_FAILED" = "Sematan tidak dapat dikemas kini. Sila cuba lagi.";
+"SAVE_MESSAGE_FAILED" = "Mesej yang disimpan tidak dapat dikemas kini. Sila cuba lagi.";
+"PINNED_MESSAGES_TITLE" = "%@ Mesej Disematkan";
+"PINNED_MESSAGES_LABEL" = "Mesej Disematkan";
+"PINNED_MESSAGES_EMPTY_TITLE" = "Tiada mesej disematkan lagi";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Sematkan mesej penting untuk mencarinya dengan pantas.";
+"SAVED_MESSAGES_TITLE" = "%@ Mesej Disimpan";
+"SAVED_MESSAGES_EMPTY_TITLE" = "Tiada mesej disimpan lagi";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Simpan mesej supaya mudah dicapai bila-bila anda perlukan.";
+"PINNED_INDICATOR" = "Disematkan";
+"SAVED_INDICATOR" = "Disimpan";
+"MESSAGE_EDITED" = "Disunting";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "Lagi…";
+"MORE_OPTIONS_EXPANDED" = "Menunjukkan pilihan lain";
+"MORE_OPTIONS_COLLAPSED" = "Menunjukkan pilihan utama";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Sematkan";
+"UNPIN_CONVERSATION" = "Buang sematan";
+"CONVERSATION_PINNED" = "Perbualan disematkan";
+"CONVERSATION_UNPINNED" = "Sematan perbualan dibuang";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "Anda hanya boleh menyematkan %@ sembang. Nyahsemat satu untuk menyemat yang lain.";
+"PIN_CONVERSATION_FAILED" = "Tidak dapat mengemas kini sematan. Sila cuba lagi.";
+"PINNED" = "Disematkan";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "Perbualan ini belum boleh disematkan.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "Anda tiada kebenaran untuk menyematkan perbualan ini.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "Langgan bebenang";
+"THREAD_UNSUBSCRIBE" = "Berhenti melanggan bebenang";
+"THREAD_SUBSCRIBED" = "Mengikuti";
+"THREAD_UNSUBSCRIBED_TOAST" = "Langganan dihentikan. Pemberitahuan dimatikan sehingga anda membalas atau disebut.";
+"THREAD_SUBSCRIBED_TOAST" = "Dilanggan. Anda akan dimaklumkan tentang balasan baharu dalam bebenang ini.";
+"THREAD_SUBSCRIPTION_FAILED" = "Tidak dapat mengemas kini. Sila cuba lagi.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Nyahsemat mesej";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "Adakah anda mahu menyahsemat mesej ini?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Nyahsimpan mesej";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "Adakah anda mahu menyahsimpan mesej ini?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Nyahsemat perbualan";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "Adakah anda mahu menyahsemat perbualan ini?";
+"UNPIN_ACTION" = "Nyahsemat";
+"UNSAVE_ACTION" = "Nyahsimpan";

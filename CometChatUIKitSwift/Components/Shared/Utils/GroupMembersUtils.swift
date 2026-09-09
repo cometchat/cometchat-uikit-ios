@@ -69,6 +69,19 @@ public class GroupMembersUtils {
         }
     }
     
+    /// Pin is conversation-wide, so it is scope-gated rather than sender-gated: being
+    /// the author of a message does not by itself allow pinning it. A nil group means
+    /// a 1:1 conversation, where both participants may pin.
+    public static func allowPinMessage(group: Group?) -> Bool {
+        guard let group = group else { return true }
+        if group.owner == CometChat.getLoggedInUser()?.uid { return true }
+        switch group.scope {
+        case .admin, .moderator: return true
+        case .participant: return false
+        @unknown default: return false
+        }
+    }
+
     public static func allowScopeChange(group: Group, groupMember: GroupMember) -> Bool {
         let myScope = group.scope
         let groupMemberScope = groupMember.scope

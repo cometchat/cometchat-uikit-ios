@@ -40,4 +40,19 @@ public enum ConversationConstants {
     static let schedulerMessage = "SCHEDULER_MESSAGE".localize()
     static let notSupportedMessage = "MESSAGE_NOT_SUPPORTED".localize()
 
+    // Pin conversation. A wire value, not display copy — never localize this.
+    /// `pinnedBy` value marking an admin-global pin. A user cannot unpin one, so the
+    /// unpin affordance is suppressed when a conversation carries it.
+    static let systemPinner = "app_system"
+
+    static let pinConversation = "PIN_CONVERSATION".localize()
+    static let unpinConversation = "UNPIN_CONVERSATION".localize()
+    static let conversationPinned = "CONVERSATION_PINNED".localize()
+    static let conversationUnpinned = "CONVERSATION_UNPINNED".localize()
+    static let pinnedConversationsLimitReached = "PINNED_CONVERSATIONS_LIMIT_REACHED".localize()
+    static let pinConversationFailed = "PIN_CONVERSATION_FAILED".localize()
+    static let pinConversationNotAvailable = "PIN_CONVERSATION_NOT_AVAILABLE".localize()
+    static let pinConversationPermissionDenied = "PIN_CONVERSATION_PERMISSION_DENIED".localize()
+    static let pinnedIndicator = "PINNED".localize()
+
 }

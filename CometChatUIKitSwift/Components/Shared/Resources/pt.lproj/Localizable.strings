@@ -323,3 +323,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Fixar mensagem";
+"UNPIN_MESSAGE" = "Desafixar mensagem";
+"SAVE_MESSAGE" = "Salvar mensagem";
+"UNSAVE_MESSAGE" = "Remover dos salvos";
+"MESSAGE_PINNED_TOAST" = "Mensagem fixada";
+"MESSAGE_UNPINNED_TOAST" = "Mensagem desafixada";
+"MESSAGE_SAVED_TOAST" = "Mensagem salva";
+"MESSAGE_UNSAVED_TOAST" = "Mensagem removida dos salvos";
+"PIN_MESSAGE_LIMIT_REACHED" = "Você só pode fixar %@ mensagens. Desafixe uma para fixar outra.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "Você pode salvar até %@ mensagens. Remova uma para continuar.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "Você não tem permissão para fixar mensagens aqui.";
+"PIN_MESSAGE_FAILED" = "Não foi possível atualizar a fixação. Tente novamente.";
+"SAVE_MESSAGE_FAILED" = "Não foi possível atualizar as mensagens salvas. Tente novamente.";
+"PINNED_MESSAGES_TITLE" = "%@ mensagens fixadas";
+"PINNED_MESSAGES_LABEL" = "Mensagens fixadas";
+"PINNED_MESSAGES_EMPTY_TITLE" = "Ainda não há mensagens fixadas";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Fixe mensagens importantes para encontrá-las rapidamente.";
+"SAVED_MESSAGES_TITLE" = "%@ mensagens salvas";
+"SAVED_MESSAGES_EMPTY_TITLE" = "Ainda não há mensagens salvas";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Salve mensagens para tê-las à mão sempre que precisar.";
+"PINNED_INDICATOR" = "Fixada";
+"SAVED_INDICATOR" = "Salva";
+"MESSAGE_EDITED" = "Editada";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "Mais…";
+"MORE_OPTIONS_EXPANDED" = "A mostrar mais opções";
+"MORE_OPTIONS_COLLAPSED" = "A mostrar opções principais";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Fixar";
+"UNPIN_CONVERSATION" = "Desafixar";
+"CONVERSATION_PINNED" = "Conversa fixada";
+"CONVERSATION_UNPINNED" = "Conversa desafixada";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "Você só pode fixar %@ conversas. Desafixe uma para fixar outra.";
+"PIN_CONVERSATION_FAILED" = "Não foi possível atualizar. Tente novamente.";
+"PINNED" = "Fixada";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "Esta conversa ainda não pode ser fixada.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "Você não tem permissão para fixar esta conversa.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "Subscrever o tópico";
+"THREAD_UNSUBSCRIBE" = "Anular a subscrição do tópico";
+"THREAD_SUBSCRIBED" = "A seguir";
+"THREAD_UNSUBSCRIBED_TOAST" = "Subscrição anulada. As notificações estão desativadas até responder ou ser mencionado.";
+"THREAD_SUBSCRIBED_TOAST" = "Subscrito. Será notificado sobre novas respostas neste tópico.";
+"THREAD_SUBSCRIPTION_FAILED" = "Não foi possível atualizar. Tente novamente.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Desafixar mensagem";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "Deseja desafixar esta mensagem?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Remover mensagem dos salvos";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "Deseja remover esta mensagem dos salvos?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Desafixar conversa";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "Deseja desafixar esta conversa?";
+"UNPIN_ACTION" = "Desafixar";
+"UNSAVE_ACTION" = "Remover dos salvos";

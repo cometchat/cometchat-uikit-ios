@@ -182,6 +182,30 @@ open class CometChatMessageList: UIView {
             viewModel.hideReplyInThreadOption = hideReplyInThreadOption
         }
     }
+    /// Default-off feature gate: pin/save stay hidden until the integrator enables
+    /// them, so the kit ships dark while the backend is still in progress.
+    public var enablePinMessage: Bool = false{
+        didSet{
+            viewModel.enablePinMessage = enablePinMessage
+        }
+    }
+    public var hidePinMessageOption: Bool = false{
+        didSet{
+            viewModel.hidePinMessageOption = hidePinMessageOption
+        }
+    }
+    public var enableSaveMessage: Bool = false{
+        didSet{
+            viewModel.enableSaveMessage = enableSaveMessage
+        }
+    }
+    public var hideSaveMessageOption: Bool = false{
+        didSet{
+            viewModel.hideSaveMessageOption = hideSaveMessageOption
+        }
+    }
+    /// Master switch for the thread-subscription option. Off by default; the option
+    /// never renders and no subscription call is made until an integrator opts in.
     public var hideFlagMessageOption: Bool = false{
         didSet{
             viewModel.hideFlagMessageOption = hideFlagMessageOption
@@ -438,7 +462,7 @@ open class CometChatMessageList: UIView {
     //MARK: Building and styling UI
     open func buildUI() {
         embed(container)
-        
+
         container.addArrangedSubview(headerViewContainer)
         headerViewContainer.pin(anchors: [.leading, .trailing], to: container, with: 10)
         
@@ -1163,27 +1187,47 @@ open class CometChatMessageList: UIView {
                 let currentRows = section < currentSections ? this.tableView.numberOfRows(inSection: section) : 0
                 
                 // Step 2: Validate section exists
+                // Falls back to reloadData rather than returning: the model has already been
+                // updated, so skipping the reload leaves the cell bound to the superseded
+                // message. A just-sent message swaps a placeholder with `id == 0` for the
+                // server's copy, and a cell left on the placeholder keeps a nil long-press
+                // handler — no context menu, so no pin/save.
                 guard section < currentSections else {
-                    return // Skip update - will be corrected on next load
+                    this.tableView.reloadData()
+                    return
                 }
-                
-                // Step 3: Validate row exists
-                guard row < currentRows else {
-                    return // Skip update - will be corrected on next load
+
+                // Step 3: Translate the model row into the row the table actually renders.
+                // `row` indexes `viewModel.messages`, which is not the table's index space:
+                // filtered group action messages are absent from the table and the unread
+                // separator adds a row. Reloading the raw index reloads the wrong cell,
+                // which is how a just-sent message stayed bound to its `id == 0`
+                // placeholder — no context menu, so no pin/save.
+                guard let indexPath = this.tableIndexPath(forModelSection: section, row: row) else {
+                    // Not rendered at all (a filtered action message): nothing to reload.
+                    return
                 }
-                
+
+                guard indexPath.row < currentRows else {
+                    this.tableView.reloadData()
+                    return
+                }
+
                 // Step 4: Verify data source consistency
-                let dataSourceCount = this.viewModel.messages.count > section ?
-                                     this.viewModel.messages[section].messages.count : 0
-                
+                // Ask the data source the same question UIKit will ask on reload. The raw
+                // `messages[section].messages.count` is a different number: it counts group
+                // action messages the table filters out, and omits the extra row the unread
+                // separator adds. Comparing that against the table's cached count lets a
+                // genuine mismatch through, and `reloadRows` then throws "invalid number of
+                // rows in section".
+                let dataSourceCount = this.tableView(this.tableView, numberOfRowsInSection: section)
+
                 guard dataSourceCount == currentRows else {
                     // Use reloadData for safety
                     print("[CometChatMessageList] updateAtIndex: row count mismatch in section \(section) — tableView has \(currentRows) rows, dataSource has \(dataSourceCount). Falling back to reloadData().")
                     this.tableView.reloadData()
                     return
                 }
-                
-                let indexPath = IndexPath(row: row, section: section)
                 
                 // Step 5: Safely reload the specific row
                 // Reload regardless of visibility to ensure receipt updates are applied
@@ -1200,9 +1244,31 @@ open class CometChatMessageList: UIView {
             
             DispatchQueue.main.async { [weak self] in
                 guard let this = self, this.isViewActive, this.tableView.window != nil else { return }
-                
-                let indexPath = IndexPath(row: row, section: section)
-                
+
+                // Same model-space to table-space translation as `updateAtIndex`; without
+                // it a pin/save repaints the wrong row's status view.
+                guard let indexPath = this.tableIndexPath(forModelSection: section, row: row) else { return }
+
+                // A batched message's status row is positional — whether it is drawn at
+                // all depends on batch position and on the pin/save state that just
+                // changed. Rebuilding it in place here would bypass that decision (and
+                // re-add the receipt this row must not repeat), so hand a batch member
+                // back to the full bind.
+                if message.metaData?["batchId"] is String {
+                    // `reloadRows` throws "invalid number of rows in section" if the
+                    // counts have drifted since the last reload, so check first and fall
+                    // back to a full reload — the same guard `updateAtIndex` applies.
+                    if this.isTableViewConsistentWithDataSource(),
+                       indexPath.row < this.tableView.numberOfRows(inSection: indexPath.section) {
+                        UIView.performWithoutAnimation {
+                            this.tableView.reloadRows(at: [indexPath], with: .none)
+                        }
+                    } else {
+                        this.tableView.reloadData()
+                    }
+                    return
+                }
+
                 // If cell is visible, update just the status info view for smooth UI
                 if this.tableView.indexPathsForVisibleRows?.contains(indexPath) == true,
                    let cell = this.tableView.cellForRow(at: indexPath) as? CometChatMessageBubble {
@@ -1402,19 +1468,24 @@ open class CometChatMessageList: UIView {
         })
     }
     
+    /// - Parameter forcesReceiptHidden: suppresses the receipt even when receipts are
+    ///   otherwise on. Used for a mid-batch row that is only being drawn to carry a
+    ///   pin/save indicator: the batch's receipt belongs to its last message, so
+    ///   repeating it here would show the same tick twice.
     open func buildMessageFooterView(
         on cell: CometChatMessageBubble,
         for message: BaseMessage,
         messageTypeStyle: BaseMessageBubbleStyle?,
         bubbleStyle: MessageBubbleStyle,
-        isModerated: Bool = false
+        isModerated: Bool = false,
+        forcesReceiptHidden: Bool = false
     ) {
         MessageUtils.buildStatusInfo(
             from: cell,
             messageTypeStyle: messageTypeStyle,
             bubbleStyle: bubbleStyle,
             message: message,
-            hideReceipt: hideReceipts,
+            hideReceipt: hideReceipts || forcesReceiptHidden,
             messageAlignment: messageAlignment,
             timePattern: timePattern, dateTimeFormatter: dateTimeFormatter, isModerated: isModerated
         )
@@ -1527,18 +1598,10 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
     }
     
     open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let filteredMessages = viewModel.messages[safe: section]?.messages.filter { message in
-            !(hideGroupActionMessages && message.messageCategory == .action && message.receiverType == .group)
-        }
-        
-        var messagesCount = filteredMessages?.count ?? 0
-        
-        if let unreadId = unreadSeparatorMessageId,
-           filteredMessages?.contains(where: { $0.id == unreadId }) ?? false {
-            messagesCount += 1
-        }
-        
-        return messagesCount
+        guard let filteredMessages = renderedMessages(inSection: section) else { return 0 }
+
+        // The separator occupies a row of its own on top of the messages.
+        return filteredMessages.count + (separatorRow(in: filteredMessages) == nil ? 0 : 1)
     }
 
     /// Returns `true` only when the table view's currently-known section and row
@@ -1561,29 +1624,66 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         return true
     }
 
+    /// The messages in `section` as the table actually renders them, with the group
+    /// action messages `hideGroupActionMessages` suppresses removed.
+    func renderedMessages(inSection section: Int) -> [BaseMessage]? {
+        viewModel.messages[safe: section]?.messages.filter { message in
+            !(hideGroupActionMessages && message.messageCategory == .action && message.receiverType == .group)
+        }
+    }
+
+    /// Row the unread separator occupies within `filteredMessages`, if it is shown here.
+    ///
+    /// Single definition, shared by `cellForRowAt` and `tableIndexPath(forModelSection:row:)`
+    /// so the two cannot disagree about where the extra row sits.
+    func separatorRow(in filteredMessages: [BaseMessage]) -> Int? {
+        guard let unreadId = unreadSeparatorMessageId,
+              let markedIndex = filteredMessages.firstIndex(where: { $0.id == unreadId })
+        else { return nil }
+
+        // `UnreadSeparatorMode` has no `none` case — the third arm matches an unset
+        // (nil) mode, which sits the separator above the marked message as
+        // `markAsUnread` does.
+        switch unreadSeparatorMode {
+        case .navigateFromConversation: return markedIndex
+        case .markAsUnread, nil: return markedIndex + 1
+        }
+    }
+
+    /// Translates a `viewModel.messages` index into the `IndexPath` the table renders.
+    ///
+    /// The two index spaces are not the same: the table drops filtered group action
+    /// messages and inserts an extra row for the unread separator. Passing a raw model
+    /// row straight to `reloadRows` therefore reloads the wrong cell whenever a
+    /// separator sits at or above it — which left a just-sent message bound to its
+    /// `id == 0` placeholder, with no context menu and so no pin/save.
+    ///
+    /// Returns `nil` when the message is not rendered at all (a filtered action
+    /// message); callers skip the update in that case.
+    func tableIndexPath(forModelSection section: Int, row: Int) -> IndexPath? {
+        guard let allMessages = viewModel.messages[safe: section]?.messages,
+              let message = allMessages[safe: row],
+              let filteredMessages = renderedMessages(inSection: section),
+              // Identity, not `firstIndex(of:)`: `BaseMessage` has no meaningful
+              // equality, and two placeholders can share `id == 0`.
+              let filteredRow = filteredMessages.firstIndex(where: { $0 === message })
+        else { return nil }
+
+        guard let separatorRow = separatorRow(in: filteredMessages) else {
+            return IndexPath(row: filteredRow, section: section)
+        }
+        // A row at or after the separator is pushed down by it.
+        return IndexPath(row: filteredRow >= separatorRow ? filteredRow + 1 : filteredRow,
+                         section: section)
+    }
+
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let filteredMessages = viewModel.messages[safe: indexPath.section]?.messages.filter({ message in
-                !(hideGroupActionMessages && message.messageCategory == .action && message.receiverType == .group)
-            }) else {
+        guard let filteredMessages = renderedMessages(inSection: indexPath.section) else {
                 return UITableViewCell()
             }
-        
+
         // Check if we need to show separator in this section
-        if let unreadId = unreadSeparatorMessageId,
-           let markedIndex = filteredMessages.firstIndex(where: { $0.id == unreadId }) {
-
-            let separatorIndex: Int
-
-            switch unreadSeparatorMode {
-            case .markAsUnread:
-                separatorIndex = markedIndex + 1
-
-            case .navigateFromConversation:
-                separatorIndex = markedIndex
-
-            case .none:
-                separatorIndex = markedIndex + 1
-            }
+        if let separatorIndex = separatorRow(in: filteredMessages) {
 
             if indexPath.row == separatorIndex {
                 let cell = tableView.dequeueReusableCell(
@@ -1624,33 +1724,6 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         return createMessageCell(for: message, at: indexPath, in: tableView, filteredMessages: filteredMessages)
     }
     
-    /// Reconstructs a quoted `BaseMessage` from a raw `quotedMessage` payload for cases where
-    /// the SDK doesn't populate `message.quotedMessage` (e.g. agentic AI replies, developer
-    /// cards). Dispatches to the appropriate public `fromJSON` parser by category/type, falling
-    /// back to a text parse so a preview still renders. Returns nil if it can't be parsed.
-    private func resolveQuotedMessage(from raw: [String: Any]) -> BaseMessage? {
-        let category = raw["category"] as? String
-        let type = raw["type"] as? String
-
-        switch category {
-        case MessageCategoryConstants.message:
-            switch type {
-            case MessageTypeConstants.image, MessageTypeConstants.video,
-                 MessageTypeConstants.audio, MessageTypeConstants.file:
-                return MediaMessage.mediaMessage(fromJSON: raw).0
-            default:
-                return TextMessage.textMessage(fromJSON: raw).0
-            }
-        case MessageCategoryConstants.custom:
-            return CustomMessage.customMessage(fromJSON: raw).0
-        case MessageCategoryConstants.action:
-            return ActionMessage.actionMessage(fromJSON: raw).0
-        default:
-            // interactive / agentic / card / unknown → best-effort text preview
-            return TextMessage.textMessage(fromJSON: raw).0
-        }
-    }
-
     private func createMessageCell(for message: BaseMessage, at indexPath: IndexPath, in tableView: UITableView, filteredMessages: [BaseMessage]) -> UITableViewCell {
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
         var bubbleStyle = isLoggedInUser ? messageBubbleStyle.outgoing : messageBubbleStyle.incoming
@@ -1762,7 +1835,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 // unaffected; the parsed value is cached on the message so it parses once.
                 if message.quotedMessage == nil,
                    let rawQuoted = message.rawMessage?["quotedMessage"] as? [String: Any] {
-                    message.quotedMessage = resolveQuotedMessage(from: rawQuoted)
+                    message.quotedMessage = MessageUtils.resolveQuotedMessage(from: rawQuoted)
                 }
 
                 if let quotedMessage = message.quotedMessage, message.deletedAt <= 0, !isModerated{
@@ -1871,15 +1944,28 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
 
-                // Adding date and read receipt (only on the last message of a batch)
-                if isLastOfBatch {
+                // Adding date and read receipt (only on the last message of a batch).
+                //
+                // Pinned/saved messages are the exception. The batch chrome is
+                // suppressed because a repeated timestamp and receipt are noise, but a
+                // pin or save indicator is *state* — it lives in this same row, so
+                // suppressing the row hides the fact that the message is pinned. The
+                // multi-attachment split puts images at batchIndex 0, so sending photos
+                // alongside a video left the photos permanently unable to show their
+                // pin even though the pin had succeeded.
+                let showsPinSaveIndicator = message.deletedAt == 0
+                    && (MessageUtils.isPinned(message: message) || MessageUtils.isSaved(message: message))
+
+                if isLastOfBatch || showsPinSaveIndicator {
                     if let statusInfoView = template.statusInfoView?(message, cell.alignment, controller) {
                         cell.set(statusInfoView: statusInfoView)
                     } else {
                         if let user = viewModel.user, user.isAgentic && cell.alignment == .left{
                             addAIActionBarView(on: cell, message: message)
                         }else{
-                            buildMessageFooterView(on: cell, for: message, messageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle, isModerated: isModerated)
+                            // A mid-batch row is drawn only to carry its pin/save
+                            // indicator; the batch's receipt belongs to the last message.
+                            buildMessageFooterView(on: cell, for: message, messageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle, isModerated: isModerated, forcesReceiptHidden: !isLastOfBatch)
                         }
                     }
                 }
@@ -1942,12 +2028,17 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
                 
-                if message.id > 0 &&  viewModel.user?.isAgentic != true{
-                    // Setting up context menu
+                // Install the handler regardless of `id`, and let the guards inside it
+                // decide at press time. An outgoing message binds at `id == 0` and only
+                // gains its id on the ack, so gating the *install* on `id > 0` caches a
+                // verdict that is guaranteed to go stale — the cell then stays inert
+                // until something re-binds the row, which is why pin/save went missing
+                // on a just-sent message. The closure re-reads `cell.baseMessage` and
+                // re-checks id/deleted/moderation on every press, so it cannot go stale.
+                if viewModel.user?.isAgentic != true {
                     setupContextMenu(for: cell, message: message)
                 } else {
-                    // Clear long press handler for messages with id <= 0 (including error messages)
-                    // This is needed because cells are reused and might have a handler from a previous message
+                    // Cells are reused and might carry a handler from a previous message.
                     cell.onLongPressGestureRecognized = nil
                 }
                 
@@ -2223,32 +2314,10 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
  /// Use this instead of viewModel.indexPathForMessageId when passing to UIKit table-view APIs.
     func tableViewIndexPath(forMessageId id: Int) -> IndexPath? {
         for (sectionIndex, sectionTuple) in viewModel.messages.enumerated() {
-            // Apply the same filter as cellForRowAt
-            let filteredMessages = sectionTuple.messages.filter { message in
-                !(hideGroupActionMessages && message.messageCategory == .action && message.receiverType == .group)
-            }
-            guard let filteredRow = filteredMessages.firstIndex(where: { $0.id == id }) else {
+            guard let modelRow = sectionTuple.messages.firstIndex(where: { $0.id == id }) else {
                 continue
             }
-            // Account for unread separator offset
-            var adjustedRow = filteredRow
-            if let unreadId = unreadSeparatorMessageId,
-               let markedIndex = filteredMessages.firstIndex(where: { $0.id == unreadId }) {
-                let separatorIndex: Int
-                switch unreadSeparatorMode {
-                case .markAsUnread:
-                    separatorIndex = markedIndex + 1
-                case .navigateFromConversation:
-                    separatorIndex = markedIndex
-                case .none:
-                    separatorIndex = markedIndex + 1
-                }
-                // If the target row is at or after the separator position, shift by +1
-                if filteredRow >= separatorIndex {
-                    adjustedRow = filteredRow + 1
-                }
-            }
-            return IndexPath(row: adjustedRow, section: sectionIndex)
+            return tableIndexPath(forModelSection: sectionIndex, row: modelRow)
         }
         return nil
     }
@@ -2422,6 +2491,45 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                 if let baseMessage = forMessage, let template = viewModel.getTemplate(for: message) {
                     self.onThreadRepliesClick?(baseMessage, template)
                 }
+            case MessageOptionConstants.pinMessage, MessageOptionConstants.unpinMessage :
+                if messageOption.onItemClick == nil {
+                    let shouldPin = messageOption.id == MessageOptionConstants.pinMessage
+                    // Pin is one-tap; unpin confirms first.
+                    if shouldPin {
+                        didPinMessageClicked(message: message, shouldPin: true)
+                    } else {
+                        PinSaveConfirmation.present(.unpinMessage, on: controller) { [weak self] in
+                            self?.didPinMessageClicked(message: message, shouldPin: false)
+                        }
+                    }
+                } else {
+                    if let forMessage = forMessage {
+                        messageOption.onItemClick?(forMessage)
+                    }
+                }
+            case MessageOptionConstants.saveMessage, MessageOptionConstants.unsaveMessage :
+                if messageOption.onItemClick == nil {
+                    let shouldSave = messageOption.id == MessageOptionConstants.saveMessage
+                    if shouldSave {
+                        didSaveMessageClicked(message: message, shouldSave: true)
+                    } else {
+                        PinSaveConfirmation.present(.unsaveMessage, on: controller) { [weak self] in
+                            self?.didSaveMessageClicked(message: message, shouldSave: false)
+                        }
+                    }
+                } else {
+                    if let forMessage = forMessage {
+                        messageOption.onItemClick?(forMessage)
+                    }
+                }
+            case MessageOptionConstants.threadSubscription :
+                if messageOption.onItemClick == nil {
+                    didThreadSubscriptionClicked(message: message)
+                } else {
+                    if let forMessage = forMessage {
+                        messageOption.onItemClick?(forMessage)
+                    }
+                }
             case MessageOptionConstants.messageInformation :
                 if messageOption.onItemClick == nil {
                     didMessageInformationClicked(message: message)
@@ -2438,6 +2546,172 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
         }
     }
     
+    private func didPinMessageClicked(message: BaseMessage?, shouldPin: Bool) {
+        guard let message, message.id > 0 else { return }
+
+        let messageId = message.id
+        guard MessageActionToggleGuard.shared.begin(action: .pin, messageId: messageId) else { return }
+
+        // Flip now so the bubble responds to the tap; the server's copy replaces it on
+        // success and the original goes back on failure.
+        let previousPinnedAt = message.pinnedAt
+        let previousPinnedBy = message.pinnedBy
+        message.pinnedAt = shouldPin ? Date().timeIntervalSince1970 : 0
+        message.pinnedBy = shouldPin ? (CometChat.getLoggedInUser()?.uid ?? "") : ""
+        viewModel.updatePinSaveState(message: message)
+
+        let onSuccess: (BaseMessage) -> Void = { [weak self] updated in
+            DispatchQueue.main.async {
+                MessageActionToggleGuard.shared.end(action: .pin, messageId: messageId)
+                self?.viewModel.updatePinSaveState(message: updated)
+                CometChatMessageEvents.ccMessagePinned(message: updated, status: .success)
+                CometChatToast.show(message: (shouldPin ? "MESSAGE_PINNED_TOAST" : "MESSAGE_UNPINNED_TOAST").localize(),
+                                    on: self?.controller)
+            }
+        }
+
+        let onError: (CometChatException) -> Void = { [weak self] error in
+            DispatchQueue.main.async {
+                MessageActionToggleGuard.shared.end(action: .pin, messageId: messageId)
+                message.pinnedAt = previousPinnedAt
+                message.pinnedBy = previousPinnedBy
+                self?.viewModel.updatePinSaveState(message: message)
+                CometChatMessageEvents.ccMessagePinned(message: message, status: .error)
+                CometChatToast.show(message: Self.pinSaveErrorMessage(for: error, isPin: true),
+                                    on: self?.controller)
+            }
+        }
+
+        if shouldPin {
+            CometChat.pinMessage(messageId: messageId, onSuccess: onSuccess, onError: onError)
+        } else {
+            CometChat.unpinMessage(messageId: messageId, onSuccess: onSuccess, onError: onError)
+        }
+    }
+
+    private func didSaveMessageClicked(message: BaseMessage?, shouldSave: Bool) {
+        guard let message, message.id > 0 else { return }
+
+        let messageId = message.id
+        guard MessageActionToggleGuard.shared.begin(action: .save, messageId: messageId) else { return }
+
+        let previousSavedAt = message.savedAt
+        message.savedAt = shouldSave ? Date().timeIntervalSince1970 : 0
+        viewModel.updatePinSaveState(message: message)
+
+        let onSuccess: (BaseMessage) -> Void = { [weak self] updated in
+            DispatchQueue.main.async {
+                MessageActionToggleGuard.shared.end(action: .save, messageId: messageId)
+                self?.viewModel.updatePinSaveState(message: updated)
+                CometChatMessageEvents.ccMessageSaved(message: updated, status: .success)
+                CometChatToast.show(message: (shouldSave ? "MESSAGE_SAVED_TOAST" : "MESSAGE_UNSAVED_TOAST").localize(),
+                                    on: self?.controller)
+            }
+        }
+
+        let onError: (CometChatException) -> Void = { [weak self] error in
+            DispatchQueue.main.async {
+                MessageActionToggleGuard.shared.end(action: .save, messageId: messageId)
+                message.savedAt = previousSavedAt
+                self?.viewModel.updatePinSaveState(message: message)
+                CometChatMessageEvents.ccMessageSaved(message: message, status: .error)
+                CometChatToast.show(message: Self.pinSaveErrorMessage(for: error, isPin: false),
+                                    on: self?.controller)
+            }
+        }
+
+        if shouldSave {
+            CometChat.saveMessage(messageId: messageId, onSuccess: onSuccess, onError: onError)
+        } else {
+            CometChat.unsaveMessage(messageId: messageId, onSuccess: onSuccess, onError: onError)
+        }
+    }
+
+    /// `errorParams` is checked before the error code: the cap arriving as a param is
+    /// contract (design doc §5.6), whereas the code spellings in `PinSaveErrorCodes`
+    /// are provisional until the backend deploys.
+    /// `AnyDecodable` prefers Int, so a JSON `100` arrives as Int, not Double.
+    static func pinSaveErrorMessage(for error: CometChatException, isPin: Bool) -> String {
+        let limitKey = isPin ? "PIN_MESSAGE_LIMIT_REACHED" : "SAVE_MESSAGE_LIMIT_REACHED"
+
+        if let limit = error.errorParams?["limit"] {
+            return String(format: limitKey.localize(), "\(limit)")
+        }
+        // Staging does not send `errorParams` yet — the cap is only in the message
+        // ("...reached the allowed limit of 5."). Recover it so the toast can still
+        // quote the real, tenant-overridable number instead of a hard-coded one.
+        if PinSaveErrorCodes.limitCodes.contains(error.errorCode) {
+            if let limit = trailingLimit(in: error.errorDescription) {
+                return String(format: limitKey.localize(), "\(limit)")
+            }
+            // Right category, but no cap to quote — fall back to the generic copy
+            // rather than inventing a number.
+            return (isPin ? "PIN_MESSAGE_FAILED" : "SAVE_MESSAGE_FAILED").localize()
+        }
+        if isPin, PinSaveErrorCodes.permissionCodes.contains(error.errorCode) {
+            return "PIN_MESSAGE_PERMISSION_DENIED".localize()
+        }
+        return (isPin ? "PIN_MESSAGE_FAILED" : "SAVE_MESSAGE_FAILED").localize()
+    }
+
+    /// Pulls the cap out of "…has reached the allowed limit of 5." Anchored on the
+    /// closing phrase because the sentence also contains the conversation id, which
+    /// carries digits of its own ("cometchat-uid-4_user_cometchat-uid-5").
+    /// Server copy is English-only and may change, so a miss is not an error — the
+    /// caller falls back to generic copy.
+    static func trailingLimit(in description: String) -> Int? {
+        guard let range = description.range(of: "limit of ", options: [.caseInsensitive, .backwards]) else {
+            return nil
+        }
+        let digits = description[range.upperBound...].prefix { $0.isNumber }
+        return digits.isEmpty ? nil : Int(digits)
+    }
+
+    /// The only path in the kit that writes the subscription to the server.
+    ///
+    /// Flips optimistically and announces it so every open surface agrees immediately,
+    /// then reverses both on failure. State is read off the message itself, which is the
+    /// source of truth. The SDK callback lands on a background thread.
+    private func didThreadSubscriptionClicked(message: BaseMessage?) {
+        guard let message, message.id > 0 else { return }
+
+        let parentMessageId = message.id
+        guard ThreadSubscriptionToggleGuard.shared.begin(parentMessageId: parentMessageId) else { return }
+
+        let wasSubscribed = message.threadSubscribed
+        viewModel.applyThreadSubscription(parentMessageId: parentMessageId, isSubscribed: !wasSubscribed)
+        CometChatThreadEvents.ccThreadSubscriptionChanged(parentMessageId: parentMessageId,
+                                                          isSubscribed: !wasSubscribed)
+
+        let onSuccess: (String) -> Void = { [weak self] _ in
+            DispatchQueue.main.async {
+                ThreadSubscriptionToggleGuard.shared.end(parentMessageId: parentMessageId)
+                // Unsubscribing is not permanent, so say so rather than let the user discover it.
+                let toast = wasSubscribed ? "THREAD_UNSUBSCRIBED_TOAST" : "THREAD_SUBSCRIBED_TOAST"
+                CometChatToast.show(message: toast.localize(), on: self?.controller)
+            }
+        }
+
+        // Put the optimistic flip back, so the option again shows what the server holds.
+        let onError: (CometChatException) -> Void = { [weak self] _ in
+            DispatchQueue.main.async {
+                ThreadSubscriptionToggleGuard.shared.end(parentMessageId: parentMessageId)
+                self?.viewModel.applyThreadSubscription(parentMessageId: parentMessageId,
+                                                        isSubscribed: wasSubscribed)
+                CometChatThreadEvents.ccThreadSubscriptionChanged(parentMessageId: parentMessageId,
+                                                                  isSubscribed: wasSubscribed)
+                CometChatToast.show(message: "THREAD_SUBSCRIPTION_FAILED".localize(),
+                                    on: self?.controller)
+            }
+        }
+
+        if wasSubscribed {
+            CometChat.unsubscribeFromThread(parentMessageId: parentMessageId, onSuccess: onSuccess, onError: onError)
+        } else {
+            CometChat.subscribeToThread(parentMessageId: parentMessageId, onSuccess: onSuccess, onError: onError)
+        }
+    }
+
     private func didCopyPressed(message: BaseMessage?) {
         if let message = message as? TextMessage {
             let textFormatter = viewModel.textFormatters

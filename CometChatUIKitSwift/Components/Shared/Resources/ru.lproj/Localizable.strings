@@ -520,7 +520,6 @@
 
 "AI_AGENTS" = "ИИ-ассистенты";
 
-
 /* Multiple attachments */
 "attachment_overflow" = "+%@";
 "file_list_show_more" = "+%@ ещё";
@@ -552,3 +551,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Закрепить сообщение";
+"UNPIN_MESSAGE" = "Открепить сообщение";
+"SAVE_MESSAGE" = "Сохранить сообщение";
+"UNSAVE_MESSAGE" = "Убрать из сохранённых";
+"MESSAGE_PINNED_TOAST" = "Сообщение закреплено";
+"MESSAGE_UNPINNED_TOAST" = "Сообщение откреплено";
+"MESSAGE_SAVED_TOAST" = "Сообщение сохранено";
+"MESSAGE_UNSAVED_TOAST" = "Сообщение убрано из сохранённых";
+"PIN_MESSAGE_LIMIT_REACHED" = "Можно закрепить только %@ сообщений. Открепите одно, чтобы закрепить другое.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "Можно сохранить не более %@ сообщений. Уберите одно, чтобы продолжить.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "У вас нет прав закреплять сообщения здесь.";
+"PIN_MESSAGE_FAILED" = "Не удалось обновить закрепление. Повторите попытку.";
+"SAVE_MESSAGE_FAILED" = "Не удалось обновить сохранённые сообщения. Повторите попытку.";
+"PINNED_MESSAGES_TITLE" = "Закреплённых сообщений: %@";
+"PINNED_MESSAGES_LABEL" = "Закреплённые сообщения";
+"PINNED_MESSAGES_EMPTY_TITLE" = "Пока нет закреплённых сообщений";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Закрепляйте важные сообщения, чтобы быстро их находить.";
+"SAVED_MESSAGES_TITLE" = "Сохранённых сообщений: %@";
+"SAVED_MESSAGES_EMPTY_TITLE" = "Пока нет сохранённых сообщений";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Сохраняйте сообщения, чтобы они всегда были под рукой.";
+"PINNED_INDICATOR" = "Закреплено";
+"SAVED_INDICATOR" = "Сохранено";
+"MESSAGE_EDITED" = "Изменено";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "Ещё…";
+"MORE_OPTIONS_EXPANDED" = "Показаны дополнительные действия";
+"MORE_OPTIONS_COLLAPSED" = "Показаны основные действия";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Закрепить";
+"UNPIN_CONVERSATION" = "Открепить";
+"CONVERSATION_PINNED" = "Чат закреплён";
+"CONVERSATION_UNPINNED" = "Чат открепён";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "Можно закрепить только %@ чатов. Открепите один, чтобы закрепить другой.";
+"PIN_CONVERSATION_FAILED" = "Не удалось обновить. Попробуйте снова.";
+"PINNED" = "Закреплено";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "Этот чат пока нельзя закрепить.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "У вас нет прав закрепить этот чат.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "Подписаться на тему";
+"THREAD_UNSUBSCRIBE" = "Отписаться от темы";
+"THREAD_SUBSCRIBED" = "Вы подписаны";
+"THREAD_UNSUBSCRIBED_TOAST" = "Вы отписались. Уведомления отключены, пока вы не ответите или вас не упомянут.";
+"THREAD_SUBSCRIBED_TOAST" = "Вы подписались. Вы будете получать уведомления о новых ответах в этой теме.";
+"THREAD_SUBSCRIPTION_FAILED" = "Не удалось обновить. Повторите попытку.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Открепить сообщение";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "Открепить это сообщение?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Удалить из сохранённых";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "Удалить это сообщение из сохранённых?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Открепить чат";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "Открепить этот чат?";
+"UNPIN_ACTION" = "Открепить";
+"UNSAVE_ACTION" = "Удалить из сохранённых";

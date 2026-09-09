@@ -35,6 +35,13 @@ public class CometChatTheme {
         darkModeColor: UIColor(hex: "#141414")
     )
 
+    /// The toast pill's surface. Appearance-independent like `white` and `black`:
+    /// the pill stays light-on-dark in both modes.
+    public static var toastBackground = UIColor.dynamicColor(
+        lightModeColor: UIColor(hex: "#0A0D12"),
+        darkModeColor: UIColor(hex: "#0A0D12")
+    )
+
     //MARK: Extended Colors
     public static var extendedPrimaryColor50 = UIColor.dynamicColor(
         lightModeColor: CometChatThemeHelper.defaultPrimaryLightColor.mixWithWhite(percentage: 0.96),
@@ -388,7 +395,23 @@ public class CometChatTheme {
         lightModeColor: UIColor(hex: "#F9EAEF"),
         darkModeColor: UIColor(hex: "#3A0C05")
     )
-    
+
+    //MARK: Solid Swipe Action Colors
+    // Design tokens Background-02-Solid and Background-Error-Solid. Distinct from
+    // errorColor above, which is a lighter red.
+    //
+    // Dark values are derived, not supplied: the four semantic colors above all darken
+    // to ~0.83x lightness at constant hue and saturation, so the same ratio is applied
+    // here. Replace with exact values if the design system publishes them.
+    public static var backgroundColor02Solid = UIColor.dynamicColor(
+        lightModeColor: UIColor(hex: "#535862"),
+        darkModeColor: UIColor(hex: "#454952")
+    )
+    public static var errorColorSolid = UIColor.dynamicColor(
+        lightModeColor: UIColor(hex: "#D92D20"),
+        darkModeColor: UIColor(hex: "#B5251B")
+    )
+
     //MARK: Button Colors
     static var _buttonBackgroundColor: UIColor? = nil
     public static var buttonBackgroundColor: UIColor {

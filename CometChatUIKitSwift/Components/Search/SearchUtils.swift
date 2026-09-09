@@ -68,10 +68,21 @@ public class SearchUtils {
         dateLabel.style = dateStyle
         tailView.addSubview(dateLabel)
         dateLabel.pin(anchors: [.top, .trailing, .leading], to: tailView)
-        
+
+        // Unlike `configureTailView`, nothing is pinned to the tail's bottom here, so the
+        // wrapper has no intrinsic height and the row's `.center`-aligned stack drops the
+        // timestamp to the row's midpoint instead of the title line. The label closes the
+        // chain itself; low priority leaves the stack free to stretch the tail.
+        let bottom = dateLabel.bottomAnchor.pin(equalTo: tailView.bottomAnchor)
+        bottom.priority = .defaultLow
+        bottom.isActive = true
+
+        dateLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        dateLabel.setContentHuggingPriority(.required, for: .horizontal)
+
         return tailView
     }
-    
+
     static public func configureSubtitleView(
         conversation: Conversation,
         isTypingEnabled: Bool,

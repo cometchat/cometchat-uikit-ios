@@ -32,8 +32,7 @@ public class LinkPreviewViewModel : DataSourceDecorator {
             linkPreviewBubble.withoutAutoresizingMaskConstraints()
             
             let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
-            let messageBubbleStyle = isLoggedInUser ? additionalConfiguration?.messageBubbleStyle.outgoing : additionalConfiguration?.messageBubbleStyle.incoming
-            if let style = messageBubbleStyle?.linkPreviewBubbleStyle { linkPreviewBubble.style = style }
+            if let style = additionalConfiguration?.linkPreviewBubbleStyle(isLoggedInUser) { linkPreviewBubble.style = style }
             
             // Check if message text contains markdown formatting and parse it
             let messageText = message.text

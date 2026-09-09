@@ -336,7 +336,6 @@
 "ENTER_LINK_URL" = "輸入連結網址";
 "REMOVE" = "移除";
 
-
 /* Multiple attachments */
 "attachment_overflow" = "+%@";
 "file_list_show_more" = "+%@ 項";
@@ -368,3 +367,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "置頂訊息";
+"UNPIN_MESSAGE" = "取消置頂";
+"SAVE_MESSAGE" = "儲存訊息";
+"UNSAVE_MESSAGE" = "取消儲存";
+"MESSAGE_PINNED_TOAST" = "訊息已置頂";
+"MESSAGE_UNPINNED_TOAST" = "已取消置頂";
+"MESSAGE_SAVED_TOAST" = "訊息已儲存";
+"MESSAGE_UNSAVED_TOAST" = "已從儲存中移除";
+"PIN_MESSAGE_LIMIT_REACHED" = "最多只能置頂 %@ 則訊息。請取消一則後再置頂其他訊息。";
+"SAVE_MESSAGE_LIMIT_REACHED" = "最多可儲存 %@ 則訊息。請先移除一則以繼續。";
+"PIN_MESSAGE_PERMISSION_DENIED" = "你沒有權限在此置頂訊息。";
+"PIN_MESSAGE_FAILED" = "無法更新置頂。請再試一次。";
+"SAVE_MESSAGE_FAILED" = "無法更新已儲存的訊息。請再試一次。";
+"PINNED_MESSAGES_TITLE" = "%@ 則置頂訊息";
+"PINNED_MESSAGES_LABEL" = "置頂訊息";
+"PINNED_MESSAGES_EMPTY_TITLE" = "尚無置頂訊息";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "置頂重要訊息，快速找到它們。";
+"SAVED_MESSAGES_TITLE" = "%@ 則已儲存的訊息";
+"SAVED_MESSAGES_EMPTY_TITLE" = "尚無已儲存的訊息";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "儲存訊息，需要時隨時查看。";
+"PINNED_INDICATOR" = "已置頂";
+"SAVED_INDICATOR" = "已儲存";
+"MESSAGE_EDITED" = "已編輯";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "更多…";
+"MORE_OPTIONS_EXPANDED" = "正在顯示更多選項";
+"MORE_OPTIONS_COLLAPSED" = "正在顯示主要選項";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "置頂";
+"UNPIN_CONVERSATION" = "取消置頂";
+"CONVERSATION_PINNED" = "對話已置頂";
+"CONVERSATION_UNPINNED" = "已取消置頂";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "最多只能置頂 %@ 個聊天。請取消一個後再置頂其他聊天。";
+"PIN_CONVERSATION_FAILED" = "無法更新置頂。請重試。";
+"PINNED" = "已置頂";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "此對話暫時無法置頂。";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "您沒有權限置頂此對話。";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "訂閱主題";
+"THREAD_UNSUBSCRIBE" = "取消訂閱主題";
+"THREAD_SUBSCRIBED" = "已關注";
+"THREAD_UNSUBSCRIBED_TOAST" = "已取消訂閱。在你回覆或被提及之前，通知將保持關閉。";
+"THREAD_SUBSCRIBED_TOAST" = "已訂閱。此主題有新回覆時將通知你。";
+"THREAD_SUBSCRIPTION_FAILED" = "更新失敗，請重試。";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "取消置頂訊息";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "要取消置頂這則訊息嗎？";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "取消收藏訊息";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "要取消收藏這則訊息嗎？";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "取消置頂對話";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "要取消置頂這個對話嗎？";
+"UNPIN_ACTION" = "取消置頂";
+"UNSAVE_ACTION" = "取消收藏";

@@ -291,7 +291,6 @@
 "PHOTO_LIBRARY" = "Photo Library";
 "VIDEO_LIBRARY" = "Video Library";
 
-
 "REPORT_A_MESSAGE" = "Report";
 "REPORT_MESSAGE_SUBTITLE" = "Report this chat if it goes against our Community Standards. We won't tell the account you reported them.";
 "REPORT" = "Report";
@@ -342,3 +341,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Pin message";
+"UNPIN_MESSAGE" = "Unpin message";
+"SAVE_MESSAGE" = "Save message";
+"UNSAVE_MESSAGE" = "Unsave message";
+"MESSAGE_PINNED_TOAST" = "Message pinned";
+"MESSAGE_UNPINNED_TOAST" = "Message unpinned";
+"MESSAGE_SAVED_TOAST" = "Message saved";
+"MESSAGE_UNSAVED_TOAST" = "Message removed from saved";
+"PIN_MESSAGE_LIMIT_REACHED" = "You can only pin %@ messages. Unpin one to pin another.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "You can save up to %@ messages. Remove one to continue.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "You don't have permission to pin messages here.";
+"PIN_MESSAGE_FAILED" = "Couldn't update the pin. Please try again.";
+"SAVE_MESSAGE_FAILED" = "Couldn't update saved messages. Please try again.";
+"PINNED_MESSAGES_TITLE" = "%@ Pinned Messages";
+"PINNED_MESSAGES_LABEL" = "Pinned Messages";
+"PINNED_MESSAGES_EMPTY_TITLE" = "No pinned messages yet";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Pin important messages to find them quickly.";
+"SAVED_MESSAGES_TITLE" = "%@ Saved Messages";
+"SAVED_MESSAGES_EMPTY_TITLE" = "No saved messages yet";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Save messages to keep them handy whenever you need them.";
+"PINNED_INDICATOR" = "Pinned";
+"SAVED_INDICATOR" = "Saved";
+"MESSAGE_EDITED" = "Edited";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "More…";
+"MORE_OPTIONS_EXPANDED" = "Showing more options";
+"MORE_OPTIONS_COLLAPSED" = "Showing main options";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Pin";
+"UNPIN_CONVERSATION" = "Unpin";
+"CONVERSATION_PINNED" = "Conversation pinned";
+"CONVERSATION_UNPINNED" = "Conversation unpinned";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "You can only pin %@ chats. Unpin one to pin another.";
+"PIN_CONVERSATION_FAILED" = "Couldn't update the pin. Please try again.";
+"PINNED" = "Pinned";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "This conversation can't be pinned yet.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "You don't have permission to pin this conversation.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "Subscribe to thread";
+"THREAD_UNSUBSCRIBE" = "Unsubscribe from thread";
+"THREAD_SUBSCRIBED" = "Following";
+"THREAD_UNSUBSCRIBED_TOAST" = "Unsubscribed. Notifications are off until you reply or are mentioned.";
+"THREAD_SUBSCRIBED_TOAST" = "Subscribed. You'll be notified about new replies in this thread.";
+"THREAD_SUBSCRIPTION_FAILED" = "Couldn't update. Please try again.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Unpin Message";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "Do you want to unpin this message?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Unsave Message";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "Do you want to unsave this message?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Unpin Conversation";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "Do you want to unpin this conversation?";
+"UNPIN_ACTION" = "Unpin";
+"UNSAVE_ACTION" = "Unsave";

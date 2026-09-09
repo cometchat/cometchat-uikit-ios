@@ -80,6 +80,24 @@ public protocol CometChatMessageEventListener {
     ///[onMessageReactionRemoved] is called when a reaction is removed from a message
     func onMessageReactionRemoved(reactionEvent: ReactionEvent)
     
+    ///[onMessagePinned] is called when a message is pinned by anyone in the conversation
+    func onMessagePinned(message: BaseMessage)
+
+    ///[onMessageUnpinned] is called when a message is unpinned by anyone in the conversation
+    func onMessageUnpinned(message: BaseMessage)
+
+    ///[onMessageSaved] is called when the logged-in user saves a message on another device
+    func onMessageSaved(message: BaseMessage)
+
+    ///[onMessageUnsaved] is called when the logged-in user unsaves a message on another device
+    func onMessageUnsaved(message: BaseMessage)
+
+    ///[ccMessagePinned] is called when the logged-in user pins or unpins a message from this device
+    func ccMessagePinned(message: BaseMessage, status: MessageStatus)
+
+    ///[ccMessageSaved] is called when the logged-in user saves or unsaves a message from this device
+    func ccMessageSaved(message: BaseMessage, status: MessageStatus)
+
     ///[onMessagesReadByAll] is called when a group message is marked as read by all the group members
     func onMessagesReadByAll(receipt: MessageReceipt)
     
@@ -172,6 +190,12 @@ public extension CometChatMessageEventListener {
     func onMessageModerated(message: BaseMessage) {}
     func onAIAssistantMessageReceived(message: AIAssistantMessage) {}
     func onNewCardMessageReceived(cardMessage: BaseMessage) {}
+    func onMessagePinned(message: BaseMessage) {}
+    func onMessageUnpinned(message: BaseMessage) {}
+    func onMessageSaved(message: BaseMessage) {}
+    func onMessageUnsaved(message: BaseMessage) {}
+    func ccMessagePinned(message: BaseMessage, status: MessageStatus) {}
+    func ccMessageSaved(message: BaseMessage, status: MessageStatus) {}
 }
 
 //MARK: Deprecated methods

@@ -12,17 +12,23 @@ public protocol ThreadedMessageHeaderViewModelProtocol {
     var parentMessage: BaseMessage? { get set }
     var incrementCount: (() -> Void)? { get set }
     var templates : [String: CometChatMessageTemplate]? { get set}
-    
+    /// Fired when the follow state changes elsewhere, e.g. from the action sheet.
+    var onThreadSubscriptionChanged: ((_ isSubscribed: Bool) -> Void)? { get set }
+
     func connect()
     func disconnect()
 }
 
 public class ThreadedMessageHeaderViewModel: ThreadedMessageHeaderViewModelProtocol {
+
     /// Seam over the listener registries, so `connect()`/`disconnect()` symmetry is
     /// assertable without a live SDK. Defaults to the real registrar.
     internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
 
-    
+    /// Listeners are keyed by id, and registering a duplicate id evicts the previous
+    /// listener — so a fixed id would leave one of two live headers silently deaf.
+    public var listenerRandomID = Date().timeIntervalSince1970
+
     public var user: User?
     public var group: Group?
     public var parentMessage: BaseMessage? {
@@ -33,15 +39,30 @@ public class ThreadedMessageHeaderViewModel: ThreadedMessageHeaderViewModelProto
     }
     public var incrementCount: (() -> Void)?
     public var templates: [String : CometChatMessageTemplate]?
-    
+    public var onThreadSubscriptionChanged: ((_ isSubscribed: Bool) -> Void)?
+
     open func connect() {
-        listeners.add(.messageEvents, id: "threaded-messages-message-listener", listener: self)
+        listeners.add(.messageEvents, id: "threaded-messages-message-listener-\(listenerRandomID)", listener: self)
+        listeners.add(.threadEvents, id: "threaded-messages-thread-listener-\(listenerRandomID)", listener: self)
     }
-    
+
     open func disconnect() {
-        listeners.remove(.messageEvents, id: "threaded-messages-message-listener")
+        listeners.remove(.messageEvents, id: "threaded-messages-message-listener-\(listenerRandomID)")
+        listeners.remove(.threadEvents, id: "threaded-messages-thread-listener-\(listenerRandomID)")
     }
-    
+
+}
+
+//Thread Event
+extension ThreadedMessageHeaderViewModel: CometChatThreadEventListener {
+
+    public func ccThreadSubscriptionChanged(parentMessageId: Int, isSubscribed: Bool) {
+        guard parentMessageId == parentMessage?.id else { return }
+        // The message object is the source of truth, so stamp it as well as notifying —
+        // otherwise a re-read of `parentMessage` (or a remount) would see a stale flag.
+        parentMessage?.threadSubscribed = isSubscribed
+        onThreadSubscriptionChanged?(isSubscribed)
+    }
 }
 
 //Message Event

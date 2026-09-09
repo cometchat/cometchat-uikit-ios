@@ -308,7 +308,6 @@
 "PHOTO_LIBRARY" = "مكتبة الصور";
 "VIDEO_LIBRARY" = "مكتبة الفيديو";
 
-
 "REPORT_A_MESSAGE" = "تقرير";
 "REPORT_MESSAGE_SUBTITLE" = "قم بالإبلاغ عن هذه المحادثة إذا كانت تتعارض مع معايير المجتمع الخاصة بنا. لن نخبر الحساب الذي أبلغت عنه.";
 "REPORT" = "تقرير";
@@ -362,3 +361,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "تثبيت الرسالة";
+"UNPIN_MESSAGE" = "إلغاء تثبيت الرسالة";
+"SAVE_MESSAGE" = "حفظ الرسالة";
+"UNSAVE_MESSAGE" = "إلغاء حفظ الرسالة";
+"MESSAGE_PINNED_TOAST" = "تم تثبيت الرسالة";
+"MESSAGE_UNPINNED_TOAST" = "تم إلغاء تثبيت الرسالة";
+"MESSAGE_SAVED_TOAST" = "تم حفظ الرسالة";
+"MESSAGE_UNSAVED_TOAST" = "تمت إزالة الرسالة من المحفوظات";
+"PIN_MESSAGE_LIMIT_REACHED" = "يمكنك تثبيت %@ رسائل فقط. ألغِ تثبيت إحداها لتثبيت غيرها.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "يمكنك حفظ %@ رسالة كحد أقصى. أزل إحداها للمتابعة.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "ليس لديك إذن لتثبيت الرسائل هنا.";
+"PIN_MESSAGE_FAILED" = "تعذّر تحديث التثبيت. يرجى المحاولة مرة أخرى.";
+"SAVE_MESSAGE_FAILED" = "تعذّر تحديث الرسائل المحفوظة. يرجى المحاولة مرة أخرى.";
+"PINNED_MESSAGES_TITLE" = "%@ رسائل مثبتة";
+"PINNED_MESSAGES_LABEL" = "الرسائل المثبتة";
+"PINNED_MESSAGES_EMPTY_TITLE" = "لا توجد رسائل مثبتة بعد";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "ثبّت الرسائل المهمة للعثور عليها بسرعة.";
+"SAVED_MESSAGES_TITLE" = "%@ رسائل محفوظة";
+"SAVED_MESSAGES_EMPTY_TITLE" = "لا توجد رسائل محفوظة بعد";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "احفظ الرسائل لتبقى في متناول يدك متى احتجت إليها.";
+"PINNED_INDICATOR" = "مثبتة";
+"SAVED_INDICATOR" = "محفوظة";
+"MESSAGE_EDITED" = "تم التعديل";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "المزيد…";
+"MORE_OPTIONS_EXPANDED" = "عرض خيارات إضافية";
+"MORE_OPTIONS_COLLAPSED" = "عرض الخيارات الرئيسية";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "تثبيت";
+"UNPIN_CONVERSATION" = "إلغاء التثبيت";
+"CONVERSATION_PINNED" = "تم تثبيت المحادثة";
+"CONVERSATION_UNPINNED" = "تم إلغاء تثبيت المحادثة";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "يمكنك تثبيت %@ محادثات فقط. ألغِ تثبيت إحداها لتثبيت غيرها.";
+"PIN_CONVERSATION_FAILED" = "لم يتم تحديث التثبيت. حاول مرة أخرى.";
+"PINNED" = "مثبّتة";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "لا يمكن تثبيت هذه المحادثة بعد.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "ليس لديك إذن لتثبيت هذه المحادثة.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "الاشتراك في السلسلة";
+"THREAD_UNSUBSCRIBE" = "إلغاء الاشتراك في السلسلة";
+"THREAD_SUBSCRIBED" = "تتم المتابعة";
+"THREAD_UNSUBSCRIBED_TOAST" = "تم إلغاء الاشتراك. الإشعارات متوقفة حتى ترد أو تتم الإشارة إليك.";
+"THREAD_SUBSCRIBED_TOAST" = "تم الاشتراك. سيتم إعلامك بالردود الجديدة في هذه السلسلة.";
+"THREAD_SUBSCRIPTION_FAILED" = "تعذّر التحديث. يرجى المحاولة مرة أخرى.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "إلغاء تثبيت الرسالة";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "هل تريد إلغاء تثبيت هذه الرسالة؟";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "إلغاء حفظ الرسالة";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "هل تريد إلغاء حفظ هذه الرسالة؟";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "إلغاء تثبيت المحادثة";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "هل تريد إلغاء تثبيت هذه المحادثة؟";
+"UNPIN_ACTION" = "إلغاء التثبيت";
+"UNSAVE_ACTION" = "إلغاء الحفظ";

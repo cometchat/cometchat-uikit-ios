@@ -105,12 +105,37 @@ class GroupDetailsViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = CometChatSpacing.Padding.p6
-        stackView.distribution = .fillEqually
+        // .fill, not .fillEqually — a hidden row must collapse rather than claim a share.
+        stackView.distribution = .fill
         stackView.alignment = .leading
         stackView.isUserInteractionEnabled = true
         return stackView
     }()
     
+    public lazy var pinnedMessagesButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.heightAnchor.constraint(equalToConstant: 35).isActive = true
+        button.setTitle("PINNED_MESSAGES_LABEL".localize(), for: .normal)
+        button.setTitleColor(CometChatTheme.textColorPrimary, for: .normal)
+        button.setImage(UIImage(systemName: "pin"), for: .normal)
+        button.tintColor = CometChatTheme.iconColorPrimary
+
+        // Set spacing between the image and title
+        let spacing: CGFloat = 8.0
+        button.imageView?.contentMode = .scaleAspectFit
+
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: spacing, bottom: 0, right: -spacing)
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -spacing, bottom: 0, right: 0)
+
+        // Ensure content is centered
+        button.contentHorizontalAlignment = .center
+        button.contentVerticalAlignment = .center
+        button.titleLabel?.font = CometChatTypography.Body.regular
+        button.addTarget(self, action: #selector(openPinnedMessages), for: .primaryActionTriggered)
+        return button
+    }()
+
     public lazy var leaveButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -285,6 +310,10 @@ class GroupDetailsViewController: UIViewController {
         bottomContainerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true
         bottomContainerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20).isActive = true
         bottomContainerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20).isActive = true
+        bottomContainerStackView.addArrangedSubview(pinnedMessagesButton)
+        // Set once here rather than in showHideOptions — that runs on membership changes
+        // which hide every option, and pinning doesn't depend on membership.
+        pinnedMessagesButton.isHidden = !CometChat.isPinMessageEnabled()
         bottomContainerStackView.addArrangedSubview(leaveButton)
         bottomContainerStackView.addArrangedSubview(deleteChatButton)
         bottomContainerStackView.addArrangedSubview(deleteAndExitButton)
@@ -396,6 +425,24 @@ class GroupDetailsViewController: UIViewController {
         self.bannedMembersView.isHidden = hideBannMembers
         self.leaveButton.isHidden = hideLeaveGroup
         self.deleteAndExitButton.isHidden = hideDeleteGroup
+    }
+
+    @objc func openPinnedMessages(){
+        guard let group = group else { return }
+
+        let pinnedVC = CometChatPinnedMessages(group: group)
+        // Group Info is itself pushed on top of the conversation, so returning to the
+        // message needs both this screen and the pinned list off the stack.
+        pinnedVC.set(onMessageClicked: { [weak self] message in
+            guard let navigationController = self?.navigationController,
+                  let messagesVC = navigationController.viewControllers
+                      .last(where: { $0 is MessagesVC }) as? MessagesVC else { return }
+
+            navigationController.popToViewController(messagesVC, animated: true)
+            messagesVC.messageListView.goToMessage(withId: message.id)
+        })
+
+        navigationController?.pushViewController(pinnedVC, animated: true)
     }
     
     func getConversation(completion: @escaping((Conversation) -> ())){

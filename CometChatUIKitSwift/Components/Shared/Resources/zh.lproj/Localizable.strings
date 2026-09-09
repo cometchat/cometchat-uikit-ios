@@ -345,3 +345,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "置顶消息";
+"UNPIN_MESSAGE" = "取消置顶";
+"SAVE_MESSAGE" = "保存消息";
+"UNSAVE_MESSAGE" = "取消保存";
+"MESSAGE_PINNED_TOAST" = "消息已置顶";
+"MESSAGE_UNPINNED_TOAST" = "已取消置顶";
+"MESSAGE_SAVED_TOAST" = "消息已保存";
+"MESSAGE_UNSAVED_TOAST" = "已从保存中移除";
+"PIN_MESSAGE_LIMIT_REACHED" = "最多只能置顶 %@ 条消息。请取消一条后再置顶其他消息。";
+"SAVE_MESSAGE_LIMIT_REACHED" = "最多可保存 %@ 条消息。请先移除一条以继续。";
+"PIN_MESSAGE_PERMISSION_DENIED" = "你没有权限在此置顶消息。";
+"PIN_MESSAGE_FAILED" = "无法更新置顶。请重试。";
+"SAVE_MESSAGE_FAILED" = "无法更新已保存的消息。请重试。";
+"PINNED_MESSAGES_TITLE" = "%@ 条置顶消息";
+"PINNED_MESSAGES_LABEL" = "置顶消息";
+"PINNED_MESSAGES_EMPTY_TITLE" = "暂无置顶消息";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "置顶重要消息，快速找到它们。";
+"SAVED_MESSAGES_TITLE" = "%@ 条已保存的消息";
+"SAVED_MESSAGES_EMPTY_TITLE" = "暂无已保存的消息";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "保存消息，需要时随时查看。";
+"PINNED_INDICATOR" = "已置顶";
+"SAVED_INDICATOR" = "已保存";
+"MESSAGE_EDITED" = "已编辑";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "更多…";
+"MORE_OPTIONS_EXPANDED" = "正在显示更多选项";
+"MORE_OPTIONS_COLLAPSED" = "正在显示主要选项";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "置顶";
+"UNPIN_CONVERSATION" = "取消置顶";
+"CONVERSATION_PINNED" = "会话已置顶";
+"CONVERSATION_UNPINNED" = "已取消置顶";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "最多只能置顶 %@ 个聊天。请取消一个后再置顶其他聊天。";
+"PIN_CONVERSATION_FAILED" = "无法更新置顶。请重试。";
+"PINNED" = "已置顶";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "此会话暂时无法置顶。";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "您没有权限置顶此会话。";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "订阅主题";
+"THREAD_UNSUBSCRIBE" = "取消订阅主题";
+"THREAD_SUBSCRIBED" = "已关注";
+"THREAD_UNSUBSCRIBED_TOAST" = "已取消订阅。在你回复或被提及之前，通知将保持关闭。";
+"THREAD_SUBSCRIBED_TOAST" = "已订阅。此主题有新回复时将通知你。";
+"THREAD_SUBSCRIPTION_FAILED" = "更新失败，请重试。";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "取消置顶消息";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "要取消置顶这条消息吗？";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "取消收藏消息";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "要取消收藏这条消息吗？";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "取消置顶会话";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "要取消置顶这个会话吗？";
+"UNPIN_ACTION" = "取消置顶";
+"UNSAVE_ACTION" = "取消收藏";

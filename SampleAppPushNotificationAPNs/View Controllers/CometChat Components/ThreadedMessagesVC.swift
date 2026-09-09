@@ -16,9 +16,76 @@ class ThreadedMessagesVC: UIViewController {
     var bubbleView: UIView?
     var targetMessageId: Int?
     
+    /// In-hierarchy header, matching MessagesVC. Kept out of the system navigation
+    /// bar so it renders full-width instead of as a floating bar-button item.
+    ///
+    /// The kit component carries the follow/unfollow bell in its trailing area once
+    /// `parentMessage` is set, so this screen renders no control of its own.
+    lazy var headerView: CometChatMessageHeader = {
+        let headerView = CometChatMessageHeader()
+        headerView.translatesAutoresizingMaskIntoConstraints = false
+
+        // The header titles itself from the conversation; a thread screen titles
+        // itself "Thread" over the conversation's name instead.
+        headerView.set(titleView: { _, _ in
+            let title = UILabel()
+            title.text = "THREAD".localize()
+            title.textColor = CometChatTheme.textColorPrimary
+            title.font = CometChatTypography.Heading4.bold
+            return title
+        })
+        headerView.set(subtitleView: { [weak self] _, _ in
+            let subtitle = UILabel()
+            subtitle.text = self?.conversationName ?? ""
+            subtitle.textColor = CometChatTheme.textColorSecondary
+            subtitle.font = CometChatTypography.Caption1.regular
+            return subtitle
+        })
+
+        if let user = threadCounterpartUser {
+            headerView.set(user: user)
+        } else if let group = parentMessage?.receiver as? Group {
+            headerView.set(group: group)
+        }
+
+        headerView.set(controller: self)
+        headerView.hideVoiceCallButton = true
+        headerView.hideVideoCallButton = true
+        headerView.disableTyping = true
+        headerView.set(onBack: { [weak self] in
+            self?.navigationController?.popViewController(animated: true)
+        })
+
+        // Puts the header in thread mode: this is what renders the bell.
+        headerView.set(parentMessage: parentMessage)
+        return headerView
+    }()
+
+    /// The conversation a thread belongs to, named as the header subtitle shows it.
+    private var conversationName: String {
+        if let group = parentMessage?.receiver as? Group { return group.name ?? "" }
+        return threadCounterpartUser?.name ?? ""
+    }
+
+    /// The other party in a 1-1 thread: the receiver when we sent the root, else the sender.
+    private var threadCounterpartUser: User? {
+        guard (parentMessage?.receiver as? Group) == nil else { return nil }
+        if parentMessage?.receiverUid == CometChat.getLoggedInUser()?.uid {
+            return parentMessage?.sender as? User
+        }
+        return parentMessage?.receiver as? User
+    }
+
     lazy var parentMessageView: CometChatThreadedMessageHeader = {
         let parentMessageContainerView = CometChatThreadedMessageHeader()
         parentMessageContainerView.translatesAutoresizingMaskIntoConstraints = false
+        if let parentMessage {
+            parentMessageContainerView.set(parentMessage: parentMessage)
+        }
+        parentMessageContainerView.set(controller: self)
+        // The bell lives in the header bar on this screen, so the threaded header's
+        // own control stays hidden — the two must never both render.
+        parentMessageContainerView.set(hideThreadSubscriptionButton: true)
         return parentMessageContainerView
     }()
     
@@ -35,6 +102,9 @@ class ThreadedMessagesVC: UIViewController {
         }
 
         messageListView.set(controller: self)
+        // Replies are pinnable and savable, same as parent messages.
+        messageListView.enablePinMessage = true
+        messageListView.enableSaveMessage = true
         messageListView.set(onThreadRepliesClick: { [weak self] message, messageBubbleView in
             guard let this = self else { return }
         })
@@ -77,12 +147,16 @@ class ThreadedMessagesVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Populates headerView, which buildUI's constraints depend on.
+        setupNavigationBar()
         buildUI()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupNavigationBar()
+        // The header lives in the view hierarchy, so the system bar would be a second
+        // one stacked above it.
+        navigationController?.setNavigationBarHidden(true, animated: animated)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -93,96 +167,31 @@ class ThreadedMessagesVC: UIViewController {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // Only on the way out — pushing a detail screen from here keeps the bar hidden
+        // until that screen sets its own.
+        if isMovingFromParent || isBeingDismissed {
+            navigationController?.setNavigationBarHidden(false, animated: animated)
+        }
     }
     
     func setupNavigationBar() {
-        navigationController?.navigationBar.prefersLargeTitles = false
-        navigationItem.largeTitleDisplayMode = .never
         navigationItem.hidesBackButton = true
-        
-        let navigationBarView = UIView()
-        navigationBarView.translatesAutoresizingMaskIntoConstraints = false
-        navigationBarView.isUserInteractionEnabled = true // Ensure the view is interactive
-        
-        // Back Button
-        let backButton = UIButton(type: .custom)
-        backButton.translatesAutoresizingMaskIntoConstraints = false
-        backButton.isUserInteractionEnabled = true
-        let backImage = UIImage(systemName: "chevron.left")?.withRenderingMode(.alwaysTemplate)
-        backButton.setImage(backImage, for: .normal)
-        backButton.imageView?.contentMode = .scaleAspectFit
-        backButton.tintColor = CometChatTheme.primaryColor
-        backButton.addTarget(self, action: #selector(onBackButtonTapped), for: .touchUpInside)
-        navigationBarView.addSubview(backButton)
-        
-        // Add constraints for back button
+
+        // The header is a kit component; it builds its own back button, title and bell.
         NSLayoutConstraint.activate([
-            backButton.leadingAnchor.constraint(equalTo: navigationBarView.leadingAnchor),
-            backButton.centerYAnchor.constraint(equalTo: navigationBarView.centerYAnchor),
-            backButton.widthAnchor.constraint(equalToConstant: 24),  // Standard width
+            headerView.heightAnchor.constraint(equalToConstant: 50)
         ])
-        
-        // View after back button
-        let stackView = UIStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 1
-        
-        // Title Label
-        let title = UILabel()
-        title.text = "THREAD".localize()
-        title.textColor = CometChatTheme.textColorPrimary
-        title.font = CometChatTypography.Heading4.bold
-        stackView.addArrangedSubview(title)
-        
-        // Subtitle Label
-        let subtitle = UILabel()
-        
-        if (parentMessage?.receiver as? Group) != nil {
-            subtitle.text = ((parentMessage?.receiver as? Group)?.name) ?? ""
-        } else if parentMessage?.receiverUid == CometChat.getLoggedInUser()?.uid {
-            subtitle.text = ((parentMessage?.sender as? User)?.name) ?? ""
-        } else {
-            subtitle.text = ((parentMessage?.receiver as? User)?.name) ?? ""
-        }
-        subtitle.textColor = CometChatTheme.textColorSecondary
-        subtitle.font = CometChatTypography.Caption1.regular
-        stackView.addArrangedSubview(subtitle)
-        
-        navigationBarView.addSubview(stackView)
-        
-        // Add constraints for stackView
-        NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: backButton.trailingAnchor, constant: 12),
-            stackView.centerYAnchor.constraint(equalTo: navigationBarView.centerYAnchor),
-            stackView.trailingAnchor.constraint(equalTo: navigationBarView.trailingAnchor)
-        ])
-        
-        // Set the height of the navigationBarView
-        NSLayoutConstraint.activate([
-            navigationBarView.heightAnchor.constraint(equalToConstant: 44)
-        ])
-        
-        let leftItem = UIBarButtonItem(customView: navigationBarView)
-        navigationItem.leftBarButtonItem = leftItem
-        
-        // Log taps to ensure action is firing
-        backButton.addTarget(self, action: #selector(logTap), for: .touchUpInside)
     }
 
-    @objc func logTap() {
-        print("Back button tapped")
-    }
 
-    @objc func onBackButtonTapped() {
-        navigationController?.popViewController(animated: true)
-    }
     
     
     func buildUI() {
         
-        self.view.backgroundColor = .systemBackground
+        self.view.backgroundColor = CometChatTheme.backgroundColor01
         
+        view.addSubview(headerView)
         view.addSubview(parentMessageView)
         view.addSubview(messageListView)
         view.addSubview(composerView)
@@ -191,7 +200,11 @@ class ThreadedMessagesVC: UIViewController {
         blockedUserView.addSubview(blockedUserLabel)
         
         NSLayoutConstraint.activate([
-            parentMessageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
+            headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            parentMessageView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
             parentMessageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             parentMessageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
@@ -222,3 +235,4 @@ class ThreadedMessagesVC: UIViewController {
         }
     }
 }
+

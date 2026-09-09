@@ -107,6 +107,11 @@ class MessagesVC: UIViewController {
         options.append(option1)
         options.append(option2)
         options.append(option3)
+        // Saved messages are user-level, not per-conversation, so they live on the
+        // Chats screen menu instead of here.
+        if let pinnedMessagesOption = pinnedMessagesMenuItem() {
+            options.append(pinnedMessagesOption)
+        }
         headerView.set(options: options)
 
 
@@ -114,6 +119,33 @@ class MessagesVC: UIViewController {
         return headerView
     }()
         
+    /// Opens the pinned messages of this conversation, or `nil` when pinning is off.
+    private func pinnedMessagesMenuItem() -> CometChatPopupMenu.MenuItem? {
+        guard CometChat.isPinMessageEnabled() else { return nil }
+
+        let icon = UIImage(systemName: "pin.circle") ?? UIImage()
+        return CometChatPopupMenu.MenuItem(title: "PINNED_MESSAGES_LABEL".localize(), icon: icon, action: { [weak self] in
+            self?.openPinnedMessages()
+        })
+    }
+
+    private func openPinnedMessages() {
+        DispatchQueue.main.async { [weak self] in
+            guard let this = self else { return }
+
+            let pinnedVC = CometChatPinnedMessages(user: this.user, group: this.group)
+            // Match the message list, so the option set is the same on both surfaces.
+            // Tapping a row returns to this conversation and jumps to the message.
+            pinnedVC.set(onMessageClicked: { [weak this] message in
+                guard let this = this else { return }
+                this.navigationController?.popViewController(animated: true)
+                this.messageListView.goToMessage(withId: message.id)
+            })
+
+            this.navigationController?.pushViewController(pinnedVC, animated: true)
+        }
+    }
+
     lazy var messageListView: CometChatMessageList = {
         
         let messageListView = CometChatMessageList(frame: .null)
@@ -154,6 +186,10 @@ class MessagesVC: UIViewController {
         
         messageListView.showMarkAsUnreadOption = true
         messageListView.startFromUnreadMessages = true
+
+        messageListView.enablePinMessage = true
+        messageListView.enableSaveMessage = true
+
         return messageListView
     }()
     

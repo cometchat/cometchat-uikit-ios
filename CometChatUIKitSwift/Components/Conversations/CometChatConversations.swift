@@ -73,6 +73,11 @@ open class CometChatConversations: CometChatListBase {
     public var hideDeleteConversationOption: Bool = false
     public var hideUserStatus: Bool = false
     public var hideGroupType: Bool = false
+
+    /// Ships dark: the option is absent until an integrator opts in AND the app has the
+    /// feature enabled server-side.
+    public var enablePinConversation: Bool = false
+    public var hidePinConversationOption: Bool = false
     
     public var onSearchClick : (() -> ())?
 
@@ -278,7 +283,11 @@ open class CometChatConversations: CometChatListBase {
             guard let this = self else { return }
             if fromIndexPath == toIndexPath { return }
             DispatchQueue.main.async {
+                // `moveRow` relocates the existing cell without calling `cellForRowAt`, so the
+                // pin indicator — built in the tail view — would keep its pre-move state.
+                // Rebuilding the tail at the destination refreshes it without a full reload.
                 this.tableView.moveRow(at: fromIndexPath, to: toIndexPath)
+                this.viewModel.reloadAtIndex?(toIndexPath)
             }
         }
         
@@ -564,8 +573,17 @@ extension CometChatConversations {
                     guard let this = self else { return }
                     this.delete(conversation: conversation)
                 }
-                delete.image = UIImage(named: "messages-delete", in: CometChatUIKit.bundle, with: nil)?.withTintColor(.white)
+                delete.image = swipeActionImage(
+                    named: "messages-delete",
+                    caption: ConversationConstants.delete,
+                    tint: style.deleteActionIconTint
+                )
+                delete.backgroundColor = style.deleteActionBackgroundColor
                 actions.append(delete)
+            }
+
+            if let pin = pinContextualAction(for: conversation) {
+                actions.append(pin)
             }
         }
         
@@ -588,6 +606,161 @@ extension CometChatConversations {
         
     }
     
+    // MARK: - Pin conversation
+
+    /// The Pin/Unpin swipe action, or `nil` when the feature is off, hidden, or the row
+    /// carries an admin-global pin the user is not permitted to remove.
+    private func pinContextualAction(for conversation: Conversation) -> UIContextualAction? {
+        // TEMPORARY — REVERT BEFORE MERGE: `CometChat.isPinConversationEnabled()` is ANDed in
+        // here normally, but `features.ux.conversations.pinned.enabled` is missing from the
+        // server's SDK cache-bust hash, so it never turns true and the swipe action can never
+        // appear. Dropped from the guard to allow manual testing; restore it once the backend
+        // adds the flag to the hash list.
+        guard enablePinConversation,
+              !hidePinConversationOption else { return nil }
+
+        let isPinned = viewModel.isPinned(conversation: conversation)
+
+        // An admin-global pin is not the user's to remove — the server rejects it — so don't
+        // offer the affordance at all. Note this guard is doing real work today: RBAC is not
+        // yet enforced backend-side, so nothing else stops the attempt.
+        if isPinned && conversation.pinnedBy == ConversationConstants.systemPinner {
+            return nil
+        }
+
+        let title = isPinned ? ConversationConstants.unpinConversation
+                             : ConversationConstants.pinConversation
+
+        // The conversation is captured here rather than read from the handler's arguments:
+        // the swipe handler calls onClick with a nil entity and indexPath.section (always 0),
+        // never .row, so an option cannot recover which row invoked it.
+        let action = UIContextualAction(style: .normal, title: title) { [weak self] (_, _, completionHandler) in
+            completionHandler(true)
+            // Pin is one-tap; unpin confirms first.
+            if isPinned {
+                PinSaveConfirmation.present(.unpinConversation, on: self) {
+                    self?.togglePin(for: conversation, shouldPin: false)
+                }
+            } else {
+                self?.togglePin(for: conversation, shouldPin: true)
+            }
+        }
+        action.image = swipeActionImage(
+            named: isPinned ? "keep-off" : "keep",
+            caption: title,
+            tint: style.pinActionIconTint
+        )
+        action.backgroundColor = style.pinActionBackgroundColor
+        return action
+    }
+
+    /// The glyph for a swipe action, composited with its caption only where UIKit needs it.
+    ///
+    /// Pre-iOS 26 UIKit drops a contextual action's own `title` when the image leaves no
+    /// vertical room, so the caption has to be baked into the bitmap. iOS 26 renders the
+    /// `title` itself and sizes the tile around whatever image it is handed — so passing the
+    /// composite there yields both the baked-in and the native caption, and an oversized
+    /// bitmap that squeezes out the tile's padding. Handing it the bare glyph fixes both.
+    private func swipeActionImage(named name: String, caption: String, tint: UIColor) -> UIImage? {
+        let glyph = UIImage(named: name, in: CometChatUIKit.bundle, compatibleWith: nil)?
+            .withRenderingMode(.alwaysTemplate)
+
+        if #available(iOS 26, *) {
+            return glyph?.withTintColor(tint, renderingMode: .alwaysOriginal)
+        }
+
+        // `add(text:)` applies the tint; .alwaysOriginal then stops UIKit re-tinting the composite.
+        return glyph?
+            .add(text: caption, imageTint: tint)?
+            .withRenderingMode(.alwaysOriginal)
+    }
+
+    /// Moves the row only once the server confirms.
+    ///
+    /// The row deliberately does not flip optimistically. The cap is server-owned and not
+    /// exposed by the SDK, so a rejection is only knowable after the fact — flipping first
+    /// meant a doomed pin animated to the top and back down before the alert. Waiting also
+    /// drops a second animation on the success path, where the local `Date()` guess rarely
+    /// matched the server's `pinnedAt` and the echo re-sorted the row again.
+    private func togglePin(for conversation: Conversation, shouldPin: Bool) {
+        // `conversationId` is optional on `Conversation` (unlike on `BaseMessage`/`Group`) and
+        // is nil for the same rows that yield no `id` — one with no backing conversation. A
+        // `?? ""` fallback would collapse every such row onto one guard key, so a nil bails.
+        guard let id = conversation.conversationType == .user
+                ? (conversation.conversationWith as? User)?.uid
+                : (conversation.conversationWith as? Group)?.guid,
+              let toggleId = conversation.conversationId else { return }
+
+        // Serialises repeated swipes so a second tap cannot start while the first is in flight.
+        guard MessageActionToggleGuard.shared.begin(action: .pinConversation, id: toggleId) else { return }
+
+        // Non-optional: the pin-conversation verbs follow the ThreadsRequest convention and
+        // always hand back a concrete exception, unlike the older optional-error APIs.
+        //
+        // Nothing was mutated before the call, so there is nothing to roll back — the row has
+        // not moved and must not move now.
+        let onFailure: (CometChatException) -> Void = { [weak self] error in
+            DispatchQueue.main.async {
+                MessageActionToggleGuard.shared.end(action: .pinConversation, id: toggleId)
+                self?.showPinFailure(error: error, shouldPin: shouldPin)
+            }
+        }
+
+        // The echoed conversation carries the server's real `pinnedAt`, so this is the only
+        // place the row moves.
+        let onSuccess: (Conversation) -> Void = { [weak self] updated in
+            DispatchQueue.main.async {
+                MessageActionToggleGuard.shared.end(action: .pinConversation, id: toggleId)
+                self?.viewModel.repositionForPinChange(conversation: updated)
+            }
+        }
+
+        if shouldPin {
+            CometChat.pinConversation(conversationWith: id,
+                                      conversationType: conversation.conversationType,
+                                      onSuccess: onSuccess,
+                                      onError: onFailure)
+        } else {
+            CometChat.unpinConversation(conversationWith: id,
+                                        conversationType: conversation.conversationType,
+                                        onSuccess: onSuccess,
+                                        onError: onFailure)
+        }
+    }
+
+    /// Surfaces a pin failure.
+    ///
+    /// Codes match what the backend actually emits (API reference on ENG-37690). The design
+    /// doc's `ERR_ACTION_NOT_ALLOWED` does not exist in the codebase, so matching on it would
+    /// silently fall through to the generic message.
+    ///
+    /// The cap is server-owned and read from `errorParams`, never hard-coded — the default is
+    /// 5 but `limits.conversations.pinnedPerUser` is tenant-overridable. Staging does not send
+    /// `errorParams` yet, so the cap is recovered from the message text as a fallback; if
+    /// neither yields a number the copy degrades to generic rather than rendering a wrong one.
+    private func showPinFailure(error: CometChatException, shouldPin: Bool) {
+        var message = ConversationConstants.pinConversationFailed
+
+        switch error.errorCode {
+        case PinConversationErrorCodes.limitExceeded:
+            let limit = (error.errorParams?["limit"] ?? error.errorParams?["limits"]) as? Int
+                ?? CometChatMessageList.trailingLimit(in: error.errorDescription)
+            if let limit {
+                message = String(format: ConversationConstants.pinnedConversationsLimitReached, "\(limit)")
+            }
+        case PinConversationErrorCodes.notAccessible:
+            // No conversation row yet (never messaged) or deleted-for-me. Known backend
+            // behaviour, not a transient failure — retrying will not help.
+            message = ConversationConstants.pinConversationNotAvailable
+        case PinConversationErrorCodes.permissionDenied:
+            message = ConversationConstants.pinConversationPermissionDenied
+        default:
+            break
+        }
+
+        CometChatToast.show(message: message, on: self)
+    }
+
     private func delete(conversation: Conversation) {
         // create an actionSheet
         let actionSheetController: UIAlertController = UIAlertController(title: ConversationConstants.deleteConversation, message: ConversationConstants.deleteConversationMessage, preferredStyle: .alert)

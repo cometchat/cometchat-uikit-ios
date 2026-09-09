@@ -22,6 +22,53 @@ public class CometChatMessageEvents {
          self.observer.removeObject(forKey: NSString(string: id))
     }
     
+    /// Pin is conversation-wide, so this fires on every participant's device. Save is
+    /// private, so `onMessageSaved`/`onMessageUnsaved` only ever reach the saving user's
+    /// other devices.
+    public static func onMessagePinned(message: BaseMessage) {
+        let objectEnumerator = self.observer.objectEnumerator()
+        while let value = objectEnumerator?.nextObject() as? CometChatMessageEventListener {
+            value.onMessagePinned(message: message)
+        }
+    }
+
+    public static func onMessageUnpinned(message: BaseMessage) {
+        let objectEnumerator = self.observer.objectEnumerator()
+        while let value = objectEnumerator?.nextObject() as? CometChatMessageEventListener {
+            value.onMessageUnpinned(message: message)
+        }
+    }
+
+    public static func onMessageSaved(message: BaseMessage) {
+        let objectEnumerator = self.observer.objectEnumerator()
+        while let value = objectEnumerator?.nextObject() as? CometChatMessageEventListener {
+            value.onMessageSaved(message: message)
+        }
+    }
+
+    public static func onMessageUnsaved(message: BaseMessage) {
+        let objectEnumerator = self.observer.objectEnumerator()
+        while let value = objectEnumerator?.nextObject() as? CometChatMessageEventListener {
+            value.onMessageUnsaved(message: message)
+        }
+    }
+
+    /// Emitted by the acting surface so panels update without waiting on realtime.
+    /// Read `message.pinnedAt` to tell pin from unpin.
+    public static func ccMessagePinned(message: BaseMessage, status: MessageStatus) {
+        let objectEnumerator = self.observer.objectEnumerator()
+        while let value = objectEnumerator?.nextObject() as? CometChatMessageEventListener {
+            value.ccMessagePinned(message: message, status: status)
+        }
+    }
+
+    public static func ccMessageSaved(message: BaseMessage, status: MessageStatus) {
+        let objectEnumerator = self.observer.objectEnumerator()
+        while let value = objectEnumerator?.nextObject() as? CometChatMessageEventListener {
+            value.ccMessageSaved(message: message, status: status)
+        }
+    }
+
     public static func onMessagesReadByAll(receipt: MessageReceipt) {
         let objectEnumerator = self.observer.objectEnumerator()
         while let value = objectEnumerator?.nextObject() as? CometChatMessageEventListener {

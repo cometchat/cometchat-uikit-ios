@@ -69,6 +69,7 @@ public class DataSourceDecorator: DataSource {
         return dataSource.getAIOptions(controller: controller, user: user, group: group, id: id, aiOptionsStyle: aiOptionsStyle)
     }
     
+    // Subclasses must override this; the forward is a fallback only.
     public func getId() -> String {
         return dataSource.getId()
     }

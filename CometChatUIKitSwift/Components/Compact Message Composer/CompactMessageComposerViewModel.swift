@@ -204,27 +204,78 @@ extension CompactMessageComposerViewModel {
         }
     }
     
+    /// Builds the message the send button would have sent, without sending it.
+    /// Used when the host owns the send via `onSendButtonClick`.
+    func setupBaseMessage(
+        message: String,
+        textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]]
+    ) -> BaseMessage? {
+        let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedMessage.isEmpty else { return nil }
+
+        let textMessage: TextMessage
+        if let uid = user?.uid {
+            textMessage = TextMessage(receiverUid: uid, text: trimmedMessage, receiverType: .user)
+        } else if let guid = group?.guid {
+            textMessage = TextMessage(receiverUid: guid, text: trimmedMessage, receiverType: .group)
+        } else {
+            return nil
+        }
+
+        configureMessage(textMessage, textFormatter: textFormatter)
+        clearQuotedMessage()
+        isSoundForMessageEnabled?()
+        return textMessage
+    }
+
+    /// Media counterpart of the above, for the voice-note recorder. Mirrors the
+    /// metaData `sendMediaMessageTo*` sets, so the host receives the same message
+    /// the kit would have sent.
+    func setupBaseMessage(url: String, type: CometChat.MessageType) -> BaseMessage? {
+        guard !url.isEmpty else { return nil }
+
+        let mediaMessage: MediaMessage
+        if let uid = user?.uid {
+            mediaMessage = MediaMessage(receiverUid: uid, fileurl: url, messageType: type, receiverType: .user)
+        } else if let guid = group?.guid {
+            mediaMessage = MediaMessage(receiverUid: guid, fileurl: url, messageType: type, receiverType: .group)
+        } else {
+            return nil
+        }
+
+        var metaData: [String: Any] = ["fileURL": url]
+        if type == .audio { metaData["audioType"] = "voice_note" }
+        mediaMessage.metaData = metaData
+
+        configureMessage(mediaMessage, textFormatter: [:])
+        clearQuotedMessage()
+        hideReplyView?()
+        isSoundForMessageEnabled?()
+        return mediaMessage
+    }
+
+    /// Shared by the text and media paths — every field set here lives on `BaseMessage`.
     private func configureMessage(
-        _ textMessage: TextMessage,
+        _ message: BaseMessage,
         textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]]
     ) {
-        textMessage.muid = "\(NSDate().timeIntervalSince1970)"
-        textMessage.sentAt = Int(Date().timeIntervalSince1970)
-        textMessage.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
-        textMessage.sender = CometChat.getLoggedInUser()
-        
+        message.muid = "\(NSDate().timeIntervalSince1970)"
+        message.sentAt = Int(Date().timeIntervalSince1970)
+        message.senderUid = CometChat.getLoggedInUser()?.uid ?? ""
+        message.sender = CometChat.getLoggedInUser()
+
         if let parentId = parentMessageId {
-            textMessage.parentMessageId = parentId
+            message.parentMessageId = parentId
         }
         if let quotedId = quotedMessageId {
-            textMessage.quotedMessageId = quotedId
+            message.quotedMessageId = quotedId
         }
         if let quoted = quotedMessage {
-            textMessage.quotedMessage = quoted
+            message.quotedMessage = quoted
         }
-        
+
         // Apply text formatters
-        if !textFormatter.isEmpty {
+        if !textFormatter.isEmpty, let textMessage = message as? TextMessage {
             update(message: textMessage, withSelected: textFormatter)
         }
     }

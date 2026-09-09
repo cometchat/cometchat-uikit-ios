@@ -101,10 +101,19 @@ extension CometChatThreadedMessageHeader {
         return self
     }
     
+    /// Hides the bell while leaving the feature on — for a host that already
+    /// renders its own control elsewhere on the screen.
+    @discardableResult
+    public func set(hideThreadSubscriptionButton: Bool) -> Self {
+        self.hideThreadSubscriptionButton = hideThreadSubscriptionButton
+        updateThreadSubscriptionState()
+        return self
+    }
+
     @discardableResult
     public func set(controller: UIViewController?) -> Self {
         self.controller = controller
         return self
     }
-    
+
 }

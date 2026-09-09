@@ -331,3 +331,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Bericht vastpinnen";
+"UNPIN_MESSAGE" = "Bericht losmaken";
+"SAVE_MESSAGE" = "Bericht opslaan";
+"UNSAVE_MESSAGE" = "Uit opgeslagen verwijderen";
+"MESSAGE_PINNED_TOAST" = "Bericht vastgepind";
+"MESSAGE_UNPINNED_TOAST" = "Bericht losgemaakt";
+"MESSAGE_SAVED_TOAST" = "Bericht opgeslagen";
+"MESSAGE_UNSAVED_TOAST" = "Bericht uit opgeslagen verwijderd";
+"PIN_MESSAGE_LIMIT_REACHED" = "Je kunt maar %@ berichten vastmaken. Maak er één los om een ander vast te maken.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "Je kunt maximaal %@ berichten opslaan. Verwijder er één om door te gaan.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "Je hebt geen toestemming om hier berichten vast te pinnen.";
+"PIN_MESSAGE_FAILED" = "Kan de pin niet bijwerken. Probeer het opnieuw.";
+"SAVE_MESSAGE_FAILED" = "Kan opgeslagen berichten niet bijwerken. Probeer het opnieuw.";
+"PINNED_MESSAGES_TITLE" = "%@ vastgepinde berichten";
+"PINNED_MESSAGES_LABEL" = "Vastgepinde berichten";
+"PINNED_MESSAGES_EMPTY_TITLE" = "Nog geen vastgepinde berichten";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Pin belangrijke berichten vast om ze snel te vinden.";
+"SAVED_MESSAGES_TITLE" = "%@ opgeslagen berichten";
+"SAVED_MESSAGES_EMPTY_TITLE" = "Nog geen opgeslagen berichten";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Sla berichten op zodat je ze altijd bij de hand hebt.";
+"PINNED_INDICATOR" = "Vastgepind";
+"SAVED_INDICATOR" = "Opgeslagen";
+"MESSAGE_EDITED" = "Bewerkt";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "Meer…";
+"MORE_OPTIONS_EXPANDED" = "Meer opties worden getoond";
+"MORE_OPTIONS_COLLAPSED" = "Hoofdopties worden getoond";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Vastmaken";
+"UNPIN_CONVERSATION" = "Losmaken";
+"CONVERSATION_PINNED" = "Gesprek vastgemaakt";
+"CONVERSATION_UNPINNED" = "Gesprek losgemaakt";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "Je kunt maar %@ chats vastmaken. Maak er één los om een andere vast te maken.";
+"PIN_CONVERSATION_FAILED" = "Kan de pin niet bijwerken. Probeer het opnieuw.";
+"PINNED" = "Vastgemaakt";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "Dit gesprek kan nog niet worden vastgemaakt.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "Je hebt geen toestemming om dit gesprek vast te maken.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "Thread abonneren";
+"THREAD_UNSUBSCRIBE" = "Abonnement op thread opzeggen";
+"THREAD_SUBSCRIBED" = "Volgend";
+"THREAD_UNSUBSCRIBED_TOAST" = "Abonnement opgezegd. Meldingen staan uit totdat je reageert of wordt genoemd.";
+"THREAD_SUBSCRIBED_TOAST" = "Geabonneerd. Je krijgt een melding bij nieuwe reacties in deze thread.";
+"THREAD_SUBSCRIPTION_FAILED" = "Bijwerken mislukt. Probeer het opnieuw.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Bericht losmaken";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "Wilt u dit bericht losmaken?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Bericht niet meer opslaan";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "Wilt u dit bericht niet meer opslaan?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Gesprek losmaken";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "Wilt u dit gesprek losmaken?";
+"UNPIN_ACTION" = "Losmaken";
+"UNSAVE_ACTION" = "Niet meer opslaan";

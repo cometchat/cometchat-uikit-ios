@@ -330,3 +330,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Üzenet kitűzése";
+"UNPIN_MESSAGE" = "Kitűzés megszüntetése";
+"SAVE_MESSAGE" = "Üzenet mentése";
+"UNSAVE_MESSAGE" = "Eltávolítás a mentettekből";
+"MESSAGE_PINNED_TOAST" = "Üzenet kitűzve";
+"MESSAGE_UNPINNED_TOAST" = "Kitűzés megszüntetve";
+"MESSAGE_SAVED_TOAST" = "Üzenet mentve";
+"MESSAGE_UNSAVED_TOAST" = "Üzenet eltávolítva a mentettekből";
+"PIN_MESSAGE_LIMIT_REACHED" = "Csak %@ üzenetet tűzhetsz ki. Szüntesd meg az egyik kitűzését, hogy másikat tűzhess ki.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "Legfeljebb %@ üzenetet menthetsz. A folytatáshoz távolíts el egyet.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "Nincs jogosultságod üzenetet kitűzni itt.";
+"PIN_MESSAGE_FAILED" = "A kitűzés frissítése nem sikerült. Próbáld újra.";
+"SAVE_MESSAGE_FAILED" = "A mentett üzenetek frissítése nem sikerült. Próbáld újra.";
+"PINNED_MESSAGES_TITLE" = "%@ kitűzött üzenet";
+"PINNED_MESSAGES_LABEL" = "Kitűzött üzenetek";
+"PINNED_MESSAGES_EMPTY_TITLE" = "Még nincs kitűzött üzenet";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Tűzz ki fontos üzeneteket, hogy gyorsan megtaláld őket.";
+"SAVED_MESSAGES_TITLE" = "%@ mentett üzenet";
+"SAVED_MESSAGES_EMPTY_TITLE" = "Még nincs mentett üzenet";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Ments üzeneteket, hogy bármikor kéznél legyenek.";
+"PINNED_INDICATOR" = "Kitűzve";
+"SAVED_INDICATOR" = "Mentve";
+"MESSAGE_EDITED" = "Szerkesztve";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "Továbbiak…";
+"MORE_OPTIONS_EXPANDED" = "További lehetőségek megjelenítve";
+"MORE_OPTIONS_COLLAPSED" = "Fő lehetőségek megjelenítve";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Kitűzés";
+"UNPIN_CONVERSATION" = "Kitűzés törlése";
+"CONVERSATION_PINNED" = "Beszélgetés kitűzve";
+"CONVERSATION_UNPINNED" = "Kitűzés megszüntetve";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "Csak %@ csevegést tűzhetsz ki. Szüntesd meg az egyik kitűzését, hogy másikat tűzhess ki.";
+"PIN_CONVERSATION_FAILED" = "A kitűzés nem sikerült. Kérjük, próbáld újra.";
+"PINNED" = "Kitűzve";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "Ez a beszélgetés még nem tűzhető ki.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "Nincs jogosultságod kitűzni ezt a beszélgetést.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "Feliratkozás a témára";
+"THREAD_UNSUBSCRIBE" = "Leiratkozás a témáról";
+"THREAD_SUBSCRIBED" = "Követve";
+"THREAD_UNSUBSCRIBED_TOAST" = "Leiratkoztál. Az értesítések ki vannak kapcsolva, amíg nem válaszolsz vagy nem említenek meg.";
+"THREAD_SUBSCRIBED_TOAST" = "Feliratkoztál. Értesítést kapsz a téma új válaszairól.";
+"THREAD_SUBSCRIPTION_FAILED" = "A frissítés nem sikerült. Kérjük, próbáld újra.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Üzenet kitűzésének megszüntetése";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "Megszünteti az üzenet kitűzését?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Üzenet mentésének megszüntetése";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "Megszünteti az üzenet mentését?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Beszélgetés kitűzésének megszüntetése";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "Megszünteti a beszélgetés kitűzését?";
+"UNPIN_ACTION" = "Kitűzés megszüntetése";
+"UNSAVE_ACTION" = "Mentés megszüntetése";

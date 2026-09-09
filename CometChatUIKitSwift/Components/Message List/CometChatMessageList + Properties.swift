@@ -45,7 +45,7 @@ extension CometChatMessageList {
         self.viewModel.set(user: user, messagesRequestBuilder: self.messagesRequestBuilder, parentMessage: parentMessage, withParent: withParent)
         return self
     }
-    
+
     @discardableResult
     public func set(group: Group, parentMessage: BaseMessage? = nil) -> Self {
         self.viewModel.set(group: group, messagesRequestBuilder: self.messagesRequestBuilder, parentMessage: parentMessage)
@@ -273,7 +273,7 @@ extension CometChatMessageList {
         addKeyboardDismissGesture()
         return self
     }
-    
+
     @discardableResult
     public func disconnect() -> Self {
         viewModel.disconnect()

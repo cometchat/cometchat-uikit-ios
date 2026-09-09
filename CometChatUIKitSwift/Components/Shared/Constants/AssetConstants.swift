@@ -22,7 +22,15 @@ public struct AssetConstants {
     static let reply = UIImage(systemName: "arrowshape.turn.up.left")?.withRenderingMode(.alwaysTemplate)
     static let thread = UIImage(systemName: "arrow.turn.down.right")?.withRenderingMode(.alwaysTemplate)
     static let privately = UIImage(named: "send-message-in-private", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-    
+    static let pinMessage = UIImage(systemName: "pin")?.withRenderingMode(.alwaysTemplate)
+    static let unpinMessage = UIImage(systemName: "pin.slash")?.withRenderingMode(.alwaysTemplate)
+    static let saveMessage = UIImage(systemName: "bookmark")?.withRenderingMode(.alwaysTemplate)
+    static let unsaveMessage = UIImage(systemName: "bookmark.fill")?.withRenderingMode(.alwaysTemplate)
+    static let more = UIImage(systemName: "ellipsis")?.withRenderingMode(.alwaysTemplate)
+    static let followThread = UIImage(systemName: "bell")?.withRenderingMode(.alwaysTemplate)
+    static let unfollowThread = UIImage(systemName: "bell.slash")?.withRenderingMode(.alwaysTemplate)
+
+
 //      static let spinner = "assets/icons/spinner.png";
 //      static let close = "assets/icons/close.png";
 //      static let write = "assets/icons/write.png";

@@ -53,8 +53,7 @@ public class MessageTranslationViewModel: DataSourceDecorator {
             translatedTextBubble.set(originalMessage: originalMessage, translatedMessage: translatedMessage)
             
             let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)
-            let messageBubbleStyle = isLoggedInUser ? additionalConfiguration?.messageBubbleStyle.outgoing : additionalConfiguration?.messageBubbleStyle.incoming
-            if let style = messageBubbleStyle?.messageTranslationBubbleStyle {
+            if let style = additionalConfiguration?.messageTranslationBubbleStyle(isLoggedInUser) {
                 translatedTextBubble.style = style
             }
         }

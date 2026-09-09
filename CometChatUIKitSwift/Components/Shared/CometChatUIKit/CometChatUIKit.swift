@@ -63,6 +63,13 @@ final public class CometChatUIKit {
         }
     }
     
+    /// Whether the thread-subscription surfaces should be offered at all. Opt in via
+    /// `UIKitSettings.enable(threadSubscription:)`; reads false before `CometChatUIKit.init`
+    /// has run, so a surface built early stays hidden rather than half-enabled.
+    public static func isThreadSubscriptionEnabled() -> Bool {
+        uiKitSettings?.enableThreadSubscription == true
+    }
+    
     // :nodoc:
     /// Initializes CometChatUIKit by reading configuration from `cometchat-settings.json`
     /// bundled in the app's main bundle. Delegates to the Chat SDK's `initFromSettings`

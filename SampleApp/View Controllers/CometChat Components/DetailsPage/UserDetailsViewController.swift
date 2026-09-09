@@ -107,6 +107,25 @@ class UserDetailsViewController: UIViewController, CometChatConversationEventLis
     
     public var listenerRandomID = Date().timeIntervalSince1970
     
+    public lazy var pinnedMessagesButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("PINNED_MESSAGES_LABEL".localize(), for: .normal)
+        button.setTitleColor(CometChatTheme.textColorPrimary, for: .normal)
+        button.setImage(UIImage(systemName: "pin"), for: .normal)
+        button.tintColor = CometChatTheme.iconColorPrimary
+        button.addTarget(self, action: #selector(openPinnedMessages), for: .primaryActionTriggered)
+
+        let spacing: CGFloat = 8.0
+        button.imageView?.contentMode = .scaleAspectFit
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: spacing, bottom: 0, right: -spacing)
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -spacing, bottom: 0, right: 0)
+        button.heightAnchor.constraint(equalToConstant: 24).isActive = true
+        button.titleLabel?.font = CometChatTypography.Body.regular
+
+        return button
+    }()
+
     public lazy var blockButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -256,9 +275,20 @@ class UserDetailsViewController: UIViewController, CometChatConversationEventLis
             separatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ]
         
+        // Pinning can be off for the app, in which case the row is dropped entirely and
+        // Block anchors straight to the separator.
+        let showPinnedMessages = CometChat.isPinMessageEnabled()
+        if showPinnedMessages {
+            contentView.addSubview(pinnedMessagesButton)
+            constantsToActive += [
+                pinnedMessagesButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: CometChatSpacing.Padding.p5),
+                pinnedMessagesButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: CometChatSpacing.Padding.p5),
+            ]
+        }
+
         contentView.addSubview(blockButton)
         constantsToActive += [
-            blockButton.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: CometChatSpacing.Padding.p5),
+            blockButton.topAnchor.constraint(equalTo: showPinnedMessages ? pinnedMessagesButton.bottomAnchor : separatorView.bottomAnchor, constant: CometChatSpacing.Padding.p5),
             blockButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: CometChatSpacing.Padding.p5),
         ]
         
@@ -272,6 +302,24 @@ class UserDetailsViewController: UIViewController, CometChatConversationEventLis
         NSLayoutConstraint.activate(constantsToActive)
     }
     
+    @objc func openPinnedMessages(){
+        guard let user = user else { return }
+
+        let pinnedVC = CometChatPinnedMessages(user: user)
+        // User Info sits on top of the conversation, so returning to the message needs
+        // both this screen and the pinned list off the stack.
+        pinnedVC.set(onMessageClicked: { [weak self] message in
+            guard let navigationController = self?.navigationController,
+                  let messagesVC = navigationController.viewControllers
+                      .last(where: { $0 is MessagesVC }) as? MessagesVC else { return }
+
+            navigationController.popToViewController(messagesVC, animated: true)
+            messagesVC.messageListView.goToMessage(withId: message.id)
+        })
+
+        navigationController?.pushViewController(pinnedVC, animated: true)
+    }
+
     @objc func showBlockAlert(){
         if blockButton.tag == 0 {
             self.showAlert("\("BLOCK".localize()) \(user?.name ?? "")", "\("BLOCKED_USER_ERROR".localize()) \(user?.name ?? "").", "\("CANCEL".localize())", "\("BLOCK".localize())", onActionsTriggered: { [weak self] in

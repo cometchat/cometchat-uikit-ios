@@ -336,3 +336,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Nachricht anpinnen";
+"UNPIN_MESSAGE" = "Nachricht loslösen";
+"SAVE_MESSAGE" = "Nachricht speichern";
+"UNSAVE_MESSAGE" = "Nachricht nicht mehr speichern";
+"MESSAGE_PINNED_TOAST" = "Nachricht angepinnt";
+"MESSAGE_UNPINNED_TOAST" = "Nachricht losgelöst";
+"MESSAGE_SAVED_TOAST" = "Nachricht gespeichert";
+"MESSAGE_UNSAVED_TOAST" = "Nachricht aus Gespeichertem entfernt";
+"PIN_MESSAGE_LIMIT_REACHED" = "Du kannst nur %@ Nachrichten anpinnen. Löse eine los, um eine andere anzupinnen.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "Du kannst bis zu %@ Nachrichten speichern. Entferne eine, um fortzufahren.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "Du hast keine Berechtigung, hier Nachrichten anzupinnen.";
+"PIN_MESSAGE_FAILED" = "Pin konnte nicht aktualisiert werden. Bitte versuche es erneut.";
+"SAVE_MESSAGE_FAILED" = "Gespeicherte Nachrichten konnten nicht aktualisiert werden. Bitte versuche es erneut.";
+"PINNED_MESSAGES_TITLE" = "%@ angepinnte Nachrichten";
+"PINNED_MESSAGES_LABEL" = "Angepinnte Nachrichten";
+"PINNED_MESSAGES_EMPTY_TITLE" = "Noch keine angepinnten Nachrichten";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Pinne wichtige Nachrichten an, um sie schnell zu finden.";
+"SAVED_MESSAGES_TITLE" = "%@ gespeicherte Nachrichten";
+"SAVED_MESSAGES_EMPTY_TITLE" = "Noch keine gespeicherten Nachrichten";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Speichere Nachrichten, um sie immer griffbereit zu haben.";
+"PINNED_INDICATOR" = "Angepinnt";
+"SAVED_INDICATOR" = "Gespeichert";
+"MESSAGE_EDITED" = "Bearbeitet";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "Mehr…";
+"MORE_OPTIONS_EXPANDED" = "Weitere Optionen werden angezeigt";
+"MORE_OPTIONS_COLLAPSED" = "Hauptoptionen werden angezeigt";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Anpinnen";
+"UNPIN_CONVERSATION" = "Loslösen";
+"CONVERSATION_PINNED" = "Unterhaltung angepinnt";
+"CONVERSATION_UNPINNED" = "Unterhaltung losgelöst";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "Du kannst nur %@ Chats anpinnen. Löse einen los, um einen anderen anzupinnen.";
+"PIN_CONVERSATION_FAILED" = "Pin konnte nicht aktualisiert werden. Bitte versuche es erneut.";
+"PINNED" = "Angepinnt";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "Diese Unterhaltung kann noch nicht angepinnt werden.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "Du hast keine Berechtigung, diese Unterhaltung anzupinnen.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "Thread abonnieren";
+"THREAD_UNSUBSCRIBE" = "Thread-Abo beenden";
+"THREAD_SUBSCRIBED" = "Folgt";
+"THREAD_UNSUBSCRIBED_TOAST" = "Abo beendet. Benachrichtigungen sind aus, bis du antwortest oder erwähnt wirst.";
+"THREAD_SUBSCRIBED_TOAST" = "Abonniert. Du wirst über neue Antworten in diesem Thread benachrichtigt.";
+"THREAD_SUBSCRIPTION_FAILED" = "Aktualisierung fehlgeschlagen. Bitte versuche es erneut.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Nachricht loslösen";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "Möchten Sie diese Nachricht loslösen?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Nachricht nicht mehr speichern";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "Möchten Sie diese Nachricht nicht mehr speichern?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Unterhaltung loslösen";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "Möchten Sie diese Unterhaltung loslösen?";
+"UNPIN_ACTION" = "Loslösen";
+"UNSAVE_ACTION" = "Nicht mehr speichern";

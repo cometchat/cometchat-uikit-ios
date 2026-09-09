@@ -328,3 +328,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Épingler le message";
+"UNPIN_MESSAGE" = "Désépingler le message";
+"SAVE_MESSAGE" = "Enregistrer le message";
+"UNSAVE_MESSAGE" = "Retirer des enregistrements";
+"MESSAGE_PINNED_TOAST" = "Message épinglé";
+"MESSAGE_UNPINNED_TOAST" = "Message désépinglé";
+"MESSAGE_SAVED_TOAST" = "Message enregistré";
+"MESSAGE_UNSAVED_TOAST" = "Message retiré des enregistrements";
+"PIN_MESSAGE_LIMIT_REACHED" = "Vous ne pouvez épingler que %@ messages. Désépinglez-en un pour en épingler un autre.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "Vous pouvez enregistrer jusqu'à %@ messages. Retirez-en un pour continuer.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "Vous n'avez pas l'autorisation d'épingler des messages ici.";
+"PIN_MESSAGE_FAILED" = "Impossible de mettre à jour l'épingle. Veuillez réessayer.";
+"SAVE_MESSAGE_FAILED" = "Impossible de mettre à jour les messages enregistrés. Veuillez réessayer.";
+"PINNED_MESSAGES_TITLE" = "%@ messages épinglés";
+"PINNED_MESSAGES_LABEL" = "Messages épinglés";
+"PINNED_MESSAGES_EMPTY_TITLE" = "Aucun message épinglé pour le moment";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Épinglez les messages importants pour les retrouver rapidement.";
+"SAVED_MESSAGES_TITLE" = "%@ messages enregistrés";
+"SAVED_MESSAGES_EMPTY_TITLE" = "Aucun message enregistré pour le moment";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Enregistrez des messages pour les garder à portée de main.";
+"PINNED_INDICATOR" = "Épinglé";
+"SAVED_INDICATOR" = "Enregistré";
+"MESSAGE_EDITED" = "Modifié";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "Plus…";
+"MORE_OPTIONS_EXPANDED" = "Affichage des autres options";
+"MORE_OPTIONS_COLLAPSED" = "Affichage des options principales";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Épingler";
+"UNPIN_CONVERSATION" = "Désépingler";
+"CONVERSATION_PINNED" = "Conversation épinglée";
+"CONVERSATION_UNPINNED" = "Conversation désépinglée";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "Vous ne pouvez épingler que %@ discussions. Désépinglez-en une pour en épingler une autre.";
+"PIN_CONVERSATION_FAILED" = "Impossible de mettre à jour. Veuillez réessayer.";
+"PINNED" = "Épinglée";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "Cette conversation ne peut pas encore être épinglée.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "Vous n'avez pas la permission d'épingler cette conversation.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "S'abonner au fil";
+"THREAD_UNSUBSCRIBE" = "Se désabonner du fil";
+"THREAD_SUBSCRIBED" = "Suivi";
+"THREAD_UNSUBSCRIBED_TOAST" = "Désabonné. Les notifications sont désactivées jusqu'à ce que vous répondiez ou soyez mentionné.";
+"THREAD_SUBSCRIBED_TOAST" = "Abonné. Vous serez notifié des nouvelles réponses dans ce fil.";
+"THREAD_SUBSCRIPTION_FAILED" = "Échec de la mise à jour. Veuillez réessayer.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Désépingler le message";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "Voulez-vous désépingler ce message ?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Ne plus enregistrer le message";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "Voulez-vous ne plus enregistrer ce message ?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Désépingler la conversation";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "Voulez-vous désépingler cette conversation ?";
+"UNPIN_ACTION" = "Désépingler";
+"UNSAVE_ACTION" = "Ne plus enregistrer";

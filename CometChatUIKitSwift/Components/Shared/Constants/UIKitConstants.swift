@@ -6,7 +6,7 @@ public struct UIConstants {
 }
 
 internal struct UIKitConstants {
-    static var version = "5.1.20"
+    static var version = "5.1.22"
     static var messageId = "messageId"
     static var conversationId = "conversationId"
     static var senderId = "senderId"
@@ -81,6 +81,39 @@ public struct  MessageOptionConstants {
     public static var forwardMessage = "forwardMessage"
     public static var reportMessage = "reportMessage"
     public static var markMessageAsUnread = "markMessageAsUnread"
+    public static let pinMessage = "pinMessage"
+    public static let unpinMessage = "unpinMessage"
+    public static let saveMessage = "saveMessage"
+    public static let unsaveMessage = "unsaveMessage"
+    public static let threadSubscription = "threadSubscription"
+    public static var moreOptions = "moreOptions"
+
+    /// Ids shown inline. Order here is the order they render; anything the producers
+    /// emit that is not listed falls behind "More". Declarative so the two option
+    /// sites cannot drift the way their append order already has.
+    public static var primaryOptionIds: [String] = [
+        MessageOptionConstants.replyMessage,
+        MessageOptionConstants.replyInThread,
+        MessageOptionConstants.threadSubscription,
+        MessageOptionConstants.copyMessage,
+        MessageOptionConstants.editMessage,
+        MessageOptionConstants.deleteMessage,
+        MessageOptionConstants.messagePrivately
+    ]
+
+    /// Splits an option list into the inline rows and the ones behind "More".
+    /// Primary follows `primaryOptionIds`; overflow keeps its producer's order.
+    /// An id listed but not produced simply does not render.
+    static func partition(
+        _ options: [CometChatMessageOption]
+    ) -> (primary: [CometChatMessageOption], overflow: [CometChatMessageOption]) {
+        let primaryIds = Set(primaryOptionIds)
+        let primary = primaryOptionIds.compactMap { id in
+            options.first { $0.id == id }
+        }
+        let overflow = options.filter { !primaryIds.contains($0.id) }
+        return (primary, overflow)
+    }
 }
 
 @objc public enum MessageBubbleAlignment: Int {

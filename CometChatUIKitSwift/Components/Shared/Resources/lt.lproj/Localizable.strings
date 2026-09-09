@@ -322,3 +322,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Prisegti žinutę";
+"UNPIN_MESSAGE" = "Atsegti žinutę";
+"SAVE_MESSAGE" = "Išsaugoti žinutę";
+"UNSAVE_MESSAGE" = "Pašalinti iš išsaugotų";
+"MESSAGE_PINNED_TOAST" = "Žinutė prisegta";
+"MESSAGE_UNPINNED_TOAST" = "Žinutė atsegta";
+"MESSAGE_SAVED_TOAST" = "Žinutė išsaugota";
+"MESSAGE_UNSAVED_TOAST" = "Žinutė pašalinta iš išsaugotų";
+"PIN_MESSAGE_LIMIT_REACHED" = "Galite prisegti tik %@ žinučių. Atsekite vieną, kad prisegtumėte kitą.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "Galite išsaugoti iki %@ žinučių. Norėdami tęsti, pašalinkite vieną.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "Neturite leidimo čia segti žinučių.";
+"PIN_MESSAGE_FAILED" = "Nepavyko atnaujinti prisegimo. Bandykite dar kartą.";
+"SAVE_MESSAGE_FAILED" = "Nepavyko atnaujinti išsaugotų žinučių. Bandykite dar kartą.";
+"PINNED_MESSAGES_TITLE" = "Prisegtos žinutės: %@";
+"PINNED_MESSAGES_LABEL" = "Prisegtos žinutės";
+"PINNED_MESSAGES_EMPTY_TITLE" = "Kol kas prisegtų žinučių nėra";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Prisekite svarbias žinutes, kad greitai jas rastumėte.";
+"SAVED_MESSAGES_TITLE" = "Išsaugotos žinutės: %@";
+"SAVED_MESSAGES_EMPTY_TITLE" = "Kol kas išsaugotų žinučių nėra";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Išsaugokite žinutes, kad jos visada būtų po ranka.";
+"PINNED_INDICATOR" = "Prisegta";
+"SAVED_INDICATOR" = "Išsaugota";
+"MESSAGE_EDITED" = "Redaguota";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "Daugiau…";
+"MORE_OPTIONS_EXPANDED" = "Rodomos kitos parinktys";
+"MORE_OPTIONS_COLLAPSED" = "Rodomos pagrindinės parinktys";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Prisegti";
+"UNPIN_CONVERSATION" = "Atsegti";
+"CONVERSATION_PINNED" = "Pokalbis prisegtas";
+"CONVERSATION_UNPINNED" = "Pokalbis atsegtas";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "Galite prisegti tik %@ pokalbių. Atsekite vieną, kad prisegtumėte kitą.";
+"PIN_CONVERSATION_FAILED" = "Nepavyko atnaujinti. Bandykite dar kartą.";
+"PINNED" = "Prisegta";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "Šio pokalbio kol kas negalima prisegti.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "Neturite teisės prisegti šio pokalbio.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "Prenumeruoti giją";
+"THREAD_UNSUBSCRIBE" = "Atsisakyti gijos prenumeratos";
+"THREAD_SUBSCRIBED" = "Sekama";
+"THREAD_UNSUBSCRIBED_TOAST" = "Prenumerata atšaukta. Pranešimai išjungti, kol neatsakysite arba nebūsite paminėti.";
+"THREAD_SUBSCRIBED_TOAST" = "Prenumeruojama. Gausite pranešimus apie naujus atsakymus šioje gijoje.";
+"THREAD_SUBSCRIPTION_FAILED" = "Nepavyko atnaujinti. Bandykite dar kartą.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Atsegti žinutę";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "Ar norite atsegti šią žinutę?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Nebeišsaugoti žinutės";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "Ar norite nebeišsaugoti šios žinutės?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Atsegti pokalbį";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "Ar norite atsegti šį pokalbį?";
+"UNPIN_ACTION" = "Atsegti";
+"UNSAVE_ACTION" = "Nebeišsaugoti";

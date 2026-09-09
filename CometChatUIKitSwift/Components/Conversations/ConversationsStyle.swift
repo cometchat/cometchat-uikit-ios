@@ -98,8 +98,18 @@ public struct ConversationsStyle: ListBaseStyle, ListItemStyle {
     public var shimmerColor2: UIColor?
     
     public var listItemSelectionImageTint: UIColor = CometChatTheme.iconColorHighlight
-            
-    
+
+    /// Backgrounds and icon tints for the swipe actions. Named theme tokens rather than
+    /// hard-coded hex, so integrators can retheme either button.
+    public var pinActionBackgroundColor: UIColor = CometChatTheme.backgroundColor02Solid
+
+    public var pinActionIconTint: UIColor = .white
+
+    public var deleteActionBackgroundColor: UIColor = CometChatTheme.errorColorSolid
+
+    public var deleteActionIconTint: UIColor = .white
+
+
     public init() { }
     
 }

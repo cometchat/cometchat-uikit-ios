@@ -101,10 +101,10 @@ class StickersExtensionDecorator: DataSourceDecorator, CometChatMessageEventList
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let message = message else { return nil }
-            return ChatConfigurator.getDataSource().getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return self.getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let message = message, let user = LoggedInUserInformation.getUser() else { return [] }
-            return ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return self.getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
         
     }
@@ -121,8 +121,7 @@ class StickersExtensionDecorator: DataSourceDecorator, CometChatMessageEventList
         stickerBubble.set(imageUrl: stickerUrl ?? "")
         
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)
-        let messageBubbleStyle = isLoggedInUser ? additionalConfiguration?.messageBubbleStyle.outgoing : additionalConfiguration?.messageBubbleStyle.incoming
-        stickerBubble.style = style ?? messageBubbleStyle?.stickersBubbleStyle ?? StickerBubbleStyle()
+        stickerBubble.style = style ?? additionalConfiguration?.stickersBubbleStyle(isLoggedInUser) ?? StickerBubbleStyle()
         stickerBubble.imageView.contentMode = .scaleAspectFit
         stickerBubble.pin(anchors: [.height, .width], to: 160)
         return stickerBubble

@@ -93,10 +93,10 @@ public class CollaborativeDocumentViewModel : DataSourceDecorator, CometChatMess
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let message = message else { return nil }
-            return ChatConfigurator.getDataSource().getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return self.getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let message = message, let user = LoggedInUserInformation.getUser() else { return [] }
-            return ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return self.getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
 
     }
@@ -127,8 +127,7 @@ public class CollaborativeDocumentViewModel : DataSourceDecorator, CometChatMess
         documentBubble.topImage = UIImage(named: "collaborative-document-image", in: CometChatUIKit.bundle, with: nil)?.withRenderingMode(.alwaysOriginal)
         
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: _customMessage.senderUid)
-        let messageBubbleStyle = isLoggedInUser ? additionalConfiguration?.messageBubbleStyle.outgoing : additionalConfiguration?.messageBubbleStyle.incoming
-        if let style = messageBubbleStyle?.collaborativeWhiteboardBubbleStyle {
+        if let style = additionalConfiguration?.collaborativeWhiteboardBubbleStyle(isLoggedInUser) {
             documentBubble.style = style
         }
         

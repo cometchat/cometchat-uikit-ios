@@ -54,6 +54,23 @@ extension CometChatMessageHeader {
         return self
     }
     
+    /// Puts the header in thread mode: pass the thread's root message and the
+    /// subscribe/unsubscribe bell renders in the trailing area.
+    @discardableResult
+    public func set(parentMessage: BaseMessage?) -> Self {
+        self.parentMessage = parentMessage
+        return self
+    }
+
+    /// Hides the bell while leaving the feature on — for a host that already
+    /// renders its own control elsewhere on the screen.
+    @discardableResult
+    public func set(hideThreadSubscriptionButton: Bool) -> Self {
+        self.hideThreadSubscriptionButton = hideThreadSubscriptionButton
+        addCustomViews()
+        return self
+    }
+
     @discardableResult
     public func set(trailView: @escaping ((_ user: User?, _ group: Group?) -> UIView)) -> Self {
         if viewModel.user?.isAgentic != true{
@@ -86,9 +103,18 @@ extension CometChatMessageHeader {
         return self
     }
     
+    /// Sets the ⋮ overflow menu items.
+    ///
+    /// Safe to call again after the header is on screen: if the menu button already exists
+    /// the menu is rebuilt in place, so an item whose title or icon depends on state (a
+    /// Pin/Unpin toggle, say) can be flipped by re-setting the array. Before first layout
+    /// this just stores the items, and `addCustomViews()` builds the button.
     @discardableResult
     public func set(options: [CometChatPopupMenu.MenuItem]?) -> CometChatMessageHeader {
         self.options = options
+        if let options = options, !options.isEmpty {
+            rebuildMenu(for: options)
+        }
         return self
     }
     

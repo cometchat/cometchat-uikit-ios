@@ -291,7 +291,6 @@
 "ENTER_LINK_URL" = "Introducir URL del enlace";
 "REMOVE" = "Eliminar";
 
-
 /* Multiple attachments */
 "attachment_overflow" = "+%@";
 "file_list_show_more" = "+%@ más";
@@ -323,3 +322,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Fijar mensaje";
+"UNPIN_MESSAGE" = "Dejar de fijar mensaje";
+"SAVE_MESSAGE" = "Guardar mensaje";
+"UNSAVE_MESSAGE" = "Quitar de guardados";
+"MESSAGE_PINNED_TOAST" = "Mensaje fijado";
+"MESSAGE_UNPINNED_TOAST" = "Mensaje ya no está fijado";
+"MESSAGE_SAVED_TOAST" = "Mensaje guardado";
+"MESSAGE_UNSAVED_TOAST" = "Mensaje quitado de guardados";
+"PIN_MESSAGE_LIMIT_REACHED" = "Solo puedes fijar %@ mensajes. Deja de fijar uno para fijar otro.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "Puedes guardar hasta %@ mensajes. Quita uno para continuar.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "No tienes permiso para fijar mensajes aquí.";
+"PIN_MESSAGE_FAILED" = "No se pudo actualizar el mensaje fijado. Inténtalo de nuevo.";
+"SAVE_MESSAGE_FAILED" = "No se pudieron actualizar los mensajes guardados. Inténtalo de nuevo.";
+"PINNED_MESSAGES_TITLE" = "%@ mensajes fijados";
+"PINNED_MESSAGES_LABEL" = "Mensajes fijados";
+"PINNED_MESSAGES_EMPTY_TITLE" = "Aún no hay mensajes fijados";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Fija los mensajes importantes para encontrarlos rápidamente.";
+"SAVED_MESSAGES_TITLE" = "%@ mensajes guardados";
+"SAVED_MESSAGES_EMPTY_TITLE" = "Aún no hay mensajes guardados";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Guarda mensajes para tenerlos a mano cuando los necesites.";
+"PINNED_INDICATOR" = "Fijado";
+"SAVED_INDICATOR" = "Guardado";
+"MESSAGE_EDITED" = "Editado";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "Más…";
+"MORE_OPTIONS_EXPANDED" = "Mostrando más opciones";
+"MORE_OPTIONS_COLLAPSED" = "Mostrando opciones principales";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Fijar";
+"UNPIN_CONVERSATION" = "No fijar";
+"CONVERSATION_PINNED" = "Conversación fijada";
+"CONVERSATION_UNPINNED" = "Conversación no fijada";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "Solo puedes fijar %@ chats. Deja de fijar uno para fijar otro.";
+"PIN_CONVERSATION_FAILED" = "No se pudo actualizar. Inténtalo de nuevo.";
+"PINNED" = "Fijada";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "Esta conversación aún no se puede fijar.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "No tienes permiso para fijar esta conversación.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "Suscribirse al hilo";
+"THREAD_UNSUBSCRIBE" = "Cancelar la suscripción al hilo";
+"THREAD_SUBSCRIBED" = "Siguiendo";
+"THREAD_UNSUBSCRIBED_TOAST" = "Suscripción cancelada. Las notificaciones están desactivadas hasta que respondas o te mencionen.";
+"THREAD_SUBSCRIBED_TOAST" = "Te has suscrito. Recibirás notificaciones de las nuevas respuestas de este hilo.";
+"THREAD_SUBSCRIPTION_FAILED" = "No se pudo actualizar. Inténtalo de nuevo.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Dejar de fijar mensaje";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "¿Quieres dejar de fijar este mensaje?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Dejar de guardar mensaje";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "¿Quieres dejar de guardar este mensaje?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Dejar de fijar conversación";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "¿Quieres dejar de fijar esta conversación?";
+"UNPIN_ACTION" = "No fijar";
+"UNSAVE_ACTION" = "No guardar";

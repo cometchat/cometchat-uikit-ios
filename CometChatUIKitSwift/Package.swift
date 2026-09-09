@@ -26,8 +26,8 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "CometChatUIKitSwift",
-            url: "https://dl.cloudsmith.io/public/cometchat/cometchat/raw/versions/5.1.21/CometChatUIKitSwift_5.1.21.xcframework.zip",
-            checksum: "f6957842af8bf7a13106ab2bc30c6e8c1078b5f0c3d28f1bb5c3b674d85afb73"
+            url: "https://dl.cloudsmith.io/public/cometchat/cometchat/raw/versions/5.1.22/CometChatUIKitSwift_5.1.22.xcframework.zip",
+            checksum: "4e628209be12357e4aea082c4ef654637e2915fc7b00f6cc2ef3c2c398278e15"
         ),
         .target(
             name: "CometChatUIKitSwiftDependencies",

@@ -300,8 +300,6 @@
 "ENTER_LINK_URL" = "リンクURLを入力";
 "REMOVE" = "削除";
 
-
-
 "FILE_TYPE_NOT_ALLOWED" = "このファイル形式は許可されていません。";
 "AUDIO_LIBRARY" = "オーディオライブラリ";
 
@@ -338,3 +336,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "メッセージをピン留め";
+"UNPIN_MESSAGE" = "ピン留めを解除";
+"SAVE_MESSAGE" = "メッセージを保存";
+"UNSAVE_MESSAGE" = "保存を解除";
+"MESSAGE_PINNED_TOAST" = "メッセージをピン留めしました";
+"MESSAGE_UNPINNED_TOAST" = "ピン留めを解除しました";
+"MESSAGE_SAVED_TOAST" = "メッセージを保存しました";
+"MESSAGE_UNSAVED_TOAST" = "保存済みから削除しました";
+"PIN_MESSAGE_LIMIT_REACHED" = "ピン留めできるメッセージは %@ 件までです。別のメッセージをピン留めするには1件解除してください。";
+"SAVE_MESSAGE_LIMIT_REACHED" = "保存できるのは %@ 件までです。続けるには1件削除してください。";
+"PIN_MESSAGE_PERMISSION_DENIED" = "ここでメッセージをピン留めする権限がありません。";
+"PIN_MESSAGE_FAILED" = "ピン留めを更新できませんでした。もう一度お試しください。";
+"SAVE_MESSAGE_FAILED" = "保存済みメッセージを更新できませんでした。もう一度お試しください。";
+"PINNED_MESSAGES_TITLE" = "ピン留めされたメッセージ %@ 件";
+"PINNED_MESSAGES_LABEL" = "ピン留めされたメッセージ";
+"PINNED_MESSAGES_EMPTY_TITLE" = "ピン留めされたメッセージはまだありません";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "重要なメッセージをピン留めして、すぐに見つけましょう。";
+"SAVED_MESSAGES_TITLE" = "保存済みメッセージ %@ 件";
+"SAVED_MESSAGES_EMPTY_TITLE" = "保存済みメッセージはまだありません";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "メッセージを保存すると、必要なときにすぐ見つけられます。";
+"PINNED_INDICATOR" = "ピン留め済み";
+"SAVED_INDICATOR" = "保存済み";
+"MESSAGE_EDITED" = "編集済み";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "その他…";
+"MORE_OPTIONS_EXPANDED" = "その他のオプションを表示中";
+"MORE_OPTIONS_COLLAPSED" = "主なオプションを表示中";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "ピン留め";
+"UNPIN_CONVERSATION" = "ピン留め解除";
+"CONVERSATION_PINNED" = "会話をピン留めしました";
+"CONVERSATION_UNPINNED" = "会話のピン留めを解除しました";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "ピン留めできるチャットは %@ 件までです。別のチャットをピン留めするには1件解除してください。";
+"PIN_CONVERSATION_FAILED" = "ピン留めを更新できませんでした。もう一度お試しください。";
+"PINNED" = "ピン留め済み";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "この会話はまだピン留めできません。";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "この会話をピン留めする権限がありません。";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "スレッドを購読";
+"THREAD_UNSUBSCRIBE" = "スレッドの購読を解除";
+"THREAD_SUBSCRIBED" = "フォロー中";
+"THREAD_UNSUBSCRIBED_TOAST" = "購読を解除しました。返信するか、メンションされるまで通知はオフです。";
+"THREAD_SUBSCRIBED_TOAST" = "購読しました。このスレッドの新しい返信をお知らせします。";
+"THREAD_SUBSCRIPTION_FAILED" = "更新できませんでした。もう一度お試しください。";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "メッセージのピン留めを解除";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "このメッセージのピン留めを解除しますか？";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "メッセージの保存を解除";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "このメッセージの保存を解除しますか？";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "会話のピン留めを解除";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "この会話のピン留めを解除しますか？";
+"UNPIN_ACTION" = "ピン留めを解除";
+"UNSAVE_ACTION" = "保存を解除";

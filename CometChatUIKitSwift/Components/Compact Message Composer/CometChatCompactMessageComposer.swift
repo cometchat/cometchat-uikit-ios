@@ -940,6 +940,13 @@ open class CometChatCompactMessageComposer: UIView {
         } else if composerState == .edit, let media = viewModel.message as? MediaMessage {
             // Caption-only edit for media messages (attachments are read-only).
             viewModel.editMediaCaption(mediaMessage: media, caption: markdownText)
+        } else if let onSendButtonClick {
+            // The host owns the send: hand it the composed message and send nothing.
+            guard let message = viewModel.setupBaseMessage(
+                message: markdownText,
+                textFormatter: selectedFormatters
+            ) else { return }
+            onSendButtonClick(message)
         } else {
             if viewModel.user != nil {
                 viewModel.sendTextMessageToUser(message: markdownText, textFormatter: selectedFormatters)
@@ -1203,8 +1210,11 @@ open class CometChatCompactMessageComposer: UIView {
             guard let self = self else { return }
             self.hideInlineVoiceRecorder()
 
-            if self.onSendButtonClick != nil {
-                // Handle custom send - create a media message for callback
+            if let onSendButtonClick = self.onSendButtonClick {
+                // The host owns the send: hand it the composed voice note and send nothing.
+                if let message = self.viewModel.setupBaseMessage(url: url, type: .audio) {
+                    onSendButtonClick(message)
+                }
             } else {
                 // Voice notes always send as their own standalone message — never
                 // staged into the multi-attachment tray.

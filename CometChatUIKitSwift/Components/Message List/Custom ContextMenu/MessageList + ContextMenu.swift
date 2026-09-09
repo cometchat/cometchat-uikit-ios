@@ -19,11 +19,20 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
             contextMenuMessage = message
             contextMenuCell = cell
         }
-        
-        //Adding this for Context Menu
-        cell.onLongPressGestureRecognized = { [weak self, weak cell, weak message] in
-            guard let self, let cell, let message else { return }
-            
+
+        // Adding this for Context Menu
+        // Captured strongly: the view model array is the only strong owner of a
+        // BaseMessage, so an action that swaps the element (pin/save) deallocates the
+        // old instance and a weak capture here would nil out, silently killing the
+        // next long press on this row.
+        let boundMessage = message
+        cell.onLongPressGestureRecognized = { [weak self, weak cell] in
+            guard let self, let cell else { return }
+            // Prefer the cell's current message — `updateReceiptAtIndex` re-points it
+            // via `set(message:)` without re-running this setup, so the captured copy
+            // can be stale.
+            let message = cell.baseMessage ?? boundMessage
+
             let isModerated = MessageUtils.isMessageModerationDisapproved(message: message)
             // Only apply error checks to actual messages, not action messages (like "user added to group")
             let isError = message.metaData?["error"] as? Bool == true && message.messageCategory == .message
@@ -41,7 +50,11 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
             {
                 self.controller?.view.endEditing(true)
                 isContextMenuActive = true
-                let options = viewModel.getTemplate(for: message)?.options?(cell.baseMessage, viewModel.group, controller)
+                // Built from the same message the guards above validated. Passing
+                // `cell.baseMessage` here instead would let the eligibility checks and the
+                // option list disagree whenever the two have diverged — the options would
+                // be derived from a message that was never checked.
+                let options = viewModel.getTemplate(for: message)?.options?(message, viewModel.group, controller)
                 self.contextMenuMessage = message
                 self.contextMenuCell = cell
                 self.onCellLongPressGestureRecognized(message: message, cell: cell, option: options ?? [], messageAlignment: cell.alignment)
@@ -110,8 +123,23 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
         popupView.reactionView.isHidden = (hideReactionOption || MessageUtils.isMessageModerationDisapproved(message: message) || (message is AIAssistantMessage) || isErrorMessage || isRBACErrorMessage)
         popupView.modalPresentationStyle = .overFullScreen
         popupView.transitioningDelegate = self
+        popupView.onDismissed = { [weak self] in
+            self?.resetContextMenuState()
+        }
         controller?.present(popupView, animated: true)
-        
+
+    }
+
+    /// Single owner of the context-menu teardown. Previously this lived inside
+    /// `animationController(forDismissed:)`, which is skipped whenever no animator is
+    /// returned — leaving `isContextMenuActive` latched and blocking every later long press.
+    func resetContextMenuState() {
+        // The bubble is hidden while the popup shows its snapshot; restore it here so a
+        // cell can never be left invisible if the dismiss animation didn't run.
+        contextMenuCell?.bubbleStackView.alpha = 1
+        contextMenuCell = nil
+        contextMenuMessage = nil
+        isContextMenuActive = false
     }
     
     func addHapticFeedback() {
@@ -123,32 +151,30 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
     }
     
     public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
-        if let presented = presented as? MessagePopupViewController {
-            let animationClass = MessagePopupAnimator(messageBubbleView: contextMenuCell!.bubbleStackView, isPresenting: true, originFrame: presented.bubbleFrame)
-            return animationClass
-        }
-        return nil
+        guard let presented = presented as? MessagePopupViewController,
+              let bubbleStackView = contextMenuCell?.bubbleStackView else { return nil }
+        return MessagePopupAnimator(messageBubbleView: bubbleStackView, isPresenting: true, originFrame: presented.bubbleFrame)
     }
-    
-    public func animationController(forDismissed dismissed: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
-        if let dismissed = dismissed as? MessagePopupViewController {
-            if let controller = controller {
-                var cellCurrentFrame = contextMenuCell!.bubbleStackView.convert(contextMenuCell!.bubbleStackView.bounds, to: controller.view)
-                if UIDevice.current.userInterfaceIdiom == .pad {
-                    if let window = contextMenuCell!.bubbleStackView.window {
-                        cellCurrentFrame = contextMenuCell!.bubbleStackView.convert(contextMenuCell!.bubbleStackView.bounds, to: window)
-                    }
-                }
-                let animationClass = MessagePopupAnimator(messageBubbleView: dismissed.messageSnapShotView, isPresenting: false, originFrame: cellCurrentFrame)
-                animationClass.orignalBubbleView = contextMenuCell!.bubbleStackView
-                self.contextMenuCell = nil
-                self.contextMenuMessage = nil
-                self.isContextMenuActive = false
 
-                return animationClass
+    /// Returns nil — falling back to a plain cross-dissolve — when the originating cell is
+    /// gone. That happens whenever the chosen option reloaded the row (pin/save), so the
+    /// cell must not be force-unwrapped here. State teardown is `resetContextMenuState()`'s
+    /// job, not this method's.
+    public func animationController(forDismissed dismissed: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
+        guard let dismissed = dismissed as? MessagePopupViewController,
+              let controller = controller,
+              let bubbleStackView = contextMenuCell?.bubbleStackView else { return nil }
+
+        var cellCurrentFrame = bubbleStackView.convert(bubbleStackView.bounds, to: controller.view)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if let window = bubbleStackView.window {
+                cellCurrentFrame = bubbleStackView.convert(bubbleStackView.bounds, to: window)
             }
         }
-        return nil
+
+        let animationClass = MessagePopupAnimator(messageBubbleView: dismissed.messageSnapShotView, isPresenting: false, originFrame: cellCurrentFrame)
+        animationClass.orignalBubbleView = bubbleStackView
+        return animationClass
     }
 
     

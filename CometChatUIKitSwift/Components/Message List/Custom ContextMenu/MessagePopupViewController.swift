@@ -25,11 +25,17 @@ class MessagePopupViewController: UIViewController {
         contextMenuTableView.didSelect = { [weak self] option in
             if let self {
                 self.dismiss(animated: true) {
+                    // Clear the host's menu state before the action runs, so a stale
+                    // latch can never block the next long press.
+                    self.notifyDismissal()
                     self.messageOptionDelegate?.onItemClick(messageOption: option, forMessage: self.baseMessage, indexPath: nil)
                 }
             }
         }
         contextMenuTableView.separatorStyle = .singleLine
+        contextMenuTableView.onToggleExpanded = { [weak self] in
+            self?.relayoutOptionMenu(animated: true)
+        }
         return contextMenuTableView
     }()
     
@@ -53,13 +59,22 @@ class MessagePopupViewController: UIViewController {
     var reactionViewHeight = 40
     var spacing = 10
     weak var messageOptionDelegate: CometChatMessageOptionDelegate?
+    /// Fires once the popup is actually off screen, on every dismissal path.
+    /// The host clears its context-menu state here rather than in the animator,
+    /// which is skipped when no animator is returned.
+    var onDismissed: (() -> Void)?
+    private var didNotifyDismissal = false
+    /// Set before `messageOptions`, which forwards it.
+    var splitsOverflow = true
+
     var messageOptions: [CometChatMessageOption] = [] {
         didSet {
+            optionMenuTableView.splitsOverflow = splitsOverflow
             optionMenuTableView.messageOptions = messageOptions
             optionMenuTableView.reloadData()
         }
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -131,31 +146,53 @@ class MessagePopupViewController: UIViewController {
     
     func buildUI() {
         addBlurBackground()
-        
+
+        view.addSubview(messageSnapShotView)
+        view.addSubview(reactionView)
+        view.addSubview(optionMenuTableView)
+
+        layoutOptionMenu()
+    }
+
+    /// Height the menu wants, capped to the visible band so a long list stays reachable.
+    /// The row count changes at runtime once the "More" row can expand, so this is
+    /// clamped rather than growing unbounded off-screen.
+    private var optionMenuHeight: CGFloat {
+        let contentHeight = CGFloat(optionMenuTableView.displayedOptions.count * 44)
+        return min(contentHeight, maxY - minY)
+    }
+
+    /// Lays out all three views and applies the safe-area corrections. Split out of
+    /// `buildUI()` so the "More" toggle can re-run it — every frame is recomputed from
+    /// `bubbleCoordinates` first, because the corrections below are cumulative (`+=`/`-=`)
+    /// and would drift on each toggle if applied to the previous pass's positions.
+    private func layoutOptionMenu() {
         messageSnapShotView.frame = CGRect(
             x: bubbleCoordinates.x,
             y: bubbleCoordinates.y,
             width: messageSnapShotView.bounds.width,
             height: messageSnapShotView.bounds.height
         )
-        view.addSubview(messageSnapShotView)
-        
+
         reactionView.frame = CGRect(
             x: messageAlignment == .right ? Int(bubbleCoordinates.x + (messageSnapShotView.bounds.width - 238)) : Int(bubbleCoordinates.x),
             y: (Int(bubbleCoordinates.y) - reactionViewHeight - spacing),
             width: 238,
             height: reactionViewHeight
         )
-        view.addSubview(reactionView)
-        
+
         optionMenuTableView.frame = CGRect(
             x: messageAlignment == .right ? Int(bubbleCoordinates.x + (messageSnapShotView.bounds.width - 250)) : Int(bubbleCoordinates.x),
             y: (Int(bubbleCoordinates.y) + Int(messageSnapShotView.bounds.height) + spacing ),
             width: 250,
-            height: Int(messageOptions.count * 44)
+            height: Int(optionMenuHeight)
         )
-        view.addSubview(optionMenuTableView)
-        
+
+        // Scrollable only when the cap actually bit.
+        let isCapped = CGFloat(optionMenuTableView.displayedOptions.count * 44) > optionMenuHeight
+        optionMenuTableView.isScrollEnabled = isCapped
+        optionMenuTableView.alwaysBounceVertical = false
+
         //If there is not enough space in bottom then message bubble will shift upwards
         if optionMenuTableView.frame.maxY > maxY {
             let differenceSafeAre = optionMenuTableView.frame.maxY - maxY
@@ -163,21 +200,33 @@ class MessagePopupViewController: UIViewController {
             reactionView.frame.origin.y -= differenceSafeAre
             messageSnapShotView.frame.origin.y -= differenceSafeAre
         }
-        
+
         if reactionView.frame.minY < minY {
             let differenceSafeAre = minY - reactionView.frame.minY
             optionMenuTableView.frame.origin.y += differenceSafeAre
             reactionView.frame.origin.y += differenceSafeAre
             messageSnapShotView.frame.origin.y += differenceSafeAre
         }
-        
+
         //if bubble view is bigger and all this views are not getting fit in the screen then adjusting the optionMenuTableView's frame
         if (messageSnapShotView.frame.height + reactionView.frame.height + minY + optionMenuTableView.frame.height) > UIScreen.main.bounds.height {
             optionMenuTableView.frame.origin.y = (maxY - (optionMenuTableView.frame.height))
         }
-        
     }
-    
+
+    /// Re-runs the menu layout after the row count changed. The presentation animator
+    /// only touches `transform`/`alpha` and never reads this frame, so resizing after
+    /// present is safe.
+    func relayoutOptionMenu(animated: Bool) {
+        guard animated else {
+            layoutOptionMenu()
+            return
+        }
+        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut) {
+            self.layoutOptionMenu()
+        }
+    }
+
     @objc func onViewTap() {
         dismiss(animated: true, completion: nil)
     }
@@ -192,6 +241,20 @@ class MessagePopupViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         handleThemeModeChange()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        notifyDismissal()
+    }
+
+    /// Idempotent: the option path notifies early so the host's state is clear before
+    /// an action reloads the table, and `viewDidDisappear` is the backstop for every
+    /// other path (tap-outside, trait change, programmatic dismiss).
+    func notifyDismissal() {
+        guard !didNotifyDismissal else { return }
+        didNotifyDismissal = true
+        onDismissed?()
     }
     
     open func handleThemeModeChange() {
@@ -215,10 +278,52 @@ class MessagePopupViewController: UIViewController {
 
 
 class ContextMenuTableView: UITableView, UITableViewDataSource, UITableViewDelegate {
-    
-    var messageOptions: [CometChatMessageOption] = []
+
     var didSelect: ((_ option: CometChatMessageOption) -> Void)?
-    
+    /// Fired after the "More" row flips `expanded`, so the host can resize the menu.
+    var onToggleExpanded: (() -> Void)?
+
+    private(set) var primaryOptions: [CometChatMessageOption] = []
+    private(set) var overflowOptions: [CometChatMessageOption] = []
+    private(set) var expanded = false
+
+    /// Off for surfaces short enough to show whole.
+    var splitsOverflow = true
+
+    var messageOptions: [CometChatMessageOption] = [] {
+        didSet {
+            guard splitsOverflow else {
+                primaryOptions = messageOptions
+                overflowOptions = []
+                expanded = false
+                return
+            }
+            let split = MessageOptionConstants.partition(messageOptions)
+            primaryOptions = split.primary
+            overflowOptions = split.overflow
+            expanded = false
+        }
+    }
+
+    private var hasOverflow: Bool { !overflowOptions.isEmpty }
+
+    /// The "More" row is appended to whichever list is showing, so it stays reachable
+    /// on both screens and toggles back — it is not a one-way push.
+    private var moreOption: CometChatMessageOption {
+        CometChatMessageOption(
+            id: MessageOptionConstants.moreOptions,
+            title: "MORE_OPTIONS".localize(),
+            icon: AssetConstants.more
+        )
+    }
+
+    /// Rows currently on screen. Callers must go through this rather than
+    /// `messageOptions`, which is the unsplit input.
+    var displayedOptions: [CometChatMessageOption] {
+        guard hasOverflow else { return primaryOptions }
+        return (expanded ? overflowOptions : primaryOptions) + [moreOption]
+    }
+
     override init(frame: CGRect, style: UITableView.Style) {
         super.init(frame: frame, style: style)
         
@@ -241,29 +346,53 @@ class ContextMenuTableView: UITableView, UITableViewDataSource, UITableViewDeleg
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return messageOptions.count
+        return displayedOptions.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: ContextMenuTextCell.identifier , for: indexPath) as? ContextMenuTextCell {
             cell.layoutMargins = UIEdgeInsets.zero
-            let option = messageOptions[indexPath.row]
+            let option = displayedOptions[indexPath.row]
             cell.titleLabel.text = option.title
             cell.iconImageView.image = option.icon
             cell.style = option.style
+            cell.isAccessibilityElement = true
+            cell.accessibilityTraits = .button
+            if option.id == MessageOptionConstants.moreOptions {
+                // VoiceOver would otherwise read the ellipsis title as punctuation.
+                cell.accessibilityLabel = "MORE_OPTIONS".localize()
+                cell.accessibilityValue = expanded
+                    ? "MORE_OPTIONS_EXPANDED".localize()
+                    : "MORE_OPTIONS_COLLAPSED".localize()
+            } else {
+                cell.accessibilityLabel = option.title
+                cell.accessibilityValue = nil
+            }
             return cell
         }
         return UITableViewCell()
     }
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 44
     }
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        didSelect?(messageOptions[indexPath.row])
+        let option = displayedOptions[indexPath.row]
+
+        // Handled here rather than through the delegate: the popup dismisses itself
+        // before the delegate fires, which would close the menu instead of toggling it.
+        guard option.id != MessageOptionConstants.moreOptions else {
+            deselectRow(at: indexPath, animated: false)
+            expanded.toggle()
+            reloadData()
+            onToggleExpanded?()
+            return
+        }
+
+        didSelect?(option)
     }
-    
+
 }
 
 

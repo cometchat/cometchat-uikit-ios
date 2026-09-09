@@ -331,3 +331,61 @@
 "attachment_no_preview_title" = "No preview available";
 "attachment_no_preview_subtitle" = "This file type isn’t supported for preview.";
 "attachment_download" = "Download";
+
+/* Pin & Save message */
+"PIN_MESSAGE" = "Mesajı sabitle";
+"UNPIN_MESSAGE" = "Sabitlemeyi kaldır";
+"SAVE_MESSAGE" = "Mesajı kaydet";
+"UNSAVE_MESSAGE" = "Kaydedilenlerden çıkar";
+"MESSAGE_PINNED_TOAST" = "Mesaj sabitlendi";
+"MESSAGE_UNPINNED_TOAST" = "Mesajın sabitlemesi kaldırıldı";
+"MESSAGE_SAVED_TOAST" = "Mesaj kaydedildi";
+"MESSAGE_UNSAVED_TOAST" = "Mesaj kaydedilenlerden çıkarıldı";
+"PIN_MESSAGE_LIMIT_REACHED" = "Yalnızca %@ mesaj sabitleyebilirsiniz. Başka birini sabitlemek için birinin sabitlemesini kaldırın.";
+"SAVE_MESSAGE_LIMIT_REACHED" = "En fazla %@ mesaj kaydedebilirsiniz. Devam etmek için birini çıkarın.";
+"PIN_MESSAGE_PERMISSION_DENIED" = "Burada mesaj sabitleme izniniz yok.";
+"PIN_MESSAGE_FAILED" = "Sabitleme güncellenemedi. Lütfen tekrar deneyin.";
+"SAVE_MESSAGE_FAILED" = "Kaydedilen mesajlar güncellenemedi. Lütfen tekrar deneyin.";
+"PINNED_MESSAGES_TITLE" = "%@ Sabitlenmiş Mesaj";
+"PINNED_MESSAGES_LABEL" = "Sabitlenmiş Mesajlar";
+"PINNED_MESSAGES_EMPTY_TITLE" = "Henüz sabitlenmiş mesaj yok";
+"PINNED_MESSAGES_EMPTY_SUBTITLE" = "Önemli mesajları sabitleyin, hızlıca bulun.";
+"SAVED_MESSAGES_TITLE" = "%@ Kaydedilen Mesaj";
+"SAVED_MESSAGES_EMPTY_TITLE" = "Henüz kaydedilen mesaj yok";
+"SAVED_MESSAGES_EMPTY_SUBTITLE" = "Mesajları kaydedin, ihtiyacınız olduğunda hemen ulaşın.";
+"PINNED_INDICATOR" = "Sabitlendi";
+"SAVED_INDICATOR" = "Kaydedildi";
+"MESSAGE_EDITED" = "Düzenlendi";
+
+/* Message options overflow */
+"MORE_OPTIONS" = "Daha fazla…";
+"MORE_OPTIONS_EXPANDED" = "Diğer seçenekler gösteriliyor";
+"MORE_OPTIONS_COLLAPSED" = "Ana seçenekler gösteriliyor";
+
+/* Pin conversation */
+"PIN_CONVERSATION" = "Sabitle";
+"UNPIN_CONVERSATION" = "Sabitlemeyi kaldır";
+"CONVERSATION_PINNED" = "Sohbet sabitlendi";
+"CONVERSATION_UNPINNED" = "Sohbet sabitlemesi kaldırıldı";
+"PINNED_CONVERSATIONS_LIMIT_REACHED" = "Yalnızca %@ sohbet sabitleyebilirsiniz. Başka birini sabitlemek için birinin sabitlemesini kaldırın.";
+"PIN_CONVERSATION_FAILED" = "Sabitleme güncellenemedi. Lütfen tekrar dene.";
+"PINNED" = "Sabitlendi";
+"PIN_CONVERSATION_NOT_AVAILABLE" = "Bu sohbet henüz sabitlenemiyor.";
+"PIN_CONVERSATION_PERMISSION_DENIED" = "Bu sohbeti sabitleme izniniz yok.";
+/* Thread subscription */
+"THREAD_SUBSCRIBE" = "Konuya abone ol";
+"THREAD_UNSUBSCRIBE" = "Konu aboneliğinden çık";
+"THREAD_SUBSCRIBED" = "Takip ediliyor";
+"THREAD_UNSUBSCRIBED_TOAST" = "Abonelikten çıkıldı. Yanıt verene veya bahsedilene kadar bildirimler kapalı.";
+"THREAD_SUBSCRIBED_TOAST" = "Abone olundu. Bu konudaki yeni yanıtlar size bildirilecek.";
+"THREAD_SUBSCRIPTION_FAILED" = "Güncellenemedi. Lütfen tekrar deneyin.";
+
+/* Pin & Save confirmation */
+"UNPIN_MESSAGE_CONFIRM_TITLE" = "Mesaj sabitlemesini kaldır";
+"UNPIN_MESSAGE_CONFIRM_BODY" = "Bu mesajın sabitlemesini kaldırmak istiyor musunuz?";
+"UNSAVE_MESSAGE_CONFIRM_TITLE" = "Mesajı kaydedilenlerden çıkar";
+"UNSAVE_MESSAGE_CONFIRM_BODY" = "Bu mesajı kaydedilenlerden çıkarmak istiyor musunuz?";
+"UNPIN_CONVERSATION_CONFIRM_TITLE" = "Sohbet sabitlemesini kaldır";
+"UNPIN_CONVERSATION_CONFIRM_BODY" = "Bu sohbetin sabitlemesini kaldırmak istiyor musunuz?";
+"UNPIN_ACTION" = "Sabitlemeyi kaldır";
+"UNSAVE_ACTION" = "Kaydetmeyi kaldır";
