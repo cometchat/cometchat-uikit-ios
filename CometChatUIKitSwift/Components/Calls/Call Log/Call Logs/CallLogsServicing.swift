@@ -15,8 +15,6 @@
 //
 
 import Foundation
-#if canImport(CometChatCallsSDK)
-import CometChatCallsSDK
 
 /// Abstraction over the SDK fetch that `CallLogsViewModel` depends on.
 /// Kept intentionally small so a hand-written fake in the test target is trivial.
@@ -44,5 +42,3 @@ final class LiveCallLogsService: CallLogsServicing {
         request.fetchNext(onSuccess: onSuccess, onError: onError)
     }
 }
-
-#endif

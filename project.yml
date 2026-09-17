@@ -120,7 +120,6 @@ targets:
     dependencies:
       - package: CometChatUIKitSwift
       - package: CometChatSDK
-      - package: CometChatCallsSDK
       - package: CometChatCardsSwift
       - package: Firebase
         product: FirebaseAuth
