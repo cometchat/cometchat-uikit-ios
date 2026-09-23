@@ -118,8 +118,15 @@ public class CometChatVideoBubble: UIStackView {
         addArrangedSubview(placeHolderImageView)
         pin(anchors: [.height], to: 140)
         pin(anchors: [.width], to: 232)
-        
+
         self.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onVideoPlayClick)))
+
+        // Same gap as CometChatImageBubble: a tappable bubble that opens the player but
+        // published nothing to accessibility. Exposed as one element so the announcement
+        // matches what the tap acts on.
+        isAccessibilityElement = true
+        accessibilityLabel = "a11y_video_message".localize()
+        accessibilityTraits = [.image, .button]
     }
     
     /// Sets up the style for the video bubble.
@@ -247,7 +254,7 @@ public class CometChatVideoBubble: UIStackView {
                     completion(thumbnail)
                 }
             } catch {
-                print("Error generating thumbnail: \(error.localizedDescription)")
+                CometChatLogger.error("Error generating thumbnail: \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     completion(nil)
                 }

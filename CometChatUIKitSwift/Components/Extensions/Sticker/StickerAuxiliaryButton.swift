@@ -9,7 +9,6 @@ import Foundation
 import UIKit
 
 public class StickerAuxiliaryButton: UIButton {
-    
     var stickerButtonIcon: UIImage = UIImage(named: "sticker-image", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     var keyboardButtonIcon: UIImage = UIImage(named: "sticker-image-filled", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     var onStickerTap:(() -> Void)?
@@ -31,6 +30,7 @@ public class StickerAuxiliaryButton: UIButton {
     @objc func keyBoardWillShow(notification: NSNotification) {
         self.imageView?.tintColor = CometChatTheme.iconColorSecondary
         self.setImage(stickerButtonIcon, for: .normal)
+        self.accessibilityLabel = "a11y_stickers".localize()
     }
     
     required init?(coder: NSCoder) {
@@ -39,12 +39,12 @@ public class StickerAuxiliaryButton: UIButton {
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
-        print("deinit for StickerAuxiliaryButton called")
     }
     
     fileprivate func customInit() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         self.setImage(stickerButtonIcon, for: .normal)
+        self.accessibilityLabel = "a11y_stickers".localize()
         imageView?.contentMode = .scaleAspectFit
         imageView?.tintColor = CometChatTheme_v4.palatte.accent700
         
@@ -58,16 +58,20 @@ public class StickerAuxiliaryButton: UIButton {
         if imageView?.image == stickerButtonIcon {
             self.setImage(keyboardButtonIcon, for: .normal)
             self.imageView?.tintColor = CometChatTheme.primaryColor
+            // Showing the keyboard glyph means the next tap returns to typing.
+            self.accessibilityLabel = "a11y_keyboard".localize()
             onStickerTap?()
         }else if imageView?.image == keyboardButtonIcon {
             self.imageView?.tintColor = CometChatTheme.iconColorSecondary
             self.setImage(stickerButtonIcon, for: .normal)
+            self.accessibilityLabel = "a11y_stickers".localize()
             onKeyboardTap?()
         }
     }
     
     public func resetToDefaultStyle() {
         self.setImage(stickerButtonIcon, for: .normal)
+        self.accessibilityLabel = "a11y_stickers".localize()
         self.imageView?.tintColor = CometChatTheme.iconColorSecondary
     }
     

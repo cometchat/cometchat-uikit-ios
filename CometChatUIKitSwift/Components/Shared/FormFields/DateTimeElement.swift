@@ -247,6 +247,7 @@ extension DateTimeElement {
             datePickerIconButton.setImageTintColor(CometChatTheme_v4.palatte.accent900)
             datePickerIconButton.addTarget(self, action: #selector(self.onIconTapped), for: .primaryActionTriggered)
             datePickerIconButton.setImage(calendarIcon, for: .normal)
+            datePickerIconButton.accessibilityLabel = "a11y_select_date".localize()
             
             if let defaultValue = element.defaultValue {
                 dateTextButton.setTitle("\(Date(timeIntervalSince1970: TimeInterval(defaultValue)).reduceTo(customFormate: element.dateTimeFormat ))", for: .normal)

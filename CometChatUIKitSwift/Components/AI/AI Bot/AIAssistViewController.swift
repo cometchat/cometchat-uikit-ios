@@ -144,10 +144,12 @@ open class AIAssistViewController: CometChatListBase {
         titleLabel.textColor = configuration.style?.titleColor ?? CometChatTheme_v4.palatte.accent
         titleLabel.text = titleMain
         titleLabel.font = configuration.style?.titleFont ?? CometChatTheme_v4.typography.name
+        titleLabel.adjustsFontForContentSizeCategory = true
         
         let subtitleLabel = UILabel()
         subtitleLabel.text = configuration.subtitle ?? "AI_BOT".localize()
         subtitleLabel.font = configuration.style?.subtitleFont ?? CometChatTheme_v4.typography.subtitle2
+        subtitleLabel.adjustsFontForContentSizeCategory = true
         subtitleLabel.textColor = configuration.style?.subtitleColor ?? CometChatTheme_v4.palatte.accent500
         
         avatarNameView.addArrangedSubview(subtitleLabel)
@@ -167,6 +169,7 @@ open class AIAssistViewController: CometChatListBase {
         
         let closeButton = UIButton()
         closeButton.setImage(closeIcon, for: .normal)
+        closeButton.accessibilityLabel = "a11y_close".localize()
         closeButton.addTarget(self, action: #selector(onCloseButtonClicked), for: .touchUpInside)
         closeButton.tintColor = configuration.style?.closeIconTint ?? CometChatTheme_v4.palatte.accent
         

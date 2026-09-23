@@ -29,6 +29,7 @@ final class CometChatSearchListItemAttachments: UITableViewCell {
     private let titleLabel: UILabel = {
         let lbl = UILabel()
         lbl.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        lbl.adjustsFontForContentSizeCategory = true
         lbl.textColor = .label
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
@@ -37,6 +38,7 @@ final class CometChatSearchListItemAttachments: UITableViewCell {
     private let subtitleLabel: UILabel = {
         let lbl = UILabel()
         lbl.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        lbl.adjustsFontForContentSizeCategory = true
         lbl.textColor = .secondaryLabel
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
@@ -45,6 +47,7 @@ final class CometChatSearchListItemAttachments: UITableViewCell {
     private let dateLabel: UILabel = {
         let lbl = UILabel()
         lbl.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        lbl.adjustsFontForContentSizeCategory = true
         lbl.textColor = .secondaryLabel
         lbl.translatesAutoresizingMaskIntoConstraints = false
         // Use high priority instead of required to prevent constraint conflicts during iPad window resizing

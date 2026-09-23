@@ -11,7 +11,6 @@ import CometChatSDK
 import CometChatCardsSwift
 
 public class CometChatStreamBubble: UITableViewCell, StreamCallback {
-
     public let containerStackView = UIStackView()
     public let avatarView = CometChatAvatar(image: nil).withoutAutoresizingMaskConstraints()
     public let bubbleView = UIView()
@@ -23,7 +22,6 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
     
     private var markdownView = CombinedMarkdownBubbleView()
 
-    
     private var originalMessageText: [Int: String] = [:]
     
     private var streamBuffer: String = ""
@@ -96,21 +94,23 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
             bubbleView.translatesAutoresizingMaskIntoConstraints = false
 
             messageLabel.font = CometChatTypography.Body.regular
+            messageLabel.adjustsFontForContentSizeCategory = true
             messageLabel.numberOfLines = 0
 
             typingIndicator.isHidden = true
             typingIndicator.translatesAutoresizingMaskIntoConstraints = false
 
             // --- Error view styling ---
-            errorContainerView.backgroundColor = UIColor(red: 1, green: 0.95, blue: 0.95, alpha: 1) // light red/pink
+            errorContainerView.backgroundColor = CometChatTheme.errorColor100
             errorContainerView.layer.cornerRadius = 12
             errorContainerView.layer.masksToBounds = true
             errorContainerView.isHidden = true
             errorContainerView.translatesAutoresizingMaskIntoConstraints = false
             errorContainerView.layoutMargins = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
 
-            errorLabel.textColor = UIColor(red: 0.8, green: 0.2, blue: 0.2, alpha: 1)
+            errorLabel.textColor = CometChatTheme.errorColor
             errorLabel.font = CometChatTypography.Caption1.regular
+            errorLabel.adjustsFontForContentSizeCategory = true
             errorLabel.numberOfLines = 0
             errorLabel.textAlignment = .left
             errorLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -144,7 +144,6 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
             containerStackView.addArrangedSubview(avatarView)
             containerStackView.addArrangedSubview(bubbleView)
             
-            
             NotificationCenter.default.addObserver(
                 forName: CometChatStreamCallBackEvents.streamCompletedNotification,
                 object: nil,
@@ -176,16 +175,14 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
     }
     
     func onStreamReconnected() {
-
     }
     
     public func onStreamCompleted() {
-        print("🟢 Stream completed")
     }
 
     public func onStreamInterrupted() {
         showError()
-        print("🔴 Stream interrupted - showing error UI")
+        CometChatLogger.error("stream interrupted — showing error UI")
         updateUI?()
     }
 
@@ -246,7 +243,6 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
         updateUI?()
     }
 
-
     func appendChunk(_ textChunk: String) {
         errorContainerView.isHidden = true
         messageLabel.isHidden = false
@@ -266,7 +262,6 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
         displayedLength = streamBuffer.count
         updateUI?()
     }
-
 
     func showError() {
         typingIndicator.stopAnimating()
@@ -302,7 +297,6 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
             case let runFinish as AIAssistantRunFinishedEvent:
                 break
                 
-
             case let toolStart as AIAssistantToolStartedEvent:
                 if self.originalMessageText[toolStart.runId] == nil {
                     self.originalMessageText[toolStart.runId] = self.messageLabel.text ?? ""
@@ -365,6 +359,7 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = (executionText?.isEmpty == false) ? executionText : "Loading card..."
         label.font = CometChatTypography.Caption1.regular
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.textColorSecondary
         
         loadingContainer.addSubview(spinner)
@@ -502,9 +497,7 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
     }
 }
 
-
 public class TypingIndicatorView: UILabel {
-    
     private var timer: Timer?
     private var dotCount = 0
     private let gradientLayer = CAGradientLayer()
@@ -538,6 +531,10 @@ public class TypingIndicatorView: UILabel {
     }
     
     private func setupShimmer() {
+        // Not a theme candidate: this gradient is assigned to `layer.mask` below, and a
+        // mask uses only the alpha channel — the colour never reaches the screen. Routing
+        // it through CometChatTheme would change nothing visually while implying the
+        // shimmer is themeable. The 0.25/0.9/0.25 alphas are the actual contract.
         gradientLayer.colors = [
             UIColor.gray.withAlphaComponent(0.25).cgColor,
             UIColor.gray.withAlphaComponent(0.9).cgColor,
@@ -587,6 +584,3 @@ public class TypingIndicatorView: UILabel {
         gradientLayer.removeAnimation(forKey: shimmerAnimationKey)
     }
 }
-
-
-

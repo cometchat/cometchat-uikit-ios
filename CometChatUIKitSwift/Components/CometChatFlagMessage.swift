@@ -162,13 +162,16 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
     private func setupStyle() {
         // Header
         titleLabel.font = style.titleTextFont
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.textColor = style.titleTextColor
 
         subtitleLabel.font = style.subtitleTextFont
+        subtitleLabel.adjustsFontForContentSizeCategory = true
         subtitleLabel.textColor = style.subtitleTextColor
 
         // Reason title
         reasonTitleLabel.font = style.reasonTitleTextFont
+        reasonTitleLabel.adjustsFontForContentSizeCategory = true
         reasonTitleLabel.textColor = style.reasonTitleTextColor
 
         // Text view
@@ -176,11 +179,13 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
         textView.layer.borderWidth = 1
         textView.layer.borderColor = CometChatTheme.borderColorDefault.cgColor
         textView.font = style.reasonTextFont
+        textView.adjustsFontForContentSizeCategory = true
         textView.textColor = style.reasonTextColor
         textView.backgroundColor = CometChatTheme.backgroundColor02
         textView.textContainerInset = UIEdgeInsets(top: 10, left: 8, bottom: 10, right: 8)
 
         placeholderLabel.font = CometChatTypography.Button.regular
+        placeholderLabel.adjustsFontForContentSizeCategory = true
         placeholderLabel.textColor = CometChatTheme.textColorTertiary
 
         // Buttons
@@ -194,6 +199,7 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
         // Error
         errorLabel.textColor = style.errorTColor
         errorLabel.font = style.errorTextFont
+        errorLabel.adjustsFontForContentSizeCategory = true
     }
 
     private func setupCollectionView() {
@@ -322,7 +328,7 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
                     })
                 }
             } onError: { error in
-                print(error?.errorDescription ?? "")
+                CometChatLogger.error("\(error?.errorDescription ?? "")")
             }
         }
     }

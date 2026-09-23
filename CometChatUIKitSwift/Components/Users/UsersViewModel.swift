@@ -159,7 +159,7 @@ public class UsersViewModel: UsersViewModelProtocol {
 
     func disconnect() {
         listeners.remove(.userSDK, id: UsersListenerConstants.userListener)
-        listeners.remove(.userEvents, id: "user-listerner")
+        listeners.remove(.userEvents, id: "user-listener")
     }
     
     func getIndexPath(for user: User) -> IndexPath? {

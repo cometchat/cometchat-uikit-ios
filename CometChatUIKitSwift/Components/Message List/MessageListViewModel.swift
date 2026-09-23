@@ -403,7 +403,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
                 completion(conversation)
             },
             onError: { error in
-                print("Error fetching conversation: \(error?.errorDescription ?? "")")
+                CometChatLogger.error("Error fetching conversation: \(error?.errorDescription ?? "")")
                 completion(nil)
             }
         )
@@ -414,14 +414,14 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             conversationWithId: conversationWith,
             receiverType: conversationType
         ) { message in
-            print(message)
+            CometChatLogger.debug("\(message)")
             if let currentConversation = self.currentConversation {
                 currentConversation.unreadMessageCount = 0
                 currentConversation.lastReadMessageId = 0
                 CometChatConversationEvents.ccUpdateConversation(conversation: currentConversation)
             }
         } onError: { error in
-            print("Error marking conversation as read: \(error.errorDescription)")
+            CometChatLogger.error("Error marking conversation as read: \(error.errorDescription)")
         }
     }
     
@@ -430,7 +430,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             CometChatConversationEvents.ccUpdateConversation(conversation: conversation)
             completion(conversation)
         } onError: { error in
-            print(error?.errorDescription ?? "")
+            CometChatLogger.error("\(error?.errorDescription ?? "")")
             failure()
         }
     }
@@ -456,12 +456,12 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
     func loadLastAgentConversation(didLoad: @escaping (Bool, Int) -> Void) {
         guard let user = user, user.isAgentic, let uid = user.uid else {
-            print("[AIAgent] VM.loadLastAgentConversation skipped - user is not an agent (user=\(String(describing: self.user)), isAgentic=\(self.user?.isAgentic ?? false))")
+            CometChatLogger.debug("[AIAgent] VM.loadLastAgentConversation skipped - user is not an agent (hasUser=\(self.user != nil), isAgentic=\(self.user?.isAgentic ?? false), hasUid=\(self.user?.uid != nil))")
             didLoad(false, 0)
             return
         }
 
-        print("[AIAgent] VM.loadLastAgentConversation: fetching parent messages for uid=\(uid)")
+        CometChatLogger.debug("[AIAgent] VM.loadLastAgentConversation: fetching parent messages")
 
         lastAgentConversationRequest = MessagesRequest.MessageRequestBuilder()
             .set(uid: uid)
@@ -473,30 +473,30 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
 
         lastAgentConversationRequest?.fetchPrevious(onSuccess: { [weak self] fetchedMessages in
             guard let this = self else {
-                print("[AIAgent] VM.loadLastAgentConversation: self released during fetchPrevious")
+                CometChatLogger.debug("[AIAgent] VM.loadLastAgentConversation: self released during fetchPrevious")
                 return
             }
             this.lastAgentConversationRequest = nil
 
-            print("[AIAgent] VM.loadLastAgentConversation: fetched \(fetchedMessages?.count ?? 0) parent candidates")
+            CometChatLogger.debug("[AIAgent] VM.loadLastAgentConversation: fetched \(fetchedMessages?.count ?? 0) parent candidates")
 
             // Only true session starters (parentMessageId == 0) qualify as conversations.
             let sessionStarters = (fetchedMessages ?? []).filter { $0.parentMessageId == 0 }
 
-            print("[AIAgent] VM.loadLastAgentConversation: \(sessionStarters.count) session starters after filter; ids=\(sessionStarters.map { $0.id })")
+            CometChatLogger.debug("[AIAgent] VM.loadLastAgentConversation: \(sessionStarters.count) session starters after filter; ids=\(sessionStarters.map { $0.id })")
 
             guard let latest = sessionStarters.max(by: { $0.id < $1.id }) else {
-                print("[AIAgent] VM.loadLastAgentConversation - no previous conversation found")
+                CometChatLogger.debug("[AIAgent] VM.loadLastAgentConversation - no previous conversation found")
                 DispatchQueue.main.async { didLoad(false, 0) }
                 return
             }
 
-            print("[AIAgent] VM.loadLastAgentConversation: picked latest parent id=\(latest.id), configuring builder with withParent: true")
+            CometChatLogger.debug("[AIAgent] VM.loadLastAgentConversation: picked latest parent id=\(latest.id), configuring builder with withParent: true")
             this.configureForExistingAgentConversation(parentMessage: latest)
             DispatchQueue.main.async { didLoad(true, latest.id) }
         }, onError: { [weak self] error in
             self?.lastAgentConversationRequest = nil
-            print("[AIAgent] VM.loadLastAgentConversation failed: \(error?.errorDescription ?? "unknown error")")
+            CometChatLogger.error("[AIAgent] VM.loadLastAgentConversation failed: \(error?.errorDescription ?? "unknown error")")
             DispatchQueue.main.async { didLoad(false, 0) }
         })
     }
@@ -568,9 +568,6 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             switch result {
             case .success(let newerRaw):
 
-                print(newerRaw.forEach({ message in
-                    print(message.id)
-                }))
                 this.prepareProcessedMessageWindow(
                     olderRaw: olderMessages,
                     goToMessage: anchorMessage,
@@ -617,7 +614,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
                     this.scrollToMessageId?(goToMessage.id, false)
                 }
             } else {
-                print("⚠️ Could not find goToMessage.id in grouped messages")
+                CometChatLogger.warning("could not find the target message in the grouped message list")
             }
         }
     }
@@ -718,16 +715,16 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
     func fetchPreviousMessages(completion: (() -> Void)? = nil) {
         guard let messagesRequest = messagesRequest else {
-            print("[AIAgent] VM.fetchPreviousMessages: messagesRequest is nil — bailing")
+            CometChatLogger.debug("[AIAgent] VM.fetchPreviousMessages: messagesRequest is nil — bailing")
             return
         }
         if isAllMessagesFetchedInPrevious == true {
-            print("[AIAgent] VM.fetchPreviousMessages: isAllMessagesFetchedInPrevious=true — bailing")
+            CometChatLogger.debug("[AIAgent] VM.fetchPreviousMessages: isAllMessagesFetchedInPrevious=true — bailing")
             return
         }
         isUIUpdating = true
         hasFetchedMessagesBefore = true
-        print("[AIAgent] VM.fetchPreviousMessages: starting fetchPrevious; parentMessage.id=\(parentMessage?.id ?? -1), threadedPArentMessageId=\(threadedPArentMessageId)")
+        CometChatLogger.debug("[AIAgent] VM.fetchPreviousMessages: starting fetchPrevious; parentMessage.id=\(parentMessage?.id ?? -1), threadedPArentMessageId=\(threadedPArentMessageId)")
         service.fetchPreviousMessages(request: messagesRequest) { [weak self] result in
             guard let this = self else { return }
             this.isUIUpdating = false
@@ -758,21 +755,21 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
                 // which makes the SDK re-include the thread parent (the first message) on every
                 // page. Without this guard, scrolling up then back would re-append that first message.
                 let dedupedMessages = fetchedMessages.filter { !this.isMessageAlreadyLoaded($0.id) }
-                print("[AIAgent] VM.fetchPreviousMessages: deduped \(dedupedMessages.count) messages (before dedup: \(fetchedMessages.count))")
+                CometChatLogger.debug("[AIAgent] VM.fetchPreviousMessages: deduped \(dedupedMessages.count) messages (before dedup: \(fetchedMessages.count))")
 
                 if dedupedMessages.isEmpty {
-                    print("[AIAgent] VM.fetchPreviousMessages: dedupedMessages empty → marking all fetched, calling appendMessagesAtTop")
+                    CometChatLogger.debug("[AIAgent] VM.fetchPreviousMessages: dedupedMessages empty → marking all fetched, calling appendMessagesAtTop")
                     this.isAllMessagesFetchedInPrevious = true
                     this.appendMessagesAtTop?(0, 0)
                 }
                 this.processMessageList(dedupedMessages, {fetchedMessages_ in
-                    print("[AIAgent] VM.fetchPreviousMessages: processMessageList → groupMessages with \(fetchedMessages_.count)")
+                    CometChatLogger.debug("[AIAgent] VM.fetchPreviousMessages: processMessageList → groupMessages with \(fetchedMessages_.count)")
                     this.groupMessages(messages: fetchedMessages_)
                 })
                 self?.sendActiveChatChangeEvent()
                 completion?()
             case .failure(let error):
-                print("[AIAgent] VM.fetchPreviousMessages failure: \(error.errorDescription)")
+                CometChatLogger.error("[AIAgent] VM.fetchPreviousMessages failure: \(error.errorDescription)")
                 this.failure?(error)
                 completion?()
             }
@@ -833,13 +830,13 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     // Modify fetchNextMessagesForPagination to use the above:
     func fetchNextMessagesForPagination(completion: ((Int) -> ())? = nil) {
         if isAllMessagesFetchedInNext {
-            print("[AIAgent] fetchNextMessagesForPagination: BLOCKED by isAllMessagesFetchedInNext=true")
+            CometChatLogger.debug("[AIAgent] fetchNextMessagesForPagination: BLOCKED by isAllMessagesFetchedInNext=true")
             return
         }
         if isFetchingNext { return }
         
         isFetchingNext = true
-        print("[AIAgent] fetchNextMessagesForPagination: STARTING (isAllMessagesFetchedInNext was false)")
+        CometChatLogger.debug("[AIAgent] fetchNextMessagesForPagination: STARTING (isAllMessagesFetchedInNext was false)")
         
         let anchorMessageId = messages.first?.messages.first
         
@@ -981,7 +978,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
     private func groupMessages(messages: [BaseMessage], atBottom: Bool = false) {
         
-        print("[AIAgent] VM.groupMessages: called with \(messages.count) messages, atBottom=\(atBottom)")
+        CometChatLogger.debug("[AIAgent] VM.groupMessages: called with \(messages.count) messages, atBottom=\(atBottom)")
         if let lastMessage = messages.last{
             if lastMessage.deliveredAt == 0.0 {
                 self.markAsDelivered(message: lastMessage)
@@ -1011,7 +1008,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         }
         self.messages = self.messages.sorted(by: { $0.date.compare($1.date) == .orderedDescending})
         
-        print("[AIAgent] VM.groupMessages: total grouped sections=\(self.messages.count), total messages=\(self.messages.flatMap{$0.messages}.count) → calling reload")
+        CometChatLogger.debug("[AIAgent] VM.groupMessages: total grouped sections=\(self.messages.count), total messages=\(self.messages.flatMap{$0.messages}.count) → calling reload")
         self.reload?()
 
     }
@@ -2156,19 +2153,19 @@ extension MessageListViewModel: AIAssistantEventsDelegate, QueueCompletionCallba
     // MARK: - Run Lifecycle
     
     private func handleRunStarted(_ event: AIAssistantRunStartedEvent) {
-        print("🚀 Run Started | runId: \(event.runId)")
+        CometChatLogger.debug("🚀 Run Started | runId: \(event.runId)")
 
     }
     
     private func handleRunFinished(_ event: AIAssistantRunFinishedEvent) {
         let runId = event.runId
-        print("✅ Run Finished | runId: \(runId)")
+        CometChatLogger.debug("✅ Run Finished | runId: \(runId)")
     }
     
     private func handleToolCallEnd(_ event: AIAssistantToolEndedEvent) {
         let runId = event.runId
         if let messageId = CometChatAIStreamService.shared.getMessageIdForRun(runId: runId) {
-            print("🛠️ Tool Ended | runId: \(runId) for messageId: \(messageId)")
+            CometChatLogger.debug("🛠️ Tool Ended | runId: \(runId) for messageId: \(messageId)")
         }
     }
     

@@ -77,6 +77,7 @@ import CometChatSDK
     private func updateAppearance() {
         self.textColor = style.textColor
         self.font = style.textFont
+        self.adjustsFontForContentSizeCategory = true
         self.roundViewCorners(corner: style.cornerRadius ?? .init(cornerRadius: 10))
         self.layer.borderColor = style.borderColor
         self.layer.borderWidth = style.borderWidth

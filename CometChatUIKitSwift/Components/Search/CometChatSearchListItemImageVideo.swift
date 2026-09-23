@@ -16,6 +16,7 @@ final class CometChatSearchListItemImageVideo: UITableViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -24,6 +25,7 @@ final class CometChatSearchListItemImageVideo: UITableViewCell {
     private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -60,6 +62,7 @@ final class CometChatSearchListItemImageVideo: UITableViewCell {
     private let overflowLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false

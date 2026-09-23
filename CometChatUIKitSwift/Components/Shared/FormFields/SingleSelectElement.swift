@@ -123,7 +123,9 @@ import UIKit
 //            switchThumb.layer.cornerRadius = bounds.height / 2
             view1.backgroundColor = (self.traitCollection.userInterfaceStyle == .dark) ? .white : .lightGray
             label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+            label.adjustsFontForContentSizeCategory = true
             label1.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+            label1.adjustsFontForContentSizeCategory = true
             addSubview(view1)
             addSubview(switchThumb)
             addSubview(label)

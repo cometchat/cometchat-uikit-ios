@@ -81,9 +81,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate: CometChatPushNotificationsDelegate {
 
-    func navigateToChat(for user: CometChatSDK.User) { routeToMessages(user: user, group: nil) }
+    // The push SDK builds the user/group from the notification payload, which carries only
+    // ids and names — a group arrives with `membersCount` 0, so the header read "0 members".
+    // Fetch the full object before opening the chat, as the Android master app does.
+    func navigateToChat(for user: CometChatSDK.User) {
+        guard let uid = user.uid else { return }
+        CometChat.getUser(UID: uid, onSuccess: { [weak self] user in
+            guard let user = user else { return }
+            self?.routeToMessages(user: user, group: nil)
+        }, onError: { error in
+            print("Could not open user \(uid) from a notification: \(error?.errorDescription ?? "")")
+        })
+    }
 
-    func navigateToChat(for group: CometChatSDK.Group) { routeToMessages(user: nil, group: group) }
+    func navigateToChat(for group: CometChatSDK.Group) {
+        CometChat.getGroup(GUID: group.guid, onSuccess: { [weak self] group in
+            self?.routeToMessages(user: nil, group: group)
+        }, onError: { error in
+            print("Could not open group \(group.guid) from a notification: \(error?.errorDescription ?? "")")
+        })
+    }
 
     func navigateToDefaultScreen() {
         DispatchQueue.main.async { self.topMostNavigationController()?.popToRootViewController(animated: true) }

@@ -44,10 +44,10 @@ import AVFoundation
 				let audioContext = AudioContext(audioURL: audioURL, totalSamples: totalSamples, asset: asset, assetTrack: assetTrack)
 				completionHandler(audioContext)
 			case .failed, .cancelled, .loading, .unknown:
-				print("Couldn't load asset: \(error?.localizedDescription ?? "Unknown error")")
+				CometChatLogger.error("Couldn't load asset: \(error?.localizedDescription ?? "Unknown error")")
 				completionHandler(nil)
 			@unknown default:
-				print("Couldn't load asset, unknown default: \(error?.localizedDescription ?? "Unknown error")")
+				CometChatLogger.error("Couldn't load asset, unknown default: \(error?.localizedDescription ?? "Unknown error")")
 				completionHandler(nil)
 			}
 		}

@@ -144,6 +144,8 @@ open class CometChatCallLogs: CometChatListBase {
         viewModel.empty = { [weak self] in
             guard let self = self else { return }
             DispatchQueue.main.async {
+                // The end-of-list page answers the paging fetch that showed the footer spinner.
+                self.hideFooterIndicator()
                 self.refreshControl.endRefreshing()
                 self.removeLoadingView()
                 if self.viewModel.callLogs.isEmpty{
@@ -157,17 +159,32 @@ open class CometChatCallLogs: CometChatListBase {
     }
     
     // MARK: - Call Handling
+
+    /// Test seam: when set, a call resolved from a log is handed here instead of being
+    /// placed through the SDK. Never set from product code.
+    internal var placeResolvedCall: ((Call) -> Void)?
+
+    /// The call that re-dials `callObject`: the other party of a one-to-one log — the
+    /// initiator when someone else placed it, the receiver when the logged-in user did —
+    /// with the log's media type. Nil when no user can be resolved.
+    internal func resolveCall(for callObject: CallLog) -> Call? {
+        let isInitiator = LoggedInUserInformation.getUser()?.uid != (callObject.initiator as? CallUser)?.uid
+        guard let callUser = isInitiator ? (callObject.initiator as? CallUser) : (callObject.receiver as? CallUser) else {
+            return nil
+        }
+        return Call(receiverId: callUser.uid, callType: callObject.type == .video ? .video : .audio, receiverType: .user)
+    }
+
     func placeCall(for callObject: CallLog) {
-        var call: Call?
-        let isInitiator = CometChat.getLoggedInUser()?.uid != (callObject.initiator as? CallUser)?.uid
-        if let callUser = isInitiator ? (callObject.initiator as? CallUser) : (callObject.receiver as? CallUser) {
-            call = Call(receiverId: callUser.uid, callType: callObject.type == .video ? .video : .audio, receiverType: .user)
-            
-            if callObject.type == .video {
-                initiateDefaultVideoCall(call!)
-            } else {
-                initiateDefaultAudioCall(call!)
-            }
+        guard let call = resolveCall(for: callObject) else { return }
+        if let placeResolvedCall = placeResolvedCall {
+            placeResolvedCall(call)
+            return
+        }
+        if callObject.type == .video {
+            initiateDefaultVideoCall(call)
+        } else {
+            initiateDefaultAudioCall(call)
         }
     }
     
@@ -213,7 +230,7 @@ extension CometChatCallLogs {
         
         if let group = (callData.receiver as? CallGroup) {
             callGroup = group
-        } else if let initiator = (callData.initiator as? CallUser), initiator.uid != CometChatUIKit.getLoggedInUser()?.uid {
+        } else if let initiator = (callData.initiator as? CallUser), initiator.uid != LoggedInUserInformation.getUser()?.uid {
             callUser = initiator
         } else if let receiver = (callData.receiver as? CallUser) {
             callUser = receiver
@@ -278,6 +295,7 @@ extension CometChatCallLogs {
             tailView.addTarget(self, action: #selector(onCallTap(_:)), for: .touchUpInside)
             tailView.pin(anchors: [.height, .width], to: 24)
             tailView.setImage(callImage, for: .normal)
+            tailView.accessibilityLabel = "a11y_call_back".localize()
             listItem.set(tail: tailView)
         }
         
@@ -300,7 +318,7 @@ extension CometChatCallLogs {
             let callData = viewModel.callLogs[indexPath.row]
             if let group = (callData.receiver as? CallGroup) {
                 callGroup = group
-            } else if let initiator = (callData.initiator as? CallUser), initiator.uid != CometChatUIKit.getLoggedInUser()?.uid {
+            } else if let initiator = (callData.initiator as? CallUser), initiator.uid != LoggedInUserInformation.getUser()?.uid {
                 callUser = initiator
             } else if let receiver = (callData.receiver as? CallUser) {
                 callUser = receiver
@@ -317,7 +335,7 @@ extension CometChatCallLogs {
                 } onError: { error in
                     self.tableView.isUserInteractionEnabled = true
                     self.onError?(error)
-                    print("error")
+                    CometChatLogger.error("error")
                 }
             }else{
                 CometChat.getGroup(GUID: callGroup?.guid ?? "") { group in
@@ -329,7 +347,7 @@ extension CometChatCallLogs {
                 } onError: { error in
                     self.onError?(error)
                     self.tableView.isUserInteractionEnabled = true
-                    print("error")
+                    CometChatLogger.error("error")
                 }
 
             }

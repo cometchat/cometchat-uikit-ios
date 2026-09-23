@@ -216,9 +216,9 @@ import CometChatSDK
     public var parentMessage: BaseMessage? {
         didSet { addCustomViews() }
     }
-    /// Master switch for the bell, mirroring the message list's own flag.
     /// Hides the bell while leaving the feature on, for a host that already
-    /// renders its own control elsewhere on the screen.
+    /// renders its own control elsewhere on the screen. ANDed with the
+    /// thread-subscription gate; when that gate is off this has no effect.
     public var hideThreadSubscriptionButton: Bool = false
 
     /// Subscribe/unsubscribe control, in the header's trailing area.
@@ -278,7 +278,9 @@ import CometChatSDK
             } else {
                 if self.viewModel.user?.isAgentic ?? false{
                     newChatButton.setImage(style.newChatButtonImage, for: .normal)
+                    newChatButton.accessibilityLabel = "a11y_new_chat".localize()
                     chatHistoryButton.setImage(style.chatHistoryButtonImage, for: .normal)
+                    chatHistoryButton.accessibilityLabel = "a11y_chat_history".localize()
                     newChatButton.tintColor = style.newChatButtonImageTintColor
                     chatHistoryButton.tintColor = style.chatHistoryButtonImageTintColor
                     newChatButton.isHidden = hideNewChatButton
@@ -297,6 +299,7 @@ import CometChatSDK
                     let button = UIButton(type: .system)
                     button.translatesAutoresizingMaskIntoConstraints = false
                     button.setImage(style.menuIcon, for: .normal)
+                    button.accessibilityLabel = "a11y_more_options".localize()
                     button.tintColor = style.menuIconTintColor
 
                     // Add to tailView
@@ -464,12 +467,15 @@ import CometChatSDK
         borderColor(color: style.borderColor)
         
         backButton.setImage(style.backButtonIcon, for: .normal)
+        backButton.accessibilityLabel = "a11y_back".localize()
         backButton.tintColor = style.backButtonImageTintColor
 
         titleLabel.textColor = style.titleTextColor
         titleLabel.font = style.titleTextFont
+        titleLabel.adjustsFontForContentSizeCategory = true
         subtitleLabel.textColor = style.subtitleTextColor
         subtitleLabel.font = style.subtitleTextFont
+        subtitleLabel.adjustsFontForContentSizeCategory = true
                 
         roundViewCorners(corner: style.cornerRadius ?? .init(cornerRadius: 0))
         
@@ -496,6 +502,7 @@ import CometChatSDK
         if let group = viewModel.group {
             subtitleLabel.textColor = style.subtitleTextColor
             subtitleLabel.font = style.subtitleTextFont
+            subtitleLabel.adjustsFontForContentSizeCategory = true
         }
     }
 
@@ -743,9 +750,11 @@ extension CometChatMessageHeader {
         if isTyping {
             subtitleLabel.textColor = typingIndicatorStyle.textColor
             subtitleLabel.font = typingIndicatorStyle.textFont
+            subtitleLabel.adjustsFontForContentSizeCategory = true
         } else{
             subtitleLabel.textColor = style.subtitleTextColor
             subtitleLabel.font = style.subtitleTextFont
+            subtitleLabel.adjustsFontForContentSizeCategory = true
         }
     }
 }

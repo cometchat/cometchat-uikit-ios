@@ -20,8 +20,9 @@ class AIAssistantIntroductionView: UIView {
     
     public lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Hey, How can I help?"
+        label.text = "ai_assistant_greeting".localize()
         label.font = CometChatTypography.Heading4.medium
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         label.textColor = CometChatTheme.textColorPrimary
         return label
@@ -29,8 +30,9 @@ class AIAssistantIntroductionView: UIView {
     
     public lazy var subtitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "You can ask me anything..."
+        label.text = "ai_assistant_prompt_hint".localize()
         label.font = CometChatTypography.Body.regular
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         label.textColor = CometChatTheme.textColorTertiary
         return label
@@ -198,6 +200,7 @@ class OptionCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = CometChatTypography.Body.regular
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.textColorSecondary
         label.textAlignment = .center
         label.numberOfLines = 0

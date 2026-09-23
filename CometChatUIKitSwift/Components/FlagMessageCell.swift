@@ -33,6 +33,7 @@ final class FlagMessageCell: UICollectionViewCell {
         contentView.layer.borderWidth = 1
 
         label.font = CometChatTypography.Body.regular
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.textColorPrimary
 
         contentView.addSubview(label)

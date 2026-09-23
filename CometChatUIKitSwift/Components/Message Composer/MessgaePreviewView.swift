@@ -9,7 +9,6 @@ import UIKit
 import Foundation
 
 class MessagePreviewView: UIView {
-    
     var title: String
     var subTitle: NSAttributedString
     var style: MessageComposerStyle
@@ -42,8 +41,6 @@ class MessagePreviewView: UIView {
     }
     
     @objc private func handleThemeChange() {
-        print("🎨 MessagePreviewView: Received theme change notification")
-        
         // Update colors from the style's computed properties
         borderColor(color: style.editPreviewBorderColor)
         
@@ -52,11 +49,9 @@ class MessagePreviewView: UIView {
             closeButton.tintColor = style.editPreviewCloseIconTint
         }
         
-        print("🎨 MessagePreviewView: Updated edit preview colors")
     }
     
     func buildUI() {
-        
         backgroundColor = style.editPreviewBackgroundColor
         borderWith(width: style.editPreviewBorderWidth)
         roundViewCorners(corner: style.editPreviewCornerRadius)
@@ -68,6 +63,7 @@ class MessagePreviewView: UIView {
         titleLabel.text = title
         titleLabel.textColor = style.editPreviewTitleTextColor
         titleLabel.font = style.editPreviewTitleTextFont
+        titleLabel.adjustsFontForContentSizeCategory = true
         addSubview(titleLabel)
         constrainsToActivate += [
             titleLabel.topAnchor.pin(equalTo: topAnchor, constant: CometChatSpacing.Padding.p2),
@@ -77,6 +73,7 @@ class MessagePreviewView: UIView {
         let closeButton = UIButton().withoutAutoresizingMaskConstraints()
         closeButton.tintColor = style.editPreviewCloseIconTint
         closeButton.setImage(style.editPreviewCloseIcon, for: .normal)
+        closeButton.accessibilityLabel = "a11y_close".localize()
         closeButton.pin(anchors: [.height, .width], to: 20)
         closeButton.addTarget(self, action: #selector(onCrossIconTapped), for: .primaryActionTriggered)
         addSubview(closeButton)

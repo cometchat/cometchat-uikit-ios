@@ -67,10 +67,19 @@ public class CometChatImageBubble: UIStackView {
         )
         
         addArrangedSubview(imageView)
-        
+
         imageView.embed(activityIndicator)
-        
+
         self.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onImageClick)))
+
+        // The bubble is a tappable stack view that opens the full-screen viewer, but it
+        // published nothing to accessibility: VoiceOver reached a silent, untyped element
+        // and a received photo was unreachable to anyone not using the screen visually.
+        // Exposed as ONE element rather than letting the image view surface separately,
+        // so the announcement matches the thing the tap acts on.
+        isAccessibilityElement = true
+        accessibilityLabel = "a11y_image_message".localize()
+        accessibilityTraits = [.image, .button]
     }
     
     public func setUpStyle() {
@@ -131,7 +140,7 @@ public class CometChatImageBubble: UIStackView {
                         try? FileManager.default.removeItem(at: fileLocation)
                     }
                 } catch {
-                    print("[ImageBubble] Data error: \(error)")
+                    CometChatLogger.error("[ImageBubble] Data error: \(error)")
                 }
             }
             if Thread.isMainThread {

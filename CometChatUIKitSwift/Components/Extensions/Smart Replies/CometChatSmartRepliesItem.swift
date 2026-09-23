@@ -43,6 +43,10 @@ class CometChatSmartRepliesItem: UICollectionViewCell {
             } else {
                 smartReplyButton.setTitle(nil, for: .normal)
                 smartReplyButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+                // Defensive: an empty suggestion string is not expected from the
+                // extension, but if one arrives the cell must not read as a bare
+                // "Button" to VoiceOver.
+                smartReplyButton.accessibilityLabel = "a11y_close".localize()
                 smartReplyButton.tintColor = CometChatTheme_v4.palatte.accent500
                 set(background: .clear)
                 set(shadowColor: .clear)

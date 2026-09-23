@@ -168,7 +168,7 @@ class AIAssistBotDecorator: DataSourceDecorator {
         usersRequestBuilder.fetchNext { users in
             self.botList = users
         } onError: { error in
-            print("fetching bot fetching failed with error: \(String(describing: error?.errorDescription))")
+            CometChatLogger.error("fetching bot fetching failed with error: \(String(describing: error?.errorDescription))")
         }
     }
     

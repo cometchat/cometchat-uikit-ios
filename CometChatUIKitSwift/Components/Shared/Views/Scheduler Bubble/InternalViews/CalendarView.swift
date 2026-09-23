@@ -78,6 +78,7 @@ class CalendarView: UIView {
         selectDateLabel.text = "SELECT_A_DAY".localize()
         selectDateLabel.textColor = CometChatTheme_v4.palatte.accent600
         selectDateLabel.font = CometChatTheme_v4.typography.text1
+        selectDateLabel.adjustsFontForContentSizeCategory = true
         
         selectDateContainer.addArrangedSubview(selectDateLabel)
         selectDateContainer.isLayoutMarginsRelativeArrangement = true
@@ -110,6 +111,7 @@ class CalendarView: UIView {
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.textColor = CometChatTheme_v4.palatte.accent900
         textLabel.font = CometChatTheme_v4.typography.caption1
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.text = "\(TimeZone.current.getFullForm())"
         textLabel.sizeToFit()
         containerStackView.addArrangedSubview(textLabel)

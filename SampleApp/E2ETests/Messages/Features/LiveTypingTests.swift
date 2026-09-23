@@ -36,6 +36,46 @@ final class LiveTypingTests: XCTestCase {
         runBlocking { await SecondClient.shared.endTyping() }
     }
 
+    // MARK: - Structural typing transitions (Wave 6)
+
+    private func openOneToOneWithLiveB() throws {
+        try runBlocking { try await SeedData.createTestConversation() }
+        try ensureUserBLoggedIn()
+        app = AppLauncher.launchAndWaitForHome()
+        XCTAssertTrue(AppLauncher.openConversationFromChats(app, displayName: TestConfig.userBDisplayName),
+                      "Could not open the 1:1 with User B")
+        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15), "Message list did not open")
+    }
+
+    /// The header shows "Typing..." while B types and reverts once B stops — the peer's name
+    /// stays put throughout, and the subtitle no longer says Typing.
+    func test_RT_TYPE_headerRevertsWhenPeerStopsTyping() throws {
+        try openOneToOneWithLiveB()
+        runBlocking { await SecondClient.shared.startTyping(toUser: TestConfig.userAUid) }
+        XCTAssertTrue(ComponentQueries.waitForTypingIndicator(app, timeout: 10), "Header never showed 'Typing...'")
+
+        runBlocking { await SecondClient.shared.endTyping() }
+        XCTAssertTrue(waitForCondition(timeout: 10) { !self.app.staticTexts["Typing..."].exists },
+                      "Header kept 'Typing...' after B stopped typing")
+        XCTAssertTrue(app.staticTexts[TestConfig.userBDisplayName].exists, "Header lost the peer's name")
+    }
+
+    /// After B stops, an idle window must not bring the indicator back: nothing is typing, so
+    /// nothing may say so. The window is well past the kit's own typing debounce.
+    func test_RT_TYPE_noIndicatorPersistsAfterIdle() throws {
+        try openOneToOneWithLiveB()
+        runBlocking { await SecondClient.shared.startTyping(toUser: TestConfig.userAUid) }
+        XCTAssertTrue(ComponentQueries.waitForTypingIndicator(app, timeout: 10), "Header never showed 'Typing...'")
+        runBlocking { await SecondClient.shared.endTyping() }
+        XCTAssertTrue(waitForCondition(timeout: 10) { !self.app.staticTexts["Typing..."].exists },
+                      "Header kept 'Typing...' after B stopped typing")
+
+        // Idle: no typing events for 8s. The indicator must stay away the whole time.
+        XCTAssertFalse(app.staticTexts["Typing..."].waitForExistence(timeout: 8),
+                       "'Typing...' reappeared while the peer was idle")
+        XCTAssertTrue(app.staticTexts[TestConfig.userBDisplayName].exists, "Header lost the peer's name")
+    }
+
     func test_RT_TYPE_liveIncomingTypingShowsGroup() throws {
         let group = try runBlocking { try await SeedData.createTestGroupWithMember() }
         defer { runBlocking { await SeedData.deleteTestGroup(group) } }

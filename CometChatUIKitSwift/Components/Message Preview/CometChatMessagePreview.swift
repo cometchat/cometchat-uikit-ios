@@ -198,8 +198,10 @@ open class CometChatMessagePreview: UIView {
         roundViewCorners(corner: style.cornerRadius ?? .init(cornerRadius: CometChatSpacing.Radius.r1))
         borderColor(color: style.borderColor)
         closeButton.setImage(style.previewCloseIcon, for: .normal)
+        closeButton.accessibilityLabel = "a11y_close".localize()
         titleLabel.textColor = style.titleTextColor
         titleLabel.font = style.titleTextFont
+        titleLabel.adjustsFontForContentSizeCategory = true
         // Don't set subtitleLabel.font and textColor here - they override the attributed string's formatting
         // The attributed string already has the correct font and color from markdown parsing
         accentView.backgroundColor = style.indicatorViewBackgroundColor
@@ -265,11 +267,16 @@ open class CometChatMessagePreview: UIView {
                 var processedText = textMsg.text
                 if let tf = textFormatters as? [Any], !tf.isEmpty {
                     if let realTF = tf as? [CometChatTextFormatter] {
-                        let processedAttributedString = MessageUtils.processTextFormatter(
-                            message: textMsg,
-                            textFormatter: realTF,
-                            formattingType: formattingType
-                        )
+                        // The preview panels are read-only, so a formatter gets to
+                        // show its styled form here even when the live input keeps
+                        // the raw token. Other surfaces keep their own path.
+                        let processedAttributedString = formattingType == .COMPOSER
+                            ? MessageUtils.processPreviewFormatter(message: textMsg, textFormatter: realTF)
+                            : MessageUtils.processTextFormatter(
+                                message: textMsg,
+                                textFormatter: realTF,
+                                formattingType: formattingType
+                            )
                         processedText = processedAttributedString.string
                     } else if let single = textFormatters as? CometChatTextFormatter {
                         let processedAttributedString = MessageUtils.processTextFormatter(

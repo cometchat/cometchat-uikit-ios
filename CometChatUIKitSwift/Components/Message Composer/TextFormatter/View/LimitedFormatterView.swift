@@ -50,6 +50,7 @@ class LimitedFormatterView: UIView {
         
         infoLabel.text = "MENTION_LIMIT_TEXT".localize()
         infoLabel.font = CometChatTypography.Caption1.regular
+        infoLabel.adjustsFontForContentSizeCategory = true
         infoLabel.textColor = CometChatTheme.errorColor
         containerStackView.addArrangedSubview(infoLabel)
         

@@ -63,6 +63,12 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
     private var readItems: Set<String> = []
     private var deliveredItems: Set<String> = []
     private var visibilityTimers: [String: Timer] = [:]
+
+    /// Test seams: the read-after-visible tracker is otherwise unobservable
+    /// (its only effect is an SDK call). Read-only, internal.
+    var itemsAwaitingRead: Set<String> { Set(visibilityTimers.filter { $0.value.isValid }.keys) }
+    var itemsMarkedRead: Set<String> { readItems }
+    var itemsReportedDelivered: Set<String> { deliveredItems }
     
     // MARK: - Unread Count Polling
     private var unreadCountTimer: Timer?

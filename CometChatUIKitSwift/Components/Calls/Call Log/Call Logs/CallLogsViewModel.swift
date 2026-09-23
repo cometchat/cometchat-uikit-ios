@@ -37,15 +37,17 @@ public class CallLogsViewModel {
     var service: CallLogsServicing = LiveCallLogsService()
 
     init() {
+        // No auth token: Calls SDK 5 ignores `set(authToken:)` and sends the Calls session's
+        // token, which `CometChatUIKit.login` sets up (as the Android UI Kit does).
         callLogRequestBuilder = CometChatCallsSDK.CallLogsRequest.CallLogsBuilder()
-            .set(authToken: CometChat.getUserAuthToken())
             .set(callCategory: .call)
         callLogRequest = callLogRequestBuilder.build()
     }
 
     internal init(service: CallLogsServicing) {
+        // No auth token: Calls SDK 5 ignores `set(authToken:)` and sends the Calls session's
+        // token, which `CometChatUIKit.login` sets up (as the Android UI Kit does).
         callLogRequestBuilder = CometChatCallsSDK.CallLogsRequest.CallLogsBuilder()
-            .set(authToken: CometChat.getUserAuthToken())
             .set(callCategory: .call)
         callLogRequest = callLogRequestBuilder.build()
         self.service = service

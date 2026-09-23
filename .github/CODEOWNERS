@@ -1,0 +1,8 @@
+# Code owners for cometchat/cometchat-uikit-ios
+# https://docs.github.com/articles/about-code-owners
+#
+# Code owners are automatically requested for review when someone opens a PR
+# that modifies code they own.
+#
+# TODO(GOV4): set the real owner(s), then uncomment. Default owner for the repo:
+# *  @<owner-handle>

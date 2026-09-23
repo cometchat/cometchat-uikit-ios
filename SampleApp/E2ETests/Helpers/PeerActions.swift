@@ -83,8 +83,22 @@ enum PeerActions {
         guard let url = URL(string: "\(baseURL)/messages/\(messageId)") else {
             throw PeerError.badURL("\(baseURL)/messages/\(messageId)")
         }
-        _ = try await send(url: url, method: "DELETE", body: nil,
-                           onBehalfOf: TestConfig.userBUid, operation: "deleteMessage")
+        // Same ERR_MESSAGE_NO_ACCESS propagation race as editMessage / sendThreadReply.
+        let deadline = Date().addingTimeInterval(15)
+        while true {
+            do {
+                _ = try await send(url: url, method: "DELETE", body: nil,
+                                   onBehalfOf: TestConfig.userBUid, operation: "deleteMessage")
+                return
+            } catch let error as PeerError {
+                guard case let .http(_, status, responseBody) = error,
+                      status == 403,
+                      responseBody.contains("ERR_MESSAGE_NO_ACCESS"),
+                      Date() < deadline
+                else { throw error }
+                try await Task.sleep(nanoseconds: 500_000_000)
+            }
+        }
     }
     
     static func editMessage(_ messageId: Int, newText: String) async throws {
@@ -92,8 +106,34 @@ enum PeerActions {
             throw PeerError.badURL("\(baseURL)/messages/\(messageId)")
         }
         let body = try JSONSerialization.data(withJSONObject: ["data": ["text": newText]])
-        _ = try await send(url: url, method: "PUT", body: body,
-                           onBehalfOf: TestConfig.userBUid, operation: "editMessage")
+
+        // A just-sent message is not immediately editable BY ITS OWN SENDER: for a
+        // short window the backend answers 403 ERR_MESSAGE_NO_ACCESS ("the user with
+        // UID <sender> does not have access to the message with id <id>"), which reads
+        // like a permissions bug and is actually a propagation race. Measured against
+        // this app: 2.83s, 2.85s, 2.82s across three trials — consistent enough that a
+        // test editing straight after sending fails every time, which is why
+        // test_RT_EDIT_editUpdatesConversationPreview was the one red test in the suite.
+        //
+        // send() already retries, but only transient URLErrors — an HTTP 403 is a
+        // successful response, so it never qualified. Retry that one status here, and
+        // only when the body carries ERR_MESSAGE_NO_ACCESS, so a genuine authorisation
+        // failure (e.g. the receiver trying to edit) still fails immediately.
+        let deadline = Date().addingTimeInterval(15)
+        while true {
+            do {
+                _ = try await send(url: url, method: "PUT", body: body,
+                                   onBehalfOf: TestConfig.userBUid, operation: "editMessage")
+                return
+            } catch let error as PeerError {
+                guard case let .http(_, status, responseBody) = error,
+                      status == 403,
+                      responseBody.contains("ERR_MESSAGE_NO_ACCESS"),
+                      Date() < deadline
+                else { throw error }
+                try await Task.sleep(nanoseconds: 500_000_000)
+            }
+        }
     }
     
     static func ensureConversationExists() async throws {
@@ -151,6 +191,65 @@ enum PeerActions {
         await lastConversationMessageText(with: uid) == text
     }
 
+    /// The raw backend `lastMessage` of A's conversation with `uid` (user) or `guid` (group) — for
+    /// the cases that need more than its text: the id of a message the app itself sent (Message
+    /// Info, receipts), or a poll's `customData.id`. Reads A's conversation LIST like the text
+    /// variant, for the same reason.
+    static func lastConversationMessage(withUser uid: String? = nil, group guid: String? = nil) async -> [String: Any]? {
+        let type = guid == nil ? "user" : "group"
+        guard let url = URL(string: "\(baseURL)/users/\(TestConfig.userAUid)/conversations?conversationType=\(type)&perPage=50") else {
+            return nil
+        }
+        guard let data = try? await send(url: url, method: "GET", body: nil,
+                                         onBehalfOf: nil, operation: "lastConversationMessage"),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let list = root["data"] as? [[String: Any]]
+        else { return nil }
+        let match = list.first {
+            let with = $0["conversationWith"] as? [String: Any]
+            if let guid { return (with?["guid"] as? String) == guid }
+            return (with?["uid"] as? String) == (uid ?? TestConfig.userBUid)
+        }
+        return match?["lastMessage"] as? [String: Any]
+    }
+
+    /// Text of the group conversation's current backend `lastMessage`, or nil.
+    static func lastGroupConversationMessageText(guid: String) async -> String? {
+        let last = await lastConversationMessage(group: guid)
+        return (last?["data"] as? [String: Any])?["text"] as? String
+    }
+
+    /// `/messages` returns ids as strings; `lastMessage.id` can arrive either way.
+    static func messageID(of message: [String: Any]?) -> Int? {
+        if let id = message?["id"] as? Int { return id }
+        if let s = message?["id"] as? String { return Int(s) }
+        return nil
+    }
+
+    /// Sends a `custom`-category message of an app-defined `type` from B. The kit has no template
+    /// for an unknown custom type, so the sample app renders it as the "not supported" bubble —
+    /// which is exactly what the receive-side test pins.
+    @discardableResult
+    static func sendCustomMessage(type: String,
+                                  customData: [String: Any],
+                                  receiver: String = TestConfig.userAUid,
+                                  receiverType: String = "user") async throws -> Int {
+        guard let url = URL(string: "\(baseURL)/messages") else {
+            throw PeerError.badURL("\(baseURL)/messages")
+        }
+        let payload: [String: Any] = [
+            "receiver": receiver,
+            "receiverType": receiverType,
+            "category": "custom",
+            "type": type,
+            "data": ["customData": customData],
+        ]
+        let body = try JSONSerialization.data(withJSONObject: payload)
+        let out = try await send(url: url, method: "POST", body: body,
+                                 onBehalfOf: TestConfig.userBUid, operation: "sendCustomMessage")
+        return try parseMessageID(from: out)
+    }
+
     /// Group-conversation surfacing asserted here — the Groups/Chats a11y walk SIGKILLs on the busy backend.
     static func groupConversationExists(guid: String) async -> Bool {
         guard let url = URL(string: "\(baseURL)/users/\(TestConfig.userAUid)/conversations?conversationType=group&perPage=50") else {
@@ -198,6 +297,19 @@ enum PeerActions {
         )
     }
     
+    /// Display name of a user, or nil when the user does not exist on this app. Used by tests
+    /// that depend on users beyond A and B (the provisioned `e2e_mod` / `e2e_pat`) to skip
+    /// cleanly instead of failing when the suite runs against a different app or user set.
+    static func userDisplayName(_ uid: String) async -> String? {
+        guard let url = URL(string: "\(baseURL)/users/\(uid)") else { return nil }
+        guard let data = try? await send(url: url, method: "GET", body: nil,
+                                         onBehalfOf: nil, operation: "userDisplayName"),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let user = root["data"] as? [String: Any]
+        else { return nil }
+        return user["name"] as? String
+    }
+
     static func isBlocked(_ uid: String = TestConfig.userBUid) async -> Bool {
         guard let url = URL(string: "\(baseURL)/users/\(TestConfig.userAUid)/blockedusers?perPage=100") else {
             return false
@@ -210,21 +322,28 @@ enum PeerActions {
         return list.contains { ($0["uid"] as? String) == uid }
     }
     
-    static func addReaction(_ messageId: Int, _ emoji: String = "🔥", asUserA: Bool = false) async {
+    /// Throws like every other seeding helper. These two swallowed their errors with `try?`,
+    /// so a rejected reaction — a wrong user pair 403s the same way a thread reply does —
+    /// left the suite reporting a reaction that was never applied.
+    static func addReaction(_ messageId: Int, _ emoji: String = "🔥", asUserA: Bool = false) async throws {
         guard let enc = emoji.addingPercentEncoding(withAllowedCharacters: .alphanumerics),
-              let url = URL(string: "\(baseURL)/messages/\(messageId)/reactions/\(enc)") else { return }
-        let body = try? JSONSerialization.data(withJSONObject: [:] as [String: Any])
-        _ = try? await send(url: url, method: "POST", body: body,
-                            onBehalfOf: asUserA ? TestConfig.userAUid : TestConfig.userBUid,
-                            operation: "addReaction")
+              let url = URL(string: "\(baseURL)/messages/\(messageId)/reactions/\(enc)") else {
+            throw PeerError.badURL("\(baseURL)/messages/\(messageId)/reactions/\(emoji)")
+        }
+        let body = try JSONSerialization.data(withJSONObject: [:] as [String: Any])
+        _ = try await send(url: url, method: "POST", body: body,
+                           onBehalfOf: asUserA ? TestConfig.userAUid : TestConfig.userBUid,
+                           operation: "addReaction")
     }
-    
-    static func removeReaction(_ messageId: Int, _ emoji: String = "🔥", asUserA: Bool = false) async {
+
+    static func removeReaction(_ messageId: Int, _ emoji: String = "🔥", asUserA: Bool = false) async throws {
         guard let enc = emoji.addingPercentEncoding(withAllowedCharacters: .alphanumerics),
-              let url = URL(string: "\(baseURL)/messages/\(messageId)/reactions/\(enc)") else { return }
-        _ = try? await send(url: url, method: "DELETE", body: nil,
-                            onBehalfOf: asUserA ? TestConfig.userAUid : TestConfig.userBUid,
-                            operation: "removeReaction")
+              let url = URL(string: "\(baseURL)/messages/\(messageId)/reactions/\(enc)") else {
+            throw PeerError.badURL("\(baseURL)/messages/\(messageId)/reactions/\(emoji)")
+        }
+        _ = try await send(url: url, method: "DELETE", body: nil,
+                           onBehalfOf: asUserA ? TestConfig.userAUid : TestConfig.userBUid,
+                           operation: "removeReaction")
     }
     
     /// Thread replies carry a parentMessageId, so they are filtered OUT of the main message list.
@@ -244,9 +363,34 @@ enum PeerActions {
             "data": ["text": text],
         ]
         let body = try JSONSerialization.data(withJSONObject: payload)
-        let data = try await send(url: url, method: "POST", body: body,
-                                  onBehalfOf: TestConfig.userBUid, operation: "sendThreadReply")
-        return try parseMessageID(from: data)
+        // Same propagation race as editMessage: straight after the parent is sent, the backend
+        // answers 403 ERR_MESSAGE_NO_ACCESS for a few seconds. Retry only that.
+        let deadline = Date().addingTimeInterval(15)
+        while true {
+            do {
+                let data = try await send(url: url, method: "POST", body: body,
+                                          onBehalfOf: TestConfig.userBUid, operation: "sendThreadReply")
+                return try parseMessageID(from: data)
+            } catch let error as PeerError {
+                guard case let .http(_, status, responseBody) = error,
+                      status == 403,
+                      responseBody.contains("ERR_MESSAGE_NO_ACCESS"),
+                      Date() < deadline
+                else { throw error }
+                try await Task.sleep(nanoseconds: 500_000_000)
+            }
+        }
+    }
+
+    /// Texts of a message's thread replies, oldest first, read as `reader`.
+    static func threadReplyTexts(parentId: Int, as reader: String = TestConfig.userAUid) async -> [String] {
+        guard let url = URL(string: "\(baseURL)/messages/\(parentId)/thread?perPage=100") else { return [] }
+        guard let data = try? await send(url: url, method: "GET", body: nil,
+                                         onBehalfOf: reader, operation: "threadReplyTexts"),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let list = root["data"] as? [[String: Any]]
+        else { return [] }
+        return list.compactMap { ($0["data"] as? [String: Any])?["text"] as? String }
     }
 
     /// Sends a developer card (category "card") — the path that renders via CometChatCardBubble.
@@ -275,6 +419,89 @@ enum PeerActions {
         let body = try JSONSerialization.data(withJSONObject: payload)
         let out = try await send(url: url, method: "POST", body: body,
                                  onBehalfOf: TestConfig.userBUid, operation: "sendCardMessage")
+        return try parseMessageID(from: out)
+    }
+
+    /// Interactive "form" message (category interactive) — renders CometChatFormBubble.
+    /// Templates for form/scheduler are registered unconditionally (no extension gate).
+    static func sendFormMessage(title: String,
+                                fieldLabel: String,
+                                buttonText: String,
+                                receiver: String = TestConfig.userAUid,
+                                receiverType: String = "user") async throws -> Int {
+        guard let url = URL(string: "\(baseURL)/messages") else {
+            throw PeerError.badURL("\(baseURL)/messages")
+        }
+        let interactiveData: [String: Any] = [
+            "title": title,
+            "goalCompletionText": "Thanks!",
+            "formFields": [[
+                "elementType": "textInput",
+                "elementId": "field1",
+                "label": fieldLabel,
+                "optional": false,
+            ]],
+            "submitElement": [
+                "elementType": "button",
+                "elementId": "submit1",
+                "buttonText": buttonText,
+                "disableAfterInteracted": true,
+                "action": ["actionType": "apiAction", "url": "https://example.com/e2e", "method": "POST"],
+            ],
+        ]
+        let payload: [String: Any] = [
+            "receiver": receiver,
+            "receiverType": receiverType,
+            "category": "interactive",
+            "type": "form",
+            "data": ["interactiveData": interactiveData],
+        ]
+        let body = try JSONSerialization.data(withJSONObject: payload)
+        let out = try await send(url: url, method: "POST", body: body,
+                                 onBehalfOf: TestConfig.userBUid, operation: "sendFormMessage")
+        return try parseMessageID(from: out)
+    }
+
+    /// Interactive "scheduler" message — renders CometChatSchedulerBubble.
+    static func sendSchedulerMessage(title: String,
+                                     buttonText: String,
+                                     receiver: String = TestConfig.userAUid,
+                                     receiverType: String = "user") async throws -> Int {
+        guard let url = URL(string: "\(baseURL)/messages") else {
+            throw PeerError.badURL("\(baseURL)/messages")
+        }
+        let today = ISO8601DateFormatter().string(from: Date()).prefix(10)
+        let interactiveData: [String: Any] = [
+            "title": title,
+            "meetingDuration": 30,
+            "timezoneCode": "Asia/Kolkata",
+            "dateRangeStart": String(today),
+            "dateRangeEnd": String(today),
+            "availability": [
+                "monday": [["from": "0900", "to": "1800"]],
+                "tuesday": [["from": "0900", "to": "1800"]],
+                "wednesday": [["from": "0900", "to": "1800"]],
+                "thursday": [["from": "0900", "to": "1800"]],
+                "friday": [["from": "0900", "to": "1800"]],
+            ],
+            "scheduleElement": [
+                "elementType": "button",
+                "elementId": "schedule1",
+                "buttonText": buttonText,
+                "disableAfterInteracted": true,
+                "action": ["actionType": "apiAction", "url": "https://example.com/e2e", "method": "POST"],
+            ],
+        ]
+        let payload: [String: Any] = [
+            "receiver": receiver,
+            "receiverType": receiverType,
+            "category": "interactive",
+            "type": "scheduler",
+            "data": ["interactiveData": interactiveData],
+        ]
+        let body = try JSONSerialization.data(withJSONObject: payload)
+        let out = try await send(url: url, method: "POST", body: body,
+                                 onBehalfOf: TestConfig.userBUid, operation: "sendSchedulerMessage")
         return try parseMessageID(from: out)
     }
 
@@ -446,6 +673,21 @@ enum PeerActions {
                            onBehalfOf: by, operation: "setMemberScope")
     }
 
+    static func renameGroup(guid: String, to name: String, by: String = TestConfig.userAUid) async throws {
+        guard let url = URL(string: "\(baseURL)/groups/\(guid)") else {
+            throw PeerError.badURL("\(baseURL)/groups/\(guid)")
+        }
+        let body = try JSONSerialization.data(withJSONObject: ["name": name])
+        _ = try await send(url: url, method: "PUT", body: body, onBehalfOf: by, operation: "renameGroup")
+    }
+
+    static func kickGroupMember(guid: String, uid: String, by: String = TestConfig.userAUid) async throws {
+        guard let url = URL(string: "\(baseURL)/groups/\(guid)/members/\(uid)") else {
+            throw PeerError.badURL("\(baseURL)/groups/\(guid)/members/\(uid)")
+        }
+        _ = try await send(url: url, method: "DELETE", body: nil, onBehalfOf: by, operation: "kickGroupMember")
+    }
+
     static func deleteGroup(guid: String, owner: String = TestConfig.userAUid) async {
         guard let url = URL(string: "\(baseURL)/groups/\(guid)") else { return }
         _ = try? await send(url: url, method: "DELETE", body: nil,
@@ -550,6 +792,11 @@ enum PeerActions {
         throw PeerError.missingMessageID(body: String(data: data, encoding: .utf8) ?? "<binary>")
     }
     
+    /// Per-request timeout. The default is URLSession's own 60s; a test that expects the backend
+    /// to swallow a request (a blocked peer's send never answered) lowers it for the duration of
+    /// that call so `runBlocking`'s 60s ceiling is not what fails first.
+    static var requestTimeout: TimeInterval = 60
+
     /// Retries transient network blips (the sim + shared backend occasionally drop a request); HTTP
     /// 4xx/5xx are deterministic and NOT retried.
     @discardableResult
@@ -590,6 +837,7 @@ enum PeerActions {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.httpBody = body
+        request.timeoutInterval = requestTimeout
         for (k, v) in headers { request.setValue(v, forHTTPHeaderField: k) }
         // Session management (auth_tokens) is keyed only by apiKey/appId — no impersonation header.
         if let onBehalfOf { request.setValue(onBehalfOf, forHTTPHeaderField: "onBehalfOf") }

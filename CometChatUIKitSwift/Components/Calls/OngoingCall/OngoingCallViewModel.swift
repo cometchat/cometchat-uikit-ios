@@ -163,13 +163,13 @@ extension OngoingCallViewModel {
         private func endCall() {
             if let sessionId = parent.sessionId {
                 CometChat.endCall(sessionID: sessionId as String, onSuccess: {call in
-                    print("End Call Success")
+                    CometChatLogger.debug("End Call Success")
                     if let call = call {
                         self.parent.onCallEnded?()
                         CometChatCallEvents.ccCallEnded(call: call)
                     }
                 }, onError: { error in
-                    print("End Call failed with error \(error?.errorDescription ?? "") ")
+                    CometChatLogger.error("End Call failed with error \(error?.errorDescription ?? "") ")
                 })
             }
         }

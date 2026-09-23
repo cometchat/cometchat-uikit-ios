@@ -469,17 +469,98 @@ open class MessageUtils {
         
     }
     
+    /// Runs the formatters for a reply or edit preview panel.
+    ///
+    /// Identical to `processTextFormatter` with `.COMPOSER`, except each match is
+    /// rendered through `preparePreviewString(baseMessage:regexString:)`. A
+    /// formatter that keeps a raw token in the live input can strip it there, so
+    /// the panel shows styled text instead of marker characters. A formatter that
+    /// does not override sees no difference — the default forwards to
+    /// `prepareMessageString` with `.COMPOSER`.
+    static func processPreviewFormatter(message: TextMessage, textFormatter: [CometChatTextFormatter]) -> NSAttributedString {
+        var mutableString = NSMutableAttributedString(string: message.text)
+        textFormatter.forEach { formatter in
+            let processedData = MessageUtils.processString(mutableString, regex: formatter.getRegex()) { string in
+                formatter.preparePreviewString(baseMessage: message, regexString: string)
+            }
+            mutableString = NSMutableAttributedString(attributedString: processedData.string)
+        }
+        return mutableString
+    }
+
     static public func processTextFormatter(message: TextMessage, textFormatter: [CometChatTextFormatter], formattingType: FormattingType, alignment: MessageBubbleAlignment = .left) -> NSAttributedString {
         var mutableString = NSMutableAttributedString(string: message.text)
         textFormatter.forEach { formatter in
             let processedData = MessageUtils.processString(mutableString, regex: formatter.getRegex()) { string in
                 formatter.prepareMessageString(baseMessage: message, regexString: string, formattingType: formattingType)
             }
-            mutableString = NSMutableAttributedString(attributedString: processedData.string) 
+            mutableString = NSMutableAttributedString(attributedString: processedData.string)
         }
         return mutableString
     }
-    
+
+    /// Carries the styling a text formatter produced onto text that has since
+    /// been re-rendered, so a formatter's styling reaches every surface rather
+    /// than only the message bubble.
+    ///
+    /// Surfaces that show markdown run the formatters and the markdown parser
+    /// over the same text. The parser takes a `String`, so the formatter's
+    /// attributes are dropped the moment its output is handed over. This copies
+    /// them back afterwards.
+    ///
+    /// The two strings are not the same length: rendering strips markdown
+    /// markers, so every offset after the first `**` has shifted. Ranges are
+    /// therefore re-found by their text rather than trusted, and a run whose text
+    /// is absent from `rendered` — the marker characters themselves — is dropped.
+    ///
+    /// - Parameters:
+    ///   - formatted: the formatter output, carrying the attributes to preserve.
+    ///   - rendered: the re-rendered text to carry them onto.
+    ///   - skipping: attribute keys the re-render owns and must keep — the
+    ///     baseline font and colour it applied.
+    ///   - carryingEverythingFor: runs this returns true for ignore `skipping`
+    ///     and carry every attribute. Mentions use it: the shipped subtitle
+    ///     copies a mention run wholesale, font included, and that must not
+    ///     change. Defaults to carrying nothing extra.
+    static func mergeFormatterAttributes(
+        from formatted: NSAttributedString,
+        onto rendered: NSMutableAttributedString,
+        skipping: Set<NSAttributedString.Key> = [],
+        carryingEverythingFor isExempt: (([NSAttributedString.Key: Any]) -> Bool)? = nil
+    ) {
+        guard formatted.length > 0, rendered.length > 0 else { return }
+
+        let renderedText = rendered.string as NSString
+        let formattedText = formatted.string as NSString
+        // Runs are walked in order and each search starts after the previous
+        // match, so a word that repeats styles its own occurrence rather than
+        // the first one every time.
+        var searchStart = 0
+
+        formatted.enumerateAttributes(in: NSRange(location: 0, length: formatted.length)) { attributes, range, _ in
+            let runText = formattedText.substring(with: range)
+            guard !runText.isEmpty, searchStart <= renderedText.length else { return }
+
+            let searchRange = NSRange(location: searchStart, length: renderedText.length - searchStart)
+            let found = renderedText.range(of: runText, options: [], range: searchRange)
+            guard found.location != NSNotFound else { return }
+
+            // The cursor advances over every run that survives into the render,
+            // carried or not. Advancing only on carried runs would leave the
+            // search at 0 through any unstyled prefix, so the next styled run
+            // would match that word's FIRST occurrence instead of its own.
+            searchStart = found.location + found.length
+
+            let exempt = isExempt?(attributes) ?? false
+            let carried = exempt ? attributes : attributes.filter { !skipping.contains($0.key) }
+            guard !carried.isEmpty else { return }
+
+            for (key, value) in carried {
+                rendered.addAttribute(key, value: value, range: found)
+            }
+        }
+    }
+
     static func wrapRegexMatches(in text: String, regexPattern: String) -> String {
         guard let regex = try? NSRegularExpression(pattern: regexPattern, options: []) else { return text }
         let range = NSRange(text.startIndex..<text.endIndex, in: text)
@@ -540,7 +621,7 @@ open class MessageUtils {
                 offset += match.range.length - modifiedReplacement.string.utf16.count
             }
         } catch {
-            print("Error creating regular expression: \(error.localizedDescription)")
+            CometChatLogger.error("Error creating regular expression: \(error.localizedDescription)")
         }
         
         return (attributedString, attributesWithRange, tappableTuple)
@@ -577,7 +658,7 @@ open class MessageUtils {
                 offset += match.range.length - modifiedReplacement.string.utf16.count
             }
         } catch {
-            print("Error creating regular expression: \(error.localizedDescription)")
+            CometChatLogger.error("Error creating regular expression: \(error.localizedDescription)")
         }
         
         return (attributedString, itemData)

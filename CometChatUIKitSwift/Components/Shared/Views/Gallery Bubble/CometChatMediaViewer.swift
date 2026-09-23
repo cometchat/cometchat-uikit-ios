@@ -15,7 +15,9 @@ import CometChatSDK
 public class CometChatMediaViewer: UIViewController {
 
     private let mediaItems: [Attachment]
-    private var currentIndex: Int
+    /// Readable inside the module so the start-index clamping in `init` is
+    /// assertable; still only writable from this file.
+    internal private(set) var currentIndex: Int
 
     private lazy var pageController: UIPageViewController = {
         let controller = UIPageViewController(
@@ -32,6 +34,7 @@ public class CometChatMediaViewer: UIViewController {
         let label = UILabel()
         label.textColor = .white
         label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -226,6 +229,7 @@ public class CometChatMediaViewer: UIViewController {
     @objc private func handleMute() {
         isMuted.toggle()
         muteButton.setImage(UIImage(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill"), for: .normal)
+        muteButton.accessibilityLabel = (isMuted ? "a11y_unmute_audio" : "a11y_mute_audio").localize()
         applyMuteToCurrentPage()
     }
 
@@ -420,12 +424,14 @@ final class MediaPageViewController: UIViewController {
         titleLabel.text = "attachment_no_preview_title".localize()
         titleLabel.textColor = .white
         titleLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.textAlignment = .center
 
         let subtitleLabel = UILabel()
         subtitleLabel.text = "attachment_no_preview_subtitle".localize()
         subtitleLabel.textColor = UIColor.white.withAlphaComponent(0.7)
         subtitleLabel.font = .systemFont(ofSize: 15)
+        subtitleLabel.adjustsFontForContentSizeCategory = true
         subtitleLabel.textAlignment = .center
         subtitleLabel.numberOfLines = 0
 
@@ -658,6 +664,7 @@ final class VideoPlayerView: UIView {
     func pause() {
         player.pause()
         playPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
+        playPauseButton.accessibilityLabel = "a11y_play_pause".localize()
     }
 
     func stop() {

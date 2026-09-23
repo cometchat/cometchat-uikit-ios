@@ -224,7 +224,7 @@ public extension NibLoadable where Self: UIView {
                 
         guard let view = bundle.loadNibNamed(nibName, owner: self, options: nil)?.first as? UIView else {
 
-            print("Could not load nib with name: \(nibName)")
+            CometChatLogger.debug("Could not load nib with name: \(nibName)")
             return
         }
         view.autoresizingMask = [UIView.AutoresizingMask.flexibleWidth, UIView.AutoresizingMask.flexibleHeight]

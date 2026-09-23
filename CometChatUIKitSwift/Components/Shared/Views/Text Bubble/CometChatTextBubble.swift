@@ -127,6 +127,7 @@ public class CometChatTextBubble: UIView {
         if !hasAttributedText {
             self.label.textColor = style.textColor
             self.label.font = style.textFont
+            self.label.adjustsFontForContentSizeCategory = true
         }
 
         // Entity colours are registered per link type, so they apply on the
@@ -259,17 +260,21 @@ public class CometChatTextBubble: UIView {
                     inlineCodeTextColor: inlineCodeTextColor
                 )
 
-                // Overlay the mention styling onto the parsed markdown.
+                // Overlay the formatters' styling onto the parsed markdown.
+                // Colour and background were always carried here; a formatter's
+                // own attributes now come with them, so styling a formatter
+                // applies reaches the bubble whatever key it used.
+                //
+                // `.font` stays as markdown rendered it — one font per range, so
+                // carrying one would undo bold or code. `.link` is dropped: the
+                // label resolves taps from it, and a run that was not a tap
+                // target before must not become one.
                 let mutableResult = NSMutableAttributedString(attributedString: markdownParsed)
-                processedString.enumerateAttributes(in: NSRange(location: 0, length: processedString.length), options: []) { attrs, range, _ in
-                    guard range.location + range.length <= mutableResult.length else { return }
-                    if let bgColor = attrs[.backgroundColor] {
-                        mutableResult.addAttribute(.backgroundColor, value: bgColor, range: range)
-                    }
-                    if let fgColor = attrs[.foregroundColor] {
-                        mutableResult.addAttribute(.foregroundColor, value: fgColor, range: range)
-                    }
-                }
+                MessageUtils.mergeFormatterAttributes(
+                    from: processedString,
+                    onto: mutableResult,
+                    skipping: [.font, .link]
+                )
 
                 set(attributedText: mutableResult)
                 return
@@ -392,23 +397,16 @@ public class CometChatTextBubble: UIView {
                     inlineCodeTextColor: inlineCodeTextColor
                 )
                 
-                // Merge: start with markdown parsed, then overlay mention styling
+                // Merge: start with markdown parsed, then overlay the formatters'
+                // styling. Same rule as the single-segment path above — colour and
+                // background as before, plus whatever else a formatter applied,
+                // with `.font` and `.link` left to the renderer.
                 let mutableResult = NSMutableAttributedString(attributedString: markdownParsed)
-                
-                // Apply mention attributes from processedString
-                processedString.enumerateAttributes(in: NSRange(location: 0, length: processedString.length), options: []) { attrs, range, _ in
-                    // Apply mention-specific attributes (background color, foreground color for mentions)
-                    if let bgColor = attrs[.backgroundColor] {
-                        if range.location + range.length <= mutableResult.length {
-                            mutableResult.addAttribute(.backgroundColor, value: bgColor, range: range)
-                        }
-                    }
-                    if let fgColor = attrs[.foregroundColor] {
-                        if range.location + range.length <= mutableResult.length {
-                            mutableResult.addAttribute(.foregroundColor, value: fgColor, range: range)
-                        }
-                    }
-                }
+                MessageUtils.mergeFormatterAttributes(
+                    from: processedString,
+                    onto: mutableResult,
+                    skipping: [.font, .link]
+                )
                 
                 attributedText = mutableResult
             } else {
@@ -561,23 +559,16 @@ public class CometChatTextBubble: UIView {
                     inlineCodeTextColor: inlineCodeTextColor
                 )
                 
-                // Merge: start with markdown parsed, then overlay mention styling
+                // Merge: start with markdown parsed, then overlay the formatters'
+                // styling. Same rule as the other segment paths — colour and
+                // background as before, plus a formatter's own attributes, with
+                // `.font` and `.link` left to the renderer.
                 let mutableResult = NSMutableAttributedString(attributedString: markdownParsed)
-                
-                // Apply mention attributes from processedString
-                processedString.enumerateAttributes(in: NSRange(location: 0, length: processedString.length), options: []) { attrs, range, _ in
-                    // Apply mention-specific attributes (background color, foreground color for mentions)
-                    if let bgColor = attrs[.backgroundColor] {
-                        if range.location + range.length <= mutableResult.length {
-                            mutableResult.addAttribute(.backgroundColor, value: bgColor, range: range)
-                        }
-                    }
-                    if let fgColor = attrs[.foregroundColor] {
-                        if range.location + range.length <= mutableResult.length {
-                            mutableResult.addAttribute(.foregroundColor, value: fgColor, range: range)
-                        }
-                    }
-                }
+                MessageUtils.mergeFormatterAttributes(
+                    from: processedString,
+                    onto: mutableResult,
+                    skipping: [.font, .link]
+                )
                 
                 // Set up link handlers BEFORE setting attributedText
                 setupAttributedLinksForLabel(textLabel, in: mutableResult)
@@ -675,6 +666,7 @@ public class CometChatTextBubble: UIView {
         let codeLabel = CopyableLabel()
         codeLabel.numberOfLines = 0
         codeLabel.font = UIFont.monospacedSystemFont(ofSize: baseFont.pointSize - 1, weight: .regular)
+        codeLabel.adjustsFontForContentSizeCategory = true
         codeLabel.textColor = codeTextColor ?? style.textColor
         codeLabel.isUserInteractionEnabled = true
         codeLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -872,6 +864,7 @@ public class CometChatTextBubble: UIView {
         if (label.text ?? "").containsOnlyEmojis() || (label.attributedText?.string ?? "").containsOnlyEmojis() {
             label.textAlignment = .center
             label.font = applyLargeSizeEmoji()
+            label.adjustsFontForContentSizeCategory = true
         }
     }
     
@@ -1100,6 +1093,7 @@ class BlockquoteView: UIView {
         leftBar.backgroundColor = barColor
         textLabel.textColor = textColor
         textLabel.font = textFont
+        textLabel.adjustsFontForContentSizeCategory = true
         
         // Round only the left corners of the bar to match container
         leftBar.layer.cornerRadius = 0
@@ -1139,6 +1133,7 @@ class BlockquoteView: UIView {
         textLabel.text = text
         textLabel.textColor = textColor
         textLabel.font = textFont
+        textLabel.adjustsFontForContentSizeCategory = true
     }
     
     func setAttributedText(_ attributedText: NSAttributedString) {

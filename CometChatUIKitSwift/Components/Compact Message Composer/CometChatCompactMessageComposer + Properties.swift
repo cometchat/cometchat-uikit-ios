@@ -73,6 +73,21 @@ extension CometChatCompactMessageComposer {
         self.attachmentOptionsClosure = attachmentOptions
         return self
     }
+
+    /// Supplies custom buttons shown at the trailing end of the rich text
+    /// formatting toolbar, after a divider matching the toolbar's own.
+    ///
+    /// Resolved when the toolbar is built rather than when set, so the closure
+    /// sees whatever user or group was configured — `set(user:)` may come after
+    /// this in a builder chain. Each action's `onClick` receives a
+    /// `CometChatComposerInput` for reading and mutating the composer's text.
+    ///
+    /// The buttons appear only while the formatting toolbar is visible.
+    @discardableResult
+    public func set(richTextToolbarActions: @escaping ((_ user: User?, _ group: Group?) -> [CometChatRichTextToolbarAction])) -> Self {
+        self.richTextToolbarActionsClosure = richTextToolbarActions
+        return self
+    }
     
     // MARK: - View Configuration
     
@@ -141,7 +156,7 @@ extension CometChatCompactMessageComposer {
         }
 
         guard let message = message as? TextMessage else {
-            print("[CometChatCompactMessageComposer] Error: Cannot edit non-TextMessage")
+            CometChatLogger.error("[CometChatCompactMessageComposer] Error: Cannot edit non-TextMessage")
             return self
         }
 

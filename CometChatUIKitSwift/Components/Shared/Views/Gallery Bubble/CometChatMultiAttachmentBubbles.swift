@@ -342,6 +342,7 @@ final class GalleryMediaTile: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
         label.font = .systemFont(ofSize: 11, weight: .medium)
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
 
@@ -383,6 +384,7 @@ final class GalleryMediaTile: UIView {
         let label = UILabel()
         label.textColor = style.overflowTextColor
         label.font = style.overflowTextFont
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         return label
     }()
@@ -789,12 +791,14 @@ final class GalleryFileCardView: UIView {
         }
 
         nameLabel.font = style.fileNameFont
+        nameLabel.adjustsFontForContentSizeCategory = true
         nameLabel.textColor = isOutgoing ? .white : style.fileNameColor
         nameLabel.text = attachment.fileName.isEmpty
             ? (URL(string: attachment.fileUrl)?.lastPathComponent ?? "File")
             : attachment.fileName
 
         metaLabel.font = style.fileMetaFont
+        metaLabel.adjustsFontForContentSizeCategory = true
         metaLabel.textColor = isOutgoing
             ? UIColor.white.withAlphaComponent(0.7)
             : style.fileMetaColor
@@ -1286,6 +1290,7 @@ final class AudioFileRowView: UIView {
 
         fileNameLabel.translatesAutoresizingMaskIntoConstraints = false
         fileNameLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+        fileNameLabel.adjustsFontForContentSizeCategory = true
         fileNameLabel.lineBreakMode = .byTruncatingTail
 
         slider.translatesAutoresizingMaskIntoConstraints = false
@@ -1299,6 +1304,7 @@ final class AudioFileRowView: UIView {
 
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
         timeLabel.font = .systemFont(ofSize: 11)
+        timeLabel.adjustsFontForContentSizeCategory = true
         timeLabel.text = "00:00/00:00"
 
         textStack.axis = .vertical

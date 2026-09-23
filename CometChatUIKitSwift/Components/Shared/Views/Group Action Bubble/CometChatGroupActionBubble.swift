@@ -61,6 +61,7 @@ public class CometChatGroupActionBubble: UIView {
         super.layoutIfNeeded()
         self.message.textColor = style.bubbleTextColor
         self.message.font = style.bubbleTextFont
+        self.message.adjustsFontForContentSizeCategory = true
     }
     
     // MARK: - Message Handling

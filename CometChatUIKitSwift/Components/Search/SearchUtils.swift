@@ -102,6 +102,7 @@ public class SearchUtils {
         
         let typing = UILabel().withoutAutoresizingMaskConstraints()
         typing.font = typingIndicatorStyle.textFont
+        typing.adjustsFontForContentSizeCategory = true
         typing.textColor = typingIndicatorStyle.textColor
         if conversation.lastMessage?.receiverType == .user {
             typing.text = ConversationConstants.typingText
@@ -121,6 +122,7 @@ public class SearchUtils {
         
         let lastMessage = UILabel().withoutAutoresizingMaskConstraints()
         lastMessage.font = searchStyle.listItemSubTitleFont
+        lastMessage.adjustsFontForContentSizeCategory = true
         lastMessage.textColor = searchStyle.listItemSubTitleTextColor
         lastMessage.numberOfLines = 1
         
@@ -198,6 +200,7 @@ public class SearchUtils {
 
         let label = UILabel()
         label.font = searchStyle.listItemSubTitleFont
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = searchStyle.listItemSubTitleTextColor
         label.numberOfLines = 1
         

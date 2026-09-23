@@ -28,15 +28,22 @@ enough.
 
 ## Configuring credentials
 
-Credentials live in `E2ETests/Helpers/TestSecrets.swift`, which ships with `PASTE_…` placeholders.
-Open it and replace each placeholder with your value. It compiles into the test target, so there is
-no environment or scheme setup.
+Credentials live in `E2ETests/Helpers/TestSecrets.swift`. Copy the tracked template and fill in
+each `PASTE_…` placeholder:
 
-> ### ⚠️ Do not commit your filled-in credentials
+```bash
+cd E2ETests/Helpers
+cp TestSecrets.swift.template TestSecrets.swift
+```
+
+`TestSecrets.swift` compiles into the test target, so there is no environment or scheme setup —
+just create it from the template before running the suite.
+
+> ### ✅ Your credentials stay local
 >
-> `TestSecrets.swift` is a tracked file, so your keys will appear in `git status` once you edit it.
-> Keep the change local and never `git add` it. If you do commit a key, rotate it in the CometChat
-> dashboard — rewriting git history does not un-leak it.
+> `TestSecrets.swift` is **gitignored**, so your filled-in keys never appear in `git status` and
+> can't be committed by accident. If a key is ever leaked, rotate it in the CometChat dashboard —
+> rewriting git history does not un-leak it.
 
 | Field | Where to find it |
 | --- | --- |
@@ -50,22 +57,22 @@ no environment or scheme setup.
 ```bash
 xcodegen generate
 xcodebuild test \
-  -project CometChatSampleApp.xcodeproj \
-  -scheme CometChatSampleApp \
+  -project CometChatUIKitSwift.xcodeproj \
+  -scheme SampleApp \
   -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
 Substitute any installed iOS 18+ Simulator; list yours with
 `xcrun simctl list devices available`.
 
-From Xcode: run `xcodegen generate`, open the generated project, select the **CometChatSampleApp**
+From Xcode: run `xcodegen generate`, open the generated project, select the **SampleApp**
 scheme and a Simulator, then press **⌘U**. Individual tests can be run from the Test navigator.
 
 Narrow a run with `-only-testing:`:
 
 ```bash
--only-testing:CometChatSampleAppUITests/MessageHeaderTests
--only-testing:CometChatSampleAppUITests/MessageHeaderTests/test_1TO1_headerShowsName
+-only-testing:SampleAppUITests/MessageHeaderTests
+-only-testing:SampleAppUITests/MessageHeaderTests/test_1TO1_headerShowsName
 ```
 
 ## How the suite is organized

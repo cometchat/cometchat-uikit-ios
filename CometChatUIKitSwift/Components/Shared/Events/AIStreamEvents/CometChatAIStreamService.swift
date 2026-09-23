@@ -345,7 +345,7 @@ public class CometChatAIStreamService {
         lock.lock()
         let stats = eventQueues.mapValues { $0.count }
         lock.unlock()
-        print("[AI Queue] Event counts: \(stats)")
+        CometChatLogger.debug("[AI Queue] Event counts: \(stats)")
     }
     
     public func handleNetworkDisconnected() {
@@ -373,7 +373,7 @@ public class CometChatAIStreamService {
         
         cleanupAll() // clear queues and reset states
         
-        print("[AI Stream] Connected")
+        CometChatLogger.debug("[AI Stream] Connected")
         CometChatStreamCallBackEvents.ccStreamCompleted(true)
     }
 
@@ -390,7 +390,7 @@ public class CometChatAIStreamService {
             unregisterStreamCallback(runId: runId)
         }
 
-        print("[AI Stream] Disconnected")
+        CometChatLogger.debug("[AI Stream] Disconnected")
         CometChatStreamCallBackEvents.ccStreamInterrupted(true)
     }
 
@@ -407,7 +407,7 @@ public class CometChatAIStreamService {
             unregisterStreamCallback(runId: runId)
         }
 
-        print("[AI Stream] Connection error: \(error.description)")
+        CometChatLogger.error("[AI Stream] Connection error: \(error.description)")
         CometChatStreamCallBackEvents.ccStreamInterrupted(true)
     }
 

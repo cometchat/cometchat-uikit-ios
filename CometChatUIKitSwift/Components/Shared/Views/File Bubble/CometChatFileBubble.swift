@@ -91,8 +91,10 @@ public class CometChatFileBubble: UIStackView {
     /// Sets up the UI by applying styles to title, subtitle, and the progress bar.
     public func setUpUI() {
         title.font = style.titleFont
+        title.adjustsFontForContentSizeCategory = true
         title.textColor = style.titleColor
         subTitle.font = style.subtitleFont
+        subTitle.adjustsFontForContentSizeCategory = true
         subTitle.textColor = style.subtitleColor
         fileImageView.image = fileImage
         downloadProgressBar.cancelImageView.tintColor = style.downloadTintColor

@@ -49,6 +49,7 @@ class ReactionListCollectionCell: UICollectionViewCell {
         reactionLabel.translatesAutoresizingMaskIntoConstraints = false
         reactionLabel.textColor = didSelected ? selectedTextColor : textColor
         reactionLabel.font = font
+        reactionLabel.adjustsFontForContentSizeCategory = true
         if let reaction = reaction, let count = count {
             reactionLabel.text = "\(reaction) \(count)"
         }

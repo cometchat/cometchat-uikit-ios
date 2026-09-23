@@ -64,6 +64,7 @@ public class CometChatDate: UILabel {
     open func setupStyle() {
         self.textColor = style.textColor
         self.font = style.textFont
+        self.adjustsFontForContentSizeCategory = true
         self.layer.borderColor = style.borderColor.cgColor
         self.layer.borderWidth = style.borderWidth
         self.backgroundColor = style.backgroundColor

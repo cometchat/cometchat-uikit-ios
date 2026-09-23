@@ -113,7 +113,7 @@ public class CometChatSoundManager: NSObject {
                     } //trying something
                 }
             } catch {
-                print("Error while playing audio: \(error.localizedDescription)")
+                CometChatLogger.error("Error while playing audio: \(error.localizedDescription)")
             }
         })
         if let audioWorkItem = audioWorkItem {  audioQueue.async(execute: audioWorkItem)  }

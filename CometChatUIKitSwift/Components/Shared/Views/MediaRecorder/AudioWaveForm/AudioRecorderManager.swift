@@ -76,7 +76,7 @@ final class AudioRecorderManager: NSObject {
         dateFormatter.dateFormat = "yyyyMMddHHmmss"
 		
 		guard let path = URL.documentsPath(forFileName: "\(self.audioFileNamePrefix)\(dateFormatter.string(from: Date())).m4a") else {
-			print("Incorrect path for new audio file")
+			CometChatLogger.debug("Incorrect path for new audio file")
 			throw AudioErrorType.audioFileWrongPath
 		}
 
@@ -88,19 +88,19 @@ final class AudioRecorderManager: NSObject {
 		self.recorder!.isMeteringEnabled = true
 		
 		if !self.recorder!.prepareToRecord() {
-			print("Audio Recorder prepare failed")
+			CometChatLogger.error("Audio Recorder prepare failed")
 			throw AudioErrorType.recordFailed
 		}
 		
 		if !self.recorder!.record() {
-			print("Audio Recorder start failed")
+			CometChatLogger.error("Audio Recorder start failed")
 			throw AudioErrorType.recordFailed
 		}
 		
 		self.audioMeteringLevelTimer = Timer.scheduledTimer(timeInterval: audioVisualizationTimeInterval, target: self,
 			selector: #selector(AudioRecorderManager.timerDidUpdateMeter), userInfo: nil, repeats: true)
 		
-		print("Audio Recorder did start - creating file at index: \(path.absoluteString)")
+		CometChatLogger.debug("Audio Recorder did start - creating file at index: \(path.absoluteString)")
 		
 		self.currentRecordPath = path
 		return path
@@ -117,7 +117,7 @@ final class AudioRecorderManager: NSObject {
 
 	func reset() throws {
 		if self.isRunning {
-			print("Audio Recorder tried to remove recording before stopping it")
+			CometChatLogger.debug("Audio Recorder tried to remove recording before stopping it")
 			throw AudioErrorType.alreadyRecording
 		}
 		
@@ -125,7 +125,7 @@ final class AudioRecorderManager: NSObject {
 		self.recorder = nil
 		self.currentRecordPath = nil
 		
-		print("Audio Recorder did remove current record successfully")
+		CometChatLogger.debug("Audio Recorder did remove current record successfully")
 	}
     
     func resume() throws -> TimeInterval {
@@ -134,7 +134,7 @@ final class AudioRecorderManager: NSObject {
         }
 
         if recorder.isRecording {
-            print("Recorder is already running, cannot resume.")
+            CometChatLogger.debug("Recorder is already running, cannot resume.")
             throw AudioErrorType.alreadyPlaying
         }
 
@@ -149,7 +149,7 @@ final class AudioRecorderManager: NSObject {
         }
 
         if !recorder.isRecording {
-            print("Recorder did fail to pause: there is nothing currently recording")
+            CometChatLogger.error("Recorder did fail to pause: there is nothing currently recording")
             throw AudioErrorType.notCurrentlyPlaying
         }
 
@@ -169,12 +169,12 @@ final class AudioRecorderManager: NSObject {
 extension AudioRecorderManager: AVAudioRecorderDelegate {
 	func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
 		NotificationCenter.default.post(name: .audioRecorderManagerMeteringLevelDidFinishNotification, object: self)
-		print("Audio Recorder finished successfully")
+		CometChatLogger.debug("Audio Recorder finished successfully")
 	}
 
 	func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
 		NotificationCenter.default.post(name: .audioRecorderManagerMeteringLevelDidFailNotification, object: self)
-		print("Audio Recorder error")
+		CometChatLogger.error("Audio Recorder error")
 	}
 }
 

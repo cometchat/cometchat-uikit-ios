@@ -8,8 +8,8 @@ final class PeerActionsConnectivityTests: XCTestCase {
 
         let parentId = try await PeerActions.sendTextMessage("E2E peer-helper parent \(stamp)")
         XCTAssertGreaterThan(parentId, 0, "Parent message did not return a positive id")
-        await PeerActions.addReaction(parentId, "🔥")
-        await PeerActions.removeReaction(parentId, "🔥")
+        try await PeerActions.addReaction(parentId, "🔥")
+        try await PeerActions.removeReaction(parentId, "🔥")
 
         let replyId = try await PeerActions.sendThreadReply(parentId: parentId, text: "E2E peer-helper reply \(stamp)")
         XCTAssertGreaterThan(replyId, 0, "Thread reply did not return a positive id")

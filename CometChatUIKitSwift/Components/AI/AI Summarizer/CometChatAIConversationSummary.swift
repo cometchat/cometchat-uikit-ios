@@ -112,12 +112,16 @@ open class CometChatAIConversationSummary: UIView {
         self.applyCornerRadiusAndShadow(cornerRadius: style.cornerRadius?.cornerRadius ?? CometChatSpacing.Radius.r2)
         self.titleLabel.textColor = style.titleTextColor
         self.titleLabel.font = style.titleTextFont
+        self.titleLabel.adjustsFontForContentSizeCategory = true
         self.descriptionLabel.textColor = style.summaryTextColor
         self.descriptionLabel.font = style.summaryTextFont
+        self.descriptionLabel.adjustsFontForContentSizeCategory = true
         self.closeButton.setImage(style.cancelButtonImage, for: .normal)
+        closeButton.accessibilityLabel = "a11y_close".localize()
         self.closeButton.tintColor = style.cancelButtonImageTintColor
         self.errorLabel.textColor = style.errorViewTextColor
         self.errorLabel.font = style.errorViewTextFont
+        self.errorLabel.adjustsFontForContentSizeCategory = true
     }
     
     public func showLoadingView() {

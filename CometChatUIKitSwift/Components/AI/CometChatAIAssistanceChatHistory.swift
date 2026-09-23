@@ -44,6 +44,7 @@ open class CometChatAIAssistanceChatHistory: UIViewController {
         let label = UILabel()
         label.text = "New Chat"
         label.font = CometChatTypography.Button.regular
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.textColorPrimary
         
         let stack = UIStackView(arrangedSubviews: [imageView, label])
@@ -158,14 +159,18 @@ open class CometChatAIAssistanceChatHistory: UIViewController {
         if let emptyStateView = self.emptyStateView as? StateView {
             emptyStateView.subtitleLabel.textColor = style.emptyStateSubtitleColor
             emptyStateView.subtitleLabel.font = style.emptyStateSubtitleFont
+            emptyStateView.subtitleLabel.adjustsFontForContentSizeCategory = true
             emptyStateView.titleLabel.textColor = style.emptyStateTextColor
             emptyStateView.titleLabel.font = style.emptyStateTextFont
+            emptyStateView.titleLabel.adjustsFontForContentSizeCategory = true
         }
         if let errorStateView = self.errorStateView as? StateView {
             errorStateView.subtitleLabel.textColor = style.errorStateSubtitleColor
             errorStateView.subtitleLabel.font = style.errorStateSubtitleFont
+            errorStateView.subtitleLabel.adjustsFontForContentSizeCategory = true
             errorStateView.titleLabel.textColor = style.errorStateTextColor
             errorStateView.titleLabel.font = style.errorStateTextFont
+            errorStateView.titleLabel.adjustsFontForContentSizeCategory = true
         }
         
         // Navigation
@@ -445,6 +450,7 @@ extension CometChatAIAssistanceChatHistory: UITableViewDelegate, UITableViewData
             cell.configure(with: message)
         }
         cell.messageLabel.font = style.itemTextFont
+        cell.messageLabel.adjustsFontForContentSizeCategory = true
         cell.messageLabel.textColor = style.itemTextColor
         return cell
     }

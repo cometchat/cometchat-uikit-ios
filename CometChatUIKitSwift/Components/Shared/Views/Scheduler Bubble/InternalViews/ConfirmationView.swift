@@ -38,6 +38,7 @@ class ConfirmationView: UIView {
         errorLabel.translatesAutoresizingMaskIntoConstraints = false
         errorLabel.textAlignment = .center
         errorLabel.font = CometChatTheme_v4.typography.subtitle2
+        errorLabel.adjustsFontForContentSizeCategory = true
         errorLabel.textColor = CometChatTheme_v4.palatte.error
         errorLabel.text = " "
         errorLabel.isHidden = true
@@ -131,6 +132,7 @@ class ConfirmationView: UIView {
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.textColor = CometChatTheme_v4.palatte.accent800
         textLabel.font = CometChatTheme_v4.typography.text1
+        textLabel.adjustsFontForContentSizeCategory = true
         textLabel.numberOfLines = 0
         textLabel.text = text
         textLabel.sizeToFit()

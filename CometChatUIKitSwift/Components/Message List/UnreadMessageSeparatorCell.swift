@@ -14,7 +14,7 @@ final class UnreadSeparatorCell: UITableViewCell {
 
     private let label: UILabel = {
         let l = UILabel()
-        l.text = "New"
+        l.text = "unread_new".localize()
         l.textAlignment = .center
         return l
     }()
@@ -62,6 +62,7 @@ final class UnreadSeparatorCell: UITableViewCell {
     
     func setStyle(_ style: MessageListStyle) {
         label.font = style.newMessageIndicatorTextFont
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = style.newMessageIndicatorTextColor
         lineLeft.backgroundColor = style.newMessageIndicatorBackgroundColor
         lineRight.backgroundColor = style.newMessageIndicatorBackgroundColor

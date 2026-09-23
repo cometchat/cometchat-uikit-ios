@@ -79,6 +79,7 @@ public final class CometChatErrorState: UIView {
         addSubview(messageLabel)
 
         closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        closeButton.accessibilityLabel = "a11y_close".localize()
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
         addSubview(closeButton)
@@ -104,6 +105,7 @@ public final class CometChatErrorState: UIView {
         backgroundColor = style.backgroundColor
         layer.cornerRadius = style.cornerRadius
         messageLabel.font = style.textFont
+        messageLabel.adjustsFontForContentSizeCategory = true
         messageLabel.textColor = style.textColor
         closeButton.tintColor = style.closeIconTint
     }

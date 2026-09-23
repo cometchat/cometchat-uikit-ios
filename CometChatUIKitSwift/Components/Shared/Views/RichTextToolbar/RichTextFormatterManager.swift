@@ -38,6 +38,9 @@ public class RichTextFormatterManager {
     
     /// Custom attribute key to track italic formatting (independent of font traits)
     public static let isItalicKey = NSAttributedString.Key("CometChatIsItalic")
+
+    /// Custom attribute key holding the URL of a detected link.
+    public static let linkURLKey = NSAttributedString.Key("CometChatLinkURL")
     
     // MARK: - List State Tracking
     
@@ -264,7 +267,7 @@ public class RichTextFormatterManager {
         let range = NSRange(location: 0, length: text.utf16.count)
         return detector.firstMatch(in: text, options: [], range: range) != nil
     }
-    
+
     /// Applies link formatting to URLs found in the attributed string
     /// - Parameters:
     ///   - attributedString: The mutable attributed string to modify
@@ -1078,110 +1081,6 @@ public class RichTextFormatterManager {
         return format.markdownSyntax
     }
     
-    // MARK: - Mention Tag Protection Helpers
-    
-    /// Protects mention tags by replacing them with unique placeholders
-    /// - Parameter text: The text containing mention tags
-    /// - Returns: A tuple of (protected text with placeholders, mapping of placeholders to original tags)
-    private func protectMentionTags(in text: String) -> (protected: String, placeholders: [String: String]) {
-        var protectedText = text
-        var placeholders: [String: String] = [:]
-        var index = 0
-        
-        // Regex pattern to match mention tags: <@uid:...> or <@all:...>
-        let pattern = "<@(?:uid|all):([^>]+)>"
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
-            return (text, [:])
-        }
-        
-        let nsString = text as NSString
-        let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsString.length))
-        
-        
-        // Process matches in reverse order to maintain correct positions
-        for match in matches.reversed() {
-            let matchedText = nsString.substring(with: match.range)
-            
-            // Generate unique placeholder
-            var placeholder = "__MENTION_\(index)__"
-            var suffix = 1
-            
-            // Handle placeholder collision (max 100 attempts)
-            while protectedText.contains(placeholder) && suffix < 100 {
-                placeholder = "__MENTION_\(index)_\(suffix)__"
-                suffix += 1
-            }
-            
-            if suffix >= 100 {
-                // Log error and skip this mention tag
-                continue
-            }
-            
-            // Store mapping
-            placeholders[placeholder] = matchedText
-            
-            
-            // Replace mention tag with placeholder
-            protectedText = (protectedText as NSString).replacingCharacters(in: match.range, with: placeholder) as String
-            
-            index += 1
-        }
-        
-        return (protectedText, placeholders)
-    }
-    
-    /// Restores mention tags from placeholders
-    /// - Parameters:
-    ///   - text: The text containing placeholders
-    ///   - placeholders: The mapping of placeholders to original mention tags
-    /// - Returns: Text with mention tags restored
-    private func restoreMentionTags(in text: String, using placeholders: [String: String]) -> String {
-        var restoredText = text
-        
-        // Replace each placeholder with its original mention tag
-        for (placeholder, mentionTag) in placeholders {
-            if restoredText.contains(placeholder) {
-                restoredText = restoredText.replacingOccurrences(of: placeholder, with: mentionTag)
-            } else {
-                // Log warning if placeholder not found
-            }
-        }
-        
-        // Validate that all placeholders were replaced
-        for placeholder in placeholders.keys {
-            if restoredText.contains(placeholder) {
-            }
-        }
-        
-        // Validate mention tag integrity after restoration
-        let mentionPattern = "<@(?:uid|all):([^>]+)>"
-        if let mentionRegex = try? NSRegularExpression(pattern: mentionPattern, options: []) {
-            let nsString = restoredText as NSString
-            let matches = mentionRegex.matches(in: restoredText, options: [], range: NSRange(location: 0, length: nsString.length))
-            
-            // Verify all restored mention tags are valid
-            for match in matches {
-                let matchedTag = nsString.substring(with: match.range)
-                if !placeholders.values.contains(matchedTag) && placeholders.isEmpty == false {
-                }
-            }
-        }
-        
-        // Check for partial mention tags (incomplete tags)
-        let partialTagPattern = "<@(?:uid|all):([^>]*$|[^<]*(?!>))"
-        if let partialRegex = try? NSRegularExpression(pattern: partialTagPattern, options: []) {
-            let nsString = restoredText as NSString
-            let partialMatches = partialRegex.matches(in: restoredText, options: [], range: NSRange(location: 0, length: nsString.length))
-            
-            if !partialMatches.isEmpty {
-                for match in partialMatches {
-                    let partialTag = nsString.substring(with: match.range)
-                }
-            }
-        }
-        
-        return restoredText
-    }
     
     /// Converts attributed string to markdown text for sending
     /// - Parameter attributedString: The attributed string to convert
@@ -1858,9 +1757,9 @@ public class RichTextFormatterManager {
                             ]
                             // Store URL in a custom attribute instead of .link to avoid iOS blue color override
                             if let url = URL(string: urlString) {
-                                linkAttributes[NSAttributedString.Key("CometChatLinkURL")] = url
+                                linkAttributes[RichTextFormatterManager.linkURLKey] = url
                             } else if !urlString.isEmpty {
-                                linkAttributes[NSAttributedString.Key("CometChatLinkURL")] = urlString
+                                linkAttributes[RichTextFormatterManager.linkURLKey] = urlString
                             }
                             result.append(NSAttributedString(string: linkText, attributes: linkAttributes))
                             

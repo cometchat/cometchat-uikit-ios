@@ -64,6 +64,7 @@ public class CometChatQuickView: UIStackView {
     @discardableResult
     public func set(titleFont: UIFont) -> Self {
         self.titleLabel.font = titleFont
+        self.titleLabel.adjustsFontForContentSizeCategory = true
         return self
     }
     
@@ -82,6 +83,7 @@ public class CometChatQuickView: UIStackView {
     @discardableResult
     public func set(subTitleFont: UIFont) -> Self {
         self.subTitleLabel.font = subTitleFont
+        self.subTitleLabel.adjustsFontForContentSizeCategory = true
         return self
     }
     

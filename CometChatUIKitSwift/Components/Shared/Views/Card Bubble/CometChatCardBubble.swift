@@ -43,6 +43,7 @@ public class CometChatCardBubble: UIView {
         fallbackLabel.translatesAutoresizingMaskIntoConstraints = false
         fallbackLabel.numberOfLines = 0
         fallbackLabel.font = CometChatTypography.Body.regular
+        fallbackLabel.adjustsFontForContentSizeCategory = true
         fallbackLabel.textColor = CometChatTheme.textColorPrimary
         fallbackLabel.isHidden = true
         addSubview(fallbackLabel)
@@ -91,9 +92,9 @@ public class CometChatCardBubble: UIView {
         cardView.isHidden = true
         fallbackLabel.isHidden = false
         if let cardMsg = message as? CometChatSDK.CardMessage {
-            fallbackLabel.text = cardMsg.getFallbackText() ?? cardMsg.getText() ?? "Card Message"
+            fallbackLabel.text = cardMsg.getFallbackText() ?? cardMsg.getText() ?? "card_message_fallback".localize()
         } else {
-            fallbackLabel.text = "Card Message"
+            fallbackLabel.text = "card_message_fallback".localize()
         }
     }
 }

@@ -265,16 +265,20 @@ open class CometChatListBase: UIViewController, StateManagement {
         
         if let errorStateView = errorStateView as? StateView {
             errorStateView.subtitleLabel.font = listBaseStyle.errorSubTitleFont
+            errorStateView.subtitleLabel.adjustsFontForContentSizeCategory = true
             errorStateView.subtitleLabel.textColor = listBaseStyle.errorSubTitleTextColor
             errorStateView.titleLabel.font = listBaseStyle.errorTitleTextFont
+            errorStateView.titleLabel.adjustsFontForContentSizeCategory = true
             errorStateView.titleLabel.textColor = listBaseStyle.errorTitleTextColor
             errorStateView.imageView.tintColor = CometChatTheme.neutralColor300
         }
         
         if let emptyStateView = emptyStateView as? StateView {
             emptyStateView.subtitleLabel.font = listBaseStyle.emptySubTitleFont
+            emptyStateView.subtitleLabel.adjustsFontForContentSizeCategory = true
             emptyStateView.subtitleLabel.textColor = listBaseStyle.emptySubTitleTextColor
             emptyStateView.titleLabel.font = listBaseStyle.emptyTitleTextFont
+            emptyStateView.titleLabel.adjustsFontForContentSizeCategory = true
             emptyStateView.titleLabel.textColor = listBaseStyle.emptyTitleTextColor
             emptyStateView.imageView.tintColor = CometChatTheme.neutralColor300
         }
@@ -325,6 +329,7 @@ open class CometChatListBase: UIViewController, StateManagement {
 
             if let searchBarTextFont = searchStyle?.searchBarTextFont{
                 searchTextField.font = searchBarTextFont
+                searchTextField.adjustsFontForContentSizeCategory = true
             }
             
             if let searchBarBackgroundColor = searchStyle?.searchBarBackgroundColor{
@@ -339,6 +344,7 @@ open class CometChatListBase: UIViewController, StateManagement {
 
         if let clearButton = searchController.searchBar.searchTextField.value(forKey: "clearButton") as? UIButton, let searchBarCrossIconTintColor = searchStyle?.searchBarCrossIconTintColor{
             clearButton.setImage(searchClearIcon, for: .normal) // Set the custom image for the clear button.
+            clearButton.accessibilityLabel = "a11y_clear_search".localize()
             clearButton.tintColor = searchBarCrossIconTintColor // Set the tint color for the clear button.
         }
 

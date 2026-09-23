@@ -9,13 +9,13 @@ enum AppLauncher {
     static func launch(_ app: XCUIApplication = XCUIApplication()) -> XCUIApplication {
         TestConfig.validate()
         CredentialPreflight.runOnce()
-        app.launchArguments = [
+        setLaunchArguments(app, [
             "-UITestMode",
             "-UITestAppID",    TestConfig.appId,
             "-UITestAuthKey",  TestConfig.authKey,
             "-UITestRegion",   TestConfig.region,
             "-UITestUID",      TestConfig.userAUid,
-        ]
+        ])
         app.launch()
         return app
     }
@@ -25,15 +25,24 @@ enum AppLauncher {
     static func launchToLogin(_ app: XCUIApplication = XCUIApplication()) -> XCUIApplication {
         TestConfig.validate()
         CredentialPreflight.runOnce()
-        app.launchArguments = [
+        setLaunchArguments(app, [
             "-UITestMode",
             "-UITestStartLoggedOut",
             "-UITestAppID",   TestConfig.appId,
             "-UITestAuthKey", TestConfig.authKey,
             "-UITestRegion",  TestConfig.region,
-        ]
+        ])
         app.launch()
         return app
+    }
+
+    /// The harness arguments go first; anything the caller put on `app.launchArguments` before
+    /// launching (the accessibility audits' `-UIPreferredContentSizeCategoryName …`) is kept
+    /// after them. This used to be a plain assignment, which silently threw those away — so
+    /// every "largest text size" audit was in fact running at the default size.
+    private static func setLaunchArguments(_ app: XCUIApplication, _ base: [String]) {
+        let extra = app.launchArguments.filter { !base.contains($0) }
+        app.launchArguments = base + extra
     }
 
     static func waitForHome(_ app: XCUIApplication, timeout: TimeInterval = 45) {
@@ -76,6 +85,25 @@ enum AppLauncher {
 
     /// Name kept for call-site compatibility; opens via Users search because the Chats-first path is flaky on the busy shared backend.
     @discardableResult
+    /// Type `text` into a list search field, replacing whatever it already holds. The Users and
+    /// Groups searches keep their last query across tab switches, so typing straight into one
+    /// lands at the caret and yields a garbled query ("9e0405E2E Group 069e0405" was one) and an
+    /// empty list — which read as "could not reopen the group / the 1:1" in the rapid-switching
+    /// case. Clears via the search bar's own control when it exists, else select-all + delete.
+    static func replaceSearchText(_ search: XCUIElement, with text: String) {
+        search.tap()
+        if let current = search.value as? String, !current.isEmpty, current != "Search" {
+            let clear = search.buttons["Clear text"].firstMatch
+            if clear.exists {
+                clear.tap()
+                search.tap()
+            } else {
+                search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count))
+            }
+        }
+        search.typeText(text)
+    }
+
     static func openConversationFromChats(_ app: XCUIApplication, displayName: String, timeout: TimeInterval = 12) -> Bool {
         openConversationWith(app, displayName: displayName, timeout: timeout)
     }
@@ -87,8 +115,7 @@ enum AppLauncher {
 
         let search = app.searchFields.firstMatch
         if search.waitForExistence(timeout: timeout) {
-            search.tap()
-            search.typeText(displayName)
+            replaceSearchText(search, with: displayName)
         }
         let cell = app.cells.containing(.staticText, identifier: displayName).firstMatch
         guard cell.waitForExistence(timeout: timeout) else { return false }
@@ -103,8 +130,7 @@ enum AppLauncher {
 
         let search = app.searchFields.firstMatch
         guard search.waitForExistence(timeout: timeout) else { return false }
-        search.tap()
-        search.typeText(name)
+        replaceSearchText(search, with: name)
 
         let cell = app.cells.containing(.staticText, identifier: name).firstMatch
         guard cell.waitForExistence(timeout: timeout), cell.isHittable else { return false }

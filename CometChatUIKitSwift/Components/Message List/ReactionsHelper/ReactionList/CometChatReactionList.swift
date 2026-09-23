@@ -27,6 +27,8 @@ open class CometChatReactionList: UIViewController {
     private var separatorView = UIView()
     private var tableView = UITableView()
     private var reactionDataSource = [ReactionListDataModel]()
+    /// Test seam: the tab buckets as built by `fetchReactions()`, read-only.
+    internal var reactionBuckets: [ReactionListDataModel] { reactionDataSource }
     private var baseMessage: BaseMessage?
     private var tableViewSpinner = UIActivityIndicatorView()
     private var defaultReaction: String?
@@ -168,6 +170,7 @@ open class CometChatReactionList: UIViewController {
         self.view.roundViewCorners(corner: style.cornerRadius ?? .init(cornerRadius: 20))
         errorLabel.textColor = style.errorTextColor
         errorLabel.font = style.errorTextFont
+        errorLabel.adjustsFontForContentSizeCategory = true
     }
     
     func showLoadingView() {
@@ -228,7 +231,7 @@ open class CometChatReactionList: UIViewController {
     func removeInternalReaction(forIndex index: Int, reactionIndex: Int) {
         if let removedReactionModel = reactionDataSource[safe: index] {
             if let reaction = removedReactionModel.messageReaction[safe: reactionIndex] {
-                if reaction.reactedBy?.uid == CometChat.getLoggedInUser()?.uid {
+                if LoggedInUserInformation.isLoggedInUser(uid: reaction.reactedBy?.uid) {
                     
                     //Table View Update
                     removedReactionModel.messageReaction.remove(at: reactionIndex)
@@ -321,13 +324,17 @@ extension CometChatReactionList: UITableViewDataSource, UITableViewDelegate {
         
         //Default Implementation for Item onClick
         if let reaction = reactionDataSource[safe: selectedIndex]?.messageReaction[safe: indexPath.row] {
-            if reaction.reactedBy?.uid == CometChat.getLoggedInUser()?.uid {
+            if LoggedInUserInformation.isLoggedInUser(uid: reaction.reactedBy?.uid) {
                 
                 CometChat.removeReaction(messageId: reactionDataSource[selectedIndex].messageID, reaction: reaction.reaction) { _ in    } onError: {  [weak self] error in
-                    guard let self = self else { return }
-                    if let baseMessage = self.baseMessage {
-                        let updatedBaseMessage = CometChat.updateMessageWithReactionInfo(baseMessage: baseMessage, messageReaction: reaction, action: .REACTION_ADDED)
-                        CometChatMessageEvents.ccMessageEdited(message: updatedBaseMessage, status: .success)
+                    // The SDK calls back off the main thread; message-edited listeners are UI
+                    // code, and the removal below is announced on main, so put it back there too.
+                    DispatchQueue.main.async {
+                        guard let self = self else { return }
+                        if let baseMessage = self.baseMessage {
+                            let updatedBaseMessage = CometChat.updateMessageWithReactionInfo(baseMessage: baseMessage, messageReaction: reaction, action: .REACTION_ADDED)
+                            CometChatMessageEvents.ccMessageEdited(message: updatedBaseMessage, status: .success)
+                        }
                     }
                 }
                 
@@ -390,10 +397,11 @@ extension CometChatReactionList: UITableViewDataSource, UITableViewDelegate {
             
             listItem.hide(statusIndicator: true)
             
-            if reaction.reactedBy?.uid == CometChat.getLoggedInUser()?.uid {
+            if LoggedInUserInformation.isLoggedInUser(uid: reaction.reactedBy?.uid) {
                 let tapToRemoveLabel = UILabel()
                 tapToRemoveLabel.text = "TAP_TO_REMOVE".localize()
                 tapToRemoveLabel.font = style.subTitleTextFont
+                tapToRemoveLabel.adjustsFontForContentSizeCategory = true
                 tapToRemoveLabel.textColor = style.subTitleTextColor
                 tapToRemoveLabel.textAlignment = .left
                 
@@ -403,6 +411,7 @@ extension CometChatReactionList: UITableViewDataSource, UITableViewDelegate {
             let reactionLabel = UILabel()
             reactionLabel.text = reaction.reaction
             reactionLabel.font = style.tailViewTextFont
+            reactionLabel.adjustsFontForContentSizeCategory = true
             reactionLabel.textAlignment = .right
 
             listItem.set(tail: reactionLabel)

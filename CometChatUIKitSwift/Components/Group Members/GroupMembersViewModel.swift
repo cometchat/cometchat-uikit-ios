@@ -158,7 +158,7 @@ open class GroupMembersViewModel: NSObject {
             case .success(let groupMember):
                 group.membersCount = group.membersCount - 1
                 this.remove(groupMember: groupMember)
-                debugPrint("scope of GroupMember", groupMember.scope)
+                CometChatLogger.debug("scope of GroupMember \(groupMember.scope)")
                 // broadcasting groupmember's ban event.
                 if let loggedInUser = LoggedInUserInformation.getUser() {
 

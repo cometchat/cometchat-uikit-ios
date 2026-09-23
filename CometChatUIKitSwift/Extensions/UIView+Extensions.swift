@@ -84,7 +84,7 @@ public class ModerationDisapprovedView: UIView {
 
     public let messageLabel: UILabel = {
         let label = UILabel()
-        label.text = "Your message was blocked due to moderation policies"
+        label.text = "moderation_message_blocked".localize()
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -144,6 +144,7 @@ public class ModerationDisapprovedView: UIView {
         backgroundContainer.backgroundColor = backgroundContainerColor
         messageLabel.textColor = messageTextColor
         messageLabel.font = messageFont
+        messageLabel.adjustsFontForContentSizeCategory = true
         iconView.tintColor = iconViewTintColor
     }
 }
@@ -164,6 +165,7 @@ public class AIActionBarView: UIView {
         )?.withRenderingMode(.alwaysOriginal) ?? UIImage()
         
         button.setImage(image, for: .normal)
+        button.accessibilityLabel = "a11y_copy".localize()
         button.tintColor = .lightGray
         button.translatesAutoresizingMaskIntoConstraints = false
         button.widthAnchor.constraint(equalToConstant: 25).isActive = true
@@ -175,9 +177,10 @@ public class AIActionBarView: UIView {
     // MARK: - Copied Label
     private lazy var copiedLabel: UILabel = {
         let label = UILabel()
-        label.text = "Copied!"
+        label.text = "copied".localize()
         label.textColor = CometChatTheme.textColorSecondary
         label.font = CometChatTypography.Caption1.medium
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         label.alpha = 0
         label.translatesAutoresizingMaskIntoConstraints = false

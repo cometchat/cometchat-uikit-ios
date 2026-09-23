@@ -212,6 +212,7 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
         errorView.roundViewCorners(corner: style.errorViewCornerRadius ?? .init(cornerRadius: CometChatSpacing.Radius.r2))
         messageLabel.textColor = style.errorTextColor
         messageLabel.font = style.errorTextFont
+        messageLabel.adjustsFontForContentSizeCategory = true
         iconImageView.image = style.errorImage
         iconImageView.tintColor = style.errorImageTintColor
     }
@@ -435,10 +436,12 @@ extension CometChatCreatePoll: UITableViewDelegate, UITableViewDataSource {
             titleLabel.text = "QUESTION".localize()
             titleLabel.textColor = style.questionTitleTextColor
             titleLabel.font = style.questionTitleTextFont
+            titleLabel.adjustsFontForContentSizeCategory = true
         case .answers:
             titleLabel.text = "OPTIONS".localize()
             titleLabel.textColor = style.optionsTitleTextColor
             titleLabel.font = style.optionsTitleTextFont
+            titleLabel.adjustsFontForContentSizeCategory = true
         }
         return headerView
     }
@@ -461,6 +464,7 @@ extension CometChatCreatePoll: UITableViewDelegate, UITableViewDataSource {
             cell.containerView.roundViewCorners(corner: style.questionInputBoxCornerRadius ?? .init(cornerRadius: CometChatSpacing.Radius.r2))
             cell.question.textColor = style.questionTextColor
             cell.question.font = style.questionTextFont
+            cell.question.adjustsFontForContentSizeCategory = true
             cell.question.attributedPlaceholder = NSAttributedString(
                 string: "ASK_QUESTION".localize(),
                 attributes: [.foregroundColor: style.questionPlaceholderColor, .font: style.questionPlaceholderFont]
@@ -551,10 +555,13 @@ extension CometChatCreatePoll: UITableViewDelegate, UITableViewDataSource {
             }
             cell.reorderButton.tintColor = style.dragButtonTintColor
             cell.reorderButton.setImage(style.dragButtonImage, for: .normal)
+            cell.reorderButton.accessibilityLabel = "a11y_reorder".localize()
             cell.deleteButton.setImage(style.deleteButtonImage, for: .normal)
+            cell.deleteButton.accessibilityLabel = "a11y_delete".localize()
             cell.deleteButton.tintColor = style.deleteButtonTintColor
             cell.options.textColor = style.optionsTextColor
             cell.options.font = style.optionsTextFont
+            cell.options.adjustsFontForContentSizeCategory = true
             cell.backgroundColor = style.optionsInputBoxBackground
             cell.borderWith(width: style.optionsInputBoxBorderWidth)
             cell.borderColor(color: style.optionsInputBoxBorderColor)

@@ -149,6 +149,7 @@ extension CallUtils {
                 subtitleLabel.text = convertTimeStampToCallDate(timestamp: callData.initiatedAt, dateTimeFormatter: dateTimeFormatter)
             }
             subtitleLabel.font = style.listItemSubTitleFont
+            subtitleLabel.adjustsFontForContentSizeCategory = true
             subtitleLabel.textColor = style.listItemSubTitleTextColor
             subtitleView.addArrangedSubview(callStatusIcon)
             subtitleView.addArrangedSubview(subtitleLabel)

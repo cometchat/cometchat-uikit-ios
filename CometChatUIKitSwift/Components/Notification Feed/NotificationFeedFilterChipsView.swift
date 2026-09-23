@@ -169,6 +169,7 @@ public class NotificationFeedFilterChipsView: UIView {
         let label = UILabel()
         label.text = labelText
         label.font = font
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = chip.isActive ? .white : CometChatTheme.textColorSecondary
         innerStack.addArrangedSubview(label)
         
@@ -206,6 +207,7 @@ public class NotificationFeedFilterChipsView: UIView {
         badgeLabel.translatesAutoresizingMaskIntoConstraints = false
         badgeLabel.text = "\(count)"
         badgeLabel.font = CometChatTypography.Caption1.medium
+        badgeLabel.adjustsFontForContentSizeCategory = true
         badgeLabel.textColor = UIColor(hex: "#5925DC")
         badgeLabel.textAlignment = .center
         
@@ -232,6 +234,7 @@ public class NotificationFeedFilterChipsView: UIView {
         badgeLabel.translatesAutoresizingMaskIntoConstraints = false
         badgeLabel.text = "\(count)"
         badgeLabel.font = CometChatTypography.Caption1.medium
+        badgeLabel.adjustsFontForContentSizeCategory = true
         badgeLabel.textColor = .white
         badgeLabel.textAlignment = .center
         

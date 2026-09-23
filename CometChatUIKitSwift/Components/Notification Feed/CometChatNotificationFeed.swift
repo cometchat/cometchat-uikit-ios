@@ -97,8 +97,9 @@ open class CometChatNotificationFeed: CometChatListBase {
             
             // Left-aligned title label as leftBarButtonItem
             let titleLabel = UILabel()
-            titleLabel.text = "Notifications"
+            titleLabel.text = "notifications".localize()
             titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+            titleLabel.adjustsFontForContentSizeCategory = true
             titleLabel.textColor = CometChatTheme.textColorPrimary
             navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
         }
@@ -107,7 +108,7 @@ open class CometChatNotificationFeed: CometChatListBase {
     // MARK: - Default Setup (matching Figma header)
     open func defaultSetup() {
         // Navigation title per Figma: "Notifications", bold, left-aligned
-        title = "Notifications"
+        title = "notifications".localize()
         prefersLargeTitles = false // Don't use large titles — we want a fixed header
         hideSearch = true
         hideBackButton = !showBackButton
@@ -365,6 +366,7 @@ extension CometChatNotificationFeed {
         leftLabel.translatesAutoresizingMaskIntoConstraints = false
         leftLabel.text = group.label
         leftLabel.font = style.timestampHeaderFont
+        leftLabel.adjustsFontForContentSizeCategory = true
         leftLabel.textColor = style.timestampHeaderTextColor
         
         // Right label (relative timestamp of most recent item in this group)
@@ -376,6 +378,7 @@ extension CometChatNotificationFeed {
             rightLabel.text = ""
         }
         rightLabel.font = style.timestampValueFont
+        rightLabel.adjustsFontForContentSizeCategory = true
         rightLabel.textColor = style.timestampValueColor
         rightLabel.textAlignment = .right
         

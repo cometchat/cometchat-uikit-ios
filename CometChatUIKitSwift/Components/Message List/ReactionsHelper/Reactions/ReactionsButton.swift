@@ -78,10 +78,12 @@ class ReactionsView: UIView {
 
         // Configure the emoji label with the appropriate font and text.
         emojiLabel.font = style.emojiTextFont
+        emojiLabel.adjustsFontForContentSizeCategory = true
         emojiLabel.text = reaction.reaction
 
         // Configure the count label with its font, text color, and value.
         countLabel.font = style.countTextFont
+        countLabel.adjustsFontForContentSizeCategory = true
         countLabel.textColor = style.countTextColor
     }
 

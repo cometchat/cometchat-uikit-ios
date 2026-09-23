@@ -24,7 +24,7 @@ final class ReactionsTests: XCTestCase {
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
 
-        runBlocking { await PeerActions.addReaction(id, "👍") }
+        try runBlocking { try await PeerActions.addReaction(id, "👍") }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 10), "Message vanished after reaction")
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not stable after peer reaction")
     }
@@ -63,9 +63,9 @@ final class ReactionsTests: XCTestCase {
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
 
-        runBlocking {
-            await PeerActions.addReaction(id, "❤️")
-            await PeerActions.removeReaction(id, "❤️")
+        try runBlocking {
+            try await PeerActions.addReaction(id, "❤️")
+            try await PeerActions.removeReaction(id, "❤️")
         }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 10), "Message vanished")
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not stable after add/remove reaction")
@@ -76,7 +76,7 @@ final class ReactionsTests: XCTestCase {
         let token = "E2E-prt\(UUID().uuidString.prefix(8))"
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
-        runBlocking { await PeerActions.addReaction(id, "🔥") }
+        try runBlocking { try await PeerActions.addReaction(id, "🔥") }
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Screen not stable after realtime reaction")
     }
 
@@ -85,7 +85,7 @@ final class ReactionsTests: XCTestCase {
         let token = "E2E-tapr\(UUID().uuidString.prefix(8))"
         let id: Int = try runBlocking { try await PeerActions.sendTextMessage(token) }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Message did not arrive")
-        runBlocking { await PeerActions.addReaction(id, "👍") }
+        try runBlocking { try await PeerActions.addReaction(id, "👍") }
         ComponentQueries.bubble(app, text: token).tap()
         XCTAssertTrue(app.buttons["More"].waitForExistence(timeout: 8) || ComponentQueries.composer(app).exists,
                       "Screen not stable after tapping a reacted message")
@@ -106,7 +106,7 @@ final class ReactionsTests: XCTestCase {
             try await PeerActions.sendGroupTextMessage(token, groupId: group.guid)
         }
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 20), "Group message did not arrive")
-        runBlocking { await PeerActions.addReaction(id, "👍") }
+        try runBlocking { try await PeerActions.addReaction(id, "👍") }
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Group screen not stable after reaction")
     }
 
@@ -116,7 +116,7 @@ final class ReactionsTests: XCTestCase {
     func test_GRP_tapGroupReactionStable() throws {
         let (group, id) = try seedGroupMessage()
         defer { runBlocking { await SeedData.deleteTestGroup(group) } }
-        runBlocking { await PeerActions.addReaction(id, "👍") }
+        try runBlocking { try await PeerActions.addReaction(id, "👍") }
         ComponentQueries.bubble(app, text: currentToken).tap()
         XCTAssertTrue(ComponentQueries.composer(app).exists, "Group screen not stable after tapping a reacted message")
     }
@@ -124,8 +124,8 @@ final class ReactionsTests: XCTestCase {
     func test_GRP_removeGroupReactionStable() throws {
         let (group, id) = try seedGroupMessage()
         defer { runBlocking { await SeedData.deleteTestGroup(group) } }
-        runBlocking { await PeerActions.addReaction(id, "❤️") }
-        runBlocking { await PeerActions.removeReaction(id, "❤️") }
+        try runBlocking { try await PeerActions.addReaction(id, "❤️") }
+        try runBlocking { try await PeerActions.removeReaction(id, "❤️") }
         XCTAssertTrue(
             ComponentQueries.waitForBubble(app, text: currentToken, timeout: 8)
                 || ComponentQueries.composer(app).exists,
@@ -136,10 +136,10 @@ final class ReactionsTests: XCTestCase {
     func test_GRP_multipleGroupReactionsStable() throws {
         let (group, id) = try seedGroupMessage()
         defer { runBlocking { await SeedData.deleteTestGroup(group) } }
-        runBlocking {
-            await PeerActions.addReaction(id, "👍")
-            await PeerActions.addReaction(id, "🔥")
-            await PeerActions.addReaction(id, "❤️", asUserA: true)
+        try runBlocking {
+            try await PeerActions.addReaction(id, "👍")
+            try await PeerActions.addReaction(id, "🔥")
+            try await PeerActions.addReaction(id, "❤️", asUserA: true)
         }
         XCTAssertTrue(
             ComponentQueries.waitForBubble(app, text: currentToken, timeout: 8)
@@ -151,9 +151,9 @@ final class ReactionsTests: XCTestCase {
     func test_GRP_reactionCountStable() throws {
         let (group, id) = try seedGroupMessage()
         defer { runBlocking { await SeedData.deleteTestGroup(group) } }
-        runBlocking {
-            await PeerActions.addReaction(id, "👍")
-            await PeerActions.addReaction(id, "👍", asUserA: true) // same emoji → count 2
+        try runBlocking {
+            try await PeerActions.addReaction(id, "👍")
+            try await PeerActions.addReaction(id, "👍", asUserA: true) // same emoji → count 2
         }
         XCTAssertTrue(
             ComponentQueries.waitForBubble(app, text: currentToken, timeout: 8)

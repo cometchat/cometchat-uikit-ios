@@ -107,11 +107,9 @@ final class GroupMessageActionsTests: XCTestCase {
         ComponentQueries.typeAndSend(app, text: token)
         XCTAssertTrue(ComponentQueries.waitForBubble(app, text: token, timeout: 14), "Message did not send")
         XCTAssertTrue(ComponentQueries.openMessageOptions(app, bubbleText: token), "Long-press failed")
-        XCTAssertTrue(
-            app.buttons[ComponentQueries.MessageOption.info].waitForExistence(timeout: 6)
-                || app.staticTexts[ComponentQueries.MessageOption.info].exists,
-            "Info option missing in group popup"
-        )
+        // Info is behind "More…" since 5.1.22; the helper expands it.
+        XCTAssertTrue(ComponentQueries.messageOptionExists(app, label: ComponentQueries.MessageOption.info),
+                      "Info option missing in group popup")
     }
 
     private func openGroup() {

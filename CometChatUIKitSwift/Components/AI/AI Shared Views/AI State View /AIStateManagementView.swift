@@ -108,6 +108,7 @@ class AIStateManagementView: UIStackView {
     @discardableResult
     public func setTextFont(font: UIFont) -> Self {
         self.mainLabel.font = font
+        self.mainLabel.adjustsFontForContentSizeCategory = true
         return self
     }
     

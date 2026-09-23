@@ -34,6 +34,12 @@ public class CometChatCallButtons: UIStackView {
     private var disabled = false
     private var uniqueID = Date().timeIntervalSince1970
 
+    /// Test seam over the SDK call placement, so the default (handler-less) tap path is
+    /// assertable without a live session. Defaults to the real SDK.
+    internal var callInitiator: (Call, @escaping (Call?) -> Void, @escaping (CometChatException?) -> Void) -> Void = { call, onSuccess, onError in
+        CometChat.initiateCall(call: call, onSuccess: onSuccess, onError: onError)
+    }
+
     public static var style = CallButtonStyle()
     public var style = CometChatCallButtons.style
 
@@ -332,7 +338,7 @@ extension CometChatCallButtons: CometChatCallEventListener {
 
 extension CometChatCallButtons {
     private func initiateDefaultAudioCall(_ call: Call){
-        CometChat.initiateCall(call: call) { call in
+        callInitiator(call, { call in
             DispatchQueue.main.async { [weak self] in
                 guard let this = self else { return }
                 guard let call = call else { return }
@@ -347,13 +353,13 @@ extension CometChatCallButtons {
                
                 this.controller?.present(outgoingCall, animated: true)
             }
-        } onError: { error in
-            self.onError?(error)            
-        }
+        }, { error in
+            self.onError?(error)
+        })
     }
     
     private func initiateDefaultVideoCall(_ call : Call){
-        CometChat.initiateCall(call: call) { call in
+        callInitiator(call, { call in
             DispatchQueue.main.async { [weak self] in
                 guard let this = self else { return }
                 guard let call = call else { return }
@@ -368,9 +374,9 @@ extension CometChatCallButtons {
                 
                 this.controller?.present(outgoingCall, animated: true)
             }
-        } onError: { error in
+        }, { error in
             self.onError?(error)
-        }
+        })
     }
 }
 #endif

@@ -89,6 +89,7 @@ public class CometChatAgentBadge: UIView {
         backgroundColor = style.backgroundColor
         label.text = style.labelText
         label.font = style.labelFont
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = style.labelColor
         
         if let icon = style.icon {

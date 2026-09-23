@@ -50,6 +50,7 @@ class CombinedMarkdownBubbleView: UIView {
             for case let label as UILabel in rowStack.arrangedSubviews {
                 label.textColor = style?.textColor ?? CometChatTheme.textColorPrimary
                 label.font = style?.textFont ?? CometChatTypography.Caption1.regular
+                label.adjustsFontForContentSizeCategory = true
             }
         }
     }
@@ -115,7 +116,7 @@ class CombinedMarkdownBubbleView: UIView {
                 stackView.addArrangedSubview(codeView)
                 
                 if !foundClosingFence {
-                    print("⚠️ Missing closing code fence — rendering till end of text.")
+                    CometChatLogger.warning("missing closing code fence — rendering to end of text")
                 }
                 
                 continue
@@ -270,12 +271,14 @@ class CodeBlockView: UIView {
         textView.backgroundColor = .clear
         textView.textContainerInset = UIEdgeInsets(top: 22, left: 10, bottom: 22, right: 10)
         textView.font = CometChatTypography.Body.regular
+        textView.adjustsFontForContentSizeCategory = true
         textView.textColor = CometChatTheme.textColorPrimary
         textView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(textView)
 
         // Setup copy button
         copyButton.setImage(UIImage(named: "copyButton", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal) ?? UIImage(), for: .normal)
+        copyButton.accessibilityLabel = "a11y_copy".localize()
         copyButton.tintColor = CometChatTheme.iconColorSecondary
         copyButton.addTarget(self, action: #selector(copyTapped), for: .touchUpInside)
         copyButton.translatesAutoresizingMaskIntoConstraints = false

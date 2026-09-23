@@ -115,7 +115,7 @@ class AIConversationSummaryDecorator: DataSourceDecorator {
             }
         } onError: { error in
             DispatchQueue.main.async {
-                debugPrint("getConversationSummary failed with error: \(String(describing: error?.errorDescription))")
+                CometChatLogger.error("getConversationSummary failed with error: \(String(describing: error?.errorDescription))")
                 self.showErrorView(id: id, summaryView: summaryView)
             }
         }

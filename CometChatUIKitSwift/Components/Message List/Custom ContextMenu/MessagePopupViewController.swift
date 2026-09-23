@@ -473,6 +473,7 @@ class ContextMenuTextCell: UITableViewCell {
     
     open func setup(){
         titleLabel.font = style.titleFont
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.textColor = style.titleColor
         iconImageView.tintColor = style.imageTintColor
         backgroundColor = style.backgroundColor

@@ -154,6 +154,7 @@ extension CometChatSuggestionView: UITableViewDataSource, UITableViewDelegate {
             let data = self.suggestionItems[indexPath.row]
             
             listItem.titleLabel.font = style.textFont
+            listItem.titleLabel.adjustsFontForContentSizeCategory = true
             listItem.titleLabel.textColor = style.textColor
             
             listItem.layoutMargin = .init(

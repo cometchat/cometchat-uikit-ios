@@ -117,10 +117,13 @@ final class E2E1to1ConversationTests: XCTestCase {
     // Info label varies by build; popup presence is the fallback.
     func test_1TO1_messageInfoOption() {
         openOwnMessagePopup()
-        let infoPresent = ["Info", "Message Information", "Message Info"].contains {
-            app.buttons[$0].exists || app.staticTexts[$0].exists
-        }
-        XCTAssertTrue(infoPresent || app.buttons["Copy"].exists, "Message options popup did not present for Info check")
+        // Info is only offered on the sender's own messages, and lives behind "More…" since
+        // 5.1.22; `messageOptionExists` expands that row. The popup must be open for this to
+        // mean anything, so Copy — always inline — is asserted first.
+        XCTAssertTrue(ComponentQueries.messageOptionExists(app, label: ComponentQueries.MessageOption.copy),
+                      "Message options popup did not present for Info check")
+        XCTAssertTrue(ComponentQueries.messageOptionExists(app, label: ComponentQueries.MessageOption.info),
+                      "Info option missing on an own message")
     }
 
     // Share isn't on every build; assert the popup is functional instead.

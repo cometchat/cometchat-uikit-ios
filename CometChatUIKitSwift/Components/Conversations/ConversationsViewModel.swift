@@ -277,8 +277,6 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
             return false
         }) {
             removeAt(at: conversationIndex)
-        } else {
-            print("wrong index")
         }
         
     }

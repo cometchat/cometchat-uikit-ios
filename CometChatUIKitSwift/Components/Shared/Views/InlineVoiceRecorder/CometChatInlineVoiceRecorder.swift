@@ -127,7 +127,7 @@ public class CometChatInlineVoiceRecorder: UIView {
             do {
                 try audioViewModel.stopRecording()
             } catch {
-                print("Error stopping recording in deinit: \(error)")
+                CometChatLogger.error("Error stopping recording in deinit: \(error)")
             }
         }
         
@@ -135,7 +135,7 @@ public class CometChatInlineVoiceRecorder: UIView {
         do {
             try audioViewModel.resetRecording()
         } catch {
-            print("Error resetting recording in deinit: \(error)")
+            CometChatLogger.error("Error resetting recording in deinit: \(error)")
         }
     }
     
@@ -232,6 +232,7 @@ public class CometChatInlineVoiceRecorder: UIView {
         
         // Delete button
         deleteButton.setImage(style.deleteButtonImage, for: .normal)
+        deleteButton.accessibilityLabel = "a11y_delete".localize()
         deleteButton.tintColor = style.deleteButtonImageTintColor
         deleteButton.backgroundColor = style.deleteButtonBackgroundColor
         
@@ -247,10 +248,12 @@ public class CometChatInlineVoiceRecorder: UIView {
         
         // Duration label
         durationLabel.font = style.durationTextFont
+        durationLabel.adjustsFontForContentSizeCategory = true
         durationLabel.textColor = style.durationTextColor
         
         // Send button
         sendButton.setImage(style.sendButtonImage, for: .normal)
+        sendButton.accessibilityLabel = "a11y_send".localize()
         sendButton.tintColor = style.sendButtonImageTintColor
         sendButton.backgroundColor = style.sendButtonBackgroundColor
         sendButton.roundViewCorners(corner: style.sendButtonCornerRadius ?? .init(cornerRadius: 18))
@@ -267,8 +270,10 @@ public class CometChatInlineVoiceRecorder: UIView {
             // Initial state - should start recording immediately
             recordingIndicatorView.isHidden = true
             recordPlayButton.setImage(style.playButtonImage, for: .normal)
+            recordPlayButton.accessibilityLabel = "a11y_play_recording".localize()
             recordPlayButton.tintColor = style.playButtonImageTintColor
             pauseResumeButton.setImage(style.resumeRecordingButtonImage, for: .normal)
+            pauseResumeButton.accessibilityLabel = "a11y_resume_recording".localize()
             pauseResumeButton.tintColor = style.resumeRecordingButtonImageTintColor
             waveformView.setSeekingEnabled(false)
             
@@ -278,6 +283,7 @@ public class CometChatInlineVoiceRecorder: UIView {
             recordPlayButton.setImage(nil, for: .normal)
             startRecordingIndicatorAnimation()
             pauseResumeButton.setImage(style.pauseRecordingButtonImage, for: .normal)
+            pauseResumeButton.accessibilityLabel = "a11y_pause_recording".localize()
             pauseResumeButton.tintColor = style.pauseRecordingButtonImageTintColor
             waveformView.setPlaybackMode(false)
             waveformView.setSeekingEnabled(false)
@@ -289,6 +295,7 @@ public class CometChatInlineVoiceRecorder: UIView {
             recordPlayButton.setImage(style.playButtonImage, for: .normal)
             recordPlayButton.tintColor = style.playButtonImageTintColor
             pauseResumeButton.setImage(style.resumeRecordingButtonImage, for: .normal)
+            pauseResumeButton.accessibilityLabel = "a11y_resume_recording".localize()
             pauseResumeButton.tintColor = style.resumeRecordingButtonImageTintColor
             waveformView.setPlaybackMode(true)
             waveformView.setSeekingEnabled(player != nil)
@@ -299,6 +306,7 @@ public class CometChatInlineVoiceRecorder: UIView {
             recordPlayButton.setImage(style.pausePlaybackButtonImage, for: .normal)
             recordPlayButton.tintColor = style.pausePlaybackButtonImageTintColor
             pauseResumeButton.setImage(style.resumeRecordingButtonImage, for: .normal)
+            pauseResumeButton.accessibilityLabel = "a11y_resume_recording".localize()
             pauseResumeButton.tintColor = style.resumeRecordingButtonImageTintColor
             waveformView.setPlaybackMode(true)
             waveformView.setSeekingEnabled(true)
@@ -309,6 +317,7 @@ public class CometChatInlineVoiceRecorder: UIView {
             recordPlayButton.setImage(style.playButtonImage, for: .normal)
             recordPlayButton.tintColor = style.playButtonImageTintColor
             pauseResumeButton.setImage(style.resumeRecordingButtonImage, for: .normal)
+            pauseResumeButton.accessibilityLabel = "a11y_resume_recording".localize()
             pauseResumeButton.tintColor = style.resumeRecordingButtonImageTintColor
             waveformView.setPlaybackMode(true)
             waveformView.setPlaybackProgress(0)
@@ -369,7 +378,7 @@ public class CometChatInlineVoiceRecorder: UIView {
     private func pauseRecording() {
         // Validate that there's actually an active recording before trying to pause
         if !AudioRecorderManager.shared.isRunning {
-            print("Warning: Attempted to pause recording but recorder is not running")
+            CometChatLogger.warning("Warning: Attempted to pause recording but recorder is not running")
             // If we're in recording state but recorder isn't running, something went wrong
             // Reset to a safe state
             currentState = .idle
@@ -383,7 +392,7 @@ public class CometChatInlineVoiceRecorder: UIView {
             currentState = .paused
             updateUIForState()
         } catch {
-            print("Failed to pause recording: \(error)")
+            CometChatLogger.error("Failed to pause recording: \(error)")
             // If pause fails, check the actual recorder state
             if !AudioRecorderManager.shared.isRunning {
                 // Recorder is not running, update state accordingly
@@ -411,7 +420,7 @@ public class CometChatInlineVoiceRecorder: UIView {
             waveformView.setPlaybackMode(false)
         } catch {
             // If resume fails (e.g., recorder was stopped), start fresh
-            print("Resume recording failed: \(error)")
+            CometChatLogger.error("Resume recording failed: \(error)")
             // Check if it's because the recorder was stopped
             if !AudioRecorderManager.shared.isRunning && AudioRecorderManager.shared.currentRecordPath == nil {
                 reRecord()
@@ -447,13 +456,13 @@ public class CometChatInlineVoiceRecorder: UIView {
         }
         
         guard let filePath = audioFilePath else {
-            print("No audio file path available for playback")
+            CometChatLogger.debug("No audio file path available for playback")
             return
         }
         
         // Verify the file exists before trying to play it
         if !FileManager.default.fileExists(atPath: filePath.path) {
-            print("Audio file does not exist at path: \(filePath.path)")
+            CometChatLogger.debug("Audio file does not exist at path: \(filePath.path)")
             return
         }
         
@@ -467,10 +476,10 @@ public class CometChatInlineVoiceRecorder: UIView {
             player?.prepareToPlay()
             playbackDuration = player?.duration ?? 0
             waveformView.setAmplitudes(amplitudes)
-            print("Successfully setup playback for file: \(filePath.path)")
+            CometChatLogger.debug("Successfully setup playback for file: \(filePath.path)")
         } catch {
-            print("Error setting up playback: \(error)")
-            print("Failed to setup audio player")
+            CometChatLogger.error("Error setting up playback: \(error)")
+            CometChatLogger.error("Failed to setup audio player")
         }
     }
     
@@ -484,18 +493,18 @@ public class CometChatInlineVoiceRecorder: UIView {
             if hasActiveRecordingSession {
                 // We need to stop the recording to finalize the file for playback
                 // After this, user will need to start a new recording if they want to add more
-                print("Stopping recording to finalize file for playback")
+                CometChatLogger.debug("Stopping recording to finalize file for playback")
                 do {
                     try audioViewModel.stopRecording()
-                    print("Recording stopped successfully")
+                    CometChatLogger.debug("Recording stopped successfully")
                 } catch {
-                    print("Error stopping recording for playback: \(error)")
+                    CometChatLogger.error("Error stopping recording for playback: \(error)")
                     return
                 }
                 
                 // Give a longer delay for the file to be finalized and written to disk
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                    print("Attempting to setup playback after delay")
+                    CometChatLogger.debug("Attempting to setup playback after delay")
                     self?.setupAndStartPlayback()
                 }
                 return
@@ -505,7 +514,7 @@ public class CometChatInlineVoiceRecorder: UIView {
         }
         
         guard let player = player else {
-            print("Failed to setup audio player")
+            CometChatLogger.error("Failed to setup audio player")
             return
         }
         
@@ -520,14 +529,14 @@ public class CometChatInlineVoiceRecorder: UIView {
         setupPlayback()
         
         guard let player = player else {
-            print("Failed to setup audio player after delay")
+            CometChatLogger.error("Failed to setup audio player after delay")
             // Reset to paused state if playback setup failed
             currentState = .paused
             updateUIForState()
             return
         }
         
-        print("Starting playback")
+        CometChatLogger.debug("Starting playback")
         player.play()
         startPlaybackTimer()
         currentState = .playing
@@ -610,7 +619,7 @@ public class CometChatInlineVoiceRecorder: UIView {
             do {
                 try audioViewModel.stopRecording()
             } catch {
-                print("Error stopping recording: \(error)")
+                CometChatLogger.error("Error stopping recording: \(error)")
             }
         }
         
@@ -618,7 +627,7 @@ public class CometChatInlineVoiceRecorder: UIView {
         do {
             try audioViewModel.resetRecording()
         } catch {
-            print("Error resetting recording: \(error)")
+            CometChatLogger.error("Error resetting recording: \(error)")
         }
         
         // Reset state
@@ -656,7 +665,7 @@ public class CometChatInlineVoiceRecorder: UIView {
             if AudioRecorderManager.shared.isRunning {
                 pauseRecording()
             } else {
-                print("Warning: In recording state but recorder is not running")
+                CometChatLogger.warning("Warning: In recording state but recorder is not running")
                 // Reset to idle state if recorder isn't actually running
                 currentState = .idle
                 updateUIForState()
@@ -670,7 +679,7 @@ public class CometChatInlineVoiceRecorder: UIView {
         case .completed:
             // Recording is completed and finalized - cannot resume to same file
             // Start a new recording session (will need to merge audio files later)
-            print("Starting new recording session after playback")
+            CometChatLogger.debug("Starting new recording session after playback")
             continueRecordingAfterPlayback()
         case .idle:
             break
@@ -730,7 +739,7 @@ public class CometChatInlineVoiceRecorder: UIView {
         // 1. Merge the audio files when sending
         // 2. Or use a more sophisticated audio recording approach
         
-        print("Continuing recording after playback - previous duration: \(previousDuration)s")
+        CometChatLogger.debug("Continuing recording after playback - previous duration: \(previousDuration)s")
         
         // For now, we'll start fresh recording (matching WhatsApp behavior)
         // The previous recording is preserved and can be merged later

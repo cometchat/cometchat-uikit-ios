@@ -10,9 +10,7 @@ import UIKit
 import QuickLook
 import CometChatSDK
 
-
 class CometChatCallBubble: UIView {
-    
     public var iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -94,14 +92,9 @@ class CometChatCallBubble: UIView {
     }
     
     @objc private func handleThemeChange() {
-        print("🎨 CometChatCallBubble: Received theme change notification")
-        
         // Update icon tint color and join button color from the style's computed properties
         iconImageView.tintColor = style.callImageTintColor
         joinButton.setTitleColor(style.joinButtonTextColor, for: .normal)
-        
-        print("🎨 CometChatCallBubble: Updated icon tint color to \(style.callImageTintColor)")
-        print("🎨 CometChatCallBubble: Updated join button color to \(style.joinButtonTextColor)")
     }
     
     override func willMove(toWindow newWindow: UIWindow?) {
@@ -157,8 +150,10 @@ class CometChatCallBubble: UIView {
     public func setupStyle(){
         titleLabel.textColor = style.titleTextColor
         titleLabel.font = style.titleTextFont
+        titleLabel.adjustsFontForContentSizeCategory = true
         dateLabel.textColor = style.subtitleTextColor
         dateLabel.font = style.subtitleTextFont
+        dateLabel.adjustsFontForContentSizeCategory = true
         joinButton.setTitleColor(style.joinButtonTextColor, for: .normal)
         joinButton.titleLabel?.font = style.joinButtonTextFont
         iconImageView.image = callType == .audio ? style.audioCallImage : style.videoCallImage

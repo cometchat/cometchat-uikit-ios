@@ -166,6 +166,7 @@ open class CometChatScopeChange: UIViewController {
             let optionLabel = UILabel().withoutAutoresizingMaskConstraints()
             optionLabel.textColor = style.optionTextColor
             optionLabel.font = style.optionFont
+            optionLabel.adjustsFontForContentSizeCategory = true
             optionLabel.text = option.0
             optionView.addSubview(optionLabel)
             NSLayoutConstraint.activate([
@@ -220,9 +221,11 @@ open class CometChatScopeChange: UIViewController {
         
         titleLabel.textColor = style.titleTextColor
         titleLabel.font = style.titleFont
+        titleLabel.adjustsFontForContentSizeCategory = true
         
         subtitleLabel.textColor = style.subtitleTextColor
         subtitleLabel.font = style.subtitleFont
+        subtitleLabel.adjustsFontForContentSizeCategory = true
 
         saveButton.tintColor = style.saveButtonTintColor
         cancelButton.tintColor = style.cancelButonTintColor
@@ -284,7 +287,7 @@ open class CometChatScopeChange: UIViewController {
                 }
                 
             }) { (error) in
-                print("Update group member scope failed with error: " + error!.errorDescription);
+                CometChatLogger.error("Update group member scope failed with error: \(error?.errorDescription ?? "unknown error")")
             }
         }
     }

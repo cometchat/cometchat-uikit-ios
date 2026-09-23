@@ -58,6 +58,7 @@ public class CometChatEmojiKeyboard: UIViewController, PanModalPresentable {
         header.text = "EMOJI_KEYBOARD".localize()
         header.textColor = style.titleColor
         header.font = .boldSystemFont(ofSize: 18)
+        header.adjustsFontForContentSizeCategory = true
         header.textAlignment = .center
         headerView.addSubview(header)
         
@@ -127,7 +128,7 @@ public class CometChatEmojiKeyboard: UIViewController, PanModalPresentable {
                     strongSelf.emojiSetCollectionView.reloadData()
                 }
             } catch let error {
-                print(error.localizedDescription)
+                CometChatLogger.error("\(error.localizedDescription)")
             }
         }
     }
@@ -221,7 +222,7 @@ extension CometChatEmojiKeyboard: UICollectionViewDelegate, UICollectionViewData
                 headerView.category.text = emojiCategories[indexPath.section].name
                 return headerView
             default:
-                print("Either footer or default.")
+                CometChatLogger.debug("Either footer or default.")
             }
         }
         return UICollectionReusableView(frame: .zero)

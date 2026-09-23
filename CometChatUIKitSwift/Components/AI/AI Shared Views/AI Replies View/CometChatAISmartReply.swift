@@ -119,10 +119,13 @@ open class CometChatAISmartReply: UIView {
         
         titleLabel.textColor = style.titleTextColor
         titleLabel.font = style.titleTextFont
+        titleLabel.adjustsFontForContentSizeCategory = true
         cancelButton.setImage(style.cancelButtonImage, for: .normal)
+        cancelButton.accessibilityLabel = "a11y_close".localize()
         cancelButton.imageView?.tintColor = style.cancelButtonImageTintColor
         errorLabel.textColor = style.errorViewTextColor
         errorLabel.font = style.errorViewTextFont
+        errorLabel.adjustsFontForContentSizeCategory = true
     }
     
     public func showLoadingView() {
@@ -222,6 +225,7 @@ extension CometChatAISmartReply: UITableViewDelegate, UITableViewDataSource {
         cell.cellLabel.text = message
         cell.cellLabel.textColor = style.repliesTextColor
         cell.cellLabel.font = style.repliesTextFont
+        cell.cellLabel.adjustsFontForContentSizeCategory = true
         cell.containerView.borderWith(width: style.repliesViewBorderWidth)
         cell.containerView.borderColor(color: style.repliesViewBorderColor)
         cell.containerView.roundViewCorners(corner: style.repliesViewCornerRadius ?? .init(cornerRadius: CometChatSpacing.Radius.r2))

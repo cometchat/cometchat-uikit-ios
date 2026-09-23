@@ -20,7 +20,7 @@ final class FlagReasonsManager {
         CometChat.getFlagReasons { [weak self] reasons in
             self?.flagReasons = reasons
         } onError: { error in
-            print("Failed to preload flag reasons: \(error?.errorDescription ?? "")")
+            CometChatLogger.error("Failed to preload flag reasons: \(error?.errorDescription ?? "")")
         }
     }
 

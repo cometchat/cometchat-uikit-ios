@@ -1,0 +1,60 @@
+name: CI
+
+# Public CI for cometchat/cometchat-uikit-ios. Gives the repo a visible green check:
+#   1. regenerate the Xcode project from project.yml (XcodeGen)
+#   2. verify the published SPM binaryTarget checksum matches the hosted zip
+#   3. build all three sample apps against the released binary
+# This file is emitted by the release mirror (scripts/mirror-to-public.sh) from
+# scripts/public-repo/ci.yml in the private repo — do not edit it here.
+
+on:
+  push:
+    branches: [ v5 ]
+  pull_request:
+    branches: [ v5 ]
+
+jobs:
+  build:
+    name: Resolve, verify checksum, build samples
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 17
+        run: |
+          DEV="/Applications/Xcode_17.app"
+          [ -d "$DEV" ] || DEV="$(ls -d /Applications/Xcode_17*.app 2>/dev/null | sort -V | tail -1)"
+          [ -n "$DEV" ] || DEV="$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$DEV"
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Verify SPM binary checksum matches the hosted zip
+        run: |
+          set -euo pipefail
+          URL=$(grep -Eo 'url:[[:space:]]*"[^"]+\.zip"' Package.swift | head -1 | sed -E 's/.*"(.*)"/\1/')
+          EXPECTED=$(grep -Eo 'checksum:[[:space:]]*"[0-9a-f]+"' Package.swift | head -1 | sed -E 's/.*"(.*)"/\1/')
+          echo "url=$URL"; echo "expected=$EXPECTED"
+          curl -fsSL "$URL" -o /tmp/uikit.xcframework.zip
+          ACTUAL=$(swift package compute-checksum /tmp/uikit.xcframework.zip)
+          echo "actual=$ACTUAL"
+          if [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "::error::SPM checksum mismatch — Package.swift ($EXPECTED) != hosted zip ($ACTUAL)"
+            exit 1
+          fi
+
+      - name: Build sample apps
+        run: |
+          set -euo pipefail
+          for SCHEME in SampleApp AISampleApp SampleAppPushNotificationAPNs; do
+            echo "==> Building $SCHEME"
+            xcodebuild -project CometChatUIKitSwift.xcodeproj -scheme "$SCHEME" \
+              -sdk iphonesimulator -destination "generic/platform=iOS Simulator" \
+              CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
+          done
+          echo "==> All sample apps build clean."

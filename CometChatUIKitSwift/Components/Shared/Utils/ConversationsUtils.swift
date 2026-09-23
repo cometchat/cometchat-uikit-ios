@@ -91,6 +91,7 @@ public class ConversationsUtils {
         
         let typing = UILabel().withoutAutoresizingMaskConstraints()
         typing.font = typingIndicatorStyle.textFont
+        typing.adjustsFontForContentSizeCategory = true
         typing.textColor = typingIndicatorStyle.textColor
         if conversation.lastMessage?.receiverType == .user {
             typing.text = ConversationConstants.typingText
@@ -110,6 +111,7 @@ public class ConversationsUtils {
         
         let lastMessage = UILabel().withoutAutoresizingMaskConstraints()
         lastMessage.font = conversationStyle.listItemSubTitleFont
+        lastMessage.adjustsFontForContentSizeCategory = true
         lastMessage.textColor = conversationStyle.listItemSubTitleTextColor
         lastMessage.numberOfLines = 1
         

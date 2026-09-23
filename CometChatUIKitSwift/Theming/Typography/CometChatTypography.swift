@@ -10,22 +10,80 @@ import UIKit
 
 
 public class CometChatTypography {
-    
+
     // MARK: - Font Configuration
     private static var customFontName: String?
-    
+
     public static func setFont(name: String) {
         customFontName = name
     }
-    
-    internal static func setFont(size: CGFloat, weight: UIFont.Weight) -> UIFont {
+
+    // MARK: - Dynamic Type
+
+    /// Whether the Kit's text scales with the reader's iOS text-size setting.
+    ///
+    /// Defaults to `true`. Every font in the Kit is produced by this class, so
+    /// this one switch governs all of them.
+    ///
+    /// Turn it off only if scaled text breaks a layout you cannot adjust:
+    ///
+    /// ```swift
+    /// CometChatTypography.isDynamicTypeEnabled = false
+    /// ```
+    ///
+    /// Set it before any CometChat view is created. Fonts are resolved when a
+    /// view is built, so flipping this later affects only views created after.
+    public static var isDynamicTypeEnabled: Bool = true
+
+    /// How far text may grow, as a multiple of its design size. Defaults to `2.0`.
+    ///
+    /// **2.0 is what WCAG 1.4.4 (Level AA) requires** — text resizable to 200%
+    /// without loss of content or functionality.
+    ///
+    /// This started at 1.6 as a deliberately cautious first step, because the Kit
+    /// lays out with fixed heights in a number of places and uncapped growth would
+    /// clip text — which is worse for the reader than text that is merely small.
+    /// It was raised to 2.0 once the accessibility audit (Track 1 A11Y4) measured
+    /// what actually breaks: across every screen at the largest accessibility
+    /// size, one clipped element. The caution was not vindicated by the evidence.
+    ///
+    /// A cap is still applied rather than none at all: iOS's largest accessibility
+    /// sizes take 14pt body text past 50pt, roughly 2.8x, which no fixed-height
+    /// layout survives.
+    ///
+    /// - Note: If you raise this further, re-run the A11Y4 audit suite. It is the
+    ///   only thing that will tell you what the new value clips.
+    public static var maximumScaleFactor: CGFloat = 2.0
+
+    /// - Parameter traits: the trait collection to resolve the reader's text size
+    ///   against. `nil` — the production path — means "whatever the app is set to
+    ///   right now". It exists because `UIApplication.preferredContentSizeCategory`
+    ///   is read-only, so without this seam the scaling curve could only be
+    ///   asserted at whatever size the test machine happened to be running.
+    internal static func setFont(
+        size: CGFloat,
+        weight: UIFont.Weight,
+        compatibleWith traits: UITraitCollection? = nil
+    ) -> UIFont {
+        let baseFont: UIFont
         if let name = customFontName,
            let font = UIFont(name: name, size: size) {
-            return font
+            baseFont = font
         } else {
             // fallback to system font
-            return UIFont.systemFont(ofSize: size, weight: weight)
+            baseFont = UIFont.systemFont(ofSize: size, weight: weight)
         }
+
+        guard isDynamicTypeEnabled else { return baseFont }
+
+        // Scaled against .body's curve, which is the one tuned for reading — the
+        // Kit is overwhelmingly running text, and using each level's own curve
+        // would make headings and captions drift apart at large sizes.
+        return UIFontMetrics.default.scaledFont(
+            for: baseFont,
+            maximumPointSize: size * maximumScaleFactor,
+            compatibleWith: traits
+        )
     }
     
     // MARK: - Typography Levels

@@ -97,6 +97,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
         label.textAlignment = .center
         label.text = "00:00:00"
         label.font = UIFont.systemFont(ofSize: 16) // Customize font size
+        label.adjustsFontForContentSizeCategory = true
         return label
     }()
     
@@ -235,6 +236,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
 
         // Style audioNoteStartButton
         audioNoteStartButton.setImage(style.startButtonImage, for: .normal)
+        audioNoteStartButton.accessibilityLabel = "a11y_start_recording".localize()
         audioNoteStartButton.tintColor = style.startButtonImageTintColor
         audioNoteStartButton.backgroundColor = style.startButtonBackgroundColor
         audioNoteStartButton.borderColor(color: style.startButtonBorderColor)
@@ -243,6 +245,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
 
         // Style audioNotePauseButton
         audioNotePauseButton.setImage(style.pausebuttonImage, for: .normal)
+        audioNotePauseButton.accessibilityLabel = "a11y_pause_recording".localize()
         audioNotePauseButton.tintColor = style.pauseButtonImageTintColor
         audioNotePauseButton.backgroundColor = style.pauseButtonBackgroundColor
         audioNotePauseButton.borderColor(color: style.pauseButtonBorderColor)
@@ -251,6 +254,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
 
         // Style audioNoteDeleteButton
         audioNoteDeleteButton.setImage(style.deleteButtonImage, for: .normal)
+        audioNoteDeleteButton.accessibilityLabel = "a11y_delete".localize()
         audioNoteDeleteButton.tintColor = style.deleteButtonImageTintColor
         audioNoteDeleteButton.backgroundColor = style.deleteButtonBackgroundColor
         audioNoteDeleteButton.borderColor(color: style.deleteButtonBorderColor)
@@ -259,6 +263,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
 
         // Style audioNoteSendButton
         audioNoteSendButton.setImage(style.sendButtonImage, for: .normal)
+        audioNoteSendButton.accessibilityLabel = "a11y_send".localize()
         audioNoteSendButton.tintColor = style.sendButtonImageTintColor
         audioNoteSendButton.backgroundColor = style.sendButtonBackgroundColor
         audioNoteSendButton.borderColor(color: style.sendButtonBorderColor)
@@ -267,6 +272,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
 
         // Style audioNoteStopButton
         audioNoteStopButton.setImage(style.stopButtonImage, for: .normal)
+        audioNoteStopButton.accessibilityLabel = "a11y_stop_recording".localize()
         audioNoteStopButton.tintColor = style.stopButtonImageTintColor
         audioNoteStopButton.backgroundColor = style.stopButtonBackgroundColor
         audioNoteStopButton.borderColor(color: style.stopButtonBorderColor)
@@ -275,6 +281,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
 
         // Style audioNoteReRecordButton
         audioNoteReRecordButton.setImage(style.reRecordImage, for: .normal)
+        audioNoteReRecordButton.accessibilityLabel = "a11y_rerecord".localize()
         audioNoteReRecordButton.tintColor = style.reRecordButtonImageTintColor
         audioNoteReRecordButton.backgroundColor = style.reRecordButtonBackgroundColor
         audioNoteReRecordButton.borderColor(color: style.reRecordButtonBorderColor)
@@ -293,6 +300,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
 
         // Style timer label
         audioTimerLabel.font = style.textFont
+        audioTimerLabel.adjustsFontForContentSizeCategory = true
         audioTimerLabel.textColor = style.textColor
 
         // Style recording view
@@ -591,11 +599,11 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
     }
     
     private func addShadowToButtons(){
-        audioNoteDeleteButton.applyCornerRadiusAndShadow(cornerRadius: audioNoteDeleteButton.layer.cornerRadius, shadowColor: UIColor(red: 0.063, green: 0.094, blue: 0.157, alpha: 0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
-        audioNotePauseButton.applyCornerRadiusAndShadow(cornerRadius: audioNotePauseButton.layer.cornerRadius, shadowColor: UIColor(red: 0.063, green: 0.094, blue: 0.157, alpha: 0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
-        audioNoteSendButton.applyCornerRadiusAndShadow(cornerRadius: audioNoteSendButton.layer.cornerRadius, shadowColor: UIColor(red: 0.063, green: 0.094, blue: 0.157, alpha: 0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
-        audioNoteStopButton.applyCornerRadiusAndShadow(cornerRadius: audioNoteStopButton.layer.cornerRadius, shadowColor: UIColor(red: 0.063, green: 0.094, blue: 0.157, alpha: 0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
-        audioNoteStartButton.applyCornerRadiusAndShadow(cornerRadius: audioNoteStartButton.layer.cornerRadius, shadowColor: UIColor(red: 0.063, green: 0.094, blue: 0.157, alpha: 0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
-        audioNoteReRecordButton.applyCornerRadiusAndShadow(cornerRadius: audioNoteReRecordButton.layer.cornerRadius, shadowColor: UIColor(red: 0.063, green: 0.094, blue: 0.157, alpha: 0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
+        audioNoteDeleteButton.applyCornerRadiusAndShadow(cornerRadius: audioNoteDeleteButton.layer.cornerRadius, shadowColor: CometChatTheme.black.withAlphaComponent(0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
+        audioNotePauseButton.applyCornerRadiusAndShadow(cornerRadius: audioNotePauseButton.layer.cornerRadius, shadowColor: CometChatTheme.black.withAlphaComponent(0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
+        audioNoteSendButton.applyCornerRadiusAndShadow(cornerRadius: audioNoteSendButton.layer.cornerRadius, shadowColor: CometChatTheme.black.withAlphaComponent(0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
+        audioNoteStopButton.applyCornerRadiusAndShadow(cornerRadius: audioNoteStopButton.layer.cornerRadius, shadowColor: CometChatTheme.black.withAlphaComponent(0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
+        audioNoteStartButton.applyCornerRadiusAndShadow(cornerRadius: audioNoteStartButton.layer.cornerRadius, shadowColor: CometChatTheme.black.withAlphaComponent(0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
+        audioNoteReRecordButton.applyCornerRadiusAndShadow(cornerRadius: audioNoteReRecordButton.layer.cornerRadius, shadowColor: CometChatTheme.black.withAlphaComponent(0.06), shadowOpacity: 1, shadowOffset: CGSize(width: 0, height: 2), shadowRadius: 4)
     }
 }

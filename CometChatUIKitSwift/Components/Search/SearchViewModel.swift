@@ -34,7 +34,14 @@ open class SearchViewModel: NSObject {
     var onSearch: ((SearchState, String) -> ())?
     var reloadAtIndex: ((IndexPath) -> Void)?
     var reload: (() -> Void)?
-    
+
+    /// Whether the last conversation / message search request failed (e.g. the app's plan
+    /// does not include Advanced Search). Every request ends with `reload`, success or
+    /// failure, so the screen always leaves its loading state — as the Android UI Kit's
+    /// search view model does; the screen shows the error state when both failed.
+    var conversationSearchFailed = false
+    var messageSearchFailed = false
+
     var user: User?
     var group: Group?
     
@@ -73,6 +80,8 @@ open class SearchViewModel: NSObject {
         self.filteredMessages.removeAll()
         self.hasMoreMessages = true
         self.isLoadingMessages = false
+        self.conversationSearchFailed = false
+        self.messageSearchFailed = false
 
         searchWorkItem?.cancel()
         
@@ -109,12 +118,17 @@ open class SearchViewModel: NSObject {
                 self.filterConversationRequest?.fetchNext(
                     onSuccess: { conversations in
                         DispatchQueue.main.async {
+                            self.conversationSearchFailed = false
                             self.filteredConversations = conversations
                             self.reload?()
                         }
                     },
                     onError: { error in
-                        print(error?.errorDescription ?? "")
+                        CometChatLogger.error("\(error?.errorDescription ?? "")")
+                        DispatchQueue.main.async {
+                            self.conversationSearchFailed = true
+                            self.reload?()
+                        }
                     }
                 )
             } else {
@@ -216,7 +230,7 @@ open class SearchViewModel: NSObject {
                                 group.leave()
 
                             } onError: { error in
-                                print("no parent message found")
+                                CometChatLogger.debug("no parent message found")
                                 group.leave()
                             }
                         }
@@ -234,14 +248,20 @@ open class SearchViewModel: NSObject {
 
                         self.filteredMessages.append(contentsOf: validMessages.reversed())
                         self.isLoadingMessages = false
+                        self.messageSearchFailed = false
                         self.reload?()
 
                         self.reload?()
                     }
                 }
             },
-            onError: { [weak self] _ in
-                self?.isLoadingMessages = false
+            onError: { [weak self] error in
+                CometChatLogger.error("\(error?.errorDescription ?? "")")
+                DispatchQueue.main.async {
+                    self?.isLoadingMessages = false
+                    self?.messageSearchFailed = true
+                    self?.reload?()
+                }
             }
         )
     }

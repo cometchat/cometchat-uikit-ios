@@ -52,6 +52,7 @@ class InteractedView: UIView {
         headingLabel.translatesAutoresizingMaskIntoConstraints = false
         headingLabel.textColor = CometChatTheme_v4.palatte.accent900
         headingLabel.font = CometChatTheme_v4.typography.heading
+        headingLabel.adjustsFontForContentSizeCategory = true
         headingLabel.text = titleText
         subContainerView.addSubview(headingLabel)
         headingLabel.topAnchor.constraint(equalTo: subContainerView.topAnchor, constant: 5).isActive = true
@@ -62,6 +63,7 @@ class InteractedView: UIView {
         subheadingLabel.translatesAutoresizingMaskIntoConstraints = false
         subheadingLabel.textColor = CometChatTheme_v4.palatte.accent700
         subheadingLabel.font = CometChatTheme_v4.typography.text2
+        subheadingLabel.adjustsFontForContentSizeCategory = true
         subheadingLabel.text = subtitleText
         subheadingLabel.textAlignment = .justified
         subContainerView.addSubview(subheadingLabel)
@@ -75,6 +77,7 @@ class InteractedView: UIView {
         let bodyLabel = UILabel()
         bodyLabel.textColor = CometChatTheme_v4.palatte.accent
         bodyLabel.font = CometChatTheme_v4.typography.text1
+        bodyLabel.adjustsFontForContentSizeCategory = true
         bodyLabel.text = bodyText
         
         containerView.addArrangedSubview(bodyLabel)

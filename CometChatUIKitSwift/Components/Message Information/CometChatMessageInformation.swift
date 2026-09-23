@@ -103,11 +103,13 @@ open class CometChatMessageInformation: CometChatListBase {
         if let errorView = self.errorStateView as? StateView {
             errorView.subtitleLabel.textColor = style.errorStateTextColor
             errorView.subtitleLabel.font = style.errorStateTextFont
+            errorView.subtitleLabel.adjustsFontForContentSizeCategory = true
         }
         
         if let emptyStateView = self.emptyStateView as? StateView {
             emptyStateView.subtitleLabel.textColor = style.emptyStateTextColor
             emptyStateView.subtitleLabel.font = style.emptyStateTextFont
+            emptyStateView.subtitleLabel.adjustsFontForContentSizeCategory = true
         }
     }
     
@@ -275,6 +277,7 @@ extension CometChatMessageInformation {
                         dateLabel.text = receipt.timeStamp != 0 ? receipt.timeStamp.getDateInString( dateTimeFormatter: dateTimeFormatter) : "---"
                         dateLabel.textColor = style.listItemSubTitleTextColor
                         dateLabel.font = style.listItemSubTitleFont
+                        dateLabel.adjustsFontForContentSizeCategory = true
                         
                         listItem.set(subtitle: dateLabel)
                     }
@@ -302,6 +305,7 @@ extension CometChatMessageInformation {
         spacerLabel.text = " "
         spacerLabel.alpha = 0
         spacerLabel.font = style.titleFont
+        spacerLabel.adjustsFontForContentSizeCategory = true
         
         tailView.addArrangedSubview(spacerLabel)
         
@@ -309,12 +313,14 @@ extension CometChatMessageInformation {
             let receiptLabel = UILabel().withoutAutoresizingMaskConstraints()
             receiptLabel.textColor = style.listItemSubTitleTextColor
             receiptLabel.font = style.listItemSubTitleFont
+            receiptLabel.adjustsFontForContentSizeCategory = true
             receiptLabel.text = "READ".localize()
             subTitleView.addArrangedSubview(receiptLabel)
             
             let dateLabel = UILabel().withoutAutoresizingMaskConstraints()
             dateLabel.textColor = style.listItemSubTitleTextColor
             dateLabel.font = style.listItemSubTitleFont
+            dateLabel.adjustsFontForContentSizeCategory = true
             dateLabel.text = receipt.timeStamp.getDateInString(dateTimeFormatter: dateTimeFormatter)
             tailView.addArrangedSubview(dateLabel)
         }
@@ -322,6 +328,7 @@ extension CometChatMessageInformation {
         let receiptLabel = UILabel().withoutAutoresizingMaskConstraints()
         receiptLabel.textColor = style.listItemSubTitleTextColor
         receiptLabel.font = style.listItemSubTitleFont
+        receiptLabel.adjustsFontForContentSizeCategory = true
         receiptLabel.text = "DELIVERED".localize()
         subTitleView.addArrangedSubview(receiptLabel)
         subTitleView.setCustomSpacing(CometChatSpacing.Padding.p, after: receiptLabel)
@@ -329,6 +336,7 @@ extension CometChatMessageInformation {
         let dateLabel = UILabel().withoutAutoresizingMaskConstraints()
         dateLabel.textColor = style.listItemSubTitleTextColor
         dateLabel.font = style.listItemSubTitleFont
+        dateLabel.adjustsFontForContentSizeCategory = true
         dateLabel.text = receipt.timeStamp.getDateInString(dateTimeFormatter: dateTimeFormatter) // receipt.timeStamp.toDateFormatted()
         tailView.addArrangedSubview(dateLabel)
         tailView.setCustomSpacing(CometChatSpacing.Padding.p, after: dateLabel)

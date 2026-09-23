@@ -46,6 +46,7 @@ class CometChatActionItem: UITableViewCell {
             
             if let titleFont = actionItem.style?.textFont {
                 nameLabel.font = titleFont
+                nameLabel.adjustsFontForContentSizeCategory = true
             }
             
             if let leadingIcon = actionItem.leadingIcon {

@@ -241,9 +241,12 @@ open class CometChatOutgoingCall: UIViewController {
         view.borderColor(color: style.borderColor)
         nameLabel.textColor = style.nameTextColor
         nameLabel.font = style.nameTextFont
+        nameLabel.adjustsFontForContentSizeCategory = true
         callingLabel.textColor = style.callTextColor
         callingLabel.font = style.callTextFont
+        callingLabel.adjustsFontForContentSizeCategory = true
         declineButton.setImage(style.declineButtonIcon, for: .normal)
+        declineButton.accessibilityLabel = "a11y_decline_call".localize()
         declineButton.backgroundColor = style.declineButtonBackgroundColor
         declineButton.tintColor = style.declineButtonIconTint
         if let radius = style.declineButtonCornerRadius{
@@ -270,9 +273,9 @@ open class CometChatOutgoingCall: UIViewController {
                     DispatchQueue.main.async {[weak self] in
                         self?.dismiss(animated: true)
                     }
-                    print("Call Cancelled Success")
+                    CometChatLogger.debug("Call Cancelled Success")
                 } onError: { error in
-                    print("Call Cancelled Error: \(String(describing: error?.errorDescription))")
+                    CometChatLogger.error("Call Cancelled Error: \(String(describing: error?.errorDescription))")
                     DispatchQueue.main.async {[weak self] in
                         self?.dismiss(animated: true)
                     }

@@ -156,7 +156,9 @@ class MessagesVC: UIViewController {
                 .set(uid: user.uid ?? "")
                 .hideReplies(hide: true)
                 .set(types: [MessageTypeConstants.text, MessageTypeConstants.image, MessageTypeConstants.video, MessageTypeConstants.audio, MessageTypeConstants.file, MessageTypeConstants.groupMember, MessageTypeConstants.form, MessageTypeConstants.scheduler])
-                .set(categories: [MessageCategoryConstants.message, MessageCategoryConstants.action, MessageCategoryConstants.custom])
+                // interactive + card must be listed here too — the types list above already names
+                // form/scheduler, but without their categories the fetch silently drops them.
+                .set(categories: [MessageCategoryConstants.message, MessageCategoryConstants.action, MessageCategoryConstants.custom, MessageCategoryConstants.interactive, MessageCategoryConstants.card])
             messageListView.set(user: user, parentMessage: parentMessage, withParent: self.withParent)
             messageListView.set(messagesRequestBuilder: builder)
         }
@@ -268,7 +270,11 @@ class MessagesVC: UIViewController {
         let isPushingToMessagesVC = topVC is MessagesVC && topVC !== self
         
         if !isPushingToMessagesVC {
-            self.navigationController?.setNavigationBarHidden(false, animated: true)
+            // Non-animated: an animated un-hide races the pushed controller's own
+            // navigation-item layout. CometChatSearch installs its search bar via
+            // navigationItem.searchController, and when the bar is still mid-animation the
+            // field never gets installed — the bar reserves the height but shows no input.
+            self.navigationController?.setNavigationBarHidden(false, animated: false)
         }
 
         CometChatPushNotifications.shared.clearActiveConversation()

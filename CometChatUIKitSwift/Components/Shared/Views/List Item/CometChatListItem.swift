@@ -226,6 +226,7 @@ open class CometChatListItem: UITableViewCell {
     open func setupStyle() {
         titleLabel.textColor = style.listItemTitleTextColor
         titleLabel.font = style.listItemTitleFont
+        titleLabel.adjustsFontForContentSizeCategory = true
         background.set(backgroundColor: style.listItemBackground)
         background.borderWith(width: style.listItemBorderWidth)
         background.borderColor(color: style.listItemBorderColor)
@@ -332,6 +333,7 @@ extension CometChatListItem{
     @discardableResult
     public func set(titleFont: UIFont) -> Self {
         self.titleLabel.font = titleFont
+        self.titleLabel.adjustsFontForContentSizeCategory = true
         return self
     }
     

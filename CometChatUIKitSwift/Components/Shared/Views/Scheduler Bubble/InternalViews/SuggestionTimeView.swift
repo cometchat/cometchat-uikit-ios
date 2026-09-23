@@ -136,6 +136,7 @@ class SuggestionTimeView: UIView {
         let titleLabel = UILabel()
         titleLabel.textColor = style.titleTint
         titleLabel.font = style.titleFont
+        titleLabel.adjustsFontForContentSizeCategory = true
         if let title = message?.title {
             titleLabel.text = title
         } else {
@@ -195,6 +196,7 @@ class SuggestionTimeView: UIView {
         let noSlotsAvailableLabel = UILabel()
         noSlotsAvailableLabel.textColor = CometChatTheme_v4.palatte.accent600
         noSlotsAvailableLabel.font = CometChatTheme_v4.typography.text1
+        noSlotsAvailableLabel.adjustsFontForContentSizeCategory = true
         noSlotsAvailableLabel.numberOfLines = 0
         noSlotsAvailableLabel.textAlignment = .center
         let dateFormatter = DateFormatter()
@@ -254,6 +256,7 @@ class SuggestionTimeView: UIView {
         durationLabel.text = "\((message.duration))min meeting • \(TimeZone.current.getFullForm())"
         durationLabel.textColor = CometChatTheme_v4.palatte.accent700
         durationLabel.font = CometChatTheme_v4.typography.caption2
+        durationLabel.adjustsFontForContentSizeCategory = true
         durationLabel.translatesAutoresizingMaskIntoConstraints = false
         midView.addSubview(durationLabel)
         durationLabel.topAnchor.constraint(equalTo: suggestButtonContainerView.bottomAnchor, constant: 5).isActive = true

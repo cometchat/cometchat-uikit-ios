@@ -42,6 +42,20 @@ open class CometChatRichTextToolbar: UIView {
     public var enabledFormats: [FormatType] = FormatType.allCases {
         didSet { rebuildButtons() }
     }
+
+    /// Custom buttons rendered after the built-in formats, separated by a
+    /// divider. Empty by default, in which case no divider is drawn.
+    public var trailingActions: [CometChatRichTextToolbarAction] = [] {
+        didSet { rebuildButtons() }
+    }
+
+    /// The rendered trailing buttons, keyed by their action's `id`.
+    public private(set) var trailingActionButtons: [String: UIButton] = [:]
+
+    /// Supplies the composer input handed to a trailing action's `onClick`. The
+    /// host composer installs this; when nil, trailing buttons do nothing, since
+    /// an action with no input to act on has nothing to do.
+    public var composerInputProvider: (() -> CometChatComposerInput?)?
     
     /// Style configuration
     public static var style = RichTextToolbarStyle()
@@ -94,18 +108,30 @@ open class CometChatRichTextToolbar: UIView {
     private func rebuildButtons() {
         buttonStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         formatButtons.removeAll()
-        
+        trailingActionButtons.removeAll()
+
         for format in enabledFormats {
             let button = createFormatButton(for: format)
             formatButtons[format] = button
             buttonStackView.addArrangedSubview(button)
-            
+
             // Add separator after specific formats to group related buttons
             // Group 1: bold, italic, underline, strikethrough | Group 2: link, numberedList, bulletList | Group 3: blockquote, code, codeBlock
             if format == .strikethrough || format == .bulletList {
                 let separator = createSeparatorView()
                 buttonStackView.addArrangedSubview(separator)
             }
+        }
+
+        // Custom trailing buttons, fenced off by the same divider that groups the
+        // built-in formats. Built here rather than appended from outside so they
+        // survive the stack wipe above when enabledFormats changes.
+        guard !trailingActions.isEmpty else { return }
+        buttonStackView.addArrangedSubview(createSeparatorView())
+        for action in trailingActions {
+            let button = createTrailingActionButton(for: action)
+            trailingActionButtons[action.id] = button
+            buttonStackView.addArrangedSubview(button)
         }
     }
     
@@ -147,10 +173,35 @@ open class CometChatRichTextToolbar: UIView {
         ])
         
         button.addTarget(self, action: #selector(formatButtonTapped(_:)), for: .touchUpInside)
-        
+
         return button
     }
-    
+
+    private func createTrailingActionButton(for action: CometChatRichTextToolbarAction) -> UIButton {
+        let button = TrailingActionButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.action = action
+
+        button.setImage(action.icon, for: .normal)
+        button.tintColor = action.tint ?? style.iconTintColor
+        button.backgroundColor = style.buttonBackgroundColor
+        button.layer.cornerRadius = style.buttonCornerRadius
+
+        button.accessibilityLabel = action.accessibilityLabel ?? action.id
+
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: style.buttonSize),
+            button.heightAnchor.constraint(equalToConstant: style.buttonSize)
+        ])
+
+        // A separate selector from formatButtonTapped(_:), which resolves a format
+        // by indexing enabledFormats with the button's tag — an untagged button
+        // defaults to tag 0 and would silently apply the first format.
+        button.addTarget(self, action: #selector(trailingActionButtonTapped(_:)), for: .touchUpInside)
+
+        return button
+    }
+
     private func applyStyle() {
         backgroundColor = style.backgroundColor
         layer.borderColor = style.borderColor.cgColor
@@ -164,14 +215,27 @@ open class CometChatRichTextToolbar: UIView {
             button.tintColor = isActive ? style.activeIconTintColor : style.iconTintColor
             button.backgroundColor = isActive ? style.activeButtonBackgroundColor : style.buttonBackgroundColor
         }
+
+        // Trailing buttons have no active/inactive state of their own.
+        for (id, button) in trailingActionButtons {
+            button.tintColor = trailingActions.first { $0.id == id }?.tint ?? style.iconTintColor
+            button.backgroundColor = style.buttonBackgroundColor
+        }
     }
-    
+
     // MARK: - Actions
-    
+
     @objc private func formatButtonTapped(_ sender: UIButton) {
         guard sender.tag < enabledFormats.count else { return }
         let format = enabledFormats[sender.tag]
         onFormatSelected?(format)
+    }
+
+    @objc private func trailingActionButtonTapped(_ sender: UIButton) {
+        guard let action = (sender as? TrailingActionButton)?.action,
+              let input = composerInputProvider?() else { return }
+        action.onClick(input)
+        input.commit()
     }
     
     // MARK: - Public Methods
@@ -276,6 +340,16 @@ open class CometChatRichTextToolbar: UIView {
     }
 }
 
+// MARK: - Trailing Actions
+
+/// Carries its own action so a trailing button never enters the tag-indexed
+/// dispatch that format buttons use. Holding the action here also ties its
+/// lifetime to the button, so `rebuildButtons()` releases it with no separate
+/// bookkeeping to keep in step.
+private final class TrailingActionButton: UIButton {
+    var action: CometChatRichTextToolbarAction?
+}
+
 // MARK: - Builder Pattern
 extension CometChatRichTextToolbar {
     
@@ -294,6 +368,12 @@ extension CometChatRichTextToolbar {
     @discardableResult
     public func set(onFormatSelected: @escaping (FormatType) -> Void) -> Self {
         self.onFormatSelected = onFormatSelected
+        return self
+    }
+
+    @discardableResult
+    public func set(trailingActions: [CometChatRichTextToolbarAction]) -> Self {
+        self.trailingActions = trailingActions
         return self
     }
 }

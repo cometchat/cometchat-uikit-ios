@@ -176,6 +176,7 @@ class PollsOptionView: UIView {
     func set(style: PollBubbleStyle) -> Self {
         optionLabel.textColor = style.optionTextColor
         optionLabel.font = style.optionTextFont
+        optionLabel.adjustsFontForContentSizeCategory = true
         optionProgressBar.backgroundColor = style.optionProgressBackgroundColor
         optionProgressBar.progressTintColor = style.optionProgressTintColor
         optionProgressBar.roundViewCorners(corner: style.optionProgressCornerRadius)
@@ -184,6 +185,7 @@ class PollsOptionView: UIView {
           })
         pollAttemptedCountLabel.textColor = style.optionCountTextColor
         pollAttemptedCountLabel.font = style.optionCountTextFont
+        pollAttemptedCountLabel.adjustsFontForContentSizeCategory = true
         spinnerView.color = style.optionProgressTintColor
         if isOptionSelected {
             optionSelectedIndicatorImageView.tintColor = style.selectedPollImageTint

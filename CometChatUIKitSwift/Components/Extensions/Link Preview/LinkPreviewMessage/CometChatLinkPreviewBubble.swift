@@ -106,6 +106,10 @@ open class CometChatLinkPreviewBubble: UIView {
     
     /// The URL of the link being previewed.
     var url: String?
+
+    /// Set once parsed attributed text is displayed, so styling does not
+    /// repaint colours the parser produced.
+    private var hasAttributedText = false
     
     /// Request object for loading images.
     private var imageRequest: Cancellable?
@@ -190,8 +194,9 @@ open class CometChatLinkPreviewBubble: UIView {
         // Set up custom link handlers BEFORE setting attributedText
         // This ensures HyperlinkLabel parses them correctly when updateTextStorage is called
         setupAttributedLinksBeforeDisplay(in: attributedText)
-        
+
         self.messageLabel.attributedText = attributedText
+        hasAttributedText = true
         return self
     }
     
@@ -309,7 +314,12 @@ open class CometChatLinkPreviewBubble: UIView {
         subtitle.font = style.subtitleTextFont
         linkLabel.textColor = style.linkTextColor
         linkLabel.font = style.linkTextFont
-        messageLabel.textColor = style.messageTextColor
+        // A textColor write repaints the whole attributed string, and this runs
+        // on willMove(toSuperview:) — after the parsed text is set. Skipping it
+        // keeps parsed colours, matching CometChatTextBubble.applyStyle.
+        if !hasAttributedText {
+            messageLabel.textColor = style.messageTextColor
+        }
         messageLabel.font = style.messageTextFont
         previewContainerStackView.roundViewCorners(corner: style.previewCornerRadius)
         previewContainerStackView.backgroundColor = style.previewBackgroundColor

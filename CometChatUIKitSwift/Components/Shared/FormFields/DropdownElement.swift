@@ -115,6 +115,7 @@ import UIKit
             // Add the title label
             titleLabel.frame = CGRect(x: 5, y: 0, width: frame.width - 100, height: 30)
             titleLabel.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+            titleLabel.adjustsFontForContentSizeCategory = true
             addSubview(titleLabel)
 //            titleLabel.backgroundColor = .blue
 

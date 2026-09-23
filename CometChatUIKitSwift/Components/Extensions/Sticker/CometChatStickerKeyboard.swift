@@ -119,6 +119,7 @@ public class CometChatStickerKeyboard: UIView {
     lazy var errorRetryButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "arrow.counterclockwise")?.withRenderingMode(.alwaysTemplate), for: .normal) // Set retry button image
+        button.accessibilityLabel = "a11y_retry".localize()
         button.addTarget(self, action: #selector(retry), for: .touchUpInside) // Set action to retry fetching stickers
         return button
     }()
@@ -283,14 +284,17 @@ public class CometChatStickerKeyboard: UIView {
         // Set the text color and font for the empty state title label.
         emptyTitleLabel.textColor = style.emptyStateTitleTextColor
         emptyTitleLabel.font = style.emptyStateTitleTextFont
+        emptyTitleLabel.adjustsFontForContentSizeCategory = true
         
         // Set the text color and font for the empty state subtitle label.
         emptySubTitleLabel.textColor = style.emptyStateSubtitleTextColor
         emptySubTitleLabel.font = style.emptyStateSubtitleTextFont
+        emptySubTitleLabel.adjustsFontForContentSizeCategory = true
         
         // Set the text color and font for the error state label.
         errorLabel.textColor = style.errorStateTextColor
         errorLabel.font = style.errorStateTextFont
+        errorLabel.adjustsFontForContentSizeCategory = true
     }
 
     /// This method is called when the view is about to be added to a window.
@@ -418,7 +422,7 @@ public class CometChatStickerKeyboard: UIView {
                 self.errorView.isHidden = false
                 self.emptyView.isHidden = true
             }
-            print("Error fetching stickers: \(error?.errorDescription ?? "Unknown error")")
+            CometChatLogger.error("Error fetching stickers: \(error?.errorDescription ?? "Unknown error")")
         }
     }
 

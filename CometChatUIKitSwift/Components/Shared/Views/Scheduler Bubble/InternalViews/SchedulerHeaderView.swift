@@ -48,6 +48,7 @@ class SchedulerHeaderView {
         let subtitleLabel = UILabel()
         subtitleLabel.text = "\(message.duration) min"
         subtitleLabel.font = CometChatTheme_v4.typography.text2
+        subtitleLabel.adjustsFontForContentSizeCategory = true
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         subtitleLabel.textColor = CometChatTheme_v4.palatte.accent500
         subtitleView.addArrangedSubview(subtitleLabel)
@@ -62,6 +63,7 @@ class SchedulerHeaderView {
     
         let backButton = UIButton(type: .system)
         backButton.setImage(UIImage(named: "cometchatlistbase-back", in: CometChatUIKit.bundle, with: nil)?.withRenderingMode(.alwaysTemplate), for: .normal)
+        backButton.accessibilityLabel = "a11y_back".localize()
         backButton.tintColor = CometChatTheme_v4.palatte.primary
         backButton.imageView?.contentMode = .scaleAspectFit
         backButton.translatesAutoresizingMaskIntoConstraints = false

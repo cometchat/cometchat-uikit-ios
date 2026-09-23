@@ -282,7 +282,9 @@ public class CometChatIncomingCall: UIViewController {
         acceptButton.tintColor = style.acceptButtonTintColor
         declineButton.tintColor = style.rejectButtonTintColor
         acceptButton.setImage(style.acceptButtonImage, for: .normal)
+        acceptButton.accessibilityLabel = "a11y_accept_call".localize()
         declineButton.setImage(style.rejectButtonImage, for: .normal)
+        declineButton.accessibilityLabel = "a11y_decline_call".localize()
         if let acceptButtonCornerRadius = style.acceptButtonCornerRadius{
             acceptButton.roundViewCorners(corner: acceptButtonCornerRadius)
         }
@@ -295,9 +297,11 @@ public class CometChatIncomingCall: UIViewController {
         declineButton.borderColor(color: style.rejectButtonBorderColor)
         
         nameLabel.font = style.nameLabelFont
+        nameLabel.adjustsFontForContentSizeCategory = true
         nameLabel.textColor = style.nameLabelColor
         
         callLabel.font = style.callLabelFont
+        callLabel.adjustsFontForContentSizeCategory = true
         callLabel.textColor = style.callLabelColor
         
         containerView.backgroundColor = style.backgroundColor

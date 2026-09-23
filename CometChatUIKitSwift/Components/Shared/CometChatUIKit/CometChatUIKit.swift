@@ -30,8 +30,59 @@ final public class CometChatUIKit {
     
     #if canImport(CometChatCallsSDK)
     static var callingExtension: CallingExtension?
+
+    // Calls SDK init state. As in the Android UI Kit, the Calls SDK is only logged in and out
+    // when its init succeeded, and `init` reports its result only once that init has finished,
+    // so a login made from the init callback sees the settled state.
+    private static let callsSDKInitLock = NSLock()
+    private static var _isCallsSDKInitialized = false
+    private static var isCallsSDKInitPending = false
+    private static var afterCallsSDKInitBlocks: [() -> Void] = []
+
+    static var isCallsSDKInitialized: Bool {
+        callsSDKInitLock.lock()
+        defer { callsSDKInitLock.unlock() }
+        return _isCallsSDKInitialized
+    }
+
+    /// Called by the calling decorator as it starts the Calls SDK init.
+    static func callsSDKInitStarted() {
+        callsSDKInitLock.lock()
+        _isCallsSDKInitialized = false
+        isCallsSDKInitPending = true
+        callsSDKInitLock.unlock()
+    }
+
+    /// Called from the Calls SDK init callbacks; runs whatever was waiting on the init.
+    static func callsSDKInitFinished(success: Bool) {
+        callsSDKInitLock.lock()
+        _isCallsSDKInitialized = success
+        isCallsSDKInitPending = false
+        let blocks = afterCallsSDKInitBlocks
+        afterCallsSDKInitBlocks = []
+        callsSDKInitLock.unlock()
+        blocks.forEach { $0() }
+    }
     #endif
-    
+
+    /// Runs `block` once a Calls SDK init in flight has finished, or at once if none is.
+    /// A deferred block runs on the main thread: the chat SDK delivers its init callback there,
+    /// and integrators build UI from it, whichever thread the Calls SDK finishes on.
+    private static func afterCallsSDKInit(_ block: @escaping () -> Void) {
+        #if canImport(CometChatCallsSDK)
+        callsSDKInitLock.lock()
+        if isCallsSDKInitPending {
+            afterCallsSDKInitBlocks.append {
+                if Thread.isMainThread { block() } else { DispatchQueue.main.async(execute: block) }
+            }
+            callsSDKInitLock.unlock()
+            return
+        }
+        callsSDKInitLock.unlock()
+        #endif
+        block()
+    }
+
     @discardableResult
     public init(uiKitSettings: UIKitSettings, result: @escaping (Result<Bool, Error>) -> Void) {
         CometChatUIKit.isInitializedFromSettings = false
@@ -57,19 +108,45 @@ final public class CometChatUIKit {
                 CometChatUIKit.registerForFCM(with: uiKitSettings.fcmKey)
             }
             FlagReasonsManager.shared.getFlagReasons()
-            result(.success(isSuccess))
+            CometChatUIKit.afterCallsSDKInit { result(.success(isSuccess)) }
         } onError: { error in
             result(.failure(NSError(domain: error.errorCode, code: 0)))
         }
     }
     
-    /// Whether the thread-subscription surfaces should be offered at all. Opt in via
-    /// `UIKitSettings.enable(threadSubscription:)`; reads false before `CometChatUIKit.init`
-    /// has run, so a surface built early stays hidden rather than half-enabled.
+    /// Backing store for the thread-subscription gate. Held here rather than on
+    /// `UIKitSettings` so it reads true from process start: a surface built before
+    /// `CometChatUIKit.init` has run still sees the feature as on.
+    ///
+    /// Locked so an integrator may set it from any thread while the surfaces read it
+    /// on the main thread.
+    private static let threadSubscriptionLock = NSLock()
+    private static var _isThreadSubscriptionEnabled = true
+
+    // :nodoc:
+    /// Whether the thread-subscription surfaces should be offered at all.
+    ///
+    /// **On by default**, matching the React, React Native and Android UI Kits — an
+    /// integrator opts OUT via `UIKitSettings.enable(threadSubscription:)`. The
+    /// per-surface controls (`hideThreadSubscriptionOption`,
+    /// `hideThreadSubscriptionButton`) are ANDed with this one.
+    ///
+    /// - Important: Deliberately undocumented. Kept with its 5.1.22 signature so
+    ///   existing integrator code keeps compiling.
     public static func isThreadSubscriptionEnabled() -> Bool {
-        uiKitSettings?.enableThreadSubscription == true
+        threadSubscriptionLock.lock()
+        defer { threadSubscriptionLock.unlock() }
+        return _isThreadSubscriptionEnabled
     }
-    
+
+    /// Sets the gate. Internal: `UIKitSettings.enable(threadSubscription:)` is the
+    /// integrator-facing way in, so there is a single control surface.
+    static func setThreadSubscriptionEnabled(_ enabled: Bool) {
+        threadSubscriptionLock.lock()
+        defer { threadSubscriptionLock.unlock() }
+        _isThreadSubscriptionEnabled = enabled
+    }
+
     // :nodoc:
     /// Initializes CometChatUIKit by reading configuration from `cometchat-settings.json`
     /// bundled in the app's main bundle. Delegates to the Chat SDK's `initFromSettings`
@@ -145,9 +222,9 @@ final public class CometChatUIKit {
         
         // 5. Delegate to Chat SDK's initFromSettings (sets integrationSource = "ai-agent")
         CometChatUIKit.isInitializedFromSettings = true
-        print("[CometChatUIKit] initFromSettings: Delegating to Chat SDK's initFromSettings (integrationSource will be set to 'ai-agent')")
+        CometChatLogger.debug("[CometChatUIKit] initFromSettings: Delegating to Chat SDK's initFromSettings (integrationSource will be set to 'ai-agent')")
         CometChat.initFromSettings(onSuccess: { isSuccess in
-            print("[CometChatUIKit] initFromSettings: Chat SDK init succeeded = \(isSuccess), integrationSource = 'ai-agent' persisted to UserDefaults")
+            CometChatLogger.debug("[CometChatUIKit] initFromSettings: Chat SDK init succeeded = \(isSuccess), integrationSource = 'ai-agent' persisted to UserDefaults")
             CometChatUIKit.uiKitSettings = uiKitSettings
             if isSuccess {
                 CometChat.setSource(resource: "uikit-v5", platform: "ios", language: "swift", version: UIKitConstants.version)
@@ -166,7 +243,7 @@ final public class CometChatUIKit {
                 CometChatUIKit.configureExtensions(extensions: uiKitSettings.extensions)
             }
             FlagReasonsManager.shared.getFlagReasons()
-            completion(isSuccess, nil)
+            afterCallsSDKInit { completion(isSuccess, nil) }
         }, onError: { error in
             completion(false, error)
         })
@@ -180,19 +257,19 @@ final public class CometChatUIKit {
     
     private static func register(with token: String, VOIP: Bool? = true) {
         CometChat.registerTokenForPushNotification(token: token, settings: ["voip": VOIP]) { (success) in
-            print("onSuccess to registerTokenForPushNotification: \(success)")
+            CometChatLogger.debug("onSuccess to registerTokenForPushNotification: \(success)")
         }
             onError: { (error) in
-            print("error to registerTokenForPushNotification")
+            CometChatLogger.error("error to registerTokenForPushNotification")
         }
     }
     
     private static func registerForFCM(with FCMToken: String?) {
         guard let token = FCMToken, token != "" else { return }
         CometChat.registerTokenForPushNotification(token: token, onSuccess: { (sucess) in
-            print("token registered \(sucess)")
+            CometChatLogger.debug("token registered \(sucess)")
         }) { (error) in
-            print("token registered error \(String(describing: error?.errorDescription))")
+            CometChatLogger.error("token registered error \(String(describing: error?.errorDescription))")
         }
     }
     
@@ -207,6 +284,49 @@ final public class CometChatUIKit {
         registerForFCM(with: uiKitSettings?.fcmKey)
     }
     
+    #if canImport(CometChatCallsSDK)
+    /// Calling is on and the Calls SDK initialised; the Android UI Kit's
+    /// `enableCalling && isCallsSDKInitialized`.
+    private static var shouldManageCallsSession: Bool {
+        CometChatUIKit.callingExtension != nil && CometChatUIKit.isCallsSDKInitialized
+    }
+    #endif
+
+    /// Calls SDK 5 keeps its own session: its requests (call logs, call tokens) send
+    /// `CometChatCalls.getUserAuthToken()`, which is empty until `CometChatCalls.login` runs.
+    /// Log it in with the chat session's token after every UI Kit login, as the Android UI Kit
+    /// (v6, also on Calls SDK 5) does — including reporting a Calls failure as a login failure.
+    private static func loginCallsSDK(then completion: @escaping (CometChatException?) -> Void) {
+        #if canImport(CometChatCallsSDK)
+        guard shouldManageCallsSession else { return completion(nil) }
+        CometChatCalls.login(authToken: CometChat.getUserAuthToken() ?? "", onSuccess: { _ in
+            completion(nil)
+        }, onError: { error in
+            CometChatLogger.error("CometChatCalls login failed: \(error.errorDescription)")
+            completion(CometChatException(errorCode: error.errorCode, errorDescription: error.errorDescription))
+        })
+        #else
+        completion(nil)
+        #endif
+    }
+
+    /// Ends the Calls SDK session alongside the chat one, so the next user does not inherit it.
+    /// Reports a Calls failure as a logout failure, as the Android UI Kit does. Skipped when the
+    /// Calls SDK holds no session — a user logged in by a kit version that never logged it in.
+    private static func logoutCallsSDK(then completion: @escaping (CometChatException?) -> Void) {
+        #if canImport(CometChatCallsSDK)
+        guard shouldManageCallsSession, CometChatCalls.getLoggedInUser() != nil else { return completion(nil) }
+        CometChatCalls.logout(onSuccess: { _ in
+            completion(nil)
+        }, onError: { error in
+            CometChatLogger.error("CometChatCalls logout failed: \(error.errorDescription)")
+            completion(CometChatException(errorCode: error.errorCode, errorDescription: error.errorDescription))
+        })
+        #else
+        completion(nil)
+        #endif
+    }
+
     static public func login(authToken: String, result: @escaping (ApiStatus) -> Void) {
         CometChat.login(authToken: authToken) {  user in
             if let uiKitSettings = uiKitSettings {
@@ -215,10 +335,10 @@ final public class CometChatUIKit {
             }
             FlagReasonsManager.shared.getFlagReasons()
             registerNotificationAndVOIP()
-            result(.success(user))
+            loginCallsSDK { error in result(error.map { .onError($0) } ?? .success(user)) }
         } onError: { error in
             result(.onError(error))
-            debugPrint(error.description)
+            CometChatLogger.error("\(error.description)")
         }
     }
     
@@ -255,13 +375,13 @@ final public class CometChatUIKit {
         guard let authKey = authKey, !authKey.isEmpty else { return result(.onError(uiKitError)) }
         CometChat.login(UID: uid, authKey: authKey) { user in
             registerNotificationAndVOIP()
-            result(.success(user))
+            loginCallsSDK { error in result(error.map { .onError($0) } ?? .success(user)) }
             CometChatUIKit.configureExtensions(extensions: CometChatUIKit.uiKitSettings?.extensions)
             CometChatUIKit.configureAI(extensions: CometChatUIKit.uiKitSettings?.aiExtensions)
             FlagReasonsManager.shared.getFlagReasons()
         } onError: { error in
             result(.onError(error))
-            debugPrint(error.description)
+            CometChatLogger.error("\(error.description)")
         }
     }
     
@@ -272,7 +392,7 @@ final public class CometChatUIKit {
         } onError: { error in
             if let error = error {
                 result(.onError(error))
-                debugPrint(error.description)
+                CometChatLogger.error("\(error.description)")
             }
         }
     }
@@ -284,17 +404,17 @@ final public class CometChatUIKit {
         } onError: { error in
             if let error = error {
                 result(.onError(error))
-                debugPrint(error.description)
+                CometChatLogger.error("\(error.description)")
             }
         }
     }
     
     static public func logout(user: User, result: @escaping (ApiStatus) -> Void) {
         CometChat.logout { isSuccess in
-            result(.success(user))
+            logoutCallsSDK { error in result(error.map { .onError($0) } ?? .success(user)) }
         } onError: { error in
             result(.onError(error))
-            debugPrint(error.description)
+            CometChatLogger.error("\(error.description)")
         }
     }
     

@@ -135,6 +135,7 @@ open class CometChatPollsBubble: UIView {
     func setupStyle() {
         headingLabel.textColor = style.pollTextColor
         headingLabel.font = style.pollTextFont
+        headingLabel.adjustsFontForContentSizeCategory = true
         optionViews.forEach({ $0.set(style: style) })
     }
     
@@ -180,9 +181,9 @@ open class CometChatPollsBubble: UIView {
         ]
         
         CometChat.callExtension(slug: "polls", type: .post, endPoint: "v2/vote", body: body as [String : Any]) { extensionResponseData in
-            print("Success")
+            CometChatLogger.debug("Success")
         } onError: { error in
-            print("Error")
+            CometChatLogger.error("Error")
         }
     }
 

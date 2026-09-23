@@ -125,8 +125,11 @@ final class CardMessageTests: XCTestCase {
     /// Locate a card button by its label; scroll the list up if it rendered below the fold.
     /// `.firstMatch`: the label also surfaces as a static text and can render more than once.
     private func cardButton(_ label: String) -> XCUIElement {
+        // Wait before scrolling: the card is still laying out while its images load, and a
+        // button checked with a bare `.exists` in that window read as missing — the swipe that
+        // followed then moved the card, and the next button with it, off screen.
         let button = app.buttons[label].firstMatch
-        if button.exists { return button }
+        if button.waitForExistence(timeout: 8) { return button }
         app.swipeUp()
         return app.buttons[label].firstMatch
     }
@@ -177,13 +180,23 @@ final class CardMessageTests: XCTestCase {
     /// The Chats list shows the conversation with the card's data.text as the preview subtitle.
     /// The busy shared-backend Chats list can SIGKILL a11y scraping, so assert the backend lastMessage.
     func test_cardShowsConversationPreview() throws {
+        var before: String?
+        runBlocking { before = await PeerActions.lastConversationMessageText() }
         try runBlocking { try await SeedData.createTestConversation() }
+        // Let the seed land as the preview before sending the card. Sent back to back, the
+        // backend applies the two conversation updates out of order: the preview settles on the
+        // OLDER seed and stays there (measured: over a minute). Sequenced, the card becomes the
+        // preview in ~10 s. The out-of-order update itself is a backend defect (KIT-GAPS.md).
+        _ = waitForBackend(timeout: 30) {
+            let now = await PeerActions.lastConversationMessageText()
+            return now != before && now?.hasPrefix("E2E seed message") == true
+        }
         let token = "Preview pizza \(UUID().uuidString.prefix(6))"
         let heading = "H \(UUID().uuidString.prefix(6))"
         try runBlocking {
             _ = try await PeerActions.sendCardMessage(text: token, card: Self.pizzaCard(heading: heading))
         }
-        let arrived = waitForBackend(timeout: 20) { await PeerActions.previewShowsLiveMessage(token) }
+        let arrived = waitForBackend(timeout: 40) { await PeerActions.previewShowsLiveMessage(token) }
         XCTAssertTrue(arrived, "Card data.text did not become the conversation preview: \(token)")
     }
 

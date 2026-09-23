@@ -121,6 +121,7 @@ public class CometChatNewMessageIndicator: UIStackView {
         title.backgroundColor = style.textBackgroundColor
         title.textColor = style.textColor
         title.font = style.textFont
+        title.adjustsFontForContentSizeCategory = true
         iconImageView.image = style.iconImage
         iconImageView.tintColor = style.imageTint
     }

@@ -9,7 +9,6 @@ import UIKit
 import CometChatSDK
 
 public class CometChatCollaborativeBubble: UIStackView {
-
     // MARK: - Properties
     public lazy var topImageView: UIImageView = {
         let imageView = UIImageView().withoutAutoresizingMaskConstraints()
@@ -122,13 +121,9 @@ public class CometChatCollaborativeBubble: UIStackView {
     }
     
     @objc private func handleThemeChange() {
-        print("🎨 CometChatCollaborativeBubble: Received theme change notification")
-        
         // Update colors from the style's computed properties
         icon.tintColor = style.iconTint
         openButton.setTitleColor(style.buttonTextColor, for: .normal)
-        
-        print("🎨 CometChatCollaborativeBubble: Updated icon and button colors")
     }
     
     public override func willMove(toWindow newWindow: UIWindow?) {
@@ -161,12 +156,12 @@ public class CometChatCollaborativeBubble: UIStackView {
         openButton.addTarget(self, action: #selector(onOpenWhiteboardClick), for: .primaryActionTriggered)
     }
     
-    
-    
     public func setupStyle() {
         title.font = style.titleFont
+        title.adjustsFontForContentSizeCategory = true
         title.textColor = style.titleColor
         subTitle.font = style.subTitleFont
+        subTitle.adjustsFontForContentSizeCategory = true
         subTitle.textColor = style.subTitleColor
         icon.tintColor = style.iconTint
         openButton.tintColor = style.buttonTextColor

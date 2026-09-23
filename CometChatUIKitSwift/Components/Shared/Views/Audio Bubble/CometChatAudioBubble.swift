@@ -151,6 +151,7 @@ public class CometChatAudioBubble: UIView {
     /// Applies the style configuration to various components of the audio bubble.
     public func setUpStyle() {
         audioTimeLineLabel.font = style.audioTimeLineFont
+        audioTimeLineLabel.adjustsFontForContentSizeCategory = true
         audioTimeLineLabel.textColor = style.audioTimeLineTextColor
         
         playImageView.image = playImage

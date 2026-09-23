@@ -24,9 +24,7 @@ extension XCTestCase {
     @discardableResult
     func openSeededGroup(_ group: SeedData.TestGroup) -> XCUIApplication {
         let app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(AppLauncher.openGroup(app, named: group.name), "Could not open test group")
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15),
-                      "Group list did not open")
+        XCTAssertTrue(openGroupUntilComposerShows(app, named: group.name), "Could not open test group")
         return app
     }
 
@@ -37,11 +35,24 @@ extension XCTestCase {
         XCTAssertNotNil(group, "Could not create the test group")
         let app = AppLauncher.launchAndWaitForHome()
         if let group {
-            XCTAssertTrue(AppLauncher.openGroup(app, named: group.name), "Could not open the test group")
-            XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15),
-                          "Group message list did not open")
+            XCTAssertTrue(openGroupUntilComposerShows(app, named: group.name), "Could not open the test group")
         }
         return (app, group)
+    }
+
+    /// `AppLauncher.openGroup` taps the matching Groups-tab row, but on the busy shared backend
+    /// the filtered list can still be reloading under the tap, which then lands on nothing —
+    /// the row is found, the composer never appears, and the tab bar is still there. Seen
+    /// three times in one session across unrelated classes. One more attempt from the tab
+    /// bar covers it; a group that genuinely will not open still fails.
+    @discardableResult
+    func openGroupUntilComposerShows(_ app: XCUIApplication, named name: String) -> Bool {
+        for attempt in 0..<2 {
+            guard AppLauncher.openGroup(app, named: name) else { return false }
+            if ComponentQueries.composer(app).waitForExistence(timeout: 15) { return true }
+            guard attempt == 0, app.tabBars.firstMatch.exists else { return false }
+        }
+        return false
     }
 
     /// Log the second SDK client in as User B, skipping the test if it's unavailable.

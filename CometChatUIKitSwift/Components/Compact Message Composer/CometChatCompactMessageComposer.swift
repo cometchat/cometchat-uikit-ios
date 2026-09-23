@@ -60,6 +60,7 @@ open class CometChatCompactMessageComposer: UIView {
         label.text = ""  // Empty placeholder - no text shown
         label.textColor = CometChatTheme.textColorTertiary
         label.font = UIFont.monospacedSystemFont(ofSize: 14, weight: .regular)
+        label.adjustsFontForContentSizeCategory = true
         label.isHidden = true
         return label
     }()
@@ -139,6 +140,7 @@ open class CometChatCompactMessageComposer: UIView {
         toolbar.onFormatSelected = { [weak self] format in
             self?.handleFormatSelected(format)
         }
+        toolbar.composerInputProvider = { [weak self] in self?.makeComposerInput() }
         return toolbar
     }()
     
@@ -156,7 +158,7 @@ open class CometChatCompactMessageComposer: UIView {
         button.addTarget(self, action: #selector(didSendButtonClicked), for: .primaryActionTriggered)
         button.pin(anchors: [.height, .width], to: 32)
         button.roundViewCorners(corner: .init(cornerRadius: 16))
-        button.accessibilityLabel = "Send"
+        button.accessibilityLabel = "a11y_send".localize()
         return button
     }()
     
@@ -165,7 +167,7 @@ open class CometChatCompactMessageComposer: UIView {
         button.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(attachmentButtonClicked), for: .primaryActionTriggered)
         button.pin(anchors: [.height, .width], to: 24)
-        button.accessibilityLabel = "Attachment"
+        button.accessibilityLabel = "a11y_attachment".localize()
         return button
     }()
     
@@ -174,7 +176,7 @@ open class CometChatCompactMessageComposer: UIView {
         button.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(didMicrophoneButtonClicked), for: .primaryActionTriggered)
         button.pin(anchors: [.height, .width], to: 24)
-        button.accessibilityLabel = "Voice Recording"
+        button.accessibilityLabel = "a11y_voice_recording".localize()
         return button
     }()
     
@@ -183,7 +185,7 @@ open class CometChatCompactMessageComposer: UIView {
         button.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(didStickersButtonClicked), for: .primaryActionTriggered)
         button.pin(anchors: [.height, .width], to: 24)
-        button.accessibilityLabel = "Stickers"
+        button.accessibilityLabel = "a11y_stickers".localize()
         return button
     }()
     
@@ -337,6 +339,22 @@ open class CometChatCompactMessageComposer: UIView {
     
     /// Flag to skip cursor adjustment when programmatically setting cursor position
     internal var isSettingCursorProgrammatically = false
+
+    /// Nesting depth of programmatic text changes driven by a custom toolbar action.
+    internal var programmaticChangeDepth = 0
+
+    /// Supplies custom trailing buttons for the rich text toolbar.
+    /// See `set(richTextToolbarActions:)`.
+    public var richTextToolbarActionsClosure: ((User?, Group?) -> [CometChatRichTextToolbarAction])? {
+        didSet { refreshRichTextToolbarActions() }
+    }
+
+    /// The ranges currently occupied by mentions, flattened out of
+    /// `selectedFormatters`, whose dictionary-of-tuples shape is not something to
+    /// freeze into public API.
+    internal var currentMentionRanges: [NSRange] {
+        selectedFormatters.values.flatMap { $0.map(\.range) }
+    }
     
     /// Flag to prevent code block background from being re-expanded during exit
     internal var isExitingCodeBlock = false
@@ -668,6 +686,7 @@ open class CometChatCompactMessageComposer: UIView {
         composerBoxContainerStackView.roundViewCorners(corner: style.composeBoxCornerRadius)
         
         textView.font = style.textFieldFont
+        textView.adjustsFontForContentSizeCategory = true
         textView.textColor = style.textFieldColor
         textView.placeholderColor = style.placeholderColor
         textView.placeholderFont = style.placeholderFont
@@ -703,6 +722,7 @@ open class CometChatCompactMessageComposer: UIView {
         
         // Apply rich text toolbar style
         richTextToolbar.style = style.richTextToolbarStyle
+        refreshRichTextToolbarActions()
         
         let isAgentic = viewModel.user?.isAgentic ?? false
         
@@ -1549,6 +1569,7 @@ open class CometChatCompactMessageComposer: UIView {
                     // Reset font to normal
                     attributedString.addAttribute(.font, value: style.textFieldFont, range: fullRange)
                     attributedString.addAttribute(.foregroundColor, value: style.textFieldColor, range: fullRange)
+                    reapplyMarkerForegroundColors(on: attributedString)
                 }
                 
                 // Reset typing attributes
@@ -2080,7 +2101,8 @@ open class CometChatCompactMessageComposer: UIView {
                     mutableText.removeAttribute(RichTextFormatterManager.isCodeBlockKey, range: fullRange)
                     mutableText.addAttribute(.font, value: style.textFieldFont, range: fullRange)
                     mutableText.addAttribute(.foregroundColor, value: style.textFieldColor, range: fullRange)
-                    
+                    reapplyMarkerForegroundColors(on: mutableText)
+
                     // Restore mention styling by re-processing text formatters
                     for (character, formatterItems) in selectedFormatters {
                         for (item, _) in formatterItems {
@@ -2095,12 +2117,14 @@ open class CometChatCompactMessageComposer: UIView {
                                     
                                     if foundRange.location != NSNotFound {
                                         // Restore mention attributes
-                                        var mentionAttributes = item.visibleTextAttributes ?? [
+                                        let mentionAttributes = item.visibleTextAttributes ?? [
                                             .font: style.textFieldFont,
                                             .foregroundColor: style.textFieldColor
                                         ]
-                                        // Ensure mention has its proper styling
-                                        mutableText.setAttributes(mentionAttributes, range: foundRange)
+                                        // addAttributes, not setAttributes: the latter replaces the
+                                        // whole dictionary, discarding attributes a custom toolbar
+                                        // action applied. The range is already normalised above.
+                                        mutableText.addAttributes(mentionAttributes, range: foundRange)
                                         searchStart = foundRange.location + foundRange.length
                                     } else {
                                         break
@@ -2808,7 +2832,7 @@ open class CometChatCompactMessageComposer: UIView {
     ///   - range: The range where the link should be inserted (replaces selected text if any)
     private func insertLink(displayText: String, url: String, at range: NSRange) {
         guard let currentAttributedText = textView.attributedText else {
-            print("No attributed text available")
+            CometChatLogger.debug("No attributed text available")
             return
         }
         
@@ -2817,7 +2841,7 @@ open class CometChatCompactMessageComposer: UIView {
         
         // Validate range is within bounds - be extra defensive
         guard range.location >= 0 && range.location <= maxLength else {
-            print("Invalid range location: \(range.location), string length: \(maxLength)")
+            CometChatLogger.debug("Invalid range location: \(range.location), string length: \(maxLength)")
             // Fallback: insert at end
             let fallbackRange = NSRange(location: maxLength, length: 0)
             insertLinkInternal(displayText: displayText, url: url, at: fallbackRange, in: attributedString)
@@ -2825,7 +2849,7 @@ open class CometChatCompactMessageComposer: UIView {
         }
         
         guard range.location + range.length <= maxLength else {
-            print("Invalid range: \(range), string length: \(maxLength)")
+            CometChatLogger.debug("Invalid range: \(range), string length: \(maxLength)")
             // Fallback: adjust range to fit
             let adjustedLength = maxLength - range.location
             let adjustedRange = NSRange(location: range.location, length: max(0, adjustedLength))
@@ -2867,7 +2891,7 @@ open class CometChatCompactMessageComposer: UIView {
         if spaceInsertPosition >= 0 && spaceInsertPosition <= attributedString.length {
             attributedString.insert(spaceString, at: spaceInsertPosition)
         } else {
-            print("Cannot insert space at position \(spaceInsertPosition), string length: \(attributedString.length)")
+            CometChatLogger.debug("Cannot insert space at position \(spaceInsertPosition), string length: \(attributedString.length)")
         }
         
         textView.attributedText = attributedString
@@ -3156,6 +3180,57 @@ open class CometChatCompactMessageComposer: UIView {
         richTextToolbar.setActiveFormats(activeFormats)
     }
     
+    /// Re-resolves the trailing-action closure against the current user/group and
+    /// hands the result to the toolbar. Called when the closure is set and again
+    /// from `setupStyle()`, by which point `set(user:)` has certainly run.
+    internal func refreshRichTextToolbarActions() {
+        guard let closure = richTextToolbarActionsClosure else {
+            richTextToolbar.trailingActions = []
+            return
+        }
+        richTextToolbar.trailingActions = closure(viewModel.user, viewModel.group)
+    }
+
+    /// Builds a handle onto this composer's input for a custom toolbar action.
+    ///
+    /// Fresh per tap rather than stored: it closes over state that must be read
+    /// at call time. Returns nil while a mention is being typed, so trailing
+    /// buttons are inert exactly as the format buttons are.
+    internal func makeComposerInput() -> CometChatComposerInput? {
+        guard ongoingTextFormatter == nil else { return nil }
+        return CometChatComposerInput(
+            textView: textView,
+            mentionRangesProvider: { [weak self] in self?.currentMentionRanges ?? [] },
+            programmaticChangeHandler: { [weak self] isChanging in
+                self?.setProgrammaticTextChange(isChanging)
+            },
+            syncHandler: { [weak self] in
+                guard let self = self else { return }
+                self.updateToolbarActiveFormats()
+                self.updateSendButtonState()
+            }
+        )
+    }
+
+    /// Brackets a programmatic text or selection change. Counted, so consecutive
+    /// changes within one action don't un-suppress each other and the trailing
+    /// reset is scheduled once, when the outermost bracket closes.
+    internal func setProgrammaticTextChange(_ isChanging: Bool) {
+        if isChanging {
+            programmaticChangeDepth += 1
+            isSettingCursorProgrammatically = true
+        } else {
+            programmaticChangeDepth = max(0, programmaticChangeDepth - 1)
+            guard programmaticChangeDepth == 0 else { return }
+            // UIKit delivers selection-change callbacks asynchronously, so clearing
+            // synchronously would let cursor adjustment fire against our own edit.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                guard let self = self, self.programmaticChangeDepth == 0 else { return }
+                self.isSettingCursorProgrammatically = false
+            }
+        }
+    }
+
     /// Updates the toolbar to show active formats at current cursor position
     func updateToolbarActiveFormats() {
         // IMPORTANT: Don't update toolbar if a mention is being typed - keep buttons disabled
@@ -4544,5 +4619,66 @@ extension CometChatCompactMessageComposer: CometChatUIEventListener {
             return
         }
         updateBlockquoteBarForPosition(startPosition)
+    }
+}
+
+// MARK: - Foreground Colour Repainting
+
+extension CometChatCompactMessageComposer {
+
+    /// Repaints `.foregroundColor` after a blanket write, re-applying the colours
+    /// the kit owns.
+    ///
+    /// A blanket `addAttribute(.foregroundColor:range: fullRange)` flattens every
+    /// colour in the field. Call this after any such write.
+    ///
+    /// Order is the policy: kit runs paint in ascending precedence, so a mention
+    /// always wins over a link or code run covering the same range. Blockquote is
+    /// view-based here and needs no repaint.
+    ///
+    /// The kit owns no colour attribute of its own, so it cannot restore a
+    /// consumer's colour from its own state. A formatter that renders its own
+    /// inline style re-applies it last, through `applyComposerAttributes(to:)`.
+    func reapplyMarkerForegroundColors(on text: NSMutableAttributedString) {
+        guard text.length > 0 else { return }
+        let fullRange = NSRange(location: 0, length: text.length)
+
+        // 1. Links. The composer stores the URL off `.link` precisely so iOS does
+        // not force its blue, and paints them in the field's base colour — so a
+        // link run reverts to base rather than taking a user colour.
+        text.enumerateAttribute(RichTextFormatterManager.linkURLKey, in: fullRange) { value, range, _ in
+            guard value != nil else { return }
+            text.addAttribute(.foregroundColor, value: style.textFieldColor, range: range)
+        }
+
+        // 2. Inline code (code blocks colour the whole field via their own path).
+        text.enumerateAttribute(RichTextFormatterManager.formatTypeKey, in: fullRange) { value, range, _ in
+            guard let formats = value as? Set<String>, formats.contains(FormatType.code.rawValue) else { return }
+            text.addAttribute(.foregroundColor, value: CometChatTheme.extendedPrimaryColor700, range: range)
+        }
+
+        // 3. Mentions — always win.
+        for (_, formatterItems) in selectedFormatters {
+            for formatterItem in formatterItems {
+                let item = formatterItem.item
+                guard let visibleText = item.visibleText,
+                      let mentionColor = item.visibleTextAttributes?[.foregroundColor] else { continue }
+                var searchStart = 0
+                while searchStart < text.length {
+                    let remaining = NSRange(location: searchStart, length: text.length - searchStart)
+                    let found = (text.string as NSString).range(of: visibleText, options: [], range: remaining)
+                    guard found.location != NSNotFound else { break }
+                    text.addAttribute(.foregroundColor, value: mentionColor, range: found)
+                    searchStart = found.location + found.length
+                }
+            }
+        }
+
+        // 4. A consumer formatter's own styling, re-applied last so it survives
+        // the kit's repaint. Span-only by contract: the token text is left alone
+        // and still goes on the wire.
+        for formatter in viewModel.textFormatter {
+            formatter.applyComposerAttributes(to: text)
+        }
     }
 }

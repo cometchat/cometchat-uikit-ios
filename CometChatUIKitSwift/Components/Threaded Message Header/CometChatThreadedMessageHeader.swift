@@ -93,9 +93,9 @@ open class CometChatThreadedMessageHeader: UIView {
     var datePattern: ((_ conversation: Conversation) -> String)?
     public var hideReplyCount: Bool = false
     public var hideReplyCountBar: Bool = false
-    /// Master switch for the subscribe/unsubscribe bell, mirroring the message list's flag.
     /// Hides the bell while leaving the feature on, for a host that already renders
-    /// its own control elsewhere on the screen.
+    /// its own control elsewhere on the screen. ANDed with the thread-subscription
+    /// gate; when that gate is off this has no effect.
     public var hideThreadSubscriptionButton: Bool = false
     public var hideAvatar: Bool?
 
@@ -195,6 +195,7 @@ open class CometChatThreadedMessageHeader: UIView {
         threadCountContainerView.backgroundColor = style.dividerTintColor
         threadCountLabel.textColor = style.countTextColor
         threadCountLabel.font = style.countTextFont
+        threadCountLabel.adjustsFontForContentSizeCategory = true
         
     }
     
@@ -283,6 +284,7 @@ open class CometChatThreadedMessageHeader: UIView {
                     nameLabel.numberOfLines = 1
                     nameLabel.text = isLoggedInUser ? "YOU".localize() : message.sender?.name?.capitalized ?? ""
                     nameLabel.font = messageTypeStyle?.headerTextFont ?? bubbleStyle.headerTextFont
+                    nameLabel.adjustsFontForContentSizeCategory = true
                     nameLabel.textColor = messageTypeStyle?.headerTextColor ?? bubbleStyle.headerTextColor
                     
                     cell.set(headerView: nameLabel)

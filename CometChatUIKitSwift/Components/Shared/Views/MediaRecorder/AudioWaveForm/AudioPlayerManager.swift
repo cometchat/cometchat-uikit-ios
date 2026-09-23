@@ -27,17 +27,17 @@ final class AudioPlayerManager: NSObject {
 
 	func play(at url: URL, with audioVisualizationTimeInterval: TimeInterval = 0.05) throws -> TimeInterval {
 		if AudioRecorderManager.shared.isRunning {
-			print("Audio Player did fail to start: AVFoundation is recording")
+			CometChatLogger.error("Audio Player did fail to start: AVFoundation is recording")
 			throw AudioErrorType.alreadyRecording
 		}
 
 		if self.isRunning {
-			print("Audio Player did fail to start: already playing a file")
+			CometChatLogger.error("Audio Player did fail to start: already playing a file")
 			throw AudioErrorType.alreadyPlaying
 		}
 
 		if !URL.checkPath(url.path) {
-			print("Audio Player did fail to start: file doesn't exist")
+			CometChatLogger.error("Audio Player did fail to start: file doesn't exist")
 			throw AudioErrorType.audioFileWrongPath
 		}
 
@@ -69,12 +69,12 @@ final class AudioPlayerManager: NSObject {
 
 	func resume() throws -> TimeInterval {
 		guard let audioPlayer = self.audioPlayer else {
-			print("Audio Player did fail to resume: no audio player instance")
+			CometChatLogger.error("Audio Player did fail to resume: no audio player instance")
 			throw AudioErrorType.notCurrentlyPlaying
 		}
 		
 		if audioPlayer.isPlaying {
-			print("Audio Player is already playing, cannot resume")
+			CometChatLogger.debug("Audio Player is already playing, cannot resume")
 			throw AudioErrorType.alreadyPlaying
 		}
 		
@@ -84,12 +84,12 @@ final class AudioPlayerManager: NSObject {
 
 	func pause() throws {
 		guard let audioPlayer = self.audioPlayer else {
-			print("Audio Player did fail to pause: no audio player instance")
+			CometChatLogger.error("Audio Player did fail to pause: no audio player instance")
 			throw AudioErrorType.notCurrentlyPlaying
 		}
 		
 		if !audioPlayer.isPlaying {
-			print("Audio Player did fail to pause: not currently playing")
+			CometChatLogger.error("Audio Player did fail to pause: not currently playing")
 			throw AudioErrorType.notCurrentlyPlaying
 		}
 		
@@ -98,7 +98,7 @@ final class AudioPlayerManager: NSObject {
 
 	func stop() throws {
 		if !self.isRunning {
-			print("Audio Player did fail to stop: there is nothing currently playing")
+			CometChatLogger.error("Audio Player did fail to stop: there is nothing currently playing")
 			throw AudioErrorType.notCurrentlyPlaying
 		}
 		

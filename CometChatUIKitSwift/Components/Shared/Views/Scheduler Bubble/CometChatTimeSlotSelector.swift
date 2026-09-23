@@ -100,6 +100,7 @@ public class CometChatTimeSlotSelector: UIStackView {
         dateLabel.text = dateFormatter.string(from: date ?? Date())
         dateLabel.textColor = CometChatTheme_v4.palatte.accent800
         dateLabel.font = CometChatTheme_v4.typography.text1
+        dateLabel.adjustsFontForContentSizeCategory = true
         dateStackView.isHidden = hideDateText
         dateStackView.addArrangedSubview(dateLabel)
         
@@ -120,6 +121,7 @@ public class CometChatTimeSlotSelector: UIStackView {
         selectTimeLabel.text = "SELECT_A_TIME".localize()
         selectTimeLabel.textColor = style.titleColor
         selectTimeLabel.font = style.titleFont 
+        selectTimeLabel.adjustsFontForContentSizeCategory = true
         selectTimeLabel.isHidden = hideSelectTimeText
         self.addArrangedSubview(selectTimeLabel)
         self.setCustomSpacing(10, after: selectTimeLabel)
@@ -199,6 +201,7 @@ public class CometChatTimeSlotSelector: UIStackView {
             noSlotsAvailableLabel.translatesAutoresizingMaskIntoConstraints = false
             noSlotsAvailableLabel.textColor = CometChatTheme_v4.palatte.accent600
             noSlotsAvailableLabel.font = CometChatTheme_v4.typography.text1
+            noSlotsAvailableLabel.adjustsFontForContentSizeCategory = true
             noSlotsAvailableLabel.numberOfLines = 0
             noSlotsAvailableLabel.textAlignment = .center
             let dateFormatter = DateFormatter()
@@ -237,6 +240,7 @@ public class CometChatTimeSlotSelector: UIStackView {
         timeZoneLabel.translatesAutoresizingMaskIntoConstraints = false
         timeZoneLabel.textColor = CometChatTheme_v4.palatte.accent900
         timeZoneLabel.font = CometChatTheme_v4.typography.caption1
+        timeZoneLabel.adjustsFontForContentSizeCategory = true
         timeZoneLabel.numberOfLines = 0
         timeZoneLabel.text = TimeZone.current.getFullForm()
         timeZoneLabel.sizeToFit()

@@ -121,7 +121,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 .set(region: AppConstants.REGION)
                 .subscribePresenceForAllUsers()
                 .enable(inAppIncomingCall: false)
-                .enable(threadSubscription: true)
                 .build()
             
             CometChatUIKit.init(uiKitSettings: uikitSettings, result: { result in

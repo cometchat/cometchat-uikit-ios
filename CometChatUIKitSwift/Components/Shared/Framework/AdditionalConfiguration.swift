@@ -40,8 +40,8 @@ public class AdditionalConfiguration {
     public var hideShareMessageOption: Bool = false
     public var hideReplyMessageOption: Bool = false
     public var showMarkAsUnreadOption: Bool = false
-    /// Hides the action-sheet option only. Ignored while the thread-subscription feature
-    /// gate is off, which already hides both surfaces.
+    /// Hides the action-sheet option only. Ignored while the thread-subscription gate
+    /// is off, which already hides both surfaces.
     public var hideThreadSubscriptionOption: Bool = false
     public var hideVideoCallButton: Bool = false
     public var hideVoiceCallButton: Bool = false

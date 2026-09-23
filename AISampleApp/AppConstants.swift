@@ -1,15 +1,10 @@
-//
-//  AppConstents.swift
-//  CometChatUIKitSwift
-//
-//  Created by Suryansh on 17/10/24.
-//
-
 import Foundation
 import UIKit
 
+/// Your CometChat credentials — get them from https://app.cometchat.com/
+/// (App ID and Region on the app overview, Auth Key under API & Auth Keys).
 class AppConstants {
-    
+
     static var APP_ID: String = "XXXXXXXXX"
     static var AUTH_KEY: String = "XXXXXXXXX"
     static var REGION: String = "XXXXXXXXX"
@@ -21,7 +16,7 @@ extension AppConstants{
         UserDefaults.standard.set(AUTH_KEY, forKey: "authKey")
         UserDefaults.standard.set(REGION, forKey: "region")
     }
-    
+
     static func retrieveAppConstants(){
         APP_ID = UserDefaults.standard.string(forKey: "appID") ?? AppConstants.APP_ID
         AUTH_KEY = UserDefaults.standard.string(forKey: "authKey") ?? AppConstants.AUTH_KEY

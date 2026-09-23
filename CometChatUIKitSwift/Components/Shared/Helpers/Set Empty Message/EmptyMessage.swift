@@ -23,6 +23,7 @@ extension UICollectionView {
         messageLabel.textAlignment = .center
         
         messageLabel.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        messageLabel.adjustsFontForContentSizeCategory = true
         messageLabel.sizeToFit()
         self.backgroundView = messageLabel
     }
@@ -43,6 +44,7 @@ extension UITableView {
             messageLabel.numberOfLines = 0;
             messageLabel.textAlignment = .center
             messageLabel.font = font
+            messageLabel.adjustsFontForContentSizeCategory = true
             messageLabel.sizeToFit()
             this.backgroundView = messageLabel
         }

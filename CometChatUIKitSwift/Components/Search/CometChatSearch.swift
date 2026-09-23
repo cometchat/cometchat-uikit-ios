@@ -99,34 +99,36 @@ open class CometChatSearch: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = CometChatTypography.Body.regular
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.textColorSecondary
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.text = "Search for conversations or messages by typing a keyword above."
+        label.text = "search_empty_subtitle".localize()
         return label
     }()
 
      lazy var emptyStateTitleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.text = "Start Your Search"
+        titleLabel.text = "search_empty_title".localize()
         titleLabel.font = CometChatTypography.Heading3.bold
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.textColor = CometChatTheme.textColorPrimary
         titleLabel.textAlignment = .center
         return titleLabel
     }()
     
-    public var errorStateImage: UIImage = UIImage() {
+    public var errorStateImage: UIImage = UIImage(named: "error-icon", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal) ?? UIImage() {
         didSet {
             (errorStateView as? StateView)?.image = errorStateImage
         }
     }
-    public var errorStateTitleText: String = "" {
+    public var errorStateTitleText: String = "OOPS!".localize() {
         didSet {
             (errorStateView as? StateView)?.title = errorStateTitleText
         }
     }
-    public var errorStateSubTitleText: String = "" {
+    public var errorStateSubTitleText: String = "LOOKS_LIKE_SOMETHINGS_WENT_WORNG._PLEASE_TRY_AGAIN".localize() {
         didSet {
             (errorStateView as? StateView)?.subtitle = errorStateSubTitleText
         }
@@ -243,9 +245,9 @@ open class CometChatSearch: UIViewController {
          }
         searchController.obscuresBackgroundDuringPresentation = false
         if let user = user {
-            searchController.searchBar.placeholder = "Search for \(user.name ?? "")"
+            searchController.searchBar.placeholder = String(format: "search_placeholder_user".localize(), user.name ?? "")
         } else if let group = group {
-            searchController.searchBar.placeholder = "Search in \(group.name ?? "")"
+            searchController.searchBar.placeholder = String(format: "search_placeholder_group".localize(), group.name ?? "")
         } else{
             searchController.searchBar.placeholder = "SEARCH".localize()
         }
@@ -297,8 +299,10 @@ open class CometChatSearch: UIViewController {
         
         if let emptyStateView = emptyStateView as? StateView {
             emptyStateView.subtitleLabel.font = style.emptySubTitleFont
+            emptyStateView.subtitleLabel.adjustsFontForContentSizeCategory = true
             emptyStateView.subtitleLabel.textColor = style.emptySubTitleTextColor
             emptyStateView.titleLabel.font = style.emptyTitleTextFont
+            emptyStateView.titleLabel.adjustsFontForContentSizeCategory = true
             emptyStateView.titleLabel.textColor = style.emptyTitleTextColor
             emptyStateView.imageView.tintColor = CometChatTheme.neutralColor300
         }
@@ -344,6 +348,7 @@ open class CometChatSearch: UIViewController {
 
             if let searchBarTextFont = style.searchBarTextFont{
                 searchTextField.font = searchBarTextFont
+                searchTextField.adjustsFontForContentSizeCategory = true
             }
             
             if let searchBarBackgroundColor = style.searchBarBackgroundColor{
@@ -410,7 +415,17 @@ open class CometChatSearch: UIViewController {
             guard let self else { return }
 
             tableView.reloadData()
-            
+
+            // Both searches failed (e.g. the plan has no Advanced Search): show the error
+            // state instead of an endless loader, as the Android UI Kit does.
+            if viewModel.conversationSearchFailed && viewModel.messageSearchFailed {
+                hideEmptyStateView()
+                addErrorStateView()
+                removeLoadingView()
+                return
+            }
+            hideErrorStateView()
+
             let searchText = searchController.searchBar.text ?? ""
             let isEmptySearch = searchText.isEmpty
             let hasFilters = !selectedFilters.isEmpty
@@ -434,25 +449,25 @@ open class CometChatSearch: UIViewController {
 
             if searchScopes.count == 1, searchScopes.contains(.messages), noMessages{
                 addEmptyStateView()
-                emptyStateTitleLabel.text = "No results"
+                emptyStateTitleLabel.text = "search_no_results".localize()
                 emptyStateSubtitleLabel.text = isEmptySearch
                     ? ""
                     : "There were no results for “\(searchText)”\nTry a new search"
             } else if searchScopes.count == 1, searchScopes.contains(.conversations), noConversations{
                 addEmptyStateView()
-                emptyStateTitleLabel.text = "No results"
+                emptyStateTitleLabel.text = "search_no_results".localize()
                 emptyStateSubtitleLabel.text = isEmptySearch
                     ? ""
                     : "There were no results for “\(searchText)”\nTry a new search"
             } else if (noConversations && noMessages) {
                 addEmptyStateView()
-                emptyStateTitleLabel.text = "No results"
+                emptyStateTitleLabel.text = "search_no_results".localize()
                 emptyStateSubtitleLabel.text = isEmptySearch
                     ? ""
                     : "There were no results for “\(searchText)”\nTry a new search"
             } else {
-                emptyStateTitleLabel.text = "Start Your Search"
-                emptyStateSubtitleLabel.text = "Search for conversations or messages by typing a keyword above."
+                emptyStateTitleLabel.text = "search_empty_title".localize()
+                emptyStateSubtitleLabel.text = "search_empty_subtitle".localize()
                 hideEmptyStateView()
             }
             
@@ -499,6 +514,25 @@ open class CometChatSearch: UIViewController {
     }
 
     
+    func addErrorStateView() {
+        guard errorStateView.superview == nil else { return }
+        errorStateView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(errorStateView)
+        NSLayoutConstraint.activate([
+            errorStateView.topAnchor.constraint(equalTo: tableView.topAnchor),
+            errorStateView.leadingAnchor.constraint(equalTo: tableView.leadingAnchor),
+            errorStateView.trailingAnchor.constraint(equalTo: tableView.trailingAnchor),
+            errorStateView.bottomAnchor.constraint(equalTo: tableView.bottomAnchor),
+        ])
+        tableView.isHidden = true
+    }
+
+    func hideErrorStateView() {
+        guard errorStateView.superview != nil else { return }
+        errorStateView.removeFromSuperview()
+        tableView.isHidden = false
+    }
+
     func hideEmptyStateView(){
         tableView.isHidden = false
         emptyStateView.removeFromSuperview()
@@ -815,6 +849,7 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
 
         let titleLabel = UILabel()
         titleLabel.font = CometChatTypography.Caption1.medium
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.textColor = CometChatTheme.textColorSecondary
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -832,14 +867,14 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
             if viewModel.filteredConversations.isEmpty{
                 return nil
             }else{
-                titleLabel.text = "Chats"
+                titleLabel.text = "CHATS".localize()
                 return headerView
             }
         case .messages:
             if viewModel.filteredMessages.isEmpty{
                 return nil
             }else{
-                titleLabel.text = "Messages"
+                titleLabel.text = "MESSAGES".localize()
                 return headerView
             }
         }
@@ -869,7 +904,7 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
 
         let footerView = UIView()
         let button = UIButton(type: .system)
-        button.setTitle("Show More", for: .normal)
+        button.setTitle("search_show_more".localize(), for: .normal)
         button.titleLabel?.font = CometChatTypography.Caption1.medium
         button.setTitleColor(CometChatTheme.textColorHighlight, for: .normal)
         button.tag = section

@@ -52,7 +52,7 @@ extension  MessageHeaderViewModel: CometChatGroupDelegate {
     
     public func onGroupMemberJoined(action: CometChatSDK.ActionMessage, joinedUser: CometChatSDK.User, joinedGroup: CometChatSDK.Group) {
         
-        print("MessageHeaderViewModel - SDK - onGroupMemberJoined")
+        CometChatLogger.debug("MessageHeaderViewModel - SDK - onGroupMemberJoined")
         if joinedGroup.guid == self.group?.guid {
             self.group = joinedGroup
             updateGroupCount?(joinedGroup)
@@ -63,7 +63,7 @@ extension  MessageHeaderViewModel: CometChatGroupDelegate {
     
     public func onGroupMemberLeft(action: CometChatSDK.ActionMessage, leftUser: CometChatSDK.User, leftGroup: CometChatSDK.Group) {
         
-        print("MessageHeaderViewModel - SDK - onGroupMemberLeft")
+        CometChatLogger.debug("MessageHeaderViewModel - SDK - onGroupMemberLeft")
         if leftGroup.guid == self.group?.guid {
             self.group = leftGroup
             updateGroupCount?(leftGroup)
@@ -75,7 +75,7 @@ extension  MessageHeaderViewModel: CometChatGroupDelegate {
         /*
          updateGroup(group)
          */
-        print("MessageHeaderViewModel - SDK - onGroupMemberKicked")
+        CometChatLogger.debug("MessageHeaderViewModel - SDK - onGroupMemberKicked")
         if kickedFrom.guid == self.group?.guid {
             self.group = kickedFrom
             updateGroupCount?(kickedFrom)
@@ -90,7 +90,7 @@ extension  MessageHeaderViewModel: CometChatGroupDelegate {
             updateGroupCount?(bannedFrom)
             onUpdate?()
         }
-        print("MessageHeaderViewModel - SDK - onGroupMemberBanned")
+        CometChatLogger.debug("MessageHeaderViewModel - SDK - onGroupMemberBanned")
     }
     
     public func onGroupMemberUnbanned(action: CometChatSDK.ActionMessage, unbannedUser: CometChatSDK.User, unbannedBy: CometChatSDK.User, unbannedFrom: CometChatSDK.Group) {
@@ -100,7 +100,7 @@ extension  MessageHeaderViewModel: CometChatGroupDelegate {
             updateGroupCount?(unbannedFrom)
             onUpdate?()
         }
-        print("MessageHeaderViewModel - SDK - onGroupMemberUnbanned")
+        CometChatLogger.debug("MessageHeaderViewModel - SDK - onGroupMemberUnbanned")
     }
     
     public func onGroupMemberScopeChanged(action: CometChatSDK.ActionMessage, scopeChangeduser: CometChatSDK.User, scopeChangedBy: CometChatSDK.User, scopeChangedTo: String, scopeChangedFrom: String, group: CometChatSDK.Group) {
@@ -112,12 +112,12 @@ extension  MessageHeaderViewModel: CometChatGroupDelegate {
             onUpdate?()
         }
         
-        print("MessageHeaderViewModel - SDK - onGroupMemberScopeChanged")
+        CometChatLogger.debug("MessageHeaderViewModel - SDK - onGroupMemberScopeChanged")
     }
     
     public func onMemberAddedToGroup(action: CometChatSDK.ActionMessage, addedBy: CometChatSDK.User, addedUser: CometChatSDK.User, addedTo: CometChatSDK.Group) {
 
-        print("MessageHeaderViewModel - SDK - onMemberAddedToGroup")
+        CometChatLogger.debug("MessageHeaderViewModel - SDK - onMemberAddedToGroup")
         if addedTo.guid == self.group?.guid {
             self.group = addedTo
             updateGroupCount?(addedTo)

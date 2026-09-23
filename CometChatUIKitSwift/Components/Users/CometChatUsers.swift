@@ -133,11 +133,15 @@ open class CometChatUsers: CometChatListBase {
             button.setTitleColor(CometChatTheme.textColorPrimary, for: .normal)
             button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
             button.addTarget(self, action: #selector(crossButtonTapped), for: .touchUpInside)
+            // The title is the selection count, not a description of the action —
+            // VoiceOver reading "3" does not say this button cancels selection.
+            button.accessibilityLabel = "a11y_close".localize()
             button.sizeToFit()
             let barButtonItem = UIBarButtonItem(customView: button)
             navigationItem.leftBarButtonItem = barButtonItem
             rightBarButtonItem = [UIBarButtonItem(image: UIImage(systemName: "checkmark"), style: .done, target: self, action: #selector(tickButtonTapped))]
             rightBarButtonItem.first?.tintColor = CometChatTheme.iconColorPrimary
+            rightBarButtonItem.first?.accessibilityLabel = "a11y_confirm_selection".localize()
             navigationItem.rightBarButtonItems = rightBarButtonItem
         }
     }
@@ -477,6 +481,7 @@ extension CometChatUsers {
         let label = UILabel()
         label.text = String(title)
         label.font = style.headerTitleFont
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = style.headerTitleColor
         label.backgroundColor = .clear
         label.frame = CGRect(x: 20, y: 0, width: tableView.frame.width, height: 19)

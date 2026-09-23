@@ -144,7 +144,7 @@ extension CometChatMessageList{
                 }
             } onError: { [weak self] error in
                 DispatchQueue.main.async {
-                    debugPrint("getSmartReplies failed with error: \(String(describing: error?.errorDescription))")
+                    CometChatLogger.error("getSmartReplies failed with error: \(String(describing: error?.errorDescription))")
                     guard let this = self else { return }
                     this.aiSmartReplyView.hideLoadingView()
                     this.aiSmartReplyView.show(error: true)

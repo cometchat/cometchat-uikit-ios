@@ -254,13 +254,24 @@ open class CometChatGroupMembers: CometChatListBase {
         return button
     }
     
+    /// Pre-iOS 26 UIKit drops a contextual action's own `title` when the image leaves no
+    /// vertical room, so the caption is baked into the bitmap. iOS 26 renders the `title`
+    /// itself, so the composite showed every caption twice ("Kick Kick", ENG-39532); there
+    /// the bare glyph is used — the same split `CometChatConversations` makes.
+    private func swipeActionImage(_ glyph: UIImage?, caption: String) -> UIImage? {
+        if #available(iOS 26, *) {
+            return glyph?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        }
+        return glyph?.add(text: caption, imageTint: .white)
+    }
+
     open func configureMenu(groupMember: GroupMember) -> [UIContextualAction] {
         
         var actions: [UIContextualAction] = []
         
         // - Scope Change Action -
         if GroupMembersUtils.allowScopeChange(group: viewModel.group, groupMember: groupMember) {
-            let scopeChangeImage = UIImage(systemName: "arrow.triangle.2.circlepath.circle")?.add(text: "SCOPE".localize(), imageTint: .white)
+            let scopeChangeImage = swipeActionImage(UIImage(systemName: "arrow.triangle.2.circlepath.circle"), caption: "SCOPE".localize())
             let scopeChangeAction = UIContextualAction(
                 style: .normal,
                 title: "SCOPE".localize(),
@@ -299,7 +310,7 @@ open class CometChatGroupMembers: CometChatListBase {
         
         // - Ban Action -
         if GroupMembersUtils.allowKickBanUnbanMember(group: viewModel.group, groupMember: groupMember) {
-            let banActionImage = UIImage(named: "ban_members")?.add(text: "BAN".localize(), imageTint: .white)
+            let banActionImage = swipeActionImage(UIImage(named: "ban_members"), caption: "BAN".localize())
             let banAction = UIContextualAction(
                 style: .normal,
                 title: "BAN".localize(),
@@ -321,7 +332,7 @@ open class CometChatGroupMembers: CometChatListBase {
         
         //TODO: update localised files after merging
         if GroupMembersUtils.allowKickBanUnbanMember(group: viewModel.group, groupMember: groupMember) {
-            let removeActionImage = UIImage(systemName: "minus.circle")?.add(text: "KICK".localize(), imageTint: .white)
+            let removeActionImage = swipeActionImage(UIImage(systemName: "minus.circle"), caption: "KICK".localize())
             let removeAction = UIContextualAction(
                 style: .normal,
                 title: "KICK".localize(),
@@ -586,6 +597,7 @@ extension UIImage {
         let label = UILabel()
         label.text = text
         label.font = CometChatTypography.Caption1.medium
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.white
         label.sizeToFit()
         

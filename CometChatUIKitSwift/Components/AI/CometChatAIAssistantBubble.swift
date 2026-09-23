@@ -17,6 +17,7 @@ public class CometChatAIAssistantBubble: UIView {
         let label = UILabel().withoutAutoresizingMaskConstraints()
         label.numberOfLines = 0
         label.font = CometChatTypography.Body.regular
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .label
         return label
     }()
@@ -48,6 +49,7 @@ public class CometChatAIAssistantBubble: UIView {
     open func setupStyle() {
         label.textColor = style.textColor
         label.font = style.textFont
+        label.adjustsFontForContentSizeCategory = true
     }
     
     // MARK: - Public API

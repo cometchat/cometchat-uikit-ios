@@ -492,6 +492,7 @@ open class CometChatMessageComposer: UIView {
         // Set image based on state and user type
         if !isAIBusy {
             sendButton.setImage(isAgentic ? style.agenticSendButtonImage : style.sendButtonImage, for: .normal)
+            sendButton.accessibilityLabel = "a11y_send".localize()
         } else {
             sendButton.setImage(aiBusyButton, for: .normal)
         }
@@ -680,6 +681,7 @@ open class CometChatMessageComposer: UIView {
         dividerView.backgroundColor = style.composerSeparatorColor
         
         textView.font = style.textFiledFont
+        textView.adjustsFontForContentSizeCategory = true
         textView.textColor = style.textFiledColor
         textView.placeholderColor = style.placeHolderTextColor
         textView.placeholderFont = style.placeHolderTextFont
@@ -689,8 +691,11 @@ open class CometChatMessageComposer: UIView {
         ]
         //setting image
         attachmentButton.setImage(style.attachmentImage, for: .normal)
+        attachmentButton.accessibilityLabel = "a11y_attachment".localize()
         microphoneButton.setImage(style.voiceRecordingImage, for: .normal)
+        microphoneButton.accessibilityLabel = "a11y_voice_recording".localize()
         aiButton.setImage(style.aiImage, for: .normal)
+        aiButton.accessibilityLabel = "a11y_ai_assistant".localize()
         
         // Set send button image and tint based on user type
         let isAgentic = viewModel.user?.isAgentic ?? false

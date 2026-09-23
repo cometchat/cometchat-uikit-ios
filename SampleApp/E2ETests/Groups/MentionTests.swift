@@ -62,14 +62,51 @@ final class MentionTests: XCTestCase {
         )
     }
 
+    /// Wave 6 — tapping a member's @mention in a group bubble opens that member's 1:1 chat
+    /// (the sample app's `CometChatMentionsFormatter` tap handler pushes `MessagesVC(user:)`).
+    /// The message is composed so the mention is its first token, and the tap lands on the
+    /// leading edge of the bubble where that token renders.
+    func test_GRP_tappingMentionOpensMentionedUsersChat() throws {
+        openGroup()
+        let composer = ComponentQueries.composer(app)
+        composer.tap()
+        composer.typeText("@" + String(TestConfig.userBDisplayName.split(separator: " ").first ?? ""))
+        // The header shows the GROUP's name here, so B's name can only be the picker row.
+        let suggestion = app.staticTexts[TestConfig.userBDisplayName].firstMatch
+        XCTAssertTrue(suggestion.waitForExistence(timeout: 8), "Mention picker did not offer \(TestConfig.userBDisplayName)")
+        suggestion.tap()
+
+        let tail = "mtap\(UUID().uuidString.prefix(6).lowercased())"
+        composer.typeText(" \(tail)")
+        ComponentQueries.sendButton(app).tap()
+        XCTAssertTrue(ComponentQueries.waitForBubbleContaining(app, substring: tail, timeout: 14),
+                      "Mention message did not render")
+
+        let bubble = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", tail)).firstMatch.exists
+            ? app.buttons.matching(NSPredicate(format: "label CONTAINS %@", tail)).firstMatch
+            : app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", tail)).firstMatch
+        XCTAssertTrue(bubble.waitForExistence(timeout: 5), "Mention bubble not found for tapping")
+        bubble.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.5)).tap()
+
+        // The pushed 1:1 shows B's name in its header and no longer the group's name.
+        XCTAssertTrue(waitForCondition(timeout: 12) {
+            self.app.staticTexts[TestConfig.userBDisplayName].exists
+                && !self.app.staticTexts[self.group?.name ?? ""].exists
+        }, "Tapping the @mention did not open \(TestConfig.userBDisplayName)'s chat")
+        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 10),
+                      "The mentioned user's chat has no composer")
+    }
+
     // MARK: - Helpers
 
     private func openGroup() {
-        let testGroup = try? runBlocking { try await SeedData.createTestGroupWithMember() }
+        // Surface the seeding error: `try?` reported "Could not create the test group" for a
+        // whole run without saying why.
+        var testGroup: SeedData.TestGroup?
+        do { testGroup = try runBlocking { try await SeedData.createTestGroupWithMember() } }
+        catch { XCTFail("Could not create the test group: \(error)") }
         group = testGroup
-        XCTAssertNotNil(testGroup, "Could not create the test group")
         app = AppLauncher.launchAndWaitForHome()
-        XCTAssertTrue(AppLauncher.openGroup(app, named: testGroup!.name), "Could not open the test group")
-        XCTAssertTrue(ComponentQueries.composer(app).waitForExistence(timeout: 15), "Group message list did not open")
+        XCTAssertTrue(openGroupUntilComposerShows(app, named: testGroup!.name), "Could not open the test group")
     }
 }

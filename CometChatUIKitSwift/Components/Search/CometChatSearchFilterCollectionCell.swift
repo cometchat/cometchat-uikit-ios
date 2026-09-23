@@ -33,6 +33,7 @@ class FilterCell: UICollectionViewCell {
         
         titleLabel.textColor = CometChatTheme.textColorSecondary
         titleLabel.font = UIFont.systemFont(ofSize: 14)
+        titleLabel.adjustsFontForContentSizeCategory = true
         
         stack.axis = .horizontal
         stack.spacing = 4

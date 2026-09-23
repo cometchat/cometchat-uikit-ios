@@ -173,11 +173,15 @@ open class CometChatGroups: CometChatListBase {
             button.setTitleColor(CometChatTheme.textColorPrimary, for: .normal)
             button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 0)
             button.addTarget(self, action: #selector(crossButtonTapped), for: .touchUpInside)
+            // The title is the selection count, not a description of the action —
+            // VoiceOver reading "3" does not say this button cancels selection.
+            button.accessibilityLabel = "a11y_close".localize()
             button.sizeToFit()
             let barButtonItem = UIBarButtonItem(customView: button)
             navigationItem.leftBarButtonItem = barButtonItem
             tickButton = [UIBarButtonItem(image: UIImage(systemName: "checkmark"), style: .done, target: self, action: #selector(tickButtonTapped))]
             tickButton?.first?.tintColor = CometChatTheme.iconColorPrimary
+            tickButton?.first?.accessibilityLabel = "a11y_confirm_selection".localize()
             navigationItem.rightBarButtonItems = tickButton
         }
     }
@@ -437,6 +441,7 @@ extension CometChatGroups {
                 : "\(group.membersCount) \("MEMBERS".localize())"
             label.textColor = style.listItemSubTitleTextColor
             label.font = style.listItemSubTitleFont
+            label.adjustsFontForContentSizeCategory = true
             listItem.set(subtitle: label)
         }
         
@@ -568,7 +573,7 @@ extension CometChatGroups {
             viewModel.selectedGroups.append(group)
             tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
         } else {
-            print("Selection limit reached.")
+            CometChatLogger.debug("Selection limit reached.")
         }
     }
 

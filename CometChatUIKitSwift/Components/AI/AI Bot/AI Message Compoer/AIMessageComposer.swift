@@ -47,10 +47,12 @@ class AIMessageComposer: UIView {
         sendButton.setImage(sendIcon, for: .normal)
         sendButton.tintColor = CometChatTheme_v4.palatte.accent700
         sendButton.setTitle("", for: .normal)
+        sendButton.accessibilityLabel = "a11y_send".localize()
         
         textFiled.delegate = self
         textFiled.attributedPlaceholder = NSAttributedString(string: self.placeholderText, attributes: [.foregroundColor: style?.placeHolderTextColor ?? CometChatTheme_v4.palatte.accent500, .font: style?.placeHolderTextFont ??  CometChatTheme_v4.typography.text1])
         textFiled.font = style?.textFont ?? CometChatTheme_v4.typography.text1
+        textFiled.adjustsFontForContentSizeCategory = true
         textFiled.textColor = style?.textColor ?? CometChatTheme_v4.palatte.accent
         textFiled.backgroundColor = style?.inputBackground ?? CometChatTheme_v4.palatte.background
 //        textFiled.maxNumberOfLines = 3

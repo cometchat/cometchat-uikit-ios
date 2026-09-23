@@ -950,7 +950,7 @@ public class MessagesDataSource: DataSource {
         }
         
         ///setting local url
-        if CometChat.getLoggedInUser()?.uid == message?.senderUid,
+        if LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid),
            let localFileURLString = message?.metaData?["fileURL"] as? String,
            let localURL = URL(string: localFileURLString),
            localURL.checkFileExist(),
@@ -1152,7 +1152,7 @@ public class MessagesDataSource: DataSource {
         imageBubble.pin(anchors: [.height, .width], to: 232)
         
         var localImageURL: String?
-        if message?.senderUid == CometChat.getLoggedInUser()?.uid {
+        if LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid) {
             localImageURL = message?.metaData?["fileURL"] as? String ///setting image from local path
         }
         
@@ -1341,18 +1341,36 @@ public class MessagesDataSource: DataSource {
                                 let finalRange = NSRange(location: 0, length: finalMutable.length)
                                 finalMutable.mutableString.replaceOccurrences(of: "\n", with: " ", options: [], range: finalRange)
                                 
-                                // Apply mention styling from the processed text
-                                mentionProcessed.enumerateAttributes(in: NSRange(location: 0, length: mentionProcessed.length), options: []) { attrs, range, _ in
-                                    // Check if this range has mention-specific attributes
-                                    if attrs[.link] != nil || (attrs[.foregroundColor] as? UIColor) == CometChatTheme.primaryColor {
-                                        // Apply mention styling to the same range in our final text
-                                        if range.location + range.length <= finalMutable.length {
-                                            for (key, value) in attrs {
-                                                finalMutable.addAttribute(key, value: value, range: range)
-                                            }
-                                        }
+                                // Carry the formatters' styling onto the re-parsed
+                                // text. parseMarkdown takes a String, so every
+                                // attribute the formatters produced was dropped
+                                // above; this is what puts them back.
+                                //
+                                // A mention run keeps the whole-attribute copy it
+                                // has always had — font, colour, background and
+                                // link — so a subtitle mention renders exactly as
+                                // it does today. Every other run is new ground:
+                                // nothing was carried for it before, so anything
+                                // carried now can only add. A consumer's formatter
+                                // owns its own styling and the kit cannot
+                                // enumerate it, which is why the carry is keyed on
+                                // nothing.
+                                //
+                                // `.font` is the one attribute an unstyled run may
+                                // not bring: markdown owns the rendered font, and
+                                // NSAttributedString holds a single font per range,
+                                // so carrying one would overwrite bold or code.
+                                // A mention run is exempt because overwriting there
+                                // is the shipped behaviour.
+                                MessageUtils.mergeFormatterAttributes(
+                                    from: mentionProcessed,
+                                    onto: finalMutable,
+                                    skipping: [.font],
+                                    carryingEverythingFor: { attributes in
+                                        attributes[.link] != nil
+                                            || (attributes[.foregroundColor] as? UIColor) == CometChatTheme.primaryColor
                                     }
-                                }
+                                )
                                 
                                 attributedLastMessage = finalMutable
                             } else {

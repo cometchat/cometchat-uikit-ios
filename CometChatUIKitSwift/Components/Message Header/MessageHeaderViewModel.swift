@@ -81,7 +81,7 @@ public class MessageHeaderViewModel: NSObject, MessageHeaderViewModelProtocol {
 
     public func disconnect() {
         listeners.remove(.userSDK, id: "messages-header-user-listener-\(listenerRandomId)")
-        listeners.remove(.messageSDK, id: "messages-header-message-listener-\(listenerRandomId)")
+        listeners.remove(.messageEvents, id: "messages-header-message-listener-\(listenerRandomId)")
         listeners.remove(.groupSDK, id: "messages-header-groups-sdk-listener-\(listenerRandomId)")
         listeners.remove(.groupEvents, id: "messages-header-group-event-listener-\(listenerRandomId)")
         listeners.remove(.userEvents, id: "messages-header-user-event-listener-\(listenerRandomId)")

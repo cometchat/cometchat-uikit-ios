@@ -24,6 +24,7 @@ class CometChatCreatePollHeader: UITableViewCell {
         let button = UIButton().withoutAutoresizingMaskConstraints()
         button.pin(anchors: [.height, .width], to: 24)
         button.setImage(UIImage(systemName: "xmark"), for: .normal)
+        button.accessibilityLabel = "a11y_close".localize()
         button.imageView?.tintColor = CometChatTheme.iconColorPrimary
         button.addTarget(self, action: #selector(crossButtonPressed), for: .touchUpInside)
         return button

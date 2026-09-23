@@ -112,11 +112,14 @@ public class CometChatMessageTranslationBubble: UIView, MFMailComposeViewControl
     private func setupStyle() {
         self.backgroundColor = .clear
         originalMessageLabel.font = style.textFont
+        originalMessageLabel.adjustsFontForContentSizeCategory = true
         translatedMessageLabel.font = style.textFont
+        translatedMessageLabel.adjustsFontForContentSizeCategory = true
         originalMessageLabel.textColor = style.textColor
         translatedMessageLabel.textColor = style.textColor
         separatorLine.backgroundColor = style.separatorBackgroundColor
         textTranslatedLabel.font = style.subtitleTextFont
+        textTranslatedLabel.adjustsFontForContentSizeCategory = true
         textTranslatedLabel.textColor = style.subtitleTextColor
     }
 

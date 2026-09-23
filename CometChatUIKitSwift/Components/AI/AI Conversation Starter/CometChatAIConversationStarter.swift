@@ -88,6 +88,7 @@ open class CometChatAIConversationStarter: UIView {
         tableView.separatorStyle = style.repliesTableViewSeparatorStyle ?? .none
         errorLabel.textColor = style.errorViewTextColor
         errorLabel.font = style.errorViewTextFont
+        errorLabel.adjustsFontForContentSizeCategory = true
     }
     
     public func showLoadingView() {
@@ -178,6 +179,7 @@ extension CometChatAIConversationStarter: UITableViewDelegate, UITableViewDataSo
         cell.configure(with: message, maxWidth: maxWidth)
         cell.cellLabel.textColor = style.textColor
         cell.cellLabel.font = style.textFont
+        cell.cellLabel.adjustsFontForContentSizeCategory = true
         cell.containerView.borderWith(width: style.borderWidth)
         cell.containerView.borderColor(color: style.borderColor)
         cell.containerView.roundViewCorners(corner: style.cornerRadius ?? .init(cornerRadius: 15))

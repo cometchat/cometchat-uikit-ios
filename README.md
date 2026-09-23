@@ -18,15 +18,50 @@ CometChat Swift UIKit provides a pre-built user interface kit that developers ca
 Dive straight into our Sample Apps to see CometChat UI Kit in action! Whether you're building a messaging app or enhancing your existing project, this sample app showcases the full potential of our iOS UI components.
 
 - [Sample App ](SampleApp#readme)
-- [Sample App for AI Agents](AISampleApp#readme)  
+- [Sample App for AI Agents](AISampleApp#readme)
 - [Sample App with APNs Push Notifications](SampleAppPushNotificationAPNs#readme)
 
 
 ## Prerequisites
 
- - Xcode
- - iOS 13.0 and later
- - Swift 4.0+
+ - Xcode 15 or later
+ - iOS 15.1 and later
+
+## Installation
+
+### Swift Package Manager
+
+CometChat UI Kit is distributed as a Swift package.
+
+**In Xcode:** File → Add Package Dependencies…, enter the package URL, and add the `CometChatUIKitSwift` product to your app target:
+
+```
+https://github.com/cometchat/cometchat-uikit-ios.git
+```
+
+**In a `Package.swift`:**
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/cometchat/cometchat-uikit-ios.git", from: "5.2.0")
+],
+targets: [
+    .target(
+        name: "YourApp",
+        dependencies: [
+            .product(name: "CometChatUIKitSwift", package: "cometchat-uikit-ios")
+        ]
+    )
+]
+```
+
+For the full list of released versions, see the [releases page](https://github.com/cometchat/cometchat-uikit-ios/releases).
+
+### CocoaPods (deprecated)
+
+CocoaPods distribution is **deprecated** and is no longer maintained. Please use
+Swift Package Manager (above). Existing CocoaPods integrations should migrate to SPM;
+no new CocoaPods versions will be published.
 
 ## Getting Started
 
@@ -37,6 +72,6 @@ To set up Swift Chat UIKit and utilize CometChat for your chat functionality, yo
 3. Check the [Key Concepts](https://www.cometchat.com/docs/fundamentals/key-concepts) to understand the basic components of CometChat.
 4. Refer to the [Integration Steps](https://www.cometchat.com/docs/ui-kit/ios/getting-started) in our documentation to integrate the UI Kit into your iOS app.
 
-  
+
 ## Help and Support
 For issues running the project or integrating with our UI Kits, consult our [documentation](https://www.cometchat.com/docs/ui-kit/ios/overview) or create a [support ticket](https://help.cometchat.com/hc/en-us) or seek real-time support via the [CometChat Dashboard](https://app.cometchat.com/).

@@ -20,11 +20,6 @@ final public class UIKitSettings {
     var stripeKey = ""
     var isCallingDisabled: Bool = false
     var enableIncomingCall = false
-    /// Feature gate for the thread follow/unfollow surfaces (the message action-sheet
-    /// option and the threaded-header control). Defaults to false: with the gate off
-    /// neither surface renders and no thread-subscription request is made, whatever the
-    /// per-component `hideThreadSubscription*` flags say.
-    var enableThreadSubscription = false
     var appSettingsBuilder:  AppSettings.AppSettingsBuilder!
     var extensions:  [ExtensionDataSource]?
     var aiExtensions: [ExtensionDataSource]?
@@ -46,13 +41,23 @@ final public class UIKitSettings {
         self.enableIncomingCall = inAppIncomingCall
         return self
     }
-    
+
+    // :nodoc:
+    /// Opts out of the thread-subscription surfaces. The feature is **on by default**, so
+    /// this is only needed to disable it.
+    ///
+    /// Writes straight through to `CometChatUIKit`, which holds the gate — this stores
+    /// nothing of its own, so there is no second value to disagree with it. Unlike 5.1.22
+    /// the value applies immediately rather than at `CometChatUIKit.init`.
+    ///
+    /// - Important: Deliberately undocumented. Retained with its 5.1.22 signature so
+    ///   existing integrator code keeps compiling.
     @discardableResult
     public func enable(threadSubscription: Bool) -> Self {
-        self.enableThreadSubscription = threadSubscription
+        CometChatUIKit.setThreadSubscriptionEnabled(threadSubscription)
         return self
     }
-    
+
     @discardableResult
     public func set(appID: String) -> Self {
         self.appID = appID

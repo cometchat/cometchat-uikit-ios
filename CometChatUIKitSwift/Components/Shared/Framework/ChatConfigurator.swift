@@ -17,10 +17,10 @@ public class ChatConfigurator {
 
         // A decorator reporting its wrapped source's id must not stack again.
         if newSource.getId() == oldSource.getId() || names.contains(obj: newSource.getId()) {
-            debugPrint("Already added")
+            CometChatLogger.debug("Already added")
         } else {
             self.dataSource = newSource
-            debugPrint("Added interface is \(String(describing: dataSource.getId()))")
+            CometChatLogger.debug("Added interface is \(String(describing: dataSource.getId()))")
             names.append(dataSource.getId())
         }
     }

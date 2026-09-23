@@ -611,12 +611,8 @@ extension CometChatConversations {
     /// The Pin/Unpin swipe action, or `nil` when the feature is off, hidden, or the row
     /// carries an admin-global pin the user is not permitted to remove.
     private func pinContextualAction(for conversation: Conversation) -> UIContextualAction? {
-        // TEMPORARY — REVERT BEFORE MERGE: `CometChat.isPinConversationEnabled()` is ANDed in
-        // here normally, but `features.ux.conversations.pinned.enabled` is missing from the
-        // server's SDK cache-bust hash, so it never turns true and the swipe action can never
-        // appear. Dropped from the guard to allow manual testing; restore it once the backend
-        // adds the flag to the hash list.
-        guard enablePinConversation,
+        guard CometChat.isPinConversationEnabled(),
+              enablePinConversation,
               !hidePinConversationOption else { return nil }
 
         let isPinned = viewModel.isPinned(conversation: conversation)

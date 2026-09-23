@@ -15,6 +15,7 @@ class AIAssistantChatHistoryCell: UITableViewCell {
     public let messageLabel: UILabel = {
         let label = UILabel()
         label.font = CometChatTypography.Body.regular
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.textColorPrimary
         label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false

@@ -416,7 +416,7 @@ open class CometChatMessageList: UIView {
                     if viewModel.hasFetchedMessagesBefore {
                         fetchData()
                     } else {
-                        print("[AIAgent] willMove → no-op (threadedParent set but not fetched yet)")
+                        CometChatLogger.debug("[AIAgent] willMove → no-op (threadedParent set but not fetched yet)")
                     }
                 } else if loadLastAgentConversation && !didAttemptLoadLastAgentConversation {
                     loadPreviousAgentConversation()
@@ -429,7 +429,7 @@ open class CometChatMessageList: UIView {
                     } else if viewModel.messages.isEmpty {
                         buildAgenticView()
                     } else {
-                        print("[AIAgent] willMove → no-op (messages already present, table should be visible)")
+                        CometChatLogger.debug("[AIAgent] willMove → no-op (messages already present, table should be visible)")
                     }
                 }
                 
@@ -529,7 +529,7 @@ open class CometChatMessageList: UIView {
                 this.onLastAgentConversationLoaded?(parentId)
                 this.fetchData()
             } else {
-                print("[AIAgent] loadPreviousAgentConversation → fallback buildAgenticView")
+                CometChatLogger.debug("[AIAgent] loadPreviousAgentConversation → fallback buildAgenticView")
                 this.removeLoadingView()
                 this.buildAgenticView()
             }
@@ -598,14 +598,18 @@ open class CometChatMessageList: UIView {
             emptyStateView.titleLabel.textColor = style.emptyStateTitleColor
             emptyStateView.subtitleLabel.textColor = style.emptyStateSubtitleColor
             emptyStateView.titleLabel.font = style.emptyStateTitleFont
+            emptyStateView.titleLabel.adjustsFontForContentSizeCategory = true
             emptyStateView.subtitleLabel.font = style.emptyStateSubtitleFont
+            emptyStateView.subtitleLabel.adjustsFontForContentSizeCategory = true
         }
         
         if let errorStateView = errorStateView as? StateView {
             errorStateView.titleLabel.textColor = style.errorStateTitleColor
             errorStateView.subtitleLabel.textColor = style.errorStateSubtitleColor
             errorStateView.titleLabel.font = style.errorStateTitleFont
+            errorStateView.titleLabel.adjustsFontForContentSizeCategory = true
             errorStateView.subtitleLabel.font = style.errorStateSubtitleFont
+            errorStateView.subtitleLabel.adjustsFontForContentSizeCategory = true
         }
         
         if let loadingStateView = loadingStateView as? CometChatMessageShimmerView {
@@ -710,7 +714,7 @@ open class CometChatMessageList: UIView {
     }
 
     private func fetchData() {
-        print("[AIAgent] fetchData: messages.isEmpty=\(viewModel.messages.isEmpty), parentMessage.id=\(viewModel.parentMessage?.id ?? -1), gotoMessageId=\(gotoMessageId)")
+        CometChatLogger.debug("[AIAgent] fetchData: messages.isEmpty=\(viewModel.messages.isEmpty), parentMessage.id=\(viewModel.parentMessage?.id ?? -1), gotoMessageId=\(gotoMessageId)")
         if viewModel.messages.isEmpty {
             showLoadingView()
         }
@@ -748,7 +752,7 @@ open class CometChatMessageList: UIView {
                 
                 // Handle new chat scenario (no existing conversation)
                 guard let conversation = conversation else {
-                    print("No existing conversation found - treating as new chat")
+                    CometChatLogger.debug("No existing conversation found - treating as new chat")
                     this.viewModel.fetchPreviousMessages()
                     return
                 }
@@ -757,24 +761,21 @@ open class CometChatMessageList: UIView {
                     let lastReadMessageId = conversation.lastReadMessageId
                     if lastReadMessageId <= 0 {
                         this.viewModel.fetchPreviousMessages()
-                        print("unread message detected with last read message less than equal to 0")
+                        CometChatLogger.debug("unread message detected with last read message less than equal to 0")
                     } else {
                         this.showUnreadSeparator(at: lastReadMessageId, mode: .navigateFromConversation)
                         this.unreadMessageCount = conversation.unreadMessageCount
                         this.scrolledToUnread = true
                         this.viewModel.goToMessage(messageId: lastReadMessageId)
                         
-                        print("unread message detected")
-                        print("lastReadMessageId \(lastReadMessageId)")
+                        CometChatLogger.debug("unread message detected")
                     }
                     
                 } else {
-                    print("unread message not detected")
-                    print("conversation count is: \(conversation.unreadMessageCount)")
-                    print("conversation last read message id is: \(conversation.lastReadMessageId)")
+                    CometChatLogger.debug("unread message not detected")
                     if conversation.unreadMessageCount > 0 {
                         this.showUnreadSeparator(at: conversation.lastReadMessageId, mode: .navigateFromConversation)
-                        print("go to message but unread count more than 0")
+                        CometChatLogger.debug("go to message but unread count more than 0")
                     }
                     this.viewModel.fetchPreviousMessages()
                 }
@@ -950,7 +951,7 @@ open class CometChatMessageList: UIView {
             guard let this = self, this.isViewActive else { return }
             
             if this.startFromUnreadMessages && this.gotoMessageId <= 0 {
-                print("check index to scroll")
+                CometChatLogger.debug("check index to scroll")
                 if let unreadId = this.unreadSeparatorMessageId,
                    let unreadIndexPath = this.viewModel.indexPathForMessageId(unreadId) {
 
@@ -971,12 +972,12 @@ open class CometChatMessageList: UIView {
                         this.messageIndicator?.isHidden = this.unreadMessageCount > 0 ? false : true
 //                        this.messageIndicator?.setUnreadCount(count: this.unreadMessageCount)
                         this.removeLoadingView()
-                        print("unreadSeparatorMessageId is \(unreadId)")
-                        print("unreadIndexPath: \(unreadIndexPath)")
+                        CometChatLogger.debug("unreadSeparatorMessageId is \(unreadId)")
+                        CometChatLogger.debug("unreadIndexPath: \(unreadIndexPath)")
                         return
                     }
 
-                    print("Unread separator not visible. Will scroll. section=\(separatorIndexPath.section), row=\(separatorIndexPath.row)")
+                    CometChatLogger.debug("Unread separator not visible. Will scroll. section=\(separatorIndexPath.section), row=\(separatorIndexPath.row)")
 
                     // First scroll to the unread message to ensure it's loaded
                     this.tableView.scrollToRow(
@@ -1024,7 +1025,7 @@ open class CometChatMessageList: UIView {
                         self.tableView.setContentOffset(CGPoint(x: 0, y: targetOffsetY), animated: false)
                     }
                     
-                    print("after fetch next height: \(self.tableView.contentOffset.y), \(self.tableView.contentSize.height)")
+                    CometChatLogger.debug("after fetch next height: \(self.tableView.contentOffset.y), \(self.tableView.contentSize.height)")
                     
                     self.hideBottomSpinner()
                     self.tableView.isScrollEnabled = true
@@ -1037,10 +1038,10 @@ open class CometChatMessageList: UIView {
             guard let this = self, this.isViewActive else { return }
             DispatchQueue.main.async {
                 guard this.isViewActive, this.tableView.window != nil else {
-                    print("[AIAgent] reload: isViewActive=\(this.isViewActive), tableView.window=\(this.tableView.window != nil) — bailing")
+                    CometChatLogger.debug("[AIAgent] reload: isViewActive=\(this.isViewActive), tableView.window=\(this.tableView.window != nil) — bailing")
                     return
                 }
-                print("[AIAgent] reload fired: messages.isEmpty=\(this.viewModel.messages.isEmpty), gotoMessageId=\(this.gotoMessageId)")
+                CometChatLogger.debug("[AIAgent] reload fired: messages.isEmpty=\(this.viewModel.messages.isEmpty), gotoMessageId=\(this.gotoMessageId)")
                 
                 if this.gotoMessageId <= 0 {
                     this.removeLoadingView()
@@ -1179,7 +1180,7 @@ open class CometChatMessageList: UIView {
                 // Verify section count consistency before any incremental update
                 // If they don't match, a concurrent insert changed the data source — reloadRows would crash
                 guard currentSections == dataSourceSections else {
-                    print("[CometChatMessageList] updateAtIndex: section count mismatch — tableView has \(currentSections) sections, dataSource has \(dataSourceSections). Falling back to reloadData().")
+                    CometChatLogger.debug("[CometChatMessageList] updateAtIndex: section count mismatch — tableView has \(currentSections) sections, dataSource has \(dataSourceSections). Falling back to reloadData().")
                     this.tableView.reloadData()
                     return
                 }
@@ -1224,7 +1225,7 @@ open class CometChatMessageList: UIView {
 
                 guard dataSourceCount == currentRows else {
                     // Use reloadData for safety
-                    print("[CometChatMessageList] updateAtIndex: row count mismatch in section \(section) — tableView has \(currentRows) rows, dataSource has \(dataSourceCount). Falling back to reloadData().")
+                    CometChatLogger.debug("[CometChatMessageList] updateAtIndex: row count mismatch in section \(section) — tableView has \(currentRows) rows, dataSource has \(dataSourceCount). Falling back to reloadData().")
                     this.tableView.reloadData()
                     return
                 }
@@ -1521,6 +1522,7 @@ open class CometChatMessageList: UIView {
             
             let label = UILabel().withoutAutoresizingMaskConstraints()
             label.font = specificMessageTypeStyle?.threadedIndicatorTextFont ?? bubbleStyle.threadedIndicatorTextFont
+            label.adjustsFontForContentSizeCategory = true
             label.textColor = specificMessageTypeStyle?.threadedIndicatorTextColor ?? bubbleStyle.threadedIndicatorTextColor
             label.text = forMessage.replyCount > 1 ? "\(forMessage.replyCount)" + " " + "REPLIES_R".localize() : "ONE_REPLY".localize()
             
@@ -1887,6 +1889,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                         nameLabel.numberOfLines = 1
                         nameLabel.text = isLoggedInUser ? "YOU".localize() : message.sender?.name ?? ""
                         nameLabel.font = messageTypeStyle?.headerTextFont ?? bubbleStyle.headerTextFont
+                        nameLabel.adjustsFontForContentSizeCategory = true
                         nameLabel.textColor = messageTypeStyle?.headerTextColor ?? bubbleStyle.headerTextColor
                         
                         // Add agent badge next to the sender name if sender is an AI agent
@@ -2079,6 +2082,7 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     nameLabel.numberOfLines = 1
                     nameLabel.text = isLoggedInUser ? "YOU".localize() : message.sender?.name ?? ""
                     nameLabel.font = messageTypeStyle?.headerTextFont ?? bubbleStyle.headerTextFont
+                    nameLabel.adjustsFontForContentSizeCategory = true
                     nameLabel.textColor = messageTypeStyle?.headerTextColor ?? bubbleStyle.headerTextColor
                     
                     cell.set(headerView: nameLabel)
@@ -2376,7 +2380,7 @@ extension CometChatMessageList {
     @objc func didViewRepliesTap(sender: UITapGestureRecognizer) {
         controller?.view.endEditing(true)
         guard let indexPath = self.tableView.indexPathForRow(at: sender.location(in: self.tableView)), let message = viewModel.messages[safe: indexPath.section]?.messages[safe: indexPath.row], let template = viewModel.getTemplate(for: message) else {
-            print("Error: indexPath)")
+            CometChatLogger.error("could not resolve a message template for the tapped row")
             return
         }
         self.onThreadRepliesClick?(message, template)
@@ -2398,8 +2402,6 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                         if conversation.unreadMessageCount > 0{
                             this.messageIndicator?.setUnreadCount(count: conversation.unreadMessageCount)
                         }
-                        print("message marked as unread is \(message.id)")
-
                         this.reload()
                     }
                 }, failure: {

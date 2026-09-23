@@ -170,7 +170,7 @@ extension CameraHandler: UIImagePickerControllerDelegate, UINavigationController
                 try FileManager.default.removeItem(atPath: fileURL.path)
                
             } catch let removeError {
-                print(removeError.localizedDescription)
+                CometChatLogger.error("\(removeError.localizedDescription)")
             }
         }
         do {
@@ -180,7 +180,7 @@ extension CameraHandler: UIImagePickerControllerDelegate, UINavigationController
                 self.imagePickedBlock?(imagePath.absoluteString)
             }
         } catch let error {
-            print(error.localizedDescription)
+            CometChatLogger.error("\(error.localizedDescription)")
         }
     }
     

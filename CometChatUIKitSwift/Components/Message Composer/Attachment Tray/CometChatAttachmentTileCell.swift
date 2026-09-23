@@ -83,6 +83,7 @@ final class CometChatAttachmentTileCell: UICollectionViewCell {
         let label = PaddingLabel(insets: UIEdgeInsets(top: 1, left: 5, bottom: 1, right: 5))
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 10, weight: .semibold)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
         label.backgroundColor = UIColor.black.withAlphaComponent(0.55)
         label.layer.cornerRadius = 4
@@ -105,6 +106,7 @@ final class CometChatAttachmentTileCell: UICollectionViewCell {
     private lazy var fileTypeLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.textColorSecondary
         return label
     }()
@@ -178,6 +180,7 @@ final class CometChatAttachmentTileCell: UICollectionViewCell {
     private lazy var audioTimeLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 11)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.textColorSecondary
         return label
     }()
@@ -185,6 +188,7 @@ final class CometChatAttachmentTileCell: UICollectionViewCell {
     private lazy var chipErrorLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.errorColor
         label.text = "attachment_upload_failed_retry".localize()
         label.isHidden = true
@@ -594,6 +598,7 @@ final class CometChatAttachmentTileCell: UICollectionViewCell {
     private static func makeNameLabel() -> UILabel {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.adjustsFontForContentSizeCategory = true
         label.textColor = CometChatTheme.textColorPrimary
         label.lineBreakMode = .byTruncatingMiddle
         return label
