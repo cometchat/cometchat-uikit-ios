@@ -83,8 +83,10 @@ public class NotificationFeedItemCell: UITableViewCell {
     // MARK: - Configure
     func configure(with item: NotificationFeedItem, relativeTime: String, style: NotificationFeedStyle) {
         self.style = style
+        applyCardStyle()
         
-        // Convert content dictionary to JSON string for CometChatCardView
+        // Convert content dictionary to JSON string for CometChatCardView.
+        // Keys are sorted so equal content always serialises the same and the card is reused.
         let cardJson = convertContentToJsonString(item.content)
         
         // Only recreate the card view if the JSON changed
@@ -94,8 +96,17 @@ public class NotificationFeedItemCell: UITableViewCell {
         }
     }
     
+    /// Applies the style's card fields to the container around the rendered card.
+    private func applyCardStyle() {
+        cardContainer.backgroundColor = style.cardBackgroundColor
+        cardContainer.layer.borderColor = style.cardBorderColor.cgColor
+        cardContainer.layer.borderWidth = style.cardBorderWidth
+        cardContainer.layer.cornerRadius = style.cardBorderRadius
+        cardView?.themeOverride = style.cardThemeOverride
+    }
+    
     private func convertContentToJsonString(_ content: [String: Any]) -> String {
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: content, options: []),
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: content, options: [.sortedKeys]),
               let jsonString = String(data: jsonData, encoding: .utf8) else {
             return "{}"
         }
@@ -113,6 +124,7 @@ public class NotificationFeedItemCell: UITableViewCell {
         newCardView.translatesAutoresizingMaskIntoConstraints = false
         newCardView.clipsToBounds = false
         newCardView.themeMode = .auto
+        newCardView.themeOverride = style.cardThemeOverride
         
         // Set action callback BEFORE cardJson — rendering captures the callback at parse time
         newCardView.actionCallback = { [weak self] actionEvent in
@@ -180,3 +192,38 @@ public class NotificationFeedItemCell: UITableViewCell {
         removeContentSizeObserver()
     }
 }
+
+extension NotificationFeedStyle {
+    /// The card text and primary-button colours an integrator changed from the defaults, as a
+    /// card theme override. Unchanged fields stay nil, so the card keeps its own theme and the
+    /// default look doesn't move. Fonts can't be passed per role; only the title font's family is.
+    var cardThemeOverride: CometChatCardThemeOverride? {
+        let defaults = NotificationFeedStyle()
+        var override = CometChatCardThemeOverride()
+        var changed = false
+        func value(_ color: UIColor, _ fallback: UIColor) -> CometChatCardColorValue? {
+            let light = Self.hex(color, .light), dark = Self.hex(color, .dark)
+            guard light != Self.hex(fallback, .light) || dark != Self.hex(fallback, .dark) else { return nil }
+            changed = true
+            return CometChatCardColorValue(light: light, dark: dark)
+        }
+        override.textColor = value(cardTitleColor, defaults.cardTitleColor)
+        override.secondaryTextColor = value(cardDescriptionColor, defaults.cardDescriptionColor)
+        override.buttonFilledBg = value(primaryButtonBackgroundColor, defaults.primaryButtonBackgroundColor)
+        override.buttonFilledText = value(primaryButtonTextColor, defaults.primaryButtonTextColor)
+        if cardTitleFont.familyName != defaults.cardTitleFont.familyName {
+            override.fontFamily = cardTitleFont.familyName
+            changed = true
+        }
+        return changed ? override : nil
+    }
+
+    private static func hex(_ color: UIColor, _ style: UIUserInterfaceStyle) -> String {
+        let resolved = color.resolvedColor(with: UITraitCollection(userInterfaceStyle: style))
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        resolved.getRed(&r, green: &g, blue: &b, alpha: &a)
+        func byte(_ v: CGFloat) -> Int { Int((min(max(v, 0), 1) * 255).rounded()) }
+        return String(format: "#%02X%02X%02X", byte(r), byte(g), byte(b))
+    }
+}
+

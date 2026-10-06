@@ -199,10 +199,10 @@ public class CometChatFileBubble: UIStackView {
         movedLocalURL: ((_ url: URL?) -> ())? = nil)
     -> (Bool, URL?) {
         
-        let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let destinationUrl = documentsDirectoryURL.appendingPathComponent(url.lastPathComponent)
-        
-        if FileManager.default.fileExists(atPath: destinationUrl.path) {
+        // A URL with no file name has no cache slot (it would resolve to Documents itself).
+        guard let destinationUrl = url.documentsCacheURL else { return (false, nil) }
+
+        if destinationUrl.isExistingRegularFile {
             movedLocalURL?(destinationUrl)
             return (true, destinationUrl)
         } else if isLocalURL {
@@ -230,8 +230,10 @@ public class CometChatFileBubble: UIStackView {
         if let destinationUrl = doesFileExists(url: url).1  {
             completion(true, destinationUrl)
         } else {
-            let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let destinationUrl = documentsDirectoryURL.appendingPathComponent(url.lastPathComponent)
+            guard let destinationUrl = url.documentsCacheURL else {
+                completion(false, nil)
+                return
+            }
             urlSessionDownloadTask = URLSession.shared.downloadTask(with: url, completionHandler: { [weak self] (location, response, error) -> Void in
                 guard let this = self else { return }
                 guard let tempLocation = location, error == nil else { return }

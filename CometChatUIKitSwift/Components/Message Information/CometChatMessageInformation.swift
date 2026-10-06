@@ -90,14 +90,34 @@ open class CometChatMessageInformation: CometChatListBase {
     open override func setupStyle() {
         title = "MESSAGE_INFO".localize()
         
+        // Keep the list base's style in step with this screen's style rather than the
+        // neutral default, for anything in the base that reads it.
+        var baseStyle = DefaultListBaseStyle()
+        baseStyle.backgroundColor = style.backgroundColor
+        baseStyle.borderWidth = style.borderWidth
+        baseStyle.borderColor = style.borderColor
+        if let cornerRadius = style.cornerRadius { baseStyle.cornerRadius = cornerRadius }
+        baseStyle.titleColor = style.titleColor
+        baseStyle.titleFont = style.titleFont
+        baseStyle.largeTitleColor = style.largeTitleColor
+        baseStyle.largeTitleFont = style.largeTitleFont
+        baseStyle.navigationBarTintColor = style.navigationBarTintColor
+        baseStyle.navigationBarItemsTintColor = style.navigationBarItemsTintColor
+        baseStyle.tableViewSeparator = style.tableViewSeparator
+        baseStyle.errorSubTitleTextColor = style.errorStateTextColor
+        baseStyle.errorSubTitleFont = style.errorStateTextFont
+        baseStyle.emptySubTitleTextColor = style.emptyStateTextColor
+        baseStyle.emptySubTitleFont = style.emptyStateTextFont
+        listBaseStyle = baseStyle
+        
         view.backgroundColor = style.backgroundColor
         view.borderWith(width: style.borderWidth)
         view.borderColor(color: style.borderColor)
         if let cornerRadius = style.cornerRadius { view.roundViewCorners(corner: cornerRadius) }
         
         bubbleContainerView.backgroundColor = style.bubbleContainerBackgroundColor
-        bubbleContainerView.borderWith(width: style.borderWidth)
-        bubbleContainerView.borderColor(color: style.borderColor)
+        bubbleContainerView.borderWith(width: style.bubbleContainerBorderWidth)
+        bubbleContainerView.borderColor(color: style.bubbleContainerBorderColor)
         if let cornerRadius = style.bubbleContainerCornerRadius { bubbleContainerView.roundViewCorners(corner: cornerRadius)}
         
         if let errorView = self.errorStateView as? StateView {
@@ -111,6 +131,10 @@ open class CometChatMessageInformation: CometChatListBase {
             emptyStateView.subtitleLabel.font = style.emptyStateTextFont
             emptyStateView.subtitleLabel.adjustsFontForContentSizeCategory = true
         }
+        
+        // `super.setupStyle()` is not called (it would restyle the table with the list-base
+        // style), so the navigation bar pass it would have run is applied here.
+        styleNavigationBar()
     }
     
     open override func styleNavigationBar() {
@@ -230,6 +254,10 @@ extension CometChatMessageInformation {
     open override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let listItem = tableView.dequeueReusableCell(withIdentifier: CometChatListItem.identifier, for: indexPath) as? CometChatListItem  {
             listItem.selectionStyle = .none
+            // The screen's style is the row style: title, background, border and corner
+            // come from its `listItem*` fields. Set on every dequeue, so a reused row is
+            // restyled the same way as a fresh one.
+            listItem.style = style
             if let receipt = viewModel.receipts[safe: indexPath.row] {
                 
                 //Custom View

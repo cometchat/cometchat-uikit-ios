@@ -49,6 +49,7 @@ public struct GroupMembersStyle: ListBaseStyle, ListItemStyle {
     
     public var navigationBarTintColor: UIColor? = CometChatTheme.backgroundColor01
     
+    /// Tints the navigation bar and this screen's Cancel and Done items; nil keeps the theme's primary colour on those items.
     public var navigationBarItemsTintColor: UIColor?
     
     public var errorTitleTextFont: UIFont = CometChatTypography.Heading3.bold
@@ -67,14 +68,17 @@ public struct GroupMembersStyle: ListBaseStyle, ListItemStyle {
     
     public var emptySubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
     
+    /// Not applied visibly: this list turns table separators off (`separatorStyle = .none`). Kept for source compatibility.
     public var tableViewSeparator: UIColor = .clear
     
     public var listItemTitleTextColor: UIColor = CometChatTheme.textColorPrimary
     
     public var listItemTitleFont: UIFont = CometChatTypography.Heading4.medium
     
+    /// Not applied: member rows have no default subtitle; a `subtitleView` supplies its own styling. Kept for source compatibility.
     public var listItemSubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
     
+    /// Not applied: member rows have no default subtitle; a `subtitleView` supplies its own styling. Kept for source compatibility.
     public var listItemSubTitleFont: UIFont = CometChatTypography.Body.regular
     
     public var listItemBackground: UIColor = .clear
@@ -85,14 +89,19 @@ public struct GroupMembersStyle: ListBaseStyle, ListItemStyle {
     
     public var listItemCornerRadius: CometChatCornerStyle = .init(cornerRadius: 0)
     
+    /// Not applied: member rows show no message preview, so there is no message-type glyph. Kept for source compatibility.
     public var messageTypeImageTint: UIColor = CometChatTheme.iconColorSecondary
     
+    /// Not applied: member rows show users, never a group-type badge. Kept for source compatibility.
     public var passwordGroupImageTintColor: UIColor = CometChatTheme.backgroundColor01
     
+    /// Not applied: member rows show users, never a group-type badge. Kept for source compatibility.
     public var passwordGroupImageBackgroundColor: UIColor = CometChatTheme.warningColor
 
+    /// Not applied: member rows show users, never a group-type badge. Kept for source compatibility.
     public var privateGroupImageTintColor: UIColor = CometChatTheme.backgroundColor01
     
+    /// Not applied: member rows show users, never a group-type badge. Kept for source compatibility.
     public var privateGroupImageBackgroundColor: UIColor = CometChatTheme.successColor
     
     public init() {}

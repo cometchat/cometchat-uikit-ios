@@ -37,10 +37,7 @@ import UIKit
         }
         if let options = data[InteractiveConstants.DropDownUIConstants.OPTIONS] as? [[String:Any]] {
             for option in options {
-                if let id = option[InteractiveConstants.DropDownUIConstants.LABEL] as? String, let value = option[InteractiveConstants.DropDownUIConstants.OPTION_VALUE] as? String {
-                    let optionElement = OptionElement()
-                    optionElement.id = id
-                    optionElement.value = value
+                if let optionElement = OptionElement.optionFromJSON(option) {
                     dropdownElement.options.append(optionElement)
                 }
             }

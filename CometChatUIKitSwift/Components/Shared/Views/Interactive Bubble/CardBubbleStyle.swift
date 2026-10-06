@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+/// Not applied: the interactive card bubble is retired (card messages render a "not supported" bubble), so no view reads these style values. Kept for source compatibility.
 public final class CardBubbleStyle: BaseStyle {
     private var textColor: UIColor = CometChatTheme_v4.palatte.accent900
     

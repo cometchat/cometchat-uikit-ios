@@ -44,8 +44,31 @@ class AIAssistantChatHistoryCell: UITableViewCell {
 
     func configure(with message: BaseMessage) {
         if let textMessage = message as? TextMessage {
-            messageLabel.text = textMessage.text
+            messageLabel.text = Self.previewText(for: textMessage)
         }
+    }
+
+    /// A single-line preview: mention tags become "@Name" and markdown markers are stripped,
+    /// so a row never shows raw `<@uid:…>` or `*…*` syntax.
+    static func previewText(for message: TextMessage) -> String {
+        var text = message.text
+        if let regex = try? NSRegularExpression(pattern: "<@(uid|all):([^>]+)>") {
+            let names = Dictionary(message.mentionedUsers.compactMap { user in user.uid.map { ($0, user.name ?? $0) } },
+                                   uniquingKeysWith: { first, _ in first })
+            let ns = text as NSString
+            var result = ""
+            var cursor = 0
+            for match in regex.matches(in: text, range: NSRange(location: 0, length: ns.length)) {
+                result += ns.substring(with: NSRange(location: cursor, length: match.range.location - cursor))
+                let kind = ns.substring(with: match.range(at: 1))
+                let id = ns.substring(with: match.range(at: 2))
+                result += kind == "all" ? "@all" : "@" + (names[id] ?? id)
+                cursor = match.range.location + match.range.length
+            }
+            result += ns.substring(from: cursor)
+            text = result
+        }
+        return RichTextFormatterManager.shared.stripMarkdown(text)
     }
 }
 

@@ -466,3 +466,14 @@
 "SPAM" = "Spam";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "제출할 수 없습니다. 이 메시지를 신고하기 전에 사유를 선택하세요";
+"REPORTED" = "신고됨";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "신고가 성공적으로 제출되었습니다.";
+"MESSAGE_MEDIA" = "미디어";
+"MESSAGE_MEETING" = "회의";
+"MESSAGE_GENERIC" = "메시지";
+"MEETING_SCHEDULER" = "회의 일정 도우미";
+"MORE_TIMES" = "더 많은 시간";
+"search_no_results_for" = "“%@”에 대한 결과가 없습니다\n새로 검색해 보세요";
+"MESSAGE_LIST_EMPTY_TITLE" = "아직 메시지가 없습니다";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "메시지를 보내 대화를 시작하세요.";

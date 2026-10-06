@@ -31,7 +31,9 @@ public enum SearchState {
  */
 open class CometChatListBase: UIViewController, StateManagement {
     
-    var listBaseStyle: ListBaseStyle = ConversationsStyle() //TODO FIX THIS
+    /// Subclasses assign their own component style here (usually in `setupStyle`). The
+    /// default is a neutral, theme-based style rather than another component's.
+    var listBaseStyle: ListBaseStyle = DefaultListBaseStyle()
     var searchStyle: SearchBarStyle?
     public var tableView: UITableView!
     
@@ -82,6 +84,9 @@ open class CometChatListBase: UIViewController, StateManagement {
     //MARK: - Empty Views
     public lazy var errorStateView: UIView = {
         let stateView = StateView(title: errorStateTitleText, subtitle: errorStateSubTitleText, image: errorStateImage, buttonText: "RETRY".localize())
+        stateView.onRetry = { [weak self] in
+            self?.onRetryTapped()
+        }
         return stateView
     }()
     public var errorStateImage: UIImage = UIImage() {
@@ -186,6 +191,14 @@ open class CometChatListBase: UIViewController, StateManagement {
     
     @objc func onRefreshControlTriggered() { }
     
+    /// Called when the RETRY button of the default error state view is tapped.
+    /// The default removes the error view and runs the same re-fetch as pull-to-refresh;
+    /// subclasses override it to re-fetch their data.
+    open func onRetryTapped() {
+        removeErrorView()
+        onRefreshControlTriggered()
+    }
+    
     open func setGradientBackground(withColors: [CGColor]) {
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = withColors
@@ -200,7 +213,7 @@ open class CometChatListBase: UIViewController, StateManagement {
     }
     
     open func hideFooterIndicator() {
-        ActivityIndicator.hide()
+        ActivityIndicator.hide(in: tableView)
         tableView.tableFooterView?.isHidden = true
     }
     
@@ -262,6 +275,7 @@ open class CometChatListBase: UIViewController, StateManagement {
         tableView.borderWith(width: listBaseStyle.borderWidth)
         tableView.borderColor(color: listBaseStyle.borderColor)
         tableView.roundViewCorners(corner: listBaseStyle.cornerRadius)
+        tableView.separatorColor = listBaseStyle.tableViewSeparator
         
         if let errorStateView = errorStateView as? StateView {
             errorStateView.subtitleLabel.font = listBaseStyle.errorSubTitleFont
@@ -271,6 +285,21 @@ open class CometChatListBase: UIViewController, StateManagement {
             errorStateView.titleLabel.adjustsFontForContentSizeCategory = true
             errorStateView.titleLabel.textColor = listBaseStyle.errorTitleTextColor
             errorStateView.imageView.tintColor = CometChatTheme.neutralColor300
+            
+            let retryButton = errorStateView.retryButton
+            retryButton.setTitleColor(listBaseStyle.retryButtonTextColor, for: .normal)
+            retryButton.titleLabel?.font = listBaseStyle.retryButtonTextFont
+            retryButton.titleLabel?.adjustsFontForContentSizeCategory = true
+            retryButton.backgroundColor = listBaseStyle.retryButtonBackgroundColor
+            retryButton.borderColor(color: listBaseStyle.retryButtonBorderColor)
+            retryButton.borderWith(width: listBaseStyle.retryButtonBorderWidth)
+            retryButton.roundViewCorners(corner: listBaseStyle.retryButtonCornerRadius)
+            // A StateView handed in through set(errorView:) gets the same retry hook.
+            if errorStateView.onRetry == nil {
+                errorStateView.onRetry = { [weak self] in
+                    self?.onRetryTapped()
+                }
+            }
         }
         
         if let emptyStateView = emptyStateView as? StateView {
@@ -371,7 +400,11 @@ open class CometChatListBase: UIViewController, StateManagement {
     /// This will set up navigation bar for the component
     open func setupNavigationBar() {
         if let navigationController = navigationController {
-            navigationController.title = navigationTitleText
+            // The title belongs on the navigation item, which is what the bar shows. Only
+            // write it when set, so subclasses that assign `title` are not blanked.
+            if !navigationTitleText.isEmpty {
+                navigationItem.title = navigationTitleText
+            }
             navigationController.navigationBar.isTranslucent = isNavigationTranslucent
             navigationItem.hidesBackButton = hideBackButton
             navigationItem.rightBarButtonItems = rightBarButtonItem
@@ -382,7 +415,7 @@ open class CometChatListBase: UIViewController, StateManagement {
                         self?.onBack?()
                     }
                 } else {
-                    navigationItem.backBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "arrow.left"), style: .plain, target: self, action: #selector(addBackPress))
+                    navigationItem.backBarButtonItem = { let item = UIBarButtonItem(image: UIImage(systemName: "arrow.left"), style: .plain, target: self, action: #selector(addBackPress)); item.accessibilityLabel = "a11y_back".localize(); return item }()
                 }
             }
             if prefersLargeTitles {

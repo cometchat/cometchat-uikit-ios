@@ -12,13 +12,22 @@ extension CometChatAIAssistanceChatHistory {
     
     @discardableResult
     public func set(user: User, parentMessage: BaseMessage? = nil, withParent: Bool = false) -> Self {
+        self.user = user
         self.viewModel.set(user: user, messagesRequestBuilder: self.viewModel.messagesRequestBuilder, parentMessage: parentMessage)
         return self
     }
-    
+
     @discardableResult
     public func set(group: Group, parentMessage: BaseMessage? = nil) -> Self {
+        self.group = group
         self.viewModel.set(group: group, messagesRequestBuilder: self.viewModel.messagesRequestBuilder, parentMessage: parentMessage)
+        return self
+    }
+
+    /// Called when the close control is tapped, before the screen dismisses itself.
+    @discardableResult
+    public func set(onClose: @escaping (() -> Void)) -> Self {
+        self.onClose = onClose
         return self
     }
     

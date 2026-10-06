@@ -120,6 +120,30 @@ extension CallUtils {
         callDate: String?,
         dateTimeFormatter: CometChatDateTimeFormatter?
     ) -> UIView {
+        return configureCallLogSubtitleView(
+            callData: callData,
+            style: style,
+            incomingCallIcon: incomingCallIcon,
+            outgoingCallIcon: outgoingCallIcon,
+            missedCallIcon: missedCallIcon,
+            callDate: callDate,
+            dateTimeFormatter: dateTimeFormatter,
+            dateStyle: nil
+        )
+    }
+
+    /// Builds the call-log subtitle. When `dateStyle` is given, its font and text colour
+    /// style the date label; otherwise the label uses `style.listItemSubTitle*`.
+    public func configureCallLogSubtitleView(
+        callData: Any,
+        style: CallLogStyle,
+        incomingCallIcon: UIImage? = nil,
+        outgoingCallIcon: UIImage? = nil,
+        missedCallIcon: UIImage? = nil,
+        callDate: String?,
+        dateTimeFormatter: CometChatDateTimeFormatter?,
+        dateStyle: DateStyle?
+    ) -> UIView {
         
         if let callData = (callData as? CallLog) {
             
@@ -148,9 +172,9 @@ extension CallUtils {
             }else{
                 subtitleLabel.text = convertTimeStampToCallDate(timestamp: callData.initiatedAt, dateTimeFormatter: dateTimeFormatter)
             }
-            subtitleLabel.font = style.listItemSubTitleFont
+            subtitleLabel.font = dateStyle?.textFont ?? style.listItemSubTitleFont
             subtitleLabel.adjustsFontForContentSizeCategory = true
-            subtitleLabel.textColor = style.listItemSubTitleTextColor
+            subtitleLabel.textColor = dateStyle?.textColor ?? style.listItemSubTitleTextColor
             subtitleView.addArrangedSubview(callStatusIcon)
             subtitleView.addArrangedSubview(subtitleLabel)
             
@@ -188,6 +212,7 @@ extension CallUtils {
         var icon: UIImage?
 
         let successTint = style?.outgoingCallIconTint ?? CometChatTheme.successColor
+        let incomingTint = style?.incomingCallIconTint ?? CometChatTheme.successColor
         let errorTint = style?.missedCallIconTint ?? CometChatTheme.errorColor
 
         func tint(_ image: UIImage?, color: UIColor) -> UIImage? {
@@ -211,7 +236,7 @@ extension CallUtils {
                     statusWithType = "INCOMING_VIDEO_CALL".localize()
                 }
                 status = "INCOMING_CALL".localize()
-                icon = tint(incomingIcon, color: successTint)
+                icon = tint(incomingIcon, color: incomingTint)
             }
 
         case .unanswered, .busy, .cancelled, .rejected:

@@ -441,3 +441,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "No se puede enviar. Selecciona un motivo antes de denunciar este mensaje";
+"REPORTED" = "Denunciado";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "Tu denuncia se ha enviado correctamente.";
+"MESSAGE_MEDIA" = "Multimedia";
+"MESSAGE_MEETING" = "Reunión";
+"MESSAGE_GENERIC" = "Mensaje";
+"MEETING_SCHEDULER" = "Programador de reuniones";
+"MORE_TIMES" = "Más horarios";
+"search_no_results_for" = "No hubo resultados para “%@”\nPrueba una nueva búsqueda";
+"MESSAGE_LIST_EMPTY_TITLE" = "Aún no hay mensajes";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "Envía un mensaje para iniciar la conversación.";

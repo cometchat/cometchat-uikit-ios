@@ -447,3 +447,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "Tidak dapat dihantar. Sila pilih sebab sebelum melaporkan mesej ini";
+"REPORTED" = "Dilaporkan";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "Laporan anda telah berjaya dihantar.";
+"MESSAGE_MEDIA" = "Media";
+"MESSAGE_MEETING" = "Mesyuarat";
+"MESSAGE_GENERIC" = "Mesej";
+"MEETING_SCHEDULER" = "Penjadual Mesyuarat";
+"MORE_TIMES" = "Lebih banyak masa";
+"search_no_results_for" = "Tiada hasil untuk “%@”\nCuba carian baharu";
+"MESSAGE_LIST_EMPTY_TITLE" = "Belum ada mesej";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "Hantar mesej untuk memulakan perbualan.";

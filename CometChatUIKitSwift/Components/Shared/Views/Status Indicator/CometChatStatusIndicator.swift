@@ -27,6 +27,10 @@ import CometChatSDK
     // MARK: - Initialization of required Methods
     func setup() {
         self.backgroundColor =  style.backgroundColor
+        // Drawn over the background colour and under any status icon; the corner rounding
+        // below masks it to the dot.
+        layer.contents = style.backgroundImage?.cgImage
+        layer.contentsGravity = .resizeAspectFill
         borderWith(width: style.borderWidth)
         borderColor(color: style.borderColor)
         if let cornerRadius = style.cornerRadius, cornerRadius.cornerRadius != -1 {
@@ -58,6 +62,11 @@ import CometChatSDK
             self.isHidden = true
         default: break
         }
+        // Store the colour on the style: setup() repaints from style on every layout pass.
+        if let backgroundColor = backgroundColor {
+            style.backgroundColor = backgroundColor
+            self.backgroundColor = backgroundColor
+        }
         return self
     }
     
@@ -75,7 +84,30 @@ import CometChatSDK
         return self
     }
 
-    
+    // MARK: - Accessibility
+
+    private var explicitIsAccessibilityElement: Bool?
+    private var explicitAccessibilityLabel: String?
+
+    /// A visible plain dot (no glyph) is the presence dot, and it only shows while the
+    /// user is online. Hosts toggle `isHidden` directly as well as through
+    /// `set(status:)`, so this is read at the moment VoiceOver asks.
+    private var showsPresenceDot: Bool {
+        guard !isHidden else { return false }
+        guard let glyph = imageView.image else { return true }
+        return glyph.size == .zero
+    }
+
+    /// The dot is otherwise colour alone, so VoiceOver reads it as "Online".
+    public override var isAccessibilityElement: Bool {
+        get { explicitIsAccessibilityElement ?? showsPresenceDot }
+        set { explicitIsAccessibilityElement = newValue }
+    }
+
+    public override var accessibilityLabel: String? {
+        get { explicitAccessibilityLabel ?? (showsPresenceDot ? "ONLINE".localize() : nil) }
+        set { explicitAccessibilityLabel = newValue }
+    }
 }
 
 /*  ----------------------------------------------------------------------------------------- */

@@ -83,8 +83,8 @@ open class CometChatNotificationFeed: CometChatListBase {
         if let navigationController = navigationController {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = CometChatTheme.backgroundColor01
-            appearance.shadowColor = .clear // no shadow — the chips view handles the separation
+            appearance.backgroundColor = style.headerBackgroundColor
+            appearance.shadowColor = style.headerBorderColor // default .clear — the chips view handles the separation
             
             // Hide the default centered title (we use a custom left-aligned titleView)
             appearance.titleTextAttributes = [
@@ -98,9 +98,10 @@ open class CometChatNotificationFeed: CometChatListBase {
             // Left-aligned title label as leftBarButtonItem
             let titleLabel = UILabel()
             titleLabel.text = "notifications".localize()
-            titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+            // The style's title font and colour go on this label, since it replaces the bar's title.
+            titleLabel.font = style.titleFont ?? UIFont.systemFont(ofSize: 24, weight: .bold)
             titleLabel.adjustsFontForContentSizeCategory = true
-            titleLabel.textColor = CometChatTheme.textColorPrimary
+            titleLabel.textColor = style.titleColor ?? CometChatTheme.textColorPrimary
             navigationItem.leftBarButtonItem = UIBarButtonItem(customView: titleLabel)
         }
     }
@@ -130,7 +131,7 @@ open class CometChatNotificationFeed: CometChatListBase {
     // MARK: - Setup Filter Chips
     private func setupFilterChips() {
         // Chips are FIXED with the header — they don't scroll with content
-        filterChipsView.backgroundColor = CometChatTheme.backgroundColor01
+        filterChipsView.backgroundColor = style.headerBackgroundColor
         view.addSubview(filterChipsView)
         
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -212,6 +213,7 @@ open class CometChatNotificationFeed: CometChatListBase {
     
     private func updateFilterChips() {
         guard showFilterChips else { return }
+        filterChipsView.style = style
         filterChipsView.updateChips(
             categories: viewModel.categories,
             activeCategory: viewModel.activeCategory,

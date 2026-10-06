@@ -89,7 +89,7 @@ extension CometChatConversations {
     
     @discardableResult
     public func set(trailView: @escaping ((_ conversation: Conversation) -> UIView)) -> Self {
-        self.tailView = tailView
+        self.tailView = trailView
         return self
     }
     

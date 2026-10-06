@@ -25,7 +25,8 @@ public class CustomInteractiveMessage: InteractiveMessage {
         customInteractiveMessage.senderUid = interactiveMessage.senderUid
         customInteractiveMessage.sentAt = interactiveMessage.sentAt
         customInteractiveMessage.readAt = interactiveMessage.readAt
-        customInteractiveMessage.deliveredAt = interactiveMessage.deletedAt
+        customInteractiveMessage.deliveredAt = interactiveMessage.deliveredAt
+        customInteractiveMessage.deletedAt = interactiveMessage.deletedAt
         customInteractiveMessage.updatedAt = interactiveMessage.updatedAt
         customInteractiveMessage.deletedBy = interactiveMessage.deletedBy
         customInteractiveMessage.interactionGoal = interactiveMessage.interactionGoal
@@ -59,7 +60,8 @@ public class CustomInteractiveMessage: InteractiveMessage {
         interactiveMessage.senderUid = customInteractiveMessage.senderUid
         interactiveMessage.sentAt = customInteractiveMessage.sentAt
         interactiveMessage.readAt = customInteractiveMessage.readAt
-        interactiveMessage.deliveredAt = customInteractiveMessage.deletedAt
+        interactiveMessage.deliveredAt = customInteractiveMessage.deliveredAt
+        interactiveMessage.deletedAt = customInteractiveMessage.deletedAt
         interactiveMessage.updatedAt = customInteractiveMessage.updatedAt
         interactiveMessage.deletedBy = customInteractiveMessage.deletedBy
         interactiveMessage.interactionGoal = customInteractiveMessage.interactionGoal

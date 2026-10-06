@@ -259,7 +259,11 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
     open override func handlePreMessageSend(baseMessage: BaseMessage, suggestionItemList: [SuggestionItem]) {
         suggestionItemList.forEach { suggestionItem in
             if suggestionItem.id == mentionAllId {
-                baseMessage.metaData?["mentionedAll"] = true   // optional metadata
+                // A fresh outgoing message has no metadata yet; create it so the
+                // flag is not silently dropped.
+                var metaData = baseMessage.metaData ?? [:]
+                metaData["mentionedAll"] = true
+                baseMessage.metaData = metaData
             }
 
             let user = User(uid: suggestionItem.id ?? "", name: suggestionItem.name ?? "")

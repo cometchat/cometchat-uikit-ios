@@ -13,7 +13,9 @@ public struct AIConversationStarterStyle: AIParentStyle{
     public var errorViewTextFont: UIFont? = CometChatTypography.Body.regular
     public var errorViewTextColor: UIColor? = CometChatTheme.textColorSecondary
     
+    /// Not applied: no empty-state view is shown here. Kept for source compatibility.
     public var emptyViewTextFont: UIFont? = CometChatTypography.Body.regular
+    /// Not applied: no empty-state view is shown here. Kept for source compatibility.
     public var emptyViewTextColor: UIColor? = CometChatTheme.textColorSecondary
     
     public var textFont: UIFont = CometChatTypography.Body.regular

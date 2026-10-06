@@ -29,6 +29,9 @@ open class AIAssistanceChatHistoryViewModel: NSObject, AIAssistanceChatHistoryVi
     var messages: [(date: Date, messages: [CometChatSDK.BaseMessage])] = []
     var messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder
     var messagesRequest: MessagesRequest?
+    /// True once set(messagesRequestBuilder:) has supplied a builder, so the screen
+    /// uses it instead of building its own default request.
+    private(set) var hasCustomRequestBuilder = false
 
     var isFetching: Bool = false                 // Prevent duplicate parallel fetches
     var isAllMessagesFetchedInPrevious: Bool = false  // Stops fetching once API says no more
@@ -77,12 +80,22 @@ open class AIAssistanceChatHistoryViewModel: NSObject, AIAssistanceChatHistoryVi
         self.fetchUnreadMessageCount()
     }
     
+    /// Stores an integrator-supplied builder. It is applied now if the user or
+    /// group is known, and kept for when one arrives otherwise.
     func set(messagesRequestBuilder: CometChatSDK.MessagesRequest.MessageRequestBuilder) {
+        hasCustomRequestBuilder = true
         if let user = user {
             self.messagesRequestBuilder = messagesRequestBuilder
                 .set(uid: user.uid ?? "")
                 .setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
             self.messagesRequest = self.messagesRequestBuilder.build()
+        } else if let group = group {
+            self.messagesRequestBuilder = messagesRequestBuilder
+                .set(guid: group.guid)
+                .setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
+            self.messagesRequest = self.messagesRequestBuilder.build()
+        } else {
+            self.messagesRequestBuilder = messagesRequestBuilder
         }
     }
     

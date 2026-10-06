@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+/// Not applied except as noted: the form bubble is retired (form messages render a "not supported" bubble). Only the form-field elements still read `borderColor`, `background`, `getInputStrokeWidth/Color`, `getInputHintColor`, `getButtonBackgroundColor` and the single-select option/selected colours; every other value has no view. Kept for source compatibility.
 public final class FormBubbleStyle: BaseStyle {
     private var titleColor: UIColor = CometChatTheme_v4.palatte.accent900
     

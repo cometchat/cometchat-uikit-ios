@@ -57,7 +57,7 @@ public class CometChatEmojiKeyboard: UIViewController, PanModalPresentable {
         header.translatesAutoresizingMaskIntoConstraints = false
         header.text = "EMOJI_KEYBOARD".localize()
         header.textColor = style.titleColor
-        header.font = .boldSystemFont(ofSize: 18)
+        header.font = style.titleFont
         header.adjustsFontForContentSizeCategory = true
         header.textAlignment = .center
         headerView.addSubview(header)
@@ -180,9 +180,9 @@ extension CometChatEmojiKeyboard: UICollectionViewDelegate, UICollectionViewData
         cell.emojiIcon.image =   UIImage(named: emojiCategories[indexPath.row].symbol, in: CometChatUIKit.bundle, compatibleWith: nil)
         
         if indexPath.row == selectedEmojiSetCategoryIndex {
-            cell.emojiIcon.tintColor = CometChatTheme_v4.palatte.primary
+            cell.emojiIcon.tintColor = style.selectedCategoryIconTint
         } else {
-            cell.emojiIcon.tintColor = CometChatTheme_v4.palatte.accent600
+            cell.emojiIcon.tintColor = style.categoryIconTint
         }
         
         return cell
@@ -220,6 +220,8 @@ extension CometChatEmojiKeyboard: UICollectionViewDelegate, UICollectionViewData
             case UICollectionView.elementKindSectionHeader:
                 let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: CometChatEmojiHeader.identifier, for: indexPath) as! CometChatEmojiHeader
                 headerView.category.text = emojiCategories[indexPath.section].name
+                headerView.category.textColor = style.sectionHeaderColor
+                headerView.category.font = style.sectionHeaderFont
                 return headerView
             default:
                 CometChatLogger.debug("Either footer or default.")
@@ -248,7 +250,7 @@ extension CometChatEmojiKeyboard: UICollectionViewDelegate, UICollectionViewData
             let topVisibleIndexPath = sortedIndexPaths.first
             if let topIndexPath = topVisibleIndexPath,
                let emojiSetCollectionViewCell = emojiSetCollectionView.cellForItem(at: IndexPath(row: topIndexPath.section, section: 0)) as? CometChatEmojiKeyboardItem {
-                emojiSetCollectionViewCell.emojiIcon.tintColor = CometChatTheme_v4.palatte.primary
+                emojiSetCollectionViewCell.emojiIcon.tintColor = style.selectedCategoryIconTint
                 self.selectedEmojiSetCategoryIndex =  topIndexPath.section
                 self.emojiSetCollectionView.reloadData()
             }
@@ -288,16 +290,14 @@ extension String {
         let stringAttributes = [NSAttributedString.Key.font: font]
         let imageSize = nsString.size(withAttributes: stringAttributes)
         
-        UIGraphicsBeginImageContextWithOptions(imageSize, false, 0) // begin image context.
-        UIColor.clear.set() // clear background
+        // An empty string measures to .zero, and a zero-size image context aborts.
+        guard imageSize.width > 0, imageSize.height > 0 else { return nil }
         
-        UIRectFill(CGRect(origin: CGPoint(), size: imageSize)) // set rect size
-        nsString.draw(at: CGPoint.zero, withAttributes: stringAttributes) // draw text within rect.
-        
-        let image = UIGraphicsGetImageFromCurrentImageContext() // create image from context
-        
-        UIGraphicsEndImageContext()
-        
-        return image ?? UIImage()
+        // UIGraphicsImageRenderer owns its context, unlike the process-global
+        // UIGraphicsBeginImageContextWithOptions stack.
+        let renderer = UIGraphicsImageRenderer(size: imageSize)
+        return renderer.image { _ in
+            nsString.draw(at: CGPoint.zero, withAttributes: stringAttributes) // draw text within rect.
+        }
     }
 }

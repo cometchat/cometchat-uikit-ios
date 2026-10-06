@@ -46,6 +46,14 @@ open class GroupMembersViewModel: NSObject {
     public var reload: (() -> Void)?
     public var reloadAt: ((Int) -> Void)?
     public var failure: ((CometChatSDK.CometChatException) -> Void)?
+    /// Failures of a ban, kick or scope change. These leave the list untouched, so the
+    /// screen reports them without the full-screen error view. Falls back to `failure`
+    /// when unset.
+    var actionFailure: ((CometChatSDK.CometChatException) -> Void)?
+    
+    /// True while a page request is in flight, so repeated load-more triggers
+    /// (every willDisplay of the last row) do not stack duplicate requests.
+    private var isFetchingMembers = false
     
     /// Seam over the non-hermetic SDK request/response calls. Defaults to the live
     /// SDK-backed implementation so existing callers are unaffected; tests inject a fake.
@@ -91,13 +99,21 @@ open class GroupMembersViewModel: NSObject {
     }
     
     public func fetchGroupsMembers() {
-        guard let groupsMembersRequest = groupsMembersRequest else { return }
+        guard let groupsMembersRequest = groupsMembersRequest, !isFetchingMembers else { return }
+        isFetchingMembers = true
         service.fetchGroupMembers(request: groupsMembersRequest) { [weak self] result in
             guard let this = self else { return }
+            this.isFetchingMembers = false
             switch result {
             case .success(let fetchedGroupMembers):
                 if fetchedGroupMembers.isEmpty { this.isFetchedAll = true }
-                this.groupMembers += fetchedGroupMembers
+                // A repeated page must not list a member twice.
+                var knownUids = Set(this.groupMembers.compactMap { $0.uid })
+                let newMembers = fetchedGroupMembers.filter { member in
+                    guard let uid = member.uid else { return true }
+                    return knownUids.insert(uid).inserted
+                }
+                this.groupMembers += newMembers
             case .failure(let error):
                 this.failure?(error)
             }
@@ -146,7 +162,7 @@ open class GroupMembersViewModel: NSObject {
                 }
                 this.update(groupMember: groupMember)
             case .failure(let error):
-                this.failure?(error)
+                (this.actionFailure ?? this.failure)?(error)
             }
         }
     }
@@ -181,7 +197,7 @@ open class GroupMembersViewModel: NSObject {
                     
             }
             case .failure(let error):
-                this.failure?(error)
+                (this.actionFailure ?? this.failure)?(error)
             }
         }
     }
@@ -214,7 +230,7 @@ open class GroupMembersViewModel: NSObject {
                    CometChatGroupEvents.ccGroupMemberKicked(action: actionMessage, kickedUser: member, kickedBy: loggedInUser, kickedFrom: group)
                 }
             case .failure(let error):
-                this.failure?(error)
+                (this.actionFailure ?? this.failure)?(error)
             }
         }
     }
@@ -244,12 +260,15 @@ open class GroupMembersViewModel: NSObject {
         if let index = groupMembers.firstIndex(of: groupMember) {
             self.groupMembers.remove(at: index)
         }
+        // A member no longer in the list must not stay selected.
+        selectedGroupMembers.removeAll(where: { $0 === groupMember || ($0.uid != nil && $0.uid == groupMember.uid) })
         return self
     }
     
     @discardableResult
     public func clearList() -> Self {
         self.groupMembers.removeAll()
+        self.selectedGroupMembers.removeAll()
         return self
     }
     

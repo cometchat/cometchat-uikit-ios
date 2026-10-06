@@ -1733,6 +1733,7 @@ extension MessageListViewModel: CometChatMessageEventListener {
                 update(message: message)
             }
         }
+        markQuotesDeleted(of: message)
     }
     
     public func onMessageDeleted(message: BaseMessage) {
@@ -1741,6 +1742,28 @@ extension MessageListViewModel: CometChatMessageEventListener {
                 remove(message: message)
             } else {
                 update(message: message)
+            }
+        }
+        markQuotesDeleted(of: message)
+    }
+
+    /// A loaded reply keeps its own copy of the message it quotes, so deleting the
+    /// original leaves the reply's preview showing the deleted content. Marks every
+    /// loaded copy as deleted and refreshes those rows so the preview reads
+    /// "This message was deleted".
+    func markQuotesDeleted(of deleted: BaseMessage) {
+        guard deleted.id > 0 else { return }
+        let deletedAt = deleted.deletedAt > 0 ? deleted.deletedAt : Date().timeIntervalSince1970
+        DispatchQueue.main.async { [weak self] in
+            guard let this = self else { return }
+            for (sectionIndex, section) in this.messages.enumerated() {
+                for (rowIndex, message) in section.messages.enumerated() {
+                    guard let quoted = message.quotedMessage, quoted.id == deleted.id,
+                          quoted.deletedAt <= 0 else { continue }
+                    quoted.deletedAt = deletedAt
+                    quoted.deletedBy = deleted.deletedBy
+                    this.updateAtIndex?(sectionIndex, rowIndex, message)
+                }
             }
         }
     }

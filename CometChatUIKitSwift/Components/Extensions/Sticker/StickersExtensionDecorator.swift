@@ -110,7 +110,7 @@ class StickersExtensionDecorator: DataSourceDecorator, CometChatMessageEventList
     }
     
     public override func getMessageTemplate(messageType: String, messageCategory: String, additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate? {
-        if messageType == MessageCategoryConstants.custom && messageCategory == stickerTypeConstant {
+        if messageCategory == MessageCategoryConstants.custom && messageType == stickerTypeConstant {
             return getTemplate(additionalConfiguration: additionalConfiguration)
         }
         return super.getMessageTemplate(messageType: messageType, messageCategory: messageCategory, additionalConfiguration: additionalConfiguration)

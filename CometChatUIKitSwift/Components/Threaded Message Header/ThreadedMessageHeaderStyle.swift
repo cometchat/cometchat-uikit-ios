@@ -24,7 +24,9 @@ public struct ThreadedMessageHeaderStyle {
     public var countTextColor: UIColor = CometChatTheme.textColorSecondary
     public var countTextFont: UIFont = CometChatTypography.Body.regular
 
-    public var subscriptionTintColor: UIColor = CometChatTheme.iconColorSecondary
+    /// Tint of the thread-subscription bell while unsubscribed.
+    public var subscriptionTintColor: UIColor = CometChatTheme.iconColorPrimary
+    /// Tint of the thread-subscription bell while subscribed.
     public var subscriptionSelectedTintColor: UIColor = CometChatTheme.iconColorHighlight
     
     public init() { }

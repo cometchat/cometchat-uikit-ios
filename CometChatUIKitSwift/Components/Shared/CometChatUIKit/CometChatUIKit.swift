@@ -19,7 +19,8 @@ final public class CometChatUIKit {
     
     public static var bundle =  Bundle(for: CometChatUIKit.self)
     static var uiKitSettings: UIKitSettings?
-    static var uiKitError: CometChatException = CometChatException(errorCode: "Err_101", errorDescription: "UIKit Settings are not initialised, Try calling CometChatUIKit.init method first.")
+    static let authKeyMissingError = CometChatException(errorCode: "Err_101", errorDescription: "No Auth Key found. Set it with UIKitSettings.set(authKey:), or under credentials.authKey in cometchat-settings.json. In production, log in with login(authToken:) instead.")
+    static let userManagementAuthKeyError = CometChatException(errorCode: "Err_102", errorDescription: "Creating or updating a user requires an Auth Key, which is for development only. In production, create and update users from your server with the CometChat REST API.")
     static var sdkEventInitializer: SDKEventInitializer?
     static public let soundManager = CometChatSoundManager()
 
@@ -333,6 +334,7 @@ final public class CometChatUIKit {
                 CometChatUIKit.configureAI(extensions: uiKitSettings.aiExtensions)
                 CometChatUIKit.configureExtensions(extensions: uiKitSettings.extensions)
             }
+            clearSessionScopedState()
             FlagReasonsManager.shared.getFlagReasons()
             registerNotificationAndVOIP()
             loginCallsSDK { error in result(error.map { .onError($0) } ?? .success(user)) }
@@ -372,8 +374,9 @@ final public class CometChatUIKit {
             }
             return CometChat.getAuthKeyFromSettings()
         }()
-        guard let authKey = authKey, !authKey.isEmpty else { return result(.onError(uiKitError)) }
+        guard let authKey = authKey, !authKey.isEmpty else { return result(.onError(authKeyMissingError)) }
         CometChat.login(UID: uid, authKey: authKey) { user in
+            clearSessionScopedState()
             registerNotificationAndVOIP()
             loginCallsSDK { error in result(error.map { .onError($0) } ?? .success(user)) }
             CometChatUIKit.configureExtensions(extensions: CometChatUIKit.uiKitSettings?.extensions)
@@ -386,7 +389,7 @@ final public class CometChatUIKit {
     }
     
    static public func create(user: User, result: @escaping (ApiStatus) -> Void) {
-        guard let authKey = CometChatUIKit.uiKitSettings?.authKey else { return result(.onError(uiKitError)) }
+        guard let authKey = CometChatUIKit.uiKitSettings?.authKey, !authKey.isEmpty else { return result(.onError(userManagementAuthKeyError)) }
         CometChat.createUser(user: user, authKey: authKey) { user in
             result(.success(user))
         } onError: { error in
@@ -398,7 +401,7 @@ final public class CometChatUIKit {
     }
     
     static public func update(user: User, result: @escaping (ApiStatus) -> Void) {
-        guard let authKey = CometChatUIKit.uiKitSettings?.authKey else { return result(.onError(uiKitError)) }
+        guard let authKey = CometChatUIKit.uiKitSettings?.authKey, !authKey.isEmpty else { return result(.onError(userManagementAuthKeyError)) }
         CometChat.updateUser(user: user, authKey: authKey) { user in
             result(.success(user))
         } onError: { error in
@@ -409,10 +412,22 @@ final public class CometChatUIKit {
         }
     }
     
+    /// Unsent composer text is per process, not per user: drop it whenever a session ends or
+    /// a new one starts, so one user's draft never appears in the next user's composer.
+    static func clearSessionScopedState() {
+        ComposerDraftStore.removeAll()
+    }
+
     static public func logout(user: User, result: @escaping (ApiStatus) -> Void) {
         CometChat.logout { isSuccess in
+            clearSessionScopedState()
             logoutCallsSDK { error in result(error.map { .onError($0) } ?? .success(user)) }
         } onError: { error in
+            // The SDK already cleared a revoked session; still end the Calls one.
+            if error.errorCode == "ERROR_USER_NOT_LOGGED_IN" {
+                clearSessionScopedState()
+                return logoutCallsSDK { error in result(error.map { .onError($0) } ?? .success(user)) }
+            }
             result(.onError(error))
             CometChatLogger.error("\(error.description)")
         }

@@ -19,6 +19,8 @@ public struct ReceiptStyle {
     public var sentImageTintColor : UIColor = CometChatTheme.iconColorSecondary
     public var deliveredImageTintColor : UIColor = CometChatTheme.iconColorSecondary
     public var readImageTintColor : UIColor = CometChatTheme.messageReadColor
+    /// Set as the receipt's tint for a failed message, but the default `errorImage` renders
+    /// `.alwaysOriginal`, so it only shows with an `errorImage` in template rendering mode.
     public var errorImageTintColor : UIColor = CometChatTheme.iconColorSecondary
     
     public init() {}

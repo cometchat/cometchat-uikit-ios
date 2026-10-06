@@ -106,7 +106,7 @@ extension CometChatCompactMessageComposer {
     
     @discardableResult
     public func set(maxLines: Int) -> Self {
-        textView.maxLength = maxLines
+        textView.maxLine = maxLines
         return self
     }
     
@@ -196,8 +196,9 @@ extension CometChatCompactMessageComposer {
         if enableRichTextFormatting && RichTextFormatterManager.shared.containsMarkdownFormatting(text) {
             // First, process text formatters to convert mention tags to display names
             // This must happen before markdown parsing so mentions inside code blocks are converted
-            var processedText = text
+            var processedText = RichTextFormatterManager.shared.composerBullets(fromMarkdown: text)
             var tempSelectedFormatters: [Character: [(item: SuggestionItem, range: NSRange)]] = [:]
+            var tempFormattedStrings: [Character: NSAttributedString] = [:]
 
             for (character, formatter) in viewModel.textFormatterMap {
                 let regex = formatter.getRegex()
@@ -206,6 +207,7 @@ extension CometChatCompactMessageComposer {
                     return formatter.prepareMessageString(baseMessage: message, regexString: regexText, formattingType: .COMPOSER)
                 }
                 tempSelectedFormatters[character] = processedString.1
+                tempFormattedStrings[character] = processedString.0
                 processedText = processedString.0.string
             }
 
@@ -219,15 +221,33 @@ extension CometChatCompactMessageComposer {
                 )
             )
 
-            // Update selectedFormatters with the processed mention ranges
-            // Note: The ranges may have changed after markdown parsing, so we need to recalculate
-            for (character, formatter) in viewModel.textFormatterMap {
-                let regex = formatter.getRegex()
-                let processedString = MessageUtils.processMessageForTextFormatter(attributedString, regex: regex) { regexText in
-                    return formatter.prepareMessageString(baseMessage: message, regexString: regexText, formattingType: .COMPOSER)
+            // Carry the mentions found above over to the parsed text. The tokens were
+            // expanded before parsing, so re-scanning the parsed text finds none; and
+            // parsing drops markers, so the pre-parse ranges have shifted. Parsing only
+            // removes characters and keeps their order, so each mention's visible text
+            // is found by searching forward from the previous one.
+            for (character, items) in tempSelectedFormatters {
+                let formatted = tempFormattedStrings[character]
+                let parsedText = attributedString.string as NSString
+                var searchStart = 0
+                var tracked: [(item: SuggestionItem, range: NSRange)] = []
+                for (item, originalRange) in items.sorted(by: { $0.range.location < $1.range.location }) {
+                    guard let visibleText = item.visibleText, !visibleText.isEmpty,
+                          searchStart <= parsedText.length else { continue }
+                    let found = parsedText.range(of: visibleText, options: [],
+                                                 range: NSRange(location: searchStart, length: parsedText.length - searchStart))
+                    guard found.location != NSNotFound else { continue }
+                    // Paint the mention the way the plain-text path does; the font stays
+                    // as parsed so bold or code around the mention is kept.
+                    if let formatted, originalRange.location < formatted.length {
+                        let styling = formatted.attributes(at: originalRange.location, effectiveRange: nil)
+                            .filter { $0.key != .font }
+                        attributedString.addAttributes(styling, range: found)
+                    }
+                    tracked.append((item: item, range: found))
+                    searchStart = found.location + found.length
                 }
-                selectedFormatters[character] = processedString.1
-                attributedString = NSMutableAttributedString(attributedString: processedString.0)
+                selectedFormatters[character] = tracked
             }
 
             // If the message is entirely a code block, activate code block mode
@@ -258,8 +278,10 @@ extension CometChatCompactMessageComposer {
                 richTextToolbar.setActiveFormats([.codeBlock])
             }
         } else {
-            // No markdown formatting, use plain text
-            attributedString = NSMutableAttributedString(string: text, attributes: [
+            // No markdown formatting, use plain text ("- " list items still come back
+            // as the composer's "• " bullets when rich text is on)
+            let plainText = enableRichTextFormatting ? RichTextFormatterManager.shared.composerBullets(fromMarkdown: text) : text
+            attributedString = NSMutableAttributedString(string: plainText, attributes: [
                 .font: style.textFieldFont,
                 .foregroundColor: style.textFieldColor
             ])

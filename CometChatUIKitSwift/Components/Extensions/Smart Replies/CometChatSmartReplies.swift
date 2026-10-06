@@ -35,12 +35,21 @@ protocol CometChatSmartRepliesDelegate: AnyObject {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.backgroundColor = SmartRepliesStyle().background
+        collectionView.backgroundColor = SmartRepliesStyle().background // replaced by `style`
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.roundViewCorners(corner: SmartRepliesStyle().cornerRadius)
         collectionView.register(CometChatSmartRepliesItem.self, forCellWithReuseIdentifier: "CometChatSmartRepliesItem")
         return collectionView
     }()
+    
+    /// Style for the strip and its suggestion chips. Reapplied when replaced.
+    public var style = SmartRepliesStyle() {
+        didSet {
+            collectionView.backgroundColor = style.background
+            collectionView.roundViewCorners(corner: style.cornerRadius)
+            collectionView.reloadData()
+        }
+    }
     
     var user: User?
     var group: Group?
@@ -204,6 +213,7 @@ extension CometChatSmartReplies: UICollectionViewDataSource, UICollectionViewDel
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let title = buttontitles[safe: indexPath.row]
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CometChatSmartRepliesItem", for: indexPath) as? CometChatSmartRepliesItem {
+            cell.itemStyle = style
             cell.title = title
             cell.smartRepliesItemDelegate = self
             return cell

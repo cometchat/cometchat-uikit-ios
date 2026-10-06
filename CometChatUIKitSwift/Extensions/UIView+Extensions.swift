@@ -481,3 +481,18 @@ extension UIView {
         return max(0, keyboardHeight - safeAreaInsets.bottom)
     }
 }
+
+extension UIView {
+    /// Walks the responder chain to find the view controller hosting this view.
+    /// Lets components fall back to their real host when no controller was injected.
+    var parentViewController: UIViewController? {
+        var responder: UIResponder? = self
+        while let nextResponder = responder?.next {
+            if let viewController = nextResponder as? UIViewController {
+                return viewController
+            }
+            responder = nextResponder
+        }
+        return nil
+    }
+}

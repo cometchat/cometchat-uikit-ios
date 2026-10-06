@@ -50,6 +50,10 @@ public class CometChatAIAssistantBubble: UIView {
         label.textColor = style.textColor
         label.font = style.textFont
         label.adjustsFontForContentSizeCategory = true
+        backgroundColor = style.backgroundColor
+        if let borderWidth = style.borderWidth { borderWith(width: borderWidth) }
+        if let borderColor = style.borderColor { self.borderColor(color: borderColor) }
+        if let cornerRadius = style.cornerRadius { roundViewCorners(corner: cornerRadius) }
     }
     
     // MARK: - Public API

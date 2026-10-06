@@ -79,6 +79,8 @@ class ReactionsView: UIView {
         // Configure the emoji label with the appropriate font and text.
         emojiLabel.font = style.emojiTextFont
         emojiLabel.adjustsFontForContentSizeCategory = true
+        // Colour emoji glyphs ignore the text colour; it shows on text (non-emoji) reactions.
+        emojiLabel.textColor = style.emojiTextColor
         emojiLabel.text = reaction.reaction
 
         // Configure the count label with its font, text color, and value.

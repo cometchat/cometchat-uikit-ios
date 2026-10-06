@@ -220,24 +220,21 @@ open class AddMembersVC: CometChatUsers {
 
         showLoader()
         
-        onSelection { [weak self] users in
-            guard let self = self else { return }
-            var groupMembers: [GroupMember] = []
-            
-            users.forEach {
-                if let uid = $0.uid {
-                    var member = GroupMember(UID: uid, groupMemberScope: .participant)
-                    member.name = $0.name ?? ""
-                    groupMembers.append(member)
-                }
+        var groupMembers: [GroupMember] = []
+
+        getSelectedUsers().forEach {
+            if let uid = $0.uid {
+                var member = GroupMember(UID: uid, groupMemberScope: .participant)
+                member.name = $0.name ?? ""
+                groupMembers.append(member)
             }
-            
-            DispatchQueue.main.async {
-                self.addMembersViewModel?.addMembers(members: groupMembers)
-                self.addMembersViewModel?.unableToAddMember = { error in
-                    self.unableToAddMember?(error)
-                    self.hideLoader()
-                }
+        }
+
+        DispatchQueue.main.async {
+            self.addMembersViewModel?.addMembers(members: groupMembers)
+            self.addMembersViewModel?.unableToAddMember = { error in
+                self.unableToAddMember?(error)
+                self.hideLoader()
             }
         }
         DispatchQueue.main.async {

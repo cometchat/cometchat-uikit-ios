@@ -16,7 +16,7 @@ public struct NotificationFeedStyle: ListBaseStyle {
     public var borderColor: UIColor = .clear
     public var cornerRadius: CometChatCornerStyle = .init(cornerRadius: 0)
     
-    public var titleFont: UIFont? = CometChatTypography.Heading3.bold
+    public var titleFont: UIFont? = UIFont.systemFont(ofSize: 24, weight: .bold)
     public var largeTitleFont: UIFont? = CometChatTypography.Heading3.bold
     public var titleColor: UIColor? = CometChatTheme.textColorPrimary
     public var largeTitleColor: UIColor? = CometChatTheme.textColorPrimary
@@ -47,10 +47,10 @@ public struct NotificationFeedStyle: ListBaseStyle {
     public var chipActiveBackgroundColor: UIColor = CometChatTheme.primaryColor
     public var chipActiveTextColor: UIColor = .white
     public var chipActiveTextFont: UIFont = CometChatTypography.Body.bold
-    public var chipInactiveBackgroundColor: UIColor = UIColor(hex: "#FAFAFA")
-    public var chipInactiveTextColor: UIColor = UIColor(hex: "#717680")
+    public var chipInactiveBackgroundColor: UIColor = CometChatTheme.backgroundColor01
+    public var chipInactiveTextColor: UIColor = CometChatTheme.textColorSecondary
     public var chipInactiveTextFont: UIFont = CometChatTypography.Body.bold
-    public var chipBorderColor: UIColor = UIColor(hex: "#E9EAEB")
+    public var chipBorderColor: UIColor = CometChatTheme.borderColorDefault
     public var chipBorderWidth: CGFloat = 1
     public var chipCornerRadius: CGFloat = 17
     
@@ -68,38 +68,52 @@ public struct NotificationFeedStyle: ListBaseStyle {
     public var timestampValueColor: UIColor = UIColor(hex: "#535862")
     public var timestampValueFont: UIFont = CometChatTypography.Caption1.regular
     
-    // MARK: - Feed Item Card (per Figma: 12px radius, 1px border)
-    public var cardBackgroundColor: UIColor = .white
-    public var cardBorderColor: UIColor = UIColor(hex: "#E9EAEB")
+    // MARK: - Feed Item Card
+    // Applied to the container around the rendered card. The card draws its own
+    // chrome from its JSON, so the defaults add nothing on top of it.
+    public var cardBackgroundColor: UIColor = .clear
+    public var cardBorderColor: UIColor = .clear
     public var cardBorderRadius: CGFloat = 12
-    public var cardBorderWidth: CGFloat = 1
+    public var cardBorderWidth: CGFloat = 0
     
     // MARK: - Card Content
     public var cardTitleFont: UIFont = CometChatTypography.Heading4.medium
     public var cardTitleColor: UIColor = CometChatTheme.textColorPrimary
+    /// Not applied: the card is rendered by the cards SDK, which takes no per-role fonts. Kept for source compatibility.
     public var cardSubtitleFont: UIFont = CometChatTypography.Heading4.bold
+    /// Not applied: the card is rendered by the cards SDK, which takes no per-role subtitle colour. Kept for source compatibility.
     public var cardSubtitleColor: UIColor = CometChatTheme.primaryColor
+    /// Not applied: the card is rendered by the cards SDK, which takes no per-role fonts. Kept for source compatibility.
     public var cardDescriptionFont: UIFont = CometChatTypography.Caption1.regular
     public var cardDescriptionColor: UIColor = UIColor(hex: "#535862")
     
     // MARK: - Card Buttons (per Figma: 8px radius)
     public var primaryButtonBackgroundColor: UIColor = CometChatTheme.primaryColor
     public var primaryButtonTextColor: UIColor = .white
+    /// Not applied: the card is rendered by the cards SDK, which takes no per-role button font. Kept for source compatibility.
     public var primaryButtonFont: UIFont = CometChatTypography.Body.bold
+    /// Not applied: the card is rendered by the cards SDK, which takes no per-role button radius. Kept for source compatibility.
     public var primaryButtonCornerRadius: CGFloat = 8
+    /// Not applied: the card is rendered by the cards SDK, which takes no per-role secondary-button theme. Kept for source compatibility.
     public var secondaryButtonBackgroundColor: UIColor = UIColor(hex: "#FAFAFA")
+    /// Not applied: the card is rendered by the cards SDK, which takes no per-role secondary-button theme. Kept for source compatibility.
     public var secondaryButtonTextColor: UIColor = UIColor(hex: "#252B37")
+    /// Not applied: the card is rendered by the cards SDK, which takes no per-role secondary-button theme. Kept for source compatibility.
     public var secondaryButtonBorderColor: UIColor = UIColor(hex: "#D5D7DA")
+    /// Not applied: the card is rendered by the cards SDK, which takes no per-role button font. Kept for source compatibility.
     public var secondaryButtonFont: UIFont = CometChatTypography.Body.bold
+    /// Not applied: the card is rendered by the cards SDK, which takes no per-role button radius. Kept for source compatibility.
     public var secondaryButtonCornerRadius: CGFloat = 8
     
     // MARK: - Unread Indicator
+    /// Not drawn: feed rows have no unread indicator view. Kept for source compatibility.
     public var unreadIndicatorColor: UIColor = CometChatTheme.primaryColor
     
-    // MARK: - Header (per Figma: 64px, border-bottom)
+    // MARK: - Header (navigation bar and filter chips strip)
+    /// Not applied: the header is the system navigation bar, whose height UIKit controls.
     public var headerHeight: CGFloat = 64
-    public var headerBackgroundColor: UIColor = .white
-    public var headerBorderColor: UIColor = UIColor(hex: "#F5F5F5")
+    public var headerBackgroundColor: UIColor = CometChatTheme.backgroundColor01
+    public var headerBorderColor: UIColor = .clear
     
     public init() { }
 }

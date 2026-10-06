@@ -56,8 +56,20 @@ class MessagePopupViewController: UIViewController {
     var bubbleCoordinates: CGPoint!
     var minY = CGFloat(80)
     var maxY = UIScreen.main.bounds.height - 40
+    /// Minimum height of the quick-reactions row.
     var reactionViewHeight = 40
     var spacing = 10
+
+    /// Height of the quick-reactions row: tall enough for the reaction font at the
+    /// reader's text size (it scales with Dynamic Type), never below `reactionViewHeight`.
+    var scaledReactionViewHeight: Int {
+        // The row's own vertical padding (CometChatQuickReactions sets p top and bottom).
+        // Not the live layoutMargins: on screen UIKit adds the safe area to them.
+        let margins = CometChatSpacing.Padding.p * 2
+        let buttonPadding: CGFloat = 8
+        let fitted = Int((reactionView.style.reactionFont.lineHeight + margins + buttonPadding).rounded(.up))
+        return max(reactionViewHeight, fitted)
+    }
     weak var messageOptionDelegate: CometChatMessageOptionDelegate?
     /// Fires once the popup is actually off screen, on every dismissal path.
     /// The host clears its context-menu state here rather than in the animator,
@@ -174,11 +186,22 @@ class MessagePopupViewController: UIViewController {
             height: messageSnapShotView.bounds.height
         )
 
+        let reactionRowHeight = scaledReactionViewHeight
+        // The row's width grows with its height so every emoji still fits at large
+        // text sizes, but never past the screen's edges.
+        let maxRowWidth = max(238, Int(view.bounds.width) - 16)
+        let reactionRowWidth = min(238 * reactionRowHeight / reactionViewHeight, maxRowWidth)
+        let proposedX = messageAlignment == .right ? Int(bubbleCoordinates.x + (messageSnapShotView.bounds.width - CGFloat(reactionRowWidth))) : Int(bubbleCoordinates.x)
+        // Only a row widened for large text is kept on screen; the default row keeps its
+        // bubble-aligned position exactly as before.
+        let reactionRowX = (reactionRowWidth > 238 && view.bounds.width > 0)
+            ? min(max(0, proposedX), max(0, Int(view.bounds.width) - reactionRowWidth))
+            : proposedX
         reactionView.frame = CGRect(
-            x: messageAlignment == .right ? Int(bubbleCoordinates.x + (messageSnapShotView.bounds.width - 238)) : Int(bubbleCoordinates.x),
-            y: (Int(bubbleCoordinates.y) - reactionViewHeight - spacing),
-            width: 238,
-            height: reactionViewHeight
+            x: reactionRowX,
+            y: (Int(bubbleCoordinates.y) - reactionRowHeight - spacing),
+            width: reactionRowWidth,
+            height: reactionRowHeight
         )
 
         optionMenuTableView.frame = CGRect(

@@ -51,7 +51,7 @@ public class MessageInputStyle : BaseStyle {
     
     @discardableResult
     public func set(inputBackgroundColor: UIColor) -> Self {
-        self.inputBackground = dividerColor
+        self.inputBackground = inputBackgroundColor
         return self
     }
     

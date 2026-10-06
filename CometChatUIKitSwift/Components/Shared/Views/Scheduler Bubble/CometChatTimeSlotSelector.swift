@@ -148,6 +148,9 @@ public class CometChatTimeSlotSelector: UIStackView {
                 scheduleButton.backgroundColor = CometChatTheme_v4.palatte.background
                 scheduleButton.setTitleColor(style.slotTextColor, for: .normal)
                 scheduleButton.setTitleColor(style.selectedSlotTextColor, for: .highlighted)
+                if let selectedSlotBackgroundColor = style.selectedSlotBackgroundColor {
+                    scheduleButton.setBackgroundImage(UIImage(color: selectedSlotBackgroundColor), for: .highlighted)
+                }
                 scheduleButton.titleLabel?.font = style.slotTextFont
                 scheduleButton.roundViewCorners(corner: CometChatCornerStyle(cornerRadius: 5))
                 scheduleButton.tag = index

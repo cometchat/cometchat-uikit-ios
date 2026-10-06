@@ -272,9 +272,11 @@ public class CometChatInlineVoiceRecorder: UIView {
             recordPlayButton.setImage(style.playButtonImage, for: .normal)
             recordPlayButton.accessibilityLabel = "a11y_play_recording".localize()
             recordPlayButton.tintColor = style.playButtonImageTintColor
+            recordPlayButton.backgroundColor = style.playButtonBackgroundColor
             pauseResumeButton.setImage(style.resumeRecordingButtonImage, for: .normal)
             pauseResumeButton.accessibilityLabel = "a11y_resume_recording".localize()
             pauseResumeButton.tintColor = style.resumeRecordingButtonImageTintColor
+            pauseResumeButton.backgroundColor = style.resumeRecordingButtonBackgroundColor
             waveformView.setSeekingEnabled(false)
             
         case .recording:
@@ -285,6 +287,7 @@ public class CometChatInlineVoiceRecorder: UIView {
             pauseResumeButton.setImage(style.pauseRecordingButtonImage, for: .normal)
             pauseResumeButton.accessibilityLabel = "a11y_pause_recording".localize()
             pauseResumeButton.tintColor = style.pauseRecordingButtonImageTintColor
+            pauseResumeButton.backgroundColor = style.pauseRecordingButtonBackgroundColor
             waveformView.setPlaybackMode(false)
             waveformView.setSeekingEnabled(false)
             
@@ -294,9 +297,11 @@ public class CometChatInlineVoiceRecorder: UIView {
             stopRecordingIndicatorAnimation()
             recordPlayButton.setImage(style.playButtonImage, for: .normal)
             recordPlayButton.tintColor = style.playButtonImageTintColor
+            recordPlayButton.backgroundColor = style.playButtonBackgroundColor
             pauseResumeButton.setImage(style.resumeRecordingButtonImage, for: .normal)
             pauseResumeButton.accessibilityLabel = "a11y_resume_recording".localize()
             pauseResumeButton.tintColor = style.resumeRecordingButtonImageTintColor
+            pauseResumeButton.backgroundColor = style.resumeRecordingButtonBackgroundColor
             waveformView.setPlaybackMode(true)
             waveformView.setSeekingEnabled(player != nil)
             
@@ -305,9 +310,11 @@ public class CometChatInlineVoiceRecorder: UIView {
             recordingIndicatorView.isHidden = true
             recordPlayButton.setImage(style.pausePlaybackButtonImage, for: .normal)
             recordPlayButton.tintColor = style.pausePlaybackButtonImageTintColor
+            recordPlayButton.backgroundColor = style.playButtonBackgroundColor
             pauseResumeButton.setImage(style.resumeRecordingButtonImage, for: .normal)
             pauseResumeButton.accessibilityLabel = "a11y_resume_recording".localize()
             pauseResumeButton.tintColor = style.resumeRecordingButtonImageTintColor
+            pauseResumeButton.backgroundColor = style.resumeRecordingButtonBackgroundColor
             waveformView.setPlaybackMode(true)
             waveformView.setSeekingEnabled(true)
             
@@ -316,9 +323,11 @@ public class CometChatInlineVoiceRecorder: UIView {
             recordingIndicatorView.isHidden = true
             recordPlayButton.setImage(style.playButtonImage, for: .normal)
             recordPlayButton.tintColor = style.playButtonImageTintColor
+            recordPlayButton.backgroundColor = style.playButtonBackgroundColor
             pauseResumeButton.setImage(style.resumeRecordingButtonImage, for: .normal)
             pauseResumeButton.accessibilityLabel = "a11y_resume_recording".localize()
             pauseResumeButton.tintColor = style.resumeRecordingButtonImageTintColor
+            pauseResumeButton.backgroundColor = style.resumeRecordingButtonBackgroundColor
             waveformView.setPlaybackMode(true)
             waveformView.setPlaybackProgress(0)
             waveformView.setSeekingEnabled(true)
@@ -794,20 +803,5 @@ public class CometChatInlineVoiceRecorder: UIView {
 extension CometChatInlineVoiceRecorder: AVAudioPlayerDelegate {
     public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         handlePlaybackFinished()
-    }
-}
-
-// MARK: - Helper Extension
-
-extension UIView {
-    var parentViewController: UIViewController? {
-        var responder: UIResponder? = self
-        while let nextResponder = responder?.next {
-            if let viewController = nextResponder as? UIViewController {
-                return viewController
-            }
-            responder = nextResponder
-        }
-        return nil
     }
 }

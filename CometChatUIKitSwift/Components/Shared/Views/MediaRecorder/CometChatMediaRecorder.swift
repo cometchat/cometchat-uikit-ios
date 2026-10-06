@@ -304,7 +304,7 @@ public class CometChatMediaRecorder: UIViewController, PanModalPresentable {
         audioTimerLabel.textColor = style.textColor
 
         // Style recording view
-        recordingView.style = style.messageBubbleStyle.audioBubbleStyle
+        recordingView.style = style.resolvedPreviewAudioBubbleStyle
         
         recordingView.backgroundColor = style.messageBubbleStyle.audioBubbleStyle.backgroundColor ?? CometChatTheme.primaryColor
         recordingView.borderWith(width: style.messageBubbleStyle.audioBubbleStyle.borderWidth ?? 0)

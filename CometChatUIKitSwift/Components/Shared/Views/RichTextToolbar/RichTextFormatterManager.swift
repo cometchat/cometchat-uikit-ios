@@ -233,6 +233,14 @@ public class RichTextFormatterManager {
         if text.range(of: "(?<![\\w/])_[^_]+_(?!\\w)", options: .regularExpression) != nil {
             return true
         }
+        // Italic: *text* (CommonMark single asterisks, no space just inside either marker)
+        if text.range(of: "(?<![\\*\\w])\\*(?![\\s*])[^*\\n]*?[^\\s*]\\*(?![\\*\\w])|(?<![\\*\\w])\\*[^\\s*]\\*(?![\\*\\w])", options: .regularExpression) != nil {
+            return true
+        }
+        // Bullet list: "- " at the start of a line (the wire form of a composer bullet)
+        if text.hasPrefix("- ") || text.contains("\n- ") {
+            return true
+        }
         // Underline: <u>text</u> (HTML style only)
         if text.contains("<u>") && text.contains("</u>") {
             return true
@@ -320,18 +328,12 @@ public class RichTextFormatterManager {
             }
         }
         
-        // Remove inline code (`...`)
-        while let startRange = result.range(of: "`") {
-            let afterStart = startRange.upperBound
-            if afterStart < result.endIndex, let endRange = result[afterStart...].range(of: "`") {
-                let content = String(result[afterStart..<endRange.lowerBound])
-                result.replaceSubrange(startRange.lowerBound..<endRange.upperBound, with: content)
-            } else {
-                break
-            }
-        }
-        
-        // Remove bold+italic (***...***) 
+        // Remove inline code (`...`), pairing backticks the way parseMarkdown does: a
+        // run of two or more backticks (an unclosed ``` fence, or an empty ``) stays as
+        // literal text, and the closer is a lone backtick, skipping `` and ``` runs.
+        result = stripInlineCode(result)
+
+        // Remove bold+italic (***...***)
         while let startRange = result.range(of: "***") {
             let afterStart = startRange.upperBound
             if let endRange = result[afterStart...].range(of: "***") {
@@ -353,6 +355,13 @@ public class RichTextFormatterManager {
             }
         }
         
+        // Remove single-asterisk italic (*...*) — not part of ** or ***, and not opening
+        // or closing on whitespace, so "2 * 3 * 4" and "* item" stay as typed.
+        if let regex = try? NSRegularExpression(pattern: RichTextFormatterManager.asteriskItalicPattern, options: []) {
+            let range = NSRange(result.startIndex..., in: result)
+            result = regex.stringByReplacingMatches(in: result, options: [], range: range, withTemplate: "$1")
+        }
+
         // Remove strikethrough (~~...~~)
         while let startRange = result.range(of: "~~") {
             let afterStart = startRange.upperBound
@@ -384,7 +393,63 @@ public class RichTextFormatterManager {
         
         return result
     }
-    
+
+    /// Single-asterisk italic: a `*` that is not part of `**`, opens on a non-space,
+    /// holds no `*` or newline, and closes on a non-space. Shared by stripping and
+    /// parsing so the two agree.
+    static let asteriskItalicPattern = "(?<!\\*)\\*(?![\\s*])([^*\\n]*?[^\\s*])\\*(?!\\*)"
+
+    /// Removes inline-code backticks with the same pairing rules parseMarkdown uses,
+    /// so an unclosed fence or an empty `` span is left exactly as typed.
+    private func stripInlineCode(_ text: String) -> String {
+        var output = ""
+        var index = text.startIndex
+        while index < text.endIndex {
+            guard text[index] == "`" else {
+                output.append(text[index])
+                index = text.index(after: index)
+                continue
+            }
+            // A run of two or more backticks is never an inline-code opener.
+            let next = text.index(after: index)
+            if next < text.endIndex && text[next] == "`" {
+                var runEnd = index
+                while runEnd < text.endIndex && text[runEnd] == "`" {
+                    runEnd = text.index(after: runEnd)
+                }
+                output += text[index..<runEnd]
+                index = runEnd
+                continue
+            }
+            // Find the closing lone backtick, skipping `` and ``` runs inside the span.
+            var closing: String.Index? = nil
+            var search = next
+            while search < text.endIndex {
+                if text[search] == "`" {
+                    if text[search...].hasPrefix("```") {
+                        search = text.index(search, offsetBy: 3)
+                        continue
+                    }
+                    if text[search...].hasPrefix("``") {
+                        search = text.index(search, offsetBy: 2)
+                        continue
+                    }
+                    closing = search
+                    break
+                }
+                search = text.index(after: search)
+            }
+            if let closing {
+                output += text[next..<closing]
+                index = text.index(after: closing)
+            } else {
+                output.append("`")
+                index = next
+            }
+        }
+        return output
+    }
+
     // MARK: - Public Methods
     
     /// Applies the specified format to the text at the given range with visual styling
@@ -1301,14 +1366,48 @@ public class RichTextFormatterManager {
             result = convertNonCodeToMarkdown(workingAttributedString, range: fullRange)
         }
         
+        // The composer draws bullets as "• "; on the wire they are standard markdown
+        // "- " so every client reads a list. Numbered items are already "N. ".
+        result = replacingLineMarker("• ", with: "- ", in: result)
+
         // Now handle blockquote markers - check which parts of the original text have isBlockquoteKey
         // We need to add "> " prefix to lines that have blockquote content
         result = addBlockquoteMarkersToResult(result, originalAttributedString: workingAttributedString)
-        
+
         
         return result
     }
     
+    /// Turns markdown "- " bullet lines back into the composer's "• " bullets, so a
+    /// message opened for editing shows the list the way it was composed.
+    func composerBullets(fromMarkdown markdown: String) -> String {
+        replacingLineMarker("- ", with: "• ", in: markdown)
+    }
+
+    /// Swaps `marker` for `replacement` at the start of every line (after an optional
+    /// "> " quote prefix), leaving the contents of ``` fenced blocks untouched.
+    private func replacingLineMarker(_ marker: String, with replacement: String, in text: String) -> String {
+        guard text.contains(marker) else { return text }
+        var isInsideCodeBlock = false
+        let lines = text.components(separatedBy: "\n").map { line -> String in
+            if line.hasPrefix("```") {
+                // A fence line opens or closes a block; "```code```" on one line does both.
+                let fenceCount = line.components(separatedBy: "```").count - 1
+                if fenceCount % 2 == 1 { isInsideCodeBlock.toggle() }
+                return line
+            }
+            guard !isInsideCodeBlock else { return line }
+            if line.hasPrefix(marker) {
+                return replacement + line.dropFirst(marker.count)
+            }
+            if line.hasPrefix("> " + marker) {
+                return "> " + replacement + line.dropFirst(2 + marker.count)
+            }
+            return line
+        }
+        return lines.joined(separator: "\n")
+    }
+
     /// Adds blockquote markers ("> ") to lines that have blockquote content
     /// Emojis are kept as-is in blockquotes (no conversion to shortcodes)
     /// - Parameters:
@@ -1469,8 +1568,11 @@ public class RichTextFormatterManager {
             
             guard !text.isEmpty else { return }
             
-            // Check for link
-            if let link = attributes[.link] {
+            // Check for link. parseMarkdown stores a parsed link under linkURLKey rather
+            // than .link (so it keeps the base colour), and an edited message must go
+            // back out as the same link — read both.
+            let linkValue = attributes[.link] ?? attributes[RichTextFormatterManager.linkURLKey]
+            if let link = linkValue {
                 let urlString: String
                 if let url = link as? URL {
                     urlString = url.absoluteString
@@ -1502,7 +1604,7 @@ public class RichTextFormatterManager {
             }
             
             // Check for underline
-            let hasUnderline = (attributes[.underlineStyle] as? Int ?? 0) != 0 && attributes[.link] == nil
+            let hasUnderline = (attributes[.underlineStyle] as? Int ?? 0) != 0 && linkValue == nil
             
             // Check for strikethrough
             let hasStrikethrough = (attributes[.strikethroughStyle] as? Int ?? 0) != 0
@@ -1571,8 +1673,9 @@ public class RichTextFormatterManager {
     ) -> NSAttributedString {
         let result = NSMutableAttributedString()
         
-        // Use the markdown text directly - blockquotes are handled by the caller
-        let text = markdown
+        // Blockquotes are handled by the caller. A "- " list item (the wire form a
+        // bullet is sent in) renders with the same "• " marker the composer shows.
+        let text = composerBullets(fromMarkdown: markdown)
         
         // Use provided colors or defaults
         let inlineCodeBgColor = inlineCodeBackgroundColor ?? CometChatTheme.neutralColor300
@@ -1875,7 +1978,39 @@ public class RichTextFormatterManager {
                 index = text.index(index, offsetBy: 2)
                 continue
             }
-            
+
+            // Check for single-asterisk italic (*text*) - the rule in asteriskItalicPattern:
+            // not part of ** / ***, no whitespace just inside either marker, one line.
+            if text[index] == "*" {
+                let prevIsAsterisk = index > text.startIndex && text[text.index(before: index)] == "*"
+                let afterMarker = text.index(after: index)
+                if !prevIsAsterisk,
+                   afterMarker < text.endIndex,
+                   !text[afterMarker].isWhitespace,
+                   text[afterMarker] != "*",
+                   let closing = text[afterMarker...].firstIndex(where: { $0 == "*" || $0 == "\n" }),
+                   text[closing] == "*",
+                   !text[text.index(before: closing)].isWhitespace {
+                    let afterClosing = text.index(after: closing)
+                    if afterClosing == text.endIndex || text[afterClosing] != "*" {
+                        let content = String(text[afterMarker..<closing])
+                        let parsedContent = parseMarkdown(
+                            content,
+                            baseFont: baseFont,
+                            baseColor: baseColor,
+                            inlineCodeBackgroundColor: inlineCodeBgColor,
+                            codeBlockBackgroundColor: codeBlockBgColor,
+                            codeTextColor: codeFgColor,
+                            inlineCodeTextColor: inlineCodeFgColor,
+                            addNewlinesAroundCodeBlocks: addNewlinesAroundCodeBlocks
+                        )
+                        result.append(addingItalicTrait(to: parsedContent, baseFont: baseFont))
+                        index = afterClosing
+                        continue
+                    }
+                }
+            }
+
             // Check for italic with underscore (_text_)
             if text[index] == "_" {
                 // Skip underscore-based italic if the underscore is mid-word (e.g., inside URLs like product_id)
@@ -1931,7 +2066,13 @@ public class RichTextFormatterManager {
                                 searchIdx = text.index(after: searchIdx)
                                 continue
                             }
-                            
+
+                            // An empty span ("__") is literal text, as stripMarkdown
+                            // leaves it — italicising nothing would drop both marks.
+                            if searchIdx == afterMarker {
+                                break
+                            }
+
                             let content = String(text[afterMarker..<searchIdx])
                             
                             // Recursively parse the content for nested formatting (bold, etc.)
@@ -2053,7 +2194,24 @@ public class RichTextFormatterManager {
     }
     
     // MARK: - Private Format Application Methods
-    
+
+    /// Returns `parsed` with the italic trait added to every run, keeping traits the
+    /// runs already carry (bold, etc.).
+    private func addingItalicTrait(to parsed: NSAttributedString, baseFont: UIFont) -> NSAttributedString {
+        let italicContent = NSMutableAttributedString(attributedString: parsed)
+        italicContent.enumerateAttribute(.font, in: NSRange(location: 0, length: italicContent.length), options: []) { value, range, _ in
+            let font = (value as? UIFont) ?? baseFont
+            var traits = font.fontDescriptor.symbolicTraits
+            traits.insert(.traitItalic)
+            if let descriptor = font.fontDescriptor.withSymbolicTraits(traits) {
+                italicContent.addAttribute(.font, value: UIFont(descriptor: descriptor, size: font.pointSize), range: range)
+            } else {
+                italicContent.addAttribute(.font, value: UIFont.italicSystemFont(ofSize: font.pointSize), range: range)
+            }
+        }
+        return italicContent
+    }
+
     /// Helper function to create a font with both bold and italic traits
     private func createBoldItalicFont(size: CGFloat) -> UIFont {
         // Try multiple approaches to create bold+italic font

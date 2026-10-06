@@ -70,12 +70,18 @@ class ActionElementUtils {
                 
             }
             
-        } else if let buttonElement = buttonElement, buttonElement.navigationAction.actionType == "urlNavigation", !buttonElement.navigationAction.url.isEmpty {
+        } else if let buttonElement = buttonElement,
+                  // The parsed/public-init path stores the action in `clickAction`;
+                  // the legacy parser stores it in `navigationAction`.
+                  case let navigationAction = (buttonElement.clickAction as? URLNavigationAction) ?? buttonElement.navigationAction,
+                  navigationAction.actionType == "urlNavigation", !navigationAction.url.isEmpty {
             let cometChatWebView = CometChatWebView()
             cometChatWebView.set(webViewType: .none)
-                .set(url: buttonElement.navigationAction.url)
+                .set(url: navigationAction.url)
                 .set(title: buttonElement.buttonText)
-            controller?.navigationController?.pushViewController(cometChatWebView, animated: true)
+            // `controller` is itself the navigation stack; its own
+            // `navigationController` is its parent, which is nil for a real stack.
+            controller?.pushViewController(cometChatWebView, animated: true)
         }
     }
 }

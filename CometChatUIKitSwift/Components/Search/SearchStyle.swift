@@ -13,6 +13,9 @@ public struct SearchStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     
     public var searchBarTintColor: UIColor?
     
+    /// Applied to the search bar, but UIKit renders a bar installed through
+    /// `navigationItem.searchController` (as this screen does) in its own system style and
+    /// ignores `searchBarStyle` there. Use the other `searchBar*` properties to restyle it.
     public var searchBarStyle: UISearchBar.Style = .default
     
     public var searchBarPlaceholderTextColor: UIColor?
@@ -63,16 +66,22 @@ public struct SearchStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     
     public var errorSubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
     
+    /// Not applied: the search error state has no retry button. Kept for source compatibility.
     public var retryButtonTextColor: UIColor = CometChatTheme.buttonTextColor
     
+    /// Not applied: the search error state has no retry button. Kept for source compatibility.
     public var retryButtonTextFont: UIFont = CometChatTypography.Button.medium
     
+    /// Not applied: the search error state has no retry button. Kept for source compatibility.
     public var retryButtonBackgroundColor: UIColor = CometChatTheme.primaryColor
     
+    /// Not applied: the search error state has no retry button. Kept for source compatibility.
     public var retryButtonBorderColor: UIColor = .clear
     
+    /// Not applied: the search error state has no retry button. Kept for source compatibility.
     public var retryButtonBorderWidth: CGFloat = 0
     
+    /// Not applied: the search error state has no retry button. Kept for source compatibility.
     public var retryButtonCornerRadius: CometChatCornerStyle = .init(cornerRadius: CometChatSpacing.Radius.r2)
     
     public var emptyTitleTextFont: UIFont = CometChatTypography.Heading3.bold
@@ -83,6 +92,7 @@ public struct SearchStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     
     public var emptySubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
     
+    /// Not applied: the search results table hides its separators. Kept for source compatibility.
     public var tableViewSeparator: UIColor = .clear
     
     public var listItemTitleTextColor: UIColor = CometChatTheme.textColorPrimary

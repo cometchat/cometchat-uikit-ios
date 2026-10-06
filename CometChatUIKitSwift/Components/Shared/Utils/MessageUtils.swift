@@ -603,11 +603,18 @@ open class MessageUtils {
             
             var offset = 0
             for match in matches {
-                let range = Range(match.range(at: 1), in: input)!
+                // Formatter regexes normally capture the tag body in group 1; one
+                // without a capture group falls back to the whole match. An optional
+                // group that didn't take part in the match (NSNotFound) is skipped.
+                let captureRange = match.numberOfRanges > 1 ? match.range(at: 1) : match.range
+                guard captureRange.location != NSNotFound, let range = Range(captureRange, in: input) else { continue }
                 let uidReplacement = String(input[range])
                 
                 let modifiedReplacement = replaceRegex(uidReplacement)
-                let attributes = modifiedReplacement.attributes(at: 0, longestEffectiveRange: nil, in: NSRange(location: 0, length: modifiedReplacement.length))
+                // `attributes(at: 0)` raises on an empty string.
+                let attributes = modifiedReplacement.length > 0
+                    ? modifiedReplacement.attributes(at: 0, longestEffectiveRange: nil, in: NSRange(location: 0, length: modifiedReplacement.length))
+                    : [:]
                 let adjustedRange = NSRange(location: match.range.location - offset, length: match.range.length)
                 attributedString.replaceCharacters(in: adjustedRange, with: modifiedReplacement)
                 
@@ -644,7 +651,9 @@ open class MessageUtils {
             
             var offset = 0
             for match in matches {
-                let range = Range(match.range(at: 1), in: input)!
+                // Same capture-group fallback as processString: never force-unwrap group 1.
+                let captureRange = match.numberOfRanges > 1 ? match.range(at: 1) : match.range
+                guard captureRange.location != NSNotFound, let range = Range(captureRange, in: input) else { continue }
                 let uidReplacement = String(input[range])
                 
                 let modifiedReplacement = replaceRegex(uidReplacement)
@@ -667,6 +676,11 @@ open class MessageUtils {
     }
     
     public static func quotedMessageText(for message: BaseMessage) -> String {
+        // A deleted message keeps its original payload; quote it as deleted instead.
+        if message.deletedAt > 0 {
+            return "MESSAGE_WAS_DELETED".localize()
+        }
+
         if let textMsg = message as? TextMessage {
             return textMsg.text
         }
@@ -680,26 +694,26 @@ open class MessageUtils {
                 return fileName
             }
             switch mediaMsg.messageType {
-            case .image: return "Image"
-            case .video: return "Video"
-            case .audio: return "Audio"
-            case .file:  return "File"
-            default:     return "Media"
+            case .image: return "MESSAGE_IMAGE".localize()
+            case .video: return "MESSAGE_VIDEO".localize()
+            case .audio: return "MESSAGE_AUDIO".localize()
+            case .file:  return "MESSAGE_FILE".localize()
+            default:     return "MESSAGE_MEDIA".localize()
             }
         }
         
         if let customMessage = message as? CustomMessage {
             switch customMessage.type {
             case "extension_sticker":
-                return "Sticker"
+                return "CUSTOM_MESSAGE_STICKER".localize()
             case "extension_poll":
-                return "Poll"
+                return "CUSTOM_MESSAGE_POLL".localize()
             case "extension_whiteboard":
-                return "Collaborative Whiteboard"
+                return "COLLABORATIVE_WHITEBOARD".localize()
             case "extension_document":
-                return "Collaborative Document"
+                return "COLLABORATIVE_DOCUMENT".localize()
             case "meeting":
-                return "Meeting"
+                return "MESSAGE_MEETING".localize()
             case .none:
                 break
             case .some(_):
@@ -709,10 +723,10 @@ open class MessageUtils {
         
         // Developer card messages (category "card")
         if let cardMessage = message as? CometChatSDK.CardMessage {
-            return cardMessage.getText() ?? "Card Message"
+            return cardMessage.getText() ?? "card_message_fallback".localize()
         }
         
-        return "Message"
+        return "MESSAGE_GENERIC".localize()
     }
     
 }

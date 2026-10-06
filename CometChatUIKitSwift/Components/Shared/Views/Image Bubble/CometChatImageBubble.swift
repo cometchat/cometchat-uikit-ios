@@ -100,25 +100,21 @@ public class CometChatImageBubble: UIStackView {
     }
     
     public func set(imageUrl: String, localFileURL: String? = nil, thumbnailURL: String? = nil) {
-        let localUrl = URL(string: localFileURL ?? "")
-        if (localUrl?.checkFileExist()) ?? false {
+        // A local copy is used only when it actually decodes; otherwise fall through to the
+        // remote/thumbnail path so the bubble keeps its spinner instead of going blank.
+        if let localUrl = URL(string: localFileURL ?? ""), localUrl.checkFileExist(),
+           let imageData = try? Data(contentsOf: localUrl), let image = UIImage(data: imageData) {
             self.imageURL = localFileURL
-            do {
-                let imageData = try Data(contentsOf: localUrl!)
-                let image = UIImage(data: imageData as Data)
-                previewItemURL = localUrl! as NSURL
-                imageView.image = image
-                activityIndicator.isHidden = true
-            } catch {
-                self.imageURL = imageUrl
-            }
-        }else if let thumbnailString = thumbnailURL, let thumbnailURL = URL(string: thumbnailString) {
+            previewItemURL = localUrl as NSURL
+            imageView.image = image
+            activityIndicator.isHidden = true
+        } else if let thumbnailString = thumbnailURL, URL(string: thumbnailString) != nil {
             self.imageURL = imageUrl
             setPreviewImage(url: thumbnailString)
             self.isPhotoNeedToDownload = true
-        } else if let originalImageURL = URL(string: imageUrl) {
+        } else if URL(string: imageUrl) != nil {
             self.imageURL = imageUrl
-            setPreviewImage(url: imageURL!)
+            setPreviewImage(url: imageUrl)
         }
     }
     
@@ -136,7 +132,8 @@ public class CometChatImageBubble: UIStackView {
                     if let image = image {
                         this.previewItemURL = fileLocation as NSURL
                         this.imageView.image = image
-                    } else {
+                    } else if URL(string: url) != fileLocation {
+                        // Only drop an undecodable Documents cache entry, never the caller's own file.
                         try? FileManager.default.removeItem(at: fileLocation)
                     }
                 } catch {
@@ -155,9 +152,12 @@ public class CometChatImageBubble: UIStackView {
     
     func previewMediaMessage(url: String, completion: @escaping (_ success: Bool,_ fileLocation: URL?) -> Void){
         let itemUrl = URL(string: url)
-        let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let destinationUrl = documentsDirectoryURL.appendingPathComponent(itemUrl?.lastPathComponent ?? "")
-        if FileManager.default.fileExists(atPath: destinationUrl.path) {
+        // A URL with no file name has no cache slot; never look at (or purge) Documents itself.
+        guard let destinationUrl = itemUrl?.documentsCacheURL else {
+            downloadImage(url: itemUrl, completion: completion)
+            return
+        }
+        if destinationUrl.isExistingRegularFile {
             // Validate cached file is not corrupt (not empty and can be decoded as image)
             if let data = try? Data(contentsOf: destinationUrl), data.count > 0, UIImage(data: data) != nil {
                 completion(true, destinationUrl)
@@ -166,8 +166,9 @@ public class CometChatImageBubble: UIStackView {
                 try? FileManager.default.removeItem(at: destinationUrl)
                 downloadImage(url: itemUrl, completion: completion)
             }
-        } else if (itemUrl?.checkFileExist()) == true {
-            completion(true, destinationUrl)
+        } else if let itemUrl = itemUrl, itemUrl.checkFileExist() {
+            // A local file outside Documents is read where it is.
+            completion(true, itemUrl)
         } else {
             downloadImage(url: itemUrl, completion: completion)
         }
@@ -176,11 +177,14 @@ public class CometChatImageBubble: UIStackView {
     func downloadImage(url: URL?, completion: @escaping (_ success: Bool,_ fileLocation: URL?) -> Void) {
         
         if retryCount >= 5 { return }
+        // No URL, or one with no file name, cannot be downloaded into the cache.
+        guard let url, let destinationUrl = url.documentsCacheURL else {
+            completion(false, nil)
+            return
+        }
         retryCount+=1 //retrying thumbnail download
-        
-        let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let destinationUrl = documentsDirectoryURL.appendingPathComponent(url?.lastPathComponent ?? "")
-        imageDownloadService = URLSession.shared.downloadTask(with: url!, completionHandler: { [weak self] (location, response, error) -> Void in
+
+        imageDownloadService = URLSession.shared.downloadTask(with: url, completionHandler: { [weak self] (location, response, error) -> Void in
             guard let tempLocation = location, error == nil else {
                 self?.downloadImage(url: url, completion: completion)
                 return
@@ -196,7 +200,7 @@ public class CometChatImageBubble: UIStackView {
                 return
             }
             do {
-                if FileManager.default.fileExists(atPath: destinationUrl.path) {
+                if destinationUrl.isExistingRegularFile {
                     try FileManager.default.removeItem(at: destinationUrl)
                 }
                 try FileManager.default.moveItem(at: tempLocation, to: destinationUrl)

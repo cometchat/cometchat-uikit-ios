@@ -53,7 +53,12 @@ public class AudioWaveformView: UIView {
     /// Number of bars to display
     private var maxBars: Int {
         let totalBarWidth = barWidth + barSpacing
-        return max(1, Int(bounds.width / totalBarWidth))
+        // A zero (or NaN) bar width + spacing would make the division infinite,
+        // and converting a non-finite value to Int traps.
+        guard totalBarWidth > 0 else { return 1 }
+        let fittingBars = bounds.width / totalBarWidth
+        guard fittingBars.isFinite else { return 1 }
+        return max(1, Int(min(fittingBars, 10_000)))
     }
     
     /// Stored amplitude values (0.0 to 1.0)
@@ -152,6 +157,7 @@ public class AudioWaveformView: UIView {
         guard viewWidth > 0 && viewHeight > 0 else { return }
         
         let totalBarWidth = barWidth + barSpacing
+        guard totalBarWidth > 0 && totalBarWidth.isFinite else { return }
         let barsToShow = maxBars
         
         // Get amplitudes to display

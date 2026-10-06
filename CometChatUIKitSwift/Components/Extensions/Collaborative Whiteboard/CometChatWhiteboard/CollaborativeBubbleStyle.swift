@@ -50,7 +50,9 @@ public struct CollaborativeBubbleStyle: BaseMessageBubbleStyle {
         set { _buttonTextColor = newValue }
     }
     
-    public var dividerTint = CometChatTheme.neutralColor100
+    /// Colour of the line above the open button. Defaults to the colour the divider has
+    /// always been painted with, so applying it changes nothing until it is set.
+    public var dividerTint: UIColor = UIColor.black.withAlphaComponent(0.4)
     
     public var reactionsStyle: ReactionsStyle?
     

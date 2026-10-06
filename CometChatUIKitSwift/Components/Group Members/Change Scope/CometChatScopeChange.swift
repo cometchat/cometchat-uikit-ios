@@ -154,7 +154,8 @@ open class CometChatScopeChange: UIViewController {
     }
     
     open func buildOptionsView() {
-        for index in 0...(options.count-1) {
+        // `0...(options.count - 1)` traps on an empty array; `indices` is empty instead.
+        for index in options.indices {
             
             let option = options[index]
             let optionView = UIView().withoutAutoresizingMaskConstraints()
@@ -227,8 +228,11 @@ open class CometChatScopeChange: UIViewController {
         subtitleLabel.font = style.subtitleFont
         subtitleLabel.adjustsFontForContentSizeCategory = true
 
+        // Neither button draws an image, so tint alone is invisible: the tint is the fill.
         saveButton.tintColor = style.saveButtonTintColor
+        saveButton.backgroundColor = style.saveButtonTintColor
         cancelButton.tintColor = style.cancelButonTintColor
+        cancelButton.backgroundColor = style.cancelButonTintColor
         
         optionsContainerView.borderWith(width: style.optionContainerBorderWidth)
         optionsContainerView.borderColor(color: style.optionContainerBorderColor)
@@ -236,7 +240,7 @@ open class CometChatScopeChange: UIViewController {
     }
 
     @objc open func onSaveButtonClicked() {
-        if let selectedOptions = selectedOptions, let guid = group?.guid, let uid = groupMember?.uid {
+        if let selectedOptions = selectedOptions, let selectedOption = options[safe: selectedOptions], let guid = group?.guid, let uid = groupMember?.uid {
             
             let activityIndicator = UIActivityIndicatorView(style: .medium).withoutAutoresizingMaskConstraints()
             activityIndicator.color = CometChatTheme.white
@@ -246,13 +250,13 @@ open class CometChatScopeChange: UIViewController {
             activityIndicator.centerXAnchor.pin(equalTo: saveButton.centerXAnchor).isActive = true
             activityIndicator.centerYAnchor.pin(equalTo: saveButton.centerYAnchor).isActive = true
 
-            CometChat.updateGroupMemberScope(UID: uid, GUID: guid, scope: options[selectedOptions].1, onSuccess: { [weak self] (response) in
+            CometChat.updateGroupMemberScope(UID: uid, GUID: guid, scope: selectedOption.1, onSuccess: { [weak self] (response) in
                 
                 guard let this = self else { return }
                 
                 let loggedInUser = CometChat.getLoggedInUser()
                 let oldScope = this.groupMember?.scope.toString(isLocalised: false)
-                switch this.options[selectedOptions].1 {
+                switch selectedOption.1 {
                 case .admin:
                     this.groupMember?.scope = .admin
                 case .moderator:
@@ -266,7 +270,7 @@ open class CometChatScopeChange: UIViewController {
                 let actionMessage = ActionMessage()
                 actionMessage.action = .scopeChanged
                 actionMessage.conversationId = "group_\(guid)"
-                actionMessage.message = "\(loggedInUser?.name ?? "") made \(this.groupMember?.name ?? "") \(this.options[selectedOptions].0)"
+                actionMessage.message = "\(loggedInUser?.name ?? "") made \(this.groupMember?.name ?? "") \(selectedOption.0)"
                 actionMessage.muid = "\(NSDate().timeIntervalSince1970)"
                 actionMessage.sender = loggedInUser
                 actionMessage.receiver = this.group
@@ -279,11 +283,15 @@ open class CometChatScopeChange: UIViewController {
                 actionMessage.newScope = this.groupMember?.scope ?? .participant
                 actionMessage.sentAt = Int(Date().timeIntervalSince1970)
                 
-                CometChatGroupEvents.ccGroupMemberScopeChanged(action: actionMessage, updatedUser: this.groupMember!, scopeChangedTo: this.options[selectedOptions].1.toString(isLocalised: false), scopeChangedFrom: oldScope ?? "", group: this.group!)
+                // The group or member can be cleared while the request is in flight;
+                // skip the event rather than force-unwrapping them.
+                if let groupMember = this.groupMember, let group = this.group {
+                    CometChatGroupEvents.ccGroupMemberScopeChanged(action: actionMessage, updatedUser: groupMember, scopeChangedTo: selectedOption.1.toString(isLocalised: false), scopeChangedFrom: oldScope ?? "", group: group)
+                }
                 
                 DispatchQueue.main.async {
                     activityIndicator.removeFromSuperview()
-                    self?.dismiss(animated: true)
+                    self?.close()
                 }
                 
             }) { (error) in
@@ -293,7 +301,16 @@ open class CometChatScopeChange: UIViewController {
     }
     
     @objc open func onCancelButtonClicked() {
-        self.dismiss(animated: true)
+        close()
+    }
+
+    // dismiss(animated:) is a no-op on a pushed controller.
+    private func close() {
+        if let navigationController, navigationController.viewControllers.first != self {
+            navigationController.popViewController(animated: true)
+        } else {
+            dismiss(animated: true)
+        }
     }
     
     @discardableResult

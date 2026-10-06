@@ -32,6 +32,13 @@ open class MessageInformationViewModel: NSObject, MessageInformationViewModelPro
             
             if let receiptSender = forMessage.receiver as? User {
                 
+                // Neither delivered nor read yet: leave the list empty so the screen shows its
+                // "waiting" empty state rather than Read/Delivered rows with no time.
+                if forMessage.deliveredAt == 0 && forMessage.readAt == 0 {
+                    self.reload?()
+                    return
+                }
+                
                 //adding read receipt
                 let readReceipt = CometChatSDK.MessageReceipt(
                     messageId: "\(forMessage.id)",
@@ -100,11 +107,16 @@ open class MessageInformationViewModel: NSObject, MessageInformationViewModelPro
                 switch receipt.receiptType {
                 case .delivered:
                     if excitingReceipt.deliveredAt == 0.0 {
-                        excitingReceipt.readAt = receipt.readAt
+                        excitingReceipt.deliveredAt = receipt.deliveredAt
                     }
                 case .read:
                     if excitingReceipt.readAt == 0.0 {
                         excitingReceipt.readAt = receipt.readAt
+                    }
+                    // A read implies delivery: back-fill a missing delivery stamp so a
+                    // "Read" row never sits above an empty "Delivered" row.
+                    if excitingReceipt.deliveredAt == 0.0 {
+                        excitingReceipt.deliveredAt = receipt.deliveredAt != 0.0 ? receipt.deliveredAt : receipt.readAt
                     }
                 case .deliveredToAll:
                     break

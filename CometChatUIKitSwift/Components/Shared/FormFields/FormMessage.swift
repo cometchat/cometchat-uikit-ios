@@ -76,7 +76,8 @@ import UIKit
         formMessage.senderUid = interactiveMessage.senderUid
         formMessage.sentAt = interactiveMessage.sentAt
         formMessage.readAt = interactiveMessage.readAt
-        formMessage.deliveredAt = interactiveMessage.deletedAt
+        formMessage.deliveredAt = interactiveMessage.deliveredAt
+        formMessage.deletedAt = interactiveMessage.deletedAt
         formMessage.updatedAt = interactiveMessage.updatedAt
         formMessage.deletedBy = interactiveMessage.deletedBy
         formMessage.interactionGoal = interactiveMessage.interactionGoal
@@ -131,7 +132,8 @@ import UIKit
         interactiveMessage.senderUid = self.senderUid
         interactiveMessage.sentAt = self.sentAt
         interactiveMessage.readAt = self.readAt
-        interactiveMessage.deliveredAt = self.deletedAt
+        interactiveMessage.deliveredAt = self.deliveredAt
+        interactiveMessage.deletedAt = self.deletedAt
         interactiveMessage.updatedAt = self.updatedAt
         interactiveMessage.deletedBy = self.deletedBy
         interactiveMessage.interactionGoal = self.interactionGoal

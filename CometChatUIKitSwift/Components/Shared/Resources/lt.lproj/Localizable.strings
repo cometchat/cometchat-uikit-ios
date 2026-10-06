@@ -441,3 +441,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "Nepavyko pateikti. Prieš pranešdami apie šią žinutę, pasirinkite priežastį";
+"REPORTED" = "Pranešta";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "Jūsų pranešimas sėkmingai pateiktas.";
+"MESSAGE_MEDIA" = "Medija";
+"MESSAGE_MEETING" = "Susitikimas";
+"MESSAGE_GENERIC" = "Žinutė";
+"MEETING_SCHEDULER" = "Susitikimų planuoklis";
+"MORE_TIMES" = "Daugiau laikų";
+"search_no_results_for" = "Nėra rezultatų pagal „%@“\nBandykite ieškoti iš naujo";
+"MESSAGE_LIST_EMPTY_TITLE" = "Žinučių dar nėra";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "Išsiųskite žinutę, kad pradėtumėte pokalbį.";

@@ -96,7 +96,7 @@ public class CollaborativeWhiteboardViewModel : DataSourceDecorator, CometChatMe
     }
     
     public override func getMessageTemplate(messageType: String, messageCategory: String, additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate? {
-        if messageType == MessageCategoryConstants.custom && messageCategory == collaborativeWhiteboardExtensionTypeConstant {
+        if messageCategory == MessageCategoryConstants.custom && messageType == collaborativeWhiteboardExtensionTypeConstant {
             return getTemplate(additionalConfiguration: additionalConfiguration)
         }
         return super.getMessageTemplate(messageType: messageType, messageCategory: messageCategory, additionalConfiguration: additionalConfiguration)

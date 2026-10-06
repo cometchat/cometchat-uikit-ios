@@ -48,11 +48,34 @@ open class CometChatCallLogs: CometChatListBase {
     }()
     public lazy var avatarStyle = CometChatCallLogs.avatarStyle
     
-    public static var dateStyle : DateStyle = {
+    /// Styles the date in each row's subtitle. Defaults to the call-log subtitle font and
+    /// colour, so the default rows look as they did before the date honoured this style.
+    /// A field of `dateStyle` still holding this inherited value defers to the
+    /// instance's `style.listItemSubTitleFont` / `listItemSubTitleTextColor`.
+    public static var dateStyle : DateStyle = CometChatCallLogs.inheritedDateStyle
+    public lazy var dateStyle = CometChatCallLogs.dateStyle
+
+    /// The date style the subtitle starts from: the call-log subtitle font and colour.
+    private static let inheritedDateStyle: DateStyle = {
         var dateStyle = CometChatDate.style
+        dateStyle.textFont = CometChatCallLogs.style.listItemSubTitleFont
+        dateStyle.textColor = CometChatCallLogs.style.listItemSubTitleTextColor
         return dateStyle
     }()
-    public lazy var dateStyle = CometChatCallLogs.dateStyle
+
+    /// The row's date style: fields the integrator set on `dateStyle` win; the rest
+    /// follow `style.listItemSubTitle*`, so the subtitle honours the call-log style.
+    func resolvedDateStyle() -> DateStyle {
+        var resolved = dateStyle
+        let inherited = CometChatCallLogs.inheritedDateStyle
+        if resolved.textFont == inherited.textFont {
+            resolved.textFont = style.listItemSubTitleFont
+        }
+        if resolved.textColor == inherited.textColor {
+            resolved.textColor = style.listItemSubTitleTextColor
+        }
+        return resolved
+    }
 
     // MARK: - Initializers
     public init() {
@@ -165,11 +188,13 @@ open class CometChatCallLogs: CometChatListBase {
     internal var placeResolvedCall: ((Call) -> Void)?
 
     /// The call that re-dials `callObject`: the other party of a one-to-one log — the
-    /// initiator when someone else placed it, the receiver when the logged-in user did —
-    /// with the log's media type. Nil when no user can be resolved.
+    /// receiver when the logged-in user placed it, the initiator when someone else did —
+    /// with the log's media type. Nil for a group log (a call-back places one-to-one calls
+    /// only; group calls are meetings started from the group) and when no user resolves.
     internal func resolveCall(for callObject: CallLog) -> Call? {
-        let isInitiator = LoggedInUserInformation.getUser()?.uid != (callObject.initiator as? CallUser)?.uid
-        guard let callUser = isInitiator ? (callObject.initiator as? CallUser) : (callObject.receiver as? CallUser) else {
+        guard !(callObject.receiver is CallGroup) else { return nil }
+        let isLoggedInUserInitiator = LoggedInUserInformation.getUser()?.uid == (callObject.initiator as? CallUser)?.uid
+        guard let callUser = isLoggedInUserInitiator ? (callObject.receiver as? CallUser) : (callObject.initiator as? CallUser) else {
             return nil
         }
         return Call(receiverId: callUser.uid, callType: callObject.type == .video ? .video : .audio, receiverType: .user)
@@ -262,7 +287,8 @@ extension CometChatCallLogs {
                 style: style,
                 incomingCallIcon: style.incomingCallIcon,
                 outgoingCallIcon: style.outgoingCallIcon,
-                missedCallIcon: style.missedCallIcon, callDate: datePattern?(callData), dateTimeFormatter: dateTimeFormatter
+                missedCallIcon: style.missedCallIcon, callDate: datePattern?(callData), dateTimeFormatter: dateTimeFormatter,
+                dateStyle: resolvedDateStyle()
             )
             listItem.set(subtitle: defaultSubtitle)
         }

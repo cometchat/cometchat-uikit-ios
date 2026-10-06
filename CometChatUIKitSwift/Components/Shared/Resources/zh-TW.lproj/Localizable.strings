@@ -486,3 +486,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "無法提交。檢舉此訊息前請先選擇原因";
+"REPORTED" = "已檢舉";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "你的檢舉已成功提交。";
+"MESSAGE_MEDIA" = "媒體";
+"MESSAGE_MEETING" = "會議";
+"MESSAGE_GENERIC" = "訊息";
+"MEETING_SCHEDULER" = "會議排程";
+"MORE_TIMES" = "更多時間";
+"search_no_results_for" = "找不到「%@」的結果\n請嘗試重新搜尋";
+"MESSAGE_LIST_EMPTY_TITLE" = "尚無訊息";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "傳送訊息以開始對話。";

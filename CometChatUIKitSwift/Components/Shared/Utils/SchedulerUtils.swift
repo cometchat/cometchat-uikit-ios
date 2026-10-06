@@ -26,6 +26,12 @@ public class SchedulerUtils {
     
     public static func generateTimeSlots(allAvailableTimes: [String: [TimeRange]], allUnAvailableTime: [String: [TimeRange]], forDate date: Date, bufferTime: Int, duration: Int, timeZoneCode: String, completion: @escaping (_: [TimeRange]?) -> ()) {
         
+        // A non-positive meeting length never advances the cursor.
+        guard duration > 0 else {
+            completion([])
+            return
+        }
+
         let dateString = date.getOnlyDate()
         var unAvailableTime = allUnAvailableTime[date.getOnlyDate()] ?? []
         var timeSlots = [TimeRange]()
@@ -47,7 +53,11 @@ public class SchedulerUtils {
             
             while (startTime.isBefore(time: availableTime.endTime)) {   
                 
-                guard let timeSlot = startTime.add(time: duration) else { continue }
+                let previousStartTime = startTime
+                let previousUnAvailableIndex = unAvailableIndex
+                
+                // A time that cannot be added to (malformed, or an oversized duration) ends this window.
+                guard let timeSlot = startTime.add(time: duration) else { break }
                 
                 if timeSlot.isBefore(time: availableTime.endTime) {
                     if let nextUnAvailableStartTime = unAvailableTime[safe: unAvailableIndex]?.startTime {
@@ -60,7 +70,9 @@ public class SchedulerUtils {
                             startTime = timeSlot
                         } else {
                             if let newStartTime = unAvailableTime[safe: unAvailableIndex]?.endTime.add(time: bufferTime.convertMinutesToString()) {
-                                startTime = newStartTime
+                                // Never move the cursor back: a block that ends before it (or
+                                // before the window opens) must not pull slots outside availability.
+                                startTime = max(newStartTime, startTime)
                             } else {
                                 break
                             }
@@ -72,6 +84,11 @@ public class SchedulerUtils {
                     }
                 } else {
                     startTime = availableTime.endTime
+                    break
+                }
+
+                // Bail out rather than spin if neither the cursor nor the block index moved.
+                if startTime == previousStartTime && unAvailableIndex == previousUnAvailableIndex {
                     break
                 }
             }
@@ -122,52 +139,69 @@ public class SchedulerUtils {
     
     static func removeOverlappingEvents(_ timeRanges: [TimeRange]) -> [TimeRange] {
         var nonOverlappingRanges: [TimeRange] = []
-        let sortedRanges = timeRanges.sorted { $0.startTime < $1.startTime }
-
-        var adjustedEndTime = "0000"
+        // A range with a malformed start or end cannot be placed, so it is skipped.
+        let sortedRanges = timeRanges
+            .filter { $0.startTime.isValidSchedulerTime && $0.endTime.isValidSchedulerTime }
+            .sorted { $0.startTime < $1.startTime }
 
         for range in sortedRanges {
-            if range.startTime.isAfter(time: adjustedEndTime) {
-                nonOverlappingRanges.append(range)
-                adjustedEndTime = range.endTime
+            if let previous = nonOverlappingRanges.last, !range.startTime.isAfter(time: previous.endTime) {
+                // Overlaps the previous block: the merged block runs to whichever ends later.
+                if range.endTime > previous.endTime {
+                    previous.endTime = range.endTime
+                    previous.endDate = range.endDate
+                }
             } else {
-                nonOverlappingRanges[nonOverlappingRanges.count - 1].endTime = adjustedEndTime
+                nonOverlappingRanges.append(TimeRange(startTime: range.startTime, endTime: range.endTime, startDate: range.startDate, endDate: range.endDate))
             }
         }
 
         return nonOverlappingRanges
     }
-    
+
     public static func checkTimeSlotAvailable(icsFileURL: String?, date: Date, timeSlot: TimeRange, completion: @escaping ((_: Bool) -> ()), failure: ((_: CometChatException) -> ())? = nil) {
         DispatchQueue.global(qos: .userInteractive).async {
-            if let ICSFile = icsFileURL, let url = URL(string: ICSFile) {
-                CometChatICSParser.load(url: url, completion: { scheduledEventsByDate in
-                    let scheduledEvents = scheduledEventsByDate[date.dayOfWeek()] ?? []
-                    for event in scheduledEvents {
-                        if timeSlot.startTime.isBefore(time: event.startTime) {
-                            continue
-                        } else {
-                            DispatchQueue.main.async {
-                                completion(false)
-                            }
-                            return
-                        }
-                    }
-                    DispatchQueue.main.async {
-                        completion(true)
-                    }
-                }, failure: failure)
+            // No calendar to check against: nothing can block the slot.
+            guard let ICSFile = icsFileURL, let url = URL(string: ICSFile) else {
+                DispatchQueue.main.async {
+                    completion(true)
+                }
+                return
             }
+            CometChatICSParser.load(url: url, completion: { scheduledEventsByDate in
+                // The parser keys events by the same yyyyMMdd day key.
+                let scheduledEvents = scheduledEventsByDate[date.getOnlyDate()] ?? []
+                let isBlocked = scheduledEvents.contains { event in
+                    SchedulerUtils.timeSlot(timeSlot, overlaps: event)
+                }
+                DispatchQueue.main.async {
+                    completion(!isBlocked)
+                }
+            }, failure: failure)
         }
     }
-    
+
+    /// Whether a slot intersects an event's half-open window [start, end). A slot with no
+    /// end is treated as the single instant it starts at.
+    static func timeSlot(_ timeSlot: TimeRange, overlaps event: TimeRange) -> Bool {
+        guard timeSlot.startTime.isValidSchedulerTime,
+              event.startTime.isValidSchedulerTime,
+              event.endTime.isValidSchedulerTime else { return false }
+
+        let slotStart = timeSlot.startTime
+        if timeSlot.endTime.isValidSchedulerTime, timeSlot.endTime > slotStart {
+            return slotStart < event.endTime && event.startTime < timeSlot.endTime
+        }
+        return event.startTime <= slotStart && slotStart < event.endTime
+    }
+
     static func convertToLocalTimeZone(availability: [String: [TimeRange]], date: Date, timeZoneCode: String) -> [TimeRange] {
         
         var convertedAvailability = [TimeRange]()
         let senderStartDate = combinedDate(date.getOnlyDate(), "0000", fromTimeZone: TimeZone.current.identifier, toTimeZone: timeZoneCode)
         let senderEndDate = combinedDate(date.getOnlyDate(), "2359", fromTimeZone: TimeZone.current.identifier, toTimeZone: timeZoneCode)
         var senderTimeAvList = [TimeRange]()
-        let startDateAvailability = availability[senderStartDate.date.todate().dayOfWeek()] ?? []
+        let startDateAvailability = senderStartDate.date.todateIfValid().flatMap { availability[$0.dayOfWeek()] } ?? []
         
         startDateAvailability.forEach { timeRange in
             let newTimeRange = TimeRange()
@@ -178,7 +212,7 @@ public class SchedulerUtils {
         }
         
         if senderStartDate.date != senderEndDate.date {
-            let endDateAvailability = availability[senderEndDate.date.todate().dayOfWeek()] ?? []
+            let endDateAvailability = senderEndDate.date.todateIfValid().flatMap { availability[$0.dayOfWeek()] } ?? []
             endDateAvailability.forEach { timeRange in
                 let newTimeRange = TimeRange()
                 newTimeRange.endTime = timeRange.endTime
@@ -380,6 +414,19 @@ extension String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format
         return dateFormatter.date(from: self)!
+    }
+
+    /// `todate(format:)` without the trap: nil when the string is empty or does not match.
+    internal func todateIfValid(format: String = "yyyyMMdd") -> Date? {
+        guard !self.isEmpty else { return nil }
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format
+        return dateFormatter.date(from: self)
+    }
+
+    /// A four-digit "HHmm" time, or the end-of-day "2400".
+    internal var isValidSchedulerTime: Bool {
+        return self == "2400" || hhmmComponents() != nil
     }
 }
 

@@ -37,10 +37,7 @@ import UIKit
         }
         if let options = data[InteractiveConstants.CheckBoxUIConstants.OPTIONS] as? [[String:Any]] {
             for option in options {
-                if let id = option[InteractiveConstants.CheckBoxUIConstants.LABEL] as? String, let value = option[InteractiveConstants.CheckBoxUIConstants.OPTION_VALUE] as? String {
-                    let optionElement = OptionElement()
-                    optionElement.id = id
-                    optionElement.value = value
+                if let optionElement = OptionElement.optionFromJSON(option) {
                     checkboxElement.options.append(optionElement)
                 }
             }

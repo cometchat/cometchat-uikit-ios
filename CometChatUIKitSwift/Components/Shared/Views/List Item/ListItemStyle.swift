@@ -36,8 +36,13 @@ public struct ListItemStyleDefault: ListItemStyle {
     
     public var listItemTitleFont: UIFont = CometChatTypography.Heading4.medium
     
+    /// Not applied by `CometChatListItem`: its subtitle slot holds a view the caller builds
+    /// and styles (components such as Conversations read their own style's subtitle values
+    /// when they build one). Kept for source compatibility.
     public var listItemSubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
     
+    /// Not applied by `CometChatListItem`: its subtitle slot holds a view the caller builds
+    /// and styles. Kept for source compatibility.
     public var listItemSubTitleFont: UIFont = CometChatTypography.Body.regular
     
     public var listItemBackground: UIColor = .clear

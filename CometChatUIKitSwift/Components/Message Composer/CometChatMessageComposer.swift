@@ -252,7 +252,7 @@ open class CometChatMessageComposer: UIView {
     }()
     
     public lazy var attachmentButton: UIButton = {
-        let button = UIButton().withoutAutoresizingMaskConstraints()
+        let button = CometChatHitAreaButton().withoutAutoresizingMaskConstraints()
         button.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(attachmentButtonClicked), for: .primaryActionTriggered)
         button.pin(anchors: [.height, .width], to: 24)
@@ -260,7 +260,7 @@ open class CometChatMessageComposer: UIView {
     }()
     
     public lazy var microphoneButton: UIButton = {
-        let button = UIButton().withoutAutoresizingMaskConstraints()
+        let button = CometChatHitAreaButton().withoutAutoresizingMaskConstraints()
         button.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(didMicrophoneButtonClicked), for: .primaryActionTriggered)
         button.pin(anchors: [.height, .width], to: 24)
@@ -436,11 +436,51 @@ open class CometChatMessageComposer: UIView {
             setupStyle()
             connect()
             updateUI()
+            restoreDraft()
             updateSendButtonState()
         }else{
+            saveDraft()
             clearReplyState()
             disconnect()
         }
+    }
+
+
+    // MARK: - Minimum tap targets (B54)
+    // The 24pt icon buttons sit in rows shorter than 44pt, so their own point(inside:) never
+    // sees a touch just above or below them. Route near-misses here instead, never stealing a
+    // touch that already landed on the text view or another control.
+    open override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hit = super.hitTest(point, with: event)
+        if hit is UIControl || hit === textView || (hit?.isDescendant(of: textView) ?? false) { return hit }
+        guard self.point(inside: point, with: event) else { return hit }
+        return CometChatHitArea.nestedTarget(for: point, in: self, among: [attachmentButton, microphoneButton]) ?? hit
+    }
+
+    // MARK: - Drafts
+    // Saved on leaving the window, which also covers deallocation: a view is always
+    // removed from its window before it can be freed.
+
+    private var draftKey: String? {
+        ComposerDraftStore.key(uid: viewModel.user?.uid, guid: viewModel.group?.guid, parentMessageId: viewModel.parentMessageId)
+    }
+
+    /// Keeps the unsent text for this conversation. Edit text isn't a draft, and
+    /// entering an edit already replaced the draft in the text view, so drop it.
+    private func saveDraft() {
+        if messageComposerMode == .edit {
+            ComposerDraftStore.clear(for: draftKey)
+        } else {
+            ComposerDraftStore.save(textView.text, for: draftKey)
+        }
+    }
+
+    /// Puts this conversation's draft back into an empty text view.
+    private func restoreDraft() {
+        guard messageComposerMode != .edit, (textView.text ?? "").isEmpty,
+              let draft = ComposerDraftStore.draft(for: draftKey) else { return }
+        textView.text = draft
+        updateSendButtonState()
     }
     
     private func clearReplyState() {
@@ -702,6 +742,9 @@ open class CometChatMessageComposer: UIView {
         sendButton.setImage(isAgentic ? style.agenticSendButtonImage : style.sendButtonImage, for: .normal)
         sendButton.imageView?.tintColor = isAgentic ? style.agenticSendButtonImageTint : style.sendButtonImageTint
         sendButton.backgroundColor = isAgentic ? style.agenticInactiveSendButtonImageBackgroundColor : style.inactiveSendButtonImageBackgroundColor
+        // A restyle (trait change on entering a window, dark-mode switch) repaints from
+        // the current state rather than greying out a sendable draft.
+        if !(textView.text ?? "").isEmpty { updateSendButtonState() }
         
         microphoneButton.imageView?.tintColor = style.voiceRecordingImageTint
         attachmentButton.imageView?.tintColor = style.attachmentImageTint
@@ -741,7 +784,15 @@ open class CometChatMessageComposer: UIView {
                 auxiliaryOptions.subviews.forEach({
                     if let button = $0 as? UIButton {
                         stickerButton = button as? StickerAuxiliaryButton
+                        if let stickerButton = stickerButton {
+                            // Swap the idle glyph; repaint only if the idle glyph is showing.
+                            let showingIdleGlyph = stickerButton.image(for: .normal) == stickerButton.stickerButtonIcon
+                            stickerButton.stickerButtonIcon = style.stickerImage
+                            if showingIdleGlyph { stickerButton.setImage(style.stickerImage, for: .normal) }
+                        }
                         button.imageView?.tintColor = style.stickerTint
+                        // Keep the tint when the button resets itself (keyboard shown, tap back).
+                        stickerButton?.stickerTint = style.stickerTint
                         if hideStickersButton{
                             button.isHidden = true
                         }
@@ -815,6 +866,11 @@ open class CometChatMessageComposer: UIView {
     @objc open func didSendButtonClicked() {
         let impactFeedbackLight = UIImpactFeedbackGenerator(style: .light)
         impactFeedbackLight.impactOccurred()
+
+        // Whatever is sent from here is no longer a draft.
+        if messageComposerMode != .edit {
+            ComposerDraftStore.clear(for: draftKey)
+        }
 
         // Staged multi-attachment message takes precedence over plain text.
         if uploadManager.hasAttachments {
@@ -1025,6 +1081,8 @@ extension CometChatMessageComposer {
         if !attachmentOptions.isEmpty {
             for  options in attachmentOptions {
                 let actionItem = ActionItem(id: options.id ?? "", text: options.text ?? "", leadingIcon: options.startIcon ?? UIImage(), onActionClick: options.onActionClick)
+                // Rows read their text/icon style from the item, so hand them the sheet's.
+                actionItem.style = attachmentSheetStyle
                 actionItems.append(actionItem)
             }
         }
@@ -1295,10 +1353,16 @@ extension CometChatMessageComposer: CometChatUIEventListener {
     func isForThisView(id: [String: Any]?) -> Bool {
         guard let id = id, !id.isEmpty else { return false }
         
-        let isUserMatch = (id["uid"] as? String) == viewModel.user?.uid
-        let isGroupMatch = (id["guid"] as? String) == viewModel.group?.guid
-        let isParentMessageMatch = (id["parentMessageId"] as? Int) == viewModel.parentMessageId
-        
+        // A nil id on either side must never match: `nil == nil` would let an
+        // event for a user conversation reach a group composer (and vice versa).
+        var isUserMatch = false
+        if let uid = id["uid"] as? String, let viewUID = viewModel.user?.uid {
+            isUserMatch = uid == viewUID
+        }
+        var isGroupMatch = false
+        if let guid = id["guid"] as? String, let viewGUID = viewModel.group?.guid {
+            isGroupMatch = guid == viewGUID
+        }
         if isUserMatch || isGroupMatch {
             if let parentMessageId = id["parentMessageId"] as? Int {
                 return parentMessageId == viewModel.parentMessageId
@@ -1370,6 +1434,54 @@ extension CometChatMessageComposer: UIDocumentPickerDelegate {
                 viewModel.sendMediaMessageToGroup(url: urls[0].absoluteString, type: .file)
             }
         }
+    }
+}
+
+/// Unsent composer text per conversation (and per thread), kept in memory for the
+/// app session. Both composers save their text here when they leave the window and
+/// restore it when they appear again with an empty text view; a send clears it.
+enum ComposerDraftStore {
+    private static var drafts: [String: String] = [:]
+
+    /// `u:<uid>` / `g:<guid>`, plus `#<parentMessageId>` for a thread. `nil` when the
+    /// composer has no conversation yet.
+    static func key(uid: String?, guid: String?, parentMessageId: Int?) -> String? {
+        let base: String
+        if let uid, !uid.isEmpty {
+            base = "u:\(uid)"
+        } else if let guid, !guid.isEmpty {
+            base = "g:\(guid)"
+        } else {
+            return nil
+        }
+        if let parentMessageId, parentMessageId > 0 {
+            return base + "#\(parentMessageId)"
+        }
+        return base
+    }
+
+    static func draft(for key: String?) -> String? {
+        guard let key else { return nil }
+        return drafts[key]
+    }
+
+    /// Stores `text`, or forgets the draft when `text` is empty or whitespace.
+    static func save(_ text: String?, for key: String?) {
+        guard let key else { return }
+        if let text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            drafts[key] = text
+        } else {
+            drafts[key] = nil
+        }
+    }
+
+    static func clear(for key: String?) {
+        guard let key else { return }
+        drafts[key] = nil
+    }
+
+    static func removeAll() {
+        drafts.removeAll()
     }
 }
 

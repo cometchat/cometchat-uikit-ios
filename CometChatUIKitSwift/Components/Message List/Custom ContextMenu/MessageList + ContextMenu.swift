@@ -71,16 +71,36 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
         popupView.messageAlignment = messageAlignment
         popupView.messageSnapShotView = cell.bubbleStackView.snapshotView(afterScreenUpdates: true)
         popupView.messageOptions = option
-        if let controller = controller {
-            var screenFrame = cell.bubbleStackView.convert(cell.bubbleStackView.bounds, to: controller.view)
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                if let window = cell.bubbleStackView.window {
-                    screenFrame = cell.bubbleStackView.convert(cell.bubbleStackView.bounds, to: window)
-                }
-            }
-            popupView.bubbleFrame = screenFrame
+
+        // Falls back to the responder chain so an omitted set(controller:) degrades instead
+        // of trapping: buildUI() below reads bubbleCoordinates, which only bubbleFrame's
+        // didSet writes. Resolved from the cell so the host is an ancestor of the bubble,
+        // which is what makes convert(_:to:) meaningful.
+        if controller == nil {
+            CometChatLogger.warning(
+                "no controller set; falling back to the bubble's parent view controller. Call set(controller:) on CometChatMessageList."
+            )
         }
-        
+        guard let host = controller ?? cell.bubbleStackView.parentViewController else {
+            // Nothing to present from: the view is not in a view-controller hierarchy.
+            // Reset first — isContextMenuActive latches before this point and only the
+            // popup's onDismissed clears it, so bailing without this disables the menu
+            // for the rest of the session.
+            CometChatLogger.error(
+                "cannot show the message context menu: no controller set and the view has no parent view controller"
+            )
+            resetContextMenuState()
+            return
+        }
+
+        var screenFrame = cell.bubbleStackView.convert(cell.bubbleStackView.bounds, to: host.view)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if let window = cell.bubbleStackView.window {
+                screenFrame = cell.bubbleStackView.convert(cell.bubbleStackView.bounds, to: window)
+            }
+        }
+        popupView.bubbleFrame = screenFrame
+
         //Preparing Emoji Keyboard
         popupView.emojiKeyboard
             .setOnClick { [weak self, weak popupView] emoji in
@@ -126,7 +146,7 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
         popupView.onDismissed = { [weak self] in
             self?.resetContextMenuState()
         }
-        controller?.present(popupView, animated: true)
+        host.present(popupView, animated: true)
 
     }
 
@@ -162,10 +182,10 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
     /// job, not this method's.
     public func animationController(forDismissed dismissed: UIViewController) -> (any UIViewControllerAnimatedTransitioning)? {
         guard let dismissed = dismissed as? MessagePopupViewController,
-              let controller = controller,
-              let bubbleStackView = contextMenuCell?.bubbleStackView else { return nil }
+              let bubbleStackView = contextMenuCell?.bubbleStackView,
+              let host = controller ?? bubbleStackView.parentViewController else { return nil }
 
-        var cellCurrentFrame = bubbleStackView.convert(bubbleStackView.bounds, to: controller.view)
+        var cellCurrentFrame = bubbleStackView.convert(bubbleStackView.bounds, to: host.view)
         if UIDevice.current.userInterfaceIdiom == .pad {
             if let window = bubbleStackView.window {
                 cellCurrentFrame = bubbleStackView.convert(bubbleStackView.bounds, to: window)

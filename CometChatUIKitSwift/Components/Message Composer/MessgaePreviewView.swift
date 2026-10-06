@@ -55,7 +55,7 @@ class MessagePreviewView: UIView {
         backgroundColor = style.editPreviewBackgroundColor
         borderWith(width: style.editPreviewBorderWidth)
         roundViewCorners(corner: style.editPreviewCornerRadius)
-        borderColor(color: style.borderColor)
+        borderColor(color: style.editPreviewBorderColor)
         
         var constrainsToActivate = [NSLayoutConstraint]()
         
@@ -83,9 +83,10 @@ class MessagePreviewView: UIView {
         ]
         
         let subtitleLabel = UILabel().withoutAutoresizingMaskConstraints()
-        subtitleLabel.attributedText = subTitle
+        subtitleLabel.attributedText = subtitleWithStyleFallback()
         subtitleLabel.numberOfLines = 2
-        // Don't set font and textColor here - they override the attributed string's formatting
+        // Don't set font and textColor here - they override the attributed string's formatting.
+        // The style's message font/colour fill only the runs that carry none of their own.
         addSubview(subtitleLabel)
         constrainsToActivate += [
             subtitleLabel.topAnchor.pin(equalTo: titleLabel.bottomAnchor, constant: CometChatSpacing.Padding.p1),
@@ -97,6 +98,20 @@ class MessagePreviewView: UIView {
         NSLayoutConstraint.activate(constrainsToActivate)
     }
     
+    /// `subTitle` with `editPreviewMessageTextFont` / `editPreviewMessageTextColor` added to
+    /// every run that has no font / colour, leaving formatter and markdown styling intact.
+    private func subtitleWithStyleFallback() -> NSAttributedString {
+        let result = NSMutableAttributedString(attributedString: subTitle)
+        let fullRange = NSRange(location: 0, length: result.length)
+        result.enumerateAttribute(.font, in: fullRange) { value, range, _ in
+            if value == nil { result.addAttribute(.font, value: style.editPreviewMessageTextFont, range: range) }
+        }
+        result.enumerateAttribute(.foregroundColor, in: fullRange) { value, range, _ in
+            if value == nil { result.addAttribute(.foregroundColor, value: style.editPreviewMessageTextColor, range: range) }
+        }
+        return result
+    }
+
     @objc func onCrossIconTapped() {
         onCrossIconClicked?()
     }

@@ -51,9 +51,14 @@ public struct MessageComposerStyle {
     public var stickerTint: UIColor = CometChatTheme.iconColorSecondary
     
     public var editPreviewTitleTextFont: UIFont = CometChatTypography.Body.regular
-    public var editPreviewMessageTextFont: UIFont = CometChatTypography.Caption1.regular
+    /// Font for runs of the edit-preview subtitle that carry no font of their own (plain
+    /// text around mentions). Defaults to the 17pt system font the label drew before this
+    /// was wired, so the default look is unchanged.
+    public var editPreviewMessageTextFont: UIFont = UIFont.systemFont(ofSize: 17)
     public var editPreviewTitleTextColor: UIColor = CometChatTheme.textColorPrimary
-    public var editPreviewMessageTextColor: UIColor = CometChatTheme.textColorSecondary
+    /// Colour for runs of the edit-preview subtitle that carry no colour of their own.
+    /// Defaults to `.label`, the colour the label drew before this was wired.
+    public var editPreviewMessageTextColor: UIColor = .label
     public var editPreviewBackgroundColor: UIColor = CometChatTheme.backgroundColor03
     public var editPreviewCornerRadius: CometChatCornerStyle = .init(cornerRadius: CometChatSpacing.Radius.r1)
     
@@ -78,7 +83,7 @@ public struct MessageComposerStyle {
     public var infoTextFont: UIFont = CometChatTypography.Caption1.regular
     public var infoSeparatorColor: UIColor = CometChatTheme.borderColorLight
     public var infoBackgroundColor: UIColor = CometChatTheme.backgroundColor02
-    public var infoCornerRadius: CometChatCornerStyle = .init(cornerRadius: CometChatSpacing.Radius.r1)
+    public var infoCornerRadius: CometChatCornerStyle = .init(cornerRadius: 0)
     public var infoBorderColor: UIColor = .clear
     public var infoBorderWidth: CGFloat = 0
     

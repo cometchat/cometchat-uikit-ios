@@ -128,6 +128,7 @@ public class CometChatIncomingCall: UIViewController {
                 let ongoingCall = CometChatOngoingCall()
                 ongoingCall.modalPresentationStyle = .fullScreen
                 ongoingCall.set(sessionId: call.sessionID ?? "")
+                ongoingCall.set(call: call)
                 
                 let callSettingsBuilder = this.callSettingsBuilder ?? CometChatCallsSDK.CallSettingsBuilder()
                     .setIsAudioOnly(call.callType == .audio)

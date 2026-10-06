@@ -118,7 +118,7 @@ public class NotificationFeedFilterChipsView: UIView {
         container.translatesAutoresizingMaskIntoConstraints = false
         
         // Calculate the exact width needed
-        let font = CometChatTypography.Body.bold
+        let font = chip.isActive ? style.chipActiveTextFont : style.chipInactiveTextFont
         let labelText = chip.label
         let textSize = (labelText as NSString).size(withAttributes: [.font: font])
         let padding: CGFloat = 24 // 12 left + 12 right
@@ -127,7 +127,7 @@ public class NotificationFeedFilterChipsView: UIView {
         var badgeWidth: CGFloat = 0
         if chip.unreadCount > 0 {
             let badgeText = "\(chip.unreadCount)"
-            let badgeFont = CometChatTypography.Caption1.medium
+            let badgeFont = style.badgeTextFont
             let badgeTextSize = (badgeText as NSString).size(withAttributes: [.font: badgeFont])
             badgeWidth = max(ceil(badgeTextSize.width) + 12, 20) + 8 // badge + spacing
         }
@@ -136,14 +136,14 @@ public class NotificationFeedFilterChipsView: UIView {
         
         // Styling
         if chip.isActive {
-            container.backgroundColor = CometChatTheme.primaryColor
+            container.backgroundColor = style.chipActiveBackgroundColor
             container.layer.borderWidth = 0
         } else {
-            container.backgroundColor = CometChatTheme.backgroundColor01
-            container.layer.borderWidth = 1
-            container.layer.borderColor = CometChatTheme.borderColorDefault.cgColor
+            container.backgroundColor = style.chipInactiveBackgroundColor
+            container.layer.borderWidth = style.chipBorderWidth
+            container.layer.borderColor = style.chipBorderColor.cgColor
         }
-        container.layer.cornerRadius = 17
+        container.layer.cornerRadius = style.chipCornerRadius
         container.clipsToBounds = true
         
         // Explicit size
@@ -170,7 +170,7 @@ public class NotificationFeedFilterChipsView: UIView {
         label.text = labelText
         label.font = font
         label.adjustsFontForContentSizeCategory = true
-        label.textColor = chip.isActive ? .white : CometChatTheme.textColorSecondary
+        label.textColor = chip.isActive ? style.chipActiveTextColor : style.chipInactiveTextColor
         innerStack.addArrangedSubview(label)
         
         // Badge (unread count)
@@ -193,22 +193,22 @@ public class NotificationFeedFilterChipsView: UIView {
         return container
     }
     
-    /// Active chip badge: light purple bg (#F4F3FF), purple border (#D9D6FE), purple text (#5925DC)
+    /// Active chip badge: style.badgeActive* (defaults: light purple bg, purple border, purple text)
     private func createActiveBadge(count: Int) -> UIView {
         let badgeContainer = UIView()
         badgeContainer.translatesAutoresizingMaskIntoConstraints = false
-        badgeContainer.backgroundColor = UIColor(hex: "#F4F3FF")
+        badgeContainer.backgroundColor = style.badgeActiveBackgroundColor
         badgeContainer.layer.borderWidth = 1
-        badgeContainer.layer.borderColor = UIColor(hex: "#D9D6FE").cgColor
+        badgeContainer.layer.borderColor = style.badgeActiveBorderColor.cgColor
         badgeContainer.layer.cornerRadius = 10
         badgeContainer.clipsToBounds = true
         
         let badgeLabel = UILabel()
         badgeLabel.translatesAutoresizingMaskIntoConstraints = false
         badgeLabel.text = "\(count)"
-        badgeLabel.font = CometChatTypography.Caption1.medium
+        badgeLabel.font = style.badgeTextFont
         badgeLabel.adjustsFontForContentSizeCategory = true
-        badgeLabel.textColor = UIColor(hex: "#5925DC")
+        badgeLabel.textColor = style.badgeActiveTextColor
         badgeLabel.textAlignment = .center
         
         badgeContainer.addSubview(badgeLabel)
@@ -222,20 +222,20 @@ public class NotificationFeedFilterChipsView: UIView {
         return badgeContainer
     }
     
-    /// Inactive chip badge: dark gray bg (#535862), white text
+    /// Inactive chip badge: style.badgeInactive* (defaults: dark gray bg, white text)
     private func createInactiveBadge(count: Int) -> UIView {
         let badgeContainer = UIView()
         badgeContainer.translatesAutoresizingMaskIntoConstraints = false
-        badgeContainer.backgroundColor = UIColor(hex: "#535862")
+        badgeContainer.backgroundColor = style.badgeInactiveBackgroundColor
         badgeContainer.layer.cornerRadius = 10
         badgeContainer.clipsToBounds = true
         
         let badgeLabel = UILabel()
         badgeLabel.translatesAutoresizingMaskIntoConstraints = false
         badgeLabel.text = "\(count)"
-        badgeLabel.font = CometChatTypography.Caption1.medium
+        badgeLabel.font = style.badgeTextFont
         badgeLabel.adjustsFontForContentSizeCategory = true
-        badgeLabel.textColor = .white
+        badgeLabel.textColor = style.badgeInactiveTextColor
         badgeLabel.textAlignment = .center
         
         badgeContainer.addSubview(badgeLabel)

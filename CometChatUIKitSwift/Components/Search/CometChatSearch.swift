@@ -305,6 +305,29 @@ open class CometChatSearch: UIViewController {
             emptyStateView.titleLabel.adjustsFontForContentSizeCategory = true
             emptyStateView.titleLabel.textColor = style.emptyTitleTextColor
             emptyStateView.imageView.tintColor = CometChatTheme.neutralColor300
+        } else {
+            // The default empty view is a plain container around these two labels, not a
+            // StateView, so the empty-state style has to be applied to them directly.
+            emptyStateSubtitleLabel.font = style.emptySubTitleFont
+            emptyStateSubtitleLabel.adjustsFontForContentSizeCategory = true
+            emptyStateSubtitleLabel.textColor = style.emptySubTitleTextColor
+            emptyStateTitleLabel.font = style.emptyTitleTextFont
+            emptyStateTitleLabel.adjustsFontForContentSizeCategory = true
+            emptyStateTitleLabel.textColor = style.emptyTitleTextColor
+        }
+        
+        // The default error view is a StateView; style it only when the integrator changed
+        // the defaults, so the unstyled look stays as it was.
+        let defaults = SearchStyle()
+        if let errorView = errorStateView as? StateView {
+            if style.errorTitleTextFont != defaults.errorTitleTextFont { errorView.titleLabel.font = style.errorTitleTextFont }
+            if style.errorTitleTextColor != defaults.errorTitleTextColor { errorView.titleLabel.textColor = style.errorTitleTextColor }
+            if style.errorSubTitleFont != defaults.errorSubTitleFont { errorView.subtitleLabel.font = style.errorSubTitleFont }
+            if style.errorSubTitleTextColor != defaults.errorSubTitleTextColor { errorView.subtitleLabel.textColor = style.errorSubTitleTextColor }
+        }
+        if let shimmer = loadingView as? CometChatShimmerView {
+            if let color1 = style.shimmerColor1 { shimmer.colorGradient1 = color1 }
+            if let color2 = style.shimmerColor2 { shimmer.colorGradient2 = color2 }
         }
         
         styleSearchBar()
@@ -426,13 +449,16 @@ open class CometChatSearch: UIViewController {
             }
             hideErrorStateView()
 
-            let searchText = searchController.searchBar.text ?? ""
+            // Whitespace-only counts as empty: the screen stays in its initial state.
+            let searchText = (searchController.searchBar.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             let isEmptySearch = searchText.isEmpty
             let hasFilters = !selectedFilters.isEmpty
 
             if isEmptySearch && !hasFilters {
+                // Back to the initial copy, including after a "no results" query is cleared.
                 addEmptyStateView()
-                emptyStateSubtitleLabel.text = ""
+                emptyStateTitleLabel.text = "search_empty_title".localize()
+                emptyStateSubtitleLabel.text = "search_empty_subtitle".localize()
                 removeLoadingView()
                 return
             }
@@ -452,19 +478,19 @@ open class CometChatSearch: UIViewController {
                 emptyStateTitleLabel.text = "search_no_results".localize()
                 emptyStateSubtitleLabel.text = isEmptySearch
                     ? ""
-                    : "There were no results for “\(searchText)”\nTry a new search"
+                    : String(format: "search_no_results_for".localize(), searchText)
             } else if searchScopes.count == 1, searchScopes.contains(.conversations), noConversations{
                 addEmptyStateView()
                 emptyStateTitleLabel.text = "search_no_results".localize()
                 emptyStateSubtitleLabel.text = isEmptySearch
                     ? ""
-                    : "There were no results for “\(searchText)”\nTry a new search"
+                    : String(format: "search_no_results_for".localize(), searchText)
             } else if (noConversations && noMessages) {
                 addEmptyStateView()
                 emptyStateTitleLabel.text = "search_no_results".localize()
                 emptyStateSubtitleLabel.text = isEmptySearch
                     ? ""
-                    : "There were no results for “\(searchText)”\nTry a new search"
+                    : String(format: "search_no_results_for".localize(), searchText)
             } else {
                 emptyStateTitleLabel.text = "search_empty_title".localize()
                 emptyStateSubtitleLabel.text = "search_empty_subtitle".localize()
@@ -491,6 +517,7 @@ open class CometChatSearch: UIViewController {
 
     
     func addEmptyStateView() {
+        emptyStateView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(emptyStateView)
         NSLayoutConstraint.activate([
             emptyStateView.topAnchor.constraint(equalTo: tableView.topAnchor),
@@ -563,7 +590,7 @@ open class CometChatSearch: UIViewController {
 extension CometChatSearch: UISearchResultsUpdating {
     public func updateSearchResults(for searchController: UISearchController) {
         if let search = searchController.searchBar.text{
-            if search.count > 0{
+            if !search.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 showLoadingView()
             }
 //            viewModel.filterContentForSearchText(search, selectedFilters: selectedFilters)
@@ -708,13 +735,30 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
                     listItem.hide(statusIndicator: hideGroupType)
                     listItem.set(statusIndicatorIcon: protectedGroupIcon)
                     listItem.statusIndicator.style.backgroundColor = style.passwordGroupImageBackgroundColor
-                    listItem.set(statusIndicatorIconTint: style.privateGroupImageTintColor)
+                    listItem.set(statusIndicatorIconTint: style.passwordGroupImageTintColor)
                 @unknown default:
                     listItem.hide(statusIndicator: true)
                 }
 
             default:
                 break
+            }
+
+            // Host-supplied slot views replace the defaults built above.
+            if let leadingView = leadingViewForConversation?(conversation) {
+                listItem.set(leadingView: leadingView)
+            }
+            if let titleView = titleViewForConversation?(conversation) {
+                listItem.set(titleView: titleView)
+            }
+            if let subtitleView = subtitleViewForConversation?(conversation) {
+                listItem.set(subtitle: subtitleView)
+            }
+            if let tailView = tailViewForConversation?(conversation) {
+                listItem.set(tail: tailView)
+            }
+            if let customView = listItemViewForConversation?(conversation) {
+                listItem.set(customView: customView)
             }
 
             return listItem
@@ -759,21 +803,41 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
                     }
                     let extraCount = max(0, attachments.count - 1)
 
-                    if let message = message as? MediaMessage, let videoView = listItemViewForVideo?(message), isVideo {
+                    // Test the kind first, so each slot is only ever handed its own kind of hit.
+                    if isVideo, let message = message as? MediaMessage, let videoView = listItemViewForVideo?(message) {
                         listItem.set(customView: videoView)
-                    } else if let message = message as? MediaMessage, let imageView = listItemViewForImage?(message), !isVideo {
+                    } else if !isVideo, let message = message as? MediaMessage, let imageView = listItemViewForImage?(message) {
                         listItem.set(customView: imageView)
                     } else{
                         listItem.configure(title: chatName, senderPrefix: senderPrefix, summary: summary, thumbnailURL: thumbnailURL, isVideo: isVideo, extraCount: extraCount)
                     }
                     return listItem
                 }else{
-                    let listItem = tableView.dequeueReusableCell(withIdentifier: CometChatSearchListItemAttachments.identifier, for: indexPath) as! CometChatSearchListItemAttachments
+                    guard let listItem = tableView.dequeueReusableCell(withIdentifier: CometChatSearchListItemAttachments.identifier, for: indexPath) as? CometChatSearchListItemAttachments else {
+                        return UITableViewCell()
+                    }
                     listItem.user = user
                     listItem.group = group
-                    listItem.configure(
-                        with: message
-                    )
+
+                    // The slots take a MediaMessage, so a link hit that is a text message
+                    // keeps the default row.
+                    var customView: UIView?
+                    if let media = message as? MediaMessage {
+                        if selectedFilters.contains(where: { $0.title == "Links" }) {
+                            customView = listItemViewForLink?(media)
+                        } else if media.messageType == .audio {
+                            customView = listItemViewForAudio?(media)
+                        } else if media.messageType == .file {
+                            customView = listItemViewForDocument?(media)
+                        }
+                    }
+                    if let customView {
+                        listItem.set(customView: customView)
+                    } else {
+                        listItem.configure(
+                            with: message
+                        )
+                    }
                     return listItem
                 }
             }else {
@@ -787,7 +851,10 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
                 if message.receiverType == .group {
                     listItem.set(title: (message.receiver as? Group)?.name ?? "")
                 } else {
-                    listItem.set(title: isLoggedInUser ? "You" : message.sender?.name ?? "")
+                    // Title a one-to-one hit with the peer, matching the media rows.
+                    listItem.set(title: isLoggedInUser
+                        ? ((message.receiver as? User)?.name ?? "")
+                        : (message.sender?.name ?? ""))
                 }
                 style.listItemTitleTextColor = CometChatTheme.textColorSecondary
                 listItem.style = style
@@ -802,6 +869,9 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
                     dateStyle: dateStyle,
                     datePattern: datePattern?(nil, message), dateTimeFormatter: dateTimeFormatter
                 ))
+                if let customView = listItemViewForMessage?(message) {
+                    listItem.set(customView: customView)
+                }
                 return listItem
             }
         }

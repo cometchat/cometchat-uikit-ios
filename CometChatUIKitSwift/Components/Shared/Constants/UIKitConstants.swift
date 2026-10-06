@@ -6,7 +6,7 @@ public struct UIConstants {
 }
 
 internal struct UIKitConstants {
-    static var version = "5.2.0"
+    static var version = "5.2.1"
     static var messageId = "messageId"
     static var conversationId = "conversationId"
     static var senderId = "senderId"
@@ -73,6 +73,9 @@ public struct  MessageOptionConstants {
     public static var sendMessagePrivately = "sendMessagePrivately"
     public static var replyMessagePrivately = "replyMessagePrivately"
     public static var replyMessage = "replyMessage"
+    /// Id of `MessagesDataSource.getReplyOption` ("REPLY"), distinct from
+    /// `replyMessage` which `getReplyToMessageOption` ("REPLY_TO_MESSAGE") uses.
+    public static var reply = "reply"
     public static var replyInThread = "replyInThread"
     public static var messageInformation = "messageInformation"
     public static var copyMessage = "copyMessage"
@@ -93,6 +96,7 @@ public struct  MessageOptionConstants {
     /// sites cannot drift the way their append order already has.
     public static var primaryOptionIds: [String] = [
         MessageOptionConstants.replyMessage,
+        MessageOptionConstants.reply,
         MessageOptionConstants.replyInThread,
         MessageOptionConstants.threadSubscription,
         MessageOptionConstants.copyMessage,

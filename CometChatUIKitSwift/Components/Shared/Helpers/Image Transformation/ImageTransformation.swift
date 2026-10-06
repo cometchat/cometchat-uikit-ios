@@ -65,5 +65,23 @@ extension URL    {
            return false;
        }
    }
+
+   /// Where a download of this URL is cached: `Documents/<file name>`.
+   ///
+   /// Nil when the URL names no file ("https://host", "https://host/", ""): its last path
+   /// component is empty or "/", which would resolve to the Documents directory itself, and
+   /// the bubbles' purge/replace paths would then delete that whole directory.
+   var documentsCacheURL: URL? {
+       let name = lastPathComponent
+       guard !name.isEmpty, name != "/", name != ".", name != ".." else { return nil }
+       guard let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+       return documents.appendingPathComponent(name, isDirectory: false)
+   }
+
+   /// True only for an existing regular file — never for a directory.
+   var isExistingRegularFile: Bool {
+       var isDirectory: ObjCBool = false
+       return FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) && !isDirectory.boolValue
+   }
 }
 

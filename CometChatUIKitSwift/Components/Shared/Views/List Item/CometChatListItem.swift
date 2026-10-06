@@ -7,7 +7,6 @@
 
 import UIKit
 
-@MainActor
 open class CometChatListItem: UITableViewCell {
 
     // Lazy properties
@@ -129,8 +128,12 @@ open class CometChatListItem: UITableViewCell {
     private var bottomMarginAnchor: NSLayoutConstraint!
     private var leadingMarginAnchor: NSLayoutConstraint!
     private var trailingMarginAnchor: NSLayoutConstraint!
+
+    /// The view handed to `set(customView:)`, embedded in `container` in place of the default row content.
+    private var customView: UIView?
+    /// Whether the row takes part in selection (see `allow(selection:)`); only then is a selected row painted with `listItemSelectedBackground`.
+    private var isSelectionAllowed = false
     
-    @MainActor
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         buildUI()
@@ -216,6 +219,28 @@ open class CometChatListItem: UITableViewCell {
             check.image = deselectedCellImage
             check.tintColor = style.listItemDeSelectedImageTint
         }
+        // UIKit can leave `isHighlighted` set after a selection, so the painted state
+        // follows the values handed in here rather than the cell's own flags.
+        paintsSelected = selected
+        if !selected { paintsHighlighted = false }
+        applyStateBackground()
+    }
+    
+    open override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+        super.setHighlighted(highlighted, animated: animated)
+        paintsHighlighted = highlighted
+        applyStateBackground()
+    }
+    
+    private var paintsSelected = false
+    private var paintsHighlighted = false
+    
+    /// Paints `background` with `listItemSelectedBackground` while a selectable row is selected or highlighted,
+    /// and with `listItemBackground` otherwise. Rows that don't allow selection keep the plain background, so a
+    /// tapped row that the screen never deselects doesn't stay tinted.
+    private func applyStateBackground() {
+        let showsSelected = isSelectionAllowed && (paintsSelected || paintsHighlighted)
+        background.set(backgroundColor: showsSelected ? style.listItemSelectedBackground : style.listItemBackground)
     }
     
     open override func layoutSubviews() {
@@ -227,7 +252,7 @@ open class CometChatListItem: UITableViewCell {
         titleLabel.textColor = style.listItemTitleTextColor
         titleLabel.font = style.listItemTitleFont
         titleLabel.adjustsFontForContentSizeCategory = true
-        background.set(backgroundColor: style.listItemBackground)
+        applyStateBackground()
         background.borderWith(width: style.listItemBorderWidth)
         background.borderColor(color: style.listItemBorderColor)
         background.roundViewCorners(corner: style.listItemCornerRadius)
@@ -263,6 +288,7 @@ open class CometChatListItem: UITableViewCell {
         avatar.imageRequest?.cancel()
         tailView.subviews.forEach( { $0.removeFromSuperview() })
         subTitleView.subviews.forEach({ $0.removeFromSuperview() })
+        removeCustomView()
         
         avatar.reset()
     }
@@ -354,8 +380,28 @@ extension CometChatListItem{
     
     @discardableResult
     public func set(customView: UIView) -> Self {
-        self.background.removeFromSuperview()
-        self.container.embed(customView)
+        // Keep background -> container intact (background owns the long-press recognizer and the
+        // row styling); swap only the default content inside container for the custom view.
+        if let current = self.customView, current !== customView {
+            current.removeFromSuperview()
+        }
+        self.containerView.isHidden = true
+        self.tailView.isHidden = true
+        self.customView = customView
+        if customView.superview !== container {
+            customView.removeFromSuperview()
+            self.container.embed(customView)
+        }
+        return self
+    }
+    
+    /// Removes the view set with `set(customView:)` and restores the default row content.
+    @discardableResult
+    public func removeCustomView() -> Self {
+        self.customView?.removeFromSuperview()
+        self.customView = nil
+        self.containerView.isHidden = false
+        self.tailView.isHidden = false
         return self
     }
     
@@ -383,6 +429,8 @@ extension CometChatListItem{
     @discardableResult
     public func allow(selection: Bool) ->  Self {
         self.check.isHidden = !selection
+        self.isSelectionAllowed = selection
+        applyStateBackground()
         return self
     }
              

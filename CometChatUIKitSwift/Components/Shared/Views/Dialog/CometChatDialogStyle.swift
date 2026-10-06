@@ -10,13 +10,21 @@ import UIKit
 
 class CometChatDialogStyle {
     
+    /// Not applied: nothing reads this type; `CometChatDialog` takes its colours and fonts through its own `set(...)` methods.
     let titleFont: UIFont?
+    /// Not applied: nothing reads this type; `CometChatDialog` takes its colours and fonts through its own `set(...)` methods.
     let titleColor: UIColor?
+    /// Not applied: nothing reads this type; `CometChatDialog` takes its colours and fonts through its own `set(...)` methods.
     let messageTextFont: UIFont?
+    /// Not applied: nothing reads this type; `CometChatDialog` takes its colours and fonts through its own `set(...)` methods.
     let messageTextColor: UIColor?
+    /// Not applied: nothing reads this type; `CometChatDialog` takes its colours and fonts through its own `set(...)` methods.
     let confirmTextFont: UIFont?
+    /// Not applied: nothing reads this type; `CometChatDialog` takes its colours and fonts through its own `set(...)` methods.
     let confirmTextColor: UIColor?
+    /// Not applied: nothing reads this type; `CometChatDialog` takes its colours and fonts through its own `set(...)` methods.
     let cancelTextFont: UIFont?
+    /// Not applied: nothing reads this type; `CometChatDialog` takes its colours and fonts through its own `set(...)` methods.
     let cancelTextColor: UIColor?
     // let background: UIColor?
     

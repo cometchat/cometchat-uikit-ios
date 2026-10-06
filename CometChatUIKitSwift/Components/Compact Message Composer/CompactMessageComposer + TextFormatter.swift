@@ -30,7 +30,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
             if let codeBlockStart = codeBlockStartPosition {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
                     guard let self = self else { return }
-                    let textLength = self.textView.text?.count ?? 0
+                    let textLength = self.textView.text?.utf16.count ?? 0
                     let text = self.textView.text ?? ""
                     
                     // Use the stored codeBlockStartPosition as the minimum start position
@@ -45,9 +45,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                         
                         // Skip any newlines/whitespace after blockquote
                         while actualCodeBlockStart < textLength {
-                            let index = text.index(text.startIndex, offsetBy: actualCodeBlockStart)
-                            let char = text[index]
-                            if char == "\n" || char == " " || char == "\t" {
+                            if isComposerSpacing(in: text, atUTF16: actualCodeBlockStart) {
                                 actualCodeBlockStart += 1
                             } else {
                                 break
@@ -97,15 +95,13 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                 // This handles the case where code block was activated after blockquote but codeBlockStartPosition wasn't set
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
                     guard let self = self else { return }
-                    let textLength = self.textView.text?.count ?? 0
+                    let textLength = self.textView.text?.utf16.count ?? 0
                     let text = self.textView.text ?? ""
                     
                     // Calculate code block start position (after blockquote + newlines/whitespace)
                     var codeBlockStart = blockquoteRange.location + blockquoteRange.length
                     while codeBlockStart < textLength {
-                        let index = text.index(text.startIndex, offsetBy: codeBlockStart)
-                        let char = text[index]
-                        if char == "\n" || char == " " || char == "\t" {
+                        if isComposerSpacing(in: text, atUTF16: codeBlockStart) {
                             codeBlockStart += 1
                         } else {
                             break
@@ -185,7 +181,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
             // In blockquote mode with existing content before - update bar as text grows
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
                 guard let self = self else { return }
-                let textLength = self.textView.text?.count ?? 0
+                let textLength = self.textView.text?.utf16.count ?? 0
                 
                 // Use the blockquoteStartPosition that was set when entering blockquote mode
                 // Do NOT recalculate it based on code block range - that would override the user's intent
@@ -221,7 +217,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
             // In blockquote mode without blockquoteStartPosition - blockquote covers all text
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
                 guard let self = self else { return }
-                let textLength = self.textView.text?.count ?? 0
+                let textLength = self.textView.text?.utf16.count ?? 0
                 if textLength > 0 {
                     let blockquoteRange = NSRange(location: 0, length: textLength)
                     self.updateBlockquoteBarFrameForRangeDirect(blockquoteRange)
@@ -273,7 +269,9 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         // Handle "select all and delete" - when user selects all text and deletes it
         // This ensures the text field is restored to its original state
-        let currentTextLength = textView.text?.count ?? 0
+        // UTF-16 length, the unit `range` is in: a Character count undercounts any
+        // emoji, so select-all + delete over one would miss this path.
+        let currentTextLength = textView.text?.utf16.count ?? 0
         let isDeletingAllText = text.isEmpty && range.location == 0 && range.length == currentTextLength && currentTextLength > 0
         
         if isDeletingAllText {
@@ -508,7 +506,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                     
                     // Update the code block background
                     if let codeBlockStart = codeBlockStartPosition {
-                        let textLength = textView.text?.count ?? 0
+                        let textLength = textView.text?.utf16.count ?? 0
                         if textLength > codeBlockStart {
                             let codeBlockRange = NSRange(location: codeBlockStart, length: textLength - codeBlockStart)
                             updateCodeBlockBackgroundFrameForRangeDirect(codeBlockRange)
@@ -610,7 +608,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                     let isCurrentLineEmpty = lineText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     
                     // Also check if cursor is at end after a newline (another double-enter scenario)
-                    let isAtEndAfterNewline = range.location == text.count && text.hasSuffix("\n")
+                    let isAtEndAfterNewline = range.location == text.utf16.count && text.hasSuffix("\n")
                     
                     // Only re-enable code block mode if the current line has content
                     // This allows double-enter to exit even after re-entering code block
@@ -757,14 +755,14 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                     // Strip ALL trailing newlines - they don't need to be part of the visual code block
                     // The code block should only cover the actual text content
                     let text = textView.text ?? ""
-                    var codeBlockEndPosition = text.count
+                    // UTF-16, like the NSRange this position ends up in.
+                    var codeBlockEndPosition = (text as NSString).length
                     
                     // Strip ALL trailing newlines from the code block range
                     // This ensures the code block background only covers actual text content
                     while codeBlockEndPosition > 0 {
                         let checkIndex = codeBlockEndPosition - 1
-                        let charIndex = text.index(text.startIndex, offsetBy: checkIndex)
-                        if text[charIndex] == "\n" {
+                        if (text as NSString).character(at: checkIndex) == 0x0A {
                             codeBlockEndPosition -= 1
                         } else {
                             break
@@ -784,9 +782,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                         
                         // Skip any newlines/whitespace to find where actual code block content starts
                         while codeBlockStart < codeBlockEndPosition {
-                            let index = text.index(text.startIndex, offsetBy: codeBlockStart)
-                            let char = text[index]
-                            if char == "\n" || char == " " || char == "\t" {
+                            if isComposerSpacing(in: text, atUTF16: codeBlockStart) {
                                 codeBlockStart += 1
                             } else {
                                 break
@@ -977,7 +973,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                     textViewContainer.layoutIfNeeded()
                     
                     // Update the blockquote bar to extend to the new line
-                    let textLength = textView.text?.count ?? 0
+                    let textLength = textView.text?.utf16.count ?? 0
                     if let startPos = blockquoteStartPosition {
                         // Blockquote starts from a specific position
                         if textLength > startPos {
@@ -1000,7 +996,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                     // Also update after a short delay to catch any layout changes
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
                         guard let self = self else { return }
-                        let textLen = self.textView.text?.count ?? 0
+                        let textLen = self.textView.text?.utf16.count ?? 0
                         if let startPos = self.blockquoteStartPosition {
                             if textLen > startPos {
                                 let blockquoteRange = NSRange(location: startPos, length: textLen - startPos)
@@ -1015,7 +1011,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                     // Additional delayed update for layout settling
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
                         guard let self = self else { return }
-                        let textLen = self.textView.text?.count ?? 0
+                        let textLen = self.textView.text?.utf16.count ?? 0
                         if let startPos = self.blockquoteStartPosition {
                             if textLen > startPos {
                                 let blockquoteRange = NSRange(location: startPos, length: textLen - startPos)
@@ -1095,7 +1091,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
             // Update the code block background to wrap around the new text
             if let codeBlockStart = codeBlockStartPosition {
                 // Code block starts from a specific position
-                let textLength = textView.text?.count ?? 0
+                let textLength = textView.text?.utf16.count ?? 0
                 if textLength > codeBlockStart {
                     let codeBlockRange = NSRange(location: codeBlockStart, length: textLength - codeBlockStart)
                     updateCodeBlockBackgroundFrameForRangeDirect(codeBlockRange)
@@ -1109,7 +1105,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
                 guard let self = self else { return }
                 if let codeBlockStart = self.codeBlockStartPosition {
-                    let textLength = self.textView.text?.count ?? 0
+                    let textLength = self.textView.text?.utf16.count ?? 0
                     if textLength > codeBlockStart {
                         let codeBlockRange = NSRange(location: codeBlockStart, length: textLength - codeBlockStart)
                         self.updateCodeBlockBackgroundFrameForRangeDirect(codeBlockRange)
@@ -1525,7 +1521,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                 // Check if we have a codeBlockStartPosition (code block after blockquote)
                 if let codeBlockStart = this.codeBlockStartPosition {
                     // Code block starts after blockquote content
-                    let textLength = this.textView.text?.count ?? 0
+                    let textLength = this.textView.text?.utf16.count ?? 0
                     let text = this.textView.text ?? ""
                     
                     // Recalculate code block start position
@@ -1539,9 +1535,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                         
                         // Skip any newlines/whitespace after blockquote
                         while actualCodeBlockStart < textLength {
-                            let index = text.index(text.startIndex, offsetBy: actualCodeBlockStart)
-                            let char = text[index]
-                            if char == "\n" || char == " " || char == "\t" {
+                            if isComposerSpacing(in: text, atUTF16: actualCodeBlockStart) {
                                 actualCodeBlockStart += 1
                             } else {
                                 break
@@ -1583,7 +1577,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                     }
                 } else if let blockquoteRange = this.blockquoteTextRange, blockquoteRange.length > 0 {
                     // There's blockquote content - position code block background after it
-                    let textLength = this.textView.text?.count ?? 0
+                    let textLength = this.textView.text?.utf16.count ?? 0
                     let text = this.textView.text ?? ""
                     
                     // Calculate code block start position (after blockquote content + newlines)
@@ -1591,9 +1585,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                     
                     // Skip any newlines/whitespace to find where actual code block content starts
                     while codeBlockStart < textLength {
-                        let index = text.index(text.startIndex, offsetBy: codeBlockStart)
-                        let char = text[index]
-                        if char == "\n" || char == " " || char == "\t" {
+                        if isComposerSpacing(in: text, atUTF16: codeBlockStart) {
                             codeBlockStart += 1
                         } else {
                             break
@@ -1660,7 +1652,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                 this.updateBlockquoteBarFrame()
             } else if this.blockquoteStartPosition != nil && RichTextFormatterManager.shared.isInBlockquoteMode {
                 // In blockquote mode with existing content before - update bar as text grows
-                let textLength = this.textView.text?.count ?? 0
+                let textLength = this.textView.text?.utf16.count ?? 0
                 
                 // Use the blockquoteStartPosition that was set when entering blockquote mode
                 // Do NOT recalculate it based on code block range - that would override the user's intent
@@ -1711,7 +1703,7 @@ extension CometChatCompactMessageComposer: GrowingTextViewDelegate {
                 }
             } else if RichTextFormatterManager.shared.isInBlockquoteMode && this.blockquoteStartPosition == nil {
                 // In blockquote mode without blockquoteStartPosition - blockquote covers all text
-                let textLength = this.textView.text?.count ?? 0
+                let textLength = this.textView.text?.utf16.count ?? 0
                 if textLength > 0 {
                     let blockquoteRange = NSRange(location: 0, length: textLength)
                     this.updateBlockquoteBarFrameForRangeDirect(blockquoteRange)
@@ -2679,6 +2671,7 @@ extension CometChatCompactMessageComposer {
                 limitView.icon.image = style.infoIcon
                 limitView.icon.tintColor = style.infoIconTint
                 limitView.infoLabel.textColor = style.infoTextColor
+                limitView.infoLabel.font = style.infoTextFont
                 limitView.backgroundColor = style.infoBackgroundColor
                 self.suggestionContainerView.subviews.forEach({ $0.removeFromSuperview() })
                 self.suggestionContainerView.isHidden = false
@@ -3301,4 +3294,14 @@ extension CometChatCompactMessageComposer {
             textView.selectedRange = NSRange(location: newCursorPosition, length: 0)
         }
     }
+}
+
+/// Whether the UTF-16 unit at `offset` is a newline, space or tab. The composer's
+/// positions come from NSRanges, so they must not be used to index `Character`s —
+/// past an emoji that reads the wrong character, and near the end it traps.
+fileprivate func isComposerSpacing(in text: String, atUTF16 offset: Int) -> Bool {
+    let nsText = text as NSString
+    guard offset >= 0, offset < nsText.length else { return false }
+    let unit = nsText.character(at: offset)
+    return unit == 0x0A || unit == 0x20 || unit == 0x09
 }

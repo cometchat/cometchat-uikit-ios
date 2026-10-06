@@ -38,6 +38,38 @@ public protocol ListBaseStyle {
     var tableViewSeparator: UIColor { get set }
 }
 
+/// The neutral, theme-based style `CometChatListBase` starts with, used until a
+/// subclass assigns its own component style.
+struct DefaultListBaseStyle: ListBaseStyle {
+    var backgroundColor: UIColor = CometChatTheme.backgroundColor01
+    var borderWidth: CGFloat = 0
+    var borderColor: UIColor = .clear
+    var cornerRadius: CometChatCornerStyle = .init(cornerRadius: 0)
+    
+    var titleColor: UIColor? = CometChatTheme.textColorPrimary
+    var titleFont: UIFont? = CometChatTypography.setFont(size: 17, weight: .bold)
+    var largeTitleColor: UIColor? = CometChatTheme.textColorPrimary
+    var largeTitleFont: UIFont? = CometChatTypography.setFont(size: 34, weight: .bold)
+    var navigationBarTintColor: UIColor?
+    var navigationBarItemsTintColor: UIColor?
+    
+    var errorTitleTextFont: UIFont = CometChatTypography.Heading3.bold
+    var errorTitleTextColor: UIColor = CometChatTheme.textColorPrimary
+    var errorSubTitleFont: UIFont = CometChatTypography.Body.regular
+    var errorSubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
+    var retryButtonTextColor: UIColor = CometChatTheme.buttonTextColor
+    var retryButtonTextFont: UIFont = CometChatTypography.Button.medium
+    var retryButtonBackgroundColor: UIColor = CometChatTheme.primaryColor
+    var retryButtonBorderColor: UIColor = .clear
+    var retryButtonBorderWidth: CGFloat = 0
+    var retryButtonCornerRadius: CometChatCornerStyle = .init(cornerRadius: CometChatSpacing.Radius.r2)
+    var emptyTitleTextFont: UIFont = CometChatTypography.Heading3.bold
+    var emptyTitleTextColor: UIColor = CometChatTheme.textColorPrimary
+    var emptySubTitleFont: UIFont = CometChatTypography.Body.regular
+    var emptySubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
+    var tableViewSeparator: UIColor = CometChatTheme.borderColorLight
+}
+
 public protocol SearchBarStyle {
     
     var searchTintColor: UIColor? { get set }

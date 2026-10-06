@@ -449,3 +449,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "A beküldés nem sikerült. Kérjük, válassz okot az üzenet jelentése előtt";
+"REPORTED" = "Jelentve";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "A jelentésedet sikeresen elküldtük.";
+"MESSAGE_MEDIA" = "Média";
+"MESSAGE_MEETING" = "Megbeszélés";
+"MESSAGE_GENERIC" = "Üzenet";
+"MEETING_SCHEDULER" = "Megbeszélés-ütemező";
+"MORE_TIMES" = "További időpontok";
+"search_no_results_for" = "Nincs találat erre: „%@”\nPróbálj új keresést";
+"MESSAGE_LIST_EMPTY_TITLE" = "Még nincsenek üzenetek";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "Küldj egy üzenetet a beszélgetés elindításához.";

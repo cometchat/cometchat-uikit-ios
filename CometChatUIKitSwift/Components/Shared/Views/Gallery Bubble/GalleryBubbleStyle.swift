@@ -34,7 +34,14 @@ public struct GalleryBubbleStyle: BaseMessageBubbleStyle {
     /// blows up into an absurdly wide bubble on an iPad. This is what keeps the bubble's
     /// PROPORTION to the screen consistent across an iPhone 12 mini, a Pro Max, and an
     /// iPad — a fixed point value would look right on only one screen size.
-    public var bubbleWidth: CGFloat = GalleryBubbleStyle.scaledWidth(ratio: 0.62, min: 210, max: 300)
+    ///
+    /// Until it is set explicitly the default is recomputed on every read, so a style
+    /// kept in the global `CometChatMultiAttachmentBubble.style` still follows rotation.
+    public var bubbleWidth: CGFloat {
+        get { _bubbleWidth ?? GalleryBubbleStyle.scaledWidth(ratio: 0.62, min: 210, max: 300) }
+        set { _bubbleWidth = newValue }
+    }
+    private var _bubbleWidth: CGFloat?
 
     /// Fixed height of an audio row. Taller than a file card because it stacks a name,
     /// a slider and a time line; a file card only needs a name + meta line, so it is more
@@ -46,10 +53,9 @@ public struct GalleryBubbleStyle: BaseMessageBubbleStyle {
     /// Fixed height of a file card — shorter than an audio row (name + meta only).
     public var fileCardHeight: CGFloat = 56
 
-    /// `ratio` of the CURRENT screen's width, clamped to `[min, max]`. Evaluated once per
-    /// `GalleryBubbleStyle()` construction — since every bubble/tile builds its own style
-    /// fresh when the message list (re)renders a cell, this naturally picks up rotation or
-    /// multitasking-resize changes on the next reload, with no observer needed.
+    /// `ratio` of the CURRENT screen's width, clamped to `[min, max]`. Evaluated on each
+    /// read of an unset `bubbleWidth`, so the next reload after a rotation or
+    /// multitasking resize picks up the new screen width, with no observer needed.
     private static func scaledWidth(ratio: CGFloat, min minWidth: CGFloat, max maxWidth: CGFloat) -> CGFloat {
         let screenWidth = UIScreen.main.bounds.width
         return min(max(screenWidth * ratio, minWidth), maxWidth)
@@ -89,11 +95,13 @@ public struct GalleryBubbleStyle: BaseMessageBubbleStyle {
     /// "+N" overflow text font.
     public var overflowTextFont: UIFont = .systemFont(ofSize: 22, weight: .semibold)
 
-    /// Tint of the play badge shown on video tiles.
-    public var playIconTint: UIColor = CometChatTheme.iconColorWhite
+    /// Tint of the play badge shown on video tiles. Defaults to the white the badge has
+    /// always been painted with.
+    public var playIconTint: UIColor = .white
 
-    /// Background of the circular play badge on video tiles.
-    public var playIconBackgroundColor: UIColor = UIColor.black.withAlphaComponent(0.35)
+    /// Background of the circular play badge on video tiles. Defaults to the scrim the
+    /// badge has always been painted with.
+    public var playIconBackgroundColor: UIColor = UIColor.black.withAlphaComponent(0.5)
 
     // MARK: - Sections (audio / files / caption)
 
@@ -104,6 +112,7 @@ public struct GalleryBubbleStyle: BaseMessageBubbleStyle {
     public var fileCardBackgroundColor: UIColor = CometChatTheme.backgroundColor02
     public var fileCardCornerSmall: CGFloat = CometChatSpacing.Radius.r1
     public var fileCardSpacing: CGFloat = 2
+    /// Not applied: file-type icons are multi-colour glyphs drawn with their original colours, so a tint has nothing to act on. Kept for source compatibility.
     public var fileIconTint: UIColor = CometChatTheme.iconColorPrimary
     public var fileNameFont: UIFont = .systemFont(ofSize: 15, weight: .medium)
     public var fileNameColor: UIColor = CometChatTheme.textColorPrimary
@@ -115,6 +124,7 @@ public struct GalleryBubbleStyle: BaseMessageBubbleStyle {
     // Caption
     public var captionFont: UIFont = .systemFont(ofSize: 15)
     public var captionColor: UIColor = CometChatTheme.textColorPrimary
+    /// Not applied: the caption row has no divider view (the caption renders through a text bubble). Kept for source compatibility.
     public var captionDividerColor: UIColor = CometChatTheme.neutralColor300
 
     private var styleType: BubbleStyleType = .incoming

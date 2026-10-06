@@ -33,7 +33,8 @@ final class AuthTests: XCTestCase {
         uidField.tap()
         uidField.typeText("e2e-nonexistent-\(UUID().uuidString.prefix(8))")
 
-        app.buttons[Login.continueButton].tap()
+        // The on-screen keyboard's return key is also labelled "Continue"; scope to the screen's own button.
+        app.scrollViews.buttons[Login.continueButton].tap()
 
         XCTAssertTrue(
             app.alerts[Login.errorAlertTitle].waitForExistence(timeout: 30),

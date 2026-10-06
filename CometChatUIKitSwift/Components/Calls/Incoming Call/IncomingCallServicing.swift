@@ -26,7 +26,7 @@ protocol IncomingCallServicing {
     /// Reject the call for the given session.
     func rejectCall(
         sessionID: String,
-        status: CometChat.callStatus,
+        status: CometChat.CallStatus,
         onSuccess: @escaping (Call?) -> Void,
         onError: @escaping (CometChatException?) -> Void
     )
@@ -45,7 +45,7 @@ final class LiveIncomingCallService: IncomingCallServicing {
 
     func rejectCall(
         sessionID: String,
-        status: CometChat.callStatus,
+        status: CometChat.CallStatus,
         onSuccess: @escaping (Call?) -> Void,
         onError: @escaping (CometChatException?) -> Void
     ) {

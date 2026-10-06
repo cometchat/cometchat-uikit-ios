@@ -9,12 +9,12 @@ import UIKit
 
 public final class EmojiKeyboardStyle: BaseStyle {
     
-    private(set) var sectionHeaderFont = CometChatTheme_v4.typography.text3
+    private(set) var sectionHeaderFont = UIFont.systemFont(ofSize: 14)
     private(set) var sectionHeaderColor = CometChatTheme_v4.palatte.accent600
     private(set) var categoryIconTint = CometChatTheme_v4.palatte.accent600
     private(set) var selectedCategoryIconTint = CometChatTheme_v4.palatte.primary
     private(set) var titleColor = CometChatTheme_v4.palatte.accent
-    private(set) var titleFont = CometChatTheme_v4.typography.title2
+    private(set) var titleFont = UIFont.boldSystemFont(ofSize: 18)
     private(set) var cancelButtonTint = CometChatTheme_v4.palatte.primary
     
     @discardableResult

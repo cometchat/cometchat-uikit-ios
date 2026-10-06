@@ -14,6 +14,7 @@ public struct RichTextToolbarStyle {
     public var backgroundColor: UIColor = CometChatTheme.backgroundColor02
     public var borderColor: UIColor = CometChatTheme.borderColorLight
     public var borderWidth: CGFloat = 1
+    /// Not applied: the toolbar's corner rounding is intentionally disabled (it clips the scroll content). Kept for source compatibility.
     public var cornerRadius: CometChatCornerStyle = .init(cornerRadius: CometChatSpacing.Radius.r2)
     
     // MARK: - Button Styling
@@ -22,6 +23,7 @@ public struct RichTextToolbarStyle {
     public var buttonCornerRadius: CGFloat = CometChatSpacing.Radius.r1
     
     // MARK: - Icon Styling
+    /// Not applied: toolbar glyphs are template images sized by `buttonSize`. Kept for source compatibility.
     public var iconSize: CGFloat = 20
     public var iconTintColor: UIColor = CometChatTheme.iconColorSecondary
     public var activeIconTintColor: UIColor = CometChatTheme.neutralColor900

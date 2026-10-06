@@ -61,6 +61,8 @@ public struct ConversationsStyle: ListBaseStyle, ListItemStyle {
     
     public var emptySubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
     
+    /// Row separators are hidden while this is `.clear` (the default); any visible colour
+    /// turns them on in that colour.
     public var tableViewSeparator: UIColor = .clear
     
     public var listItemTitleTextColor: UIColor = CometChatTheme.textColorPrimary
@@ -93,6 +95,8 @@ public struct ConversationsStyle: ListBaseStyle, ListItemStyle {
     
     public var privateGroupImageBackgroundColor: UIColor = CometChatTheme.successColor
     
+    /// The loading shimmer's two gradient colours. Left `nil`, the shimmer keeps its own
+    /// theme colours.
     public var shimmerColor1: UIColor?
     
     public var shimmerColor2: UIColor?

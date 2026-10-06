@@ -138,6 +138,24 @@ open class CometChatConversations: CometChatListBase {
     
     open override func setupStyle() {
         super.setupStyle()
+        // Separators are off unless the integrator gives `tableViewSeparator` a visible colour
+        // (the default is `.clear`), so the colour is not set on a line that never draws.
+        hideSeparator = style.tableViewSeparator.cgColor.alpha == 0
+        tableView.separatorColor = style.tableViewSeparator
+        applyShimmerColors()
+    }
+    
+    open override func showLoadingView() {
+        applyShimmerColors()
+        super.showLoadingView()
+    }
+    
+    /// Hands `shimmerColor1` / `shimmerColor2` to the shimmer, when set. Left `nil`, the
+    /// shimmer keeps its own gradient colours.
+    private func applyShimmerColors() {
+        guard let shimmer = loadingView as? CometChatShimmerView else { return }
+        if let shimmerColor1 = style.shimmerColor1 { shimmer.colorGradient1 = shimmerColor1 }
+        if let shimmerColor2 = style.shimmerColor2 { shimmer.colorGradient2 = shimmerColor2 }
     }
     
     // setting style
@@ -358,6 +376,13 @@ open class CometChatConversations: CometChatListBase {
         viewModel.isRefresh = true
     }
     
+    /// RETRY on the error state: drop the error view, show the shimmer and fetch again.
+    open override func onRetryTapped() {
+        removeErrorView()
+        showLoadingView()
+        viewModel.isRefresh = true
+    }
+    
     // register cell
     fileprivate func registerCells() {
         tableView.register(CometChatListItem.self, forCellReuseIdentifier: CometChatListItem.identifier)
@@ -471,7 +496,7 @@ extension CometChatConversations {
                         listItem.hide(statusIndicator: hideGroupType)
                         listItem.set(statusIndicatorIcon: protectedGroupIcon)
                         listItem.statusIndicator.style.backgroundColor = style.passwordGroupImageBackgroundColor
-                        listItem.set(statusIndicatorIconTint: style.privateGroupImageTintColor)
+                        listItem.set(statusIndicatorIconTint: style.passwordGroupImageTintColor)
                         listItem.statusIndicator.layoutSubviews() //this will update background colour
                     @unknown default: listItem.hide(statusIndicator: true)
                         break
@@ -525,7 +550,7 @@ extension CometChatConversations {
     }
     
     open override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let conversation = viewModel.conversations[indexPath.row]
+        guard let conversation = viewModel.conversations[safe: indexPath.row] else { return }
         
         if selectionMode == .none {
             onItemClick?(conversation, indexPath)
@@ -538,7 +563,7 @@ extension CometChatConversations {
     }
     
     open override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        let conversation =  viewModel.conversations[indexPath.row]
+        guard let conversation = viewModel.conversations[safe: indexPath.row] else { return }
         if let foundConversation = viewModel.selectedConversations.firstIndex(of: conversation) {
             viewModel.selectedConversations.remove(at: foundConversation)
             self.onSelection?(self.viewModel.selectedConversations)

@@ -73,7 +73,7 @@ public class CollaborativeDocumentViewModel : DataSourceDecorator, CometChatMess
     }
     
     public override func getMessageTemplate(messageType: String, messageCategory: String, additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate? {
-        if messageType == MessageCategoryConstants.custom && messageCategory == collaborativeDocumentExtensionTypeConstant {
+        if messageCategory == MessageCategoryConstants.custom && messageType == collaborativeDocumentExtensionTypeConstant {
             return getTemplate(additionalConfiguration: additionalConfiguration)
         }
         return super.getMessageTemplate(messageType: messageType, messageCategory: messageCategory, additionalConfiguration: additionalConfiguration)
@@ -127,8 +127,13 @@ public class CollaborativeDocumentViewModel : DataSourceDecorator, CometChatMess
         documentBubble.topImage = UIImage(named: "collaborative-document-image", in: CometChatUIKit.bundle, with: nil)?.withRenderingMode(.alwaysOriginal)
         
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: _customMessage.senderUid)
-        if let style = additionalConfiguration?.collaborativeWhiteboardBubbleStyle(isLoggedInUser) {
-            documentBubble.style = style
+        // Document messages read `collaborativeDocumentBubbleStyle`, not the whiteboard
+        // style: the cell already paints the bubble chrome from the document style, so
+        // the content has to follow the same one.
+        if let additionalConfiguration {
+            documentBubble.style = isLoggedInUser
+                ? additionalConfiguration.messageBubbleStyle.outgoing.collaborativeDocumentBubbleStyle
+                : additionalConfiguration.messageBubbleStyle.incoming.collaborativeDocumentBubbleStyle
         }
         
         return documentBubble

@@ -32,12 +32,12 @@ import UIKit
         if let optional = data[InteractiveConstants.SingleSelectUIConstants.OPTIONAL] as? Bool {
             singleSelectElement.optional = optional
         }
+        if let defaultValue = data[InteractiveConstants.SingleSelectUIConstants.DEFAULT_VALUE] as? String {
+            singleSelectElement.defaultValue = defaultValue
+        }
         if let options = data[InteractiveConstants.SingleSelectUIConstants.OPTIONS] as? [[String:Any]] {
             for option in options {
-                if let id = option[InteractiveConstants.SingleSelectUIConstants.LABEL] as? String, let value = option[InteractiveConstants.SingleSelectUIConstants.OPTION_VALUE] as? String {
-                    let optionElement = OptionElement()
-                    optionElement.id = id
-                    optionElement.value = value
+                if let optionElement = OptionElement.optionFromJSON(option) {
                     singleSelectElement.options.append(optionElement)
                 }
             }
@@ -174,8 +174,8 @@ import UIKit
         
         func setOptions(_ options: [OptionElement]) {
             self.options = options
-            label.text = options[0].id
-            label1.text = options[1].id
+            label.text = options.first?.id
+            label1.text = options.count > 1 ? options[1].id : nil
 //            titleLabel.text = options.first?.id
         }
     }

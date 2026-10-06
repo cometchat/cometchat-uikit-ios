@@ -38,6 +38,7 @@ public struct AiAssistantChatHistoryStyle {
     public var itemTextColor: UIColor = CometChatTheme.neutralColor900
     
     // MARK: - Header
+    /// Not applied: the header is the host navigation bar, which this screen does not repaint. Kept for source compatibility.
     public var headerBackgroundColor: UIColor = CometChatTheme.backgroundColor02
     public var headerTitleFont: UIFont = CometChatTypography.Heading1.regular
     public var headerTitleTextColor: UIColor = CometChatTheme.neutralColor900

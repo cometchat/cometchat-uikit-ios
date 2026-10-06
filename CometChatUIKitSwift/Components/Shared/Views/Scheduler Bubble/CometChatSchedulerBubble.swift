@@ -206,7 +206,7 @@ extension CometChatSchedulerBubble {
         let InteractedView = InteractedView()
             .set(bodyText: message.goalCompletionText != "" ? message.goalCompletionText : "MEETING_SCHEDULED".localize() )
             .set(titleText: message.title)
-            .set(subtitleText: "Meeting Scheduler")
+            .set(subtitleText: "MEETING_SCHEDULER".localize())
             .build()
         
         self.addToSuperView(view: InteractedView)

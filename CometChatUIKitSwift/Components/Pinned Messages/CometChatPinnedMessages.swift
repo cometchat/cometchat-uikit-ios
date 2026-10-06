@@ -15,7 +15,6 @@ enum PinnedMessagesConstants {
 ///
 /// Read-only by design (doc §7.7): opening the panel does not mark anything as read,
 /// emit receipts, or touch the unread count.
-@MainActor
 open class CometChatPinnedMessages: CometChatListBase {
 
     // MARK: - Properties
@@ -58,6 +57,9 @@ open class CometChatPinnedMessages: CometChatListBase {
     /// included — this is an archive of who pinned what, not a conversation, so mirroring
     /// the chat's outgoing-right layout would read as a second chat view.
     public var messageAlignment: MessageListAlignment = .leftAligned
+
+    /// The custom back chevron, kept so `setupStyle()` can tint it from the style.
+    private var backItem: UIBarButtonItem?
     public var enableMultipleAttachments = true
     /// Off by default, matching `CometChatMessageList`: the host opts in on both surfaces.
     public internal(set) var dateSeparatorPattern: ((_ timestamp: Int?) -> String)?
@@ -182,7 +184,9 @@ open class CometChatPinnedMessages: CometChatListBase {
         // `hidesSharedBackground` is the only opt-out. `hideBackButton` must stay true or
         // the stock button renders alongside ours.
         hideBackButton = true
-        leftBarButtonItem = [makeBackItem()]
+        let backItem = makeBackItem()
+        self.backItem = backItem
+        leftBarButtonItem = [backItem]
 
         // Our button routes through `addBackPress` → `onBack`, which is an unset optional by
         // default — the stock button used to pop for free, so without this it does nothing.
@@ -201,7 +205,8 @@ open class CometChatPinnedMessages: CometChatListBase {
             target: self,
             action: #selector(addBackPress)
         )
-        item.tintColor = CometChatTheme.iconColorPrimary
+        item.tintColor = chevronTint()
+        item.accessibilityLabel = "a11y_back".localize()
         if #available(iOS 26.0, *) {
             item.hidesSharedBackground = true
         }
@@ -216,6 +221,16 @@ open class CometChatPinnedMessages: CometChatListBase {
     open override func setupStyle() {
         listBaseStyle = style
         super.setupStyle()
+        // The custom chevron carries its own tint, which would otherwise override the bar's.
+        backItem?.tintColor = chevronTint()
+    }
+
+    /// Primary icon colour unless the integrator changed `navigationBarItemsTintColor` from its default.
+    private func chevronTint() -> UIColor {
+        guard let tint = style.navigationBarItemsTintColor, tint != PinnedMessagesStyle().navigationBarItemsTintColor else {
+            return CometChatTheme.iconColorPrimary
+        }
+        return tint
     }
 
     /// The header is a static label — the count lives on the banner, not here.
@@ -639,7 +654,9 @@ extension CometChatPinnedMessages {
             }
         }
         action.backgroundColor = style.unpinActionBackgroundColor
-        action.image = UIImage(named: "keep-off", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        // Pre-tinted and drawn as-is: UIKit whitens a template image on a swipe action.
+        action.image = UIImage(named: "keep-off", in: CometChatUIKit.bundle, compatibleWith: nil)?
+            .withTintColor(style.unpinIconTint, renderingMode: .alwaysOriginal)
         action.accessibilityLabel = "UNPIN_MESSAGE".localize()
 
         return UISwipeActionsConfiguration(actions: [action])

@@ -466,3 +466,14 @@
 "SPAM" = "Spam";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "Verzenden mislukt. Selecteer een reden voordat je dit bericht rapporteert";
+"REPORTED" = "Gerapporteerd";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "Je melding is succesvol verzonden.";
+"MESSAGE_MEDIA" = "Media";
+"MESSAGE_MEETING" = "Vergadering";
+"MESSAGE_GENERIC" = "Bericht";
+"MEETING_SCHEDULER" = "Vergaderplanner";
+"MORE_TIMES" = "Meer tijden";
+"search_no_results_for" = "Geen resultaten voor ‘%@’\nProbeer een nieuwe zoekopdracht";
+"MESSAGE_LIST_EMPTY_TITLE" = "Nog geen berichten";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "Stuur een bericht om het gesprek te beginnen.";

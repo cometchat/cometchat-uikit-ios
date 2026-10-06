@@ -75,7 +75,8 @@ import CometChatSDK
         cardMessage.senderUid = interactiveMessage.senderUid
         cardMessage.sentAt = interactiveMessage.sentAt
         cardMessage.readAt = interactiveMessage.readAt
-        cardMessage.deliveredAt = interactiveMessage.deletedAt
+        cardMessage.deliveredAt = interactiveMessage.deliveredAt
+        cardMessage.deletedAt = interactiveMessage.deletedAt
         cardMessage.updatedAt = interactiveMessage.updatedAt
         cardMessage.deletedBy = interactiveMessage.deletedBy
         cardMessage.interactionGoal = interactiveMessage.interactionGoal
@@ -132,7 +133,8 @@ import CometChatSDK
         interactiveMessage.senderUid = self.senderUid
         interactiveMessage.sentAt = self.sentAt
         interactiveMessage.readAt = self.readAt
-        interactiveMessage.deliveredAt = self.deletedAt
+        interactiveMessage.deliveredAt = self.deliveredAt
+        interactiveMessage.deletedAt = self.deletedAt
         interactiveMessage.updatedAt = self.updatedAt
         interactiveMessage.deletedBy = self.deletedBy
         interactiveMessage.interactionGoal = self.interactionGoal

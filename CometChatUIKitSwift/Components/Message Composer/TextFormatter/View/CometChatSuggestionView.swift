@@ -100,7 +100,7 @@ public class CometChatSuggestionView: UIView {
     func hideIndicator() {
         DispatchQueue.main.async { [weak self] in
             guard let this = self else { return }
-            ActivityIndicator.hide()
+            ActivityIndicator.hide(in: this.tableView)
             this.tableView.tableFooterView = nil
             this.calculateHeight()
         }

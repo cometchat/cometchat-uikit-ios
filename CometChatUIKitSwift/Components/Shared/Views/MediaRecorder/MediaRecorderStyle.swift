@@ -50,11 +50,19 @@ public struct MediaRecorderStyle {
     public var sendButtonCornerRadius: CometChatCornerStyle? = nil
     
     private var _playButtonImageTintColor: UIColor?
+    /// Tint of the play glyph on the recorded-clip preview. Unset, the preview keeps
+    /// `messageBubbleStyle.audioBubbleStyle.playImageTintColor`.
     public var playButtonImageTintColor: UIColor {
         get { _playButtonImageTintColor ?? CometChatTheme.primaryColor }
         set { _playButtonImageTintColor = newValue }
     }
-    public var playButtonBackgroundColor: UIColor = CometChatTheme.white
+    private var _playButtonBackgroundColor: UIColor?
+    /// Background of the play button on the recorded-clip preview. Unset, the preview
+    /// keeps `messageBubbleStyle.audioBubbleStyle.playImageBackgroundColor`.
+    public var playButtonBackgroundColor: UIColor {
+        get { _playButtonBackgroundColor ?? CometChatTheme.white }
+        set { _playButtonBackgroundColor = newValue }
+    }
     
     public var pauseButtonBackgroundColor: UIColor = CometChatTheme.backgroundColor01
     private var _pauseButtonImageTintColor: UIColor?
@@ -85,10 +93,20 @@ public struct MediaRecorderStyle {
     public var reRecordButtonBorderWidth: CGFloat = 1
     public var reRecordButtonBorderColor: UIColor = CometChatTheme.borderColorLight
     
+    /// Not applied: the animated recording-indicator GIF it tinted is disabled, so nothing draws it. Kept for source compatibility.
     public var recorderIndicatorTintColor: UIColor = CometChatTheme.white
     public var textFont: UIFont = CometChatTypography.Heading4.regular
     public var textColor: UIColor = CometChatTheme.textColorPrimary
     public var messageBubbleStyle = MessageBubbleStyle(styleType: .outgoing)
     
     public init() { }
+
+    /// The recorded-clip preview's audio-bubble style, with the play-button values
+    /// above laid over it where they were set explicitly.
+    internal var resolvedPreviewAudioBubbleStyle: AudioBubbleStyle {
+        var audioStyle = messageBubbleStyle.audioBubbleStyle
+        if let tint = _playButtonImageTintColor { audioStyle.playImageTintColor = tint }
+        if let background = _playButtonBackgroundColor { audioStyle.playImageBackgroundColor = background }
+        return audioStyle
+    }
 }

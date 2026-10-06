@@ -317,6 +317,8 @@ open class CometChatCreatePoll: UIViewController, UIGestureRecognizerDelegate, C
     }
 
     open func enableSendButton() {
+        // The form is valid again, so the "fill poll details" banner no longer applies.
+        errorView.isHidden = true
         sendButton.isUserInteractionEnabled = true
         sendButton.setTitleColor(style.sendButtonTextColor, for: .normal)
     }

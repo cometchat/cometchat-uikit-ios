@@ -37,8 +37,13 @@ import AVFAudio
     public lazy var style = CometChatAvatar.style //component level styling
     
     // MARK: - Initialization of required Methods
+    public convenience init() {
+        self.init(frame: .zero)
+    }
+    
     public override init(image: UIImage?) { 
         super.init(image: image)
+        hasSuppliedImage = image != nil
         setupThemeObserver()
     }
     
@@ -69,7 +74,7 @@ import AVFAudio
         // Directly update visual properties from the current style
         // The style's computed properties will fetch the latest theme colors
         self.backgroundColor = style.backgroundColor
-        if avatarURL == nil || avatarURL?.isEmpty == true {
+        if !hasSuppliedImage && (avatarURL == nil || avatarURL?.isEmpty == true) {
             setAvatar(avatarUrl: avatarURL, with: name)
         }
     }
@@ -90,11 +95,23 @@ import AVFAudio
         }
         self.layer.borderWidth = style.borderWidth
         self.clipsToBounds = true
-        setAvatar(avatarUrl: avatarURL, with: name)
+        // A caller-supplied image has no url or name to redraw from, so leave it alone.
+        // Everything else redraws, including an avatar given nothing, whose placeholder
+        // must pick up the current theme's colour.
+        if !hasSuppliedImage {
+            setAvatar(avatarUrl: avatarURL, with: name)
+        }
     }
+    
+    /// True while the image on screen came from `set(image:)` or `init(image:)`.
+    private var hasSuppliedImage = false
     
     @discardableResult
     @objc public func set(image: UIImage) -> Self {
+        imageRequest?.cancel()
+        avatarURL = nil
+        name = nil
+        hasSuppliedImage = true
         self.image = image
         return self
     }
@@ -109,6 +126,7 @@ import AVFAudio
      */
     @discardableResult
     public func setAvatar(avatarUrl: String? = nil, with name: String? = nil) -> CometChatAvatar {
+        hasSuppliedImage = false
         self.avatarURL = avatarUrl
         self.name = name
         
@@ -126,7 +144,8 @@ import AVFAudio
         
         imageRequest?.cancel()
         imageRequest = imageService.image(for: url, cacheType: .avatar) { [weak self] image in
-            guard let this = self else { return }
+            // A cancelled or cached load still completes; drop it if the avatar moved on.
+            guard let this = self, this.avatarURL == avatarUrl else { return }
             // Update Thumbnail Image View
             if let image = image {
                 this.image = image
@@ -242,12 +261,19 @@ public class AvatarUtils {
         context?.setFillColor(color.cgColor)
         context?.fill(CGRect(x: 0, y: 0, width: size.width, height: size.height))
         
-        let attributes = textAttributes
+        var attributes = textAttributes
         
         // Text
         if let text = text?.initials {
-            let textSize = text.size(withAttributes: attributes)
+            var textSize = text.size(withAttributes: attributes)
             let bounds = view.bounds
+            // Dynamic Type can grow the font past the avatar; shrink the initials to fit.
+            let fitWidth = bounds.width * 0.75, fitHeight = bounds.height * 0.75
+            if let font = attributes[.font] as? UIFont, textSize.width > fitWidth || textSize.height > fitHeight {
+                let ratio = min(fitWidth / max(textSize.width, 1), fitHeight / max(textSize.height, 1))
+                attributes[.font] = font.withSize(max(1, font.pointSize * ratio))
+                textSize = text.size(withAttributes: attributes)
+            }
             let rect = CGRect(x: bounds.size.width/2 - textSize.width/2, y: bounds.size.height/2 - textSize.height/2, width: textSize.width, height: textSize.height)
             
             text.draw(in: rect, withAttributes: attributes)

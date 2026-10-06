@@ -20,6 +20,8 @@ class ReactionListCollectionCell: UICollectionViewCell {
     var selectedBackgroundColor: UIColor?
     var selectedTextColor: UIColor?
     var textColor: UIColor?
+    /// Fill behind the tab, from `ReactionListStyle.reactionTabBackgroundColor`.
+    var tabBackgroundColor: UIColor?
     var font: UIFont?
     
     override func awakeFromNib() {
@@ -37,6 +39,7 @@ class ReactionListCollectionCell: UICollectionViewCell {
     func build() {
         // Setting up the main background view
         self.contentView.embed(backgroundContainerView)
+        backgroundContainerView.backgroundColor = tabBackgroundColor
         
         // Setting up the purple bar view at the bottom
         purpleBarView = UIView()

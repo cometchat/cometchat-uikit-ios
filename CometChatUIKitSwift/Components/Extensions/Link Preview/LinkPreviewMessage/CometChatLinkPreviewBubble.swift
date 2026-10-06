@@ -100,7 +100,14 @@ open class CometChatLinkPreviewBubble: UIView {
         let imageView = UIImageView().withoutAutoresizingMaskConstraints()
         return imageView
     }()
-    
+
+    /// Fixed 40x40 size for the favicon, created once and toggled per message so
+    /// re-binding never stacks duplicate constraints.
+    private lazy var linkIconSizeConstraints: [NSLayoutConstraint] = [
+        linkIconImageView.widthAnchor.constraint(equalToConstant: 40),
+        linkIconImageView.heightAnchor.constraint(equalToConstant: 40)
+    ]
+
     /// Styling object for the link preview bubble.
     public var style = LinkPreviewBubbleStyle()
     
@@ -415,7 +422,14 @@ open class CometChatLinkPreviewBubble: UIView {
                 subtitle.text = description
             }
             
+            // Reset everything a previous message may have changed before binding this one.
+            imageRequest?.cancel()
+            imageRequest = nil
             self.thumbnailImageView.image = UIImage(named: "default-image.png", in: CometChatUIKit.bundle, compatibleWith: nil)
+            thumbnailImageView.isHidden = false
+            linkIconImageView.image = nil
+            linkIconImageView.isHidden = false
+            NSLayoutConstraint.deactivate(linkIconSizeConstraints)
             
             if let thumbnail = linkPreview["image"] as? String , let url = URL(string: thumbnail) {
                 
@@ -438,7 +452,7 @@ open class CometChatLinkPreviewBubble: UIView {
             }else if let favIcon = linkPreview["favicon"] as? String , let url = URL(string: favIcon) {
                 
                 thumbnailImageView.isHidden = true
-                linkIconImageView.pin(anchors: [.height, .width], to: 40)
+                NSLayoutConstraint.activate(linkIconSizeConstraints)
                 imageRequest = imageService.image(for: url, cacheType: .normal) { [weak self] image in
                     guard let strongSelf = self else { return }
                     if let image = image {
@@ -453,6 +467,11 @@ open class CometChatLinkPreviewBubble: UIView {
                         }
                     }
                 }
+            } else {
+                // Neither an image nor a favicon: drop the picture frame instead of
+                // showing an empty placeholder.
+                thumbnailImageView.isHidden = true
+                linkIconImageView.isHidden = true
             }
             if let linkURL = linkPreview["url"] as? String {
                 self.linkLabel.text = linkURL

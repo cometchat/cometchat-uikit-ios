@@ -48,33 +48,32 @@ class SuggestionTimeView: UIView {
             CometChatICSParser.load(url: url, completion: { [weak self] eventsByDate in
                 guard let this = self else { return }
                 this.onUnavailableTimeRangeDownloaded?(eventsByDate)
-                var eventsByDate = eventsByDate
-                let forDate = max(Date(timeIntervalSince1970: TimeInterval(message.dateRangeStart)), Date())
-                if forDate.getOnlyDate() == Date().getOnlyDate() {
-
-                    if var currentDateObj = eventsByDate[forDate.getOnlyDate()] {
-                        currentDateObj.append(TimeRange(startTime: "0000", endTime: forDate.to24HFormateTime(), startDate: forDate.getOnlyDate(), endDate: forDate.getOnlyDate()))
-                        eventsByDate[forDate.getOnlyDate()] = currentDateObj
-                    }else {
-                        eventsByDate.append(with: [(forDate.getOnlyDate()): [TimeRange(startTime: "0000", endTime: forDate.to24HFormateTime(), startDate: forDate.getOnlyDate(), endDate: forDate.getOnlyDate())]])
-                    }
-                }
-                this.getTimeSlots(eventsByDate: eventsByDate, date: forDate)
+                this.showSlots(for: message, busy: eventsByDate)
+            }, failure: { [weak self] _ in
+                // An unreachable ICS must not leave the spinner up forever: offer the
+                // host's availability as if nothing were booked.
+                self?.showSlots(for: message, busy: [:])
             })
         } else {
-            var eventByDate = [String: [TimeRange]]()
-            let forDate = max(Date(timeIntervalSince1970: TimeInterval(message.dateRangeStart)), Date())
-            if forDate.getOnlyDate() == Date().getOnlyDate() {
-                if var currentDateObj = eventByDate[forDate.getOnlyDate()] {
-                    currentDateObj.append(TimeRange(startTime: "0000", endTime: forDate.to24HFormateTime(), startDate: forDate.getOnlyDate(), endDate: forDate.getOnlyDate()))
-                    eventByDate[forDate.getOnlyDate()] = currentDateObj
-                }else {
-                    eventByDate.append(with: [(forDate.getOnlyDate()): [TimeRange(startTime: "0000", endTime: forDate.to24HFormateTime(), startDate: forDate.getOnlyDate(), endDate: forDate.getOnlyDate())]])
-                }
-            }
-            getTimeSlots(eventsByDate: eventByDate, date: forDate)
+            showSlots(for: message, busy: [:])
         }
         
+    }
+    
+    /// Blocks out the part of today that has already passed, then builds the slots.
+    private func showSlots(for message: SchedulerMessage, busy: [String: [TimeRange]]) {
+        var eventsByDate = busy
+        let forDate = max(Date(timeIntervalSince1970: TimeInterval(message.dateRangeStart)), Date())
+        if forDate.getOnlyDate() == Date().getOnlyDate() {
+            let elapsed = TimeRange(startTime: "0000", endTime: forDate.to24HFormateTime(), startDate: forDate.getOnlyDate(), endDate: forDate.getOnlyDate())
+            if var currentDateObj = eventsByDate[forDate.getOnlyDate()] {
+                currentDateObj.append(elapsed)
+                eventsByDate[forDate.getOnlyDate()] = currentDateObj
+            } else {
+                eventsByDate.append(with: [(forDate.getOnlyDate()): [elapsed]])
+            }
+        }
+        getTimeSlots(eventsByDate: eventsByDate, date: forDate)
     }
     
     func getTimeSlots(eventsByDate: [String: [TimeRange]], date: Date) {
@@ -127,7 +126,9 @@ class SuggestionTimeView: UIView {
         avatarView.setAvatar(avatarUrl: message?.avatarURL ?? message?.sender?.avatar, with: message?.sender?.name)
         avatarView.heightAnchor.constraint(equalToConstant: 60).isActive = true
         avatarView.widthAnchor.constraint(equalToConstant: 60).isActive = true
-//        avatarView.set(avatarStyle: style.avatarStyle)
+        if let avatarStyle = style.avatarStyle {
+            avatarView.style = avatarStyle
+        }
         headerView.addSubview(avatarView)
         avatarView.translatesAutoresizingMaskIntoConstraints = false
         avatarView.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 30).isActive = true
@@ -263,7 +264,7 @@ class SuggestionTimeView: UIView {
         durationLabel.leadingAnchor.constraint(equalTo: suggestButtonContainerView.leadingAnchor, constant: 0).isActive = true
         
         let moreTimeButton = UIButton(type: .system)
-        moreTimeButton.setTitle("More times", for: .normal)
+        moreTimeButton.setTitle("MORE_TIMES".localize(), for: .normal)
         moreTimeButton.titleLabel?.font = CometChatTheme_v4.typography.text3
         moreTimeButton.setTitleColor(isIntractable ? style.messageTintColor : style.deactivatedTint, for: .normal)
         moreTimeButton.setTitleColor(CometChatTheme_v4.palatte.secondary, for: .selected)
@@ -290,15 +291,8 @@ class SuggestionTimeView: UIView {
 
         dateFormatter.dateFormat = "EEE, MMM d"
         let formattedDate = dateFormatter.string(from: date)
-        let hour = Int(timeString.prefix(2))!
-        let minute = Int(timeString.suffix(2))!
-
-        let calendar = Calendar.current
-        let components = DateComponents(hour: hour, minute: minute)
-        let timeDate = calendar.date(from: components)!
-
-        dateFormatter.dateFormat = "h:mm a"
-        let formattedTime = dateFormatter.string(from: timeDate)
+        // Malformed times come back unchanged rather than trapping.
+        let formattedTime = timeString.to12HFormattedTime()
 
         return formattedDate + " at " + formattedTime
     }

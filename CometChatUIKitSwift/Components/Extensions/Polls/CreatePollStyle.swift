@@ -13,8 +13,11 @@ public struct CreatePollStyle {
     public var borderWidth: CGFloat = 0
     public var borderColor: UIColor = CometChatTheme.borderColorLight
     public var cornerRadius: CometChatCornerStyle? = nil
+    /// Not applied: the sheet uses the navigation title, and the in-sheet header cell is never shown. Kept for source compatibility.
     public var titleFont = CometChatTypography.Heading2.bold
+    /// Not applied: the sheet uses the navigation title, and the in-sheet header cell is never shown. Kept for source compatibility.
     public var titleColor = CometChatTheme.textColorPrimary
+    /// Not applied: the in-sheet header cell that owns the separator is never shown. Kept for source compatibility.
     public var separatorColor: UIColor = CometChatTheme.borderColorLight
     public var questionPlaceholderColor = CometChatTheme.textColorTertiary
     public var questionPlaceholderFont = CometChatTypography.Body.medium

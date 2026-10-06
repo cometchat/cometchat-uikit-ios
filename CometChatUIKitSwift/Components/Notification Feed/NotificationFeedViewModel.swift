@@ -34,6 +34,17 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
     /// assertable without a live SDK. Defaults to the real registrar.
     internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
 
+    /// Seams over the network fetches the screen makes on load (feed page, categories,
+    /// unread count), so the screen can be loaded without a live SDK. Default to the SDK.
+    internal var fetchFeedPage: (_ request: NotificationFeedRequest, _ completion: @escaping (NotificationFeedBuilderResult) -> Void) -> Void = { request, completion in
+        NotificationFeedBuilder.fetchFeedItems(request: request, completion: completion)
+    }
+    internal var fetchCategoryPage: (_ request: NotificationCategoriesRequest, _ completion: @escaping (NotificationCategoriesBuilderResult) -> Void) -> Void = { request, completion in
+        NotificationFeedBuilder.fetchCategories(request: request, completion: completion)
+    }
+    internal var fetchUnreadCountRequest: (_ category: String?, _ completion: @escaping (Int) -> Void) -> Void = { category, completion in
+        CometChat.getNotificationFeedUnreadCount(category: category, onSuccess: completion, onError: { _ in })
+    }
     
     // MARK: - State
     var feedItems: [NotificationFeedItem] = []
@@ -134,7 +145,7 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
         guard let request = categoriesRequest else {
             return
         }
-        NotificationFeedBuilder.fetchCategories(request: request) { [weak self] result in
+        fetchCategoryPage(request) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let fetchedCategories):
@@ -159,7 +170,7 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
         if isFetchedAll { return }
         
         isFetching = true
-        NotificationFeedBuilder.fetchFeedItems(request: request) { [weak self] result in
+        fetchFeedPage(request) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let fetchedItems):
@@ -200,12 +211,11 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
     
     // MARK: - Unread Count
     func fetchUnreadCount() {
-        CometChat.getNotificationFeedUnreadCount(category: activeCategory, onSuccess: { [weak self] count in
+        fetchUnreadCountRequest(activeCategory) { [weak self] count in
             guard let self = self else { return }
             self.totalUnreadCount = count
             self.onUnreadCountUpdated?()
-        }, onError: { error in
-        })
+        }
     }
     
     func startUnreadCountPolling() {

@@ -61,7 +61,11 @@ extension CometChatSearch {
     
     @discardableResult
     public func set(emptyView: UIView) -> Self {
-        self.emptyStateView = loadingView
+        // Swap a mounted empty state in place, so the new view shows where the old one did.
+        let wasShowing = isViewLoaded && emptyStateView.superview != nil
+        if wasShowing { emptyStateView.removeFromSuperview() }
+        self.emptyStateView = emptyView
+        if wasShowing { addEmptyStateView() }
         return self
     }
     

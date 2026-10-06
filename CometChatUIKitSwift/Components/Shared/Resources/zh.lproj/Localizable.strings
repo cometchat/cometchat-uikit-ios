@@ -464,3 +464,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "无法提交。举报此消息前请先选择原因";
+"REPORTED" = "已举报";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "你的举报已成功提交。";
+"MESSAGE_MEDIA" = "媒体";
+"MESSAGE_MEETING" = "会议";
+"MESSAGE_GENERIC" = "消息";
+"MEETING_SCHEDULER" = "会议安排";
+"MORE_TIMES" = "更多时间";
+"search_no_results_for" = "没有找到“%@”的结果\n请尝试新的搜索";
+"MESSAGE_LIST_EMPTY_TITLE" = "暂无消息";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "发送消息开始对话。";

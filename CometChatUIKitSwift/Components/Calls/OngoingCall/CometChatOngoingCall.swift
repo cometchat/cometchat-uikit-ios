@@ -26,6 +26,8 @@ open class CometChatOngoingCall: UIViewController {
     var viewModel : OngoingCallViewModel?
     var onCallEnded: ((_ call: Call) -> Void)?
     var sessionId: String?
+    /// The call this screen is showing, handed to `onCallEnded` when it ends.
+    var call: Call?
     private var callSettingsBuilder: Any?
     private var callWorkFlow: CallWorkFlow?
     
@@ -44,6 +46,7 @@ open class CometChatOngoingCall: UIViewController {
         guard let viewModel = viewModel else { return }
         viewModel.onCallEnded = {
             DispatchQueue.main.async {
+                self.onCallEnded?(self.endedCall())
                 self.dismiss(animated: true)
             }
         }
@@ -54,6 +57,18 @@ open class CometChatOngoingCall: UIViewController {
         }
     }
     
+    /// The call to report as ended: the one handed to this screen, or — for a session
+    /// started without one, such as a group meeting — a call carrying the session id.
+    private func endedCall() -> Call {
+        if let call = call {
+            return call
+        }
+        let call = Call(receiverId: "", callType: .audio, receiverType: .user)
+        call.sessionID = sessionId
+        call.callStatus = .ended
+        return call
+    }
+
     private func startCall() {
         guard let sessionId = sessionId else { return }
         viewModel = OngoingCallViewModel(callView: containerView, sessionId: sessionId)
@@ -90,6 +105,12 @@ extension CometChatOngoingCall {
         return self
     }
     
+    @discardableResult
+    public func set(call: Call) -> Self {
+        self.call = call
+        return self
+    }
+
     @discardableResult
     public func setOnCallEnded(onCallEnded: @escaping ((_ call: Call) -> Void)) -> Self {
         self.onCallEnded = onCallEnded

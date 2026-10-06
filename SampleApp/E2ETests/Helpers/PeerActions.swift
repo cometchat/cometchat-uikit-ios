@@ -331,9 +331,11 @@ enum PeerActions {
             throw PeerError.badURL("\(baseURL)/messages/\(messageId)/reactions/\(emoji)")
         }
         let body = try JSONSerialization.data(withJSONObject: [:] as [String: Any])
-        _ = try await send(url: url, method: "POST", body: body,
+        _ = try await whileMessageIsSettling {
+            try await send(url: url, method: "POST", body: body,
                            onBehalfOf: asUserA ? TestConfig.userAUid : TestConfig.userBUid,
                            operation: "addReaction")
+        }
     }
 
     static func removeReaction(_ messageId: Int, _ emoji: String = "🔥", asUserA: Bool = false) async throws {
@@ -341,9 +343,28 @@ enum PeerActions {
               let url = URL(string: "\(baseURL)/messages/\(messageId)/reactions/\(enc)") else {
             throw PeerError.badURL("\(baseURL)/messages/\(messageId)/reactions/\(emoji)")
         }
-        _ = try await send(url: url, method: "DELETE", body: nil,
+        _ = try await whileMessageIsSettling {
+            try await send(url: url, method: "DELETE", body: nil,
                            onBehalfOf: asUserA ? TestConfig.userAUid : TestConfig.userBUid,
                            operation: "removeReaction")
+        }
+    }
+
+    /// A message id returned by `POST /messages` is briefly invisible to every user: reacting to it
+    /// straight away answers 403 `ERR_MESSAGE_NO_ACCESS`, and a few seconds later the same call works.
+    /// Retries only that error, so a real permission failure still surfaces after the wait.
+    private static func whileMessageIsSettling(_ call: () async throws -> Data) async throws -> Data {
+        var lastError: Error = PeerError.badURL("")
+        for attempt in 0..<8 {
+            do {
+                return try await call()
+            } catch {
+                guard "\(error)".contains("ERR_MESSAGE_NO_ACCESS") else { throw error }
+                lastError = error
+                try? await Task.sleep(nanoseconds: UInt64(attempt + 1) * 500_000_000)
+            }
+        }
+        throw lastError
     }
     
     /// Thread replies carry a parentMessageId, so they are filtered OUT of the main message list.

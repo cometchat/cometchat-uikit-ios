@@ -37,7 +37,7 @@ public struct PinnedMessagesStyle: ListBaseStyle {
     // Tint color for the navigation bar background
     public var navigationBarTintColor: UIColor? = CometChatTheme.backgroundColor01
 
-    // Tint color for navigation bar items (buttons, icons)
+    // Tint color for navigation bar items (buttons, icons). The back chevron follows it only when changed from the default.
     public var navigationBarItemsTintColor: UIColor? = CometChatTheme.iconColorHighlight
 
     // Font for the error title displayed in UI
@@ -83,6 +83,7 @@ public struct PinnedMessagesStyle: ListBaseStyle {
     public var emptySubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
 
     // Color for the table view separator
+    /// Not applied visibly: this list turns table separators off (`separatorStyle = .none`). Kept for source compatibility.
     public var tableViewSeparator: UIColor = CometChatTheme.borderColorLight
 
     // Text color for the bubble header, which carries the sender name. Only used when no
@@ -93,13 +94,15 @@ public struct PinnedMessagesStyle: ListBaseStyle {
     public var bubbleHeaderFont: UIFont = CometChatTypography.Caption1.medium
 
     // Text color for the one-line message preview the banner renders
+    /// Not applied: the panel renders full message bubbles and no kit screen draws this preview line. Kept for source compatibility.
     public var previewTextColor: UIColor = CometChatTheme.textColorSecondary
 
     // Font for the one-line message preview
+    /// Not applied: the panel renders full message bubbles and no kit screen draws this preview line. Kept for source compatibility.
     public var previewFont: UIFont = CometChatTypography.Body.regular
 
-    // Tint for the per-row unpin control
-    public var unpinIconTint: UIColor = CometChatTheme.iconColorSecondary
+    // Tint for the icon on the per-row unpin swipe action
+    public var unpinIconTint: UIColor = CometChatTheme.white
 
     // Background for the per-row unpin swipe action
     public var unpinActionBackgroundColor: UIColor = CometChatTheme.errorColor

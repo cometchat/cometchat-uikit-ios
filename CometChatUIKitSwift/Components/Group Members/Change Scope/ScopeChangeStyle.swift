@@ -24,7 +24,9 @@ public struct ScopeChangeStyle {
     public var subtitleTextColor: UIColor = CometChatTheme.textColorSecondary
     public var subtitleFont: UIFont = CometChatTypography.Body.regular
     
+    /// Fill colour of the Save button.
     public var saveButtonTintColor: UIColor = CometChatTheme.primaryColor
+    /// Fill colour of the Cancel button.
     public var cancelButonTintColor: UIColor = CometChatTheme.backgroundColor01
     
     

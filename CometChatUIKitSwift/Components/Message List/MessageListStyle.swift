@@ -30,32 +30,36 @@ public struct MessageListStyle {
     public var errorStateSubtitleFont: UIFont = CometChatTypography.Body.regular
 
     public var threadedMessageImage = UIImage(systemName: "arrow.turn.down.right")?.withRenderingMode(.alwaysTemplate)
+    /// Not applied: the default `errorStateView` is a blank view with no image slot, and a view passed to `set(errorView:)` keeps its own image. Kept for source compatibility.
     public var errorImage = UIImage(named: "error-icon", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal)
     public var emptyImage = UIImage(named: "empty-icon", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal)
+    /// When set, replaces the icon of the floating new-messages indicator (`NewMessageIndicatorStyle.iconImage`). `nil` keeps that style's icon.
     public var newMessageIndicatorImage: UIImage?
     
     public var backgroundImage: UIImage?
 
     // MARK: - AI Assistant Suggested Message
+    // Read by the AI assistant greeting (AIAssistantIntroductionView). The defaults are the
+    // theme values the greeting painted before these fields were wired up.
     public var aiAssistantSuggestedMessageTextFont: UIFont? = CometChatTypography.Body.regular
     
-    public var aiAssistantSuggestedMessageTextColor: UIColor? = CometChatTheme.neutralColor900
+    public var aiAssistantSuggestedMessageTextColor: UIColor? = CometChatTheme.textColorSecondary
     
-    public var aiAssistantSuggestedMessageBorderColor: UIColor? = CometChatTheme.neutralColor300
+    public var aiAssistantSuggestedMessageBorderColor: UIColor? = CometChatTheme.borderColorDefault
     
     public var aiAssistantSuggestedMessageBorderWidth: CGFloat? = 1
     
-    public var aiAssistantSuggestedMessageCornerRadius: CGFloat? = 8
+    public var aiAssistantSuggestedMessageCornerRadius: CGFloat? = 20
     
-    public var aiAssistantSuggestedMessageBackgroundColor: UIColor? = CometChatTheme.backgroundColor02
+    public var aiAssistantSuggestedMessageBackgroundColor: UIColor? = CometChatTheme.backgroundColor01
     
-    public var aiAssistantSuggestedMessageIconColor: UIColor? = CometChatTheme.primaryColor
+    public var aiAssistantSuggestedMessageIconColor: UIColor? = CometChatTheme.iconColorSecondary
     
-    public var emptyChatGreetingTitleTextColor: UIColor? = CometChatTheme.neutralColor900
+    public var emptyChatGreetingTitleTextColor: UIColor? = CometChatTheme.textColorPrimary
     
-    public var emptyChatGreetingTitleTextFont: UIFont? = CometChatTypography.Heading1.regular
+    public var emptyChatGreetingTitleTextFont: UIFont? = CometChatTypography.Heading4.medium
     
-    public var emptyChatGreetingSubtitleTextColor: UIColor? = CometChatTheme.neutralColor600
+    public var emptyChatGreetingSubtitleTextColor: UIColor? = CometChatTheme.textColorTertiary
     
     public var emptyChatGreetingSubtitleTextFont: UIFont? = CometChatTypography.Body.regular
     

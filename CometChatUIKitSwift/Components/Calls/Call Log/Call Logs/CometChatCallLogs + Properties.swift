@@ -32,8 +32,10 @@ extension CometChatCallLogs {
     
     
     //MARK: Events
+    // Call-log values are typed `Any` so the public interface does not require CometChatCallsSDK.
+
     /// Get Callback when any error occurs in this ViewController
-    /// - Parameter onError: Error closure returns error of type CometChatCallsSDK.CometChatCallException, typecast it to CometChatCallsSDK.CometChatCallException for accessing it
+    /// - Parameter onError: Receives a CometChatCallsSDK.CometChatCallException when fetching call logs fails, or a CometChatSDK.CometChatException when looking up the tapped call's user or group fails. Cast to either
     /// - Returns: CometChatCallLogs (Self)
     @discardableResult
     public func set(onError: ((_ error : Any) -> ())?) -> Self {
@@ -42,7 +44,7 @@ extension CometChatCallLogs {
     }
     
     /// Get Callback when list of CometChatCallsSDK.CallLog is fetched and going to get displayed on the screen
-    /// - Parameter onLoad: onLoad closure returns array of CometChatCallsSDK.CallLog in Any type, typecast it to CometChatCallsSDK.CallLog and access it
+    /// - Parameter onLoad: Receives the fetched call logs as `[Any]`; cast each element to CometChatCallsSDK.CallLog
     /// - Returns: CometChatCallLogs (Self)
     @discardableResult
     public func set(onLoad: @escaping (([Any]) -> Void)) -> Self {
@@ -57,7 +59,7 @@ extension CometChatCallLogs {
     }
     
     /// Get Callback when a call item is clicked by the user
-    /// - Parameter onItemClick: onItemClick closure returns clicked CometChatCallsSDK.CallLog in Any type,  typecast it to CometChatCallsSDK.CallLog and access it
+    /// - Parameter onItemClick: Receives the tapped call log as `Any`; cast it with `as? CallLog` (not `Call`)
     /// - Returns: CometChatCallLogs (Self)
     @discardableResult
     public func set(onItemClick: ((_ callLog : Any) -> ())?) -> Self {
@@ -66,7 +68,7 @@ extension CometChatCallLogs {
     }
     
     /// Get Callback when a call item is long pressed by the user
-    /// - Parameter onItemLongClick: onItemLongClick closure returns long pressed CometChatCallsSDK.CallLog in Any type,  typecast it to CometChatCallsSDK.CallLog and access it
+    /// - Parameter onItemLongClick: Receives the long-pressed call log as `Any` and its index path; cast it with `as? CallLog` (not `Call`)
     /// - Returns: CometChatCallLogs (Self)
     @discardableResult
     public func set(onItemLongClick: ((_ callLog : Any, _ indexPath: IndexPath) -> ())?) -> Self {

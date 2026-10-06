@@ -467,3 +467,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "सबमिट नहीं किया जा सका। कृपया इस संदेश की रिपोर्ट करने से पहले एक कारण चुनें";
+"REPORTED" = "रिपोर्ट किया गया";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "आपकी रिपोर्ट सफलतापूर्वक सबमिट हो गई है।";
+"MESSAGE_MEDIA" = "मीडिया";
+"MESSAGE_MEETING" = "मीटिंग";
+"MESSAGE_GENERIC" = "संदेश";
+"MEETING_SCHEDULER" = "मीटिंग शेड्यूलर";
+"MORE_TIMES" = "और समय";
+"search_no_results_for" = "“%@” के लिए कोई परिणाम नहीं मिला\nनई खोज आज़माएँ";
+"MESSAGE_LIST_EMPTY_TITLE" = "अभी तक कोई संदेश नहीं";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "बातचीत शुरू करने के लिए एक संदेश भेजें।";

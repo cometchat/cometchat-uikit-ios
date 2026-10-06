@@ -166,6 +166,7 @@ public class CometChatCollaborativeBubble: UIStackView {
         icon.tintColor = style.iconTint
         openButton.tintColor = style.buttonTextColor
         openButton.titleLabel?.font = style.buttonTextFont
+        dividerView.backgroundColor = style.dividerTint
     }
     
     @discardableResult

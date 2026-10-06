@@ -136,7 +136,10 @@ class CalendarView: UIView {
     }
     
     @objc func datePickerChanged(picker: UIDatePicker) {
-        if picker.date < picker.minimumDate! && picker.date > picker.maximumDate! {
+        if let minimumDate = picker.minimumDate, picker.date < minimumDate {
+            return
+        }
+        if let maximumDate = picker.maximumDate, picker.date > maximumDate {
             return
         }
         selectedDateContainerView = picker.findViewContainingLabel(withText: picker.date.extractDay())

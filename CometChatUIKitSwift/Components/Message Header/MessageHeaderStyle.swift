@@ -18,7 +18,9 @@ public struct MessageHeaderStyle {
     public var passwordProtectedGroupBadgeImageTintColor : UIColor = CometChatTheme.backgroundColor01
     public var passwordGroupImageBackgroundColor: UIColor = CometChatTheme.warningColor
     public var privateGroupImageBackgroundColor: UIColor = CometChatTheme.successColor
+    /// Not applied: public groups show no badge on the header avatar, so there is nothing to fill. Kept for source compatibility.
     public var groupImageBackgroundColor : UIColor = .clear
+    /// Not applied: the header avatar reads `CometChatMessageHeader.avatarStyle` (or the instance `avatarStyle`) instead. Kept for source compatibility.
     public var avatarStyle : AvatarStyle = CometChatAvatar.style
     public var backgroundColor: UIColor = CometChatTheme.backgroundColor01
     public var cornerRadius: CometChatCornerStyle? = nil

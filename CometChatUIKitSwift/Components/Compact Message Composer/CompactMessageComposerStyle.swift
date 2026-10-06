@@ -24,6 +24,7 @@ public struct CompactMessageComposerStyle {
     public var composeBoxBorderColor: UIColor = CometChatTheme.borderColorDefault
     public var composeBoxBorderWidth: CGFloat = 1
     public var composeBoxCornerRadius: CometChatCornerStyle = .init(cornerRadius: CometChatSpacing.Radius.r2)
+    /// Not applied: the compact composer draws no separator line. Kept for source compatibility.
     public var composerSeparatorColor: UIColor = CometChatTheme.borderColorLight
     
     // MARK: - Text Field Styling

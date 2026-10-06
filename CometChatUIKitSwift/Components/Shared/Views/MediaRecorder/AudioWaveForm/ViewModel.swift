@@ -45,7 +45,7 @@ final class ViewModel {
     func startRecording(completion: @escaping (SoundRecord?, Error?) -> Void) {
         AudioRecorderManager.shared.startRecording(with: self.audioVisualizationTimeInterval, completion: { [weak self] url, error in
             guard let url = url else {
-                completion(nil, error!)
+                completion(nil, error ?? AudioErrorType.recordFailed)
                 return
             }
 
@@ -75,7 +75,7 @@ final class ViewModel {
             return try AudioPlayerManager.shared.resume()
         } else {
             guard let audioFilePath = currentAudioRecord.audioFilePathLocal else {
-                fatalError("tried to unwrap audio file path that is nil")
+                throw AudioErrorType.audioFileWrongPath
             }
 
             self.isRecording = true
@@ -99,7 +99,7 @@ final class ViewModel {
     // MARK: - Notifications Handling
 
     @objc private func didReceiveMeteringLevelUpdate(_ notification: Notification) {
-        let percentage = notification.userInfo![audioPercentageUserInfoKey] as! Float
+        guard let percentage = notification.userInfo?[audioPercentageUserInfoKey] as? Float else { return }
         self.audioMeteringLevelUpdate?(percentage)
     }
 

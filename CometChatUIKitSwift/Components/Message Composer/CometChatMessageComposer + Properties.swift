@@ -56,7 +56,7 @@ extension CometChatMessageComposer {
     //MARK: Configurations
     @discardableResult
     public func set(maxLines: Int) -> Self {
-        textView.maxLength = maxLines
+        textView.maxLine = maxLines
         return self
     }
     

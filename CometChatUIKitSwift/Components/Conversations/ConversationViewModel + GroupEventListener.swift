@@ -32,24 +32,20 @@ extension ConversationsViewModel: CometChatGroupEventListener {
     }
     
     func ccGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
-        if checkForConversationUpdate(action: action) {
-            if CometChat.getLoggedInUser()?.uid == kickedUser.uid {
-                removerConversation(for: kickedFrom)
-            } else {
-                newMessageReceived?(action)
-                update(lastMessage: action, updateCount: false)
-            }
+        if service.loggedInUserUid() == kickedUser.uid {
+            removerConversation(for: kickedFrom)
+        } else if checkForConversationUpdate(action: action) {
+            newMessageReceived?(action)
+            update(lastMessage: action, updateCount: false)
         }
     }
-    
+
     func ccGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
-        if checkForConversationUpdate(action: action) {
-            if CometChat.getLoggedInUser()?.uid == bannedUser.uid {
-                removerConversation(for: bannedFrom)
-            } else {
-                newMessageReceived?(action)
-                update(lastMessage: action, updateCount: false)
-            }
+        if service.loggedInUserUid() == bannedUser.uid {
+            removerConversation(for: bannedFrom)
+        } else if checkForConversationUpdate(action: action) {
+            newMessageReceived?(action)
+            update(lastMessage: action, updateCount: false)
         }
     }
     
@@ -84,34 +80,29 @@ extension ConversationsViewModel: CometChatGroupDelegate {
     }
     
     func onGroupMemberLeft(action: ActionMessage, leftUser: User, leftGroup: Group) {
-        if checkForConversationUpdate(action: action) {
-            if CometChat.getLoggedInUser()?.uid == leftUser.uid {
-                removerConversation(for: leftGroup)
-            } else {
-                update(lastMessage: action, updateCount: false)
-            }
+        // Losing your own membership removes the row whatever the group-action preview setting says.
+        if service.loggedInUserUid() == leftUser.uid {
+            removerConversation(for: leftGroup)
+        } else if checkForConversationUpdate(action: action) {
+            update(lastMessage: action, updateCount: false)
         }
     }
-    
+
     func onGroupMemberKicked(action: ActionMessage, kickedUser: User, kickedBy: User, kickedFrom: Group) {
-        if checkForConversationUpdate(action: action) {
-            if CometChat.getLoggedInUser()?.uid == kickedUser.uid {
-                removerConversation(for: kickedFrom)
-            } else {
-                newMessageReceived?(action)
-                update(lastMessage: action, updateCount: false)
-            }
+        if service.loggedInUserUid() == kickedUser.uid {
+            removerConversation(for: kickedFrom)
+        } else if checkForConversationUpdate(action: action) {
+            newMessageReceived?(action)
+            update(lastMessage: action, updateCount: false)
         }
     }
-    
+
     func onGroupMemberBanned(action: ActionMessage, bannedUser: User, bannedBy: User, bannedFrom: Group) {
-        if checkForConversationUpdate(action: action) {
-            if CometChat.getLoggedInUser()?.uid == bannedUser.uid {
-                removerConversation(for: bannedFrom)
-            } else {
-                newMessageReceived?(action)
-                update(lastMessage: action, updateCount: false)
-            }
+        if service.loggedInUserUid() == bannedUser.uid {
+            removerConversation(for: bannedFrom)
+        } else if checkForConversationUpdate(action: action) {
+            newMessageReceived?(action)
+            update(lastMessage: action, updateCount: false)
         }
     }
     

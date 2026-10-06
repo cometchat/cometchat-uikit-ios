@@ -443,7 +443,45 @@ open class CometChatMessageBubble: UITableViewCell {
     func set(backgroundColor: UIColor) {
         bubbleStackView.backgroundColor = backgroundColor
     }
-    
+
+    /// Image view painted behind the bubble's content when a style sets `backgroundDrawable`.
+    /// Created on first use so bubbles without a drawable carry no extra view.
+    private var backgroundDrawableView: UIImageView?
+
+    func set(backgroundDrawable: UIImage?) {
+        guard let backgroundDrawable = backgroundDrawable else {
+            backgroundDrawableView?.image = nil
+            backgroundDrawableView?.isHidden = true
+            return
+        }
+        let imageView: UIImageView
+        if let existing = backgroundDrawableView {
+            imageView = existing
+        } else {
+            imageView = UIImageView()
+            imageView.contentMode = .scaleToFill
+            imageView.clipsToBounds = true
+            imageView.isUserInteractionEnabled = false
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            backgroundDrawableView = imageView
+        }
+        // set(bubbleView:) clears bubbleStackView's subviews, so re-attach when needed.
+        if imageView.superview !== bubbleStackView {
+            imageView.removeFromSuperview()
+            bubbleStackView.insertSubview(imageView, at: 0)
+            NSLayoutConstraint.activate([
+                imageView.leadingAnchor.constraint(equalTo: bubbleStackView.leadingAnchor),
+                imageView.trailingAnchor.constraint(equalTo: bubbleStackView.trailingAnchor),
+                imageView.topAnchor.constraint(equalTo: bubbleStackView.topAnchor),
+                imageView.bottomAnchor.constraint(equalTo: bubbleStackView.bottomAnchor)
+            ])
+        } else {
+            bubbleStackView.sendSubviewToBack(imageView)
+        }
+        imageView.image = backgroundDrawable
+        imageView.isHidden = false
+    }
+
     func set(cornerRadius: CometChatCornerStyle) {
         bubbleStackView.roundViewCorners(corner: cornerRadius)
     }
@@ -467,15 +505,17 @@ open class CometChatMessageBubble: UITableViewCell {
         set(borderColor: specificMessageTypeStyle?.borderColor ?? style.borderColor)
         set(borderWidth: specificMessageTypeStyle?.borderWidth ?? style.borderWidth)
         set(backgroundColor:  specificMessageTypeStyle?.backgroundColor ?? style.backgroundColor)
+        set(backgroundDrawable: specificMessageTypeStyle?.backgroundDrawable ?? style.backgroundDrawable)
         set(cornerRadius: specificMessageTypeStyle?.cornerRadius ?? style.cornerRadius)
 
     }
-    
+
     func set(actionStyle: GroupActionBubbleStyle = GroupActionBubbleStyle()) {
-        
+
         set(borderColor: actionStyle.borderColor)
         set(borderWidth: actionStyle.borderWidth)
         set(backgroundColor:  actionStyle.backgroundColor)
+        set(backgroundDrawable: actionStyle.backgroundDrawable)
         set(cornerRadius: actionStyle.cornerRadius ?? .init(cornerRadius: 11))
 
     }

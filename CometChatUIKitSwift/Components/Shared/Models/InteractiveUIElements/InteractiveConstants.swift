@@ -101,7 +101,7 @@ public struct InteractiveConstants {
         public static var ENABLED = "enabled";
         public static var OPTIONAL = "optional";
         public static var LABEL = "label";
-        public static var DEFAULT_VALUE = "DEFAULT_VALUE";
+        public static var DEFAULT_VALUE = "defaultValue";
         public static var OPTIONS = "options";
         public static var OPTION_LABEL = "label";
         public static var OPTION_VALUE = "value";

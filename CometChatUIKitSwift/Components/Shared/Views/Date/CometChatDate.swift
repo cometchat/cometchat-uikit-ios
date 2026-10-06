@@ -225,7 +225,9 @@ extension CometChatDate {
         }
 
         // Within the past 7 days
-        if let _ = calendar.date(byAdding: .day, value: -7, to: date) {
+        let now = Date()
+        if let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: now),
+           date >= sevenDaysAgo && date <= now {
             if let lastWeek = dateTimeFormatter?.lastWeek {
                 return lastWeek(time)
             }

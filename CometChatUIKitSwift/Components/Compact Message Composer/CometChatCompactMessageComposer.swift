@@ -163,7 +163,7 @@ open class CometChatCompactMessageComposer: UIView {
     }()
     
     public lazy var attachmentButton: UIButton = {
-        let button = UIButton().withoutAutoresizingMaskConstraints()
+        let button = CometChatHitAreaButton().withoutAutoresizingMaskConstraints()
         button.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(attachmentButtonClicked), for: .primaryActionTriggered)
         button.pin(anchors: [.height, .width], to: 24)
@@ -172,7 +172,7 @@ open class CometChatCompactMessageComposer: UIView {
     }()
     
     public lazy var microphoneButton: UIButton = {
-        let button = UIButton().withoutAutoresizingMaskConstraints()
+        let button = CometChatHitAreaButton().withoutAutoresizingMaskConstraints()
         button.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(didMicrophoneButtonClicked), for: .primaryActionTriggered)
         button.pin(anchors: [.height, .width], to: 24)
@@ -181,7 +181,7 @@ open class CometChatCompactMessageComposer: UIView {
     }()
     
     public lazy var stickersButton: UIButton = {
-        let button = UIButton().withoutAutoresizingMaskConstraints()
+        let button = CometChatHitAreaButton().withoutAutoresizingMaskConstraints()
         button.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(didStickersButtonClicked), for: .primaryActionTriggered)
         button.pin(anchors: [.height, .width], to: 24)
@@ -410,10 +410,51 @@ open class CometChatCompactMessageComposer: UIView {
             // Reset rich text formatting state when composer appears
             // This ensures formatting options don't persist from previous sessions
             resetRichTextFormattingState()
+            restoreDraft()
         } else {
+            saveDraft()
             clearReplyState()
             disconnect()
         }
+    }
+
+
+    // MARK: - Minimum tap targets (B54)
+    // The 24pt icon buttons sit in rows shorter than 44pt, so their own point(inside:) never
+    // sees a touch just above or below them. Route near-misses here instead, never stealing a
+    // touch that already landed on the text view or another control.
+    open override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hit = super.hitTest(point, with: event)
+        if hit is UIControl || hit === textView || (hit?.isDescendant(of: textView) ?? false) { return hit }
+        guard self.point(inside: point, with: event) else { return hit }
+        return CometChatHitArea.nestedTarget(for: point, in: self, among: [attachmentButton, stickersButton, microphoneButton]) ?? hit
+    }
+
+    // MARK: - Drafts
+    // Saved on leaving the window, which also covers deallocation: a view is always
+    // removed from its window before it can be freed. Plain text only — rich-text
+    // attributes and mention mappings are not kept.
+
+    private var draftKey: String? {
+        ComposerDraftStore.key(uid: viewModel.user?.uid, guid: viewModel.group?.guid, parentMessageId: viewModel.parentMessageId)
+    }
+
+    /// Keeps the unsent text for this conversation. Edit text isn't a draft, and
+    /// entering an edit already replaced the draft in the text view, so drop it.
+    private func saveDraft() {
+        if composerState == .edit {
+            ComposerDraftStore.clear(for: draftKey)
+        } else {
+            ComposerDraftStore.save(textView.text, for: draftKey)
+        }
+    }
+
+    /// Puts this conversation's draft back into an empty text view.
+    private func restoreDraft() {
+        guard composerState != .edit, (textView.text ?? "").isEmpty,
+              let draft = ComposerDraftStore.draft(for: draftKey) else { return }
+        textView.text = draft
+        updateSendButtonState()
     }
     
     /// Resets all rich text formatting state to default
@@ -715,7 +756,9 @@ open class CometChatCompactMessageComposer: UIView {
         
         // Setting tints
         sendButton.imageView?.tintColor = style.sendButtonImageTint
-        sendButton.backgroundColor = style.inactiveSendButtonBackgroundColor
+        // Paint from the current state: a restyle (e.g. the trait change on entering a
+        // window, or a dark-mode switch mid-typing) must not grey out a sendable draft.
+        sendButton.backgroundColor = sendButton.isEnabled && hasActualTextContent() ? style.activeSendButtonBackgroundColor : style.inactiveSendButtonBackgroundColor
         microphoneButton.imageView?.tintColor = style.voiceRecordingImageTint
         attachmentButton.imageView?.tintColor = style.attachmentImageTint
         stickersButton.imageView?.tintColor = style.stickersImageTint
@@ -929,6 +972,11 @@ open class CometChatCompactMessageComposer: UIView {
         let impactFeedbackLight = UIImpactFeedbackGenerator(style: .light)
         impactFeedbackLight.impactOccurred()
 
+        // Whatever is sent from here is no longer a draft.
+        if composerState != .edit {
+            ComposerDraftStore.clear(for: draftKey)
+        }
+
         // Staged multi-attachment message takes precedence over plain text.
         if uploadManager.hasAttachments {
             sendStagedAttachments()
@@ -1132,6 +1180,8 @@ open class CometChatCompactMessageComposer: UIView {
         var actionItems = [ActionItem]()
         for option in attachmentOptions {
             let actionItem = ActionItem(id: option.id ?? "", text: option.text ?? "", leadingIcon: option.startIcon ?? UIImage(), onActionClick: option.onActionClick)
+            // Rows read their text/icon style from the item, so hand them the sheet's.
+            actionItem.style = attachmentSheetStyle
             actionItems.append(actionItem)
         }
         
@@ -3410,11 +3460,10 @@ open class CometChatCompactMessageComposer: UIView {
                 let processedText = processedAttributedString.string
 
                 // Parse markdown to create formatted attributed string for preview
-                let composerStyle = MessageComposerStyle()
                 previewSubtitle = RichTextFormatterManager.shared.parseMarkdown(
                     processedText,
-                    baseFont: composerStyle.editPreviewMessageTextFont,
-                    baseColor: composerStyle.editPreviewMessageTextColor,
+                    baseFont: style.previewMessageFont,
+                    baseColor: style.previewMessageColor,
                     addNewlinesAroundCodeBlocks: false
                 )
             } else {
@@ -3428,7 +3477,7 @@ open class CometChatCompactMessageComposer: UIView {
         }
 
         if let previewText = previewSubtitle {
-            let editPreviewView = MessagePreviewView(title: "EDIT_MESSAGE".localize(), subTitle: previewText, style: MessageComposerStyle())
+            let editPreviewView = MessagePreviewView(title: "EDIT_MESSAGE".localize(), subTitle: previewText, style: editPreviewStyle())
             messagePreview.subviews.forEach({ $0.removeFromSuperview() })
             messagePreview.isHidden = false
             messagePreview.addArrangedSubview(editPreviewView)
@@ -3444,13 +3493,29 @@ open class CometChatCompactMessageComposer: UIView {
         updateSendButtonState()
     }
 
+    /// The edit banner is the shared `MessagePreviewView`, which reads a
+    /// `MessageComposerStyle`; carry this composer's `preview*` values across.
+    /// `editPreviewMessageTextFont/Color` keep their defaults: they only fill plain runs,
+    /// which this composer's banner has always drawn in that default.
+    private func editPreviewStyle() -> MessageComposerStyle {
+        var previewStyle = MessageComposerStyle()
+        previewStyle.editPreviewTitleTextFont = style.previewTitleFont
+        previewStyle.editPreviewTitleTextColor = style.previewTitleColor
+        previewStyle.editPreviewBackgroundColor = style.previewBackgroundColor
+        previewStyle.editPreviewCornerRadius = style.previewCornerRadius
+        previewStyle.editPreviewBorderColor = style.previewBorderColor
+        previewStyle.editPreviewBorderWidth = style.previewBorderWidth
+        previewStyle.editPreviewCloseIcon = style.previewCloseIcon
+        previewStyle.editPreviewCloseIconTint = style.previewCloseIconTint
+        return previewStyle
+    }
+
     /// Edit-banner subtitle for a media message: type glyph, attachment summary
     /// ("6 photos" / "Photo"), then the caption — markdown rendered (bold shows bold),
     /// flattened to one line, in a heavier weight so it reads apart from the summary.
     private func mediaEditPreviewSubtitle(for media: MediaMessage) -> NSAttributedString {
-        let composerStyle = MessageComposerStyle()
-        let font = composerStyle.editPreviewMessageTextFont
-        let color = composerStyle.editPreviewMessageTextColor
+        let font = style.previewMessageFont
+        let color = style.previewMessageColor
         let attachments = media.attachments ?? []
         let mimes = attachments.map { $0.fileMimeType.lowercased() }
 
@@ -3774,8 +3839,16 @@ extension CometChatCompactMessageComposer: CometChatUIEventListener {
     func isForThisView(id: [String: Any]?) -> Bool {
         guard let id = id, !id.isEmpty else { return false }
         
-        let isUserMatch = (id["uid"] as? String) == viewModel.user?.uid
-        let isGroupMatch = (id["guid"] as? String) == viewModel.group?.guid
+        // A nil id on either side must never match: `nil == nil` would let an
+        // event for a user conversation reach a group composer (and vice versa).
+        var isUserMatch = false
+        if let uid = id["uid"] as? String, let viewUID = viewModel.user?.uid {
+            isUserMatch = uid == viewUID
+        }
+        var isGroupMatch = false
+        if let guid = id["guid"] as? String, let viewGUID = viewModel.group?.guid {
+            isGroupMatch = guid == viewGUID
+        }
         
         if isUserMatch || isGroupMatch {
             if let parentMessageId = id["parentMessageId"] as? Int {

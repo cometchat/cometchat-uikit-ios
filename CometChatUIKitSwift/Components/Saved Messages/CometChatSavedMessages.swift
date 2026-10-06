@@ -19,7 +19,6 @@ enum SavedMessagesConstants {
 ///
 /// Read-only by design (doc §7.7): opening the screen does not mark anything as read,
 /// emit receipts, or touch the unread count.
-@MainActor
 open class CometChatSavedMessages: CometChatListBase {
 
     // MARK: - Properties
@@ -55,6 +54,9 @@ open class CometChatSavedMessages: CometChatListBase {
 
     /// Hides the per-row unsave control.
     public var hideUnsaveOption: Bool = false
+
+    /// The custom back chevron, kept so `setupStyle()` can tint it from the style.
+    private var backItem: UIBarButtonItem?
 
     // MARK: - Initializer
     public init() {
@@ -136,7 +138,9 @@ open class CometChatSavedMessages: CometChatListBase {
         // is the only opt-out. `hideBackButton` must stay true or the stock button renders
         // alongside ours.
         hideBackButton = true
-        leftBarButtonItem = [makeBackItem()]
+        let backItem = makeBackItem()
+        self.backItem = backItem
+        leftBarButtonItem = [backItem]
 
         // Our button routes through `addBackPress` → `onBack`, which is an unset optional by
         // default — the stock button used to pop for free, so without this it does nothing.
@@ -155,7 +159,8 @@ open class CometChatSavedMessages: CometChatListBase {
             target: self,
             action: #selector(addBackPress)
         )
-        item.tintColor = CometChatTheme.iconColorPrimary
+        item.tintColor = style.navigationBarItemsTintColor ?? CometChatTheme.iconColorPrimary
+        item.accessibilityLabel = "a11y_back".localize()
         if #available(iOS 26.0, *) {
             item.hidesSharedBackground = true
         }
@@ -180,6 +185,8 @@ open class CometChatSavedMessages: CometChatListBase {
     open override func setupStyle() {
         listBaseStyle = style
         super.setupStyle()
+        // The custom chevron carries its own tint, which would otherwise override the bar's.
+        backItem?.tintColor = style.navigationBarItemsTintColor ?? CometChatTheme.iconColorPrimary
     }
 
     /// The design carries no count, so the format's leading slot trims away. Interpolated,

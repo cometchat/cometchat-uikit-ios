@@ -47,6 +47,8 @@ import UIKit
         if let text = data[InteractiveConstants.ButtonUIConstants.BUTTONTEXT] as? String {
             buttonElement.buttonText =  text
         }
+        // Defaults to true when the payload does not carry the flag.
+        buttonElement.disableAfterInteracted = data[InteractiveConstants.ButtonUIConstants.DISABLE_AFTER_INTERACTED] as? Bool ?? true
         if let action = data[InteractiveConstants.ButtonUIConstants.ACTION] as? [String:Any] {
             if let actionType = action[InteractiveConstants.ButtonUIConstants.ACTION_TYPE] as? String {
                 if actionType == "apiAction" {
@@ -77,6 +79,8 @@ import UIKit
         if let text = data[InteractiveConstants.ButtonUIConstants.BUTTONTEXT] as? String {
             buttonElement.buttonText =  text
         }
+        // Defaults to true when the payload does not carry the flag.
+        buttonElement.disableAfterInteracted = data[InteractiveConstants.ButtonUIConstants.DISABLE_AFTER_INTERACTED] as? Bool ?? true
         if let action = data[InteractiveConstants.ButtonUIConstants.ACTION] as? [String:Any] {
             if let actionType = action[InteractiveConstants.ButtonUIConstants.ACTION_TYPE] as? String {
                 if actionType == InteractiveConstants.ButtonUIConstants.ACTION_API {

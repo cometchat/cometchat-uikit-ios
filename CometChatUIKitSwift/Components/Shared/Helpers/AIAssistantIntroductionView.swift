@@ -68,6 +68,10 @@ class AIAssistantIntroductionView: UIView {
     }()
     
     public var options : [String] = []
+
+    /// Colours and fonts for the greeting and the suggested-message chips; set by the
+    /// message list from its `MessageListStyle` through `apply(style:)`.
+    var style = MessageListStyle()
     
     public var onOptionSelected: ((String) -> Void)?
     
@@ -136,6 +140,17 @@ class AIAssistantIntroductionView: UIView {
 
     }
     
+    /// Applies the `emptyChatGreeting*` and `aiAssistantSuggestedMessage*` fields of the
+    /// message list's style to the greeting labels and the suggestion chips.
+    func apply(style: MessageListStyle) {
+        self.style = style
+        if let color = style.emptyChatGreetingTitleTextColor { titleLabel.textColor = color }
+        if let font = style.emptyChatGreetingTitleTextFont { titleLabel.font = font }
+        if let color = style.emptyChatGreetingSubtitleTextColor { subtitleLabel.textColor = color }
+        if let font = style.emptyChatGreetingSubtitleTextFont { subtitleLabel.font = font }
+        optionsCollectionView.reloadData()
+    }
+
     func configure(greetingMessage: String?, introductoryMessage: String?, suggestedMessages: [String]?, hideSuggestedMessages : Bool = false) {
         if let greeting = greetingMessage {
             titleLabel.text = greeting
@@ -166,15 +181,18 @@ extension AIAssistantIntroductionView: UICollectionViewDataSource, UICollectionV
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OptionCell.identifier, for: indexPath) as? OptionCell else {
             return UICollectionViewCell()
         }
-        cell.configure(with: options[indexPath.item])
+        guard options.indices.contains(indexPath.item) else { return cell }
+        cell.configure(with: options[indexPath.item], style: style)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard options.indices.contains(indexPath.item) else { return }
         self.onOptionSelected?(options[indexPath.item])
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        guard options.indices.contains(indexPath.item) else { return .zero }
         let text = options[indexPath.item]
         let maxWidth = collectionView.bounds.width - 40 // account for insets
         let font = UIFont.systemFont(ofSize: 15, weight: .medium)
@@ -267,6 +285,17 @@ class OptionCell: UICollectionViewCell {
     
     func configure(with text: String) {
         titleLabel.text = text
+    }
+
+    func configure(with text: String, style: MessageListStyle) {
+        titleLabel.text = text
+        if let font = style.aiAssistantSuggestedMessageTextFont { titleLabel.font = font }
+        if let color = style.aiAssistantSuggestedMessageTextColor { titleLabel.textColor = color }
+        if let color = style.aiAssistantSuggestedMessageIconColor { arrowImageView.tintColor = color }
+        if let color = style.aiAssistantSuggestedMessageBackgroundColor { containerView.backgroundColor = color }
+        if let radius = style.aiAssistantSuggestedMessageCornerRadius { containerView.layer.cornerRadius = radius }
+        if let width = style.aiAssistantSuggestedMessageBorderWidth { containerView.layer.borderWidth = width }
+        if let color = style.aiAssistantSuggestedMessageBorderColor { containerView.layer.borderColor = color.cgColor }
     }
     
     override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {

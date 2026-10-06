@@ -300,8 +300,12 @@ extension CometChatMessageComposer {
             limitView.icon.image = style.infoIcon
             limitView.icon.tintColor = style.infoIconTint
             limitView.infoLabel.textColor = style.infoTextColor
+            limitView.infoLabel.font = style.infoTextFont
             limitView.dividerView.backgroundColor = style.infoSeparatorColor
             limitView.backgroundColor = style.infoBackgroundColor
+            limitView.roundViewCorners(corner: style.infoCornerRadius)
+            limitView.borderWith(width: style.infoBorderWidth)
+            limitView.borderColor(color: style.infoBorderColor)
             self.suggestionContainerView.subviews.forEach({ $0.removeFromSuperview() })
             self.suggestionContainerView.isHidden = false
             self.suggestionContainerView.addArrangedSubview(limitView)

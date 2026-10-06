@@ -68,7 +68,19 @@ public class CometChatCallButtons: UIStackView {
             setupStyle()
         }
     }
-    
+
+    /// The call icons are 24pt; accept touches in the 44×44pt minimum tap target around them.
+    public override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        CometChatHitArea.contains(point, in: self)
+    }
+
+    /// Routes a touch in the margin around the icons to the nearest visible call button.
+    public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hit = super.hitTest(point, with: event)
+        guard hit === self else { return hit }
+        return CometChatHitArea.target(for: point, in: self, among: arrangedSubviews) ?? hit
+    }
+
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -248,7 +260,7 @@ public class CometChatCallButtons: UIStackView {
             let ongoingCall = CometChatOngoingCall()
             ongoingCall.set(sessionId: sessionID)
             if let callSettingsBuilderCallBack = self.callSettingsBuilderCallBack {
-                let callSettingsBuilder = callSettingsBuilderCallBack(nil, group, false) as? CometChatCallsSDK.CallSettingsBuilder
+                let callSettingsBuilder = callSettingsBuilderCallBack(nil, group, !isVideoCall) as? CometChatCallsSDK.CallSettingsBuilder
                 ongoingCall.set(callSettingsBuilder: callSettingsBuilder)
             } else {
                 var callSettingsBuilder = CallingDefaultBuilder.callSettingsBuilder as? CometChatCallsSDK.CallSettingsBuilder
@@ -341,7 +353,11 @@ extension CometChatCallButtons {
         callInitiator(call, { call in
             DispatchQueue.main.async { [weak self] in
                 guard let this = self else { return }
-                guard let call = call else { return }
+                guard let call = call else {
+                    // Nothing to ring: let the buttons be tapped again.
+                    this.disabled = false
+                    return
+                }
                 CometChatCallEvents.ccOutgoingCall(call: call)
                 let outgoingCall = CometChatOutgoingCall()
                 outgoingCall.set(call: call)
@@ -354,6 +370,8 @@ extension CometChatCallButtons {
                 this.controller?.present(outgoingCall, animated: true)
             }
         }, { error in
+            // The call was never placed, so no call event will re-enable the buttons.
+            self.disabled = false
             self.onError?(error)
         })
     }
@@ -362,12 +380,16 @@ extension CometChatCallButtons {
         callInitiator(call, { call in
             DispatchQueue.main.async { [weak self] in
                 guard let this = self else { return }
-                guard let call = call else { return }
+                guard let call = call else {
+                    // Nothing to ring: let the buttons be tapped again.
+                    this.disabled = false
+                    return
+                }
                 CometChatCallEvents.ccOutgoingCall(call: call)
                 let outgoingCall = CometChatOutgoingCall()
                 outgoingCall.set(call: call)
                 outgoingCall.modalPresentationStyle = .fullScreen
-                if let callSettingsBuilder = this.callSettingsBuilderCallBack?(this.user, this.group, true) {
+                if let callSettingsBuilder = this.callSettingsBuilderCallBack?(this.user, this.group, false) {
                     outgoingCall.set(callSettingsBuilder: callSettingsBuilder)
                 }
                 this.setupOutgoingCallConfiguration(outgoingCall: outgoingCall)
@@ -375,6 +397,8 @@ extension CometChatCallButtons {
                 this.controller?.present(outgoingCall, animated: true)
             }
         }, { error in
+            // The call was never placed, so no call event will re-enable the buttons.
+            self.disabled = false
             self.onError?(error)
         })
     }

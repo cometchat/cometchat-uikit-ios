@@ -96,7 +96,12 @@ open class CometChatThreadedMessageHeader: UIView {
     /// Hides the bell while leaving the feature on, for a host that already renders
     /// its own control elsewhere on the screen. ANDed with the thread-subscription
     /// gate; when that gate is off this has no effect.
-    public var hideThreadSubscriptionButton: Bool = false
+    ///
+    /// Defaults to hidden: the bell belongs in the thread screen's top bar, on
+    /// `CometChatMessageHeader` in thread mode, and a screen rendering both
+    /// components would otherwise show two. Set it to `false` to restore the
+    /// reply-count-bar bell on a screen that has no `CometChatMessageHeader`.
+    public var hideThreadSubscriptionButton: Bool = true
     public var hideAvatar: Bool?
 
     //Helper Variable
@@ -151,6 +156,13 @@ open class CometChatThreadedMessageHeader: UIView {
         viewModel.incrementCount = { [weak self] in
             if let self {
                 self.incrementCount()
+            }
+        }
+
+        // Rebuilds the parent bubble when the parent message is edited or deleted.
+        (viewModel as? ThreadedMessageHeaderViewModel)?.onParentMessageUpdated = { [weak self] in
+            DispatchQueue.main.async {
+                self?.setupMessageBubbleView()
             }
         }
 
@@ -387,8 +399,8 @@ open class CometChatThreadedMessageHeader: UIView {
             for: .normal
         )
         threadSubscriptionButton.tintColor = isSubscribed
-            ? CometChatTheme.iconColorHighlight
-            : CometChatTheme.iconColorPrimary
+            ? style.subscriptionSelectedTintColor
+            : style.subscriptionTintColor
         // State-labelled, not action-labelled, so the name matches what is shown.
         threadSubscriptionButton.accessibilityLabel = isSubscribed
             ? "THREAD_SUBSCRIBED".localize()

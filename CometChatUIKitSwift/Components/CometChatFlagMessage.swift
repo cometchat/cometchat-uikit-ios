@@ -46,7 +46,12 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
     private let reportLoader = UIActivityIndicatorView(style: .medium)
     private var isReporting = false
     
-    public var hideFlagRemarkFeild: Bool = false
+    public var hideFlagRemarkFeild: Bool = false {
+        didSet { reasonStack?.isHidden = hideFlagRemarkFeild }
+    }
+    
+    /// The remark title + text view, kept so `hideFlagRemarkFeild` can be changed after load.
+    private var reasonStack: UIStackView?
     
     //MARK: Styling
     public static var style = FlagMessageStyle() //global styling
@@ -250,6 +255,7 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
         mainStack.addArrangedSubview(reasonStack)
         
         reasonStack.isHidden = hideFlagRemarkFeild
+        self.reasonStack = reasonStack
     }
 
     private func setupFooterButtons() {
@@ -312,14 +318,13 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
 
     @objc private func reportTapped() {
         guard !selectedReasons.isEmpty, messageId ?? 0 > 0 else {
-            errorLabel.text =
-            "Unable to submit. Please select a reason before reporting this message"
+            errorLabel.text = "REPORT_SELECT_REASON_ERROR".localize()
             errorLabel.isHidden = false
             return
         }
         startReportingLoader()
         if let id = messageId {
-            CometChat.flagMessage(messageId: id, detail: FlagDetail(messageId: id, reasonId: (selectedReasons.first?.id)!, remark: textView.text)) { message in
+            CometChat.flagMessage(messageId: id, detail: FlagDetail(messageId: id, reasonId: selectedReasons.first?.id ?? "", remark: textView.text)) { message in
                 DispatchQueue.main.async { [weak self] in
                     self?.stopReportingLoader()
                     let presenter = self?.presentingViewController
@@ -329,6 +334,12 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
                 }
             } onError: { error in
                 CometChatLogger.error("\(error?.errorDescription ?? "")")
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    self.stopReportingLoader()
+                    self.errorLabel.text = "SOMETHING_WENT_WRONG_ERROR".localize()
+                    self.errorLabel.isHidden = false
+                }
             }
         }
     }
@@ -337,12 +348,12 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
         guard let presenter = presenter else { return }
 
         let alert = UIAlertController(
-            title: "Reported",
-            message: "Your report has been submitted successfully.",
+            title: "REPORTED".localize(),
+            message: "REPORT_SUBMITTED_SUCCESSFULLY".localize(),
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: "OK".localize(), style: .default))
 
         presenter.present(alert, animated: true, completion: nil)
     }
@@ -364,7 +375,7 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
     private func stopReportingLoader() {
         isReporting = false
         reportLoader.stopAnimating()
-        reportButton.setTitle("Report", for: .normal)
+        reportButton.setTitle("REPORT".localize(), for: .normal)
         updateReportButtonState()
     }
     
@@ -391,7 +402,8 @@ final class CometChatFlagMessage: UIViewController, UITextViewDelegate {
             return name
         }
 
-        return ""
+        // Last resort: the id itself, so an unknown, unnamed reason never renders as an empty chip.
+        return reasonId
     }
 
 }

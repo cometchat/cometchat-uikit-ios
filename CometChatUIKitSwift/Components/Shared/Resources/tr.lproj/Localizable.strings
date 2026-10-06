@@ -466,3 +466,14 @@
 "SPAM" = "Spam";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "Gönderilemedi. Bu mesajı bildirmeden önce lütfen bir neden seçin";
+"REPORTED" = "Bildirildi";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "Bildiriminiz başarıyla gönderildi.";
+"MESSAGE_MEDIA" = "Medya";
+"MESSAGE_MEETING" = "Toplantı";
+"MESSAGE_GENERIC" = "Mesaj";
+"MEETING_SCHEDULER" = "Toplantı Planlayıcı";
+"MORE_TIMES" = "Daha fazla saat";
+"search_no_results_for" = "“%@” için sonuç bulunamadı\nYeni bir arama deneyin";
+"MESSAGE_LIST_EMPTY_TITLE" = "Henüz mesaj yok";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "Sohbeti başlatmak için bir mesaj gönderin.";

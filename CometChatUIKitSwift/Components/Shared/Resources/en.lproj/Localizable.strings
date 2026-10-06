@@ -475,3 +475,14 @@
 "REPLY" = "Reply";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "Unable to submit. Please select a reason before reporting this message";
+"REPORTED" = "Reported";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "Your report has been submitted successfully.";
+"MESSAGE_MEDIA" = "Media";
+"MESSAGE_MEETING" = "Meeting";
+"MESSAGE_GENERIC" = "Message";
+"MEETING_SCHEDULER" = "Meeting Scheduler";
+"MORE_TIMES" = "More times";
+"search_no_results_for" = "There were no results for “%@”\nTry a new search";
+"MESSAGE_LIST_EMPTY_TITLE" = "No messages yet";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "Send a message to start the conversation.";

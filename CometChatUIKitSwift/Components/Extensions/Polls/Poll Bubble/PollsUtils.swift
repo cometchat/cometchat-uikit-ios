@@ -24,11 +24,21 @@ class PollUtils {
             }
             if let results = pollsDictionary["results"] as? [String: Any], let options = results["options"] as? [String: Any], let total = results["total"] as? Int {
                 pollsData.total = total
-                for (index, _) in options.enumerated() {
+                // Read the option keys actually present (sorted numerically, then
+                // lexically for non-numeric keys) instead of assuming "1"..."n".
+                let sortedKeys = options.keys.sorted { lhs, rhs in
+                    switch (Int(lhs), Int(rhs)) {
+                    case let (l?, r?): return l < r
+                    case (.some, .none): return true
+                    case (.none, .some): return false
+                    case (.none, .none): return lhs < rhs
+                    }
+                }
+                for key in sortedKeys {
                     let optionsInfo = PollOptions()
-                    if let dict = options["\(index + 1)"] as? [String: Any] {
+                    if let dict = options[key] as? [String: Any] {
                         optionsInfo.count = dict["count"] as? Int ?? 0
-                        optionsInfo.index = "\(index + 1)"
+                        optionsInfo.index = key
                         if let voters = dict["voters"] as? [String: [String: Any]] {
                             for voter in voters {
                                 optionsInfo.user.append((

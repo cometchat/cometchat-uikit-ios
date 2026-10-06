@@ -116,7 +116,7 @@ class CallingExtensionDecorator: DataSourceDecorator {
         var icon : String = ""
         var callStatusText = ""
         var textColor: UIColor = additionalConfiguration.callActionBubbleStyle.callTextColor
-        let textFont: UIFont = additionalConfiguration.callActionBubbleStyle.callTextFont
+        var textFont: UIFont = additionalConfiguration.callActionBubbleStyle.callTextFont
         var iconTintColor: UIColor = additionalConfiguration.callActionBubbleStyle.callImageTintColor
         
         switch call.callStatus {
@@ -132,6 +132,7 @@ class CallingExtensionDecorator: DataSourceDecorator {
             callStatusText = "MISSED_CALL".localize()
             icon = callType == .audio ? "phone.arrow.down.left" : "arrow.down.left.video"
             textColor = additionalConfiguration.callActionBubbleStyle.missedCallTextColor
+            textFont = additionalConfiguration.callActionBubbleStyle.missedCallTextFont
             iconTintColor = additionalConfiguration.callActionBubbleStyle.missedCallImageTintColor
 
         case .rejected:
@@ -159,7 +160,7 @@ class CallingExtensionDecorator: DataSourceDecorator {
             callStatusText = "CALL_CANCELLED".localize()
         }
 
-        let callStatusItem = createCallStatusItem(iconName: icon, title: callStatusText, textColor: textColor, textFont: textFont, imageTintColor: iconTintColor)
+        let callStatusItem = createCallStatusItem(iconName: icon, image: additionalConfiguration.callActionBubbleStyle.callImage, title: callStatusText, textColor: textColor, textFont: textFont, imageTintColor: iconTintColor)
         view.addSubview(callStatusItem)
         
         callStatusItem.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: CometChatSpacing.Padding.p2).isActive = true
@@ -170,7 +171,7 @@ class CallingExtensionDecorator: DataSourceDecorator {
         return view
     }
 
-    private func createCallStatusItem(iconName: String, title: String, textColor: UIColor, textFont: UIFont, imageTintColor: UIColor) -> UIStackView {
+    private func createCallStatusItem(iconName: String, image: UIImage? = nil, title: String, textColor: UIColor, textFont: UIFont, imageTintColor: UIColor) -> UIStackView {
         let itemStackView = UIStackView().withoutAutoresizingMaskConstraints()
         itemStackView.axis = .horizontal
         itemStackView.alignment = .center
@@ -178,7 +179,8 @@ class CallingExtensionDecorator: DataSourceDecorator {
         itemStackView.spacing = CometChatSpacing.Padding.p1
 
         let iconImageView = UIImageView()
-        iconImageView.image = UIImage(systemName: iconName)
+        // A style-supplied call image replaces the per-status glyph.
+        iconImageView.image = image ?? UIImage(systemName: iconName)
         iconImageView.tintColor = imageTintColor
         iconImageView.contentMode = .scaleAspectFit
 

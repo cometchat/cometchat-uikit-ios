@@ -42,6 +42,7 @@ open class CometChatGroupMembers: CometChatListBase {
     var onError: ((CometChatException) -> Void)?
     var onEmpty: (() -> Void)?
     var onLoad: (([GroupMember]) -> Void)?
+    var onSelection: (([GroupMember]?) -> Void)?
     public var onSelectedItemProceed: ((_ groupMembers: [GroupMember]) -> ())?
     
     
@@ -49,7 +50,11 @@ open class CometChatGroupMembers: CometChatListBase {
     public var hideKickMemberOption: Bool = false
     public var hideBanMemberOption: Bool = false
     public var hideScopeChangeOption: Bool = false
-    
+
+    /// The built-in Cancel and Done items, kept so `setupStyle()` can tint them from the style.
+    private var cancelBarButtonItem: UIBarButtonItem?
+    private var doneBarButtonItem: UIBarButtonItem?
+
     //MARK: - INIT
     public init() {
         super.init(nibName: nil, bundle: nil)
@@ -58,6 +63,23 @@ open class CometChatGroupMembers: CometChatListBase {
     
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    /// Convenience entry point; equivalent to `init()` followed by `set(group:)`.
+    ///
+    /// - Parameters:
+    ///   - group: The group whose members are listed.
+    ///   - groupMembersRequestBuilder: Optional custom request builder.
+    public convenience init(
+        group: Group,
+        groupMembersRequestBuilder: GroupMembersRequest.GroupMembersRequestBuilder? = nil
+    ) {
+        self.init()
+        // Builder first: set(group:) only builds a default when none is set yet.
+        if let groupMembersRequestBuilder {
+            set(groupMemberRequestBuilder: groupMembersRequestBuilder)
+        }
+        set(group: group)
     }
     
     open func defaultSetup() {
@@ -82,6 +104,7 @@ open class CometChatGroupMembers: CometChatListBase {
         
         let barButtonItem = UIBarButtonItem(title: "CANCEL".localize(), style: .done, target: self, action: #selector(didTapBackButton))
         barButtonItem.tintColor = CometChatTheme.primaryColor
+        cancelBarButtonItem = barButtonItem
         leftBarButtonItem = [barButtonItem]
 
     }
@@ -92,6 +115,10 @@ open class CometChatGroupMembers: CometChatListBase {
         tableView.separatorStyle = .none
         registerCells()
         
+        // Only multiple mode may hold several rows; single mode lets UIKit drop the
+        // previous row when another is tapped (mirrors CometChatUsers / CometChatGroups).
+        tableView.allowsMultipleSelection = (selectionMode == .multiple)
+        
         if selectionMode != .none {
             addCheckBarButtonItem()
         }
@@ -101,7 +128,8 @@ open class CometChatGroupMembers: CometChatListBase {
     
     open func addCheckBarButtonItem() {
         let barButtonItem = UIBarButtonItem(title: "DONE".localize(), style: .done, target: self, action: #selector(tickButtonTapped))
-        barButtonItem.tintColor = CometChatTheme.primaryColor
+        barButtonItem.tintColor = style.navigationBarItemsTintColor ?? CometChatTheme.primaryColor
+        doneBarButtonItem = barButtonItem
         rightBarButtonItem = [barButtonItem]
     }
     
@@ -111,9 +139,44 @@ open class CometChatGroupMembers: CometChatListBase {
         reloadData()
     }
     
+    open override func setupNavigationBar() {
+        super.setupNavigationBar()
+        // Pushed with the default CANCEL: CANCEL is for modals, so show a back control instead.
+        guard let navigationController, navigationController.viewControllers.first != self,
+              leftBarButtonItem.count == 1, leftBarButtonItem.first === cancelBarButtonItem else { return }
+        if onBack == nil {
+            // System back button, so pop and edge-swipe are native.
+            navigationItem.leftBarButtonItems = nil
+            navigationItem.hidesBackButton = false
+            if #available(iOS 16.0, *) {
+                navigationItem.backAction = nil
+            }
+        } else {
+            // The chevron CometChatMessageHeader draws; runs onBack on every iOS version, unlike backAction (16+).
+            navigationItem.leftBarButtonItems = [makeBackChevronItem()]
+        }
+    }
+
+    private func makeBackChevronItem() -> UIBarButtonItem {
+        let item = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left")?.withRenderingMode(.alwaysTemplate),
+            style: .plain,
+            target: self,
+            action: #selector(didTapBackButton)
+        )
+        item.tintColor = style.navigationBarItemsTintColor ?? CometChatTheme.iconColorPrimary
+        item.accessibilityLabel = "a11y_back".localize()
+        return item
+    }
+    
     open override func setupStyle() {
         listBaseStyle = style
         super.setupStyle()
+        // The Cancel and Done items carry their own tint, which would otherwise override
+        // the bar's. `defaultSetup()` builds Cancel before a host can set `style`.
+        let itemsTint = style.navigationBarItemsTintColor ?? CometChatTheme.primaryColor
+        cancelBarButtonItem?.tintColor = itemsTint
+        doneBarButtonItem?.tintColor = itemsTint
     }
     
     open override func viewWillDisappear(_ animated: Bool) {
@@ -125,12 +188,27 @@ open class CometChatGroupMembers: CometChatListBase {
     }
     
     @objc open func didTapBackButton() {
-        self.dismiss(animated: true)
+        if let onBack {
+            onBack()
+            return
+        }
+        // dismiss(animated:) is a no-op on a pushed controller.
+        if let navigationController, navigationController.viewControllers.first != self {
+            navigationController.popViewController(animated: true)
+        } else {
+            dismiss(animated: true)
+        }
     }
     
     open func fetchData() {
         showLoadingView()
         viewModel.fetchGroupsMembers()
+    }
+    
+    /// RETRY on the error state: drop the error view and fetch again.
+    open override func onRetryTapped() {
+        removeErrorView()
+        fetchData()
     }
     
     open func reloadData() {
@@ -142,10 +220,9 @@ open class CometChatGroupMembers: CometChatListBase {
                 this.removeErrorView()
                 this.reload()
                 
-                if let onLoad = this.onLoad?(this.viewModel.groupMembers){
-                    onLoad
-                    return
-                }
+                // onLoad is a notification, not an override: the empty state and
+                // onEmpty below still run after it.
+                this.onLoad?(this.viewModel.groupMembers)
                 
                 switch this.viewModel.isSearching {
                 case true:
@@ -174,10 +251,21 @@ open class CometChatGroupMembers: CometChatListBase {
             // this is error callback to the user.
             DispatchQueue.main.async {
                 this.removeLoadingView()
-                if let onError = this.onError?(error){
-                    onError
+                this.onError?(error)
+                // Keep a populated list on screen; the error view only replaces an
+                // empty one (same as Groups and Conversations).
+                let visibleMembers = this.viewModel.isSearching ? this.viewModel.filteredGroupMembers : this.viewModel.groupMembers
+                if visibleMembers.isEmpty {
+                    this.showErrorView()
                 }
-                this.showErrorView()
+            }
+        }
+        viewModel.actionFailure = { [weak self] error in
+            guard let this = self else { return }
+            // A failed ban, kick or scope change leaves the list as it was; it is
+            // reported through onError only, never as the full-screen error view.
+            DispatchQueue.main.async {
+                this.onError?(error)
             }
         }
         
@@ -217,7 +305,8 @@ open class CometChatGroupMembers: CometChatListBase {
     }
     
     open func configureTailView(groupMember: GroupMember) -> UIButton? {
-        let group = viewModel.group!
+        // No group yet (set(group:) not called): there is no scope badge to show.
+        guard let group = viewModel.group else { return nil }
         
         let button = UIButton()
         switch groupMember.scope {
@@ -442,8 +531,8 @@ extension CometChatGroupMembers {
             }
             
             //Setting Title Label
-            if let name = groupMember.name, let uid = CometChat.getLoggedInUser()?.uid {
-                if uid == groupMember.uid {
+            if let name = groupMember.name {
+                if let uid = CometChat.getLoggedInUser()?.uid, uid == groupMember.uid {
                     listItem.set(title: "YOU".localize())
                 } else {
                     listItem.set(title: name)
@@ -480,9 +569,9 @@ extension CometChatGroupMembers {
             case .offline:
                 listItem.statusIndicator.isHidden = true
             case .online:
-                listItem.statusIndicator.isHidden = hideUserStatus
+                listItem.statusIndicator.isHidden = hideUserStatus || disableUserPresence
             case .available:
-                listItem.statusIndicator.isHidden = hideUserStatus
+                listItem.statusIndicator.isHidden = hideUserStatus || disableUserPresence
             @unknown default: listItem.statusIndicator.isHidden = true
             }
             listItem.statusIndicator.style = statusIndicatorStyle
@@ -491,6 +580,17 @@ extension CometChatGroupMembers {
             switch selectionMode {
             case .single, .multiple: listItem.allow(selection: true)
             case .none:  listItem.allow(selection: false)
+            }
+            
+            // A member already in the selection (pre-selected, or scrolled back into
+            // view) renders selected.
+            if selectionMode != .none {
+                listItem.isSelected = viewModel.selectedGroupMembers.contains(where: { $0.uid == groupMember.uid })
+                if listItem.isSelected {
+                    tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+                } else {
+                    tableView.deselectRow(at: indexPath, animated: false)
+                }
             }
             
             return listItem
@@ -522,10 +622,16 @@ extension CometChatGroupMembers {
         } else {
             if selectionMode == .none {
                 tableView.deselectRow(at: indexPath, animated: true)
+            } else if selectionMode == .single {
+                // Single mode holds at most one member: the new pick replaces the old.
+                self.viewModel.selectedGroupMembers = [groupMember]
             } else {
                 if !viewModel.selectedGroupMembers.contains(groupMember) {
                     self.viewModel.selectedGroupMembers.append(groupMember)
                 }
+            }
+            if selectionMode != .none {
+                onSelection?(viewModel.selectedGroupMembers)
             }
         }
        
@@ -535,6 +641,7 @@ extension CometChatGroupMembers {
         let group = viewModel.isSearching ? viewModel.filteredGroupMembers[indexPath.row] : viewModel.groupMembers[indexPath.row]
         if let foundGroup = viewModel.selectedGroupMembers.firstIndex(of: group) {
             viewModel.selectedGroupMembers.remove(at: foundGroup)
+            onSelection?(viewModel.selectedGroupMembers)
         }
     }
     

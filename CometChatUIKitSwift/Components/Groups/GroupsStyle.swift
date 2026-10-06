@@ -20,6 +20,9 @@ public struct GroupsStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     public var searchIconTintColor: UIColor? = nil
     
     // The style of the search bar, defaulting to the standard style.
+    /// Applied to the search bar, but UIKit renders a bar installed through
+    /// `navigationItem.searchController` (as this screen does) in its own system style and
+    /// ignores `searchBarStyle` there. Use the other `searchBar*` properties to restyle it.
     public var searchBarStyle: UISearchBar.Style = .default
     
     // Tint color for the search bar, defaults to the primary color from CometChatTheme.
@@ -92,21 +95,27 @@ public struct GroupsStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     public var errorSubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
     
     // Color for the retry button text, defaults to button text color from CometChatTheme.
+    /// Not applied visibly: this screen hides the error state's retry button. Kept for source compatibility.
     public var retryButtonTextColor: UIColor = CometChatTheme.buttonTextColor
     
     // Font used for the retry button text, defaults to medium button font from CometChatTypography.
+    /// Not applied visibly: this screen hides the error state's retry button. Kept for source compatibility.
     public var retryButtonTextFont: UIFont = CometChatTypography.Button.medium
     
     // Background color for the retry button, defaults to the primary color from CometChatTheme.
+    /// Not applied visibly: this screen hides the error state's retry button. Kept for source compatibility.
     public var retryButtonBackgroundColor: UIColor = CometChatTheme.primaryColor
     
     // Border color for the retry button, defaults to clear.
+    /// Not applied visibly: this screen hides the error state's retry button. Kept for source compatibility.
     public var retryButtonBorderColor: UIColor = .clear
     
     // Width of the border around the retry button, defaults to 0 (no border).
+    /// Not applied visibly: this screen hides the error state's retry button. Kept for source compatibility.
     public var retryButtonBorderWidth: CGFloat = 0
     
     // Corner radius settings for the retry button, defaults to a specific corner radius from CometChatSpacing.
+    /// Not applied visibly: this screen hides the error state's retry button. Kept for source compatibility.
     public var retryButtonCornerRadius: CometChatCornerStyle = .init(cornerRadius: CometChatSpacing.Radius.r2)
     
     // Font used for the empty state title text, defaults to a bold heading 3 font from CometChatTypography.
@@ -122,6 +131,7 @@ public struct GroupsStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     public var emptySubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
     
     // Color of the table view separator, defaults to clear.
+    /// Not applied visibly: this list turns table separators off (`separatorStyle = .none`). Kept for source compatibility.
     public var tableViewSeparator: UIColor = .clear
     
     // Color of the title text in list items, defaults to the primary text color from CometChatTheme.

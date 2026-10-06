@@ -32,6 +32,8 @@ class CometChatSmartRepliesItem: UICollectionViewCell {
 
     // MARK: - Declaration of Variables
     weak var smartRepliesItemDelegate: CometChatSmartRepliesItemDelegate?
+    /// Style applied to suggestion chips; set by `CometChatSmartReplies` before the title.
+    var itemStyle = SmartRepliesStyle()
     var title: String? {
         didSet {
             
@@ -39,7 +41,7 @@ class CometChatSmartRepliesItem: UICollectionViewCell {
                 applyShadow()
                 smartReplyButton.setImage(nil, for: .normal)
                 smartReplyButton.setTitle(title, for: .normal)
-                set(style: SmartRepliesStyle())
+                set(style: itemStyle)
             } else {
                 smartReplyButton.setTitle(nil, for: .normal)
                 smartReplyButton.setImage(UIImage(systemName: "xmark"), for: .normal)

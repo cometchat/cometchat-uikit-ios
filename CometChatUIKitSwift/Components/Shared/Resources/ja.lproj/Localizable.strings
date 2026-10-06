@@ -471,3 +471,14 @@
 "SPAM" = "Spam";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "送信できません。このメッセージを報告する前に理由を選択してください";
+"REPORTED" = "報告済み";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "報告が正常に送信されました。";
+"MESSAGE_MEDIA" = "メディア";
+"MESSAGE_MEETING" = "ミーティング";
+"MESSAGE_GENERIC" = "メッセージ";
+"MEETING_SCHEDULER" = "ミーティングスケジューラー";
+"MORE_TIMES" = "その他の時間";
+"search_no_results_for" = "「%@」の結果はありません\n別のキーワードで検索してください";
+"MESSAGE_LIST_EMPTY_TITLE" = "まだメッセージはありません";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "メッセージを送信して会話を始めましょう。";

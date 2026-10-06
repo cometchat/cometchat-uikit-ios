@@ -37,7 +37,9 @@ public class SchedulerMessage: InteractiveMessage {
         let schedulerMessage = SchedulerMessage()
         schedulerMessage.type = MessageTypeConstants.scheduler
         schedulerMessage.id = interactiveMessage.id
-        schedulerMessage.receiverType = interactiveMessage.receiverType
+        if let receiverType = storedReceiverType(of: interactiveMessage) {
+            schedulerMessage.receiverType = receiverType
+        }
         schedulerMessage.receiver = interactiveMessage.receiver
         schedulerMessage.sender = interactiveMessage.sender
         schedulerMessage.senderUid = interactiveMessage.senderUid
@@ -83,11 +85,15 @@ public class SchedulerMessage: InteractiveMessage {
             }
             
             if let meetingDateRangeStart = interactiveData[InteractiveConstants.DATE_RANGE_START] as? String {
-                schedulerMessage.dateRangeStart = Int(meetingDateRangeStart.todate(format: SchedulerMessageConstants.defaultDateFormate).timeIntervalSince1970)
+                if let date = meetingDateRangeStart.todateIfValid(format: SchedulerMessageConstants.defaultDateFormate) {
+                    schedulerMessage.dateRangeStart = Int(date.timeIntervalSince1970)
+                }
             }
             
             if let meetingDateRangeEnd = interactiveData[InteractiveConstants.DATE_RANGE_END] as? String {
-                schedulerMessage.dateRangeEnd = Int(meetingDateRangeEnd.todate(format: SchedulerMessageConstants.defaultDateFormate).timeIntervalSince1970)
+                if let date = meetingDateRangeEnd.todateIfValid(format: SchedulerMessageConstants.defaultDateFormate) {
+                    schedulerMessage.dateRangeEnd = Int(date.timeIntervalSince1970)
+                }
             }
             
             if let icsFileUrl = interactiveData[InteractiveConstants.ICS_FILE_URL] as? String {
@@ -125,7 +131,9 @@ public class SchedulerMessage: InteractiveMessage {
         interactiveData[InteractiveConstants.ICS_FILE_URL] = schedulerMessage.icsFileUrl
         interactiveData[InteractiveConstants.TIME_ZONE_CODE] = schedulerMessage.timezoneCode
         interactiveData[InteractiveConstants.AVAILABILITY] = TimeRange.to(json: schedulerMessage.availability)
-        interactiveMessage.receiverType = schedulerMessage.receiverType
+        if let receiverType = storedReceiverType(of: schedulerMessage) {
+            interactiveMessage.receiverType = receiverType
+        }
         interactiveMessage.receiverUid = schedulerMessage.receiverUid
         interactiveMessage.type = schedulerMessage.type
         interactiveData[InteractiveConstants.SCHEDULE_ELEMENT] = schedulerMessage.scheduleElement?.toJSON()
@@ -133,6 +141,21 @@ public class SchedulerMessage: InteractiveMessage {
         interactiveMessage.interactiveData = interactiveData
         
         return interactiveMessage
+    }
+
+    /// The SDK's `receiverType` getter force-unwraps its storage, which a message built
+    /// with a bare `init()` leaves nil. Read the stored value through reflection so an
+    /// unset receiver type is skipped instead of trapping; fall back to the getter only
+    /// if the storage cannot be found.
+    private static func storedReceiverType(of message: BaseMessage) -> CometChat.ReceiverType? {
+        var mirror: Mirror? = Mirror(reflecting: message)
+        while let current = mirror {
+            if let child = current.children.first(where: { $0.label == "_receiverType" }) {
+                return child.value as? CometChat.ReceiverType
+            }
+            mirror = current.superclassMirror
+        }
+        return message.receiverType
     }
 }
 

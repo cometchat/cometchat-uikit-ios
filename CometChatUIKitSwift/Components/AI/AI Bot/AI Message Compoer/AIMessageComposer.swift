@@ -19,6 +19,7 @@ class AIMessageComposer: UIView {
     @IBOutlet weak var mainContainerStackView: UIStackView!
     private(set) var user: User?
     private var style: MessageInputStyle?
+    private var sendIconTint: UIColor?
     
     private var sendIcon = UIImage(named: "message-composer-send.png", in: CometChatUIKit.bundle, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate) ?? UIImage()
     
@@ -45,7 +46,7 @@ class AIMessageComposer: UIView {
     
     func buildUI() {
         sendButton.setImage(sendIcon, for: .normal)
-        sendButton.tintColor = CometChatTheme_v4.palatte.accent700
+        sendButton.tintColor = sendIconTint ?? CometChatTheme_v4.palatte.accent700
         sendButton.setTitle("", for: .normal)
         sendButton.accessibilityLabel = "a11y_send".localize()
         
@@ -112,7 +113,8 @@ extension AIMessageComposer {
     
     @discardableResult
     public func set(sendIconTint: UIColor) -> Self {
-        self.sendIcon.withTintColor(sendIconTint)
+        self.sendIconTint = sendIconTint
+        sendButton?.tintColor = sendIconTint
         return self
     }
     

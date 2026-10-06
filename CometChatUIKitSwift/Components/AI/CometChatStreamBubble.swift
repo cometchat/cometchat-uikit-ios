@@ -22,8 +22,14 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
     
     private var markdownView = CombinedMarkdownBubbleView()
 
+    /// Per run: the stream buffer (what the markdown view renders) and the shared
+    /// queue buffer as they were when a tool call started, restored when it ends.
     private var originalMessageText: [Int: String] = [:]
-    
+    private var originalQueueBuffer: [Int: String] = [:]
+
+    /// The run whose text was last written into this cell; `nil` while empty.
+    private var lastWrittenRunId: Int?
+
     private var streamBuffer: String = ""
     private var isUpdatingUI = false
     private var displayedLength: Int = 0
@@ -62,8 +68,29 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
         }
     }
     
+    /// Applies the style fields this cell has a view for: text font/colour through
+    /// the markdown view, the bubble's background, border and corner radius, and
+    /// the avatar style. The header, date, receipt, thread-indicator, reactions,
+    /// preview and background-drawable fields have no view in a streaming bubble.
     open func setupStyle() {
         markdownView.style = style
+        if let backgroundColor = style.backgroundColor {
+            bubbleView.backgroundColor = backgroundColor
+        }
+        if let borderWidth = style.borderWidth {
+            bubbleView.borderWith(width: borderWidth)
+        }
+        if let borderColor = style.borderColor {
+            bubbleView.borderColor(color: borderColor)
+        }
+        if let cornerRadius = style.cornerRadius {
+            // Radius only: roundViewCorners would also turn on masksToBounds and
+            // clip streamed cards, which are allowed to overflow the bubble.
+            bubbleView.layer.cornerRadius = cornerRadius.cornerRadius
+        }
+        if let avatarStyle = style.avatarStyle {
+            avatarView.style = avatarStyle
+        }
     }
 
     // MARK: - UI Setup
@@ -196,6 +223,12 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
         self.hasError = false
         self.errorText = ""
         self.errorContainerView.isHidden = true
+        self.lastWrittenRunId = nil
+        // A recycled cell drops the cards of the run it showed before; a rebind to
+        // the same run keeps them, since the service does not replay card events.
+        if streamedCardsRunId != runId {
+            self.removeStreamedCards()
+        }
 
         queueManager.startStreamingForRunId(
             runId: runId,
@@ -219,8 +252,10 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
     }
 
     // MARK: - Process AI Event
+    /// Whether the next chunk for `runId` is its first in this cell: true until a
+    /// non-empty chunk of that run has been written, and true for any other run.
     public func isFirstChunk(runId: Int) -> Bool {
-        return messageLabel.text?.isEmpty ?? true
+        return lastWrittenRunId != runId
     }
 
     // MARK: - UI States
@@ -231,15 +266,20 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
         typingIndicator.startAnimating()
         messageLabel.isHidden = true
         markdownView.reset()
+        // The markdown view is empty again, so the buffer that mirrors it is too.
+        streamBuffer = ""
+        displayedLength = 0
+        lastWrittenRunId = nil
     }
-    
+
     func startStreaming(firstChunk: String) {
         hideThinking()
         markdownView.reset()                    // Clear previous message
         markdownView.append(markdownChunk: firstChunk)
-        
+
         streamBuffer = firstChunk
         displayedLength = streamBuffer.count
+        lastWrittenRunId = firstChunk.isEmpty ? nil : runId
         updateUI?()
     }
 
@@ -251,15 +291,19 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
         let attributedText = markdownParser.parse((messageLabel.text ?? "") + textChunk)
         messageLabel.attributedText = attributedText
         messageLabel.textColor = .label
+        if !textChunk.isEmpty {
+            lastWrittenRunId = runId
+        }
     }
-    
+
     func completeStreaming(finalText: String) {
         hideThinking()
         markdownView.reset()
         markdownView.append(markdownChunk: finalText)
-        
+
         streamBuffer = finalText
         displayedLength = streamBuffer.count
+        lastWrittenRunId = finalText.isEmpty ? nil : runId
         updateUI?()
     }
 
@@ -268,7 +312,7 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
         typingIndicator.isHidden = true
         messageLabel.isHidden = true
         errorContainerView.isHidden = false
-        errorLabel.text = "Something went wrong. Please try again"
+        errorLabel.text = "SOMETHING_WENT_WRONG_ERROR".localize()
 
         hasError = true
         setNeedsLayout()
@@ -298,10 +342,14 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
                 break
                 
             case let toolStart as AIAssistantToolStartedEvent:
+                // Snapshot what the markdown path renders (streamBuffer) and the
+                // shared buffer the final answer is read from, before the
+                // execution line is appended to both.
                 if self.originalMessageText[toolStart.runId] == nil {
-                    self.originalMessageText[toolStart.runId] = self.messageLabel.text ?? ""
+                    self.originalMessageText[toolStart.runId] = self.streamBuffer
+                    self.originalQueueBuffer[toolStart.runId] = self.queueManager.getBufferContent(runId: toolStart.runId) ?? ""
                 }
-                
+
                 let toolText = "\n\(toolStart.executionText)"
                 self.processStreamContent(runId: toolStart.runId, content: toolText)
                 self.updateUI?()
@@ -312,11 +360,17 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
                     self.displayedLength = originalText.count
                     self.appendBufferedContent()
                     self.originalMessageText.removeValue(forKey: toolEnd.runId)
+                    if let originalQueueText = self.originalQueueBuffer.removeValue(forKey: toolEnd.runId) {
+                        self.queueManager.clearBuffer(runId: toolEnd.runId)
+                        if !originalQueueText.isEmpty {
+                            self.queueManager.appendToBuffer(runId: toolEnd.runId, delta: originalQueueText)
+                        }
+                    }
                     self.updateUI?()
                 }
                 
             case let cardStarted as AIAssistantCardStartedEvent:
-                self.showCardLoading(executionText: cardStarted.executionText)
+                self.showCardLoading(runId: cardStarted.runId, executionText: cardStarted.executionText)
                 self.updateUI?()
                 
             case let cardReceived as AIAssistantCardReceivedEvent:
@@ -336,18 +390,42 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
     // MARK: - Streaming Card Helpers
     
     private var cardLoadingView: UIView?
-    private var streamedCardView: CometChatCardView?
-    
+    /// Every card received in the current run, in arrival order, each wrapped in
+    /// its padded container inside the bubble stack.
+    private var streamedCardViews: [CometChatCardView] = []
+    private var streamedCardContainers: [UIView] = []
+    /// The run the cards above belong to.
+    private var streamedCardsRunId: Int?
+
     /// Reference to the bubble's vertical stack (set during setupUI)
     private weak var bubbleStack: UIStackView?
-    
-    private func showCardLoading(executionText: String? = nil) {
-        hideThinking()
-        
-        // Remove any existing card views
+
+    /// Removes the loading placeholder and every streamed card.
+    private func removeStreamedCards() {
         cardLoadingView?.removeFromSuperview()
-        streamedCardView?.removeFromSuperview()
-        
+        cardLoadingView = nil
+        streamedCardContainers.forEach { $0.removeFromSuperview() }
+        streamedCardContainers.removeAll()
+        streamedCardViews.removeAll()
+        streamedCardsRunId = nil
+    }
+
+    /// Cards from an earlier run make way for the cards of `runId`; cards already
+    /// received in the same run are kept.
+    private func prepareCards(forRun runId: Int) {
+        if let cardsRunId = streamedCardsRunId, cardsRunId != runId {
+            removeStreamedCards()
+        }
+        streamedCardsRunId = runId
+    }
+
+    private func showCardLoading(runId: Int, executionText: String? = nil) {
+        hideThinking()
+        prepareCards(forRun: runId)
+
+        // Replace any earlier placeholder; cards already shown stay
+        cardLoadingView?.removeFromSuperview()
+
         let loadingContainer = UIView()
         loadingContainer.translatesAutoresizingMaskIntoConstraints = false
         
@@ -394,16 +472,17 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
     }
     
     private func showStreamedCard(_ event: AIAssistantCardReceivedEvent) {
+        // A card can arrive without a card-started event; either way the
+        // Thinking indicator must not stay up beside it.
+        hideThinking()
+        prepareCards(forRun: event.runId)
+
         // Remove loading placeholder
         if let loading = cardLoadingView {
             loading.removeFromSuperview()
             cardLoadingView = nil
         }
-        if let existing = streamedCardView {
-            existing.removeFromSuperview()
-            streamedCardView = nil
-        }
-        
+
         guard let card = event.getCard() else {
             return
         }
@@ -433,12 +512,13 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
             cardView.bottomAnchor.constraint(equalTo: cardContainer.bottomAnchor, constant: -4)
         ])
         
-        // Add to the bubbleStack
+        // Add to the bubbleStack, after any card already shown in this run
         if let stack = bubbleStack {
             stack.addArrangedSubview(cardContainer)
         }
-        
-        streamedCardView = cardView
+
+        streamedCardViews.append(cardView)
+        streamedCardContainers.append(cardContainer)
         
         // Force the cell to recalculate its height after the card is added
         self.setNeedsLayout()
@@ -467,12 +547,22 @@ public class CometChatStreamBubble: UITableViewCell, StreamCallback {
         }
         hideThinking()
         streamBuffer += content
+        if !content.isEmpty {
+            lastWrittenRunId = runId
+        }
         queueManager.appendToBuffer(runId: runId, delta: content)
         if !isUpdatingUI {
             isUpdatingUI = true
             DispatchQueue.main.asyncAfter(deadline: .now() + uiUpdateInterval) { [weak self] in
                 guard let self = self else { return }
-                let startIndex = self.streamBuffer.index(self.streamBuffer.startIndex, offsetBy: self.displayedLength)
+                guard let startIndex = self.streamBuffer.index(self.streamBuffer.startIndex, offsetBy: self.displayedLength, limitedBy: self.streamBuffer.endIndex) else {
+                    // The buffer was replaced underneath the pending update; it was
+                    // re-rendered in full by whoever replaced it.
+                    self.displayedLength = self.streamBuffer.count
+                    self.isUpdatingUI = false
+                    self.updateUI?()
+                    return
+                }
                 let newContent = String(self.streamBuffer[startIndex...])
                 if !newContent.isEmpty {
                     self.markdownView.append(markdownChunk: newContent)

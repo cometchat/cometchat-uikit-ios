@@ -8,9 +8,11 @@ import UIKit
 public struct SavedMessagesStyle: ListBaseStyle, ListItemStyle {
 
     // Check box image when list item is selected
+    /// Not applied: saved-message rows are never selectable. Kept for source compatibility.
     public var listItemSelectedImage: UIImage = UIImage(systemName: "checkmark.square.fill")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
 
     // Check box image when list item is deselected
+    /// Not applied: saved-message rows are never selectable. Kept for source compatibility.
     public var listItemDeSelectedImage: UIImage = UIImage(systemName: "square")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
 
     // Background color for the entire screen or view
@@ -86,6 +88,7 @@ public struct SavedMessagesStyle: ListBaseStyle, ListItemStyle {
     public var emptySubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
 
     // Color for the table view separator
+    /// Not applied visibly: this list turns table separators off (`separatorStyle = .none`). Kept for source compatibility.
     public var tableViewSeparator: UIColor = CometChatTheme.borderColorLight
 
     // Text color for list item titles
@@ -113,10 +116,13 @@ public struct SavedMessagesStyle: ListBaseStyle, ListItemStyle {
     public var listItemCornerRadius: CometChatCornerStyle = .init(cornerRadius: 0)
 
     // Tint color for selection indicator in list items
+    /// Not applied: saved-message rows are never selectable. Kept for source compatibility.
     public var listItemSelectionImageTint: UIColor = CometChatTheme.iconColorHighlight
 
+    /// Not applied: saved-message rows are never selectable. Kept for source compatibility.
     public var listItemSelectedBackground: UIColor = CometChatTheme.backgroundColor04
 
+    /// Not applied: saved-message rows are never selectable. Kept for source compatibility.
     public var listItemDeSelectedImageTint: UIColor = CometChatTheme.borderColorDefault
 
     // Tint for the message-type glyph that leads the preview (photo, video, document…)

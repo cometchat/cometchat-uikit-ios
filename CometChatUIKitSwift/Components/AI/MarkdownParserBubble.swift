@@ -12,49 +12,61 @@ class CombinedMarkdownBubbleView: UIView {
     private let stackView = UIStackView()
     fileprivate let inlineCodeRegex = "(?<!`)`([^`]+)`(?!`)"
     
-    private lazy var parser: MarkdownParser = {
+    private lazy var parser: MarkdownParser = makeParser()
+
+    /// Builds the paragraph parser from the current style, so a paragraph's base
+    /// runs take `style.textFont` / `style.textColor`. The bold, italic and header
+    /// elements derive their fonts from that base font.
+    private func makeParser() -> MarkdownParser {
+        let baseFont = style?.textFont ?? CometChatTypography.Body.regular
+        let baseColor = style?.textColor ?? CometChatTheme.textColorPrimary
+
         // Custom header levels
-        let h1 = MarkdownHeader(maxLevel: 1, color: CometChatTheme.textColorPrimary)
-        let h2 = MarkdownHeader(maxLevel: 2, color: CometChatTheme.textColorPrimary)
-        let h3 = MarkdownHeader(maxLevel: 3, color: CometChatTheme.textColorPrimary)
+        let h1 = MarkdownHeader(maxLevel: 1, color: baseColor)
+        let h2 = MarkdownHeader(maxLevel: 2, color: baseColor)
+        let h3 = MarkdownHeader(maxLevel: 3, color: baseColor)
 
         let link = MarkdownLink(
-            font: CometChatTypography.Body.regular,
+            font: baseFont,
             color: CometChatTheme.primaryColor
         )
 
         let parser = MarkdownParser(
-            font: CometChatTypography.Body.regular,
-            color: CometChatTheme.textColorPrimary,
+            font: baseFont,
+            color: baseColor,
             enabledElements: .all,
             customElements: [h1, h2, h3, MarkdownBold(), MarkdownItalic(), link]
         )
 
         // Disable built-in inline code to use your custom styling
         parser.enabledElements.remove(.code)
+        parser.link.color = CometChatTheme.primaryColor
 
         return parser
-    }()
-    
+    }
+
     // Keep track of the last added content
     private var currentText = ""
-    
+
     var style: AIAssistantBubbleStyle? {
         didSet {
             refreshStyle()
         }
     }
-    
+
+    /// Re-renders the current text with the new style. Paragraphs are bare labels
+    /// whose attributed runs carry the style, so the parser is rebuilt and the text
+    /// re-parsed, rather than setting label.textColor / label.font, which would
+    /// flatten the link and inline-code colours.
     private func refreshStyle() {
-        for case let rowStack as UIStackView in stackView.arrangedSubviews {
-            for case let label as UILabel in rowStack.arrangedSubviews {
-                label.textColor = style?.textColor ?? CometChatTheme.textColorPrimary
-                label.font = style?.textFont ?? CometChatTypography.Caption1.regular
-                label.adjustsFontForContentSizeCategory = true
-            }
+        parser = makeParser()
+        let text = currentText
+        reset()
+        if !text.isEmpty {
+            append(markdownChunk: text)
         }
     }
-    
+
     init(markdown: String = "", style: AIAssistantBubbleStyle = AIAssistantBubbleStyle()) {
         self.style = style
         super.init(frame: .zero)
@@ -62,7 +74,6 @@ class CombinedMarkdownBubbleView: UIView {
         if !markdown.isEmpty {
             append(markdownChunk: markdown)
         }
-        parser.link.color = CometChatTheme.primaryColor
     }
     
     required init?(coder: NSCoder) { fatalError() }
@@ -203,6 +214,7 @@ class CombinedMarkdownBubbleView: UIView {
 
         attributedText.enumerateAttribute(.link, in: fullRange, options: []) { value, range, _ in
             guard value != nil else { return }
+            attributedText.addAttribute(.foregroundColor, value: linkColor, range: range)
         }
     }
 
@@ -306,19 +318,42 @@ class CodeBlockView: UIView {
         attributedString.addAttribute(.font, value: CometChatTypography.Body.regular, range: fullRange)
         attributedString.addAttribute(.foregroundColor, value: UIColor.label, range: fullRange)
 
-        // MARK: - Swift Syntax Patterns
-        let keywords = [
-            "class", "struct", "enum", "protocol", "extension", "func", "var", "let",
-            "if", "else", "for", "while", "switch", "case", "return", "import", "guard"
-        ]
-        highlight(pattern: "\\b(" + keywords.joined(separator: "|") + ")\\b",
-                  color: .systemBlue, in: attributedString)
+        // Keywords come from the block's language; an unknown language gets no
+        // keyword highlighting rather than another language's keyword set.
+        let syntax = CodeBlockView.syntax(for: language)
+        if !syntax.keywords.isEmpty {
+            highlight(pattern: "\\b(" + syntax.keywords.joined(separator: "|") + ")\\b",
+                      color: .systemBlue, in: attributedString)
+        }
         highlight(pattern: "\"(.*?)\"",
                   color: .systemOrange, in: attributedString)
-        highlight(pattern: "//.*",
+        highlight(pattern: syntax.lineComment,
                   color: .systemGreen, in: attributedString)
 
         textView.attributedText = attributedString
+    }
+
+    /// Minimal keyword sets per language. An empty language is treated as Swift.
+    static func syntax(for language: String) -> (keywords: [String], lineComment: String) {
+        switch language.trimmingCharacters(in: .whitespaces).lowercased() {
+        case "", "swift":
+            return (["class", "struct", "enum", "protocol", "extension", "func", "var", "let",
+                     "if", "else", "for", "while", "switch", "case", "return", "import", "guard"], "//.*")
+        case "python", "py":
+            return (["def", "class", "return", "if", "elif", "else", "for", "while", "in", "import",
+                     "from", "as", "with", "try", "except", "finally", "raise", "lambda", "pass",
+                     "None", "True", "False", "and", "or", "not", "yield", "async", "await"], "#.*")
+        case "javascript", "js", "jsx", "typescript", "ts", "tsx":
+            return (["function", "const", "let", "var", "class", "extends", "return", "if", "else",
+                     "for", "while", "switch", "case", "import", "export", "from", "new", "async",
+                     "await", "try", "catch", "throw", "interface", "type", "null", "undefined"], "//.*")
+        case "kotlin", "kt", "java":
+            return (["class", "interface", "fun", "val", "var", "public", "private", "protected",
+                     "static", "final", "void", "return", "if", "else", "for", "while", "when",
+                     "switch", "case", "import", "package", "new", "null", "try", "catch", "throw"], "//.*")
+        default:
+            return ([], "//.*")
+        }
     }
 
     private func highlight(pattern: String, color: UIColor, in attributedString: NSMutableAttributedString) {

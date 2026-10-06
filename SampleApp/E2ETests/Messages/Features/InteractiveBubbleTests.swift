@@ -7,8 +7,9 @@ import XCTest
 /// "not supported" placeholder — that is the CORRECT behaviour, and the test below locks it in
 /// so a future change cannot silently resurrect a half-working form bubble.
 ///
-/// SCHEDULER is different: `CometChatSchedulerBubble` is still in the Kit and carries its own
-/// component and snapshot tests, so a scheduler message is expected to render properly.
+/// SCHEDULER renders the same placeholder in the message list: `MessagesDataSource.getSchedulerBubble`
+/// returns the "not supported" bubble (it has since before v5.1.22). `CometChatSchedulerBubble` stays a
+/// public standalone component with its own component and snapshot tests, but the message list does not use it.
 ///
 /// Both types are seeded over REST before the conversation is opened, so these render from the
 /// history fetch and do not depend on real-time delivery (KIT-GAPS.md #3).
@@ -77,10 +78,11 @@ final class InteractiveBubbleTests: XCTestCase {
                       "A form message in a group should render the unsupported placeholder")
     }
 
-    // MARK: - Scheduler: still a live component
+    // MARK: - Scheduler: placeholder in the message list
 
-    /// A received scheduler message renders the scheduler bubble with its title.
-    func test_1TO1_schedulerBubbleRendersTitle() throws {
+    /// A received scheduler message renders the unsupported placeholder in the message list, not the
+    /// scheduler card. Locks in the current behaviour so wiring the real bubble later is a deliberate change.
+    func test_1TO1_schedulerMessageRendersUnsupportedPlaceholder() throws {
         try runBlocking { try await SeedData.createTestConversation() }
         let stamp = UUID().uuidString.prefix(6).lowercased()
         let title = "E2E Meet \(stamp)"
@@ -88,7 +90,13 @@ final class InteractiveBubbleTests: XCTestCase {
             _ = try await PeerActions.sendSchedulerMessage(title: title, buttonText: "Book \(stamp)")
         }
         app = openSeededConversation()
-        XCTAssertTrue(ComponentQueries.waitForBubbleContaining(app, substring: title, timeout: 25),
-                      "Scheduler bubble did not render its title")
+
+        XCTAssertTrue(ComponentQueries.waitForBubbleContaining(app, substring: Self.unsupportedPlaceholder,
+                                                              timeout: 25),
+                      "A scheduler message should render the unsupported placeholder in the message list")
+        XCTAssertFalse(app.buttons["Book \(stamp)"].exists,
+                       "Scheduler book button rendered — the message list now uses the scheduler bubble")
+        XCTAssertFalse(ComponentQueries.waitForBubbleContaining(app, substring: title, timeout: 3),
+                       "Scheduler title rendered — the message list now uses the scheduler bubble")
     }
 }

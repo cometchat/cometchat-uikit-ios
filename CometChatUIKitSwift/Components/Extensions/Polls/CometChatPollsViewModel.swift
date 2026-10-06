@@ -71,7 +71,7 @@ public class CometChatPollsViewModel : DataSourceDecorator, CometChatMessageEven
     }
     
     public override func getMessageTemplate(messageType: String, messageCategory: String, additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate? {
-        if messageType == MessageCategoryConstants.custom && messageCategory == pollsExtensionTypeConstant {
+        if messageCategory == MessageCategoryConstants.custom && messageType == pollsExtensionTypeConstant {
             return getTemplate(additionalConfiguration: additionalConfiguration)
         }
         return super.getMessageTemplate(messageType: messageType, messageCategory: messageCategory, additionalConfiguration: additionalConfiguration)

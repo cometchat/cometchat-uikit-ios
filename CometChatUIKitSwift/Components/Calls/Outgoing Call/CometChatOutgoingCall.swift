@@ -10,7 +10,6 @@ import CometChatSDK
 
 #if canImport(CometChatCallsSDK)
 
-@MainActor
 open class CometChatOutgoingCall: UIViewController {
     
     public lazy var avatarTopView: UIView = {
@@ -42,8 +41,8 @@ open class CometChatOutgoingCall: UIViewController {
     public lazy var nameLabel: UILabel = {
         let nameLabel = UILabel().withoutAutoresizingMaskConstraints()
         nameLabel.textAlignment = .center
-        nameLabel.text = user?.name ?? ""
-        nameLabel.text = (call?.receiver as? User)?.name ?? ""
+        // A user set on the screen wins; otherwise the call's receiver, user or group.
+        nameLabel.text = user?.name ?? (call?.receiver as? User)?.name ?? (call?.receiver as? Group)?.name ?? ""
         return nameLabel
     }()
     
@@ -116,6 +115,7 @@ open class CometChatOutgoingCall: UIViewController {
         viewModel.onOutgoingCallAccepted = { call in
             DispatchQueue.main.async {
                 ongoingCall.set(sessionId: call.sessionID ?? "")
+                ongoingCall.set(call: call)
                 ongoingCall.set(callWorkFlow: .defaultCalling)
                 CometChatSoundManager().pause()
                 weak var pvc = self.presentingViewController
@@ -213,6 +213,13 @@ open class CometChatOutgoingCall: UIViewController {
     }
     
     func addCustomViews(){
+        if let fullscreenView = fullscreenView {
+            // The full-screen view replaces the whole default layout.
+            view.subviews.forEach({$0.removeFromSuperview()})
+            view.embed(fullscreenView)
+            return
+        }
+
         if let call = call, let titleView = titleView?(call){
             self.titleContainerView.subviews.forEach({$0.removeFromSuperview()})
             self.titleContainerView.embed(titleView)

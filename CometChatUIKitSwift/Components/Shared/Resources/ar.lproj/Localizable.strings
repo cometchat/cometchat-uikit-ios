@@ -480,3 +480,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "تعذّر الإرسال. يرجى اختيار سبب قبل الإبلاغ عن هذه الرسالة";
+"REPORTED" = "تم الإبلاغ";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "تم إرسال بلاغك بنجاح.";
+"MESSAGE_MEDIA" = "وسائط";
+"MESSAGE_MEETING" = "اجتماع";
+"MESSAGE_GENERIC" = "رسالة";
+"MEETING_SCHEDULER" = "جدولة الاجتماعات";
+"MORE_TIMES" = "المزيد من الأوقات";
+"search_no_results_for" = "لا توجد نتائج لـ “%@”\nجرّب بحثًا جديدًا";
+"MESSAGE_LIST_EMPTY_TITLE" = "لا توجد رسائل بعد";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "أرسل رسالة لبدء المحادثة.";

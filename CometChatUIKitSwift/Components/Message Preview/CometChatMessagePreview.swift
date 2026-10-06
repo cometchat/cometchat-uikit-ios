@@ -243,7 +243,7 @@ open class CometChatMessagePreview: UIView {
     ) -> CometChatMessagePreview {
         
         // Title
-        let senderName = isLoggedInUser ? "You" : (message.sender?.name ?? message.senderUid)
+        let senderName = isLoggedInUser ? "YOU".localize() : (message.sender?.name ?? message.senderUid)
         
         // Use the effective style for consistent font and color
         let effectiveStyle = style ?? CometChatMessagePreview.style

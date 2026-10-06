@@ -26,7 +26,7 @@ protocol GroupsServicing {
 
     /// Join a group.
     func joinGroup(guid: String,
-                   groupType: CometChat.groupType,
+                   groupType: CometChat.GroupType,
                    password: String,
                    onSuccess: @escaping (Group) -> Void,
                    onError: @escaping (CometChatException?) -> Void)
@@ -49,7 +49,7 @@ final class LiveGroupsService: GroupsServicing {
     }
 
     func joinGroup(guid: String,
-                   groupType: CometChat.groupType,
+                   groupType: CometChat.GroupType,
                    password: String,
                    onSuccess: @escaping (Group) -> Void,
                    onError: @escaping (CometChatException?) -> Void) {

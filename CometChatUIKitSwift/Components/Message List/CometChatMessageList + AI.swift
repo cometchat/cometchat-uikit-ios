@@ -71,18 +71,8 @@ extension CometChatMessageList{
                 
                 if enableSmartReplies {
                     if !smartRepliesKeywords.isEmpty {
-                        var isKeyPresent = false
-                        let text = textMessage.text
-                        
-                        if !text.isEmpty {
-                            for keyword in smartRepliesKeywords {
-                                if text.lowercased().contains(keyword.lowercased()) {
-                                    isKeyPresent = true
-                                }else{
-                                    isKeyPresent = false
-                                }
-                            }
-                        }
+                        let text = textMessage.text.lowercased()
+                        let isKeyPresent = !text.isEmpty && smartRepliesKeywords.contains(where: { text.contains($0.lowercased()) })
                         if enableSmartReplies && isKeyPresent{
                             getSmartReplies()
                         }

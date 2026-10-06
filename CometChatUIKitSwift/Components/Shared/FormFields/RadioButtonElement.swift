@@ -38,10 +38,7 @@ import UIKit
         }
         if let options = data[InteractiveConstants.RadioButtonUIConstants.OPTIONS] as? [[String:Any]] {
             for option in options {
-                if let id = option[InteractiveConstants.RadioButtonUIConstants.LABEL] as? String, let value = option[InteractiveConstants.RadioButtonUIConstants.OPTION_VALUE] as? String {
-                    let optionElement = OptionElement()
-                    optionElement.id = id
-                    optionElement.value = value
+                if let optionElement = OptionElement.optionFromJSON(option) {
                     radioButtonElement.options.append(optionElement)
                 }
             }

@@ -135,7 +135,7 @@ open class CometChatQuickReactions: UIStackView {
     /// Creates the plus button for adding more reactions.
     /// - Returns: A configured UIButton for adding reactions.
     private func createPlusIconView() -> UIView {
-        let containerView = UIView().withoutAutoresizingMaskConstraints()
+        let containerView = CometChatHitAreaView().withoutAutoresizingMaskConstraints()
         containerView.pin(anchors: [.width, .height], to: 24)
 
         let imageView = UIImageView(image: addReactionIcon).withoutAutoresizingMaskConstraints()

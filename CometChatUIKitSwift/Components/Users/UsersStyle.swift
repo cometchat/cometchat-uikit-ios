@@ -19,6 +19,9 @@ public struct UsersStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     public var searchIconTintColor: UIColor?
     
     // Style of the UISearchBar (e.g., default, prominent)
+    /// Applied to the search bar, but UIKit renders a bar installed through
+    /// `navigationItem.searchController` (as this screen does) in its own system style and
+    /// ignores `searchBarStyle` there. Use the other `searchBar*` properties to restyle it.
     public var searchBarStyle: UISearchBar.Style = .default
     
     // Tint color for the search bar elements
@@ -121,6 +124,8 @@ public struct UsersStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     public var emptySubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
     
     // Color for the table view separator
+    /// Row separators are hidden while this is `.clear` (the default); any visible colour
+    /// turns them on in that colour.
     public var tableViewSeparator: UIColor = .clear
     
     // Text color for list item titles
@@ -130,9 +135,13 @@ public struct UsersStyle: ListBaseStyle, ListItemStyle, SearchBarStyle {
     public var listItemTitleFont: UIFont = CometChatTypography.Heading4.medium
     
     // Text color for list item subtitles
+    /// Not applied: CometChatUsers has no built-in subtitle, and a view passed through
+    /// `set(subtitle:)` is styled by whoever builds it. Kept for source compatibility.
     public var listItemSubTitleTextColor: UIColor = CometChatTheme.textColorSecondary
     
     // Font for list item subtitles
+    /// Not applied: CometChatUsers has no built-in subtitle, and a view passed through
+    /// `set(subtitle:)` is styled by whoever builds it. Kept for source compatibility.
     public var listItemSubTitleFont: UIFont = CometChatTypography.Body.regular
     
     // Background color for individual list items

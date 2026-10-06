@@ -21,7 +21,15 @@ public class CometChatMessageTranslationBubble: UIView, MFMailComposeViewControl
     // MARK: Styling
     
     /// The style configuration for the message translation bubble, allowing customization of fonts, colors, and separators.
-    public var style = MessageTranslationBubbleStyle()
+    /// Reapplied when replaced after the bubble is on screen, so a style set late still paints.
+    public var style = MessageTranslationBubbleStyle() {
+        didSet { if window != nil { setupStyle() } }
+    }
+
+    // Parsers shared by both labels, kept so `setupStyle()` can colour their matches.
+    private let phoneParser1 = HyperlinkType.custom(pattern: RegexParser.phonePattern1)
+    private let phoneParser2 = HyperlinkType.custom(pattern: RegexParser.phonePattern2)
+    private let emailParser = HyperlinkType.custom(pattern: RegexParser.emailPattern)
 
     // MARK: - UI Elements
     
@@ -121,6 +129,24 @@ public class CometChatMessageTranslationBubble: UIView, MFMailComposeViewControl
         textTranslatedLabel.font = style.subtitleTextFont
         textTranslatedLabel.adjustsFontForContentSizeCategory = true
         textTranslatedLabel.textColor = style.subtitleTextColor
+        // Link colours are applied here rather than in `configureHyperlinkLabel`, which
+        // runs from `init` — before the view model assigns the configured style — so
+        // `urlColor`, `phoneTextColor` and `emailTextColor` previously never took effect.
+        applyHyperlinkColors(to: originalMessageLabel)
+        applyHyperlinkColors(to: translatedMessageLabel)
+    }
+
+    private func applyHyperlinkColors(to label: HyperlinkLabel) {
+        label.customize { label in
+            label.URLColor = style.urlColor
+            label.URLSelectedColor = style.urlColor
+            label.customColor[phoneParser1] = style.phoneTextColor
+            label.customSelectedColor[phoneParser1] = style.phoneTextColor
+            label.customColor[phoneParser2] = style.phoneTextColor
+            label.customSelectedColor[phoneParser2] = style.phoneTextColor
+            label.customColor[emailParser] = style.emailTextColor
+            label.customSelectedColor[emailParser] = style.emailTextColor
+        }
     }
 
     /// Sets the original and translated messages to display in the bubble.
@@ -142,24 +168,11 @@ public class CometChatMessageTranslationBubble: UIView, MFMailComposeViewControl
 
     /// Configures a `HyperlinkLabel` to support taps on phone numbers, URLs, and email addresses, applying appropriate styles and handling taps.
     private func configureHyperlinkLabel(_ label: HyperlinkLabel) {
-        let phoneParser1 = HyperlinkType.custom(pattern: RegexParser.phonePattern1)
-        let phoneParser2 = HyperlinkType.custom(pattern: RegexParser.phonePattern2)
-        let emailParser = HyperlinkType.custom(pattern: RegexParser.emailPattern)
-
         label.enabledTypes.append(phoneParser1)
         label.enabledTypes.append(phoneParser2)
         label.enabledTypes.append(emailParser)
 
-        label.customize { label in
-            label.URLColor = style.urlColor
-            label.URLSelectedColor = style.urlColor
-            label.customColor[phoneParser1] = style.phoneTextColor
-            label.customSelectedColor[phoneParser1] = style.phoneTextColor
-            label.customColor[phoneParser2] = style.phoneTextColor
-            label.customSelectedColor[phoneParser2] = style.phoneTextColor
-            label.customColor[emailParser] = style.emailTextColor
-            label.customSelectedColor[emailParser] = style.emailTextColor
-        }
+        applyHyperlinkColors(to: label)
 
         label.handleURLTap { link in
             UIApplication.shared.open(link)

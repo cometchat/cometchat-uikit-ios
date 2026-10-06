@@ -317,14 +317,16 @@ final class GalleryMediaTile: UIView {
         return indicator
     }()
 
+    private lazy var playIcon: UIImageView = UIImageView(image: UIImage(systemName: "play.fill"))
+
     private lazy var playBadge: UIView = {
         let container = UIView()
-        container.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        container.backgroundColor = style.playIconBackgroundColor
         container.layer.cornerRadius = 22
         container.isHidden = true
 
-        let icon = UIImageView(image: UIImage(systemName: "play.fill"))
-        icon.tintColor = .white
+        let icon = playIcon
+        icon.tintColor = style.playIconTint
         icon.contentMode = .scaleAspectFit
         icon.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(icon)
@@ -449,6 +451,13 @@ final class GalleryMediaTile: UIView {
 
         imageView.image = nil
         imageView.backgroundColor = style.placeholderColor
+        // The badge and overflow views are built in `init`, before the grid assigns
+        // `style`, so their colours and font are (re)applied on every configure.
+        playBadge.backgroundColor = style.playIconBackgroundColor
+        playIcon.tintColor = style.playIconTint
+        overflowOverlay.backgroundColor = style.overflowOverlayColor
+        overflowLabel.textColor = style.overflowTextColor
+        overflowLabel.font = style.overflowTextFont
 
         let kind = galleryMediaKind(for: attachment)
         playBadge.isHidden = (kind != .video)
@@ -979,8 +988,14 @@ final class FileTypeIconView: UIView {
 /// the bottom. Subclasses insert their content above the caption.
 public class CometChatMultiAttachmentBubble: UIStackView {
 
-    public var style = GalleryBubbleStyle()
+    /// Global style for every gallery bubble (images, videos, audios, files). Each new
+    /// bubble starts from it; `MessagesDataSource` builds its gallery bubbles this way.
+    public static var style = GalleryBubbleStyle()
+    public var style = CometChatMultiAttachmentBubble.style
     public var isOutgoing = false
+
+    /// Image view painted behind the content when the style sets `backgroundDrawable`.
+    private var backgroundDrawableView: UIImageView?
     weak var controller: UIViewController?
 
     /// Captions render through the SAME view as text messages (`CometChatTextBubble`)
@@ -1016,6 +1031,61 @@ public class CometChatMultiAttachmentBubble: UIStackView {
     }
 
     public func set(controller: UIViewController?) { self.controller = controller }
+
+    public override func willMove(toWindow newWindow: UIWindow?) {
+        super.willMove(toWindow: newWindow)
+        if newWindow != nil {
+            applyBubbleChrome()
+        }
+    }
+
+    /// Paints the `BaseMessageBubbleStyle` fields that map to this view: background
+    /// colour, background drawable, border and corner radius. Unset (nil) fields leave
+    /// the view as it is. The remaining conformance fields (avatar, date, receipt,
+    /// header, threaded indicator, reactions, message preview) belong to the
+    /// enclosing message cell, not the bubble.
+    func applyBubbleChrome() {
+        // Set in `init` from the global style; reapplied so an instance style set
+        // after construction also governs the section gap.
+        spacing = style.sectionSpacing
+        if let backgroundColor = style.backgroundColor {
+            self.backgroundColor = backgroundColor
+        }
+        if let borderWidth = style.borderWidth {
+            borderWith(width: borderWidth)
+        }
+        if let borderColor = style.borderColor {
+            self.borderColor(color: borderColor)
+        }
+        if let cornerRadius = style.cornerRadius {
+            roundViewCorners(corner: cornerRadius)
+        }
+        if let drawable = style.backgroundDrawable {
+            let imageView: UIImageView
+            if let existing = backgroundDrawableView {
+                imageView = existing
+            } else {
+                imageView = UIImageView()
+                imageView.contentMode = .scaleToFill
+                imageView.clipsToBounds = true
+                imageView.isUserInteractionEnabled = false
+                imageView.translatesAutoresizingMaskIntoConstraints = false
+                insertSubview(imageView, at: 0)
+                NSLayoutConstraint.activate([
+                    imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+                    imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
+                    imageView.topAnchor.constraint(equalTo: topAnchor),
+                    imageView.bottomAnchor.constraint(equalTo: bottomAnchor)
+                ])
+                backgroundDrawableView = imageView
+            }
+            sendSubviewToBack(imageView)
+            imageView.image = drawable
+            imageView.isHidden = false
+        } else {
+            backgroundDrawableView?.isHidden = true
+        }
+    }
 
     /// Insert content above the caption row.
     func insertContent(_ view: UIView) {
@@ -1088,6 +1158,7 @@ public class CometChatMediaGridBubble: CometChatMultiAttachmentBubble {
     }
 
     public override func willMove(toWindow newWindow: UIWindow?) {
+        super.willMove(toWindow: newWindow)
         if newWindow != nil {
             gridView.style = style
             gridView.applyContainerStyle()
@@ -1111,6 +1182,7 @@ public class CometChatMediaGridBubble: CometChatMultiAttachmentBubble {
         }
         gridView.configure(with: mediaAttachments, thumbnails: thumbnails)
 
+        applyBubbleChrome()
         applyCaption(caption)
     }
 }
@@ -1155,6 +1227,7 @@ public final class FilesBubble: CometChatMultiAttachmentBubble {
             }
         }
         fileListView.configure(with: attachments)
+        applyBubbleChrome()
         applyCaption(caption)
     }
 
@@ -1220,6 +1293,7 @@ public final class AudiosBubble: CometChatMultiAttachmentBubble {
                           cardHeight: style.audioCardHeight)
             audioStack.addArrangedSubview(row)
         }
+        applyBubbleChrome()
         applyCaption(caption)
     }
 }

@@ -99,6 +99,10 @@ open class CometChatMessageList: UIView {
     public var scrollToBottomOnNewMessages: Bool = false
     public var hideReceipts: Bool = false
     public var disableSoundForMessages: Bool = false
+    /// Hidden by default (unlike `hideErrorView`) on purpose: an empty conversation is the
+    /// normal start of a chat, where the composer is the call to action and agent chats show
+    /// their own greeting, whereas a failed load always needs to be surfaced. Set it to false
+    /// to show `emptyStateView` ("No messages yet") in empty chats.
     public var hideEmptyView: Bool = true
     public var hideErrorView: Bool = false
     public var hideLoadingView: Bool = false
@@ -290,24 +294,24 @@ open class CometChatMessageList: UIView {
     //MARK: Other Customisation
     public var messageAlignment: MessageListAlignment = .standard
     public var customSoundForMessages: URL?
-    public var emptyTitleText = "NO_CONVERSATIONS_YET".localize() {
+    public var emptyTitleText = "MESSAGE_LIST_EMPTY_TITLE".localize() {
         didSet {
             (emptyStateView as? StateView)?.title = emptyTitleText
         }
     }
-    public var emptySubtitleText = "START_A_NEW_CHAT_OR_INVITE_OTHERS_TO_JOIN_THE_CONVERSATION.".localize() {
+    public var emptySubtitleText = "MESSAGE_LIST_EMPTY_SUBTITLE".localize() {
         didSet {
             (emptyStateView as? StateView)?.subtitle = emptySubtitleText
         }
     }
     public var errorTitleText = "OOPS!".localize() {
         didSet {
-            (errorStateView as? StateView)?.title = emptyTitleText
+            (errorStateView as? StateView)?.title = errorTitleText
         }
     }
     public var errorSubtitleText = "LOOKS_LIKE_SOMETHINGS_WENT_WORNG._PLEASE_TRY_AGAIN".localize() {
         didSet {
-            (errorStateView as? StateView)?.subtitle = emptySubtitleText
+            (errorStateView as? StateView)?.subtitle = errorSubtitleText
         }
     }
 
@@ -325,6 +329,22 @@ open class CometChatMessageList: UIView {
     var reactionsRequestBuilder: ReactionsRequestBuilder? = nil
     var baseMessage: BaseMessage?
     weak var controller: UIViewController?
+
+    /// The controller to present from. Falls back to the view's host so an omitted
+    /// `set(controller:)` degrades instead of silently doing nothing — `controller` is
+    /// `weak`, so it can also go nil mid-session on a correct integration.
+    ///
+    /// The context menu resolves its host from the bubble instead, because its geometry
+    /// depends on the host being an ancestor of that view. Do not merge the two.
+    var resolvedController: UIViewController? {
+        if controller == nil {
+            CometChatLogger.warning(
+                "no controller set; falling back to the parent view controller. Call set(controller:) on CometChatMessageList."
+            )
+        }
+        return controller ?? parentViewController
+    }
+
     var messageIndicator : CometChatNewMessageIndicator?
     var viewModel: MessageListViewModelProtocol = MessageListViewModel()
     var lastContentOffset: CGFloat = 0
@@ -544,6 +564,7 @@ open class CometChatMessageList: UIView {
         }else{
             aiView.isHidden = false
         }
+        aiView.apply(style: style)
         aiView.avatarView.setAvatar(avatarUrl: viewModel.user?.avatar ?? "", with: viewModel.user?.name)
         if let user = viewModel.user {
             aiView.avatarView.setAvatar(avatarUrl: user.avatar ?? "", with: user.name)
@@ -593,6 +614,7 @@ open class CometChatMessageList: UIView {
         tableView.borderWith(width: style.borderWidth)
         tableView.borderColor(color: style.borderColor)
         if let cornerRadius = style.cornerRadius { tableView.roundViewCorners(corner: cornerRadius) }
+        aiView.apply(style: style)
         
         if let emptyStateView = emptyStateView as? StateView {
             emptyStateView.titleLabel.textColor = style.emptyStateTitleColor
@@ -787,7 +809,9 @@ open class CometChatMessageList: UIView {
     open func showNewMessageIndicator() {
         if !hideNewMessageIndicator {
             messageIndicator = CometChatNewMessageIndicator().withoutAutoresizingMaskConstraints()
-            messageIndicator!.style = newMessageIndicatorStyle
+            var indicatorStyle = newMessageIndicatorStyle
+            if let image = style.newMessageIndicatorImage { indicatorStyle.iconImage = image }
+            messageIndicator!.style = indicatorStyle
             self.addSubview(messageIndicator!)
             NSLayoutConstraint.activate([
                 messageIndicator!.trailingAnchor.pin(equalTo: tableView.trailingAnchor, constant: -8),
@@ -921,12 +945,12 @@ open class CometChatMessageList: UIView {
     }
     
     open func hideTopSpinner() {
-        ActivityIndicator.hide()
+        ActivityIndicator.hide(in: tableView)
         tableView.tableFooterView?.isHidden = true
         if tableView.contentSize.height < tableView.visibleSize.height || (tableView.contentOffset.y < 5 && !tableView.visibleCells.isEmpty) {
             // Avoid beginUpdates/endUpdates here as it can cause data source inconsistency
             // when concurrent message operations are in progress
-            ActivityIndicator.activityIndicator.frame = .zero
+            tableView.tableFooterView?.frame = .zero
             tableView.tableFooterView = nil
         }
     }
@@ -1844,7 +1868,9 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     if let customReplyView = template.replyView?(message, cell.alignment, controller) {
                         cell.set(replyView: customReplyView)
                     } else if !hideReplyMessageOption{
-                        addMessageReplyPreview(forMessage: quotedMessage, toCell: cell, isLoggedInUser: isLoggedInUser, specificMessageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle)
+                        // "You" belongs to whoever wrote the quoted message, not the reply around it.
+                        let quotedIsMine = LoggedInUserInformation.isLoggedInUser(uid: quotedMessage.senderUid)
+                        addMessageReplyPreview(forMessage: quotedMessage, toCell: cell, isLoggedInUser: quotedIsMine, specificMessageTypeStyle: messageTypeStyle, bubbleStyle: bubbleStyle)
                     }
                 } else {
                     // No quoted message
@@ -2197,12 +2223,24 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         )
 
         let isAtBottom = offsetY <= 80
+
+        // The reader dragged down to the newest message with nothing left to fetch, so
+        // every pending message — including the conversation's initial unread count seeded
+        // when arriving from the conversation list — has been seen. Clear it so a later
+        // scroll up (or a new message) doesn't count those messages a second time.
+        if isAtBottom && viewModel.isAllMessagesFetchedInNext
+            && (scrollView.isDragging || scrollView.isDecelerating) {
+            unreadMessageCount = 0
+        }
         
         if shouldHide || isAtBottom {
             messageIndicator?.reset()
             messageIndicator?.isHidden = true
         } else {
-            if unreadMessageCount > 0 && unreadSeparatorMode != .navigateFromConversation {
+            // Every separator mode re-applies the pending count, including
+            // `.navigateFromConversation` (whose initial count is the conversation's unread
+            // messages still below the reader).
+            if unreadMessageCount > 0 {
                 messageIndicator?.setUnreadCount(count: unreadMessageCount)
             } else {
                 messageIndicator?.reset()
@@ -2409,7 +2447,7 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                         self.controller?.showAlert(message: "Something went wrong. Please try again later.")
                     }
                 })
-            case MessageOptionConstants.replyMessage :
+            case MessageOptionConstants.replyMessage, MessageOptionConstants.reply :
                 if messageOption.onItemClick == nil {
                     CometChatMessageEvents.ccReplyToMessage(message: message, status: .inProgress)
                 } else {
@@ -2433,7 +2471,7 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                 vc.messageId = forMessage?.id
                 vc.flagReasonLocalizer = flagReasonLocalizer
                 vc.hideFlagRemarkFeild = hideFlagRemarkFeild
-                controller?.present(vc, animated: false)
+                resolvedController?.present(vc, animated: false)
 
             case MessageOptionConstants.deleteMessage :
                 if messageOption.onItemClick == nil {
@@ -2452,7 +2490,7 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                     let cancelAction: UIAlertAction = UIAlertAction(title: ConversationConstants.cancel, style: .cancel) { action -> Void in }
                     actionSheetController.addAction(firstAction)
                     actionSheetController.addAction(cancelAction)
-                    controller?.present(actionSheetController, animated: true)
+                    resolvedController?.present(actionSheetController, animated: true)
                     
                 } else {
                     if let forMessage = forMessage {
@@ -2760,7 +2798,7 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
             let activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
             activityViewController.popoverPresentationController?.sourceView = this
             activityViewController.excludedActivityTypes = [.airDrop]
-            this.controller?.present(activityViewController, animated: true, completion: nil)
+            this.resolvedController?.present(activityViewController, animated: true, completion: nil)
         }
     }
 

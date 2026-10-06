@@ -20,7 +20,18 @@ open class ReactionListDataModel {
         self.reaction = reaction
         self.count = count
         self.messageID = messageID
-        self.reactionsRequest = reactionsRequest?.set(reaction: reaction).build()
+        if let reactionsRequest = reactionsRequest {
+            // The All tab lists every reactor, so it must not narrow the request to an emoji named "All".
+            if !ReactionListDataModel.isAllBucket(reaction) {
+                _ = reactionsRequest.set(reaction: reaction)
+            }
+            self.reactionsRequest = reactionsRequest.build()
+        }
+    }
+    
+    /// Whether `reaction` is the aggregate "All" tab rather than an emoji, in English or the current locale.
+    static func isAllBucket(_ reaction: String) -> Bool {
+        return reaction == "All" || reaction == "ALL".localize()
     }
     
     func fetchPrevious(onSuccess: @escaping () -> Void, onError: @escaping (_ error: CometChatSDK.CometChatException?) -> Void) {
@@ -29,7 +40,7 @@ open class ReactionListDataModel {
             let reactionsRequestBuilder = ReactionsRequestBuilder()
                 .set(limit: 10)
                 .set(messageId: messageID)
-            if reaction != "All" {
+            if !ReactionListDataModel.isAllBucket(reaction) {
                 reactionsRequestBuilder.set(reaction: reaction)
             }
             reactionsRequest = reactionsRequestBuilder.build()
@@ -40,9 +51,18 @@ open class ReactionListDataModel {
             if messageReactions.isEmpty {
                 self.hasAllReactions = true
             }
-            self.messageReaction.append(contentsOf: messageReactions)
+            self.append(page: messageReactions)
             onSuccess()
         }, onError: onError)
         
+    }
+    
+    /// Appends a fetched page, skipping reactors already listed for the same emoji
+    /// (a page can overlap the previous one, e.g. after a reaction is added mid-scroll).
+    func append(page messageReactions: [CometChatSDK.Reaction]) {
+        var seen = Set(messageReaction.map { "\($0.uid)|\($0.reaction)" })
+        for reaction in messageReactions where seen.insert("\(reaction.uid)|\(reaction.reaction)").inserted {
+            messageReaction.append(reaction)
+        }
     }
 }

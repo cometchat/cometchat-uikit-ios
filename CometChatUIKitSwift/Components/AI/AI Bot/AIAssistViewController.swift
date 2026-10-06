@@ -84,6 +84,13 @@ open class AIAssistViewController: CometChatListBase {
         super.buildUI()
         self.view.backgroundColor = CometChatTheme_v4.palatte.background
         
+        // The list base paints the table from listBaseStyle on appearance; give it this
+        // sheet's background so the table matches the view behind it.
+        var baseStyle = DefaultListBaseStyle()
+        baseStyle.backgroundColor = CometChatTheme_v4.palatte.background
+        baseStyle.tableViewSeparator = .clear
+        listBaseStyle = baseStyle
+        
         
         self.view.addSubview(headerView)
         headerView.translatesAutoresizingMaskIntoConstraints = false

@@ -455,3 +455,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "Senden nicht möglich. Bitte wähle einen Grund aus, bevor du diese Nachricht meldest";
+"REPORTED" = "Gemeldet";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "Deine Meldung wurde erfolgreich übermittelt.";
+"MESSAGE_MEDIA" = "Medien";
+"MESSAGE_MEETING" = "Meeting";
+"MESSAGE_GENERIC" = "Nachricht";
+"MEETING_SCHEDULER" = "Meeting-Planer";
+"MORE_TIMES" = "Weitere Zeiten";
+"search_no_results_for" = "Keine Ergebnisse für „%@“\nVersuche eine neue Suche";
+"MESSAGE_LIST_EMPTY_TITLE" = "Noch keine Nachrichten";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "Sende eine Nachricht, um die Unterhaltung zu beginnen.";

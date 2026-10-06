@@ -289,6 +289,7 @@ extension CometChatReactionList: UICollectionViewDataSource, UICollectionViewDel
         cell.count = reactionDataSource[indexPath.row].count
         cell.didSelected = (indexPath.row == selectedIndex)
         cell.selectedBackgroundColor = style.reactionTabActiveIndicatorColor
+        cell.tabBackgroundColor = style.reactionTabBackgroundColor
         cell.textColor = style.reactionTabTextColor
         cell.selectedTextColor = style.reactionActiveTabTextColor
         cell.font = style.reactionTabTextFont

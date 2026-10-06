@@ -47,10 +47,11 @@ that no form title or submit button appears, so a future change cannot half-resu
   `getAllMessageTemplates(...)`, so a template is handed out for a view that no longer exists.
   Worth removing so the "not supported" path is reached deliberately rather than incidentally.
 
-**Scheduler: genuinely still alive, and was wrongly lumped in with form.**
-`CometChatSchedulerBubble.swift` is present and carries its own component and snapshot tests, so a
-scheduler message is expected to render. `test_1TO1_schedulerBubbleRendersTitle` is unparked and
-re-run under current conditions (interactive categories now fetched, SDK 4.1.9).
+**Scheduler: same placeholder in the message list.** `MessagesDataSource.getSchedulerBubble` returns the
+"not supported" bubble (unchanged since before v5.1.22); `CometChatSchedulerBubble` remains a public
+standalone component with its own component and snapshot tests but is not used by the message list.
+`test_1TO1_schedulerMessageRendersUnsupportedPlaceholder` locks the current behaviour in. Wiring the real
+bubble into the message list would be a product decision.
 
 ## 3. No real-time delivery in this local dev setup (blocks ~most remaining tests)
 - **Suites affected:** `SwipeToReplyTests`, `MentionOneToOneTests`, `ReactionListTests` — and by

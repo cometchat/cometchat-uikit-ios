@@ -344,3 +344,85 @@ extension UIViewController {
         return containerView
     }
 }
+
+// MARK: - Minimum tap target
+
+/// Grows the touchable area of small controls to the 44×44pt minimum from the
+/// Human Interface Guidelines without changing how big they look.
+///
+/// UIKit only asks a view about a touch that already lies inside its superview, so the
+/// extra margin reaches as far as the container allows. The margin never takes a touch
+/// that lands on a neighbouring interactive view.
+@MainActor
+enum CometChatHitArea {
+
+    static let minimumSize: CGFloat = 44
+
+    /// `view.bounds`, grown equally on each side up to `minimumSize` in each direction.
+    static func expandedBounds(of view: UIView, minimumSize: CGFloat = minimumSize) -> CGRect {
+        let bounds = view.bounds
+        let dx = max(0, (minimumSize - bounds.width) / 2)
+        let dy = max(0, (minimumSize - bounds.height) / 2)
+        return bounds.insetBy(dx: -dx, dy: -dy)
+    }
+
+    /// Whether `point` (in `view`'s coordinates) falls inside the view's minimum tap target.
+    static func contains(_ point: CGPoint, in view: UIView, minimumSize: CGFloat = minimumSize) -> Bool {
+        if view.bounds.contains(point) { return true }
+        guard expandedBounds(of: view, minimumSize: minimumSize).contains(point) else { return false }
+        guard let superview = view.superview else { return true }
+        let pointInSuperview = view.convert(point, to: superview)
+        return !superview.subviews.contains { sibling in
+            sibling !== view && isInteractive(sibling) && sibling.frame.contains(pointInSuperview)
+        }
+    }
+
+    /// The closest of `candidates` (subviews of `container`) whose minimum tap target
+    /// contains `point`, given in `container`'s coordinates.
+    static func target(for point: CGPoint, in container: UIView, among candidates: [UIView], minimumSize: CGFloat = minimumSize) -> UIView? {
+        let hits = candidates.filter { candidate in
+            guard isInteractive(candidate) else { return false }
+            return contains(container.convert(point, to: candidate), in: candidate, minimumSize: minimumSize)
+        }
+        return hits.min { distance(from: point, to: $0.frame) < distance(from: point, to: $1.frame) }
+    }
+
+    /// Routes a touch that landed near (not on) a small control inside a nested layout: the
+    /// closest of `candidates`, anywhere below `container`, whose minimum tap target contains
+    /// `point` (in `container`'s coordinates). Unlike `point(inside:)` on the control itself,
+    /// this reaches past parent stack views that are shorter than the minimum target.
+    static func nestedTarget(for point: CGPoint, in container: UIView, among candidates: [UIView], minimumSize: CGFloat = minimumSize) -> UIView? {
+        let hits = candidates.filter { candidate in
+            guard candidate.window != nil, candidate.isDescendant(of: container), isInteractive(candidate) else { return false }
+            return expandedBounds(of: candidate, minimumSize: minimumSize).contains(container.convert(point, to: candidate))
+        }
+        return hits.min {
+            distance(from: point, to: $0.convert($0.bounds, to: container)) < distance(from: point, to: $1.convert($1.bounds, to: container))
+        }
+    }
+
+    private static func isInteractive(_ view: UIView) -> Bool {
+        guard !view.isHidden, view.alpha > 0.01, view.isUserInteractionEnabled else { return false }
+        return view is UIControl || !(view.gestureRecognizers?.isEmpty ?? true)
+    }
+
+    private static func distance(from point: CGPoint, to rect: CGRect) -> CGFloat {
+        let dx = max(rect.minX - point.x, 0, point.x - rect.maxX)
+        let dy = max(rect.minY - point.y, 0, point.y - rect.maxY)
+        return (dx * dx + dy * dy).squareRoot()
+    }
+}
+
+/// A button that keeps its visual size but accepts touches in a 44×44pt area.
+final class CometChatHitAreaButton: UIButton {
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        CometChatHitArea.contains(point, in: self)
+    }
+}
+
+/// A view that keeps its visual size but accepts touches in a 44×44pt area.
+final class CometChatHitAreaView: UIView {
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        CometChatHitArea.contains(point, in: self)
+    }
+}

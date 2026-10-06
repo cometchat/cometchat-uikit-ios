@@ -442,3 +442,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "Det gick inte att skicka. Välj en anledning innan du rapporterar det här meddelandet";
+"REPORTED" = "Rapporterat";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "Din rapport har skickats.";
+"MESSAGE_MEDIA" = "Media";
+"MESSAGE_MEETING" = "Möte";
+"MESSAGE_GENERIC" = "Meddelande";
+"MEETING_SCHEDULER" = "Mötesplanerare";
+"MORE_TIMES" = "Fler tider";
+"search_no_results_for" = "Inga resultat för ”%@”\nPröva en ny sökning";
+"MESSAGE_LIST_EMPTY_TITLE" = "Inga meddelanden än";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "Skicka ett meddelande för att starta konversationen.";

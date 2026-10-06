@@ -30,7 +30,7 @@ public class MessagesDataSource: DataSource {
     }
     
     public func getReplyOption(controller: UIViewController?) -> CometChatMessageOption {
-        return CometChatMessageOption(id: MessageOptionConstants.replyMessage, title: "REPLY".localize(), icon: AssetConstants.reply)
+        return CometChatMessageOption(id: MessageOptionConstants.reply, title: "REPLY".localize(), icon: AssetConstants.reply)
     }
     
     public func getShareOption(controller: UIViewController?) -> CometChatMessageOption {
@@ -369,6 +369,10 @@ public class MessagesDataSource: DataSource {
         return getAudioMessageBubble(audioUrl: message.attachment?.fileUrl, title: message.attachment?.fileName, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
     }
     
+    /// Kept registered on purpose after the form bubble's retirement: form messages still
+    /// arrive from other platforms, and this template renders them as a "message type not
+    /// supported" bubble (see `getFormBubble`) instead of a blank or unhandled row.
+    /// `FormBubbleStyle` stays too — the form-field elements still read it.
     public func getFormMessageTemplate(additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate {
         return CometChatMessageTemplate(category: MessageCategoryConstants.interactive, type: MessageTypeConstants.form, contentView: { message, alignment, controller in
             guard let formMessage = message as? FormMessage else { return UIView() }
@@ -1179,6 +1183,7 @@ public class MessagesDataSource: DataSource {
         audioBubble.set(fileURL: message?.attachment?.fileUrl ?? "", localFileURL: message?.metaData?["fileURL"] as? String, audioDuration: audioDuration)
         
         
+        if let style = style { audioBubble.style = style }
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)
         if let style = additionalConfiguration?.audioBubbleStyle(isLoggedInUser) { audioBubble.style = style }
 
@@ -1218,6 +1223,7 @@ public class MessagesDataSource: DataSource {
         return fileBubble
     }
     
+    /// The retired form bubble's replacement: an "unsupported message type" bubble.
     public func getFormBubble(message: FormMessage?, controller: UIViewController?, alignment: MessageBubbleAlignment, style: FormBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
         let isLoggedInUser = message?.sender?.uid == LoggedInUserInformation.getUID()
         let deleteBubbleStyle = additionalConfiguration?.deleteBubbleStyle(isLoggedInUser)

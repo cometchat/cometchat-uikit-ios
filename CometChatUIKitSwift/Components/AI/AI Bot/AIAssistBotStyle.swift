@@ -10,11 +10,17 @@ import UIKit
 
 public class AIAssistBotStyle {
     
+    /// Not applied: the bot-picker action items that used it are disabled. Kept for source compatibility.
     private(set) var buttonTextColor: UIColor?
+    /// Not applied: the bot-picker action items that used it are disabled. Kept for source compatibility.
     private(set) var buttonTextFont: UIFont?
+    /// Not applied: the bot-picker action items that used it are disabled. Kept for source compatibility.
     private(set) var buttonBorder: CGFloat?
+    /// Not applied: the bot-picker action items that used it are disabled. Kept for source compatibility.
     private(set) var buttonBorderRadius: CometChatCornerStyle?
+    /// Not applied: the bot-picker action items that used it are disabled. Kept for source compatibility.
     private(set) var buttonBackground: UIColor?
+    /// Not applied: the bot-picker action items that used it are disabled. Kept for source compatibility.
     private(set) var buttonBorderColor: UIColor?
     
     private(set) var closeIconTint: UIColor?

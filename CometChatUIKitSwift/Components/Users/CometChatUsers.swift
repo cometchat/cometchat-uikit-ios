@@ -13,7 +13,6 @@ public enum titleAlignment {
     case center
 }
 
-@MainActor
 open class CometChatUsers: CometChatListBase {
     
     // MARK: - Properties
@@ -219,6 +218,9 @@ open class CometChatUsers: CometChatListBase {
     open override func setupStyle() {
         listBaseStyle = style
         super.setupStyle()
+        // Separators are off unless the integrator gives `tableViewSeparator` a visible colour
+        // (the default is `.clear`), so the colour is not set on a line that never draws.
+        hideSeparator = style.tableViewSeparator.cgColor.alpha == 0
     }
     
     open override func styleSearchBar() {
@@ -358,8 +360,8 @@ open class CometChatUsers: CometChatListBase {
     // Sets a closure to handle selection of users and returns the current instance for chaining.
     @discardableResult
     public func onSelection(_ onSelection: @escaping ([User]) -> Void) -> Self {
-        // Calls the provided closure with the currently selected users from the ViewModel.
-        onSelection(viewModel.selectedUsers)
+        // Stores the closure; it is called whenever the selection changes.
+        self.onSelection = onSelection
         // Returns the current instance to enable method chaining.
         return self
     }
@@ -407,13 +409,12 @@ extension CometChatUsers {
         listItem.avatarHeightConstraint.constant = 40
         listItem.avatarWidthConstraint.constant = 40
 
-        // Set presence indicator if not disabled
-        listItem.statusIndicator.isHidden = !(user?.status == .online && !(user?.hasBlockedMe ?? true) && !(user?.blockedByMe ?? true))
-        if !hideUserStatus && user?.status == .online && user?.blockedByMe == false {
-            listItem.statusIndicator.isHidden = false
-        }else{
-            listItem.statusIndicator.isHidden = true
-        }
+        // Show the presence dot only for an online user when status is not hidden and neither side has blocked the other
+        let showsPresence = !hideUserStatus
+            && user?.status == .online
+            && user?.blockedByMe == false
+            && user?.hasBlockedMe == false
+        listItem.statusIndicator.isHidden = !showsPresence
         listItem.statusIndicator.style = statusIndicatorStyle
 
         // Apply theming styles to the list item
@@ -496,12 +497,12 @@ extension CometChatUsers {
 
     // Handles row selection in the table view
     open override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.users[indexPath.section][indexPath.row]
+        guard let user = viewModel.isSearching ? viewModel.filteredUsers[safe: indexPath.row] : viewModel.users[safe: indexPath.section]?[safe: indexPath.row] else { return }
 
         // Handle selection based on mode and selection limit
         if selectionMode == .none {
             onItemClick?(user, indexPath) ?? onDidSelect?(user, indexPath)
-        } else if !viewModel.selectedUsers.contains(user), (selectionLimit == nil || viewModel.selectedUsers.count < selectionLimit!) {
+        } else if !viewModel.selectedUsers.contains(user), viewModel.selectedUsers.count < (selectionLimit ?? Int.max) {
             viewModel.selectedUsers.append(user)
             updateSelectedCellCount(isSelected: true)
             self.onSelection?(viewModel.selectedUsers)
@@ -510,7 +511,7 @@ extension CometChatUsers {
 
     // Handles row deselection in the table view
     open override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        let user = viewModel.isSearching ? viewModel.filteredUsers[indexPath.row] : viewModel.users[indexPath.section][indexPath.row]
+        guard let user = viewModel.isSearching ? viewModel.filteredUsers[safe: indexPath.row] : viewModel.users[safe: indexPath.section]?[safe: indexPath.row] else { return }
 
         // Remove the user from the selected list
         if let foundUser = viewModel.selectedUsers.firstIndex(where: { $0.uid == user.uid }) {

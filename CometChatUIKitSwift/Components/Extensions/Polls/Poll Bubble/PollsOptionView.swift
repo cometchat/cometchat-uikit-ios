@@ -187,6 +187,14 @@ class PollsOptionView: UIView {
         pollAttemptedCountLabel.font = style.optionCountTextFont
         pollAttemptedCountLabel.adjustsFontForContentSizeCategory = true
         spinnerView.color = style.optionProgressTintColor
+        // The voters' avatars take the bubble's avatarStyle when one is set; otherwise the default above.
+        if let pollAvatarStyle = style.avatarStyle {
+            avatarStyle = pollAvatarStyle
+            for case let avatarView as CometChatAvatar in avatarContainerStackView.arrangedSubviews {
+                avatarView.style = pollAvatarStyle
+                avatarView.setNeedsLayout()
+            }
+        }
         if isOptionSelected {
             optionSelectedIndicatorImageView.tintColor = style.selectedPollImageTint
         } else {

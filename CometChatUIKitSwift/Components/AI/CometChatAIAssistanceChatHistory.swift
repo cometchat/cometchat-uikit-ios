@@ -114,6 +114,15 @@ open class CometChatAIAssistanceChatHistory: UIViewController {
         label.numberOfLines = 0
         return label
     }()
+
+    /// The close control. Installed as the left bar item only while the screen is
+    /// the root of its navigation stack (or has none), so a pushed history keeps
+    /// its back button and gains no second way out.
+    private lazy var closeBarButtonItem: UIBarButtonItem = {
+        let item = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: self, action: #selector(closeTapped))
+        item.accessibilityLabel = "a11y_close".localize()
+        return item
+    }()
     
     // MARK: - Date & Formatting
     public static var dateTimeFormatter: CometChatDateTimeFormatter = CometChatUIKit.dateTimeFormatter
@@ -143,7 +152,20 @@ open class CometChatAIAssistanceChatHistory: UIViewController {
     }
     
     open override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         setupStyle()
+        configureCloseButton()
+    }
+
+    private func configureCloseButton() {
+        let isStackRoot = navigationController.map { $0.viewControllers.first === self } ?? true
+        if isStackRoot {
+            if navigationItem.leftBarButtonItem == nil {
+                navigationItem.leftBarButtonItem = closeBarButtonItem
+            }
+        } else if navigationItem.leftBarButtonItem === closeBarButtonItem {
+            navigationItem.leftBarButtonItem = nil
+        }
     }
     
     func setupStyle() {
@@ -206,10 +228,13 @@ open class CometChatAIAssistanceChatHistory: UIViewController {
         tableView.dataSource = self
         view.addSubview(tableView)
         
-        // Empty & Error Labels
+        // Error label: mounted by showErrorLabel(_:) when a request fails while
+        // the list has rows (a failed first load shows errorStateView instead).
         errorLabel.translatesAutoresizingMaskIntoConstraints = false
-//        view.addSubview(errorLabel)
-        
+        errorLabel.isHidden = true
+
+        configureCloseButton()
+
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -262,18 +287,42 @@ open class CometChatAIAssistanceChatHistory: UIViewController {
         tableView.isHidden = false
         errorStateView.removeFromSuperview()
     }
+
+    /// Shows `text` in the error label pinned to the bottom of the screen, above
+    /// the rows already on screen.
+    private func showErrorLabel(_ text: String) {
+        if errorLabel.superview == nil {
+            view.addSubview(errorLabel)
+            NSLayoutConstraint.activate([
+                errorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+                errorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+                errorLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12)
+            ])
+        }
+        view.bringSubviewToFront(errorLabel)
+        errorLabel.text = text
+        errorLabel.isHidden = false
+    }
     
     private func setupInitialRequest() {
-        if let user = user {
-            let builder = MessagesRequest.MessageRequestBuilder()
-                .set(uid: user.uid ?? "")
+        // A builder supplied through set(messagesRequestBuilder:) wins, even when
+        // it arrived before the user or group; otherwise load 20 text messages.
+        let builder: MessagesRequest.MessageRequestBuilder
+        if viewModel.hasCustomRequestBuilder {
+            builder = viewModel.messagesRequestBuilder
+        } else {
+            builder = MessagesRequest.MessageRequestBuilder()
                 .hideReplies(hide: true)
                 .set(categories: [MessageCategoryConstants.message])
                 .set(types: [MessageTypeConstants.text])
                 .hideDeletedMessages(hide: true)
                 .set(limit: 20)
-            
-            viewModel.set(user: user, messagesRequestBuilder: builder, parentMessage: nil)
+        }
+
+        if let user = user {
+            viewModel.set(user: user, messagesRequestBuilder: builder, parentMessage: viewModel.parentMessage)
+        } else if let group = group {
+            viewModel.set(group: group, messagesRequestBuilder: builder, parentMessage: viewModel.parentMessage)
         }
         viewModel.fetchPreviousMessages()
     }
@@ -285,6 +334,10 @@ open class CometChatAIAssistanceChatHistory: UIViewController {
                 this.tableView.reloadData()
                 this.isLoadingMore = false
                 this.removeLoadingView()
+                this.errorLabel.isHidden = true
+                if this.errorStateView.superview != nil {
+                    this.removeErrorView()
+                }
                 if this.viewModel.messages.count <= 0 {
                     if let onEmpty = this.onEmpty?(){
                         onEmpty
@@ -343,11 +396,19 @@ open class CometChatAIAssistanceChatHistory: UIViewController {
         viewModel.failure = { [weak self] error in
             DispatchQueue.main.async { [weak self] in
                 guard let this = self else { return }
+                // A failed page must not block every later scroll-triggered fetch.
+                this.isLoadingMore = false
+                this.removeLoadingView()
                 if let onError = this.onError?(error){
                     onError
+                } else if this.viewModel.messages.isEmpty {
+                    // Nothing on screen: the failure replaces the list.
+                    this.showErrorView()
+                } else {
+                    // Rows already loaded stay visible; a failed page or delete
+                    // is reported inline.
+                    this.showErrorLabel(error.errorDescription)
                 }
-                self?.errorLabel.text = error.errorDescription
-                self?.errorLabel.isHidden = false
             }
         }
     }
@@ -394,11 +455,8 @@ extension CometChatAIAssistanceChatHistory: UITableViewDelegate, UITableViewData
     }
     
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if hideDateSeparator{
-            return 0
-        }else{
-            return viewModel.messages[safe: section]?.messages.count ?? 0
-        }
+        // hideDateSeparator hides only the section header, never the rows.
+        return viewModel.messages[safe: section]?.messages.count ?? 0
     }
     
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -438,7 +496,9 @@ extension CometChatAIAssistanceChatHistory: UITableViewDelegate, UITableViewData
     }
     
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 28
+        // A grouped table treats 0 as "use the default height"; the smallest
+        // positive height collapses the hidden separator instead.
+        return hideDateSeparator ? .leastNormalMagnitude : 28
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

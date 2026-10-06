@@ -29,8 +29,9 @@ extension CometChatGroupMembers {
         return self
     }
     
+    /// Registers a closure that receives the current selection every time it changes.
     public func onSelection(_ onSelection: @escaping ([GroupMember]?) -> ()) {
-        onSelection(viewModel.selectedGroupMembers)
+        self.onSelection = onSelection
     }
     
     

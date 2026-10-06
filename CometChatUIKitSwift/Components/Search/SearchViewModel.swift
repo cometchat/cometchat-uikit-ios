@@ -87,7 +87,9 @@ open class SearchViewModel: NSObject {
         
         let task = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
-            let text = searchText ?? ""
+            // A whitespace-only query is no query: trim before the empty check so "   "
+            // returns the screen to its initial state instead of searching for spaces.
+            let text = (searchText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             self.currentSearchText = text
             
             // Reset counts
@@ -196,8 +198,9 @@ open class SearchViewModel: NSObject {
             builder = builder.set(guid: group.guid)
         }
 
-        if !searchText.isEmpty {
-            builder = builder.set(searchKeyword: searchText)
+        let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !keyword.isEmpty {
+            builder = builder.set(searchKeyword: keyword)
         }
 
         // Filter by category only — NOT by type. Developer cards (category `card`) can carry

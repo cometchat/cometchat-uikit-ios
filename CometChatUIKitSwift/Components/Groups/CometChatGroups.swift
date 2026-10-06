@@ -8,7 +8,6 @@
 import UIKit
 import CometChatSDK
 
-@MainActor
 open class CometChatGroups: CometChatListBase {
     
     // MARK: - Declaration of View Model
@@ -30,7 +29,7 @@ open class CometChatGroups: CometChatListBase {
     var onEmpty: (() -> Void)?
     var onLoad: (([Group]) -> Void)?
 
-    // Array to hold menu items for the navigation bar.
+    @available(*, deprecated, message: "Has no effect. Use rightBarButtonItem instead.")
     public var menus: [UIBarButtonItem]?
 
     // Closure to generate options for a given group.
@@ -79,6 +78,9 @@ open class CometChatGroups: CometChatListBase {
     public var bannedFromGroupAlert : UIAlertController?
     
     public var hideGroupType: Bool = false
+
+    // The error code the SDK reports when the logged-in user is banned from the group.
+    static let bannedFromGroupErrorCode = "ERR_BANNED_GROUPMEMBER"
 
     // A variable to track the number of selected cells.
     public var selectedCellCount: Int = 0 {
@@ -221,21 +223,19 @@ open class CometChatGroups: CometChatListBase {
     }
 
     // Call this method when a cell is selected or deselected to update the count.
+    // The count is derived from the actual selection, so a re-tap that deselects,
+    // a single-mode re-tap or a row refused by the selection limit cannot drift it.
     open func updateSelectedCellCount(isSelected: Bool) {
         if selectionMode != .none{
-            if isSelected {
-                selectedCellCount += 1
-            } else {
-                selectedCellCount -= 1
-            }
+            selectedCellCount = viewModel.selectedGroups.count
         }
     }
 
     // Fetches group data from the view model.
     public func fetchData() {
-        // Triggers the fetching of groups from the view model.
+        // Setting isRefresh triggers the fetch through its didSet; calling
+        // fetchGroups() here as well would ask the SDK twice.
         viewModel.isRefresh = true
-        viewModel.fetchGroups()
     }
 
     // Sets up the view model's callbacks for updating the UI.
@@ -256,6 +256,7 @@ open class CometChatGroups: CometChatListBase {
                     // If searching and no filtered groups, show empty view.
                     if this.viewModel.filteredGroups.isEmpty {
                         this.showEmptyView()
+                        this.onEmpty?()
                     } else {
                         // Otherwise, hide the empty view and restore the table view.
                         this.removeEmptyView()
@@ -265,6 +266,7 @@ open class CometChatGroups: CometChatListBase {
                     // If not searching and no groups, show empty view.
                     if this.viewModel.groups.isEmpty {
                         this.showEmptyView()
+                        this.onEmpty?()
                     } else {
                         // Otherwise, hide the empty view and restore the table view.
                         this.removeEmptyView()
@@ -288,13 +290,15 @@ open class CometChatGroups: CometChatListBase {
             DispatchQueue.main.async {
                 // Calls the onError closure to handle the error.
                 this.onError?(error)
-                // Hides the footer loading indicator and refresh control.
+                // Only a ban explains a failure with the banned-from-group alert;
+                // any other failure just dismisses the joining alert, if shown.
+                let isBanned = error.errorCode == CometChatGroups.bannedFromGroupErrorCode
                 DispatchQueue.main.async {
                     if this.joiningGroupAlert != nil {
                         this.hideJoiningGroupAlert(completion: {
-                            this.showBannedUserAlert()
+                            if isBanned { this.showBannedUserAlert() }
                         })
-                    } else {
+                    } else if isBanned {
                         this.showBannedUserAlert()
                     }
                 }
@@ -422,6 +426,7 @@ extension CometChatGroups {
         
         // Set the avatar for the group using the group icon or name
         listItem.set(avatarURL: group.icon ?? "", with: group.name)
+        listItem.avatar.style = avatar
         
         if let leadingView = leadingView?(group){
             listItem.set(leadingView: leadingView)
@@ -476,11 +481,15 @@ extension CometChatGroups {
         case .private:
             if !hideGroupType{
                 configureStatusIndicator(for: listItem, icon: style.privateGroupIcon, tintColor: style.privateGroupImageTintColor, backgroundColor: style.privateGroupImageBackgroundColor)
+            } else {
+                listItem.statusIndicator.isHidden = true
             }
             
         case .password:
             if !hideGroupType{
-                configureStatusIndicator(for: listItem, icon: style.protectedGroupIcon, tintColor: .white, backgroundColor: style.passwordGroupImageBackgroundColor)
+                configureStatusIndicator(for: listItem, icon: style.protectedGroupIcon, tintColor: style.passwordGroupImageTintColor, backgroundColor: style.passwordGroupImageBackgroundColor)
+            } else {
+                listItem.statusIndicator.isHidden = true
             }
         @unknown default:
             listItem.statusIndicator.isHidden = true

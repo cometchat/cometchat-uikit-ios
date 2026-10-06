@@ -24,7 +24,7 @@ protocol GroupsViewModelProtocol {
 
     func fetchGroups()
     func filterGroups(text: String)
-    func joinGroup(withGuid: String, name: String, groupType: CometChat.groupType, password: String, indexPath: IndexPath, completion: @escaping (_ joinedGroup: Group?) -> Void)
+    func joinGroup(withGuid: String, name: String, groupType: CometChat.GroupType, password: String, indexPath: IndexPath, completion: @escaping (_ joinedGroup: Group?) -> Void)
 }
 
 
@@ -157,7 +157,7 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
         }
     }
     
-    func joinGroup(withGuid: String, name: String, groupType: CometChat.groupType, password: String, indexPath: IndexPath, completion: @escaping (_ joinedGroup: Group?) -> Void) {
+    func joinGroup(withGuid: String, name: String, groupType: CometChat.GroupType, password: String, indexPath: IndexPath, completion: @escaping (_ joinedGroup: Group?) -> Void) {
         service.joinGroup(guid: withGuid, groupType: groupType, password: password, onSuccess: { [weak self] (joinedGroup) in
             guard let this = self else { return }
             this.hasJoined?(joinedGroup)

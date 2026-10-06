@@ -669,3 +669,14 @@
 "REPORT_MESSAGE" = "Report";
 "a11y_keyboard" = "Keyboard";
 "a11y_confirm_selection" = "Confirm selection";
+"REPORT_SELECT_REASON_ERROR" = "Не удалось отправить. Выберите причину, прежде чем пожаловаться на это сообщение";
+"REPORTED" = "Жалоба отправлена";
+"REPORT_SUBMITTED_SUCCESSFULLY" = "Ваша жалоба успешно отправлена.";
+"MESSAGE_MEDIA" = "Медиа";
+"MESSAGE_MEETING" = "Встреча";
+"MESSAGE_GENERIC" = "Сообщение";
+"MEETING_SCHEDULER" = "Планировщик встреч";
+"MORE_TIMES" = "Другое время";
+"search_no_results_for" = "Нет результатов по запросу «%@»\nПопробуйте новый поиск";
+"MESSAGE_LIST_EMPTY_TITLE" = "Сообщений пока нет";
+"MESSAGE_LIST_EMPTY_SUBTITLE" = "Отправьте сообщение, чтобы начать разговор.";

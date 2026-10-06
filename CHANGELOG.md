@@ -3,6 +3,53 @@
 All notable changes to the CometChat iOS UI Kit, generated from the
 [GitHub releases](https://github.com/cometchat/cometchat-uikit-ios/releases) (newest first).
 
+## 5.2.0 — 2026-09-23
+
+
+### New
+
+* Added custom trailing actions to the rich-text composer toolbar with `CometChatRichTextToolbarAction`, allowing apps to place custom actions alongside the built-in formatting controls and operate on the current composer input.
+
+* Added `CometChatComposerInput` for reading and updating composer content from custom toolbar actions. The API provides access to `attributedText`, `selectedRange`, `hasSelection`, `activeFormats`, and `mentionRanges`, along with methods including `insertAtCaret(_:)`, `replaceSelection(_:)`, `applyAttributes(...)`, `removeAttributes(...)`, `setAttributedText(_:preservingSelection:)`, `setSelectedRange(_:)`, and `commit()`.
+
+* Added `CometChatRichTextToolbar.set(trailingActions:)` and `CometChatCompactMessageComposer.set(richTextToolbarActions:)` to configure custom rich-text toolbar actions for individual conversations.
+
+* Added `CometChatLogger` with configurable `CometChatLogLevel` values for framework logging. Logging is opt-in, and the UIKit does not write framework logs to the device console by default.
+
+### Enhancements
+
+* Improved text formatter extensibility with the new `CometChatTextFormatter` methods `getOriginalText(_:)`, `applyComposerAttributes(to:)`, and `preparePreviewString(baseMessage:regexString:)`. Existing formatters retain their current behavior by default, while custom formatters can now manage inline styling more consistently across composing, sending, and preview rendering.
+
+* Improved accessibility across the UIKit by adding Dynamic Type support and accessibility labels to 46 icon-only controls. Accessibility labels are localized across all 19 shipped locales.
+
+### Fixes
+
+* Fixed an issue where call logs could fail to load on a fresh installation before the first call was placed. `CometChatUIKit` now synchronizes the Calls SDK session with chat login and logout, and the call-log paging indicator now stops once the final page has been loaded.
+
+* Fixed concurrent listener registration and event delivery across Message, Group, UI, Call, User, Conversation, Thread, and Card event registries. Listeners can now be added or removed safely while events are being dispatched without causing duplicate events or silently dropped listeners.
+
+* Fixed 282 missing localization key and locale combinations across the 19 shipped locales. Keys including `REPLY_TO_MESSAGE`, `AVIALABLE`, and `REPLY` now resolve to localized text instead of appearing as raw identifiers.
+
+* Fixed custom text formatter attributes being lost when formatted content was rendered across message and conversation surfaces. Formatter-provided attributes are now preserved, and ranges are recalculated after rendering so styling remains attached to the correct text when Markdown changes character offsets or the same text appears multiple times.
+
+* Fixed thread follow and unfollow behavior so it no longer depends on UIKit initialization timing. Thread subscription is now enabled by default, while `UIKitSettings.enable(threadSubscription:)` and `CometChatUIKit.isThreadSubscriptionEnabled()` retain their existing signatures; apps can opt out with `enable(threadSubscription: false)`.
+
+* Fixed the Pin and Unpin conversation swipe action appearing when conversation pinning was disabled or unavailable. The action now respects `CometChat.isPinConversationEnabled()` before being displayed.
+
+* Fixed the privacy manifest so required-reason APIs and collected data types use the expected Apple declarations, preventing the UIKit's manifest from triggering the associated App Store Connect validation warning.
+
+* Fixed release builds writing user-related information directly to the device console. Framework output, including locations that previously logged user objects, user IDs, or message identifiers, now routes through the opt-in `CometChatLogger`.
+
+* Fixed hard-coded colors that bypassed the active UIKit theme. Components including the Markdown code background now resolve colors through `CometChatTheme`, improving readability in dark mode and custom themes.
+
+### Removals
+
+* Removed the public `CometChatFormBubble` API, including its form-message configuration and styling methods. The component could not be used successfully because its required UI resource was unavailable in the distributed framework; form messages continue to render the built-in "This message type is not supported" placeholder, and no replacement API is required for that behavior.
+
+### Breaking Changes
+
+* Removed `CometChatFormBubble` from the public API. Applications that still reference `CometChatFormBubble` or its methods must remove those references before upgrading to v5.2.0; unsupported form messages continue to use the existing placeholder rendering.
+
 ## 5.1.23 — 2026-09-17
 
 ### New

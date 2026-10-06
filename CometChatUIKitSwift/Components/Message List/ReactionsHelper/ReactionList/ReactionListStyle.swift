@@ -26,6 +26,7 @@ public struct ReactionListStyle {
     public var subTitleTextColor : UIColor = CometChatTheme.textColorSecondary
     public var errorTextColor : UIColor = CometChatTheme.textColorSecondary
     public var errorTextFont : UIFont = CometChatTypography.Body.regular
+    /// Not applied: row avatars read `CometChatReactionList.avatarStyle` (or the instance `avatarStyle`) instead. Kept for source compatibility.
     public var avatarStyle : AvatarStyle = CometChatAvatar.style
         
     public init() { }

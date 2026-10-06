@@ -134,7 +134,9 @@ enum LiveReaction {
             }
         }
         
-        let deadlineTime = DispatchTime.now() + .seconds(Int(self.delay * Double(NSEC_PER_SEC)))
+        // `delay` is in seconds; schedule it in nanoseconds (clamped so a bad value can't trap).
+        let delaySeconds = self.delay.isFinite ? min(max(self.delay, 0), 3600) : 0
+        let deadlineTime = DispatchTime.now() + .nanoseconds(Int(delaySeconds * Double(NSEC_PER_SEC)))
         DispatchQueue.global().asyncAfter(deadline: deadlineTime, execute: { [weak self] in
             var goToNext = true
             guard let this = self else { return }
@@ -199,13 +201,12 @@ enum LiveReaction {
     }
     
     public func stopReaction() {
+        // Read the floaters before clearing the list, otherwise there is nothing to remove.
+        let v = views ?? []
         views = []
-        guard let v = views else {return}
         isAnimating = false
-        if !v.isEmpty {
-            for i in v {
-                i.removeFromSuperview()
-            }
+        for i in v {
+            i.removeFromSuperview()
         }
     }
     

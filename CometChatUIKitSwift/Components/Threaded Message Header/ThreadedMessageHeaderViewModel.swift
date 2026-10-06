@@ -40,6 +40,9 @@ public class ThreadedMessageHeaderViewModel: ThreadedMessageHeaderViewModelProto
     public var incrementCount: (() -> Void)?
     public var templates: [String : CometChatMessageTemplate]?
     public var onThreadSubscriptionChanged: ((_ isSubscribed: Bool) -> Void)?
+    /// Fired after `parentMessage` is edited or deleted, so the header can rebuild the
+    /// parent bubble. May be called off the main thread.
+    public var onParentMessageUpdated: (() -> Void)?
 
     open func connect() {
         listeners.add(.messageEvents, id: "threaded-messages-message-listener-\(listenerRandomID)", listener: self)
@@ -136,28 +139,28 @@ extension ThreadedMessageHeaderViewModel: CometChatMessageEventListener {
     public func onMessageEdited(message: BaseMessage) {
         if message.id == self.parentMessage?.id {
             self.parentMessage = message
-            //TODO: CC Update Message Bubble
+            self.onParentMessageUpdated?()
         }
     }
     
     public func onMessageDeleted(message: BaseMessage) {
         if message.id == self.parentMessage?.id {
             self.parentMessage = message
-            //TODO: CC Update Message Bubble
+            self.onParentMessageUpdated?()
         }
     }
     
     public func ccMessageDeleted(message: BaseMessage) {
         if message.id == self.parentMessage?.id {
-            self.parentMessage?.deletedAt = Double(Int(NSDate().timeIntervalSince1970))
-            //TODO: CC Update Message Bubble
+            self.parentMessage?.deletedAt = message.deletedAt > 0 ? message.deletedAt : Double(Int(NSDate().timeIntervalSince1970))
+            self.onParentMessageUpdated?()
         }
     }
     
     public func ccMessageEdited(message: BaseMessage, status: MessageStatus) {
         if message.id == self.parentMessage?.id {
             self.parentMessage = message
-            //TODO: CC Update Message Bubble
+            self.onParentMessageUpdated?()
         }
     }
     
