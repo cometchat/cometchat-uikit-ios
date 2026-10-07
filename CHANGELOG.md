@@ -3,6 +3,26 @@
 All notable changes to the CometChat iOS UI Kit, generated from the
 [GitHub releases](https://github.com/cometchat/cometchat-uikit-ios/releases) (newest first).
 
+## 5.2.1 — 2026-10-06
+
+
+### New
+- Added APIs for customizing Group Members, AI Assistant, ongoing calls, list items, multi-attachment bubbles, threaded messages, and call-log date styling.
+
+### Enhancements
+- Updated UI Kit components to use design-system theme tokens, improving light and dark mode consistency.
+- Improved Swift Package Manager integration so `CometChatSDK` is resolved automatically with the UI Kit.
+- Improved accessibility with larger touch targets, better VoiceOver labels, and improved support for larger text sizes.
+- Improved navigation and back-button behavior for Group Members screens.
+- Improved login and authentication error handling with clearer error messages.
+
+### Fixes
+- Fixed critical image and file bubble issues that could delete files from the app sandbox. 
+- Fixed crashes in messaging, meeting scheduler, calendar invite parsing, and shared UI components.
+- Fixed group conversations remaining visible after leaving, being kicked, or being banned from a group.
+- Fixed composer, Search, AI chat, Call Logs, Message Information, reactions, polls, and interactive message issues.
+- Fixed navigation and state issues across Group Members, Groups, Conversations, and message lists.
+
 ## 5.2.0 — 2026-09-23
 
 

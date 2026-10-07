@@ -118,7 +118,7 @@ open class GrowingTextView: UITextView {
         
         // Offer Paste when the clipboard holds images or files and attachment-paste
         // is supported.
-        if action == #selector(paste(_:)) {
+        if action == #selector(paste(_:)), attachmentPasteAllowed {
             if onImagePaste != nil, UIPasteboard.general.hasImages { return true }
             if onFilePaste != nil, GrowingTextView.pasteboardHasFileItems() { return true }
         }
@@ -264,6 +264,23 @@ open class GrowingTextView: UITextView {
     /// (staged as attachments) instead of being dropped.
     public var onFilePaste: (([PastedFileItem]) -> Void)?
 
+    /// Asked before any clipboard image or file is lifted off the pasteboard. The
+    /// composer answers false when it can't stage attachments (multiple attachments
+    /// off, or editing), so the paste falls through to text instead of being claimed
+    /// and dropped.
+    var canStagePastedAttachments: (() -> Bool)?
+
+    private var attachmentPasteAllowed: Bool { canStagePastedAttachments?() ?? true }
+
+    /// Formatted text also carries `com.apple.flat-rtfd` / `com.apple.webarchive`,
+    /// which aren't text types; an item with a text representation is text, not a file.
+    static func isFileItem(types: [String], hasFileURL: Bool) -> Bool {
+        if types.contains(where: { utiIsImage($0) }) { return false }
+        if hasFileURL { return true }
+        if types.contains(where: { utiIsText($0) }) { return false }
+        return types.contains(where: { utiIsFileCandidate($0) })
+    }
+
     /// Non-image files on the pasteboard, one per item, in item order. A copied file
     /// URL (Files-app Copy) is read from disk and keeps its real filename; otherwise
     /// the item's first file-like data representation is taken and named from its
@@ -274,10 +291,10 @@ open class GrowingTextView: UITextView {
         let pasteboard = UIPasteboard.general
         let providers = pasteboard.itemProviders
         for (index, item) in pasteboard.items.enumerated() {
-            // Image items are the image paste path's job.
-            if item.keys.contains(where: { utiIsImage($0) }) { continue }
+            let url = fileURL(in: item)
+            guard isFileItem(types: Array(item.keys), hasFileURL: url != nil) else { continue }
 
-            if let url = fileURL(in: item),
+            if let url = url,
                let data = try? Data(contentsOf: url), !data.isEmpty {
                 result.append(PastedFileItem(
                     name: url.lastPathComponent,
@@ -300,7 +317,7 @@ open class GrowingTextView: UITextView {
             // sheet's Copy materializes bytes without a URL but keeps suggestedName.
             // Only a truly nameless item gets the generated "pasted-file-…" name.
             let name: String
-            if let originalName = fileURL(in: item)?.lastPathComponent, !originalName.isEmpty {
+            if let originalName = url?.lastPathComponent, !originalName.isEmpty {
                 name = originalName
             } else if index < providers.count,
                       let suggested = providers[index].suggestedName, !suggested.isEmpty {
@@ -322,8 +339,7 @@ open class GrowingTextView: UITextView {
         let pasteboard = UIPasteboard.general
         let typeLists = pasteboard.itemProviders.map { $0.registeredTypeIdentifiers }
         if typeLists.contains(where: { types in
-            !types.contains(where: { utiIsImage($0) })
-                && types.contains(where: { utiIsFileCandidate($0) || $0 == "public.file-url" })
+            isFileItem(types: types, hasFileURL: types.contains("public.file-url"))
         }) {
             return true
         }
@@ -362,6 +378,13 @@ open class GrowingTextView: UITextView {
         return UTTypeConformsTo(identifier as CFString, kUTTypeImage)
     }
 
+    private static func utiIsText(_ identifier: String) -> Bool {
+        if #available(iOS 14.0, *) {
+            return UTType(identifier)?.conforms(to: .text) ?? false
+        }
+        return UTTypeConformsTo(identifier as CFString, kUTTypeText)
+    }
+
     /// File-like: carries data but isn't text, a URL, or an image.
     private static func utiIsFileCandidate(_ identifier: String) -> Bool {
         if #available(iOS 14.0, *) {
@@ -397,18 +420,20 @@ open class GrowingTextView: UITextView {
     open override func paste(_ sender: Any?) {
         // Clipboard images/files → attachment tray (multi-attachment paste support).
         var handled = false
-        if let onImagePaste = onImagePaste, UIPasteboard.general.hasImages {
-            let images = GrowingTextView.imagesFromPasteboard()
-            if !images.isEmpty {
-                onImagePaste(images)
-                handled = true
+        if attachmentPasteAllowed {
+            if let onImagePaste = onImagePaste, UIPasteboard.general.hasImages {
+                let images = GrowingTextView.imagesFromPasteboard()
+                if !images.isEmpty {
+                    onImagePaste(images)
+                    handled = true
+                }
             }
-        }
-        if let onFilePaste = onFilePaste {
-            let files = GrowingTextView.filesFromPasteboard()
-            if !files.isEmpty {
-                onFilePaste(files)
-                handled = true
+            if let onFilePaste = onFilePaste {
+                let files = GrowingTextView.filesFromPasteboard()
+                if !files.isEmpty {
+                    onFilePaste(files)
+                    handled = true
+                }
             }
         }
         if handled { return }

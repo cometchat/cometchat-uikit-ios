@@ -65,6 +65,12 @@ extension CometChatMessageComposer {
 
         // Clipboard paste: images and files on the pasteboard stage into the tray.
         // Not while editing — an edit can't add attachments.
+        textView.canStagePastedAttachments = { [weak self] in
+            guard let self else { return false }
+            // Paste attaches only where the attachment button shows.
+            return self.enableMultipleAttachments && !self.hideAttachmentButton
+                && self.messageComposerMode != .edit
+        }
         textView.onImagePaste = { [weak self] images in
             guard let self, self.enableMultipleAttachments, self.messageComposerMode != .edit else { return }
             self.stagePastedImages(images)
