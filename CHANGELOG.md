@@ -3,6 +3,20 @@
 All notable changes to the CometChat iOS UI Kit, generated from the
 [GitHub releases](https://github.com/cometchat/cometchat-uikit-ios/releases) (newest first).
 
+## 5.2.2 — 2026-10-07
+
+
+### New
+- None
+
+### Enhancements
+- None
+
+### Fixes
+- Fixed pasting formatted text (copied from Safari, Mail, Notes, Slack and similar apps) into the message composer. It now pastes as text. Before, nothing was inserted when multiple attachments were turned off or while editing a message, and a stray file attachment was added and uploaded when they were on.
+- Fixed pasted text being dropped when the clipboard also held an image and multiple attachments were turned off. The text is now inserted.
+- Fixed pasting images and files adding attachments when the attachment button is hidden (`hideAttachmentButton`), and in AI agent chats in `CometChatCompactMessageComposer`, where no attachment button is shown. Pasted text is not affected.
+
 ## 5.2.1 — 2026-10-06
 
 

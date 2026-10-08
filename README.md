@@ -43,7 +43,7 @@ https://github.com/cometchat/cometchat-uikit-ios.git
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/cometchat/cometchat-uikit-ios.git", from: "5.2.2")
+    .package(url: "https://github.com/cometchat/cometchat-uikit-ios.git", from: "5.2.3")
 ],
 targets: [
     .target(
