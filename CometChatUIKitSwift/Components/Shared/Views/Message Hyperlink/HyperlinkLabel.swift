@@ -181,10 +181,12 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
     }
     
     public override func drawText(in rect: CGRect) {
-        let range = NSRange(location: 0, length: textStorage.length)
-        
         textContainer.size = rect.size
         let newOrigin = textOrigin(inRect: rect)
+        // A glyph range, not the character count: Arabic, Thai and other scripts can
+        // lay out as more glyphs than characters, and the glyphs past the count, the
+        // end of the message, were laid out but never drawn.
+        let range = layoutManager.glyphRange(for: textContainer)
         
         // Ensure we're drawing with the correct trait collection
         // This helps dynamic colors resolve correctly
@@ -213,6 +215,11 @@ typealias ElementTuple = (range: NSRange, element: HyperlinkElement, type: Hyper
         }
 
         textContainer.size = CGSize(width: self.preferredMaxLayoutWidth, height: CGFloat.greatestFiniteMagnitude)
+        // usedRect(for:) reports the last layout without running one. After the
+        // container resizes that layout can be stale: text with a multi-scalar emoji
+        // still measured as the unwrapped line from the first auto layout pass, so
+        // the bubble got one line of height and the text drew truncated.
+        layoutManager.ensureLayout(for: textContainer)
         let size = layoutManager.usedRect(for: textContainer)
         return CGSize(width: ceil(size.width), height: ceil(size.height))
     }

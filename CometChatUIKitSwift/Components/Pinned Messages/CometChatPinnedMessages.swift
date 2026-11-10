@@ -318,15 +318,8 @@ open class CometChatPinnedMessages: CometChatListBase {
 
     // MARK: - Cell Registration
 
-    /// `set(bubbleView:)` tears the bubble's own stacks out of the container and
-    /// `prepareForReuse` never puts them back, so a cell that once carried a custom bubble
-    /// can never render a normal one again. Keeping the two populations on separate reuse
-    /// identifiers avoids that without touching the shared bubble.
-    static let customBubbleIdentifier = "CometChatPinnedMessageCustomBubble"
-
     open func registerCells() {
         tableView.register(CometChatMessageBubble.self, forCellReuseIdentifier: CometChatMessageBubble.identifier)
-        tableView.register(CometChatMessageBubble.self, forCellReuseIdentifier: Self.customBubbleIdentifier)
     }
 }
 
@@ -409,11 +402,9 @@ extension CometChatPinnedMessages {
             alignment = isLoggedInUser ? .right : .left
         }
 
-        // Resolved before dequeue so custom bubbles land on their own reuse identifier.
         let customBubble = listItemView?(message) ?? template?.bubbleView?(message, alignment, self)
-        let identifier = customBubble == nil ? CometChatMessageBubble.identifier : Self.customBubbleIdentifier
 
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? CometChatMessageBubble else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CometChatMessageBubble.identifier, for: indexPath) as? CometChatMessageBubble else {
             return UITableViewCell()
         }
 

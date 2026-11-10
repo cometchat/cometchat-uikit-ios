@@ -2721,21 +2721,19 @@ open class CometChatCompactMessageComposer: UIView {
         updateSendButtonState()
     }
     
-    /// Shows a native iOS alert dialog for adding a link with text and URL fields
+    /// Shows the Add Link dialog with text and URL fields (`ComposerLinkDialog`, drawn as the
+    /// system alert; a `UIAlertController` with text fields crashes on iOS 26 when the text
+    /// size changes while a field is editing — ENG-39659)
     /// - Parameter range: The current selection range in the text view
     private func showAddLinkAlert(at range: NSRange) {
-        
+
         // Guard against nil controller - can't present alert without it
         guard let controller = controller else {
             return
         }
-        
-        
-        let alert = UIAlertController(
-            title: "ADD_LINK".localize(),
-            message: nil,
-            preferredStyle: .alert
-        )
+
+
+        let alert = ComposerLinkDialog(title: "ADD_LINK".localize())
         
         
         // Validate and adjust range to be within bounds
@@ -2782,16 +2780,16 @@ open class CometChatCompactMessageComposer: UIView {
         }
         
         // Cancel action
-        let cancelAction = UIAlertAction(title: "CANCEL".localize(), style: .cancel) { [weak self] _ in
+        let cancelAction = ComposerLinkDialogAction(title: "CANCEL".localize(), style: .cancel) { [weak self] in
             self?.textView.becomeFirstResponder()
         }
-        
+
         // Save action
-        let saveAction = UIAlertAction(title: "SAVE".localize(), style: .default) { [weak self] _ in
+        let saveAction = ComposerLinkDialogAction(title: "SAVE".localize(), style: .default) { [weak self, weak alert] in
             guard let self = self else { return }
-            
-            let displayText = alert.textFields?[0].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let urlString = alert.textFields?[1].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+            let displayText = alert?.textFields?[0].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let urlString = alert?.textFields?[1].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             
             // Validate that URL is provided (text is optional)
             guard !urlString.isEmpty else {
@@ -2818,35 +2816,28 @@ open class CometChatCompactMessageComposer: UIView {
         
         alert.addAction(cancelAction)
         alert.addAction(saveAction)
-        
-        // Add text change observers to enable/disable save button
+
+        // Enable the save button while the URL field has text
         // We need at least a URL to enable the save button
-        let textChangeHandler: (UITextField) -> Void = { _ in
-            let urlText = alert.textFields?[1].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        alert.textFields?[1].addAction(UIAction { [weak alert] _ in
+            let urlText = alert?.textFields?[1].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             saveAction.isEnabled = !urlText.isEmpty
-        }
-        
-        // Observe text changes in both fields
-        NotificationCenter.default.addObserver(
-            forName: UITextField.textDidChangeNotification,
-            object: alert.textFields?[0],
-            queue: .main
-        ) { _ in
-            textChangeHandler(alert.textFields?[0] ?? UITextField())
-        }
-        
-        NotificationCenter.default.addObserver(
-            forName: UITextField.textDidChangeNotification,
-            object: alert.textFields?[1],
-            queue: .main
-        ) { _ in
-            textChangeHandler(alert.textFields?[1] ?? UITextField())
-        }
-        
-        // Present the alert with dismiss gesture
-        presentAlertWithDismissGesture(alert)
+        }, for: .editingChanged)
+
+        // Present the dialog with dismiss gesture
+        presentLinkDialog(alert)
     }
-    
+
+    /// Presents the Add / Edit Link dialog; a tap outside it dismisses it and returns to the
+    /// text view, as `presentAlertWithDismissGesture` does for an alert
+    /// - Parameter dialog: The dialog to present
+    private func presentLinkDialog(_ dialog: ComposerLinkDialog) {
+        dialog.onTapOutside = { [weak self] in
+            self?.textView.becomeFirstResponder()
+        }
+        controller?.present(dialog, animated: true)
+    }
+
     /// Presents an alert with tap-to-dismiss functionality
     /// - Parameter alert: The UIAlertController to present
     private func presentAlertWithDismissGesture(_ alert: UIAlertController) {
@@ -3037,11 +3028,7 @@ open class CometChatCompactMessageComposer: UIView {
     ///   - url: The current URL of the link
     ///   - range: The range of the link in the text view
     private func editLink(displayText: String, url: String, at range: NSRange) {
-        let alert = UIAlertController(
-            title: "EDIT_LINK".localize(),
-            message: nil,
-            preferredStyle: .alert
-        )
+        let alert = ComposerLinkDialog(title: "EDIT_LINK".localize())
         
         // Add text field for display text (pre-filled)
         alert.addTextField { textField in
@@ -3062,16 +3049,16 @@ open class CometChatCompactMessageComposer: UIView {
         }
         
         // Cancel action
-        let cancelAction = UIAlertAction(title: "CANCEL".localize(), style: .cancel) { [weak self] _ in
+        let cancelAction = ComposerLinkDialogAction(title: "CANCEL".localize(), style: .cancel) { [weak self] in
             self?.textView.becomeFirstResponder()
         }
-        
+
         // Save action
-        let saveAction = UIAlertAction(title: "SAVE".localize(), style: .default) { [weak self] _ in
+        let saveAction = ComposerLinkDialogAction(title: "SAVE".localize(), style: .default) { [weak self, weak alert] in
             guard let self = self else { return }
-            
-            let newDisplayText = alert.textFields?[0].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let newUrlString = alert.textFields?[1].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+            let newDisplayText = alert?.textFields?[0].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let newUrlString = alert?.textFields?[1].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             
             // Validate that URL is provided
             guard !newUrlString.isEmpty else {
@@ -3098,24 +3085,15 @@ open class CometChatCompactMessageComposer: UIView {
         
         alert.addAction(cancelAction)
         alert.addAction(saveAction)
-        
-        // Add text change observers to enable/disable save button
-        let textChangeHandler: (UITextField) -> Void = { _ in
-            let urlText = alert.textFields?[1].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        // Enable the save button while the URL field has text
+        alert.textFields?[1].addAction(UIAction { [weak alert] _ in
+            let urlText = alert?.textFields?[1].text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             saveAction.isEnabled = !urlText.isEmpty
-        }
-        
-        // Observe text changes in URL field
-        NotificationCenter.default.addObserver(
-            forName: UITextField.textDidChangeNotification,
-            object: alert.textFields?[1],
-            queue: .main
-        ) { _ in
-            textChangeHandler(alert.textFields?[1] ?? UITextField())
-        }
-        
-        // Present the alert with dismiss gesture
-        presentAlertWithDismissGesture(alert)
+        }, for: .editingChanged)
+
+        // Present the dialog with dismiss gesture
+        presentLinkDialog(alert)
     }
     
     /// Updates an existing link with new display text and URL

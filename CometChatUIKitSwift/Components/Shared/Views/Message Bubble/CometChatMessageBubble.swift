@@ -330,14 +330,20 @@ open class CometChatMessageBubble: UITableViewCell {
     @discardableResult
     public func set(bubbleView: UIView?) -> Self {
         if let bubbleView = bubbleView{
-            self.customBubbleView?.subviews.forEach({$0.removeFromSuperview()})
-            self.leadingView.subviews.forEach({$0.removeFromSuperview()})
-            self.middleStackView.subviews.forEach({$0.removeFromSuperview()})
-            self.bubbleStackView.subviews.forEach({$0.removeFromSuperview()})
+            removeCustomBubbleView()
+            // Hidden rather than taken apart: a custom bubble and a regular message share
+            // a reuse identifier, so this cell may have to show a regular message next.
+            self.leadingView.isHidden = true
+            self.middleStackView.isHidden = true
             self.customBubbleView = bubbleView
             self.containerStackView.embed(bubbleView)
         }
         return self
+    }
+
+    private func removeCustomBubbleView() {
+        customBubbleView?.removeFromSuperview()
+        customBubbleView = nil
     }
     
     @discardableResult
@@ -465,7 +471,6 @@ open class CometChatMessageBubble: UITableViewCell {
             imageView.translatesAutoresizingMaskIntoConstraints = false
             backgroundDrawableView = imageView
         }
-        // set(bubbleView:) clears bubbleStackView's subviews, so re-attach when needed.
         if imageView.superview !== bubbleStackView {
             imageView.removeFromSuperview()
             bubbleStackView.insertSubview(imageView, at: 0)
@@ -532,7 +537,11 @@ open class CometChatMessageBubble: UITableViewCell {
         
         messagePreview = nil
         replayView.isHidden = true
-        
+
+        removeCustomBubbleView()
+        leadingView.isHidden = false
+        middleStackView.isHidden = false
+
         contentView.subviews
                 .filter { $0.tag == 9999 }
                 .forEach { $0.removeFromSuperview() }

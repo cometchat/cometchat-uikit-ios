@@ -1750,6 +1750,18 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         return createMessageCell(for: message, at: indexPath, in: tableView, filteredMessages: filteredMessages)
     }
     
+    private func bubbleAlignment(for message: BaseMessage, isLoggedInUser: Bool) -> MessageBubbleAlignment {
+        if message.messageCategory == .action || message.messageCategory == .call {
+            return .center
+        }
+        switch messageAlignment {
+        case .standard:
+            return isLoggedInUser ? .right : .left
+        case .leftAligned:
+            return .left
+        }
+    }
+
     private func createMessageCell(for message: BaseMessage, at indexPath: IndexPath, in tableView: UITableView, filteredMessages: [BaseMessage]) -> UITableViewCell {
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
         var bubbleStyle = isLoggedInUser ? messageBubbleStyle.outgoing : messageBubbleStyle.incoming
@@ -1841,7 +1853,11 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                      || (viewModel.user?.isAgentic ?? false))
                 cell.disableSwipeToReply = disableSwipeToReply || isIncomingAgentMessage
                 cell.set(style: bubbleStyle, specificMessageTypeStyle: messageTypeStyle)
-                
+
+                // Set before any template closure runs: they receive `cell.alignment`, and
+                // on a reused cell it would otherwise still be the previous row's.
+                cell.set(bubbleAlignment: bubbleAlignment(for: message, isLoggedInUser: isLoggedInUser))
+
                 // Overriding whole bubble
                 if let bubbleView = template.bubbleView?(message, cell.alignment, controller) {
                     cell.set(bubbleView: bubbleView)
@@ -1880,7 +1896,6 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 cell.setupSwipeGestures(message: message)
                 // For action messages
                 if message.messageCategory == .action || message.messageCategory == .call {
-                    cell.set(bubbleAlignment: .center)
                     // Clear bottomView to prevent reused cell from showing previous message's moderation view
                     cell.set(bottomView: nil)
                     if let contentView = template.contentView?(message, cell.alignment, controller) {
@@ -1894,17 +1909,6 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     }
                     cell.onLongPressGestureRecognized = nil
                     return cell
-                }
-                
-                switch messageAlignment {
-                case .standard:
-                    if isLoggedInUser {
-                        cell.set(bubbleAlignment: .right)
-                    } else {
-                        cell.set(bubbleAlignment: .left)
-                    }
-                case .leftAligned:
-                    cell.set(bubbleAlignment: .left)
                 }
                 
                 if let headerView = template.headerView?(message, cell.alignment, controller) {

@@ -3,6 +3,37 @@
 All notable changes to the CometChat iOS UI Kit, generated from the
 [GitHub releases](https://github.com/cometchat/cometchat-uikit-ios/releases) (newest first).
 
+## 5.2.4 — 2026-11-10
+
+
+### New
+- None
+
+### Enhancements
+- Updated the message composer's Add Link and Edit Link dialog to use the colours and fonts from `CometChatTheme` and `CometChatTypography`, so it matches an app's custom theme.
+
+### Fixes
+- Fixed an issue where text bubbles cut off long messages with an ellipsis instead of wrapping when the text contained an emoji made of multiple Unicode characters, such as ❤️, ☀️, 👍🏽, 🇮🇳, or family and flag sequences. Messages now wrap to their full length wherever the emoji appears.
+- Fixed text in a message bubble going missing when the message mixed Arabic, Thai, Bengali or other scripts that render as more glyphs than characters with other text or an emoji. For example, the word "Thanks!" or a ❤️ after Arabic text no longer disappears.
+- Fixed an issue where custom views set through a template's `bubbleView` appeared on the wrong messages or repeated across rows during fast scrolling. `CometChatMessageBubble` now removes the custom view when a cell is reused and restores the standard bubble, and `set(bubbleView:)` no longer removes the contents of the view it replaces. If you subclass `CometChatMessageBubble`, note that `set(bubbleView:)` now hides the standard bubble's views instead of removing their contents, and `prepareForReuse()` shows them again.
+- Fixed an issue where template closures in the message list could receive the alignment of a previously displayed message when a cell was reused. Closures such as `bubbleView` and `replyView` now receive the correct `MessageBubbleAlignment` for their own message.
+- Fixed the app quitting unexpectedly on iOS 26 when the text size changed while the message composer’s Add Link or Edit Link dialog was being edited. The dialog now keeps the typed text through a text-size change.
+
+Built with Xcode 26.5.
+
+
+## 5.2.3 — 2026-10-08
+
+
+### New
+- None
+
+### Enhancements
+- None
+
+### Fixes
+- Fixed apps that do not include the Calls SDK crashing at launch on UI Kit 5.2.0–5.2.2 with `Library not loaded: @rpath/CometChatCallsSDK.framework/CometChatCallsSDK`. The UI Kit again links the Calls SDK and WebRTC as optional, as in 5.1.23 and earlier, so chat-only apps launch and calling features are simply unavailable. Apps that include the Calls SDK are unaffected.
+
 ## 5.2.2 — 2026-10-07
 
 
