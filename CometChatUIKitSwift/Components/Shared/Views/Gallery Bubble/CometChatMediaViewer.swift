@@ -80,6 +80,9 @@ public class CometChatMediaViewer: UIViewController {
     /// chrome is minimal — close + mute on videos, no share/download.
     public var isLocalPreview: Bool = false
 
+    /// Id of the message the items belong to (a placeholder tap asks the SDK for the file).
+    internal var messageId: Int = 0
+
     private var isMuted = false
 
     // MARK: - Init
@@ -188,7 +191,9 @@ public class CometChatMediaViewer: UIViewController {
 
     private func page(at index: Int) -> MediaPageViewController? {
         guard index >= 0, index < mediaItems.count else { return nil }
-        return MediaPageViewController(attachment: mediaItems[index], index: index)
+        let page = MediaPageViewController(attachment: mediaItems[index], index: index)
+        page.messageId = messageId
+        return page
     }
 
     private func updateCounter() {
@@ -216,7 +221,7 @@ public class CometChatMediaViewer: UIViewController {
         if currentIndex < mediaItems.count {
             let item = mediaItems[currentIndex]
             // configure() hides the control for local previews and already-downloaded files.
-            downloadControl.configure(fileUrl: item.fileUrl, fileName: item.fileName, tint: .white)
+            downloadControl.configure(attachment: item, tint: .white)
         }
         if isLocalPreview || isVideo { downloadControl.isHidden = true }
         applyMuteToCurrentPage()
@@ -255,15 +260,33 @@ public class CometChatMediaViewer: UIViewController {
     /// files so the user can actually Save to Photos / Files. Passing remote URLs to
     /// the share sheet would only share the links, not the media.
     private func downloadAndShare(_ attachments: [Attachment], from sourceView: UIView) {
-        let remotes = attachments.compactMap { attachment -> (Attachment, URL)? in
-            guard let url = URL(string: attachment.fileUrl) else { return nil }
-            return (attachment, url)
+        // Offline ON: a file already on the device (own send, the SDK's saved copy) is shared as it
+        // is, never fetched again; one that is not on the device while offline gets the offline
+        // notice instead of a silent failure. Offline OFF: `shareItem` is just `.remote(url)`.
+        var onDevice: [URL] = []
+        var remotes: [(Attachment, URL)] = []
+        var unavailable = false
+        for attachment in attachments {
+            switch GalleryMedia.shareItem(for: attachment) {
+            case .local(let file)?: onDevice.append(file)
+            case .remote(let url)?: remotes.append((attachment, url))
+            case .unavailableOffline?: unavailable = true
+            case nil: break
+            }
         }
-        guard !remotes.isEmpty else { return }
+        if unavailable && onDevice.isEmpty && remotes.isEmpty {
+            GalleryMedia.showUnavailableNotice(on: self)
+            return
+        }
+        if remotes.isEmpty {
+            guard !onDevice.isEmpty else { return }
+            presentShareSheet(onDevice, from: sourceView)
+            return
+        }
 
         setDownloading(true)
         let group = DispatchGroup()
-        var localFiles: [URL] = []
+        var localFiles: [URL] = onDevice
         let lock = NSLock()
 
         for (attachment, remoteURL) in remotes {
@@ -293,10 +316,14 @@ public class CometChatMediaViewer: UIViewController {
             guard let self = self else { return }
             self.setDownloading(false)
             guard !localFiles.isEmpty else { return }
-            let activity = UIActivityViewController(activityItems: localFiles, applicationActivities: nil)
-            activity.popoverPresentationController?.sourceView = sourceView
-            self.present(activity, animated: true)
+            self.presentShareSheet(localFiles, from: sourceView)
         }
+    }
+
+    private func presentShareSheet(_ files: [URL], from sourceView: UIView) {
+        let activity = UIActivityViewController(activityItems: files, applicationActivities: nil)
+        activity.popoverPresentationController?.sourceView = sourceView
+        present(activity, animated: true)
     }
 
     private func setDownloading(_ downloading: Bool) {
@@ -351,6 +378,15 @@ final class MediaPageViewController: UIViewController {
 
     let attachment: Attachment
     let index: Int
+    /// Id of the message the attachment belongs to (a placeholder tap asks the SDK for the file).
+    var messageId: Int = 0
+    /// What the page resolved for this attachment (offline ON only); nil with offline OFF.
+    private(set) var offlineSource: OfflineMediaSource.Source?
+    /// Test seam: how the page resolves its attachment. Nil = `GalleryMedia.source`.
+    var mediaSource: GalleryMedia.SourceProvider?
+    private(set) var showsOfflinePlaceholder = false
+    /// The video page's player source, for assertions.
+    private(set) var videoSourceURL: URL?
 
     private let imageService = ImageService()
     private var imageRequest: Cancellable?
@@ -397,7 +433,15 @@ final class MediaPageViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
 
-        switch galleryMediaKind(for: attachment) {
+        let kind = galleryMediaKind(for: attachment)
+        if kind == .video || kind == .image {
+            offlineSource = (mediaSource ?? { GalleryMedia.source(for: $0, thumbnailUrl: $1) })(attachment, nil)
+            if case .unavailableOffline? = offlineSource {
+                setupOfflinePlaceholder()
+                return
+            }
+        }
+        switch kind {
         case .video:
             setupVideo()
         case .image:
@@ -407,6 +451,21 @@ final class MediaPageViewController: UIViewController {
             // the black page just says "no preview available".
             setupNoPreview()
         }
+    }
+
+    /// Not on the device and no connection: the same "Available when online" the bubble shows, not a
+    /// spinner or a black page.
+    private func setupOfflinePlaceholder() {
+        showsOfflinePlaceholder = true
+        let placeholder = OfflineMediaPlaceholder.make(attachment: attachment, messageId: messageId,
+                                                       textColor: UIColor.white.withAlphaComponent(0.8))
+        view.addSubview(placeholder)
+        NSLayoutConstraint.activate([
+            placeholder.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            placeholder.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            placeholder.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 32),
+            placeholder.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -32)
+        ])
     }
 
     private func setupNoPreview() {
@@ -556,6 +615,11 @@ final class MediaPageViewController: UIViewController {
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
 
+        // Offline ON: the file on the device (a queued own send has only `localPath`, no URL yet).
+        if case .local(let path)? = offlineSource {
+            imageView.image = UIImage(contentsOfFile: path)
+            return
+        }
         activityIndicator.startAnimating()
         guard let url = URL(string: attachment.fileUrl) else {
             activityIndicator.stopAnimating()
@@ -575,7 +639,10 @@ final class MediaPageViewController: UIViewController {
     }
 
     private func setupVideo() {
-        guard let url = URL(string: attachment.fileUrl) else { return }
+        let local: URL?
+        if case .local(let path)? = offlineSource { local = URL(fileURLWithPath: path) } else { local = nil }
+        guard let url = local ?? URL(string: attachment.fileUrl) else { return }
+        videoSourceURL = url
         // A plain AVPlayerLayer-backed view with minimal controls (center play/pause +
         // bottom scrubber). No AirPlay / PiP / route buttons — the viewer's top bar owns
         // close / mute / share, so nothing overlaps.

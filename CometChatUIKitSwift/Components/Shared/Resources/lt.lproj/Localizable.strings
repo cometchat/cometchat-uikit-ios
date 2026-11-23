@@ -452,3 +452,29 @@
 "search_no_results_for" = "Nėra rezultatų pagal „%@“\nBandykite ieškoti iš naujo";
 "MESSAGE_LIST_EMPTY_TITLE" = "Žinučių dar nėra";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "Išsiųskite žinutę, kad pradėtumėte pokalbį.";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "Dar neišsiųsta";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "Neišsiųsta. Palieskite, kad bandytumėte dar kartą";
+"UNSENT_MESSAGE_REMOVED" = "Pašalintas 1 neišsiųstas pranešimas";
+"MESSAGES_NOT_SENT_ONE" = "1 pranešimas nebuvo išsiųstas";
+"MESSAGES_NOT_SENT_OTHER" = "%d pranešimai nebuvo išsiųsti";
+"UNSENT_MESSAGES_LOST_ONE" = "Nepavyko atkurti 1 neišsiųsto pranešimo";
+"UNSENT_MESSAGES_LOST_OTHER" = "Nepavyko atkurti %d neišsiųstų pranešimų";
+"UNSENT_MESSAGES_MAYBE_LOST" = "Kai kurie neišsiųsti pranešimai galėjo nebūti išsiųsti";
+"OFFLINE_QUEUE_FULL" = "Per daug pranešimų laukia siuntimo";
+"OFFLINE_FILE_TOO_LARGE" = "Failas per didelis siųsti neprisijungus";
+"CONNECT_TO_LOAD_MORE" = "Prisijunkite, kad įkeltumėte daugiau";
+"CONNECT_TO_SEARCH" = "Prisijunkite, kad galėtumėte ieškoti";
+"CONNECT_TO_SEARCH_MESSAGES" = "Prisijunkite, kad galėtumėte ieškoti";
+"CONNECT_TO_LOAD_USERS" = "Prisijunkite, kad įkeltumėte naudotojus";
+"CONNECT_TO_LOAD_GROUPS" = "Prisijunkite, kad įkeltumėte grupes";
+"CONNECT_TO_LOAD_CHATS" = "Prisijunkite, kad įkeltumėte pokalbius";
+"CONNECT_TO_LOAD_MEMBERS" = "Prisijunkite, kad įkeltumėte narius";
+"CONNECT_TO_SEARCH_SUBTITLE" = "Paieškai reikia interneto ryšio.";
+"CONNECT_TO_LOAD_MESSAGES" = "Prisijunkite, kad įkeltumėte žinutes";
+"CONNECT_TO_LOAD_REACTIONS" = "Prisijunkite, kad įkeltumėte reakcijas";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "Prisijunkite, kad įkeltumėte pranešimus";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "Pasiekiama prisijungus";
+"JUMP_TO_LATEST" = "Pereiti prie naujausio";
+"SEND_IN_FLIGHT" = "Siunčiama… bandykite dar kartą po akimirkos";

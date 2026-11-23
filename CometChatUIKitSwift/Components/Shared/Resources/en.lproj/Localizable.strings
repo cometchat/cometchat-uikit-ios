@@ -486,3 +486,29 @@
 "search_no_results_for" = "There were no results for “%@”\nTry a new search";
 "MESSAGE_LIST_EMPTY_TITLE" = "No messages yet";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "Send a message to start the conversation.";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "Not sent yet";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "Not sent. Tap to retry";
+"UNSENT_MESSAGE_REMOVED" = "1 unsent message was removed";
+"MESSAGES_NOT_SENT_ONE" = "1 message wasn't sent";
+"MESSAGES_NOT_SENT_OTHER" = "%d messages weren't sent";
+"UNSENT_MESSAGES_LOST_ONE" = "1 unsent message couldn't be recovered";
+"UNSENT_MESSAGES_LOST_OTHER" = "%d unsent messages couldn't be recovered";
+"UNSENT_MESSAGES_MAYBE_LOST" = "Some unsent messages may not have been sent";
+"OFFLINE_QUEUE_FULL" = "Too many messages waiting to send";
+"OFFLINE_FILE_TOO_LARGE" = "File too large to send offline";
+"CONNECT_TO_LOAD_MORE" = "Connect to load more";
+"CONNECT_TO_SEARCH" = "Connect to search";
+"CONNECT_TO_SEARCH_MESSAGES" = "Connect to search";
+"CONNECT_TO_LOAD_USERS" = "Connect to load users";
+"CONNECT_TO_LOAD_GROUPS" = "Connect to load groups";
+"CONNECT_TO_LOAD_CHATS" = "Connect to load chats";
+"CONNECT_TO_LOAD_MEMBERS" = "Connect to load members";
+"CONNECT_TO_SEARCH_SUBTITLE" = "Search needs an internet connection.";
+"CONNECT_TO_LOAD_MESSAGES" = "Connect to load messages";
+"CONNECT_TO_LOAD_REACTIONS" = "Connect to load reactions";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "Connect to load notifications";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "Available when online";
+"JUMP_TO_LATEST" = "Jump to latest";
+"SEND_IN_FLIGHT" = "Sending… try again in a moment";

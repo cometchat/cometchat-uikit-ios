@@ -131,7 +131,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 .set(region: AppConstants.REGION)
                 .subscribePresenceForAllUsers()
                 .enable(inAppIncomingCall: false)
-                .build()
+            // The sample app turns offline support ON (the kit itself keeps it OFF unless the app
+            // calls setOfflineConfig). Launch with `-SampleOfflineOff` to run with offline off.
+            if !ProcessInfo.processInfo.arguments.contains("-SampleOfflineOff") {
+                _ = uikitSettings.setOfflineConfig(OfflineConfig.Builder().setEnabled(true).build())
+            }
+            _ = uikitSettings.build()
             
             CometChatUIKit.init(uiKitSettings: uikitSettings, result: { result in
                 switch result {

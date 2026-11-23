@@ -70,6 +70,16 @@ public class CometChatToast: UIView {
                             on controller: UIViewController?,
                             duration: TimeInterval = 3,
                             style: CometChatToastStyle = CometChatToast.style) {
+        show(message: message, on: controller, duration: duration, style: style, contractIdentifier: nil)
+    }
+
+    /// As `show(message:on:duration:style:)`, with a state-contract automation identifier
+    /// (TEST-PLAN §3.3, `cc.notice.<key>`). Never read by screen readers.
+    internal static func show(message: String,
+                              on controller: UIViewController?,
+                              duration: TimeInterval = 3,
+                              style: CometChatToastStyle = CometChatToast.style,
+                              contractIdentifier: String?) {
         guard !message.isEmpty else { return }
 
         DispatchQueue.main.async {
@@ -78,6 +88,7 @@ public class CometChatToast: UIView {
             visibleToast?.dismiss()
 
             let toast = CometChatToast(message: message, style: style)
+            if let contractIdentifier = contractIdentifier { toast.accessibilityIdentifier = contractIdentifier }
             toast.alpha = 0
             host.addSubview(toast)
             visibleToast = toast

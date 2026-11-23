@@ -680,3 +680,29 @@
 "search_no_results_for" = "Нет результатов по запросу «%@»\nПопробуйте новый поиск";
 "MESSAGE_LIST_EMPTY_TITLE" = "Сообщений пока нет";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "Отправьте сообщение, чтобы начать разговор.";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "Ещё не отправлено";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "Не отправлено. Нажмите, чтобы повторить";
+"UNSENT_MESSAGE_REMOVED" = "Удалено 1 неотправленное сообщение";
+"MESSAGES_NOT_SENT_ONE" = "1 сообщение не было отправлено";
+"MESSAGES_NOT_SENT_OTHER" = "Сообщений не отправлено: %d";
+"UNSENT_MESSAGES_LOST_ONE" = "Не удалось восстановить 1 неотправленное сообщение";
+"UNSENT_MESSAGES_LOST_OTHER" = "Не удалось восстановить неотправленных сообщений: %d";
+"UNSENT_MESSAGES_MAYBE_LOST" = "Некоторые неотправленные сообщения могли не быть отправлены";
+"OFFLINE_QUEUE_FULL" = "Слишком много сообщений ожидают отправки";
+"OFFLINE_FILE_TOO_LARGE" = "Файл слишком большой для отправки в офлайн-режиме";
+"CONNECT_TO_LOAD_MORE" = "Подключитесь, чтобы загрузить больше";
+"CONNECT_TO_SEARCH" = "Подключитесь, чтобы искать";
+"CONNECT_TO_SEARCH_MESSAGES" = "Подключитесь для поиска";
+"CONNECT_TO_LOAD_USERS" = "Подключитесь, чтобы загрузить пользователей";
+"CONNECT_TO_LOAD_GROUPS" = "Подключитесь, чтобы загрузить группы";
+"CONNECT_TO_LOAD_CHATS" = "Подключитесь, чтобы загрузить чаты";
+"CONNECT_TO_LOAD_MEMBERS" = "Подключитесь, чтобы загрузить участников";
+"CONNECT_TO_SEARCH_SUBTITLE" = "Для поиска нужно подключение к интернету.";
+"CONNECT_TO_LOAD_MESSAGES" = "Подключитесь, чтобы загрузить сообщения";
+"CONNECT_TO_LOAD_REACTIONS" = "Подключитесь, чтобы загрузить реакции";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "Подключитесь, чтобы загрузить уведомления";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "Доступно при подключении к сети";
+"JUMP_TO_LATEST" = "К последнему сообщению";
+"SEND_IN_FLIGHT" = "Отправляется… повторите попытку чуть позже";

@@ -68,6 +68,23 @@ import AVFAudio
             name: NSNotification.Name("CometChatThemeChanged"),
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleOfflineReconnect),
+            name: AvatarOfflineRetry.reconnected,
+            object: nil
+        )
+    }
+
+    /// Offline ON: the url (and name) whose initials are shown because its load failed offline.
+    /// A layout pass does not request it again until the connection returns (ENG-41192).
+    private var offlinePlaceholderKey: String?
+
+    /// Back online: an avatar showing initials for a failed offline load retries once.
+    @objc private func handleOfflineReconnect() {
+        guard offlinePlaceholderKey != nil else { return }
+        offlinePlaceholderKey = nil
+        setAvatar(avatarUrl: avatarURL, with: name)
     }
     
     @objc private func handleThemeChange() {
@@ -142,6 +159,27 @@ import AVFAudio
             return self
         }
         
+        // Offline ON: a url whose load failed offline is not requested again until the connection
+        // returns; its initials stay (drawn once, so this layout pass does not loop).
+        let placeholderKey = "\(url.absoluteString)|\(name ?? "")"
+        // (Only an offline-ON failure is ever remembered, so with offline off this never matches.)
+        if AvatarOfflineRetry.shared.waitsForConnection(url.absoluteString),
+           ImageService.avatarCache.object(forKey: url as AnyObject) == nil, OfflineGate.isOn() {
+            imageRequest?.cancel()
+            guard offlinePlaceholderKey != placeholderKey else { return self }
+            offlinePlaceholderKey = placeholderKey
+            setImageSnap(
+               text: name?.uppercased(),
+               color: style.backgroundColor,
+               textAttributes: [
+                   NSAttributedString.Key.font: style.textFont,
+                   NSAttributedString.Key.foregroundColor: style.textColor
+               ]
+            )
+            return self
+        }
+        offlinePlaceholderKey = nil
+
         imageRequest?.cancel()
         imageRequest = imageService.image(for: url, cacheType: .avatar) { [weak self] image in
             // A cancelled or cached load still completes; drop it if the avatar moved on.
@@ -150,6 +188,12 @@ import AVFAudio
             if let image = image {
                 this.image = image
              } else {
+                 if OfflineGate.isOn() {
+                     AvatarOfflineRetry.shared.noteFailure(url.absoluteString)
+                     if AvatarOfflineRetry.shared.waitsForConnection(url.absoluteString) {
+                         this.offlinePlaceholderKey = placeholderKey
+                     }
+                 }
                  this.setImageSnap(
                     text: this.name?.uppercased(),
                     color: this.style.backgroundColor,

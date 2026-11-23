@@ -477,3 +477,29 @@
 "search_no_results_for" = "“%@” için sonuç bulunamadı\nYeni bir arama deneyin";
 "MESSAGE_LIST_EMPTY_TITLE" = "Henüz mesaj yok";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "Sohbeti başlatmak için bir mesaj gönderin.";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "Henüz gönderilmedi";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "Gönderilmedi. Yeniden denemek için dokunun";
+"UNSENT_MESSAGE_REMOVED" = "Gönderilmemiş 1 mesaj kaldırıldı";
+"MESSAGES_NOT_SENT_ONE" = "1 mesaj gönderilmedi";
+"MESSAGES_NOT_SENT_OTHER" = "%d mesaj gönderilmedi";
+"UNSENT_MESSAGES_LOST_ONE" = "Gönderilmemiş 1 mesaj kurtarılamadı";
+"UNSENT_MESSAGES_LOST_OTHER" = "Gönderilmemiş %d mesaj kurtarılamadı";
+"UNSENT_MESSAGES_MAYBE_LOST" = "Gönderilmemiş bazı mesajlar gönderilmemiş olabilir";
+"OFFLINE_QUEUE_FULL" = "Gönderilmeyi bekleyen çok fazla mesaj var";
+"OFFLINE_FILE_TOO_LARGE" = "Dosya çevrimdışı gönderilemeyecek kadar büyük";
+"CONNECT_TO_LOAD_MORE" = "Daha fazlasını yüklemek için bağlanın";
+"CONNECT_TO_SEARCH" = "Aramak için bağlanın";
+"CONNECT_TO_SEARCH_MESSAGES" = "Aramak için bağlanın";
+"CONNECT_TO_LOAD_USERS" = "Kullanıcıları yüklemek için bağlanın";
+"CONNECT_TO_LOAD_GROUPS" = "Grupları yüklemek için bağlanın";
+"CONNECT_TO_LOAD_CHATS" = "Sohbetleri yüklemek için bağlanın";
+"CONNECT_TO_LOAD_MEMBERS" = "Üyeleri yüklemek için bağlanın";
+"CONNECT_TO_SEARCH_SUBTITLE" = "Arama için internet bağlantısı gerekir.";
+"CONNECT_TO_LOAD_MESSAGES" = "Mesajları yüklemek için bağlanın";
+"CONNECT_TO_LOAD_REACTIONS" = "Tepkileri yüklemek için bağlanın";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "Bildirimleri yüklemek için bağlanın";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "Çevrimiçi olunca kullanılabilir";
+"JUMP_TO_LATEST" = "En yeniye git";
+"SEND_IN_FLIGHT" = "Gönderiliyor… birazdan tekrar deneyin";

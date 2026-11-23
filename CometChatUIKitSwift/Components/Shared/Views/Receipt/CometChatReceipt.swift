@@ -75,6 +75,11 @@ import  UIKit
             self.tintColor = style.sentImageTintColor
         }
         self.contentMode = .scaleAspectFit
+        // Offline ON: say what the clock and the failed icon mean. Offline OFF: untouched.
+        if OfflineGate.isOn(), let label = OfflineText.accessibilityLabel(for: status) {
+            isAccessibilityElement = true
+            accessibilityLabel = label
+        }
         return self
     }
 }

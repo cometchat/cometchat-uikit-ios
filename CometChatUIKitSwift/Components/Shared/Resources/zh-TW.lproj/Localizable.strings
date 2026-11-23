@@ -497,3 +497,29 @@
 "search_no_results_for" = "找不到「%@」的結果\n請嘗試重新搜尋";
 "MESSAGE_LIST_EMPTY_TITLE" = "尚無訊息";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "傳送訊息以開始對話。";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "尚未傳送";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "未傳送。點一下以重試";
+"UNSENT_MESSAGE_REMOVED" = "已移除 1 則未傳送的訊息";
+"MESSAGES_NOT_SENT_ONE" = "1 則訊息未傳送";
+"MESSAGES_NOT_SENT_OTHER" = "%d 則訊息未傳送";
+"UNSENT_MESSAGES_LOST_ONE" = "無法復原 1 則未傳送的訊息";
+"UNSENT_MESSAGES_LOST_OTHER" = "無法復原 %d 則未傳送的訊息";
+"UNSENT_MESSAGES_MAYBE_LOST" = "部分未傳送的訊息可能未傳送成功";
+"OFFLINE_QUEUE_FULL" = "等待傳送的訊息過多";
+"OFFLINE_FILE_TOO_LARGE" = "檔案過大，無法離線傳送";
+"CONNECT_TO_LOAD_MORE" = "連線以載入更多";
+"CONNECT_TO_SEARCH" = "連線以搜尋";
+"CONNECT_TO_SEARCH_MESSAGES" = "連線後即可搜尋";
+"CONNECT_TO_LOAD_USERS" = "連線以載入使用者";
+"CONNECT_TO_LOAD_GROUPS" = "連線以載入群組";
+"CONNECT_TO_LOAD_CHATS" = "連線以載入聊天";
+"CONNECT_TO_LOAD_MEMBERS" = "連線以載入成員";
+"CONNECT_TO_SEARCH_SUBTITLE" = "搜尋需要網路連線。";
+"CONNECT_TO_LOAD_MESSAGES" = "連線以載入訊息";
+"CONNECT_TO_LOAD_REACTIONS" = "連線以載入回應";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "連線以載入通知";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "連線後可用";
+"JUMP_TO_LATEST" = "跳至最新";
+"SEND_IN_FLIGHT" = "正在傳送…請稍後再試";

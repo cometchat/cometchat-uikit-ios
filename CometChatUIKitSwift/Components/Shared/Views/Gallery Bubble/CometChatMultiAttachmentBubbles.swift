@@ -90,6 +90,8 @@ final class GalleryGridView: UIView {
 
     var style = GalleryBubbleStyle()
     var onTileTap: ((Int) -> Void)?
+    /// Id of the message the tiles belong to (a placeholder tap asks the SDK for the file).
+    var messageId: Int = 0
 
     private var tiles: [GalleryMediaTile] = []
     private var visibleCount = 0
@@ -156,6 +158,7 @@ final class GalleryGridView: UIView {
 
             let tile = GalleryMediaTile()
             tile.style = style
+            tile.messageId = messageId
             tile.configure(attachment: attachment, overflowCount: overflow, thumbnailUrl: thumbnails[index])
             tile.onTap = { [weak self] in self?.onTileTap?(index) }
             if index == 0 && visibleCount == 3 {
@@ -300,7 +303,10 @@ final class GalleryMediaTile: UIView {
 
     private let imageService = ImageService()
     private var imageRequest: Cancellable?
-    private var currentURLString: String?
+    /// What the tile is loading (a URL, or `file://` + path for a file on the device).
+    private(set) var currentURLString: String?
+    /// Test seam: how the tile resolves an attachment. Nil = `GalleryMedia.source`.
+    var mediaSource: GalleryMedia.SourceProvider?
 
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
@@ -443,7 +449,18 @@ final class GalleryMediaTile: UIView {
         isUserInteractionEnabled = true
     }
 
+    /// Id of the message this tile belongs to (a placeholder tap asks the SDK for the file).
+    var messageId: Int = 0
+    /// Set while the tile shows "Available when online" (offline ON, no on-device copy, no connection).
+    private(set) var showsOfflinePlaceholder = false
+    private var offlinePlaceholder: UIView?
+    private var overflowShown = false
+
     func configure(attachment: Attachment, overflowCount: Int, thumbnailUrl: String? = nil) {
+        offlinePlaceholder?.removeFromSuperview()
+        offlinePlaceholder = nil
+        showsOfflinePlaceholder = false
+        overflowShown = overflowCount > 0
         // Every tile is individually rounded; the bubble color frames it through the
         // grid gaps.
         layer.cornerRadius = style.tileCornerRadius
@@ -483,6 +500,28 @@ final class GalleryMediaTile: UIView {
             return
         }
 
+        // Offline ON: the file on the device (own queued/sent file, the SDK's saved copy) beats the
+        // URL, and a file that is not on the device while offline is "Available when online" instead
+        // of a blank tile. Offline OFF: `GalleryMedia.source` is nil and nothing below runs.
+        if let offline = (mediaSource ?? { GalleryMedia.source(for: $0, thumbnailUrl: $1) })(attachment, kind == .video ? nil : thumbnailUrl) {
+            switch offline {
+            case .unavailableOffline:
+                showOfflinePlaceholder(for: attachment)
+                return
+            case .local(let path):
+                if kind == .video {
+                    loadLocalVideo(path)
+                    return
+                }
+                if attachment.fileUrl.isEmpty || attachment.fileUrl.hasPrefix("file://") {
+                    loadLocalImage(path)
+                    return
+                }
+            case .remote:
+                break
+            }
+        }
+
         // Prefer the server-generated thumbnail (cheap, small) when the thumbnail
         // extension has produced one; fall back to the full file URL / client-side
         // video-frame extraction otherwise. Placeholder shows until either loads.
@@ -496,6 +535,43 @@ final class GalleryMediaTile: UIView {
         }
 
         loadOriginal(attachment)
+    }
+
+    private func showOfflinePlaceholder(for attachment: Attachment) {
+        currentURLString = nil
+        activityIndicator.stopAnimating()
+        playBadge.isHidden = true
+        showsOfflinePlaceholder = true
+        let placeholder = OfflineMediaPlaceholder.make(attachment: attachment, messageId: messageId, compact: true)
+        placeholder.frame = bounds
+        placeholder.translatesAutoresizingMaskIntoConstraints = true
+        placeholder.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        insertSubview(placeholder, aboveSubview: imageView)
+        offlinePlaceholder = placeholder
+    }
+
+    private func loadLocalVideo(_ path: String) {
+        let key = "file://" + path
+        currentURLString = key
+        activityIndicator.startAnimating()
+        loadVideoThumbnail(key, url: URL(fileURLWithPath: path))
+    }
+
+    private func loadLocalImage(_ path: String) {
+        let key = "file://" + path
+        currentURLString = key
+        activityIndicator.startAnimating()
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let image = UIImage(contentsOfFile: path)
+            DispatchQueue.main.async {
+                guard let self, self.currentURLString == key else { return }
+                self.activityIndicator.stopAnimating()
+                if let image {
+                    self.imageView.image = image
+                    self.onImageLoaded?(image)
+                }
+            }
+        }
     }
 
     private func loadOriginal(_ attachment: Attachment) {
@@ -531,8 +607,8 @@ final class GalleryMediaTile: UIView {
         }
     }
 
-    private func loadVideoThumbnail(_ urlString: String) {
-        guard let url = URL(string: urlString) else {
+    private func loadVideoThumbnail(_ urlString: String, url local: URL? = nil) {
+        guard let url = local ?? URL(string: urlString) else {
             activityIndicator.stopAnimating()
             return
         }
@@ -551,6 +627,9 @@ final class GalleryMediaTile: UIView {
     }
 
     @objc private func handleTap() {
+        // A tile with nothing to show opens no viewer (the placeholder's own tap asks the SDK for the
+        // file while connected). The "+N" tile still opens it: its other pages may be on the device.
+        if showsOfflinePlaceholder && !overflowShown { return }
         onTap?()
     }
 
@@ -1139,6 +1218,8 @@ public class CometChatMediaGridBubble: CometChatMultiAttachmentBubble {
 
     public var onMediaTap: ((_ index: Int, _ attachment: Attachment) -> Void)?
     public private(set) var mediaAttachments: [Attachment] = []
+    /// Id of the message the grid belongs to; set before `set(attachments:...)`.
+    var messageId: Int = 0
 
     private let gridView = GalleryGridView()
     private var gridWidthConstraint: NSLayoutConstraint?
@@ -1180,6 +1261,7 @@ public class CometChatMediaGridBubble: CometChatMultiAttachmentBubble {
             guard let self = self, index < self.mediaAttachments.count else { return }
             self.onMediaTap?(index, self.mediaAttachments[index])
         }
+        gridView.messageId = messageId
         gridView.configure(with: mediaAttachments, thumbnails: thumbnails)
 
         applyBubbleChrome()
@@ -1667,6 +1749,8 @@ final class FileDownloadControl: UIView {
     var onStateChange: ((Bool) -> Void)?
 
     private var remoteURL: URL?
+    /// Set by `configure(attachment:tint:)`: lets a tap use the file already on the device (offline ON).
+    private var attachment: Attachment?
     private var fileName = "file"
     private var isDownloading = false
     private let downloader = FileDownloader()
@@ -1744,7 +1828,20 @@ final class FileDownloadControl: UIView {
                                       clockwise: true).cgPath
     }
 
+    /// For a gallery attachment. Offline ON: a file on the device (own queued send with no URL yet,
+    /// the SDK's saved copy) is exported as it is and never fetched again; with no copy and no
+    /// connection a tap shows the offline notice. Offline OFF: identical to `configure(fileUrl:...)`.
+    func configure(attachment: Attachment, tint: UIColor) {
+        configure(fileUrl: attachment.fileUrl, fileName: attachment.fileName, tint: tint)
+        self.attachment = attachment
+        if case .local? = GalleryMedia.source(for: attachment) {
+            // A local preview file:// URL keeps the control hidden, as today; a queued/sent file doesn't.
+            isHidden = remoteURL?.isFileURL ?? false
+        }
+    }
+
     func configure(fileUrl: String, fileName: String, tint: UIColor) {
+        attachment = nil
         remoteURL = URL(string: fileUrl)
         self.fileName = fileName.isEmpty ? "file" : fileName
         iconView.tintColor = tint
@@ -1759,6 +1856,7 @@ final class FileDownloadControl: UIView {
     }
 
     @objc private func tapped() {
+        if let attachment, !isDownloading, handleOffline(attachment) { return }
         guard !isDownloading, let url = remoteURL, !url.isFileURL else { return }
         // Already fetched once → skip the network round-trip and re-export the cached
         // copy straight to the Save-to-Files sheet.
@@ -1773,6 +1871,20 @@ final class FileDownloadControl: UIView {
         ringLayer.isHidden = false
         ringLayer.strokeEnd = 0
         downloader.download(from: url, to: cached)
+    }
+
+    /// Offline ON only. True when the tap was answered here.
+    private func handleOffline(_ attachment: Attachment) -> Bool {
+        switch GalleryMedia.shareItem(for: attachment) {
+        case .local(let file)?:
+            present(file)
+            return true
+        case .unavailableOffline?:
+            GalleryMedia.showUnavailableNotice(on: controller)
+            return true
+        default:
+            return false
+        }
     }
 
     private func finish(localURL: URL?) {

@@ -460,3 +460,29 @@
 "search_no_results_for" = "Nincs találat erre: „%@”\nPróbálj új keresést";
 "MESSAGE_LIST_EMPTY_TITLE" = "Még nincsenek üzenetek";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "Küldj egy üzenetet a beszélgetés elindításához.";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "Még nincs elküldve";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "Nem lett elküldve. Koppintson az újrapróbálkozáshoz";
+"UNSENT_MESSAGE_REMOVED" = "1 el nem küldött üzenet el lett távolítva";
+"MESSAGES_NOT_SENT_ONE" = "1 üzenet nem lett elküldve";
+"MESSAGES_NOT_SENT_OTHER" = "%d üzenet nem lett elküldve";
+"UNSENT_MESSAGES_LOST_ONE" = "1 el nem küldött üzenetet nem sikerült helyreállítani";
+"UNSENT_MESSAGES_LOST_OTHER" = "%d el nem küldött üzenetet nem sikerült helyreállítani";
+"UNSENT_MESSAGES_MAYBE_LOST" = "Előfordulhat, hogy néhány el nem küldött üzenet nem lett elküldve";
+"OFFLINE_QUEUE_FULL" = "Túl sok üzenet vár küldésre";
+"OFFLINE_FILE_TOO_LARGE" = "A fájl túl nagy az offline küldéshez";
+"CONNECT_TO_LOAD_MORE" = "Csatlakozz a továbbiak betöltéséhez";
+"CONNECT_TO_SEARCH" = "Csatlakozzon a kereséshez";
+"CONNECT_TO_SEARCH_MESSAGES" = "Csatlakozzon a kereséshez";
+"CONNECT_TO_LOAD_USERS" = "Csatlakozzon a felhasználók betöltéséhez";
+"CONNECT_TO_LOAD_GROUPS" = "Csatlakozzon a csoportok betöltéséhez";
+"CONNECT_TO_LOAD_CHATS" = "Csatlakozzon a csevegések betöltéséhez";
+"CONNECT_TO_LOAD_MEMBERS" = "Csatlakozzon a tagok betöltéséhez";
+"CONNECT_TO_SEARCH_SUBTITLE" = "A kereséshez internetkapcsolat szükséges.";
+"CONNECT_TO_LOAD_MESSAGES" = "Csatlakozzon az üzenetek betöltéséhez";
+"CONNECT_TO_LOAD_REACTIONS" = "Csatlakozzon a reakciók betöltéséhez";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "Csatlakozzon az értesítések betöltéséhez";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "Online állapotban érhető el";
+"JUMP_TO_LATEST" = "Ugrás a legfrissebbre";
+"SEND_IN_FLIGHT" = "Küldés folyamatban… próbáld újra egy pillanat múlva";

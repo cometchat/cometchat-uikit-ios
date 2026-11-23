@@ -23,6 +23,28 @@ protocol UsersServicing {
     /// Fetch users matching a search keyword.
     func fetchFilteredUsers(request: UsersRequest,
                             completion: @escaping (UsersBuilderResult) -> Void)
+
+    /// Offline ON only: the page in two phases, the on-device copy first. The default delivers the
+    /// single legacy answer as the server phase.
+    func fetchUsersTwoPhase(request: UsersRequest,
+                            onCached: @escaping ([User]) -> Void,
+                            onServer: @escaping ([User]) -> Void,
+                            onError: @escaping (CometChatException?) -> Void)
+}
+
+extension UsersServicing {
+
+    func fetchUsersTwoPhase(request: UsersRequest,
+                            onCached: @escaping ([User]) -> Void,
+                            onServer: @escaping ([User]) -> Void,
+                            onError: @escaping (CometChatException?) -> Void) {
+        fetchUsers(request: request) { result in
+            switch result {
+            case .success(let users): onServer(users)
+            case .failure(let error): onError(error)
+            }
+        }
+    }
 }
 
 /// Production implementation backed directly by the existing builder.
@@ -36,5 +58,14 @@ final class LiveUsersService: UsersServicing {
     func fetchFilteredUsers(request: UsersRequest,
                             completion: @escaping (UsersBuilderResult) -> Void) {
         UsersBuilder.getfilteredUsers(filterUserRequest: request, completion: completion)
+    }
+
+    func fetchUsersTwoPhase(request: UsersRequest,
+                            onCached: @escaping ([User]) -> Void,
+                            onServer: @escaping ([User]) -> Void,
+                            onError: @escaping (CometChatException?) -> Void) {
+        request.fetchNext(onCachedUsers: { page in OfflineSnapshotMain.run { onCached(page) } },
+                          onServerUsers: { page in OfflineSnapshotMain.run { onServer(page) } },
+                          onError: { error in OfflineSnapshotMain.run { onError(error) } })
     }
 }

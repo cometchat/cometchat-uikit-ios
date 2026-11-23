@@ -159,6 +159,11 @@ open class CometChatThreadedMessageHeader: UIView {
             }
         }
 
+        // Offline ON: the whole count (SDK value plus own pending replies) drives the label.
+        (viewModel as? ThreadedMessageHeaderViewModel)?.onReplyCountChanged = { [weak self] count in
+            self?.set(count: count)
+        }
+
         // Rebuilds the parent bubble when the parent message is edited or deleted.
         (viewModel as? ThreadedMessageHeaderViewModel)?.onParentMessageUpdated = { [weak self] in
             DispatchQueue.main.async {

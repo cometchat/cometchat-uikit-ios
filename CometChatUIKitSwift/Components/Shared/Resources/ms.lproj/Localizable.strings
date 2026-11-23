@@ -458,3 +458,29 @@
 "search_no_results_for" = "Tiada hasil untuk “%@”\nCuba carian baharu";
 "MESSAGE_LIST_EMPTY_TITLE" = "Belum ada mesej";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "Hantar mesej untuk memulakan perbualan.";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "Belum dihantar";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "Tidak dihantar. Ketik untuk cuba semula";
+"UNSENT_MESSAGE_REMOVED" = "1 mesej yang tidak dihantar telah dialih keluar";
+"MESSAGES_NOT_SENT_ONE" = "1 mesej tidak dihantar";
+"MESSAGES_NOT_SENT_OTHER" = "%d mesej tidak dihantar";
+"UNSENT_MESSAGES_LOST_ONE" = "1 mesej yang tidak dihantar tidak dapat dipulihkan";
+"UNSENT_MESSAGES_LOST_OTHER" = "%d mesej yang tidak dihantar tidak dapat dipulihkan";
+"UNSENT_MESSAGES_MAYBE_LOST" = "Sesetengah mesej yang tidak dihantar mungkin tidak dihantar";
+"OFFLINE_QUEUE_FULL" = "Terlalu banyak mesej menunggu untuk dihantar";
+"OFFLINE_FILE_TOO_LARGE" = "Fail terlalu besar untuk dihantar secara luar talian";
+"CONNECT_TO_LOAD_MORE" = "Sambung untuk memuatkan lagi";
+"CONNECT_TO_SEARCH" = "Sambung untuk mencari";
+"CONNECT_TO_SEARCH_MESSAGES" = "Sambung untuk mencari";
+"CONNECT_TO_LOAD_USERS" = "Sambung untuk memuatkan pengguna";
+"CONNECT_TO_LOAD_GROUPS" = "Sambung untuk memuatkan kumpulan";
+"CONNECT_TO_LOAD_CHATS" = "Sambung untuk memuatkan sembang";
+"CONNECT_TO_LOAD_MEMBERS" = "Sambung untuk memuatkan ahli";
+"CONNECT_TO_SEARCH_SUBTITLE" = "Carian memerlukan sambungan internet.";
+"CONNECT_TO_LOAD_MESSAGES" = "Sambung untuk memuatkan mesej";
+"CONNECT_TO_LOAD_REACTIONS" = "Sambung untuk memuatkan reaksi";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "Sambung untuk memuatkan pemberitahuan";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "Tersedia apabila dalam talian";
+"JUMP_TO_LATEST" = "Lompat ke terkini";
+"SEND_IN_FLIGHT" = "Sedang dihantar… cuba lagi sebentar lagi";

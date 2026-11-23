@@ -475,3 +475,29 @@
 "search_no_results_for" = "没有找到“%@”的结果\n请尝试新的搜索";
 "MESSAGE_LIST_EMPTY_TITLE" = "暂无消息";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "发送消息开始对话。";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "尚未发送";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "未发送。点按重试";
+"UNSENT_MESSAGE_REMOVED" = "已移除 1 条未发送的消息";
+"MESSAGES_NOT_SENT_ONE" = "1 条消息未发送";
+"MESSAGES_NOT_SENT_OTHER" = "%d 条消息未发送";
+"UNSENT_MESSAGES_LOST_ONE" = "无法恢复 1 条未发送的消息";
+"UNSENT_MESSAGES_LOST_OTHER" = "无法恢复 %d 条未发送的消息";
+"UNSENT_MESSAGES_MAYBE_LOST" = "部分未发送的消息可能未发送成功";
+"OFFLINE_QUEUE_FULL" = "等待发送的消息过多";
+"OFFLINE_FILE_TOO_LARGE" = "文件过大，无法离线发送";
+"CONNECT_TO_LOAD_MORE" = "连接网络以加载更多";
+"CONNECT_TO_SEARCH" = "连接网络以搜索";
+"CONNECT_TO_SEARCH_MESSAGES" = "连接网络后搜索";
+"CONNECT_TO_LOAD_USERS" = "连接网络以加载用户";
+"CONNECT_TO_LOAD_GROUPS" = "连接网络以加载群组";
+"CONNECT_TO_LOAD_CHATS" = "连接网络以加载聊天";
+"CONNECT_TO_LOAD_MEMBERS" = "连接网络以加载成员";
+"CONNECT_TO_SEARCH_SUBTITLE" = "搜索需要网络连接。";
+"CONNECT_TO_LOAD_MESSAGES" = "连接网络以加载消息";
+"CONNECT_TO_LOAD_REACTIONS" = "连接网络以加载回应";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "连接网络以加载通知";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "联网后可用";
+"JUMP_TO_LATEST" = "跳转到最新";
+"SEND_IN_FLIGHT" = "正在发送…请稍后再试";

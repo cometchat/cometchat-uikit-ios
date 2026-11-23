@@ -248,12 +248,18 @@ open class CometChatUsers: CometChatListBase {
                 // Check if there are no users based on whether a search is active.
                 let usersEmpty = this.viewModel.isSearching ? this.viewModel.filteredUsers.isEmpty : this.viewModel.users.isEmpty
 
+                // Offline ON: nothing to show and no connection. A keyword search says "Connect to search"
+                // (D84 rule 7), a plain list "Connect to load users" (rule 3); both are false with offline off.
+                let connectToSearch = this.applyConnectToSearch(this.viewModel.connectToSearch && usersEmpty)
+                let connectToLoad = this.applyConnectToLoad(!this.viewModel.isSearching && this.viewModel.connectToLoad && usersEmpty,
+                                                            key: "CONNECT_TO_LOAD_USERS", reason: "users")
+
                 // Show or hide the empty view depending on whether the user list is empty.
-                usersEmpty ? this.showEmptyView() : this.removeEmptyView()
+                usersEmpty && !connectToSearch && !connectToLoad ? this.showEmptyView() : this.removeEmptyView()
                 if !usersEmpty {
                     // If there are users, restore the table view's default state (e.g., no empty message).
                     this.tableView.restore()
-                }else{
+                }else if !connectToSearch && !connectToLoad {
                     this.onEmpty?()
                 }
                 this.refreshControl.endRefreshing()
@@ -281,8 +287,15 @@ open class CometChatUsers: CometChatListBase {
                 this.removeLoadingView() // Hide the loading view since an error occurred.
                 this.refreshControl.endRefreshing() // End any pull-to-refresh indicator.
 
-                // Show an error view if the user list is empty.
-                if this.viewModel.users.isEmpty {
+                // Show an error view if the user list is empty. Offline ON, a failed search is judged on
+                // its own rows, and its error view takes the place of the empty view. Offline and not
+                // connected with nothing on screen, the kit's offline state takes the error view's place
+                // (the app's own error view still shows, D84 rule 3).
+                if !this.viewModel.isSearching && this.viewModel.connectToLoad && this.viewModel.failureLeavesNothing {
+                    this.removeEmptyView()
+                    this.applyConnectToLoad(true, key: "CONNECT_TO_LOAD_USERS", reason: "users")
+                } else if this.viewModel.failureLeavesNothing {
+                    if this.viewModel.searchFailedOffline { this.removeEmptyView() }
                     this.showErrorView()
                 }
             }
@@ -310,9 +323,17 @@ open class CometChatUsers: CometChatListBase {
         switch state {
         case .clear:
             // When the search is cleared, set 'isSearching' to false and reload the data.
+            let searchErrorShowing = viewModel.searchFailedOffline
             viewModel.isSearching = false
             DispatchQueue.main.async { [weak self] in
                 guard let this = self else { return }
+                // The error view of a failed search, and "Connect to search", go with the search.
+                if searchErrorShowing {
+                    this.removeErrorView()
+                    this.removeOfflineState()
+                    // The plain list's own state, if it had one, comes back.
+                    this.viewModel.reload?()
+                }
                 // Hide the empty view if the user list is not empty.
                 if !this.viewModel.users.isEmpty {
                     this.removeEmptyView()
@@ -411,6 +432,7 @@ extension CometChatUsers {
 
         // Show the presence dot only for an online user when status is not hidden and neither side has blocked the other
         let showsPresence = !hideUserStatus
+            && !OfflinePresence.isHidden()
             && user?.status == .online
             && user?.blockedByMe == false
             && user?.hasBlockedMe == false
@@ -584,11 +606,18 @@ extension CometChatUsers {
 //MARK: Connection Listener
 extension CometChatUsers: CometChatConnectionDelegate {
     public func connected() {
+        // Offline ON: a search that failed for want of a connection runs again, once (D84 rule 8).
+        if viewModel.searchReloadOnConnect && viewModel.isSearching {
+            viewModel.filterUsers(text: viewModel.searchText)
+        }
+        // Offline ON: an error view for a non-network error is not reloaded by a reconnect.
+        if viewModel.skipsReconnectReload { return }
         reloadData()
+        viewModel.automaticRefetch = true
         fetchData()
     }
     
-    public func connecting() {}
+    public func connecting() { reloadPresenceForConnectionChange() }
     
-    public func disconnected() {}
+    public func disconnected() { reloadPresenceForConnectionChange() }
 }

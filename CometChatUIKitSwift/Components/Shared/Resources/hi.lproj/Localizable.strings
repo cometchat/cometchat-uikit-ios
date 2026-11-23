@@ -478,3 +478,29 @@
 "search_no_results_for" = "“%@” के लिए कोई परिणाम नहीं मिला\nनई खोज आज़माएँ";
 "MESSAGE_LIST_EMPTY_TITLE" = "अभी तक कोई संदेश नहीं";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "बातचीत शुरू करने के लिए एक संदेश भेजें।";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "अभी भेजा नहीं गया";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "भेजा नहीं गया। पुनः प्रयास के लिए टैप करें";
+"UNSENT_MESSAGE_REMOVED" = "1 अनसेंट संदेश हटा दिया गया";
+"MESSAGES_NOT_SENT_ONE" = "1 संदेश नहीं भेजा गया";
+"MESSAGES_NOT_SENT_OTHER" = "%d संदेश नहीं भेजे गए";
+"UNSENT_MESSAGES_LOST_ONE" = "1 अनसेंट संदेश वापस नहीं मिल सका";
+"UNSENT_MESSAGES_LOST_OTHER" = "%d अनसेंट संदेश वापस नहीं मिल सके";
+"UNSENT_MESSAGES_MAYBE_LOST" = "कुछ अनसेंट संदेश शायद नहीं भेजे गए";
+"OFFLINE_QUEUE_FULL" = "भेजने के लिए बहुत सारे संदेश प्रतीक्षा में हैं";
+"OFFLINE_FILE_TOO_LARGE" = "ऑफ़लाइन भेजने के लिए फ़ाइल बहुत बड़ी है";
+"CONNECT_TO_LOAD_MORE" = "और लोड करने के लिए कनेक्ट करें";
+"CONNECT_TO_SEARCH" = "खोजने के लिए कनेक्ट करें";
+"CONNECT_TO_SEARCH_MESSAGES" = "खोजने के लिए कनेक्ट करें";
+"CONNECT_TO_LOAD_USERS" = "उपयोगकर्ता लोड करने के लिए कनेक्ट करें";
+"CONNECT_TO_LOAD_GROUPS" = "समूह लोड करने के लिए कनेक्ट करें";
+"CONNECT_TO_LOAD_CHATS" = "चैट लोड करने के लिए कनेक्ट करें";
+"CONNECT_TO_LOAD_MEMBERS" = "सदस्य लोड करने के लिए कनेक्ट करें";
+"CONNECT_TO_SEARCH_SUBTITLE" = "खोज के लिए इंटरनेट कनेक्शन चाहिए।";
+"CONNECT_TO_LOAD_MESSAGES" = "संदेश लोड करने के लिए कनेक्ट करें";
+"CONNECT_TO_LOAD_REACTIONS" = "प्रतिक्रियाएँ लोड करने के लिए कनेक्ट करें";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "सूचनाएँ लोड करने के लिए कनेक्ट करें";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "ऑनलाइन होने पर उपलब्ध";
+"JUMP_TO_LATEST" = "नवीनतम पर जाएँ";
+"SEND_IN_FLIGHT" = "भेजा जा रहा है… थोड़ी देर में फिर से कोशिश करें";

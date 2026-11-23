@@ -466,3 +466,29 @@
 "search_no_results_for" = "Keine Ergebnisse für „%@“\nVersuche eine neue Suche";
 "MESSAGE_LIST_EMPTY_TITLE" = "Noch keine Nachrichten";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "Sende eine Nachricht, um die Unterhaltung zu beginnen.";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "Noch nicht gesendet";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "Nicht gesendet. Zum Wiederholen tippen";
+"UNSENT_MESSAGE_REMOVED" = "1 nicht gesendete Nachricht wurde entfernt";
+"MESSAGES_NOT_SENT_ONE" = "1 Nachricht wurde nicht gesendet";
+"MESSAGES_NOT_SENT_OTHER" = "%d Nachrichten wurden nicht gesendet";
+"UNSENT_MESSAGES_LOST_ONE" = "1 nicht gesendete Nachricht konnte nicht wiederhergestellt werden";
+"UNSENT_MESSAGES_LOST_OTHER" = "%d nicht gesendete Nachrichten konnten nicht wiederhergestellt werden";
+"UNSENT_MESSAGES_MAYBE_LOST" = "Einige nicht gesendete Nachrichten wurden möglicherweise nicht gesendet";
+"OFFLINE_QUEUE_FULL" = "Zu viele Nachrichten warten auf den Versand";
+"OFFLINE_FILE_TOO_LARGE" = "Datei zu groß für den Offline-Versand";
+"CONNECT_TO_LOAD_MORE" = "Verbinden, um mehr zu laden";
+"CONNECT_TO_SEARCH" = "Verbinden, um zu suchen";
+"CONNECT_TO_SEARCH_MESSAGES" = "Zum Suchen verbinden";
+"CONNECT_TO_LOAD_USERS" = "Verbinden, um Benutzer zu laden";
+"CONNECT_TO_LOAD_GROUPS" = "Verbinden, um Gruppen zu laden";
+"CONNECT_TO_LOAD_CHATS" = "Verbinden, um Chats zu laden";
+"CONNECT_TO_LOAD_MEMBERS" = "Verbinden, um Mitglieder zu laden";
+"CONNECT_TO_SEARCH_SUBTITLE" = "Die Suche benötigt eine Internetverbindung.";
+"CONNECT_TO_LOAD_MESSAGES" = "Verbinden, um Nachrichten zu laden";
+"CONNECT_TO_LOAD_REACTIONS" = "Verbinden, um Reaktionen zu laden";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "Verbinden, um Benachrichtigungen zu laden";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "Verfügbar, wenn online";
+"JUMP_TO_LATEST" = "Zur neuesten springen";
+"SEND_IN_FLIGHT" = "Wird gesendet … versuche es gleich noch einmal";

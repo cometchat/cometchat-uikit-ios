@@ -15,6 +15,8 @@ enum AppLauncher {
             "-UITestAuthKey",  TestConfig.authKey,
             "-UITestRegion",   TestConfig.region,
             "-UITestUID",      TestConfig.userAUid,
+            // The sample app turns offline on by default; this suite covers the kit's default (OFF).
+            "-SampleOfflineOff",
         ])
         app.launch()
         return app
@@ -31,6 +33,8 @@ enum AppLauncher {
             "-UITestAppID",   TestConfig.appId,
             "-UITestAuthKey", TestConfig.authKey,
             "-UITestRegion",  TestConfig.region,
+            // The sample app turns offline on by default; this suite covers the kit's default (OFF).
+            "-SampleOfflineOff",
         ])
         app.launch()
         return app

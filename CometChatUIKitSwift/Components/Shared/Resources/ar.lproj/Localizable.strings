@@ -491,3 +491,29 @@
 "search_no_results_for" = "لا توجد نتائج لـ “%@”\nجرّب بحثًا جديدًا";
 "MESSAGE_LIST_EMPTY_TITLE" = "لا توجد رسائل بعد";
 "MESSAGE_LIST_EMPTY_SUBTITLE" = "أرسل رسالة لبدء المحادثة.";
+
+// Offline messaging
+"MESSAGE_NOT_SENT_YET" = "لم يتم الإرسال بعد";
+"MESSAGE_NOT_SENT_TAP_TO_RETRY" = "لم يتم الإرسال. اضغط لإعادة المحاولة";
+"UNSENT_MESSAGE_REMOVED" = "تمت إزالة رسالة واحدة غير مرسلة";
+"MESSAGES_NOT_SENT_ONE" = "لم يتم إرسال رسالة واحدة";
+"MESSAGES_NOT_SENT_OTHER" = "لم يتم إرسال %d رسائل";
+"UNSENT_MESSAGES_LOST_ONE" = "تعذّر استرداد رسالة واحدة غير مرسلة";
+"UNSENT_MESSAGES_LOST_OTHER" = "تعذّر استرداد %d رسائل غير مرسلة";
+"UNSENT_MESSAGES_MAYBE_LOST" = "قد لا يكون بعض الرسائل غير المرسلة قد أُرسل";
+"OFFLINE_QUEUE_FULL" = "هناك رسائل كثيرة في انتظار الإرسال";
+"OFFLINE_FILE_TOO_LARGE" = "الملف كبير جدًا للإرسال دون اتصال";
+"CONNECT_TO_LOAD_MORE" = "اتصل بالإنترنت لتحميل المزيد";
+"CONNECT_TO_SEARCH" = "اتصل للبحث";
+"CONNECT_TO_SEARCH_MESSAGES" = "اتصل للبحث";
+"CONNECT_TO_LOAD_USERS" = "اتصل بالإنترنت لتحميل المستخدمين";
+"CONNECT_TO_LOAD_GROUPS" = "اتصل بالإنترنت لتحميل المجموعات";
+"CONNECT_TO_LOAD_CHATS" = "اتصل بالإنترنت لتحميل المحادثات";
+"CONNECT_TO_LOAD_MEMBERS" = "اتصل بالإنترنت لتحميل الأعضاء";
+"CONNECT_TO_SEARCH_SUBTITLE" = "يحتاج البحث إلى اتصال بالإنترنت.";
+"CONNECT_TO_LOAD_MESSAGES" = "اتصل بالإنترنت لتحميل الرسائل";
+"CONNECT_TO_LOAD_REACTIONS" = "اتصل بالإنترنت لتحميل التفاعلات";
+"CONNECT_TO_LOAD_NOTIFICATIONS" = "اتصل بالإنترنت لتحميل الإشعارات";
+"MEDIA_AVAILABLE_WHEN_ONLINE" = "متاح عند الاتصال بالإنترنت";
+"JUMP_TO_LATEST" = "الانتقال إلى الأحدث";
+"SEND_IN_FLIGHT" = "جارٍ الإرسال… حاول مرة أخرى بعد قليل";

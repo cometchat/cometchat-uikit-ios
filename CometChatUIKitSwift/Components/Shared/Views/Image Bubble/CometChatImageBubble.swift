@@ -7,6 +7,7 @@
 
 import UIKit
 import QuickLook
+import CometChatSDK
 
 public class CometChatImageBubble: UIStackView {
     
@@ -150,6 +151,17 @@ public class CometChatImageBubble: UIStackView {
         
     }
     
+    /// Offline ON: files this bubble can already show without the network. The SDK's copy of the
+    /// thumbnail, and the copies today's image load kept in Documents.
+    static func offlineCopies(fileUrl: String?, thumbnailUrl: String?) -> [String?] {
+        var copies: [String?] = [thumbnailUrl.flatMap { CometChat.getCachedMediaPath($0) }]
+        for url in [fileUrl, thumbnailUrl] {
+            guard let cacheURL = url.flatMap({ URL(string: $0) })?.documentsCacheURL else { continue }
+            copies.append(cacheURL.path)
+        }
+        return copies
+    }
+
     func previewMediaMessage(url: String, completion: @escaping (_ success: Bool,_ fileLocation: URL?) -> Void){
         let itemUrl = URL(string: url)
         // A URL with no file name has no cache slot; never look at (or purge) Documents itself.

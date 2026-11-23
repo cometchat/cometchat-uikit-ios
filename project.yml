@@ -19,7 +19,7 @@ packages:
     path: CometChatUIKitSwift        # local binaryTarget = the released xcframework
   CometChatSDK:
     url: https://github.com/cometchat/chat-sdk-ios.git
-    from: "4.1.6"                    # product also vends CometChatStarscream (required by UIKit)
+    from: "4.2.1"                    # product also vends CometChatStarscream (required by UIKit)
   CometChatCallsSDK:
     url: https://github.com/cometchat/calls-sdk-ios.git
     from: "5.0.1"

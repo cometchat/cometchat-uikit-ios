@@ -29,13 +29,23 @@ let package = Package(
         // lacks API the kit calls. Not exact — both ship with library evolution, so newer
         // 4.1.x stays compatible. scripts/check-manifest-sdk-floor.sh keeps the two equal.
         // CometChatCallsSDK is deliberately NOT declared: the kit weak-links it (ENG-39340).
-        .package(name: "CometChatSDK", url: "https://github.com/cometchat/chat-sdk-ios.git", from: "4.1.10")
+        //
+        // OFFLINE DEPENDENCY (ENG-37599): offline messaging needs the offline API, so the floor
+        // moves from 4.1.10 to 4.2.1 — the version that ships it. 4.2.0 IS published (tag 3f89c26,
+        // 2026-11-02) and carries most of the offline API, but not
+        // CometChat.initFromSettings(offlineConfig:onSuccess:onError:), which this kit links
+        // strongly, so 4.2.0 is not enough. This MUST NOT be merged until chat-sdk-ios has the
+        // release tag 4.2.1: SPM orders 4.2.0-beta.1 below 4.2.1 and `from:` skips pre-releases, so
+        // the older v4.2.0-beta.1 tag (a separate line, without the offline API) never satisfies
+        // this. An SPM pin at exactVersion("4.1.x"), or at exactVersion("4.2.0"), fails to resolve
+        // until the consumer upgrades: release-noted as a dependency change.
+        .package(name: "CometChatSDK", url: "https://github.com/cometchat/chat-sdk-ios.git", from: "4.2.1")
     ],
     targets: [
         .binaryTarget(
             name: "CometChatUIKitSwift",
-            url: "https://dl.cloudsmith.io/public/cometchat/cometchat/raw/versions/5.2.4/CometChatUIKitSwift_5.2.4.xcframework.zip",
-            checksum: "c750ea9b3bdd5439e42db71f6faa231ac3a3e5bac410502b6066f2c8c34eb618"
+            url: "https://dl.cloudsmith.io/public/cometchat/cometchat/raw/versions/5.3.0/CometChatUIKitSwift_5.3.0.xcframework.zip",
+            checksum: "96cf5100cbb5ae24c6168b2f8e8818d6192a94852189b62431036f334b7f82ef"
         ),
         .target(
             name: "CometChatUIKitSwiftDependencies",
