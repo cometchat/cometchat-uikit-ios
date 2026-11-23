@@ -3,16 +3,54 @@
 All notable changes to the CometChat iOS UI Kit, generated from the
 [GitHub releases](https://github.com/cometchat/cometchat-uikit-ios/releases) (newest first).
 
-## 5.2.4 — 2026-11-10
+## 5.3.0 — 2026-11-24
 
 
 ### New
-- None
+- Added offline support, off by default. Turn it on with `UIKitSettings.setOfflineConfig(_:)`, a pass-through to the SDK's `AppSettings`.
+- Added cached first paint with offline on, on the message list, conversations, users, groups, group members, reactions, the notification feed, pinned and saved.
+- Added queued sends with offline on. A message sent offline shows **Not sent yet** and goes out on reconnect. Unsent messages offer only Retry and Delete; Retry goes to the SDK's `retryMessage`, so it cannot duplicate a message. A failed one shows **Not sent. Tap to retry**.
+- Added the offline states with offline on: **Connect to load …** for a list with nothing saved, **Connect to search** for an offline keyword search, and a tappable **Connect to load more** at a message-list edge. Each loads once by itself on reconnect.
+- Added media from the device cache with offline on. Media with no saved copy shows a placeholder with the file's name, size and **Available when online**.
+- Added `CometChatMessageEvents.ccMessageSendStateChanged` and `ccOfflineCacheReset`, with empty default bodies on `CometChatMessageEventListener` so existing conformances keep compiling. They are never emitted with offline off.
+- Added `hideOfflineNotices` on `CometChatMessageList` and `CometChatConversations`.
+- Added `CometChatOfflineStyle`, which styles the failed icon, the retry text, **Not sent yet**, the media placeholder, the footer and the "Jump to latest" pill.
+- Added `set(onError:)` on `CometChatSearch` and `CometChatReactionList`.
+- Added `CometChatUIKit.initFromSettings(offlineConfig:completion:)`, for AI agent skills.
+- Added offline strings in all 19 locales.
 
 ### Enhancements
-- Updated the message composer's Add Link and Edit Link dialog to use the colours and fonts from `CometChatTheme` and `CometChatTypography`, so it matches an app's custom theme.
+- Hid presence while the SDK is not connected, in every list and header, with offline on.
+- Made Start from unread and a jump to a message wait until the list reaches its anchor before paging, so the list lands on the right message and not at the newest.
+- Limited the on-device avatar store to 250 MB, removing the least recently used avatar first.
+- Added `accessibilityIdentifier` on message rows and their menu, notices, list footers, the composer, tray tiles, conversation rows and the empty and error views.
 
 ### Fixes
+- Fixed Message Translation, Profanity and Data Masking, Thumbnail Generation, Link Preview and custom `DataSourceDecorator` subclasses being bypassed in the message list since 5.1.22.
+- Fixed a streaming AI answer going blank when another message list was released while that answer was still streaming. Releasing a list, or calling `MessageListViewModel.cleanup()`, now stops only that list's own runs instead of every streaming run in the process.
+- Fixed Group Members and the Notification Feed not refreshing on reconnect.
+- Fixed paging cursors using `messageId=0` when a failed or unsent message was the newest row.
+- Fixed a failed reaction add or remove leaving the wrong count or order on the bubble.
+- Fixed the failed-send event replacing the message's `metaData` with `["error": true]`. It now merges `error: true` into it.
+- Fixed Saved Messages rows showing the first sender's name on messages received from other people, and a raw user id instead of the name when the list was opened offline.
+- Fixed Share and Download of an on-device attachment placing the copy outside its folder when the name contained `/` or `..`.
+- Fixed another user's message being able to show, open or share a local file on the reader's device (iOS-SEC-1, offline on and off). A `file:` link or an absolute path in `attachment.url` or `metaData.fileURL` is now honoured only on the logged-in user's own messages. Image and file downloads are also cached in `Documents/cc_media/<name>` instead of the `Documents` root, so a file cached by an earlier version is downloaded once more.
+- Fixed a conversation pinned or unpinned on another device losing the row's name, avatar and last message (BUG-11, offline on and off). Only `pinnedAt` and `pinnedBy` are taken onto the row shown.
+- Fixed a slow answer for an earlier keyword replacing the current results in Users, Groups, Group Members and Search (offline on and off).
+- Fixed Retry and Delete leaving an unsent row on screen when the SDK no longer held that message, as on Android (ENG-57447).
+- Fixed the privacy manifest not declaring the file-timestamp API the avatar disk cache uses (`PrivacyInfo.xcprivacy`).
+
+### Breaking Changes
+- `MessageListViewModel.cleanup()` now stops only that view model's streaming runs instead of resetting the whole AI stream service. **If your app relied on it as a full reset — on logout, for example — call `CometChatAIStreamService.shared.cleanupAll()` instead.**
+## 5.2.4 — 2026-11-10
+
+#### New
+- None
+
+#### Enhancements
+- Updated the message composer's Add Link and Edit Link dialog to use the colours and fonts from `CometChatTheme` and `CometChatTypography`, so it matches an app's custom theme.
+
+#### Fixes
 - Fixed an issue where text bubbles cut off long messages with an ellipsis instead of wrapping when the text contained an emoji made of multiple Unicode characters, such as ❤️, ☀️, 👍🏽, 🇮🇳, or family and flag sequences. Messages now wrap to their full length wherever the emoji appears.
 - Fixed text in a message bubble going missing when the message mixed Arabic, Thai, Bengali or other scripts that render as more glyphs than characters with other text or an emoji. For example, the word "Thanks!" or a ❤️ after Arabic text no longer disappears.
 - Fixed an issue where custom views set through a template's `bubbleView` appeared on the wrong messages or repeated across rows during fast scrolling. `CometChatMessageBubble` now removes the custom view when a cell is reused and restores the standard bubble, and `set(bubbleView:)` no longer removes the contents of the view it replaces. If you subclass `CometChatMessageBubble`, note that `set(bubbleView:)` now hides the standard bubble's views instead of removing their contents, and `prepareForReuse()` shows them again.
@@ -20,7 +58,6 @@ All notable changes to the CometChat iOS UI Kit, generated from the
 - Fixed the app quitting unexpectedly on iOS 26 when the text size changed while the message composer’s Add Link or Edit Link dialog was being edited. The dialog now keeps the typed text through a text-size change.
 
 Built with Xcode 26.5.
-
 
 ## 5.2.3 — 2026-10-08
 

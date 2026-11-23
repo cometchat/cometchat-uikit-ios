@@ -41,10 +41,17 @@ open class CompactMessageComposerViewModel: NSObject, CompactMessageComposerView
     
     var reset: ((Bool) -> ())?
     var failure: ((CometChatException) -> Void)?
+    /// An edit failed with offline on: the composer keeps it and says so.
+    var onOfflineEditFailed: ((CometChatException) -> Void)?
     var isSoundForMessageEnabled: (() -> ())?
     var onMessageEdit: ((_ message: BaseMessage) -> ())?
     var showReplyView: ((_ message: BaseMessage) -> ())?
     var hideReplyView: (() -> ())?
+
+    /// The SDK edit of a text message. A seam so a test can answer an edit without a session.
+    internal var sendEdit: (TextMessage, @escaping (MessageComposerBuilderResult) -> Void) -> Void = { message, completion in
+        MessageComposerBuilder.editMessage(message: message, completion: completion)
+    }
     
     // MARK: - Text Formatters
     
@@ -335,7 +342,7 @@ extension CompactMessageComposerViewModel {
             }
         case .failure(let error):
             failure?(error)
-            originalMessage.metaData = ["error": true]
+            originalMessage.markSendFailed()
             CometChatMessageEvents.ccMessageSent(message: originalMessage, status: .error)
         }
     }
@@ -373,13 +380,17 @@ extension CompactMessageComposerViewModel {
     func editTextMessage(textMessage: TextMessage, message: String?, textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]]) {
         let message: String = message?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if !message.isEmpty {
+            // Offline, a failed edit leaves nothing half-done (UIK-MUT-01): the row keeps what it had.
+            let offlineOn = OfflineGate.isOn()
+            let textBefore = textMessage.text
+            let metaDataBefore = textMessage.metaData
             textMessage.text = message
             textMessage.metaData?.removeValue(forKey: "translated-message")
             if !textFormatter.isEmpty {
                 update(message: textMessage, withSelected: textFormatter)
             }
             isSoundForMessageEnabled?()
-            MessageComposerBuilder.editMessage(message: textMessage) { [weak self] result in
+            sendEdit(textMessage) { [weak self] result in
                 switch result {
                 case .success(let updatedTextMessage):
                     DispatchQueue.main.async { [weak self] in
@@ -394,9 +405,22 @@ extension CompactMessageComposerViewModel {
                 case .failure(let error):
                     DispatchQueue.main.async { [weak self] in
                         guard let this = self else { return }
+                        if offlineOn {
+                            // The row keeps its text and the notice says why. The compact composer
+                            // already left edit mode on send (`leaveEditModeOnSend`, iOS-EDIT-1), so
+                            // nothing is reset here: that would clear what the user typed since. Any
+                            // failure: a server that does not answer a reachable device does not report
+                            // itself as not connected on this path.
+                            textMessage.text = textBefore
+                            textMessage.metaData = metaDataBefore
+                            this.failure?(error)
+                            this.onOfflineEditFailed?(error)
+                            CometChatMessageEvents.ccMessageEdited(message: textMessage, status: .error)
+                            return
+                        }
                         this.failure?(error)
                         this.reset?(true)
-                        textMessage.metaData = ["error": true]
+                        textMessage.markSendFailed()
                         CometChatMessageEvents.ccMessageEdited(message: textMessage, status: .error)
                     }
                 }
@@ -439,7 +463,7 @@ extension CompactMessageComposerViewModel {
                 }
             case .failure(let error):
                 self?.failure?(error)
-                mediaMessage.metaData = ["error": true]
+                mediaMessage.markSendFailed()
                 CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
             }
         }
@@ -542,7 +566,15 @@ extension CompactMessageComposerViewModel {
     private func sendBatchSequentially(_ messages: [MediaMessage], at index: Int) {
         guard index < messages.count else { return }
         let mediaMessage = messages[index]
-        MessageComposerBuilder.mediaMessage(message: mediaMessage) { [weak self] result in
+        // Offline, a send queued behind another unsent one is answered only by "pending": the next
+        // item goes on the first answer, once (the outbox keeps the order).
+        var advanced = false
+        let advance: () -> Void = { [weak self] in
+            guard !advanced else { return }
+            advanced = true
+            self?.sendBatchSequentially(messages, at: index + 1)
+        }
+        MessageComposerBuilder.mediaMessage(message: mediaMessage, onFirstAnswer: advance) { [weak self] result in
             switch result {
             case .success(let updatedMediaMessage):
                 CometChatMessageEvents.ccMessageSent(message: updatedMediaMessage, status: .success)
@@ -551,12 +583,10 @@ extension CompactMessageComposerViewModel {
                 }
             case .failure(let error):
                 self?.failure?(error)
-                var errorMetaData: [String: Any] = mediaMessage.metaData ?? [:]
-                errorMetaData["error"] = true
-                mediaMessage.metaData = errorMetaData
+                mediaMessage.markSendFailed()
                 CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
             }
-            self?.sendBatchSequentially(messages, at: index + 1)
+            advance()
         }
     }
 
@@ -593,7 +623,7 @@ extension CompactMessageComposerViewModel {
                 }
             case .failure(let error):
                 self?.failure?(error)
-                mediaMessage.metaData = ["error": true]
+                mediaMessage.markSendFailed()
                 CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
             }
         }

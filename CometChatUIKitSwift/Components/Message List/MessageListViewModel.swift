@@ -116,8 +116,8 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     
     var scrollToMessageId: ((Int, Bool) -> Void)?
 
-    private var gotoMessageId: Int = 0
-    private var gotoMessage: BaseMessage?
+    var gotoMessageId: Int = 0
+    var gotoMessage: BaseMessage?
     private var hasMorePreviousMessages: Bool = true
     private var hasMoreNewMessages: Bool = true
 
@@ -168,6 +168,9 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     var isFetchingNext = false
 
     var isUIUpdating: Bool = false
+    /// Moves on every jump to a message. A page read that started before the jump belongs to the
+    /// window being left, so its answer is dropped (a stale older page landed in the jumped-to window).
+    internal var readGeneration = 0
     var templates = [String: CometChatMessageTemplate]()
     var hideDeletedMessages: Bool = false
     var hasFetchedMessagesBefore = false
@@ -310,6 +313,64 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     /// assertable without a live SDK. Defaults to the real registrar.
     internal var listeners: ListenerRegistering = SDKListenerRegistrar.shared
 
+    /// What this list remembers for the offline (ON) path. Empty and unused while offline is off.
+    internal let offline = MessageListOfflineState()
+
+    /// Offline ON: a notice for the screen to show (a removed unsent message, a full queue, lost
+    /// unsent messages). Never fired while offline is off.
+    internal var onOfflineNotice: ((OfflineNotice) -> Void)?
+    /// Runs a block later on the main queue. A seam so a test need not wait.
+    internal var offlineAfter: (TimeInterval, DispatchWorkItem) -> Void = { delay, work in
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
+    }
+
+    /// Offline ON: `getMessageDetails`, two-phase. A seam so a test can answer each phase.
+    internal var offlineMessageDetails: (Int, MessageDetailsListener) -> Void = { id, listener in
+        CometChat.getMessageDetails(id, listener: listener)
+    }
+
+    /// Offline ON: a jump or start-from-unread target could not be anchored (not cached, and the
+    /// server has no answer). The screen drops its jump state: loading view, unread separator.
+    internal var onOfflineJumpUnavailable: (() -> Void)?
+
+    /// Offline ON: a read ended with the not-connected error over saved messages.
+    internal var onOfflineNotConnected: (() -> Void)?
+
+    /// Offline ON: a read the user or app started failed online while rows are on screen. The rows stay
+    /// and no error view shows; the screen only reports it to `onError` (D84 rule 5). A not-connected
+    /// failure over rows reports nothing (rule 2).
+    internal var onOfflineReadFailed: ((CometChatException) -> Void)?
+
+    /// Offline ON, D84 rule 9: the connection is back and the older "Connect to load more" edge loads its
+    /// page once by itself. The screen does what a tap on the edge does and calls back when the read has
+    /// settled.
+    internal var onOfflineLoadOlderEdge: ((_ settled: @escaping () -> Void) -> Void)?
+
+    /// Offline ON, D84 rule 9: as `onOfflineLoadOlderEdge`, for the newer edge.
+    internal var onOfflineLoadNewerEdge: (() -> Void)?
+
+    /// Offline ON: the connection is back and the error view is going to read once more; the screen
+    /// takes the error view down and shows the loader (D83).
+    internal var onOfflineReloadAfterError: (() -> Void)?
+
+    /// Offline ON: whether the reader is at the bottom of the list (the view answers). Unset means yes.
+    internal var offlineIsAtBottom: (() -> Bool)?
+
+    /// Offline ON: a refresh after a partial sync found more missed than one page; the screen offers
+    /// "jump to latest" and calls `offlineApplyLatestWindow()` on tap.
+    internal var onOfflineJumpToLatest: (() -> Void)?
+
+    /// Offline ON: a Delete or Retry of an unsent row that the SDK refused, the server delete it
+    /// fell back to, or a refused delete of a sent message or reaction (BUG-3); the screen shows
+    /// today's error notice and leaves the row as it is.
+    internal var onOfflineActionError: ((CometChatException) -> Void)?
+
+    /// The Chat SDK offline surface the unsent-row actions use. A seam for tests.
+    internal var offlineSDK: OfflineSDK = LiveOfflineSDK.shared
+
+    /// Asks whether offline is on (`OfflineGate.isOn`). A seam for tests.
+    internal var offlineGate: () -> Bool = { OfflineGate.isOn() }
+
     public override init() {
         messagesRequestBuilder = MessagesRequest.MessageRequestBuilder()
         service = LiveMessageListService()
@@ -322,8 +383,9 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         if let user = user, user.isAgentic && parentMessage?.id == 0 {
             isUIUpdating = false
             messages.removeAll()
-            CometChatAIStreamService.shared.isAIBusy = false // cleanup: not busy
-            CometChatAIStreamService.shared.cleanupAll()     // cleanup: all stream state
+            // Only this list's own runs: a process-wide cleanupAll() would also stop
+            // a reply streaming in another chat.
+            stopOwnedStreams()
             return
         }
     }
@@ -349,6 +411,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             .set(types: ChatConfigurator.getDataSource().getAllMessageTypes() ?? [])
             .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
         self.messagesRequest = self.messagesRequestBuilder.build()
+        self.offline.baseAnchorMessageId = self.messagesRequest?.messageID ?? 0
         self.fetchUnreadMessageCount()
     }
         
@@ -372,6 +435,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         }
         self.messagesRequestBuilder = builder
         self.messagesRequest = self.messagesRequestBuilder.build()
+        self.offline.baseAnchorMessageId = self.messagesRequest?.messageID ?? 0
         self.fetchUnreadMessageCount()
     }
     
@@ -379,9 +443,11 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         if let user = user {
             self.messagesRequestBuilder = messagesRequestBuilder.set(uid: user.uid ?? "").setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
             self.messagesRequest = self.messagesRequestBuilder.build()
+            self.offline.baseAnchorMessageId = self.messagesRequest?.messageID ?? 0
         } else if let group = group {
             self.messagesRequestBuilder = messagesRequestBuilder.set(guid: group.guid).setParentMessageId(parentMessageId: parentMessage?.id ?? 0)
             self.messagesRequest = self.messagesRequestBuilder.build()
+            self.offline.baseAnchorMessageId = self.messagesRequest?.messageID ?? 0
         }
     }
     
@@ -394,6 +460,12 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     // MARK: - Mark as unread flow
     
     func getConversation(conversationWith: String, conversationType: CometChat.ConversationType, completion: @escaping(Conversation?) -> ()) {
+        // Offline ON (read once): the cached conversation answers first, so a chat opened by id works
+        // without a connection.
+        if OfflineGate.isOn() {
+            offlineGetConversation(conversationWith: conversationWith, conversationType: conversationType, completion: completion)
+            return
+        }
         CometChat.getConversation(
             conversationWith: conversationWith,
             conversationType: conversationType,
@@ -422,6 +494,11 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             }
         } onError: { error in
             CometChatLogger.error("Error marking conversation as read: \(error.errorDescription)")
+            // Offline ON: the read could not reach the server (opened offline). Remember it; the hub
+            // sends one markAsRead after the next sync so the badge does not come back (AC-7.4).
+            if OfflineGate.isOn() {
+                OfflineHub.shared.rememberReadWhileOffline(id: conversationWith, type: conversationType)
+            }
         }
     }
     
@@ -522,6 +599,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             .set(categories: ChatConfigurator.getDataSource().getAllMessageCategories() ?? [])
             .set(messageID: -1)
         self.messagesRequest = self.messagesRequestBuilder.build()
+        self.offline.baseAnchorMessageId = -1
         // Reset pagination flags so the freshly configured thread is fetched cleanly.
         self.isAllMessagesFetchedInPrevious = false
         // We're anchored at the latest message (messageID: -1), so there are no newer
@@ -537,6 +615,15 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
 
         gotoMessageId = messageId
 
+        // Offline ON (read once): the cached message starts the jump when there is one. Positioning
+        // (no paging, no live auto-scroll) begins there, before any read.
+        let offlineOn = OfflineGate.isOn()
+        supersedeReadsForJump(offlineOn: offlineOn)
+        if offlineOn {
+            offlineGoToMessage(messageId: messageId)
+            return
+        }
+
         CometChat.getMessageDetails(messageId) { [weak self] message in
             guard let this = self else { return }
             this.gotoMessage = message
@@ -548,7 +635,20 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     }
 
 
-    private func fetchSurroundingMessages(goToMessage: BaseMessage) {
+    /// A jump replaces the window: an older or newer page already being read was asked for the window
+    /// being left, and must not land in the new one. Its answer is dropped and its busy flag is
+    /// released; the jump's own reads are made after this.
+    func supersedeReadsForJump(offlineOn: Bool) {
+        readGeneration &+= 1
+        isUIUpdating = false
+        isFetchingNext = false
+        // Offline ON: the same for the two-phase reads, which are matched by token.
+        if offlineOn { offline.supersedeReadsForJump() }
+    }
+
+    func fetchSurroundingMessages(goToMessage: BaseMessage) {
+        // A read started since the jump began (a scroll while the target was being looked up) is stale too.
+        readGeneration &+= 1
 
         messagesRequest = messagesRequestBuilder.set(messageID: goToMessage.id).build()
 
@@ -562,8 +662,9 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         anchoredRequest: MessagesRequest
     ) {
         
-        MessagesListBuilder.fetchNextMessages(messageRequest: anchoredRequest) { [weak self] result in
-            guard let this = self else { return }
+        let generation = readGeneration
+        service.fetchNextMessages(request: anchoredRequest) { [weak self] result in
+            guard let this = self, generation == this.readGeneration else { return }
 
             switch result {
             case .success(let newerRaw):
@@ -581,7 +682,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     }
 
 
-    private func prepareProcessedMessageWindow(
+    func prepareProcessedMessageWindow(
         olderRaw: [BaseMessage],
         goToMessage: BaseMessage,
         newerRaw: [BaseMessage]
@@ -615,6 +716,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
                 }
             } else {
                 CometChatLogger.warning("could not find the target message in the grouped message list")
+                this.offlineEndPositioning()   // nothing to scroll to
             }
         }
     }
@@ -639,17 +741,25 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         self.isAllMessagesFetchedInNext = false
 
         // 3. Reset request builders to align with the new window
-        if let oldest = messages.last?.messages.last {
+        resetCursorsToWindowEdges()
+    }
+
+    /// Point the paging requests at the edges of the window on screen.
+    func resetCursorsToWindowEdges() {
+        // Cursors anchor on rows with a server id: an unsent row has id 0.
+        let oldestId = MessageListCursors.oldestServerId(messages)
+        if oldestId > 0 {
             // Oldest = bottom-most
             self.messagesRequestBuilder = self.messagesRequestBuilder
-                .set(messageID: oldest.id)
+                .set(messageID: oldestId)
 
             self.messagesRequest = self.messagesRequestBuilder.build()
         }
 
-        if let newest = messages.first?.messages.first {
+        let newestId = MessageListCursors.newestServerId(messages)
+        if newestId > 0 {
             self.messagesNextRequest = self.messagesRequestBuilder
-                .set(messageID: newest.id)
+                .set(messageID: newestId)
                 .build()
         }
     }
@@ -722,11 +832,26 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             CometChatLogger.debug("[AIAgent] VM.fetchPreviousMessages: isAllMessagesFetchedInPrevious=true — bailing")
             return
         }
+        // Offline ON: the window around a jump or the first unread is painted but the list has not
+        // scrolled to its anchor yet. An older page read now would move the window under the scroll
+        // (the around read itself still runs: `gotoMessage` is set until it paints).
+        if offline.positioning, gotoMessage == nil { return }
         isUIUpdating = true
         hasFetchedMessagesBefore = true
+        // Offline ON (read once for this read): two phases, cached then server. A jump to a message
+        // reads its window the same way and falls back to the cache when the server is out of reach.
+        if OfflineGate.isOn() {
+            if let anchor = gotoMessage {
+                offlineFetchJumpWindow(anchor: anchor, olderRequest: messagesRequest)
+            } else {
+                offlineFetchPreviousMessages(request: messagesRequest, completion: completion)
+            }
+            return
+        }
         CometChatLogger.debug("[AIAgent] VM.fetchPreviousMessages: starting fetchPrevious; parentMessage.id=\(parentMessage?.id ?? -1), threadedPArentMessageId=\(threadedPArentMessageId)")
+        let generation = readGeneration
         service.fetchPreviousMessages(request: messagesRequest) { [weak self] result in
-            guard let this = self else { return }
+            guard let this = self, generation == this.readGeneration else { return }
             this.isUIUpdating = false
             switch result {
             case .success(let fetchedMessages):
@@ -777,7 +902,10 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     }
     
     func fetchMissedMessages() {
-        if let id = messages.first?.messages.first?.id {
+        // Newest row with a server id: an unsent row at the top has id 0, which would make the
+        // request start from the beginning of the conversation.
+        let id = MessageListCursors.newestServerId(messages)
+        if id > 0 {
             if let user = self.user, let _ = user.uid {
                 messageNextRequestBuilder = messagesRequestBuilder.set(messageID: id).build()
             } else if let _ = self.group {
@@ -834,6 +962,8 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
             return
         }
         if isFetchingNext { return }
+        // Offline ON: not before the list is positioned on its jump or first-unread anchor.
+        if offline.positioning { return }
         
         isFetchingNext = true
         CometChatLogger.debug("[AIAgent] fetchNextMessagesForPagination: STARTING (isAllMessagesFetchedInNext was false)")
@@ -841,19 +971,20 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         let anchorMessageId = messages.first?.messages.first
         
         // Build request (existing logic)
-        guard let newest = messages.first?.messages.first else {
+        let newestServerId = MessageListCursors.newestServerId(messages)
+        guard messages.first?.messages.first != nil, newestServerId > 0 else {
             isFetchingNext = false
             return
         }
         if let user = user {
             self.messagesNextRequestPagination = self.messagesRequestBuilder
                 .set(uid: user.uid ?? "")
-                .set(messageID: newest.id)
+                .set(messageID: newestServerId)
                 .build()
         } else if let group = group {
             self.messagesNextRequestPagination = self.messagesRequestBuilder
                 .set(guid: group.guid)
-                .set(messageID: newest.id)
+                .set(messageID: newestServerId)
                 .build()
         }
         guard let request = messagesNextRequestPagination else { return }
@@ -862,8 +993,16 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         
         willStartFetchNext?()
 
+        if OfflineGate.isOn() {
+            offlineFetchNextMessagesForPagination(request: request, oldMetrics: oldMetrics,
+                                                  anchorMessageId: anchorMessageId, completion: completion)
+            return
+        }
+        offlineHandleKillSwitch()   // offline is off now: the next operation reveals stranded sends
+
+        let generation = readGeneration
         service.fetchNextMessages(request: request) { [weak self] result in
-            guard let this = self else { return }
+            guard let this = self, generation == this.readGeneration else { return }
 
             switch result {
             case .success(let fetched):
@@ -924,7 +1063,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
                             }
                             
                             this.groupMessages(messages: missedMessagesWithoutActions, atBottom: true)
-                            if this.messages.first?.messages.first?.id != fetchedMessages.last?.id {
+                            if MessageListCursors.newestServerId(this.messages) != fetchedMessages.last?.id {
                                 this.fetchNextMessagesFromLastMessage()
                             }
                         })
@@ -954,7 +1093,8 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     }
     
     func fetchActionMessages(_ success: @escaping (Bool) -> ()) {
-        if let id = messages.last?.messages.last?.id {
+        let id = MessageListCursors.oldestServerId(messages)
+        if id > 0 {
             let messageActionRequest = MessagesRequest.MessageRequestBuilder().set(messageID: id)
                 .set(categories: ["action"]).set(types: ["message"])
             if let user = self.user, let uid = user.uid {
@@ -977,6 +1117,11 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
     }
     
     private func groupMessages(messages: [BaseMessage], atBottom: Bool = false) {
+
+        // Offline ON: pages are normally disjoint, but a reconnect fetch, a forward page and an agent
+        // thread that re-includes its parent can hand back rows already shown (D4). Offline OFF takes
+        // the page as it is, as it always did.
+        let messages = OfflineGate.isOn() ? offlineDropShownDuplicates(messages) : messages
         
         CometChatLogger.debug("[AIAgent] VM.groupMessages: called with \(messages.count) messages, atBottom=\(atBottom)")
         if let lastMessage = messages.last{
@@ -1033,7 +1178,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         self.reload?()
     }
     
-    private func processMessageList(_ messageList:[BaseMessage], _ messages: @escaping ([BaseMessage]) -> ()) {
+    func processMessageList(_ messageList:[BaseMessage], _ messages: @escaping ([BaseMessage]) -> ()) {
         var messagesList = [BaseMessage]()
         for message in messageList {
             if let message_ = message as? InteractiveMessage, message_.messageCategory == .interactive {
@@ -1069,6 +1214,8 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         listeners.add(.groupEvents, id: "message-list-groups-events-listener-\(currentRandomDate)", listener: self)
         listeners.add(.aiAssistantSDK, id: "message-list-ai-events-listener-\(currentRandomDate)", listener: self)
         listeners.add(.threadEvents, id: "message-list-thread-events-listener-\(currentRandomDate)", listener: self)
+        // Inert while offline is off: the hub's SDK listeners never fire.
+        listeners.add(.offlineHub, id: "message-list-offline-hub-listener-\(currentRandomDate)", listener: self as OfflineHubObserver)
     }
 
     // MARK:- disconnect message listener
@@ -1082,6 +1229,7 @@ open class MessageListViewModel: NSObject, MessageListViewModelProtocol {
         listeners.remove(.groupEvents, id: "message-list-groups-events-listener-\(currentRandomDate)")
         listeners.remove(.aiAssistantSDK, id: "message-list-ai-events-listener-\(currentRandomDate)")
         listeners.remove(.threadEvents, id: "message-list-thread-events-listener-\(currentRandomDate)")
+        listeners.remove(.offlineHub, id: "message-list-offline-hub-listener-\(currentRandomDate)")
     }
 
     func checkThreadedMessageBelongsToThisConversation(message: BaseMessage) -> Bool {
@@ -1303,7 +1451,13 @@ extension MessageListViewModel {
         guard let loggedInUser = CometChat.getLoggedInUser() else { return self }
         if getTemplate(for: message) == nil { return self } ///Checking if template exists
         
-        if isMessageForThisUser(message: message){
+        // Offline ON (read once for this add): keyed upsert into the sorted place. A message the sweep
+        // delivered (source == .sync) is already counted in the synced conversation: no per-message
+        // receipt and no unread +1 (UIK-SYNC-02).
+        let offlineOn = OfflineGate.isOn()
+        let isSyncDelivered = offlineOn && MessageIdentity.isSyncDelivered(message)
+
+        if isMessageForThisUser(message: message), !isSyncDelivered {
             markAsRead(message: message)
             markAsDelivered(message: message)
             if !LoggedInUserInformation.isLoggedInUser(uid: message.sender?.uid ?? ""){
@@ -1314,6 +1468,20 @@ extension MessageListViewModel {
         
         DispatchQueue.main.async { [weak self] in
             guard let this = self else { return }
+
+            if offlineOn {
+                guard this.offlineBelongsHere(message) else { return }
+                // A swept message never inserts past the end of a window anchored on an older message.
+                this.offlineUpsertOne(message, insertIfMissing: !(isSyncDelivered && this.offline.anchoredWindow), isSync: isSyncDelivered)
+                return
+            }
+
+            // Keyed upsert (D4): a message whose server id is already shown replaces that row
+            // instead of being inserted a second time.
+            if message.id > 0, this.isMessageAlreadyLoaded(message.id) {
+                this.applyUpdate(newMessage: message)
+                return
+            }
             
             if (message.receiverType == .user) && ((CometChat.getLoggedInUser()?.uid == message.sender?.uid && message.receiverUid == this.user?.uid)  || (CometChat.getLoggedInUser()?.uid != message.sender?.uid && message.sender?.uid == this.user?.uid))
                 ||
@@ -1334,6 +1502,7 @@ extension MessageListViewModel {
     
     @discardableResult
     public func update(message: BaseMessage) -> Self {
+        let offlineOn = OfflineGate.isOn()
         processMessageList([message]) { [weak self] messages in
             guard let messages_ = messages.first else { return }
 
@@ -1345,7 +1514,11 @@ extension MessageListViewModel {
             // no context menu, so no pin or save on a just-sent message.
             DispatchQueue.main.async { [weak self] in
                 guard let this = self else { return }
-                this.applyUpdate(newMessage: messages_)
+                if offlineOn {
+                    this.offlineApplyUpdate(messages_)
+                } else {
+                    this.applyUpdate(newMessage: messages_)
+                }
             }
         }
         return self
@@ -1434,12 +1607,20 @@ extension MessageListViewModel {
     public func update(receipt: MessageReceipt) -> Self {
         if !disableReceipt {
             let loggedInUid = CometChat.getLoggedInUser()?.uid
+            // Offline ON: an unsent row (id 0) takes no receipt, and a receipt for a server id not
+            // shown yet (its ack has not landed) is held until a row acquires that id (BEH-SEND-32).
+            let offlineOn = OfflineGate.isOn()
+            if offlineOn, let id = Int(receipt.messageId), id > 0,
+               messages.contains(where: { $0.messages.contains(where: { $0.id <= 0 }) }),
+               !messages.contains(where: { $0.messages.contains(where: { $0.id == id }) }) {
+                offline.heldReceipts.hold(messageId: id, receipt: receipt)
+            }
             
             //Checking For User
             if receipt.receiverType == .user && receipt.sender?.uid == self.user?.uid {
                 for (section, currentMessages) in messages.enumerated() {
                     for (row, message) in currentMessages.messages.enumerated() {
-                        if message.senderUid == loggedInUid {
+                        if message.senderUid == loggedInUid && !(offlineOn && message.id <= 0) {
                             // Check if this receipt applies to this message
                             let isMatchingMessage = String(message.id) == receipt.messageId || message.id <= Int(receipt.messageId) ?? 0
                             
@@ -1496,6 +1677,7 @@ extension MessageListViewModel {
                 //Checking For Group
                 for (section, currentMessages) in messages.enumerated() {
                     for (row, message) in currentMessages.messages.enumerated() {
+                        if offlineOn && message.id <= 0 { continue }
                         
                         if receipt.receiptType == .readByAll && message.readAt == 0.0 {
                             DispatchQueue.main.async { [weak self] in
@@ -1579,6 +1761,10 @@ extension MessageListViewModel {
     
     @discardableResult
     public func remove(message: BaseMessage) -> Self {
+        if OfflineGate.isOn() {
+            offlineRemoveRow(message)
+            return self
+        }
         if let section = messages.firstIndex(where: { (date: Date, messages: [BaseMessage]) in
             return String().compareDates(newTimeInterval: date.timeIntervalSince1970, currentTimeInterval: Double(message.sentAt)) ? true : false
         }), let row = messages[section].messages.firstIndex(where: { $0.id == message.id || $0.muid == message.muid}) {
@@ -1590,6 +1776,12 @@ extension MessageListViewModel {
     
     @discardableResult
     public func delete(message: BaseMessage) -> Self {
+        // Offline ON: a refused delete (offline, for one) leaves the row and shows the error notice
+        // (BUG-3), as the delete of an unsent row does, instead of saying nothing.
+        if offlineGate() {
+            offlineServerDelete(message)
+            return self
+        }
         CometChat.deleteMessage(message.id) { message in
             CometChatMessageEvents.onMessageDeleted(message: message)
         } onError: { [weak self] error in
@@ -1610,6 +1802,7 @@ extension MessageListViewModel {
     @discardableResult
     public func clearList() -> Self {
         self.messages.removeAll()
+        self.offline.reset(toGen: OfflineHub.shared.gen)
         return self
     }
     
@@ -1668,7 +1861,10 @@ extension MessageListViewModel: CometChatMessageEventListener {
         // Stamp before the message is added, so it renders with the right state.
         applyIncomingReplySubscription(message: message)
         if checkThreadedMessageBelongsToThisConversation(message: message) {
-            self.newMessageReceived?(message)
+            // Offline ON: a swept message makes no sound or indicator (UIK-SYNC-02).
+            if !(OfflineGate.isOn() && MessageIdentity.isSyncDelivered(message)) {
+                self.newMessageReceived?(message)
+            }
             self.add(message: message)
         }
     }
@@ -1780,7 +1976,10 @@ extension MessageListViewModel: CometChatMessageEventListener {
         ccMessageSent?(message, status)
         
         if status == .success {
-            ifThreadedMessageUpdateCount(message: message)
+            // Offline ON: a reply counted when it was queued is not counted again by its ack.
+            if !offlineTakeCountedReply(message) {
+                ifThreadedMessageUpdateCount(message: message)
+            }
             // Cases 2 and 4: sending subscribes the sender server-side, for a thread
             // reply and for a root alike — mirror it locally.
             applyOwnMessageSent(message: message)
@@ -2307,10 +2506,43 @@ extension MessageListViewModel: AIAssistantEventsDelegate, QueueCompletionCallba
         pendingAIMessages.removeAll()
     }
     
+    /// Stops the AI streams this list owns and clears its pending AI messages. It no longer
+    /// resets the whole stream service; for a full reset call `CometChatAIStreamService.shared.cleanupAll()`.
     public func cleanup() {
-        CometChatAIStreamService.shared.isAIBusy = false
-        CometChatAIStreamService.shared.cleanupAll()
+        stopOwnedStreams()
         pendingAIMessages.removeAll()
+    }
+
+    /// Run ids this list owns: its stream placeholders, its pending AI messages and
+    /// the runs whose queue-completion callback is this view model.
+    private func ownedStreamRunIds() -> Set<Int> {
+        var runIds = Set(pendingAIMessages.keys)
+        for group in messages {
+            for message in group.messages where message.metaData?["__streaming_placeholder__"] as? Bool == true {
+                if let runId = message.metaData?["runId"] as? Int { runIds.insert(runId) }
+            }
+        }
+        runIds.formUnion(CometChatAIStreamService.shared.runIds(withCompletionCallback: self))
+        return runIds
+    }
+
+    /// Stops only the runs this list owns. The stream service is process-wide, so
+    /// `cleanupAll()` here would wipe the buffers, queues and controllers of a reply
+    /// streaming in another chat, which then stops receiving chunks and its end event.
+    /// A run of another chat that has queued events but no bubble bound yet is not owned
+    /// by this list and is left alone. The stopped runs' late events are ignored by the
+    /// service, so a closed chat leaves no queue behind.
+    internal func stopOwnedStreams() {
+        let service = CometChatAIStreamService.shared
+        for runId in ownedStreamRunIds() {
+            service.stopStreamingForClosedRun(runId: runId)
+        }
+        // A list that owns no run yet (send in flight, send failed, no reply) still
+        // set `isAIBusy` on send. Clear it unless a stream is actually being drained,
+        // so closing the chat doesn't leave every composer's send button disabled.
+        if !service.getAllRunIds().contains(where: { service.isStreamingActive(runId: $0) }) {
+            service.isAIBusy = false
+        }
     }
 }
 
@@ -2325,6 +2557,27 @@ extension MessageListViewModel: CometChatConnectionDelegate {
             CometChatAIStreamService.shared.onConnected()
         }else{
             updateUserAndGroup()
+            // Back online: older messages may be read again on scroll (set only on the offline path).
+            // A blocked "Connect to load more" edge loads its page once by itself (D84 rule 9).
+            OfflineSnapshotMain.run { [weak self] in
+                guard let this = self else { return }
+                let older = this.offline.needsConnectToLoadMore
+                let newer = this.offline.newerReadsWaitForConnection
+                this.offline.needsConnectToLoadMore = false
+                this.offline.newerReadsWaitForConnection = false
+                this.offlineLoadBlockedEdges(older: older, newer: newer)
+            }
+            // Offline ON: no kit message fetch on reconnect. The SDK's sweep delivers what was missed
+            // on the normal received callbacks (source == .sync) and through the hub (UIK-SYNC-01).
+            if OfflineGate.isOn() {
+                offlineRedrawMediaRowsAfterConnect()
+                // The first read failed for want of a connection and the offline state shows: read once more.
+                OfflineSnapshotMain.run { [weak self] in self?.offlineReloadAfterErrorOnConnect() }
+                return
+            }
+            // Offline is off now: rows sent on the offline path that never got an answer were dropped
+            // by the SDK silently (kill switch). Show them failed, with Retry and Delete (UIK-LIFE-03, R162).
+            offlineHandleKillSwitch()
             fetchActionMessages { success in
                 if success { self.fetchMissedMessages() }
             }
@@ -2332,6 +2585,7 @@ extension MessageListViewModel: CometChatConnectionDelegate {
     }
     
     public func disconnected() {
+        offlineKillSwitchCheck()
         if let user = user, user.isAgentic {
             CometChatStreamCallBackEvents.ccStreamInterrupted(true)
             CometChatAIStreamService.shared.onDisconnected()
@@ -2339,9 +2593,10 @@ extension MessageListViewModel: CometChatConnectionDelegate {
         }
     }
     
-    public func connecting() { }
+    public func connecting() { offlineKillSwitchCheck() }
 
     public func onConnectionError(_ error: CometChatException) {
+        offlineKillSwitchCheck()
         if let user = user, user.isAgentic {
             CometChatStreamCallBackEvents.ccStreamInterrupted(true)
             CometChatAIStreamService.shared.onConnectionError(error)

@@ -39,6 +39,17 @@ open class CometChatReactionList: UIViewController {
     private var onClick: ((_ messageReaction: CometChatSDK.Reaction, _ messageObject: BaseMessage) -> ())?
     private var errorStateView: UIView?
     private var loadingStateView: UIView?
+    private var onError: ((_ error: CometChatException) -> Void)?
+    /// The view `addErrorView` put on screen, so a reconnect can take it down again. Weak: the screen
+    /// owns it, and the error label must go with it when something else takes it down.
+    private weak var shownErrorView: UIView?
+    /// "Connect to load reactions" while it shows. It sits below the tabs, as on Android (ENG-57325),
+    /// so a tab with rows, or rows that arrive, take it down.
+    private weak var connectToLoadView: UIView?
+    /// Offline ON: the error view shows because the read failed for want of a connection; the
+    /// connection returning reads once more (D83). Cleared when that read starts.
+    private(set) var reloadOnConnect = false
+    private let connectionListenerId = "reaction-list-sdk-listener-\(UUID().uuidString)"
     
     var loadingView: UIView!
     public var disableLoadingState: Bool = false
@@ -73,6 +84,15 @@ open class CometChatReactionList: UIViewController {
     
     open override func viewWillAppear(_ animated: Bool) {
         setupStyle()
+        // Offline ON only: an error view for a missing connection reads once more when it returns.
+        if OfflineGate.isOn() {
+            CometChat.addConnectionListener(connectionListenerId, self)
+        }
+    }
+
+    open override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        CometChat.removeConnectionListener(connectionListenerId)
     }
     
     func setUpDelegate() {
@@ -125,6 +145,7 @@ open class CometChatReactionList: UIViewController {
                 self.fetchPrevious()
             }
         } else {
+            removeConnectToLoadView()
             tableView.reloadData()
         }
         
@@ -135,23 +156,109 @@ open class CometChatReactionList: UIViewController {
             guard let self = self else { return }
             DispatchQueue.main.async {
                 self.hideLoadingView()
+                self.removeConnectToLoadView()
                 self.tableView.reloadData()
             }
-        } onError: { [weak self] _ in
+        } onError: { [weak self] error in
             DispatchQueue.main.async{
-                self?.addErrorView()
+                self?.noteErrorForReconnect(error)
+                self?.presentFailure(error)
                 self?.hideLoadingView()
             }
         }
+    }
+
+    /// What a failed read of the open tab puts on screen. Offline OFF: the error view, as before.
+    /// Offline ON (D84): rows already listed stay, and only an online failure reaches `onError`;
+    /// nothing listed and not connected is "Connect to load reactions" (the app's error view, if it
+    /// set one, shows instead) with `onError` once; any other failure is the error view and `onError`.
+    func presentFailure(_ error: CometChatException?, offline: Bool = OfflineGate.isOn()) {
+        guard offline else {
+            addErrorView()
+            return
+        }
+        let rowsShown = reactionDataSource.indices.contains(selectedIndex) && !reactionDataSource[selectedIndex].messageReaction.isEmpty
+        let verdict = OfflineReadFailure.evaluate(error, rowsShown: rowsShown, keywordSearch: false, kitStarted: false)
+        if verdict.reportsError, let error = error { onError?(error) }
+        switch verdict.screen {
+        case .rowsKept: break
+        case .connectToLoad: addConnectToLoadView()
+        default: addErrorView()
+        }
+    }
+
+    /// "Connect to load reactions": an icon and text, no Retry, below the tabs, which keep the message's
+    /// own counts (as on Android, ENG-57325). The app's own error view wins, and covers the tabs as before.
+    func addConnectToLoadView() {
+        if errorStateView != nil {
+            addErrorView()
+            return
+        }
+        removeErrorView()
+        let backView = UIView().withoutAutoresizingMaskConstraints()
+        view.addSubview(backView)
+        NSLayoutConstraint.activate([
+            backView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            backView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
+            backView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        shownErrorView = backView
+        connectToLoadView = backView
+        backView.backgroundColor = CometChatTheme.backgroundColor01
+        backView.accessibilityIdentifier = StateContract.empty("connect-to-load-reactions")
+        let icon = UIImageView(image: UIImage(systemName: "wifi.slash")?.withRenderingMode(.alwaysTemplate)).withoutAutoresizingMaskConstraints()
+        icon.tintColor = CometChatTheme.neutralColor300
+        icon.contentMode = .scaleAspectFit
+        icon.pin(anchors: [.height, .width], to: 48)
+        errorLabel.text = "CONNECT_TO_LOAD_REACTIONS".localize()
+        let stack = UIStackView(arrangedSubviews: [icon, errorLabel]).withoutAutoresizingMaskConstraints()
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = CometChatSpacing.Spacing.s3
+        backView.addSubview(stack)
+        stack.pin(anchors: [.centerX, .centerY], to: backView)
+        stack.leadingAnchor.constraint(greaterThanOrEqualTo: backView.leadingAnchor, constant: CometChatSpacing.Spacing.s4).isActive = true
+        stack.trailingAnchor.constraint(lessThanOrEqualTo: backView.trailingAnchor, constant: -(CometChatSpacing.Spacing.s4)).isActive = true
+    }
+
+    /// Offline ON: an error view for a not-connected error reads once more when the connection returns;
+    /// one for any other error does not (D83).
+    func noteErrorForReconnect(_ error: CometChatException?, offline: Bool = OfflineGate.isOn()) {
+        reloadOnConnect = offline && OfflineErrors.isNotConnected(code: error?.errorCode)
+    }
+
+    func removeErrorView() {
+        shownErrorView?.removeFromSuperview()
+        shownErrorView = nil
+    }
+
+    /// Takes down "Connect to load reactions" only; the error view stays where it is.
+    func removeConnectToLoadView() {
+        guard let shown = connectToLoadView else { return }
+        shown.removeFromSuperview()
+        if shownErrorView === shown { shownErrorView = nil }
+        connectToLoadView = nil
+    }
+
+    /// The connection is back (D83): read the tab again, once, when its error view waits for it.
+    func reloadAfterReconnect() {
+        guard reloadOnConnect, !reactionDataSource.isEmpty else { return }
+        reloadOnConnect = false
+        removeErrorView()
+        showLoadingView()
+        fetchPrevious()
     }
     
     func addErrorView() {
         if let errorStateView = errorStateView {
             view.embed(errorStateView)
+            shownErrorView = errorStateView
         } else {
             //TODO: update the value of "SOMETHING_WENT_WRONG_ERROR" in localise files if other classes are using same text
             let backView = UIView().withoutAutoresizingMaskConstraints()
             view.embed(backView)
+            shownErrorView = backView
             backView.backgroundColor = CometChatTheme.backgroundColor01
             errorLabel.text = "LOOKS_LIKE_SOMETHINGS_WENT_WORNG._PLEASE_TRY_AGAIN".localize()
             backView.addSubview(errorLabel)
@@ -467,6 +574,14 @@ extension CometChatReactionList {
         return self
     }
     
+    /// Called when a read fails (D84, offline ON): once for a tab that shows nothing, and for an online
+    /// failure over rows already listed. A not-connected failure over rows is not reported.
+    @discardableResult
+    public func set(onError: ((_ error: CometChatException) -> Void)?) -> Self {
+        self.onError = onError
+        return self
+    }
+
     @discardableResult
     public func set(errorStateView: UIView) -> Self {
         self.errorStateView = errorStateView
@@ -509,4 +624,15 @@ extension CometChatReactionList {
         return self
     }
     
+}
+
+// MARK: - Connection Listener
+extension CometChatReactionList: CometChatConnectionDelegate {
+    public func connected() {
+        DispatchQueue.main.async { [weak self] in self?.reloadAfterReconnect() }
+    }
+
+    public func connecting() {}
+
+    public func disconnected() {}
 }

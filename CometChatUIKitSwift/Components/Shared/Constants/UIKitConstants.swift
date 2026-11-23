@@ -6,7 +6,7 @@ public struct UIConstants {
 }
 
 internal struct UIKitConstants {
-    static var version = "5.2.4"
+    static var version = "5.3.0"
     static var messageId = "messageId"
     static var conversationId = "conversationId"
     static var senderId = "senderId"
@@ -90,6 +90,9 @@ public struct  MessageOptionConstants {
     public static let unsaveMessage = "unsaveMessage"
     public static let threadSubscription = "threadSubscription"
     public static var moreOptions = "moreOptions"
+    /// Offline messaging: the options of an unsent row.
+    static let offlineRetry = "offlineRetry"
+    static let offlineDelete = "offlineDelete"
 
     /// Ids shown inline. Order here is the order they render; anything the producers
     /// emit that is not listed falls behind "More". Declarative so the two option
@@ -105,14 +108,19 @@ public struct  MessageOptionConstants {
         MessageOptionConstants.messagePrivately
     ]
 
+    /// Offline messaging: the only options an unsent row offers, always inline. Kept out of the
+    /// public `primaryOptionIds` so its value is unchanged for integrators (offline OFF parity).
+    static let offlineOptionIds: [String] = [offlineRetry, offlineDelete]
+
     /// Splits an option list into the inline rows and the ones behind "More".
     /// Primary follows `primaryOptionIds`; overflow keeps its producer's order.
     /// An id listed but not produced simply does not render.
     static func partition(
         _ options: [CometChatMessageOption]
     ) -> (primary: [CometChatMessageOption], overflow: [CometChatMessageOption]) {
-        let primaryIds = Set(primaryOptionIds)
-        let primary = primaryOptionIds.compactMap { id in
+        let order = offlineOptionIds + primaryOptionIds
+        let primaryIds = Set(order)
+        let primary = order.compactMap { id in
             options.first { $0.id == id }
         }
         let overflow = options.filter { !primaryIds.contains($0.id) }

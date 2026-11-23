@@ -68,8 +68,20 @@ open class CometChatConversations: CometChatListBase {
     }()
     
     var viewModel: ConversationsViewModelProtocol = ConversationsViewModel()
+
+    /// Offline ON: full table reloads that have run. The view model changes `conversations` at once
+    /// and defers the table update (move, then refresh of the destination row, which reads the data
+    /// when it runs). A deferred move made before a reload that has since run is already in that
+    /// reload and must not run again.
+    var offlineReloadsApplied = 0
+    /// Read by the deferred-move guard; a seam for tests.
+    var offlineGate: () -> Bool = { OfflineGate.isOn() }
     
     public var hideReceipts: Bool = false
+    /// Offline messaging only: hides the toast notices about the whole cache (unsent messages that
+    /// could not be recovered). Defaults to `false`.
+    public var hideOfflineNotices: Bool = false
+
     public var hideDeleteConversationOption: Bool = false
     public var hideUserStatus: Bool = false
     public var hideGroupType: Bool = false
@@ -201,13 +213,39 @@ open class CometChatConversations: CometChatListBase {
     
     // MARK:- reloadData
     private func setupViewModel() {
+        (viewModel as? ConversationsViewModel)?.onOfflineNotice = { [weak self] notice in
+            guard let self = self, !self.hideOfflineNotices else { return }
+            DispatchQueue.main.async {
+                CometChatToast.show(message: OfflineText.notice(notice), on: self,
+                                    contractIdentifier: StateContract.notice(OfflineText.noticeKey(notice)))
+            }
+        }
+        // Covered by a chat pushed over it, the list's toast would replace the chat's own (one toast
+        // shows at a time) and never be seen: the list then leaves the notice to the screen on top.
+        (viewModel as? ConversationsViewModel)?.offlineCanShowNotice = { [weak self] in
+            guard let self = self else { return false }
+            var screen: UIViewController = self
+            while let parent = screen.parent, !(parent is UINavigationController) { screen = parent }
+            guard let navigation = screen.parent as? UINavigationController else { return true }
+            return navigation.topViewController === screen
+        }
         // reload tableview
         viewModel.reload = { [weak self] in
             guard let this = self else { return }
             DispatchQueue.main.async {
                 
+                // Offline ON: nothing to show and no connection. A list built with a keyword says
+                // "Connect to search" (D84 rule 7), any other "Connect to load chats" (rule 3); both are
+                // false with offline off.
+                let model = this.viewModel as? ConversationsViewModel
+                let nothingShown = this.viewModel.size() == 0
+                let connectToSearch = this.applyConnectToSearch(nothingShown && (model?.connectToSearch ?? false))
+                let connectToLoad = this.applyConnectToLoad(nothingShown && (model?.connectToLoad ?? false),
+                                                            key: "CONNECT_TO_LOAD_CHATS", reason: "chats")
                 if this.viewModel.size() == 0 {
-                    if let onEmpty = this.onEmpty{
+                    if connectToSearch || connectToLoad {
+                        this.removeEmptyView()
+                    } else if let onEmpty = this.onEmpty{
                         onEmpty()
                     }else{
                         this.showEmptyView()
@@ -221,6 +259,7 @@ open class CometChatConversations: CometChatListBase {
                     onLoad
                 }
                 this.hideFooterIndicator()
+                this.offlineReloadsApplied &+= 1
                 this.reload()
                 this.removeLoadingView()
                 this.refreshControl.endRefreshing()
@@ -237,7 +276,14 @@ open class CometChatConversations: CometChatListBase {
                 this.refreshControl.endRefreshing()
                 
                 if this.viewModel.conversations.isEmpty {
-                    this.showErrorView()
+                    // Offline and not connected with nothing on screen: the kit's offline state takes the
+                    // error view's place (the app's own error view still shows, D84 rule 3).
+                    if (this.viewModel as? ConversationsViewModel)?.connectToLoad ?? false {
+                        this.removeEmptyView()
+                        this.applyConnectToLoad(true, key: "CONNECT_TO_LOAD_CHATS", reason: "chats")
+                    } else {
+                        this.showErrorView()
+                    }
                 }
                 
             }
@@ -259,6 +305,18 @@ open class CometChatConversations: CometChatListBase {
             DispatchQueue.main.async {
                 guard let cell = this.tableView.cellForRow(at: indexPath) as? CometChatListItem else { return }
                 let conversation = this.viewModel.conversations[indexPath.row]
+                // Offline ON: a deferred refresh that reaches a cell drawn for another chat (the table
+                // is between deferred moves: two swept messages moved rows back and forth) would paint
+                // this chat into it, a "Kim" row in "Sam"'s cell that stayed until a relaunch.
+                // Resync the table instead.
+                if this.offlineGate(), let shown = cell.accessibilityIdentifier,
+                   Self.contractSubject(shown) != Self.contractSubject(Self.contractIdentifier(for: conversation)) {
+                    this.offlineReloadsApplied &+= 1
+                    this.tableView.reloadData()
+                    return
+                }
+                // State contract (TEST-PLAN §3.3): this path refreshes a row without a new cell.
+                cell.accessibilityIdentifier = Self.contractIdentifier(for: conversation)
                 
                 //updating subtitle View
                 if let subtitle = this.subtitleView?(conversation){
@@ -293,6 +351,7 @@ open class CometChatConversations: CometChatListBase {
         viewModel.deleteAtIndex = { [weak self] indexPath in
             guard let this = self else { return }
             DispatchQueue.main.async {
+                this.offlineReloadsApplied &+= 1
                 this.tableView.reloadData()
             }
         }
@@ -300,7 +359,14 @@ open class CometChatConversations: CometChatListBase {
         viewModel.moveRow = { [weak self] fromIndexPath, toIndexPath in
             guard let this = self else { return }
             if fromIndexPath == toIndexPath { return }
+            // The data already moved (the view model calls this right after); a reload that runs
+            // before this deferred move draws the moved order, so the move must not run again.
+            let reloadsAtMove: Int? = Thread.isMainThread && this.offlineGate() ? this.offlineReloadsApplied : nil
             DispatchQueue.main.async {
+                if let reloadsAtMove = reloadsAtMove, reloadsAtMove != this.offlineReloadsApplied {
+                    this.viewModel.reloadAtIndex?(toIndexPath)
+                    return
+                }
                 // `moveRow` relocates the existing cell without calling `cellForRowAt`, so the
                 // pin indicator — built in the tail view — would keep its pre-move state.
                 // Rebuilding the tail at the destination refreshes it without a full reload.
@@ -331,7 +397,7 @@ open class CometChatConversations: CometChatListBase {
             if let cell = strongSelf.tableView.cellForRow(at: indexPath) as? CometChatListItem {
                 switch status {
                 case .online:
-                    cell.hide(statusIndicator: false)
+                    cell.hide(statusIndicator: OfflinePresence.isHidden())
                 case .offline: cell.hide(statusIndicator: true)
                 case .available: cell.hide(statusIndicator: true)
                 }
@@ -373,6 +439,22 @@ open class CometChatConversations: CometChatListBase {
     }
     
     override func onRefreshControlTriggered() {
+        // Offline ON: pull-to-refresh asks the SDK to sync now; a sync already running or in its
+        // cooldown ends the spinner silently. If the SDK says offline is disabled, today's refresh.
+        if OfflineGate.isOn() {
+            CometChat.forceSyncNow(onSuccess: { [weak self] in
+                DispatchQueue.main.async { self?.refreshControl.endRefreshing() }
+            }, onError: { [weak self] error in
+                DispatchQueue.main.async {
+                    if error.errorCode == "ERROR_OFFLINE_DISABLED" {
+                        self?.viewModel.isRefresh = true
+                    } else {
+                        self?.refreshControl.endRefreshing()
+                    }
+                }
+            })
+            return
+        }
         viewModel.isRefresh = true
     }
     
@@ -465,7 +547,7 @@ extension CometChatConversations {
                     }
                     
                     listItem.set(avatarURL: user.avatar ?? "")
-                    if !hideUserStatus && user.status == .online {
+                    if !hideUserStatus && !OfflinePresence.isHidden() && user.status == .online {
                         listItem.hide(statusIndicator: false)
                         listItem.statusIndicator.style.backgroundColor = statusIndicatorStyle.backgroundColor
                         listItem.statusIndicator.layoutSubviews()
@@ -517,6 +599,8 @@ extension CometChatConversations {
             }
             
             manageSelectionState(for: conversation, in: listItem, at: indexPath)
+            // State contract (TEST-PLAN §3.3): an automation id only, never the preview text.
+            listItem.accessibilityIdentifier = Self.contractIdentifier(for: conversation)
             
             return listItem
         }
@@ -533,6 +617,11 @@ extension CometChatConversations {
     
     open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row == (viewModel.conversations.count - 1) && !viewModel.isFetchedAll && !viewModel.isFetching {
+            // Offline ON: a read past the saved chats that found no connection closed paging. Its
+            // reload shows the last row again, which would read again, fail, reload... for ever (a
+            // spinner that never stops and rows that cannot be tapped). The page is read once when
+            // the connection is back (offlineReconnected), as the other kits read only on a scroll.
+            if offlineGate(), (viewModel as? ConversationsViewModel)?.offlinePagingClosed == true { return }
             showFooterIndicator()
             viewModel.isRefresh = false
             viewModel.fetchConversations()
@@ -803,13 +892,27 @@ extension CometChatConversations {
 
 extension CometChatConversations: CometChatConnectionDelegate {
     public func connected() {
+        (viewModel as? ConversationsViewModel)?.offlineKillSwitchCheck()
+        // Offline ON: no kit fetch. The SDK's sweep delivers the changed conversations and the
+        // view model reconciles that slice in place (UIK-SYNC-01).
+        // A read past the cache that failed offline runs again now (offlineReconnected).
+        if OfflineGate.isOn() {
+            (viewModel as? ConversationsViewModel)?.offlineReconnected()
+            reloadPresenceForConnectionChange()
+            return
+        }
         // Setting isRefresh already fetches via its didSet — a second explicit fetch here
         // would issue a redundant request for the same reconnect.
         viewModel.isRefresh = true
     }
     
-    public func connecting() {}
+    public func connecting() {
+        (viewModel as? ConversationsViewModel)?.offlineKillSwitchCheck()
+        reloadPresenceForConnectionChange()
+    }
     
-    public func disconnected() {}
+    public func disconnected() {
+        (viewModel as? ConversationsViewModel)?.offlineKillSwitchCheck()
+        reloadPresenceForConnectionChange()
+    }
 }
-

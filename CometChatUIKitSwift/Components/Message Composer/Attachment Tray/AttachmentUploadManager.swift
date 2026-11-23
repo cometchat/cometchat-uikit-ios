@@ -13,10 +13,23 @@
 //  build that predates that API.
 //
 
-import Foundation
+import UIKit
 import CometChatSDK
 
 public final class AttachmentUploadManager: NSObject, UploadFileListener {
+
+    private let offlineHubObserverId = "attachment-upload-offline-hub-listener-\(UUID().uuidString)"
+
+    public override init() {
+        super.init()
+        // Inert with offline off: the hub tells screens about a session change only after an operation
+        // of that session took the offline path.
+        OfflineHub.shared.addObserver(offlineHubObserverId, self)
+    }
+
+    deinit {
+        OfflineHub.shared.removeObserver(offlineHubObserverId)
+    }
 
     /// Structural change (tiles added/removed) — reload the tray and re-evaluate send.
     public var onChange: (() -> Void)?
@@ -30,18 +43,23 @@ public final class AttachmentUploadManager: NSObject, UploadFileListener {
     /// (alongside its own user/group) before the first pick. Changing the receiver
     /// discards any batch staged for the previous one.
     public var receiverId: String = "" {
-        didSet { if oldValue != receiverId { resetBatch() } }
+        didSet { if oldValue != receiverId { resetBatch(); scheduleRestore() } }
     }
     public var receiverType: CometChat.ReceiverType = .user {
-        didSet { if oldValue != receiverType { resetBatch() } }
+        didSet { if oldValue != receiverType { resetBatch(); scheduleRestore() } }
     }
 
     /// Thread parent for a thread composer (nil for a top-level composer). Sent with
     /// receiverId/receiverType in every presign call (design doc §5.2/§7). Set it
     /// before the first pick; changing it discards any staged batch.
     public var parentMessageId: Int? {
-        didSet { if oldValue != parentMessageId { resetBatch() } }
+        didSet { if oldValue != parentMessageId { resetBatch(); scheduleRestore() } }
     }
+
+    /// Asks whether offline is on for this change (`OfflineGate.isOn`). A seam for tests.
+    internal var offlineGate: () -> Bool = { OfflineGate.isOn() }
+    /// What ending a batch does to its SDK request. A seam so a test can see it, without a session.
+    internal var abandonBatch: (UploadFileRequest?) -> Void = { $0?.clearAll() }
 
     /// The SDK request that owns the current batch. Created lazily on first upload,
     /// released on clear()/receiver change so every compose starts a fresh batch.
@@ -185,6 +203,52 @@ public final class AttachmentUploadManager: NSObject, UploadFileListener {
         onChange?()
     }
 
+    // MARK: - Restore after a kill (BEH-UPLOAD-14)
+
+    private var lastRestoredKey: String?
+    private var restoreScheduled = false
+
+    /// The triple is set across several calls (user, thread parent); restore once, on the settled
+    /// triple, one main-queue tick later. `getExistingUploadFileRequest` is a local call that
+    /// returns nothing with offline off, so it is asked unconditionally.
+    private func scheduleRestore() {
+        guard !restoreScheduled else { return }
+        restoreScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.restoreScheduled = false
+            self.restoreBatch()
+        }
+    }
+
+    func restoreBatch() {
+        let key = AttachmentRestore.tripleKey(receiverId: receiverId, receiverType: receiverType, parentMessageId: parentMessageId)
+        guard AttachmentRestore.shouldRestore(hasRequest: uploadRequest != nil, hasTiles: !tiles.isEmpty,
+                                              lastRestoredKey: lastRestoredKey, key: key, receiverId: receiverId) else { return }
+        lastRestoredKey = key
+        guard let restored = CometChat.getExistingUploadFileRequest(receiverId: receiverId,
+                                                                    receiverType: receiverType,
+                                                                    parentMessageId: parentMessageId ?? 0) else { return }
+        let items = restored.getItems()
+        guard !items.isEmpty else { return }
+        // Events of a restored file reach the manager through the batch listener.
+        restored.addUploadListener(self)
+        uploadRequest = restored
+        tiles = items.map { item in
+            let file = item.file ?? File(name: item.name ?? "file", data: Data())
+            var preview: UIImage?
+            if let path = item.localCopyPath { preview = UIImage(contentsOfFile: path) }
+            let tile = AttachmentTile(fileId: item.fileId, file: file, mimeType: item.mime ?? "", previewImage: preview)
+            tile.status = AttachmentRestore.tileStatus(for: item.state)
+            tile.attachment = item.attachment
+            tile.error = item.error
+            if item.size > 0 { tile.totalBytes = item.size }
+            if tile.status == .done { tile.percent = 100 }
+            return tile
+        }
+        onChange?()
+    }
+
     // MARK: - Request lifecycle
 
     private func request() -> UploadFileRequest {
@@ -201,7 +265,9 @@ public final class AttachmentUploadManager: NSObject, UploadFileListener {
     /// abort and drop it so uploads can't land on the wrong destination.
     private func resetBatch() {
         guard uploadRequest != nil || !tiles.isEmpty else { return }
-        uploadRequest?.clearAll()
+        // Offline ON: the batch lives on disk for its triple, so changing chat only detaches it
+        // (it comes back when that chat is opened again). Offline OFF: destroyed, as today.
+        if !offlineGate() { abandonBatch(uploadRequest) }
         uploadRequest = nil
         tiles.removeAll()
         onChange?()
@@ -257,6 +323,20 @@ public final class AttachmentUploadManager: NSObject, UploadFileListener {
         tile.status = status
         tile.error = error
         onTileUpdated?(tile)
+        onChange?()
+    }
+}
+
+// MARK: - Offline hub
+
+extension AttachmentUploadManager: OfflineHubObserver {
+
+    /// Logout, user switch or cache reset: the tray of the old session is gone (UIK-LIFE-01). The SDK
+    /// owns the batch on disk and deletes it with the session; the tray only lets go of it.
+    func offlineSessionChanged(gen: Int) {
+        uploadRequest = nil
+        tiles.removeAll()
+        lastRestoredKey = nil
         onChange?()
     }
 }

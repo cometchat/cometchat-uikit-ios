@@ -82,6 +82,65 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
     /// Identifies the newest dispatched fetch. A response whose token no longer matches
     /// has been superseded by a refresh and is discarded.
     private var fetchToken: Int = 0
+    internal var currentFetchToken: Int { return fetchToken }
+
+    /// Whether the list's request narrows it: a type other than both, tags, a search, unread only,
+    /// pinned-by, or hide / only agentic. Such a list does not reconcile a sync slice (it re-reads
+    /// its own request once instead). A builder that only sets a limit is the plain list.
+    internal var requestNarrows: Bool {
+        return ConversationRows.requestNarrows(conversationRequest ?? conversationRequestBuilder.build())
+    }
+
+    /// Offline ON: set just before the kit's own re-read of a narrowed list, so the server page of
+    /// that read merges into the rows shown instead of replacing them. Read and cleared at the
+    /// start of the next fetch (with `automaticRefetch`).
+    internal var mergeRefetch = false
+
+    /// Offline ON: the fetch token of the narrowed list's re-read that is running; sync pages that
+    /// arrive until it lands start no second one. Cleared when it lands.
+    internal var offlineResyncToken: Int?
+
+    /// Offline ON: a notice about the whole cache for the screen to show.
+    internal var onOfflineNotice: ((OfflineNotice) -> Void)?
+
+    /// `OfflineGate.isOn()`, read where an event's handling forks on it; a seam for tests.
+    internal var offlineGate: () -> Bool = { OfflineGate.isOn() }
+
+    /// Offline ON: a page read past the cache failed for want of a connection, so paging stopped
+    /// until the connection returns (the screen shows the load-more footer meanwhile). Reconnect
+    /// reads that page once, now (`offlineReconnected`).
+    internal var offlinePagingClosed = false
+
+    /// Offline ON: why the offline state or error view is showing over nothing. The connection coming
+    /// back reads the first page again once when it is `notConnected` (`offlineReconnected`). Cleared
+    /// when the next read starts.
+    internal var offlineError: OfflineListError = .none
+
+    /// Offline ON (D84 rule 7): a list built with a search keyword could not reach the server and shows
+    /// nothing: "Connect to search", no `onError`. A filter alone (type, tags, unread) is no keyword
+    /// (addition B).
+    internal var connectToSearch = false
+
+    /// Offline ON (D84 rule 3): the list could not load for want of a connection and shows nothing:
+    /// "Connect to load chats" (the app's error view, if it set one), `onError` once.
+    internal var connectToLoad: Bool { return offlineError == .notConnected && !connectToSearch }
+
+    /// Offline ON: set just before a read the kit starts itself (a cache reset, a filtered list's
+    /// re-read, the read on reconnect), so that read's failure stays quiet while rows are on screen.
+    /// Read and cleared at the start of the next fetch.
+    internal var automaticRefetch = false
+
+    /// Offline ON: the pages one load-more has read so far and the rows listed before the first of
+    /// them. A page that lists no new row is not the end: the read goes on (`offlineReadsOn`).
+    internal var offlineReadOn: (listed: Set<String>, reads: Int)?
+
+    /// Offline ON: the preview each pending own send replaced, so a send the SDK removes puts it
+    /// back. Dropped once the send is acked or removed. Bounded.
+    internal var offlinePreviewsBeforeSend: [(message: BaseMessage, previous: BaseMessage?)] = []
+
+    /// Offline ON: whether the screen is the one on top, so a notice for any screen is shown where
+    /// it can be seen (a toast on a list covered by a chat hides the chat's own toast).
+    internal var offlineCanShowNotice: (() -> Bool)?
 
     var isTyping = false
     var enableSoundForConversation: Bool = true
@@ -125,6 +184,10 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
     
     // AMRK:- fetchConversation
     func fetchConversations() {
+        let automatic = automaticRefetch
+        automaticRefetch = false
+        let merge = mergeRefetch
+        mergeRefetch = false
 
         // Whether this request replaces the list or appends to it is decided here, at
         // dispatch. The completion must not re-read `isRefresh`: pagination can flip it
@@ -152,6 +215,13 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
         let token = fetchToken
 
         isFetching =  true
+
+        // Offline ON (read once for this read): two phases, cached then server.
+        if offlineGate() {
+            offlineFetchConversations(request: conversationRequest!, wasRefresh: wasRefresh, token: token, automatic: automatic, merge: merge)
+            return
+        }
+
         service.fetchConversations(request: conversationRequest!) { [weak self] result in
             guard let this = self else { return }
             guard token == this.fetchToken else { return }
@@ -199,6 +269,8 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
         listeners.add(.callEvents, id: "conversations-list-call-event-listener-\(listenerRandomID)", listener: self)
         listeners.add(.callSDK, id: "conversations-list-call-sdk-listener-\(listenerRandomID)", listener: self)
         listeners.add(.conversationEvents, id: "user-details-conversations-event-listener-\(listenerRandomID)", listener: self)
+        // Inert while offline is off: the hub's SDK listeners never fire.
+        listeners.add(.offlineHub, id: "conversations-list-offline-hub-listener-\(listenerRandomID)", listener: self as OfflineHubObserver)
     }
 
     // MARK:- disconnect conversation listener
@@ -211,6 +283,7 @@ class ConversationsViewModel: ConversationsViewModelProtocol {
         listeners.remove(.callEvents, id: "conversations-list-call-event-listener-\(listenerRandomID)")
         listeners.remove(.callSDK, id: "conversations-list-call-sdk-listener-\(listenerRandomID)")
         listeners.remove(.conversationEvents, id: "user-details-conversations-event-listener-\(listenerRandomID)")
+        listeners.remove(.offlineHub, id: "conversations-list-offline-hub-listener-\(listenerRandomID)")
     }
     
     func markAsDelivered(conversation: Conversation) {
@@ -429,18 +502,25 @@ extension ConversationsViewModel  {
             if let existingConversation = conversations.first(where: {
                 lastMessage.conversationId == $0.conversationId
             }) {
+                // Offline ON: a swept message is already in the synced conversation's count.
+                let isSync = OfflineGate.isOn() && MessageIdentity.isSyncDelivered(lastMessage)
                 if !LoggedInUserInformation.isLoggedInUser(uid: lastMessage.sender?.uid) {
-                    if updateCount && lastMessage.readAt == 0 {
-                        conversation.unreadMessageCount = existingConversation.unreadMessageCount + 1
-                    } else {
-                        conversation.unreadMessageCount = existingConversation.unreadMessageCount
-                    }
+                    conversation.unreadMessageCount = ConversationRows.unreadCount(
+                        existing: existingConversation.unreadMessageCount,
+                        isFromMe: false,
+                        isRead: lastMessage.readAt != 0,
+                        countsAsUnread: updateCount,
+                        isSync: isSync)
                 }
                 moveToTop(conversation: conversation)
                 update(conversation: conversation)
             } else {
                 // when new message receive.
-                if !LoggedInUserInformation.isLoggedInUser(uid: lastMessage.sender?.uid) {
+                let isSync = OfflineGate.isOn() && MessageIdentity.isSyncDelivered(lastMessage)
+                // A narrowed list re-reads after a sync: a swept message never adds a row to it, which
+                // may be a row its filter excludes (UIK-SYNC-04).
+                if isSync && requestNarrows { return }
+                if !LoggedInUserInformation.isLoggedInUser(uid: lastMessage.sender?.uid), !isSync {
                     conversation.unreadMessageCount = 1
                 }
                 self.insert(conversation: conversation)

@@ -249,12 +249,22 @@ open class CometChatGroups: CometChatListBase {
                 this.reload()
                 // Hides the footer loading indicator.
                 this.hideFooterIndicator()
+
+                // Offline ON: nothing to show and no connection. A keyword search says "Connect to search"
+                // (D84 rule 7), a plain list "Connect to load groups" (rule 3); both are false with offline off.
+                let searching = this.viewModel.isSearching
+                let nothingShown = searching ? this.viewModel.filteredGroups.isEmpty : this.viewModel.groups.isEmpty
+                let connectToSearch = this.applyConnectToSearch(this.viewModel.connectToSearch && nothingShown)
+                let connectToLoad = this.applyConnectToLoad(!searching && this.viewModel.connectToLoad && nothingShown,
+                                                            key: "CONNECT_TO_LOAD_GROUPS", reason: "groups")
                 
                 // Checks if the view model is currently searching for groups.
                 switch this.viewModel.isSearching {
                 case true:
                     // If searching and no filtered groups, show empty view.
-                    if this.viewModel.filteredGroups.isEmpty {
+                    if connectToSearch {
+                        this.removeEmptyView()
+                    } else if this.viewModel.filteredGroups.isEmpty {
                         this.showEmptyView()
                         this.onEmpty?()
                     } else {
@@ -263,8 +273,10 @@ open class CometChatGroups: CometChatListBase {
                         this.tableView.restore()
                     }
                 case false:
-                    // If not searching and no groups, show empty view.
-                    if this.viewModel.groups.isEmpty {
+                    if connectToSearch || connectToLoad {
+                        this.removeEmptyView()
+                    } else if this.viewModel.groups.isEmpty {
+                        // If not searching and no groups, show empty view.
                         this.showEmptyView()
                         this.onEmpty?()
                     } else {
@@ -307,8 +319,15 @@ open class CometChatGroups: CometChatListBase {
                 this.removeLoadingView()
                 this.refreshControl.endRefreshing()
                 
-                // If there are no groups, show the error view.
-                if this.viewModel.groups.isEmpty {
+                // If there are no groups, show the error view. Offline ON, a failed search is judged on
+                // its own rows, and its error view takes the place of the empty view. Offline and not
+                // connected with nothing on screen, the kit's offline state takes the error view's place
+                // (the app's own error view still shows, D84 rule 3).
+                if !this.viewModel.isSearching && this.viewModel.connectToLoad && this.viewModel.failureLeavesNothing {
+                    this.removeEmptyView()
+                    this.applyConnectToLoad(true, key: "CONNECT_TO_LOAD_GROUPS", reason: "groups")
+                } else if this.viewModel.failureLeavesNothing {
+                    if this.viewModel.searchFailedOffline { this.removeEmptyView() }
                     this.showErrorView()
                 }
             }
@@ -332,13 +351,21 @@ open class CometChatGroups: CometChatListBase {
         switch state {
         case .clear:
             // Resets the search state and reloads the table view.
+            let searchErrorShowing = viewModel.searchFailedOffline
             viewModel.isSearching = false
+            // The error view of a failed search, and "Connect to search", go with the search.
+            if searchErrorShowing {
+                removeErrorView()
+                removeOfflineState()
+            }
             reload()
             tableView.restore()
             // Hides the empty view if there are groups present.
             if !viewModel.groups.isEmpty {
                 self.removeEmptyView()
             }
+            // The plain list's own state, if it had one, comes back.
+            if searchErrorShowing { viewModel.reload?() }
         case .filter:
             // Sets the search state to true and filters groups based on the search text.
             viewModel.isSearching = true
@@ -651,10 +678,17 @@ extension CometChatGroups {
 //MARK: Connection Listener
 extension CometChatGroups: CometChatConnectionDelegate {
     public func connected() {
+        // Offline ON: a search that failed for want of a connection runs again, once (D84 rule 8).
+        if viewModel.searchReloadOnConnect && viewModel.isSearching {
+            viewModel.filterGroups(text: viewModel.searchText)
+        }
+        // Offline ON: an error view for a non-network error is not reloaded by a reconnect.
+        if viewModel.skipsReconnectReload { return }
         setupViewModel()
         if tableView.numberOfSections > 0 && tableView.numberOfRows(inSection: 0) > 0{
             tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
         }
+        viewModel.automaticRefetch = true
         viewModel.isRefresh = true
     }
     

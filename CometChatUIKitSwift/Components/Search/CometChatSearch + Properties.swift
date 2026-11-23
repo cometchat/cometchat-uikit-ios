@@ -47,6 +47,13 @@ extension CometChatSearch {
         tableView.reloadData()
     }
     
+    /// Called once for a search that could not be answered (offline support on).
+    @discardableResult
+    public func set(onError: @escaping ((_ error: CometChatException) -> Void)) -> Self {
+        self.onError = onError
+        return self
+    }
+
     @discardableResult
     public func set(loadingView: UIView) -> Self {
         self.loadingView = loadingView

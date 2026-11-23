@@ -51,12 +51,18 @@ open class CometChatMessageList: UIView {
     public lazy var errorStateView: UIView = {
         // Not making this view's type as StateView because user can replace this with any UIView
         let stateView = UIView().withoutAutoresizingMaskConstraints()
+        stateView.accessibilityIdentifier = StateContract.error("message-list")
         return stateView
-    }()
+    }() {
+        // Only an assignment from outside gets here (the lazy default does not): the app's own view.
+        didSet { hasCustomErrorStateView = true }
+    }
+    var hasCustomErrorStateView = false
     
     public lazy var emptyStateView: UIView = {
         // Not making this view's type as StateView because user can replace this with any UIView
         let stateView = StateView(title: emptyTitleText, subtitle: emptySubtitleText, image: style.emptyImage).withoutAutoresizingMaskConstraints()
+        stateView.accessibilityIdentifier = StateContract.empty("message-list")
         return stateView
     }()
     
@@ -138,6 +144,8 @@ open class CometChatMessageList: UIView {
     
     //MARK: GLOBEL STYLES
     public static var style = MessageListStyle()
+    /// Offline messaging only: the styles of the unsent-row states, notices and footers.
+    public static var offlineStyle = CometChatOfflineStyle()
     public static var emojiKeyboardStyle: EmojiKeyboardStyle = CometChatEmojiKeyboard.style
     public static var dateSeparatorStyle = CometChatDate.style
     public static var newMessageIndicatorStyle = CometChatNewMessageIndicator.style
@@ -178,6 +186,10 @@ open class CometChatMessageList: UIView {
     var onEmpty: (() -> Void)?
     var onLoad: (([BaseMessage]) -> Void)?
     var newMessageIndicatorCustomView: UIView?
+    /// Offline ON: the "jump to latest" pill, while one is offered.
+    var offlineJumpPill: UIView?
+    /// Offline ON: the kit's "Connect to load messages" state on screen (D84 rule 3).
+    var offlineStateView: UIView?
     public var hideAvatar: Bool?
     public var hideGroupActionMessages: Bool = false
     public var hideFlagRemarkFeild: Bool = false
@@ -250,6 +262,10 @@ open class CometChatMessageList: UIView {
             viewModel.hideReplyMessageOption = hideReplyMessageOption
         }
     }
+    /// Offline messaging only: hides the toast notices (a removed unsent message, a full queue,
+    /// unsent messages that could not be recovered, "connect to load more"). Defaults to `false`.
+    public var hideOfflineNotices: Bool = false
+
     public var disableSwipeToReply: Bool = false{
         didSet{
             viewModel.disableSwipeToReply = disableSwipeToReply
@@ -472,9 +488,10 @@ open class CometChatMessageList: UIView {
     
     deinit {
         isViewActive = false  // Prevent any pending async operations from updating tableView
-        CometChatAIStreamService.shared.cleanupAll()
+        // Stop only this list's own runs: the stream service is process-wide, so
+        // cleanupAll() would also stop a reply streaming in another chat.
+        (viewModel as? MessageListViewModel)?.stopOwnedStreams()
             disconnect()
-        CometChatAIStreamService.shared.isAIBusy = false
     }
     
     // ------ END: life cycle functions ---- //
@@ -507,6 +524,7 @@ open class CometChatMessageList: UIView {
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.startAnimating()
         spinner.frame = CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 60)
+        spinner.accessibilityIdentifier = StateContract.listFooter(.loading)
         tableView.tableHeaderView = spinner   // inverted table → header acts as bottom
     }
 
@@ -666,6 +684,9 @@ open class CometChatMessageList: UIView {
             if insertPreviousPage(fromSnapshot: snapshot) { return }
         }
         tableView.reloadData()
+        // Offline ON: a server page lands over rows already painted. Lay out in this transaction, or
+        // one frame shows only the rows the estimated heights reach (UIT-READ-01: no flash).
+        if OfflineGate.isOn() { tableView.layoutIfNeeded() }
     }
 
     /// Sections the data source currently reports, paired with each section's table-row
@@ -901,6 +922,7 @@ open class CometChatMessageList: UIView {
     }
     
     open func removeErrorView() {
+        removeOfflineState()
         if hideErrorView { return }
         errorStateView.removeFromSuperview()
     }
@@ -942,9 +964,13 @@ open class CometChatMessageList: UIView {
     open func showTopSpinner() {
         tableView.tableFooterView = ActivityIndicator.show()
         tableView.tableFooterView?.isHidden = false
+        tableView.tableFooterView?.accessibilityIdentifier = StateContract.listFooter(.loading)
     }
     
     open func hideTopSpinner() {
+        // Offline, past the saved messages: the list reloads after it shows this footer, which is not
+        // the spinner and stays.
+        if tableView.tableFooterView?.accessibilityIdentifier == StateContract.listFooter(.connectToLoadMore) { return }
         ActivityIndicator.hide(in: tableView)
         tableView.tableFooterView?.isHidden = true
         if tableView.contentSize.height < tableView.visibleSize.height || (tableView.contentOffset.y < 5 && !tableView.visibleCells.isEmpty) {
@@ -971,6 +997,8 @@ open class CometChatMessageList: UIView {
     //MARK: - View Model Set up
     open func setupViewModel() {
 
+        bindOfflineViewModel()
+
         viewModel.scrollToMessageId = { [weak self] id, isPagination in
             guard let this = self, this.isViewActive else { return }
             
@@ -993,6 +1021,7 @@ open class CometChatMessageList: UIView {
                     // If separator is already visible, or target is at row 0 and visible → just show separator, don't scroll
                     if visibleIndexPaths.contains(separatorIndexPath) || isSeparatorCellVisible {
                         this.startFromUnreadMessages = false
+                        this.offlineEndPositioning(unlessPagination: isPagination)
                         this.messageIndicator?.isHidden = this.unreadMessageCount > 0 ? false : true
 //                        this.messageIndicator?.setUnreadCount(count: this.unreadMessageCount)
                         this.removeLoadingView()
@@ -1030,7 +1059,12 @@ open class CometChatMessageList: UIView {
                         self?.tableView.setContentOffset(CGPoint(x: 0, y: clampedOffset), animated: false)
                         
                         this.messageIndicator?.isHidden = this.unreadMessageCount > 0 ? false : true
+                        // Positioned: paging and live auto-scroll may run again.
+                        this.offlineEndPositioning(unlessPagination: isPagination)
                     }
+                } else {
+                    // The unread anchor is not in the window: nothing to scroll to.
+                    this.offlineEndPositioning(unlessPagination: isPagination)
                 }
                 this.removeLoadingView()
                 return
@@ -1056,6 +1090,8 @@ open class CometChatMessageList: UIView {
                 }
             }
             self?.removeLoadingView()
+            // The jump has scrolled to its target, or found nothing to scroll to.
+            this.offlineEndPositioning(unlessPagination: isPagination)
         }
         
         viewModel.reload = { [weak self]  in
@@ -1132,7 +1168,13 @@ open class CometChatMessageList: UIView {
                 let isOwnMessage = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
 
                 var shouldScrollToBottom = false
-                if this.scrollToBottomOnNewMessages || isOwnMessage {
+                if this.isOfflinePositioning {
+                    // Offline ON, a jump or the first unread is still being positioned: the message
+                    // waits with the unread ones instead of carrying the list to the bottom.
+                    if this.unreadMessageCount > 0 {
+                        this.messageIndicator?.setUnreadCount(count: this.unreadMessageCount)
+                    }
+                } else if this.scrollToBottomOnNewMessages || isOwnMessage {
                     shouldScrollToBottom = true
                 } else {
                     if this.tableView.contentOffset.y > 300 {
@@ -1301,6 +1343,12 @@ open class CometChatMessageList: UIView {
                     // Update the cell's message reference to ensure consistency
                     cell.set(message: message)
                     
+                    // Offline ON: the row's state identifier follows the receipt that was just applied.
+                    if OfflineGate.isOn() {
+                        cell.accessibilityIdentifier = this.contractIdentifier(
+                            for: message, isOwn: LoggedInUserInformation.isLoggedInUser(uid: message.senderUid))
+                    }
+                    
                     // Update only the status info view (receipt) without reloading the entire cell
                     let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
                     let bubbleStyle = isLoggedInUser ? this.messageBubbleStyle.outgoing : this.messageBubbleStyle.incoming
@@ -1371,7 +1419,13 @@ open class CometChatMessageList: UIView {
                     onError
                 }
                 this.removeLoadingView()
-                this.showErrorView()
+                // Offline and not connected with nothing on screen: the kit's offline state takes the
+                // error view's place (the app's own error view still shows, D84 rule 3).
+                if (this.viewModel as? MessageListViewModel)?.offline.connectToLoad ?? false {
+                    this.showConnectToLoadMessages()
+                } else {
+                    this.showErrorView()
+                }
             }
         }
         
@@ -1851,7 +1905,8 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                     (message.messageCategory == .agentic
                      || (message.sender?.isAnyAgent ?? false)
                      || (viewModel.user?.isAgentic ?? false))
-                cell.disableSwipeToReply = disableSwipeToReply || isIncomingAgentMessage
+                // An unsent row (offline ON) has no server id to reply to.
+                cell.disableSwipeToReply = disableSwipeToReply || isIncomingAgentMessage || offlineIsUnsentRow(message)
                 cell.set(style: bubbleStyle, specificMessageTypeStyle: messageTypeStyle)
 
                 // Set before any template closure runs: they receive `cell.alignment`, and
@@ -2077,11 +2132,18 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
                 
                 // Also clear long press for RBAC error messages regardless of message id
                 // Only apply to actual messages, not action messages (like "user added to group")
-                let isRBACError = message.metaData?["rbac_permission_denied"] as? Bool == true && message.messageCategory == .message
-                let isError = message.metaData?["error"] as? Bool == true && message.messageCategory == .message
-                if isRBACError || isError {
+                if message.blocksLongPress(unsentRowIsActionable: offlineIsUnsentRow(message)) {
                     cell.onLongPressGestureRecognized = nil
                 }
+                
+                // State-contract identifier for automation (never message text, never a label).
+                cell.accessibilityIdentifier = contractIdentifier(for: message, isOwn: isLoggedInUser)
+                // Offline ON: Retry and Delete of an unsent row are reachable from VoiceOver's actions
+                // rotor too, not only from the long-press menu (UIK-A11Y-01).
+                offlineApplyAccessibilityActions(to: cell, message: message)
+                // Offline ON: the unsent row's "Not sent yet" / "Not sent. Tap to retry" line and
+                // tap-to-retry on its status.
+                offlineDecorateStatus(of: cell, message: message)
                 
                 return cell
             }
@@ -2199,7 +2261,9 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         if isScrollingUp,
            !viewModel.isAllMessagesFetchedInPrevious,
            offsetY + visibleHeight >= (contentHeight * 0.70),
-           !viewModel.isUIUpdating {
+           !viewModel.isUIUpdating,
+           !isOfflinePositioning,
+           !((viewModel as? MessageListViewModel)?.offlineOlderReadsWaitForConnection ?? false) {
             // Snapshot the current sections so reload() can insert just the incoming older
             // page instead of reloading the whole table. Captured here (before the fetch)
             // while the table and data source are still in sync.
@@ -2211,7 +2275,9 @@ extension CometChatMessageList: UITableViewDelegate, UITableViewDataSource {
         if isScrollingDown,
            !viewModel.isAllMessagesFetchedInNext,
            offsetY <= 80,
-           !viewModel.isFetchingNext {
+           !viewModel.isFetchingNext,
+           !isOfflinePositioning,
+           !((viewModel as? MessageListViewModel)?.offlineNewerReadsWaitForConnection ?? false) {
             
             // Capture the current scroll position before fetching new data
             oldContentHeight = tableView.contentSize.height
@@ -2779,13 +2845,21 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                 // Share EVERY attachment of the message (multi-attachment messages carry
                 // them in `attachments`; older messages only have the singular `attachment`).
                 if let mediaMessage = message as? MediaMessage {
-                    var attachmentList = mediaMessage.attachments ?? []
+                    // Another user's link to a file on this device is never shared (iOS-SEC-1).
+                    var attachmentList = MessageMediaTrust.attachments(of: mediaMessage)
                     if attachmentList.isEmpty, let single = mediaMessage.attachment {
-                        attachmentList = [single]
+                        attachmentList = [MessageMediaTrust.attachment(single, of: mediaMessage)]
                     }
-                    let fileUrls = attachmentList.compactMap { URL(string: $0.fileUrl) }
-                    guard !fileUrls.isEmpty else { return }
-                    downloadMediaMessages(urls: fileUrls, completion: { [weak self] fileLocations in
+                    // Offline ON: a file on the device is shared as it is (never fetched again) and one
+                    // that is not on the device while offline gets the offline notice, not a silent
+                    // nothing. Offline OFF: every item is `.remote(url)`, exactly the old flow.
+                    let items = attachmentList.compactMap { GalleryMedia.shareItem(for: $0) }
+                    if items.contains(.unavailableOffline) {
+                        DispatchQueue.main.async { [weak self] in
+                            GalleryMedia.showUnavailableNotice(on: self?.resolvedController)
+                        }
+                    }
+                    shareMediaItems(items, completion: { [weak self] fileLocations in
                         guard let this = self, !fileLocations.isEmpty else { return }
                         this.copyMedia(fileLocations)
                     })
@@ -2828,6 +2902,31 @@ extension CometChatMessageList: CometChatMessageOptionDelegate {
                     completion(nil)
                 }
             }).resume()
+        }
+    }
+
+    /// Share items in attachment order: on-device files as they are, remote ones downloaded (in
+    /// parallel), unavailable ones skipped.
+    func shareMediaItems(_ items: [GalleryMedia.ShareItem], completion: @escaping (_ fileLocations: [URL]) -> Void) {
+        let group = DispatchGroup()
+        var results = [URL?](repeating: nil, count: items.count)
+        let lock = NSLock()
+        for (index, item) in items.enumerated() {
+            switch item {
+            case .local(let file):
+                results[index] = file
+            case .remote(let url):
+                group.enter()
+                downloadMediaMessage(url: url) { fileLocation in
+                    lock.lock(); results[index] = fileLocation; lock.unlock()
+                    group.leave()
+                }
+            case .unavailableOffline:
+                break
+            }
+        }
+        group.notify(queue: .main) {
+            completion(results.compactMap { $0 })
         }
     }
 

@@ -20,6 +20,13 @@ protocol GroupsServicing {
     func fetchGroups(request: GroupsRequest,
                      completion: @escaping (GroupsBuilderResult) -> Void)
 
+    /// Offline ON only: the page in two phases, the on-device copy first. The default delivers the
+    /// single legacy answer as the server phase.
+    func fetchGroupsTwoPhase(request: GroupsRequest,
+                             onCached: @escaping ([Group]) -> Void,
+                             onServer: @escaping ([Group]) -> Void,
+                             onError: @escaping (CometChatException?) -> Void)
+
     /// Fetch groups matching a search keyword.
     func fetchFilteredGroups(request: GroupsRequest,
                              completion: @escaping (GroupsBuilderResult) -> Void)
@@ -36,7 +43,31 @@ protocol GroupsServicing {
 }
 
 /// Production implementation backed directly by the SDK / existing builder.
+extension GroupsServicing {
+
+    func fetchGroupsTwoPhase(request: GroupsRequest,
+                             onCached: @escaping ([Group]) -> Void,
+                             onServer: @escaping ([Group]) -> Void,
+                             onError: @escaping (CometChatException?) -> Void) {
+        fetchGroups(request: request) { result in
+            switch result {
+            case .success(let groups): onServer(groups)
+            case .failure(let error): onError(error)
+            }
+        }
+    }
+}
+
 final class LiveGroupsService: GroupsServicing {
+
+    func fetchGroupsTwoPhase(request: GroupsRequest,
+                             onCached: @escaping ([Group]) -> Void,
+                             onServer: @escaping ([Group]) -> Void,
+                             onError: @escaping (CometChatException?) -> Void) {
+        request.fetchNext(onCachedGroups: { page in OfflineSnapshotMain.run { onCached(page) } },
+                          onServerGroups: { page in OfflineSnapshotMain.run { onServer(page) } },
+                          onError: { error in OfflineSnapshotMain.run { onError(error) } })
+    }
 
     func fetchGroups(request: GroupsRequest,
                      completion: @escaping (GroupsBuilderResult) -> Void) {

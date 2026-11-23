@@ -29,6 +29,9 @@ public class CometChatAIStreamService {
     public var aiToolArgumentMessages: [Int: AIToolArgumentMessage] = [:]
     public var queueCompletionCallbacks: [Int: QueueCompletionCallback] = [:]
     private var controllers: [Int: ((AIAssistantBaseEvent) -> Void)] = [:]
+    /// Runs a closed chat's teardown stopped. Their late events are dropped so they do
+    /// not recreate a queue nothing drains. Guarded by `lock`.
+    private var teardownStoppedRunIds: Set<Int> = []
     
     private var streamCallbacks: [Int: WeakStreamCallback] = [:]
 
@@ -99,6 +102,14 @@ public class CometChatAIStreamService {
     // Queue Management
     public func handleIncomingEvent(runId: Int, event: AIAssistantBaseEvent) {
         lock.lock()
+        // A run stopped by a teardown stays ignored until a new run reuses its id,
+        // which begins with a run-started event.
+        if event is AIAssistantRunStartedEvent {
+            teardownStoppedRunIds.remove(runId)
+        } else if teardownStoppedRunIds.contains(runId) {
+            lock.unlock()
+            return
+        }
         if eventQueues[runId] != nil {
             eventQueues[runId]?.append(event)
         } else if eventQueues.count < _maxConcurrentQueues {
@@ -157,6 +168,7 @@ public class CometChatAIStreamService {
         }
         lock.lock()
         controllers[runId] = onAiAssistantEvent
+        teardownStoppedRunIds.remove(runId)
         lock.unlock()
         emitNext(runId: runId)
         isAIBusy = true
@@ -177,6 +189,16 @@ public class CometChatAIStreamService {
         isAIBusy = busy
     }
     
+    /// Stops a run for a chat that was closed, and ignores that run's late events so
+    /// they do not recreate a queue nothing drains (which would count toward
+    /// `maxConcurrentQueues`). Only the given run is affected.
+    func stopStreamingForClosedRun(runId: Int) {
+        lock.lock()
+        teardownStoppedRunIds.insert(runId)
+        lock.unlock()
+        stopStreamingForRunId(runId: runId)
+    }
+
     func isStreamingActive(runId: Int) -> Bool {
         lock.lock()
         defer { lock.unlock() }
@@ -235,6 +257,7 @@ public class CometChatAIStreamService {
 //        aiToolArgumentMessages.removeAll()
         queueCompletionCallbacks.removeAll()
         controllers.removeAll()
+        teardownStoppedRunIds.removeAll()
         _isAIBusy = false
         lock.unlock()
         DispatchQueue.main.async(execute: {
@@ -323,6 +346,13 @@ public class CometChatAIStreamService {
     
     // ---------------------------
     // Utility
+    /// Run ids whose queue-completion callback is `callback`, read under the lock: the
+    /// dictionary is written from SDK listener threads.
+    func runIds(withCompletionCallback callback: AnyObject) -> Set<Int> {
+        lock.lock(); defer { lock.unlock() }
+        return Set(queueCompletionCallbacks.filter { ($0.value as AnyObject) === callback }.keys)
+    }
+
     public func getAllRunIds() -> Set<Int> {
         lock.lock(); defer { lock.unlock() }
         return Set(eventQueues.keys)

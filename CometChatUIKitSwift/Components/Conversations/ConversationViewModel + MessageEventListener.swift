@@ -9,47 +9,59 @@ import Foundation
 import CometChatSDK
 
 extension ConversationsViewModel: CometChatMessageEventListener {
+
+    /// Raise the "new message" cue (sound), except for a message swept in on reconnect: that is
+    /// history, not news (UIK-SYNC-02). The gate is read here, once per delivered message.
+    func cueNewMessage(_ message: BaseMessage) {
+        guard ConversationRows.shouldCueNewMessage(offlineOn: OfflineGate.isOn(), message) else { return }
+        newMessageReceived?(message)
+    }
     
     public func onFormMessageReceived(message: FormMessage) {
         if checkForConversationUpdate(message: message) {
-            newMessageReceived?(message)
+            cueNewMessage(message)
             update(lastMessage: message)
         }
     }
     
     func onSchedulerMessageReceived(message: SchedulerMessage) {
         if checkForConversationUpdate(message: message) {
-            newMessageReceived?(message)
+            cueNewMessage(message)
             update(lastMessage: message)
         }
     }
     
     func onCustomInteractiveMessageReceived(message: CustomInteractiveMessage) {
         if checkForConversationUpdate(message: message) {
-            newMessageReceived?(message)
+            cueNewMessage(message)
             update(lastMessage: message)
         }
     }
     
     public func onCardMessageReceived(message: CardMessage) {
         if checkForConversationUpdate(message: message) {
-            newMessageReceived?(message)
+            cueNewMessage(message)
             update(lastMessage: message)
         }
     }
     
     public func onNewCardMessageReceived(cardMessage: BaseMessage) {
         if checkForConversationUpdate(message: cardMessage) {
-            newMessageReceived?(cardMessage)
+            cueNewMessage(cardMessage)
             update(lastMessage: cardMessage)
         }
     }
     
     func ccMessageSent(message: BaseMessage, status: MessageStatus) {
+        // Offline ON: a pending or failed own send moves its chat to the top with that preview.
+        if ConversationRows.previewFollowsSend(offlineOn: OfflineGate.isOn(), status: status) {
+            if checkForConversationUpdate(message: message) { offlineFollowSend(message) }
+            return
+        }
         if status == .success {
             latestMessageId = message.id
             if checkForConversationUpdate(message: message) {
-                update(lastMessage: message)
+                if offlineGate() { offlineApplySendAck(message) } else { update(lastMessage: message) }
             }
         }
     }
@@ -57,7 +69,7 @@ extension ConversationsViewModel: CometChatMessageEventListener {
     public func onTextMessageReceived(textMessage: TextMessage) {
         latestMessageId = textMessage.id
         if checkForConversationUpdate(message: textMessage) {
-            newMessageReceived?(textMessage)
+            cueNewMessage(textMessage)
             update(lastMessage: textMessage)
             
         }
@@ -66,7 +78,7 @@ extension ConversationsViewModel: CometChatMessageEventListener {
     public func onMediaMessageReceived(mediaMessage: MediaMessage) {
         latestMessageId = mediaMessage.id
         if checkForConversationUpdate(message: mediaMessage) {
-            newMessageReceived?(mediaMessage)
+            cueNewMessage(mediaMessage)
             update(lastMessage: mediaMessage)
         }
     }
@@ -74,7 +86,7 @@ extension ConversationsViewModel: CometChatMessageEventListener {
     public func onCustomMessageReceived(customMessage: CustomMessage) {
         latestMessageId = customMessage.id
         if checkForConversationUpdate(message: customMessage) {
-            newMessageReceived?(customMessage)
+            cueNewMessage(customMessage)
             update(lastMessage: customMessage)
         }
     }

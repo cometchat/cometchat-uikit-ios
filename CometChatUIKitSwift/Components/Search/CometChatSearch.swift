@@ -92,6 +92,8 @@ open class CometChatSearch: UIViewController {
     var datePattern: ((_ conversation: Conversation?, _ messagge: BaseMessage?) -> String)?
     public var onConversationClicked: ((_ conversation: Conversation, _ indexPath: IndexPath) -> Void)?
     public var onMessageClicked: ((_ message: BaseMessage) -> Void)?
+    /// Offline ON: a search that could not be answered, once per search (D83).
+    var onError: ((_ error: CometChatException) -> Void)?
     
     public static var sharedSearchKeyword: String?
         
@@ -228,10 +230,15 @@ open class CometChatSearch: UIViewController {
         setupSearchController()
         buildUI()
         setupViewModel()
+        viewModel.onError = { [weak self] error in self?.onError?(error) }
     }
     
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        // Offline ON only: a search that failed for want of a connection runs again once it returns (D83).
+        if OfflineGate.isOn() {
+            CometChat.addConnectionListener(CometChatSearch.connectionListenerId, self)
+        }
         navigationController?.setNavigationBarHidden(false, animated: false)
         navigationItem.hidesSearchBarWhenScrolling = false
         setupStyle()
@@ -256,6 +263,13 @@ open class CometChatSearch: UIViewController {
         definesPresentationContext = true
     }
     
+    open override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        CometChat.removeConnectionListener(CometChatSearch.connectionListenerId)
+    }
+
+    private static let connectionListenerId = "search-sdk-listener"
+
     open override func viewDidLayoutSubviews() {
         updateCollectionViewHeight()
     }
@@ -439,8 +453,24 @@ open class CometChatSearch: UIViewController {
 
             tableView.reloadData()
 
+            // Offline ON, as the Android Search screen (D84 rule 7): a search with nothing to show whose
+            // requests could not reach the server is "Connect to search" and "Search needs an internet
+            // connection." (an offline state in the empty view's place, no `onError`). A keyword that
+            // could not be searched says it; so does a search with only a filter when both the conversation
+            // and the message request failed. With one scope only, a filter-only failure is the plain
+            // empty state. Any other error takes the error view below.
+            if OfflineGate.isOn(), viewModel.connectToSearch {
+                hideErrorStateView()
+                addEmptyStateView()
+                emptyStateTitleLabel.text = "CONNECT_TO_SEARCH_MESSAGES".localize()
+                emptyStateSubtitleLabel.text = "CONNECT_TO_SEARCH_SUBTITLE".localize()
+                removeLoadingView()
+                return
+            }
+
             // Both searches failed (e.g. the plan has no Advanced Search): show the error
-            // state instead of an endless loader, as the Android UI Kit does.
+            // state instead of an endless loader, as the Android UI Kit does. Offline ON the same
+            // rule holds: one failed scope beside one that answered, or the only scope failing, is not it.
             if viewModel.conversationSearchFailed && viewModel.messageSearchFailed {
                 hideEmptyStateView()
                 addErrorStateView()
@@ -697,7 +727,7 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
                 }
 
                 listItem.set(avatarURL: user.avatar ?? "", with: user.name ?? "")
-                if user.status == .online {
+                if user.status == .online && !OfflinePresence.isHidden() {
                     listItem.hide(statusIndicator: hideUserStatus)
                     listItem.statusIndicator.style.backgroundColor = CometChatTheme.successColor
                 } else {
@@ -786,7 +816,8 @@ extension CometChatSearch: UITableViewDataSource, UITableViewDelegate {
                     let media = message as? MediaMessage
                     let attachments = media?.attachments ?? []
                     let firstAttachment = attachments.first ?? media?.attachment
-                    let thumbnailURL = URL(string: firstAttachment?.fileUrl ?? "")
+                    // Another user's link to a file on this device is never shown (iOS-SEC-1).
+                    let thumbnailURL = URL(string: MessageMediaTrust.link(firstAttachment?.fileUrl, in: message) ?? "")
                     let isVideo = message.messageType == .video
 
                     let caption = (media?.caption ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1165,3 +1196,15 @@ extension CometChatSearch: UICollectionViewDataSource, UICollectionViewDelegateF
 
 }
 
+
+
+// MARK: - Connection Listener
+extension CometChatSearch: CometChatConnectionDelegate {
+    public func connected() {
+        viewModel.offlineReconnected(offline: OfflineGate.isOn())
+    }
+
+    public func connecting() {}
+
+    public func disconnected() {}
+}

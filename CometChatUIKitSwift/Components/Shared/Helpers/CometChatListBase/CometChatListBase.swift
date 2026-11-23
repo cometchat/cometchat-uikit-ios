@@ -61,8 +61,13 @@ open class CometChatListBase: UIViewController, StateManagement {
     //MARK: - Error Views
     public lazy var emptyStateView: UIView = {
         let stateView = StateView(title: emptyStateTitleText, subtitle: emptyStateSubTitleText, image: emptyStateImage)
+        stateView.accessibilityIdentifier = StateContract.empty("list")
         return stateView
-    }()
+    }() {
+        // Only an assignment from outside gets here (the lazy default does not): the app's own view.
+        didSet { hasCustomEmptyStateView = true }
+    }
+    private var hasCustomEmptyStateView = false
     public var emptyStateImage: UIImage = UIImage() {
         didSet {
             (emptyStateView as? StateView)?.image = emptyStateImage
@@ -81,14 +86,83 @@ open class CometChatListBase: UIViewController, StateManagement {
     var isEmptyStateVisible = false
     public var disableEmptyState: Bool = false
 
+    // MARK: - Offline states (offline ON, D84)
+
+    /// The kit's offline states on screen: "Connect to load ..." and "Connect to search". A list asks for
+    /// both on every reload, so each takes down only its own view.
+    private var connectToLoadView: UIView?
+    private var connectToSearchView: UIView?
+
+    /// Shows or hides "Connect to load ..." (offline, nothing on screen, rule 3) and answers whether the
+    /// list's own empty / error state is handled. The app's own error view shows in place of the kit's
+    /// state (answers true); an app that hides error views gets no state (answers true).
+    @discardableResult
+    func applyConnectToLoad(_ needed: Bool, key: String, reason: String) -> Bool {
+        connectToLoadView?.removeFromSuperview()
+        connectToLoadView = nil
+        guard needed else { return false }
+        if hasCustomErrorStateView {
+            // Drawn again on every reload: take the last one down first so it is not pinned twice.
+            removeErrorView()
+            showErrorView()
+            return true
+        }
+        if hideErrorView { return true }
+        connectToLoadView = makeOfflineState(title: key.localize(), subtitle: "", identifier: StateContract.empty("connect-to-load-\(reason)"))
+        return true
+    }
+
+    /// Shows or hides "Connect to search" and its second line (offline, a keyword search with nothing
+    /// to show, rule 7 and addition A) and answers whether it is showing. It takes the place of the empty
+    /// state, so a list asks this before deciding to show that. The app's own empty view still shows.
+    @discardableResult
+    func applyConnectToSearch(_ needed: Bool) -> Bool {
+        connectToSearchView?.removeFromSuperview()
+        connectToSearchView = nil
+        guard needed, !hasCustomEmptyStateView else { return false }
+        if disableEmptyState { return true }
+        connectToSearchView = makeOfflineState(title: "CONNECT_TO_SEARCH".localize(), subtitle: "CONNECT_TO_SEARCH_SUBTITLE".localize(),
+                                               identifier: StateContract.empty("connect-to-search"))
+        return true
+    }
+
+    /// Takes the kit's offline states down (a list shows none while it has rows or has read again).
+    func removeOfflineState() {
+        connectToLoadView?.removeFromSuperview()
+        connectToLoadView = nil
+        connectToSearchView?.removeFromSuperview()
+        connectToSearchView = nil
+    }
+
+    /// An icon and text, no Retry. It looks like the list's empty state.
+    private func makeOfflineState(title: String, subtitle: String, identifier: String) -> UIView {
+        let icon = UIImage(systemName: "wifi.slash")?.withRenderingMode(.alwaysTemplate) ?? UIImage()
+        let stateView = StateView(title: title, subtitle: subtitle, image: icon)
+        stateView.titleLabel.font = listBaseStyle.emptyTitleTextFont
+        stateView.titleLabel.adjustsFontForContentSizeCategory = true
+        stateView.titleLabel.textColor = listBaseStyle.emptyTitleTextColor
+        stateView.subtitleLabel.font = listBaseStyle.emptySubTitleFont
+        stateView.subtitleLabel.adjustsFontForContentSizeCategory = true
+        stateView.subtitleLabel.textColor = listBaseStyle.emptySubTitleTextColor
+        stateView.imageView.tintColor = CometChatTheme.neutralColor300
+        stateView.accessibilityIdentifier = identifier
+        view.addSubview(stateView)
+        stateView.pin(anchors: [.centerX, .centerY], to: view)
+        return stateView
+    }
+
     //MARK: - Empty Views
     public lazy var errorStateView: UIView = {
         let stateView = StateView(title: errorStateTitleText, subtitle: errorStateSubTitleText, image: errorStateImage, buttonText: "RETRY".localize())
         stateView.onRetry = { [weak self] in
             self?.onRetryTapped()
         }
+        stateView.accessibilityIdentifier = StateContract.error("list")
         return stateView
-    }()
+    }() {
+        didSet { hasCustomErrorStateView = true }
+    }
+    private var hasCustomErrorStateView = false
     public var errorStateImage: UIImage = UIImage() {
         didSet {
             (errorStateView as? StateView)?.image = errorStateImage
@@ -171,6 +245,13 @@ open class CometChatListBase: UIViewController, StateManagement {
     open func reload() {
         tableView.reloadData()
     } 
+
+    /// Offline ON: the online dots follow the connection (none while the SDK is not connected), so
+    /// the rows are drawn again when it changes. Offline OFF: nothing.
+    func reloadPresenceForConnectionChange() {
+        guard OfflineGate.isOn() else { return }
+        DispatchQueue.main.async { [weak self] in self?.tableView?.reloadData() }
+    }
     
     open func registerCellWith(title: String){
         let cell = UINib(nibName: title, bundle: CometChatUIKit.bundle)

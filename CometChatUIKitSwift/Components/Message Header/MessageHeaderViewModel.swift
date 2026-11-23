@@ -77,6 +77,7 @@ public class MessageHeaderViewModel: NSObject, MessageHeaderViewModelProtocol {
         listeners.add(.groupSDK, id: "messages-header-groups-sdk-listener-\(listenerRandomId)", listener: self)
         listeners.add(.groupEvents, id: "messages-header-group-event-listener-\(listenerRandomId)", listener: self)
         listeners.add(.userEvents, id: "messages-header-user-event-listener-\(listenerRandomId)", listener: self)
+        listeners.add(.offlineHub, id: "messages-header-offline-hub-listener-\(listenerRandomId)", listener: self as OfflineHubObserver)
     }
 
     public func disconnect() {
@@ -85,6 +86,7 @@ public class MessageHeaderViewModel: NSObject, MessageHeaderViewModelProtocol {
         listeners.remove(.groupSDK, id: "messages-header-groups-sdk-listener-\(listenerRandomId)")
         listeners.remove(.groupEvents, id: "messages-header-group-event-listener-\(listenerRandomId)")
         listeners.remove(.userEvents, id: "messages-header-user-event-listener-\(listenerRandomId)")
+        listeners.remove(.offlineHub, id: "messages-header-offline-hub-listener-\(listenerRandomId)")
     }
     
     
@@ -97,4 +99,15 @@ public class MessageHeaderViewModel: NSObject, MessageHeaderViewModelProtocol {
         return status
     }
     
+}
+
+// MARK: - Offline hub
+
+extension MessageHeaderViewModel: OfflineHubObserver {
+
+    /// A swept kick / ban / leave / join of this group runs the live handlers (UIT-SYNC-13).
+    func offlineMessageSyncCompleted(_ event: OfflineMessageSyncEvent) {
+        guard event.gen == OfflineHub.shared.gen else { return }
+        SweptGroupAction.replay(event.messages, forGroup: group?.guid, to: self)
+    }
 }

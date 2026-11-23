@@ -164,6 +164,11 @@ protocol CometChatSmartRepliesDelegate: AnyObject {
         
         if let textMessage = textMessage {
             CometChatMessageEvents.ccMessageSent(message: textMessage, status: .inProgress)
+            // Offline ON: the offline send helper emits the public transitions itself.
+            if OfflineGate.isOn() {
+                OfflineSend.send(textMessage, quietly: true, onSent: nil, onFailed: nil)
+                return
+            }
             CometChat.sendTextMessage(message: textMessage) { updatedTextMessage in
                 // iOS 26 fix: Ensure callback is on main thread
                 if Thread.isMainThread {
@@ -175,7 +180,7 @@ protocol CometChatSmartRepliesDelegate: AnyObject {
                 }
             } onError: { error in
                 if error != nil {
-                    textMessage.metaData = ["error": true]
+                    textMessage.markSendFailed()
                     // iOS 26 fix: Ensure callback is on main thread
                     if Thread.isMainThread {
                         CometChatMessageEvents.ccMessageSent(message: textMessage, status: .error)

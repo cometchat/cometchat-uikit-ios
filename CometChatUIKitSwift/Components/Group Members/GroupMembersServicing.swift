@@ -26,6 +26,15 @@ protocol GroupMembersServicing {
         completion: @escaping (GroupMembersBuilderResult) -> Void
     )
 
+    /// Offline ON only: the page in two phases, the on-device copy first. The default delivers the
+    /// single legacy answer as the server phase.
+    func fetchGroupMembersTwoPhase(
+        request: GroupMembersRequest,
+        onCached: @escaping ([GroupMember]) -> Void,
+        onServer: @escaping ([GroupMember]) -> Void,
+        onError: @escaping (CometChatException?) -> Void
+    )
+
     func changeScope(
         group: Group,
         member: GroupMember,
@@ -49,8 +58,36 @@ protocol GroupMembersServicing {
     func loggedInUser() -> User?
 }
 
+extension GroupMembersServicing {
+
+    func fetchGroupMembersTwoPhase(
+        request: GroupMembersRequest,
+        onCached: @escaping ([GroupMember]) -> Void,
+        onServer: @escaping ([GroupMember]) -> Void,
+        onError: @escaping (CometChatException?) -> Void
+    ) {
+        fetchGroupMembers(request: request) { result in
+            switch result {
+            case .success(let members): onServer(members)
+            case .failure(let error): onError(error)
+            }
+        }
+    }
+}
+
 /// Production implementation backed directly by the existing builder / SDK.
 final class LiveGroupMembersService: GroupMembersServicing {
+
+    func fetchGroupMembersTwoPhase(
+        request: GroupMembersRequest,
+        onCached: @escaping ([GroupMember]) -> Void,
+        onServer: @escaping ([GroupMember]) -> Void,
+        onError: @escaping (CometChatException?) -> Void
+    ) {
+        request.fetchNext(onCachedGroupMembers: { page in OfflineSnapshotMain.run { onCached(page) } },
+                          onServerGroupMembers: { page in OfflineSnapshotMain.run { onServer(page) } },
+                          onError: { error in OfflineSnapshotMain.run { onError(error) } })
+    }
 
     func fetchGroupMembers(
         request: GroupMembersRequest,

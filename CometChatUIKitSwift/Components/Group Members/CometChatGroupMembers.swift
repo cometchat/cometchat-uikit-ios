@@ -53,6 +53,7 @@ open class CometChatGroupMembers: CometChatListBase {
 
     /// The built-in Cancel and Done items, kept so `setupStyle()` can tint them from the style.
     private var cancelBarButtonItem: UIBarButtonItem?
+    private lazy var connectionListenerId = "group-members-connection-listener-\(ObjectIdentifier(self).hashValue)"
     private var doneBarButtonItem: UIBarButtonItem?
 
     //MARK: - INIT
@@ -123,6 +124,9 @@ open class CometChatGroupMembers: CometChatListBase {
             addCheckBarButtonItem()
         }
         
+        // `connected()` below existed but was never registered, so a reconnect never reached it (D2).
+        CometChat.addConnectionListener(connectionListenerId, self)
+        
         fetchData()
     }
     
@@ -184,6 +188,7 @@ open class CometChatGroupMembers: CometChatListBase {
     }
     
     deinit {
+        CometChat.removeConnectionListener(connectionListenerId)
         viewModel.disconnect()
     }
     
@@ -224,9 +229,19 @@ open class CometChatGroupMembers: CometChatListBase {
                 // onEmpty below still run after it.
                 this.onLoad?(this.viewModel.groupMembers)
                 
+                // Offline ON: nothing to show and no connection. A keyword search says "Connect to search"
+                // (D84 rule 7), a plain list "Connect to load members" (rule 3); both are false with offline off.
+                let searching = this.viewModel.isSearching
+                let nothingShown = searching ? this.viewModel.filteredGroupMembers.isEmpty : this.viewModel.groupMembers.isEmpty
+                let connectToSearch = this.applyConnectToSearch(this.viewModel.connectToSearch && nothingShown)
+                let connectToLoad = this.applyConnectToLoad(!searching && this.viewModel.connectToLoad && nothingShown,
+                                                            key: "CONNECT_TO_LOAD_MEMBERS", reason: "members")
+
                 switch this.viewModel.isSearching {
                 case true:
-                    if this.viewModel.filteredGroupMembers.isEmpty {
+                    if connectToSearch {
+                        this.removeEmptyView()
+                    } else if this.viewModel.filteredGroupMembers.isEmpty {
                         this.showEmptyView()
                         if let onEmpty = this.onEmpty?(){
                             onEmpty
@@ -235,7 +250,9 @@ open class CometChatGroupMembers: CometChatListBase {
                         this.removeEmptyView()
                     }
                 case false:
-                    if this.viewModel.groupMembers.isEmpty {
+                    if connectToSearch || connectToLoad {
+                        this.removeEmptyView()
+                    } else if this.viewModel.groupMembers.isEmpty {
                         this.showEmptyView()
                         if let onEmpty = this.onEmpty?(){
                             onEmpty
@@ -254,8 +271,14 @@ open class CometChatGroupMembers: CometChatListBase {
                 this.onError?(error)
                 // Keep a populated list on screen; the error view only replaces an
                 // empty one (same as Groups and Conversations).
-                let visibleMembers = this.viewModel.isSearching ? this.viewModel.filteredGroupMembers : this.viewModel.groupMembers
-                if visibleMembers.isEmpty {
+                if !this.viewModel.isSearching && this.viewModel.connectToLoad && this.viewModel.failureLeavesNothing {
+                    // Offline and not connected with nothing on screen: the kit's offline state takes the
+                    // error view's place (the app's own error view still shows, D84 rule 3).
+                    this.removeEmptyView()
+                    this.applyConnectToLoad(true, key: "CONNECT_TO_LOAD_MEMBERS", reason: "members")
+                } else if this.viewModel.failureLeavesNothing {
+                    // A failed search's error view takes the place of the empty view.
+                    if this.viewModel.searchFailedOffline { this.removeEmptyView() }
                     this.showErrorView()
                 }
             }
@@ -288,10 +311,18 @@ open class CometChatGroupMembers: CometChatListBase {
     open override func onSearch(state: SearchState, text: String) {
         switch state {
         case .clear:
+            let searchErrorShowing = viewModel.searchFailedOffline
             viewModel.isSearching = false
             
             DispatchQueue.main.async { [weak self] in
                 guard let this = self else { return }
+                // The error view of a failed search, and "Connect to search", go with the search.
+                if searchErrorShowing {
+                    this.removeErrorView()
+                    this.removeOfflineState()
+                    // The plain list's own state, if it had one, comes back.
+                    this.viewModel.reload?()
+                }
                 if !this.viewModel.groupMembers.isEmpty {
                     this.removeEmptyView()
                 }
@@ -565,13 +596,14 @@ extension CometChatGroupMembers {
             //configuring status indicator
             listItem.statusIndicator.heightAnchor.pin(equalToConstant: 12).with(priority: .defaultHigh).isActive = true
             listItem.statusIndicator.widthAnchor.pin(equalToConstant: 12).with(priority: .defaultHigh).isActive = true
+            let presenceHidden = OfflinePresence.isHidden()
             switch groupMember.status {
             case .offline:
                 listItem.statusIndicator.isHidden = true
             case .online:
-                listItem.statusIndicator.isHidden = hideUserStatus || disableUserPresence
+                listItem.statusIndicator.isHidden = hideUserStatus || disableUserPresence || presenceHidden
             case .available:
-                listItem.statusIndicator.isHidden = hideUserStatus || disableUserPresence
+                listItem.statusIndicator.isHidden = hideUserStatus || disableUserPresence || presenceHidden
             @unknown default: listItem.statusIndicator.isHidden = true
             }
             listItem.statusIndicator.style = statusIndicatorStyle
@@ -689,13 +721,25 @@ extension CometChatGroupMembers {
 //MARK: Connection Delegate
 extension CometChatGroupMembers: CometChatConnectionDelegate {
     public func connected() {
+        // Offline ON: a search that failed for want of a connection runs again, once (D84 rule 8).
+        if viewModel.searchReloadOnConnect && viewModel.isSearching {
+            viewModel.filterGroupMembers(text: viewModel.searchText)
+        }
+        // Offline ON: an error view for a non-network error is not reloaded by a reconnect.
+        if viewModel.skipsReconnectReload { return }
         reloadData()
-        fetchData()
+        // A refetch that never blanks the list: a list already on screen stays and is refreshed in
+        // place; only an empty list shows the loader.
+        if viewModel.groupMembers.isEmpty {
+            fetchData()
+        } else {
+            viewModel.refreshAfterReconnect()
+        }
     }
     
-    public func connecting() {}
+    public func connecting() { reloadPresenceForConnectionChange() }
     
-    public func disconnected() {}
+    public func disconnected() { reloadPresenceForConnectionChange() }
 }
 
 extension UIImage {

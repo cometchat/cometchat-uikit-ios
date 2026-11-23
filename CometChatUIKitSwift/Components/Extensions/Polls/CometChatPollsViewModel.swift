@@ -90,10 +90,10 @@ public class CometChatPollsViewModel : DataSourceDecorator, CometChatMessageEven
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let message = message else { return nil }
-            return self.getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let message = message, let user = LoggedInUserInformation.getUser() else { return [] }
-            return self.getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
 
     }

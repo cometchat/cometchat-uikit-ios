@@ -69,105 +69,133 @@ extension CometChatMessageList {
     }
     
     //Reacting to a Message
-    func reactToMessage(baseMessage: BaseMessage?, reaction: String) {
+    func reactToMessage(baseMessage: BaseMessage?, reaction: String,
+                        service: MessageReactionServicing = LiveMessageReactionService()) {
         guard let baseMessage = baseMessage else { return }
-        let reactionData = baseMessage.reactions
-        let tappedReactionIndex = reactionData.firstIndex(where: { $0.reaction == reaction })
-        guard let tappedReactionIndex = tappedReactionIndex else {
-            
-            let newReaction = ReactionCount()
-            newReaction.count = 1
-            newReaction.reactedByMe = true
-            newReaction.reaction = reaction
-            baseMessage.reactions.append(newReaction)
-            self.update(message: baseMessage)
-            
-            CometChat.addReaction(messageId: baseMessage.id, reaction: reaction) { [weak self] message in
-                guard let this = self else { return }
-                message.mentionedUsers = baseMessage.mentionedUsers //TODO: API LEVEL BUG
-                this.update(message: message)
-            } onError: { [weak self] error in
-                guard let this = self else { return }
-                
-                //removing the locally added reaction
-                for (index, reactionCount) in baseMessage.reactions.enumerated() {
-                    if newReaction.reaction == reactionCount.reaction {
-                        if reactionCount.count == 1 && reactionCount.reactedByMe == true {
-                            baseMessage.reactions.remove(at: index)
-                            this.update(message: baseMessage)
-                            return
-                        } else if reactionCount.reactedByMe == true && reactionCount.count > 1 {
-                            baseMessage.reactions[index].count = baseMessage.reactions[index].count - 1
-                            baseMessage.reactions[index].reactedByMe = false
-                            this.update(message: baseMessage)
-                            return
-                        }
-                    }
-                }
+        ReactionToggle.toggle(reaction, on: baseMessage, service: service, update: { [weak self] message in
+            self?.update(message: message)
+        }, failed: { [weak self] error in
+            // Offline ON: the reaction went back, and the user is told why with the notice a refused
+            // delete shows (BUG-3), not left to guess. Offline OFF is unchanged.
+            DispatchQueue.main.async {
+                guard OfflineGate.isOn() else { return }
+                let reason = error ?? CometChatException(errorCode: "", errorDescription: "")
+                (self?.viewModel as? MessageListViewModel)?.onOfflineActionError?(reason)
             }
-            
-            return
-            
-        }
-        let tappedReaction = reactionData[tappedReactionIndex]
-        
-        if tappedReaction.reactedByMe == true {
-            
-            //Update for responsive UI
-            tappedReaction.reactedByMe = false
-            tappedReaction.count -= 1
-            if tappedReaction.count <= 0 {
-                if baseMessage.reactions.count == 1 {
-                    baseMessage.reactions = [ReactionCount]()
-                } else {
-                    baseMessage.reactions.remove(at: tappedReactionIndex)
-                }
-            } else {
-                baseMessage.reactions[tappedReactionIndex] = tappedReaction
-            }
-            self.update(message: baseMessage)
-            
-            CometChat.removeReaction(messageId: baseMessage.id, reaction: tappedReaction.reaction) { [weak self] message in
-                guard let this = self else { return }
-                
-                message.mentionedUsers = baseMessage.mentionedUsers //TODO: API LEVEL BUG
-                this.update(message: message)
-            } onError: { [weak self] error in
-                guard let this = self else { return }
-                
-                tappedReaction.reactedByMe = true
-                tappedReaction.count += 1
-                let reactedIndex = baseMessage.reactions.firstIndex(where: { $0.reaction == reaction })
-                if let reactedIndex = reactedIndex {
-                    baseMessage.reactions[reactedIndex] = tappedReaction
-                } else {
-                    baseMessage.reactions.append(tappedReaction)
-                }
-                this.update(message: baseMessage)
-            }
-        } else {
-            
-            //Update for responsive UI
-            tappedReaction.reactedByMe = true
-            tappedReaction.count += 1
-            baseMessage.reactions[tappedReactionIndex] = tappedReaction
-            self.update(message: baseMessage)
-            
-            CometChat.addReaction(messageId: baseMessage.id, reaction: tappedReaction.reaction) { [weak self] message in
-                guard let this = self else { return }
-                message.mentionedUsers = baseMessage.mentionedUsers //TODO: API LEVEL BUG
-                this.update(message: message)
-            } onError: { [weak self] error in
-                guard let this = self else { return }
-                
-                //removing locally added reaction on error occurred
-                tappedReaction.reactedByMe = false
-                tappedReaction.count -= 1
-                baseMessage.reactions[tappedReactionIndex] = tappedReaction
-                this.update(message: baseMessage)
-            }
-        }
-        
+        })
     }
     
+}
+
+/// The SDK's reaction calls behind a seam, so the optimistic update and its rollback can be
+/// exercised without a live SDK.
+internal protocol MessageReactionServicing {
+    func addReaction(messageId: Int, reaction: String,
+                     onSuccess: @escaping (BaseMessage) -> Void,
+                     onError: @escaping (CometChatException?) -> Void)
+    func removeReaction(messageId: Int, reaction: String,
+                        onSuccess: @escaping (BaseMessage) -> Void,
+                        onError: @escaping (CometChatException?) -> Void)
+}
+
+internal struct LiveMessageReactionService: MessageReactionServicing {
+    func addReaction(messageId: Int, reaction: String,
+                     onSuccess: @escaping (BaseMessage) -> Void,
+                     onError: @escaping (CometChatException?) -> Void) {
+        CometChat.addReaction(messageId: messageId, reaction: reaction, onSuccess: onSuccess, onError: onError)
+    }
+
+    func removeReaction(messageId: Int, reaction: String,
+                        onSuccess: @escaping (BaseMessage) -> Void,
+                        onError: @escaping (CometChatException?) -> Void) {
+        CometChat.removeReaction(messageId: messageId, reaction: reaction, onSuccess: onSuccess, onError: onError)
+    }
+}
+
+/// A tap on a reaction pill or a quick reaction: the bubble changes at once, and a failed add or
+/// remove puts the bubble's reactions back.
+///
+/// The optimistic edit is made on COPIES of the message's `ReactionCount` objects. The originals are
+/// never touched, so the rollback restores their real count and `reactedByMe`, and their place in
+/// the list: editing the message's own objects in place left the rollback with objects that already
+/// held the edited values, and a reaction that had been removed came back at the end of the row.
+/// The reactions popover (`CometChatReactionList`) is not part of this and is unchanged.
+internal enum ReactionToggle {
+
+    private static func copy(_ reaction: ReactionCount) -> ReactionCount {
+        let clone = ReactionCount()
+        clone.reaction = reaction.reaction
+        clone.count = reaction.count
+        clone.reactedByMe = reaction.reactedByMe
+        return clone
+    }
+
+    /// `failed` runs once a refused add or remove has been put back, with the SDK's error.
+    static func toggle(_ emoji: String,
+                       on message: BaseMessage,
+                       service: MessageReactionServicing,
+                       update: @escaping (BaseMessage) -> Void,
+                       failed: ((CometChatException?) -> Void)? = nil) {
+        // The message's own objects: only read from here on.
+        let original = message.reactions
+        let originalIndex = original.firstIndex(where: { $0.reaction == emoji })
+        let originalEntry = originalIndex.map { original[$0] }
+
+        var edited = original.map(copy)
+        let removing: Bool
+        if let index = originalIndex {
+            let entry = edited[index]
+            if entry.reactedByMe {
+                removing = true
+                entry.reactedByMe = false
+                entry.count -= 1
+                if entry.count <= 0 { edited.remove(at: index) }
+            } else {
+                removing = false
+                entry.reactedByMe = true
+                entry.count += 1
+            }
+        } else {
+            removing = false
+            let added = ReactionCount()
+            added.reaction = emoji
+            added.count = 1
+            added.reactedByMe = true
+            edited.append(added)
+        }
+        // Responsive UI: the bubble shows the change before the server answers.
+        message.reactions = edited
+        update(message)
+
+        let onSuccess: (BaseMessage) -> Void = { sent in
+            sent.mentionedUsers = message.mentionedUsers //TODO: API LEVEL BUG
+            update(sent)
+        }
+        let onError: (CometChatException?) -> Void = { error in
+            restore(emoji, entry: originalEntry, index: originalIndex, on: message)
+            update(message)
+            failed?(error)
+        }
+        if removing {
+            service.removeReaction(messageId: message.id, reaction: emoji, onSuccess: onSuccess, onError: onError)
+        } else {
+            service.addReaction(messageId: message.id, reaction: emoji, onSuccess: onSuccess, onError: onError)
+        }
+    }
+
+    /// Put this one reaction back as it was before the tap: the untouched original object, at its
+    /// place. Other reactions on the message (a realtime change that landed meanwhile) are left alone.
+    private static func restore(_ emoji: String, entry: ReactionCount?, index: Int?, on message: BaseMessage) {
+        var current = message.reactions
+        if let entry = entry {
+            if let position = current.firstIndex(where: { $0.reaction == emoji }) {
+                current[position] = entry
+            } else {
+                current.insert(entry, at: min(index ?? current.count, current.count))
+            }
+        } else {
+            current.removeAll { $0.reaction == emoji }
+        }
+        message.reactions = current
+    }
 }

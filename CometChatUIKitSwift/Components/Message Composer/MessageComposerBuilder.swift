@@ -15,6 +15,12 @@ enum MessageComposerBuilderResult {
 
 public class MessageComposerBuilder {
     static func textMessage(message: TextMessage, completion: @escaping (MessageComposerBuilderResult) -> Void) {
+        // Offline ON (read once for this send): the offline send helper. The completion fires only on
+        // a real success or a direct/final failure, never because a message was merely queued.
+        if OfflineGate.isOn() {
+            OfflineSend.send(message, quietly: true, onSent: { completion(.success($0)) }, onFailed: { completion(.failure($0)) })
+            return
+        }
         CometChat.sendTextMessage(message: message) { updatedTextMessage in
             // iOS 26 fix: Ensure callback is delivered on main thread
             // The SDK may deliver callbacks on background threads in iOS 26
@@ -38,7 +44,13 @@ public class MessageComposerBuilder {
         }
     }
     
-    static func mediaMessage(message: MediaMessage, completion: @escaping (MessageComposerBuilderResult) -> Void) {
+    /// `onFirstAnswer` (offline ON only) fires when the SDK first answers the send, so a batch can
+    /// send its next item without waiting for a result that, behind another unsent send, never comes.
+    static func mediaMessage(message: MediaMessage, onFirstAnswer: (() -> Void)? = nil, completion: @escaping (MessageComposerBuilderResult) -> Void) {
+        if OfflineGate.isOn() {
+            OfflineSend.send(message, onFirstAnswer: onFirstAnswer, quietly: true, onSent: { completion(.success($0)) }, onFailed: { completion(.failure($0)) })
+            return
+        }
         CometChat.sendMediaMessage(message: message)  { updatedMediaMessage in
             // iOS 26 fix: Ensure callback is delivered on main thread
             if Thread.isMainThread {

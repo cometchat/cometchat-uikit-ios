@@ -210,7 +210,7 @@ class AIAssistBotDecorator: DataSourceDecorator {
                     assistTextMessage.sentAt = Int(Date().timeIntervalSince1970)
                     self.aiAssistView?.add(message: assistTextMessage)
                 } onError: { error in
-                    textMessage.metaData = ["error": true]
+                    textMessage.markSendFailed()
                     self.aiAssistView?.update(message: textMessage)
                 }
             }

@@ -58,6 +58,8 @@ open class MessageComposerViewModel: NSObject, MessageComposerViewModelProtocol 
     var parentMessageId: Int?
     var reset: ((Bool) -> ())?
     var failure: ((CometChatException) -> Void)?
+    /// An edit failed with offline on: the composer keeps it and says so.
+    var onOfflineEditFailed: ((CometChatException) -> Void)?
     var user: User?
     var group: Group?
     var message: BaseMessage?
@@ -243,7 +245,7 @@ extension MessageComposerViewModel {
                     }
                 case .failure(let error):
                     self.failure?(error)
-                    textMessage.metaData = ["error": true]
+                    textMessage.markSendFailed()
                     CometChatMessageEvents.ccMessageSent(message: textMessage, status: .error)
                 }
             }
@@ -328,7 +330,7 @@ extension MessageComposerViewModel {
                     }
                 case .failure(let error):
                     self.failure?(error)
-                    textMessage.metaData = ["error": true]
+                    textMessage.markSendFailed()
                     // Broadcasting the message error's event.
                     CometChatMessageEvents.ccMessageSent(message: textMessage, status: .error)
                 }
@@ -379,13 +381,7 @@ extension MessageComposerViewModel {
                 }
             case .failure(let error):
                 self.failure?(error)
-                var errorMetaData: [String: Any] = mediaMessage.metaData ?? [:]
-                errorMetaData["error"] = true
-                if error.errorCode == "ERR_PERMISSION_DENIED" {
-                    errorMetaData["rbac_permission_denied"] = true
-                    errorMetaData["error_message"] = error.errorDescription
-                }
-                mediaMessage.metaData = errorMetaData
+                mediaMessage.markSendFailed(permissionDenied: error)
                 
                 CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
             }
@@ -430,13 +426,7 @@ extension MessageComposerViewModel {
                 }
             case .failure(let error):
                 self.failure?(error)
-                var errorMetaData: [String: Any] = mediaMessage.metaData ?? [:]
-                errorMetaData["error"] = true
-                if error.errorCode == "ERR_PERMISSION_DENIED" {
-                    errorMetaData["rbac_permission_denied"] = true
-                    errorMetaData["error_message"] = error.errorDescription
-                }
-                mediaMessage.metaData = errorMetaData
+                mediaMessage.markSendFailed(permissionDenied: error)
                 
                 CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
             }
@@ -551,7 +541,15 @@ extension MessageComposerViewModel {
     private func sendBatchSequentially(_ messages: [MediaMessage], at index: Int) {
         guard index < messages.count else { return }
         let mediaMessage = messages[index]
-        MessageComposerBuilder.mediaMessage(message: mediaMessage) { [weak self] result in
+        // Offline, a send queued behind another unsent one is answered only by "pending": the next
+        // item goes on the first answer, once (the outbox keeps the order).
+        var advanced = false
+        let advance: () -> Void = { [weak self] in
+            guard !advanced else { return }
+            advanced = true
+            self?.sendBatchSequentially(messages, at: index + 1)
+        }
+        MessageComposerBuilder.mediaMessage(message: mediaMessage, onFirstAnswer: advance) { [weak self] result in
             switch result {
             case .success(let updatedMediaMessage):
                 CometChatMessageEvents.ccMessageSent(message: updatedMediaMessage, status: .success)
@@ -560,12 +558,10 @@ extension MessageComposerViewModel {
                 }
             case .failure(let error):
                 self?.failure?(error)
-                var errorMetaData: [String: Any] = mediaMessage.metaData ?? [:]
-                errorMetaData["error"] = true
-                mediaMessage.metaData = errorMetaData
+                mediaMessage.markSendFailed()
                 CometChatMessageEvents.ccMessageSent(message: mediaMessage, status: .error)
             }
-            self?.sendBatchSequentially(messages, at: index + 1)
+            advance()
         }
     }
 
@@ -584,6 +580,10 @@ extension MessageComposerViewModel {
     public func editTextMessage(textMessage: TextMessage, message: String?, textFormatter: [Character: [(item: SuggestionItem, range: NSRange)]]) {
         let message: String = message?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         if !message.isEmpty {
+            // Offline, a failed edit leaves nothing half-done (UIK-MUT-01): the row keeps what it had.
+            let offlineOn = OfflineGate.isOn()
+            let textBefore = textMessage.text
+            let metaDataBefore = textMessage.metaData
             textMessage.text = message
             textMessage.metaData?.removeValue(forKey: "translated-message")
             if !textFormatter.isEmpty {
@@ -606,9 +606,20 @@ extension MessageComposerViewModel {
                 case .failure(let error):
                     DispatchQueue.main.async { [weak self] in
                         guard let this = self else { return }
+                        if offlineOn {
+                            // The edit text stays in the composer for another try (UIT-SEND-19). Any
+                            // failure: a server that does not answer a reachable device does not report
+                            // itself as not connected on this path.
+                            textMessage.text = textBefore
+                            textMessage.metaData = metaDataBefore
+                            this.failure?(error)
+                            this.onOfflineEditFailed?(error)
+                            CometChatMessageEvents.ccMessageEdited(message: textMessage, status: .error)
+                            return
+                        }
                         this.failure?(error)
                         this.reset?(true)
-                        textMessage.metaData = ["error": true]
+                        textMessage.markSendFailed()
                         CometChatMessageEvents.ccMessageEdited(message: textMessage, status: .error)
                     }
                 }

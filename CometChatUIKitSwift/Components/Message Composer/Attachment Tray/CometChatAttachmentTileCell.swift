@@ -387,6 +387,8 @@ final class CometChatAttachmentTileCell: UICollectionViewCell {
 
     func configure(with tile: AttachmentTile) {
         status = tile.status
+        // State contract (TEST-PLAN §3.3): file id and upload state, never the file name.
+        accessibilityIdentifier = StateContract.trayTile(fileId: tile.fileId, state: Self.contractState(tile.status))
         let kind = tile.kind
         isMedia = (kind == .image || kind == .video)
         let isAudio = (kind == .audio)
@@ -447,6 +449,15 @@ final class CometChatAttachmentTileCell: UICollectionViewCell {
         }
 
         applyState(tile.status, percent: tile.percent, isAudio: isAudio)
+    }
+
+    static func contractState(_ status: AttachmentTileStatus) -> String {
+        switch status {
+        case .uploading: return "uploading"
+        case .done: return "done"
+        case .failed, .cancelled: return "failed"
+        case .rejected: return "rejected"
+        }
     }
 
     private func applyState(_ status: AttachmentTileStatus, percent: Int, isAudio: Bool) {

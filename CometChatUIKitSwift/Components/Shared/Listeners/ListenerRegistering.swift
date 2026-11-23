@@ -29,6 +29,8 @@ internal enum ListenerChannel: String, Hashable, CaseIterable {
     case threadEvents
     case conversationEvents
     case uiEvents
+    /// The offline hub's fan-out to mounted screens (`OfflineHubObserver`).
+    case offlineHub
 }
 
 /// Registers and removes listeners on behalf of a view model.
@@ -154,6 +156,12 @@ internal final class SDKListenerRegistrar: ListenerRegistering {
             } else {
                 assertionFailure(Self.mismatch(channel, CometChatUIEventListener.self, listener))
             }
+        case .offlineHub:
+            if let listener = listener as? OfflineHubObserver {
+                OfflineHub.shared.addObserver(id, listener)
+            } else {
+                assertionFailure(Self.mismatch(channel, OfflineHubObserver.self, listener))
+            }
         }
     }
 
@@ -173,6 +181,7 @@ internal final class SDKListenerRegistrar: ListenerRegistering {
         case .threadEvents: CometChatThreadEvents.removeListener(id)
         case .conversationEvents: CometChatConversationEvents.removeListener(id)
         case .uiEvents: CometChatUIEvents.removeListener(id)
+        case .offlineHub: OfflineHub.shared.removeObserver(id)
         }
     }
 }

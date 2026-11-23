@@ -20,6 +20,8 @@ open class CometChatCompactMessageComposer: UIView {
         textView.maxHeight = style.textFieldFont.lineHeight * 5
         textView.minHeight = style.textFieldFont.lineHeight + 16  // Ensure minimum height includes line height plus padding
         textView.backgroundColor = .clear
+        // State contract (TEST-PLAN §3.3): an automation id only; the label is unchanged.
+        textView.accessibilityIdentifier = StateContract.composerInput
         textView.onFormatAction = { [weak self] format in
             self?.handleFormatSelected(format)
         }
@@ -156,6 +158,7 @@ open class CometChatCompactMessageComposer: UIView {
         let button = UIButton().withoutAutoresizingMaskConstraints()
         button.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(didSendButtonClicked), for: .primaryActionTriggered)
+        button.accessibilityIdentifier = StateContract.composerSend
         button.pin(anchors: [.height, .width], to: 32)
         button.roundViewCorners(corner: .init(cornerRadius: 16))
         button.accessibilityLabel = "a11y_send".localize()
@@ -500,6 +503,10 @@ open class CometChatCompactMessageComposer: UIView {
         }
         viewModel.failure = { [weak self] error in
             self?.onError?(error)
+        }
+        viewModel.onOfflineEditFailed = { [weak self] error in
+            let key = OfflineErrors.isNotConnected(code: error.errorCode) ? "ERROR_INTERNET_UNAVAILABLE" : "SOMETHING_WENT_WRONG_ERROR"
+            CometChatToast.show(message: key.localize(), on: self?.controller, contractIdentifier: StateContract.notice(key))
         }
         viewModel.showReplyView = { [weak self] message in
             self?.showReplyPreview(for: message)
@@ -1005,9 +1012,11 @@ open class CometChatCompactMessageComposer: UIView {
         
         if composerState == .edit, let message = viewModel.message as? TextMessage {
             viewModel.editTextMessage(textMessage: message, message: markdownText, textFormatter: selectedFormatters)
+            leaveEditModeOnSend()
         } else if composerState == .edit, let media = viewModel.message as? MediaMessage {
             // Caption-only edit for media messages (attachments are read-only).
             viewModel.editMediaCaption(mediaMessage: media, caption: markdownText)
+            leaveEditModeOnSend()
         } else if let onSendButtonClick {
             // The host owns the send: hand it the composed message and send nothing.
             guard let message = viewModel.setupBaseMessage(
@@ -1377,6 +1386,11 @@ open class CometChatCompactMessageComposer: UIView {
                     customMessage.metaData = metaData
                     
                     CometChatMessageEvents.ccMessageSent(message: customMessage, status: .inProgress)
+                    // Offline ON: the offline send helper emits the public transitions itself.
+                    if OfflineGate.isOn() {
+                        OfflineSend.send(customMessage, quietly: true, onSent: nil, onFailed: { [weak self] error in self?.onError?(error) })
+                        return
+                    }
                     CometChat.sendCustomMessage(message: customMessage) { sentMessage in
                         CometChatMessageEvents.ccMessageSent(message: sentMessage, status: .success)
                     } onError: { error in
@@ -3560,7 +3574,18 @@ open class CometChatCompactMessageComposer: UIView {
             self?.textView.resignFirstResponder()
         }
     }
-    
+
+    /// An edit was just handed to the SDK, and this send has already cleared the text and the edit
+    /// banner. The composer leaves edit mode now, whatever the edit's outcome, as the Android UI Kit
+    /// does (`exitEditMode()` on send): a failed edit (offline, for one) can no longer leave a hidden
+    /// edit mode that turns the user's next message into an edit of the old one (iOS-EDIT-1). A
+    /// success still runs `resetComposer()`; a failure still shows its notice.
+    internal func leaveEditModeOnSend() {
+        composerState = .draft
+        originalEditText = nil
+        viewModel.message = nil
+    }
+
     open func hideEditPreview() {
         composerState = .draft
         originalEditText = nil

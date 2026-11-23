@@ -35,14 +35,27 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
 
             let isModerated = MessageUtils.isMessageModerationDisapproved(message: message)
             // Only apply error checks to actual messages, not action messages (like "user added to group")
-            let isError = message.metaData?["error"] as? Bool == true && message.messageCategory == .message
-            let isRBACError = message.metaData?["rbac_permission_denied"] as? Bool == true && message.messageCategory == .message
-            
-            // Block context menu for RBAC errors and error messages
-            if isRBACError || isError {
+            // Block context menu for RBAC errors and error messages. An unsent own row (offline ON)
+            // is exempt: its Retry / Delete menu is how an unsent send is recovered.
+            if message.blocksLongPress(unsentRowIsActionable: self.offlineIsUnsentRow(message)) {
                 return
             }
             
+            // Offline ON: an unsent own row (PENDING, SENDING or FAILED) offers Retry and Delete
+            // (R162). The SDK says "in flight" when a tap cannot act yet.
+            if self.offlineIsUnsentRow(message) {
+                let options = self.offlineMenuOptions(for: message)
+                guard !options.isEmpty, !isContextMenuActive else { return }
+                self.controller?.view.endEditing(true)
+                isContextMenuActive = true
+                self.contextMenuMessage = message
+                self.contextMenuCell = cell
+                self.onCellLongPressGestureRecognized(message: message, cell: cell,
+                                                      option: options,
+                                                      messageAlignment: cell.alignment)
+                return
+            }
+
             if message.deletedAt == 0,
                message.id > 0,
                !isContextMenuActive,
@@ -140,7 +153,7 @@ extension CometChatMessageList: UIGestureRecognizerDelegate, UIViewControllerTra
         // Only apply error checks to actual messages, not action messages (like "user added to group")
         let isErrorMessage = message.metaData?["error"] as? Bool == true && message.messageCategory == .message
         let isRBACErrorMessage = message.metaData?["rbac_permission_denied"] as? Bool == true && message.messageCategory == .message
-        popupView.reactionView.isHidden = (hideReactionOption || MessageUtils.isMessageModerationDisapproved(message: message) || (message is AIAssistantMessage) || isErrorMessage || isRBACErrorMessage)
+        popupView.reactionView.isHidden = (offlineIsUnsentRow(message) || hideReactionOption || MessageUtils.isMessageModerationDisapproved(message: message) || (message is AIAssistantMessage) || isErrorMessage || isRBACErrorMessage)
         popupView.modalPresentationStyle = .overFullScreen
         popupView.transitioningDelegate = self
         popupView.onDismissed = { [weak self] in

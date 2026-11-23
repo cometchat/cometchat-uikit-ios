@@ -10,6 +10,20 @@ import CometChatSDK
 import UIKit
 import CometChatCardsSwift
 
+/// The innermost data source of the `DataSourceDecorator` chain.
+///
+/// Routing rule: a hook a decorator can override (bubbles, content views, bottom views,
+/// option builders, templates) is called on the chain head, `ChatConfigurator.getDataSource()`,
+/// never on `self`. Decoration is composition, so `self` here is always this innermost object:
+/// a hook called on `self` skips every decorator above it, and extensions such as Message
+/// Translation, Profanity / Data Masking, Thumbnail Generation and Link Preview stop applying.
+///
+/// The chain has no cycle: the head forwards inward to this builder, which calls back to the
+/// head at most once more (content view → bubble), and every decorator override calls `super`.
+/// The 2026-09 stack overflow (`EXC_BAD_ACCESS` in `__chkstk_darwin`) was frame size, not
+/// recursion: bubble builders copied the 36-property `MessageBubbleStyle` per sub-style read.
+/// The `AdditionalConfiguration` sub-style accessors fixed it; routing hooks to `self` (5.1.22
+/// to 5.2.4) only bypassed the decorators (ENG-57765).
 public class MessagesDataSource: DataSource {
     
     public func getFlagMessageOption(controller: UIViewController?) -> CometChatMessageOption {
@@ -235,25 +249,25 @@ public class MessagesDataSource: DataSource {
     
     public func getImageMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?, additionalConfiguration: AdditionalConfiguration) -> [CometChatMessageOption]? {
         var messageOptions = [CometChatMessageOption]()
-        messageOptions.append(contentsOf: self.getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration))
+        messageOptions.append(contentsOf: ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration))
         return messageOptions
     }
     
     public func getVideoMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?, additionalConfiguration: AdditionalConfiguration) -> [CometChatMessageOption]? {
         var messageOptions = [CometChatMessageOption]()
-        messageOptions.append(contentsOf: self.getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration))
+        messageOptions.append(contentsOf: ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration))
         return messageOptions
     }
     
     public func getAudioMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?, additionalConfiguration: AdditionalConfiguration) -> [CometChatMessageOption]? {
         var messageOptions = [CometChatMessageOption]()
-        messageOptions.append(contentsOf: self.getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration))
+        messageOptions.append(contentsOf: ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration))
         return messageOptions
     }
     
     public func getFileMessageOptions(loggedInUser: CometChatSDK.User, messageObject: CometChatSDK.BaseMessage, controller: UIViewController?, group: Group?, additionalConfiguration: AdditionalConfiguration) -> [CometChatMessageOption]? {
         var messageOptions = [CometChatMessageOption]()
-        messageOptions.append(contentsOf: self.getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration))
+        messageOptions.append(contentsOf: ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration))
         return messageOptions
     }
     
@@ -292,14 +306,14 @@ public class MessagesDataSource: DataSource {
                     return deletedBubble
                 }
             }
-            return self.getTextMessageContentView(message: textMessage, controller: controller, alignment: alignment, style: TextBubbleStyle(), additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getTextMessageContentView(message: textMessage, controller: controller, alignment: alignment, style: TextBubbleStyle(), additionalConfiguration: additionalConfiguration)
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let textMessage = message as? TextMessage else { return nil }
-            return self.getBottomView(message: textMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: textMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let textMessage = message as? TextMessage , let user = LoggedInUserInformation.getUser() else { return [] }
-            return self.getMessageOptions(loggedInUser: user, messageObject: textMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getMessageOptions(loggedInUser: user, messageObject: textMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
 
     }
@@ -312,11 +326,11 @@ public class MessagesDataSource: DataSource {
                     return deletedBubble
                 }
             }
-            return self.getAIAssistantMessageContentView(message: aiMessage, controller: controller, alignment: alignment, style: AIAssistantBubbleStyle(), additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getAIAssistantMessageContentView(message: aiMessage, controller: controller, alignment: alignment, style: AIAssistantBubbleStyle(), additionalConfiguration: additionalConfiguration)
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let textMessage = message as? TextMessage else { return nil }
-            return self.getBottomView(message: textMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: textMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             // In group context, provide copy-only action for agent messages
             if group != nil, let aiMessage = message as? AIAssistantMessage, !aiMessage.text.isEmpty {
@@ -327,12 +341,11 @@ public class MessagesDataSource: DataSource {
     }
     
     public func getTextMessageContentView(message: TextMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: TextBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
-        // Call through self: re-entering at the chain head would recurse.
-        return getTextMessageBubble(messageText: message.text, message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
+        return ChatConfigurator.getDataSource().getTextMessageBubble(messageText: message.text, message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
     }
     
     public func getAIAssistantMessageContentView(message: AIAssistantMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: AIAssistantBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
-        return getAIAssistantMessageBubble(messageText: message.text, message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
+        return ChatConfigurator.getDataSource().getAIAssistantMessageBubble(messageText: message.text, message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
     }
     
     
@@ -344,14 +357,14 @@ public class MessagesDataSource: DataSource {
                     return deletedBubble
                 }
             }
-            return self.getAudioMessageContentView(message: mediaMessage, controller: controller, alignment: alignment, style: AudioBubbleStyle(), additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getAudioMessageContentView(message: mediaMessage, controller: controller, alignment: alignment, style: AudioBubbleStyle(), additionalConfiguration: additionalConfiguration)
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let mediaMessage = message as? MediaMessage else { return nil }
-            return self.getBottomView(message: mediaMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: mediaMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let mediaMessage = message as? MediaMessage , let user = LoggedInUserInformation.getUser() else {return [] }
-            return self.getMessageOptions(loggedInUser: user, messageObject: mediaMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getMessageOptions(loggedInUser: user, messageObject: mediaMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
 
     }
@@ -365,8 +378,7 @@ public class MessagesDataSource: DataSource {
         if !isVoiceNote && useNewAttachmentBubbles(message, additionalConfiguration) {
             return getAudiosBubbleContentView(message: message, controller: controller)
         }
-        // Call through self: re-entering at the chain head would recurse.
-        return getAudioMessageBubble(audioUrl: message.attachment?.fileUrl, title: message.attachment?.fileName, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
+        return ChatConfigurator.getDataSource().getAudioMessageBubble(audioUrl: message.attachment?.fileUrl, title: message.attachment?.fileName, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
     }
     
     /// Kept registered on purpose after the form bubble's retirement: form messages still
@@ -381,14 +393,14 @@ public class MessagesDataSource: DataSource {
                     return deletedBubble
                 }
             }
-            return self.getFormMessageContentView(message: formMessage, controller: controller, alignment: alignment, style: FormBubbleStyle(), additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getFormMessageContentView(message: formMessage, controller: controller, alignment: alignment, style: FormBubbleStyle(), additionalConfiguration: additionalConfiguration)
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let formMessage = message as? FormMessage else { return nil }
-            return self.getBottomView(message: formMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: formMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let formMessage = message as? FormMessage , let user = LoggedInUserInformation.getUser() else {return [] }
-            return self.getMessageOptions(loggedInUser: user, messageObject: formMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getMessageOptions(loggedInUser: user, messageObject: formMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
 
     }
@@ -401,13 +413,13 @@ public class MessagesDataSource: DataSource {
                     return deletedBubble
                 }
             }
-            return self.getSchedulerBubble(message: meetingMessage, controller: controller, alignment: alignment, style: SchedulerBubbleStyle(), additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getSchedulerBubble(message: meetingMessage, controller: controller, alignment: alignment, style: SchedulerBubbleStyle(), additionalConfiguration: additionalConfiguration)
         }, bubbleView: nil, headerView: nil, footerView: nil, bottomView: { message, alignment, controller in
             guard let cardMessage = message as? CardMessage else { return nil }
-            return self.getBottomView(message: cardMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: cardMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         }, options: { message, group, controller in
             guard let meetingMessage = message as? SchedulerMessage , let user = LoggedInUserInformation.getUser() else {return [] }
-            return self.getMessageOptions(loggedInUser: user, messageObject: meetingMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getMessageOptions(loggedInUser: user, messageObject: meetingMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         })
     }
     
@@ -419,32 +431,29 @@ public class MessagesDataSource: DataSource {
                     return deletedBubble
                 }
             }
-            return self.getCardMessageContentView(message: cardMessage, controller: controller, alignment: alignment, style: CardBubbleStyle(), additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getCardMessageContentView(message: cardMessage, controller: controller, alignment: alignment, style: CardBubbleStyle(), additionalConfiguration: additionalConfiguration)
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let cardMessage = message as? CardMessage else { return nil }
-            return self.getBottomView(message: cardMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: cardMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let cardMessage = message as? CardMessage , let user = LoggedInUserInformation.getUser() else {return [] }
-            return self.getMessageOptions(loggedInUser: user, messageObject: cardMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getMessageOptions(loggedInUser: user, messageObject: cardMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
 
     }
     
     public func getFormMessageContentView(message: FormMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: FormBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
-        // Call through self: re-entering at the chain head would recurse.
-        return getFormBubble(message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
+        return ChatConfigurator.getDataSource().getFormBubble(message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
         
     }
     
     public func getSchedulerContentView(message: SchedulerMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: SchedulerBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
-        // Call through self: re-entering at the chain head would recurse.
-        return getSchedulerBubble(message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
+        return ChatConfigurator.getDataSource().getSchedulerBubble(message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
     }
     
     public func getCardMessageContentView(message: CardMessage, controller: UIViewController?, alignment: MessageBubbleAlignment, style: CardBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
-        // Call through self: re-entering at the chain head would recurse.
-        return getCardBubble(message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
+        return ChatConfigurator.getDataSource().getCardBubble(message: message, controller: controller, alignment: alignment, style: style, additionalConfiguration: additionalConfiguration)
         
     }
     
@@ -464,10 +473,10 @@ public class MessagesDataSource: DataSource {
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let message = message else { return nil }
-            return self.getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let message = message, let user = LoggedInUserInformation.getUser() else { return [] }
-            return self.getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
     }
     
@@ -479,14 +488,14 @@ public class MessagesDataSource: DataSource {
                     return deletedBubble
                 }
             }
-            return self.getVideoMessageContentView(message: mediaMessage, controller: controller, alignment: alignment, style: VideoBubbleStyle(), additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getVideoMessageContentView(message: mediaMessage, controller: controller, alignment: alignment, style: VideoBubbleStyle(), additionalConfiguration: additionalConfiguration)
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let mediaMessage = message as? MediaMessage else { return nil }
-            return self.getBottomView(message: mediaMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: mediaMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let mediaMessage = message as? MediaMessage , let user = LoggedInUserInformation.getUser() else { return [] }
-            return self.getMessageOptions(loggedInUser: user, messageObject: mediaMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getMessageOptions(loggedInUser: user, messageObject: mediaMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
     }
     
@@ -494,8 +503,7 @@ public class MessagesDataSource: DataSource {
         if useNewAttachmentBubbles(message, additionalConfiguration) {
             return getMediaGridBubbleContentView(VideoBubble(), message: message, controller: controller)
         }
-        // Call through self: re-entering at the chain head would recurse.
-        return getVideoMessageBubble(videoUrl: message.attachment?.fileUrl, thumbnailUrl: nil, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
+        return ChatConfigurator.getDataSource().getVideoMessageBubble(videoUrl: message.attachment?.fileUrl, thumbnailUrl: nil, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
     }
     
     public func getImageMessageTemplate(additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate {
@@ -506,14 +514,14 @@ public class MessagesDataSource: DataSource {
                     return deletedBubble
                 }
             }
-            return self.getImageMessageContentView(message: mediaMessage, controller: controller, alignment: alignment, style: ImageBubbleStyle(), additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getImageMessageContentView(message: mediaMessage, controller: controller, alignment: alignment, style: ImageBubbleStyle(), additionalConfiguration: additionalConfiguration)
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let mediaMessage = message as? MediaMessage else { return nil }
-            return self.getBottomView(message: mediaMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: mediaMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let mediaMessage = message as? MediaMessage , let user = LoggedInUserInformation.getUser() else { return [] }
-            return self.getMessageOptions(loggedInUser: user, messageObject: mediaMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getMessageOptions(loggedInUser: user, messageObject: mediaMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
 
     }
@@ -522,8 +530,7 @@ public class MessagesDataSource: DataSource {
         if useNewAttachmentBubbles(message, additionalConfiguration) {
             return getMediaGridBubbleContentView(ImagesBubble(), message: message, controller: controller)
         }
-        // Call through self: re-entering at the chain head would recurse.
-        return getImageMessageBubble(imageUrl: message.attachment?.fileUrl, caption: message.caption, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
+        return ChatConfigurator.getDataSource().getImageMessageBubble(imageUrl: message.attachment?.fileUrl, caption: message.caption, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
     }
 
     /// Total attachments on the message.
@@ -566,10 +573,13 @@ public class MessagesDataSource: DataSource {
     func getMediaGridBubbleContentView(_ bubble: CometChatMediaGridBubble, message: CometChatSDK.MediaMessage, controller: UIViewController?) -> UIView {
         if let controller = controller { bubble.set(controller: controller) }
         bubble.isOutgoing = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
-        bubble.set(attachments: message.attachments ?? [], caption: message.caption,
-                   thumbnails: MessagesDataSource.serverThumbnailURLs(for: message))
+        bubble.messageId = message.id
+        // Another user's link to a file on this device is never followed (iOS-SEC-1).
+        bubble.set(attachments: MessageMediaTrust.attachments(of: message), caption: message.caption,
+                   thumbnails: MessageMediaTrust.thumbnails(MessagesDataSource.serverThumbnailURLs(for: message), of: message))
 
         let mediaItems = bubble.mediaAttachments
+        let messageId = message.id
         bubble.onMediaTap = { [weak controller] index, _ in
             guard let controller = controller, !mediaItems.isEmpty else { return }
             // Every tile — including a broken one (kind mismatch the viewer can't
@@ -577,6 +587,7 @@ public class MessagesDataSource: DataSource {
             // the black "no preview available" slide, identical to swiping to it, so
             // tapping and sliding stay consistent.
             let viewer = CometChatMediaViewer(mediaItems: mediaItems, startIndex: index)
+            viewer.messageId = messageId
             controller.present(viewer, animated: true)
         }
         return bubble
@@ -589,7 +600,7 @@ public class MessagesDataSource: DataSource {
         bubble.isOutgoing = LoggedInUserInformation.isLoggedInUser(uid: message.senderUid)
         // No kind pre-filter: the bubble itself gives OS-undecodable formats a
         // downloadable file card, so filtering here would silently drop them.
-        bubble.set(attachments: message.attachments ?? [], caption: message.caption)
+        bubble.set(attachments: MessageMediaTrust.attachments(of: message), caption: message.caption)
         return bubble
     }
    
@@ -614,14 +625,14 @@ public class MessagesDataSource: DataSource {
                     return deletedBubble
                 }
             }
-            return self.getFileMessageContentView(message: mediaMessage, controller: controller, alignment: alignment, style: FileBubbleStyle(), additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getFileMessageContentView(message: mediaMessage, controller: controller, alignment: alignment, style: FileBubbleStyle(), additionalConfiguration: additionalConfiguration)
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let mediaMessage = message as? MediaMessage else { return nil }
-            return self.getBottomView(message: mediaMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: mediaMessage, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let mediaMessage = message as? MediaMessage , let user = LoggedInUserInformation.getUser() else {return [] }
-            return self.getMessageOptions(loggedInUser: user, messageObject: mediaMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getMessageOptions(loggedInUser: user, messageObject: mediaMessage, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
 
     }
@@ -634,26 +645,25 @@ public class MessagesDataSource: DataSource {
             // No kind pre-filter: legacy mixed-kind file messages, and files another
             // OS classifies as media (e.g. ogg sent from an old device, viewed where
             // it's decodable), must all render — every attachment gets a file card.
-            bubble.set(attachments: message.attachments ?? [], caption: message.caption)
+            bubble.set(attachments: MessageMediaTrust.attachments(of: message), caption: message.caption)
             return bubble
         }
-        // Call through self: re-entering at the chain head would recurse.
-        return getFileMessageBubble(fileUrl: message.attachment?.fileUrl, fileMimeType: message.attachment?.fileMimeType, title: message.attachment?.fileName, id: message.id, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
+        return ChatConfigurator.getDataSource().getFileMessageBubble(fileUrl: message.attachment?.fileUrl, fileMimeType: message.attachment?.fileMimeType, title: message.attachment?.fileName, id: message.id, message: message, controller: controller, style: style, additionalConfiguration: additionalConfiguration)
     }
 
     public func getAllMessageTemplates(additionalConfiguration: AdditionalConfiguration?) -> [CometChatMessageTemplate] {
         return [
-            self.getTextMessageTemplate(additionalConfiguration: additionalConfiguration),
-            self.getImageMessageTemplate(additionalConfiguration: additionalConfiguration),
-            self.getVideoMessageTemplate(additionalConfiguration: additionalConfiguration),
-            self.getAudioMessageTemplate(additionalConfiguration: additionalConfiguration),
-            self.getFileMessageTemplate(additionalConfiguration: additionalConfiguration),
-            self.getGroupActionTemplate(additionalConfiguration: additionalConfiguration),
-            self.getFormMessageTemplate(additionalConfiguration: additionalConfiguration),
-            self.getCardMessageTemplate(additionalConfiguration: additionalConfiguration),
-            self.getSchedulerMessageTemplate(additionalConfiguration: additionalConfiguration),
-            self.getAIAssistantMessageTemplate(additionalConfiguration: additionalConfiguration),
-            self.getDeveloperCardMessageTemplate(additionalConfiguration: additionalConfiguration)
+            ChatConfigurator.getDataSource().getTextMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getImageMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getVideoMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getAudioMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getFileMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getGroupActionTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getFormMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getCardMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getSchedulerMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getAIAssistantMessageTemplate(additionalConfiguration: additionalConfiguration),
+            ChatConfigurator.getDataSource().getDeveloperCardMessageTemplate(additionalConfiguration: additionalConfiguration)
         ]
     }
     
@@ -662,43 +672,43 @@ public class MessagesDataSource: DataSource {
         if (messageCategory != MessageCategoryConstants.call) {
             // Developer card messages (category "card") have arbitrary types — resolve by category
             if messageCategory == MessageCategoryConstants.card {
-                template = self
+                template = ChatConfigurator.getDataSource()
                     .getDeveloperCardMessageTemplate(additionalConfiguration: additionalConfiguration)
             } else {
             switch (messageType) {
             case MessageTypeConstants.text:
-                template = self
+                template = ChatConfigurator.getDataSource()
                     .getTextMessageTemplate(additionalConfiguration: additionalConfiguration)
                 
             case MessageTypeConstants.assistant:
-                template = self.getAIAssistantMessageTemplate(additionalConfiguration: additionalConfiguration)
+                template = ChatConfigurator.getDataSource().getAIAssistantMessageTemplate(additionalConfiguration: additionalConfiguration)
                 
             case MessageTypeConstants.image:
-                template = self
+                template = ChatConfigurator.getDataSource()
                     .getImageMessageTemplate(additionalConfiguration: additionalConfiguration)
                 
             case MessageTypeConstants.video:
-                template = self
+                template = ChatConfigurator.getDataSource()
                     .getVideoMessageTemplate(additionalConfiguration: additionalConfiguration)
                 
             case MessageTypeConstants.groupMember:
-                template = self
+                template = ChatConfigurator.getDataSource()
                     .getGroupActionTemplate(additionalConfiguration: additionalConfiguration)
                 
             case MessageTypeConstants.file:
-                template = self
+                template = ChatConfigurator.getDataSource()
                     .getFileMessageTemplate(additionalConfiguration: additionalConfiguration)
                 
             case MessageTypeConstants.audio:
-                template = self
+                template = ChatConfigurator.getDataSource()
                     .getAudioMessageTemplate(additionalConfiguration: additionalConfiguration)
                 
             case MessageTypeConstants.form:
-                template = self
+                template = ChatConfigurator.getDataSource()
                     .getFormMessageTemplate(additionalConfiguration: additionalConfiguration)
                 
             case MessageTypeConstants.card:
-                template = self
+                template = ChatConfigurator.getDataSource()
                     .getCardMessageTemplate(additionalConfiguration: additionalConfiguration)
                 default: break }
             }
@@ -711,19 +721,19 @@ public class MessagesDataSource: DataSource {
         if (messageObject.messageCategory == .message) {
             switch messageObject.messageType {
             case .text:
-                options = self.getTextMessageOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration) ?? []
+                options = ChatConfigurator.getDataSource().getTextMessageOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration) ?? []
                 
             case .image:
-                options = self.getImageMessageOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration) ?? []
+                options = ChatConfigurator.getDataSource().getImageMessageOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration) ?? []
                 
             case .video:
-                options = self.getVideoMessageOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration) ?? []
+                options = ChatConfigurator.getDataSource().getVideoMessageOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration) ?? []
             case .audio:
-                options = self.getAudioMessageOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration) ?? []
+                options = ChatConfigurator.getDataSource().getAudioMessageOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration) ?? []
             case .file:
-                options = self.getFileMessageOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration) ?? []
+                options = ChatConfigurator.getDataSource().getFileMessageOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration) ?? []
             case .custom:
-                options = self.getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration)
+                options = ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration)
             case .groupMember: options = []
             @unknown default: break
             }
@@ -731,13 +741,13 @@ public class MessagesDataSource: DataSource {
         if let messageObject = messageObject as? InteractiveMessage, messageObject.messageCategory == .interactive {
             switch messageObject.type {
             case MessageTypeConstants.form, MessageTypeConstants.card, MessageTypeConstants.scheduler:
-                options = self.getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration)
+                options = ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration)
             default: break
             }
         }
         // Developer card messages (category "card")
         if messageObject.messageCategory == .card {
-            options = self.getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration)
+            options = ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: loggedInUser, messageObject: messageObject, controller: controller, group: group, additionalConfiguration: additionalConfiguration)
         }
         return options
     }
@@ -943,7 +953,14 @@ public class MessagesDataSource: DataSource {
     }
     
     public func getVideoMessageBubble(videoUrl: String?, thumbnailUrl: String?, message: CometChatSDK.MediaMessage?, controller: UIViewController?, style: VideoBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
+        // Another user's link to a file on this device is never followed (iOS-SEC-1).
+        let thumbnailUrl = MessageMediaTrust.link(thumbnailUrl, in: message)
         
+        // Offline ON (read once for this bubble): the on-device copy before the network; with neither
+        // a copy nor a connection, "available when online".
+        let offlineSource: OfflineMediaSource.Source? = OfflineGate.isOn() ? OfflineMediaSource.resolve(for: message) : nil
+        if case .unavailableOffline? = offlineSource { return OfflineMediaPlaceholder.make(for: message) }
+
         let videoBubble = CometChatVideoBubble()
         
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)
@@ -954,7 +971,9 @@ public class MessagesDataSource: DataSource {
         }
         
         ///setting local url
-        if LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid),
+        if case .local(let path)? = offlineSource {
+            videoBubble.set(videoURL: URL(fileURLWithPath: path).absoluteString)
+        } else if LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid),
            let localFileURLString = message?.metaData?["fileURL"] as? String,
            let localURL = URL(string: localFileURLString),
            localURL.checkFileExist(),
@@ -962,7 +981,7 @@ public class MessagesDataSource: DataSource {
         {
             videoBubble.set(videoURL: localFileURLString)
         } else {
-            videoBubble.set(videoURL: message?.attachment?.fileUrl ?? "")
+            videoBubble.set(videoURL: MessageMediaTrust.link(message?.attachment?.fileUrl, in: message) ?? "")
         }
         
         if let controller = controller {
@@ -1151,16 +1170,28 @@ public class MessagesDataSource: DataSource {
     }
     
     public func getImageMessageBubble(imageUrl: String?, caption: String?, message: CometChatSDK.MediaMessage?, controller: UIViewController?, style: ImageBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
+        // Another user's link to a file on this device is never followed (iOS-SEC-1).
+        let imageUrl = MessageMediaTrust.link(imageUrl, in: message)
+        let fileUrl = MessageMediaTrust.link(message?.attachment?.fileUrl, in: message)
         
+        // Offline ON (read once for this bubble): the on-device copy before the network; with neither
+        // a copy nor a connection, "available when online" (BEH-MEDIA-13, AC-12.3).
+        let offlineSource: OfflineMediaSource.Source? = OfflineGate.isOn()
+            ? OfflineMediaSource.resolve(for: message, extraPaths: CometChatImageBubble.offlineCopies(fileUrl: fileUrl, thumbnailUrl: imageUrl))
+            : nil
+        if case .unavailableOffline? = offlineSource { return OfflineMediaPlaceholder.make(for: message) }
+
         let imageBubble = CometChatImageBubble()
         imageBubble.pin(anchors: [.height, .width], to: 232)
         
         var localImageURL: String?
-        if LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid) {
+        if case .local(let path)? = offlineSource {
+            localImageURL = URL(fileURLWithPath: path).absoluteString
+        } else if LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid) {
             localImageURL = message?.metaData?["fileURL"] as? String ///setting image from local path
         }
         
-        imageBubble.set(imageUrl: message?.attachment?.fileUrl ?? "", localFileURL: localImageURL, thumbnailURL: imageUrl)
+        imageBubble.set(imageUrl: fileUrl ?? "", localFileURL: localImageURL, thumbnailURL: imageUrl)
 
         if let style = style { imageBubble.style = style }
         let isLoggedInUser = LoggedInUserInformation.isLoggedInUser(uid: message?.senderUid)
@@ -1174,13 +1205,26 @@ public class MessagesDataSource: DataSource {
     }
     
     public func getAudioMessageBubble(audioUrl: String?, title: String?, message: CometChatSDK.MediaMessage?, controller: UIViewController?, style: AudioBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
+        let offlineSource: OfflineMediaSource.Source? = OfflineGate.isOn() ? OfflineMediaSource.resolve(for: message) : nil
+        if case .unavailableOffline? = offlineSource { return OfflineMediaPlaceholder.make(for: message) }
+
         let audioBubble = CometChatAudioBubble()
         audioBubble.pin(anchors: [.height], to: 50)
         audioBubble.pin(anchors: [.width], to: 240)
         
         // Get duration from metadata if available
         let audioDuration = message?.metaData?["audioDuration"] as? Int
-        audioBubble.set(fileURL: message?.attachment?.fileUrl ?? "", localFileURL: message?.metaData?["fileURL"] as? String, audioDuration: audioDuration)
+        if case .local(let path)? = offlineSource {
+            // The SDK's cached copy has no extension, which the player cannot open (iOS-VOICE-1).
+            let playable = OfflineMediaSource.playablePath(path, fileExtension: OfflineMediaSource.fileExtension(of: message))
+            let local = URL(fileURLWithPath: playable).absoluteString
+            audioBubble.set(fileURL: local, localFileURL: local, audioDuration: audioDuration)
+        } else {
+            // Another user's link to a file on this device is never followed (iOS-SEC-1).
+            audioBubble.set(fileURL: MessageMediaTrust.link(message?.attachment?.fileUrl, in: message) ?? "",
+                            localFileURL: MessageMediaTrust.link(message?.metaData?["fileURL"] as? String, in: message),
+                            audioDuration: audioDuration)
+        }
         
         
         if let style = style { audioBubble.style = style }
@@ -1196,6 +1240,9 @@ public class MessagesDataSource: DataSource {
     
     public func getFileMessageBubble(fileUrl: String?, fileMimeType: String?, title: String?, id: Int?, message: CometChatSDK.MediaMessage?, controller: UIViewController?, style: FileBubbleStyle?, additionalConfiguration: AdditionalConfiguration?) -> UIView? {
         
+        let offlineSource: OfflineMediaSource.Source? = OfflineGate.isOn() ? OfflineMediaSource.resolve(for: message) : nil
+        if case .unavailableOffline? = offlineSource { return OfflineMediaPlaceholder.make(for: message) }
+
         let fileLocalURL = URL(string: message?.metaData?["fileURL"] as? String ?? "")
 
         let fileBubble = CometChatFileBubble()
@@ -1209,8 +1256,13 @@ public class MessagesDataSource: DataSource {
 
         
         fileBubble.set(subtitle: subtitleString)
-        fileBubble.set(fileUrl: message?.attachment?.fileUrl ?? "")
-        fileBubble.set(cacheFileURL: (message?.metaData?["fileURL"] as? String))
+        // Another user's link to a file on this device is never followed (iOS-SEC-1).
+        fileBubble.set(fileUrl: MessageMediaTrust.link(message?.attachment?.fileUrl, in: message) ?? "")
+        if case .local(let path)? = offlineSource {
+            fileBubble.set(cacheFileURL: URL(fileURLWithPath: path).absoluteString)
+        } else {
+            fileBubble.set(cacheFileURL: MessageMediaTrust.link(message?.metaData?["fileURL"] as? String, in: message))
+        }
         
         if let controller = controller {
             fileBubble.set(controller: controller)

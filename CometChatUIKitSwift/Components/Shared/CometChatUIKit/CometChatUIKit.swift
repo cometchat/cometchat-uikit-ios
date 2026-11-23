@@ -91,6 +91,8 @@ final public class CometChatUIKit {
             CometChatUIKit.uiKitSettings = uiKitSettings
             if isSuccess {
                 CometChat.setSource(resource: "uikit-v5", platform: "ios", language: "swift", version: UIKitConstants.version)
+                // Registered at init, never gated on the offline switch and never removed on logout.
+                OfflineHub.shared.start()
                 #if canImport(CometChatCallsSDK)
                 if !uiKitSettings.isCallingDisabled {
                     if let customCallingExtension = uiKitSettings.callingExtensions {
@@ -158,9 +160,40 @@ final public class CometChatUIKit {
     ///
     /// - Parameter completion: Called with `(true, nil)` on success, or `(false, error)` on failure.
     public static func initFromSettings(completion: @escaping (Bool, CometChatException?) -> Void) {
+        // Kept as its own entry point: this signature ships in the published binary, and a default
+        // argument on the overload below would remove it (an ABI break, caught by the API baseline).
+        initFromSettings(offlineConfig: nil, from: initFromSettingsBundle, completion: completion)
+    }
+
+    // :nodoc:
+    /// As `initFromSettings(completion:)`, with an offline config passed in code.
+    ///
+    /// - Important: Same status as the call above: for AI agent skills, not documented for developers.
+    ///
+    /// - Parameters:
+    ///   - offlineConfig: Offline messaging settings, the same config `UIKitSettings.setOfflineConfig(_:)`
+    ///     takes on `init`. A non-nil config is handed to the Chat SDK's `initFromSettings` and replaces
+    ///     the settings file's `chatSDK.offline` block; `nil` keeps the file's block, exactly as
+    ///     `initFromSettings(completion:)`. Needs a Chat SDK that has
+    ///     `initFromSettings(offlineConfig:onSuccess:onError:)`.
+    ///   - completion: Called with `(true, nil)` on success, or `(false, error)` on failure.
+    public static func initFromSettings(offlineConfig: OfflineConfig?, completion: @escaping (Bool, CometChatException?) -> Void) {
+        initFromSettings(offlineConfig: offlineConfig, from: initFromSettingsBundle, completion: completion)
+    }
+
+    /// Where `cometchat-settings.json` is read from. A seam: tests point it at a temporary bundle.
+    static var initFromSettingsBundle: Bundle = .main
+
+    /// The Chat SDK's `initFromSettings(offlineConfig:onSuccess:onError:)`. A seam: a unit test cannot
+    /// start a real SDK, so it replaces this to see what the kit hands over.
+    static var chatSDKInitFromSettings: (OfflineConfig?, @escaping (Bool) -> Void, @escaping (CometChatException) -> Void) -> Void = { config, onSuccess, onError in
+        CometChat.initFromSettings(offlineConfig: config, onSuccess: onSuccess, onError: onError)
+    }
+
+    static func initFromSettings(offlineConfig: OfflineConfig?, from bundle: Bundle, completion: @escaping (Bool, CometChatException?) -> Void) {
         
         // 1. Read and parse cometchat-settings.json from the app bundle
-        guard let fileURL = Bundle.main.url(forResource: "cometchat-settings", withExtension: "json") else {
+        guard let fileURL = bundle.url(forResource: "cometchat-settings", withExtension: "json") else {
             let error = CometChatException(errorCode: "SETTINGS_FILE_NOT_FOUND", errorDescription: "cometchat-settings.json not found. Ensure the file exists in the app bundle.")
             completion(false, error)
             return
@@ -218,17 +251,25 @@ final public class CometChatUIKit {
         if subscribePresenceForAllUsers {
             uiKitSettings.subscribePresenceForAllUsers()
         }
+
+        // Same as init: the kit's settings carry the offline config.
+        if let offlineConfig = offlineConfig {
+            uiKitSettings.setOfflineConfig(offlineConfig)
+        }
         
         uiKitSettings.build()
         
         // 5. Delegate to Chat SDK's initFromSettings (sets integrationSource = "ai-agent")
         CometChatUIKit.isInitializedFromSettings = true
         CometChatLogger.debug("[CometChatUIKit] initFromSettings: Delegating to Chat SDK's initFromSettings (integrationSource will be set to 'ai-agent')")
-        CometChat.initFromSettings(onSuccess: { isSuccess in
+        // Offline: a config passed in code replaces the file's `chatSDK.offline`; nil keeps the file's.
+        chatSDKInitFromSettings(offlineConfig, { isSuccess in
             CometChatLogger.debug("[CometChatUIKit] initFromSettings: Chat SDK init succeeded = \(isSuccess), integrationSource = 'ai-agent' persisted to UserDefaults")
             CometChatUIKit.uiKitSettings = uiKitSettings
             if isSuccess {
                 CometChat.setSource(resource: "uikit-v5", platform: "ios", language: "swift", version: UIKitConstants.version)
+                // Registered at init, never gated on the offline switch and never removed on logout.
+                OfflineHub.shared.start()
                 #if canImport(CometChatCallsSDK)
                 if !uiKitSettings.isCallingDisabled {
                     if let customCallingExtension = uiKitSettings.callingExtensions {
@@ -245,7 +286,7 @@ final public class CometChatUIKit {
             }
             FlagReasonsManager.shared.getFlagReasons()
             afterCallsSDKInit { completion(isSuccess, nil) }
-        }, onError: { error in
+        }, { error in
             completion(false, error)
         })
     }
@@ -334,7 +375,7 @@ final public class CometChatUIKit {
                 CometChatUIKit.configureAI(extensions: uiKitSettings.aiExtensions)
                 CometChatUIKit.configureExtensions(extensions: uiKitSettings.extensions)
             }
-            clearSessionScopedState()
+            clearSessionScopedState(sessionEnded: false)
             FlagReasonsManager.shared.getFlagReasons()
             registerNotificationAndVOIP()
             loginCallsSDK { error in result(error.map { .onError($0) } ?? .success(user)) }
@@ -376,7 +417,7 @@ final public class CometChatUIKit {
         }()
         guard let authKey = authKey, !authKey.isEmpty else { return result(.onError(authKeyMissingError)) }
         CometChat.login(UID: uid, authKey: authKey) { user in
-            clearSessionScopedState()
+            clearSessionScopedState(sessionEnded: false)
             registerNotificationAndVOIP()
             loginCallsSDK { error in result(error.map { .onError($0) } ?? .success(user)) }
             CometChatUIKit.configureExtensions(extensions: CometChatUIKit.uiKitSettings?.extensions)
@@ -414,8 +455,15 @@ final public class CometChatUIKit {
     
     /// Unsent composer text is per process, not per user: drop it whenever a session ends or
     /// a new one starts, so one user's draft never appears in the next user's composer.
-    static func clearSessionScopedState() {
+    /// `sessionEnded`: false on a login, which clears the same state but ends nothing still waiting
+    /// for an answer (a user switch ends it through the hub's login listener).
+    static func clearSessionScopedState(sessionEnded: Bool = true) {
         ComposerDraftStore.removeAll()
+        // Also the offline hub's per-session bookkeeping; its SDK registrations stay. A logout answers
+        // every send still waiting, once, quietly.
+        OfflineHub.shared.endSession(rejectingOpenSends: sessionEnded)
+        // And the saved avatars, so the next user's offline screens never show this user's contacts.
+        AvatarDiskCache.shared.removeAll()
     }
 
     static public func logout(user: User, result: @escaping (ApiStatus) -> Void) {
@@ -450,6 +498,11 @@ extension CometChatUIKit {
         if message.senderUid == "" { message.senderUid = CometChat.getLoggedInUser()?.uid ?? "" }
         
         CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.inProgress)
+        // Offline ON (read once for this send): the offline send helper emits the public transitions.
+        if OfflineGate.isOn() {
+            OfflineSend.send(message, onSent: nil, onFailed: nil)
+            return
+        }
         CometChat.sendTextMessage(message: message) { textMessage in
             // iOS 26 fix: Ensure callback is on main thread
             if Thread.isMainThread {
@@ -480,6 +533,13 @@ extension CometChatUIKit {
         if message.senderUid == "" { message.senderUid = CometChat.getLoggedInUser()?.uid ?? "" }
         
         CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.inProgress)
+        // Offline ON (read once for this send): the offline send helper emits the public transitions.
+        if OfflineGate.isOn() {
+            OfflineSend.send(message, onSent: { sent in
+                if sent.quotedMessage != nil { CometChatMessageEvents.ccReplyToMessage(message: sent, status: .success) }
+            }, onFailed: nil)
+            return
+        }
         CometChat.sendCustomMessage(message: message) { customMessage in
             // iOS 26 fix: Ensure callback is on main thread
             let successBlock = {
@@ -515,6 +575,11 @@ extension CometChatUIKit {
         if message.senderUid == "" { message.senderUid = CometChat.getLoggedInUser()?.uid ?? "" }
         
         CometChatMessageEvents.ccMessageSent(message: message, status: MessageStatus.inProgress)
+        // Offline ON (read once for this send): the offline send helper emits the public transitions.
+        if OfflineGate.isOn() {
+            OfflineSend.send(message, onSent: nil, onFailed: nil)
+            return
+        }
         CometChat.sendMediaMessage(message: message) { mediaMessage in
             // iOS 26 fix: Ensure callback is on main thread
             if Thread.isMainThread {
@@ -561,6 +626,13 @@ extension CometChatUIKit {
         interactiveMessage.muid = "\(NSDate().timeIntervalSince1970)"
         
         CometChatMessageEvents.ccMessageSent(message: formMessage, status: MessageStatus.inProgress)
+        // Offline ON (read once for this send): the offline send helper emits the public transitions.
+        if OfflineGate.isOn() {
+            OfflineSend.send(interactiveMessage, onSent: { sent in
+                if let sent = sent as? InteractiveMessage { onSuccess(FormMessage.toFormMessage(sent)) }
+            }, onFailed: { onError($0) })
+            return
+        }
         CometChat.sendInteractiveMessage(message: interactiveMessage, onSuccess: { interactiveMessage in
             // iOS 26 fix: Ensure callback is on main thread
             let successBlock = {
@@ -604,6 +676,13 @@ extension CometChatUIKit {
         interactiveMessage.muid = "\(NSDate().timeIntervalSince1970)"
         
         CometChatMessageEvents.ccMessageSent(message: cardMessage, status: MessageStatus.inProgress)
+        // Offline ON (read once for this send): the offline send helper emits the public transitions.
+        if OfflineGate.isOn() {
+            OfflineSend.send(interactiveMessage, onSent: { sent in
+                if let sent = sent as? InteractiveMessage { onSuccess(CardMessage.toCardMessage(sent)) }
+            }, onFailed: { onError($0) })
+            return
+        }
         CometChat.sendInteractiveMessage(message: interactiveMessage, onSuccess: { interactiveMessage in
             // iOS 26 fix: Ensure callback is on main thread
             let successBlock = {
@@ -641,6 +720,13 @@ extension CometChatUIKit {
         interactiveMessage.muid = "\(NSDate().timeIntervalSince1970)"
         
         CometChatMessageEvents.ccMessageSent(message: schedulerMessage, status: MessageStatus.inProgress)
+        // Offline ON (read once for this send): the offline send helper emits the public transitions.
+        if OfflineGate.isOn() {
+            OfflineSend.send(interactiveMessage, onSent: { sent in
+                if let sent = sent as? InteractiveMessage { onSuccess(SchedulerMessage.toSchedulerMessage(sent)) }
+            }, onFailed: { onError($0) })
+            return
+        }
         CometChat.sendInteractiveMessage(message: interactiveMessage, onSuccess: { interactiveMessage in
             // iOS 26 fix: Ensure callback is on main thread
             let successBlock = {

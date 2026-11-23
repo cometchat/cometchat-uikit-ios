@@ -73,24 +73,24 @@ public class CollaborativeWhiteboardViewModel : DataSourceDecorator, CometChatMe
     }
     
     public func getTemplate(additionalConfiguration: AdditionalConfiguration?) -> CometChatMessageTemplate {
-        return CometChatMessageTemplate(category: MessageCategoryConstants.custom, type: collaborativeWhiteboardExtensionTypeConstant, contentView: { [weak self] message, alignment, controller in
-            
-            guard let this = self else { return nil }
+        return CometChatMessageTemplate(category: MessageCategoryConstants.custom, type: collaborativeWhiteboardExtensionTypeConstant, contentView: { message, alignment, controller in
+            // Captured strongly, as the other extension templates do: the template's other
+            // closures call the chain head and no longer keep this decorator alive.
             guard let message = message as? CustomMessage else { return UIView() }
             if (message.deletedAt != 0.0) {
-                if let deletedBubble = this.getDeleteMessageBubble(messageObject: message, additionalConfiguration: additionalConfiguration) {
+                if let deletedBubble = self.getDeleteMessageBubble(messageObject: message, additionalConfiguration: additionalConfiguration) {
                     return deletedBubble
                 }
             }
-            let documentBubble = this.getContentView(_customMessage: message, controller: controller, additionalConfiguration: additionalConfiguration)
+            let documentBubble = self.getContentView(_customMessage: message, controller: controller, additionalConfiguration: additionalConfiguration)
             return documentBubble
             
         }, bubbleView: nil, headerView: nil, footerView: nil) { message, alignment, controller in
             guard let message = message else { return nil }
-            return self.getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
+            return ChatConfigurator.getDataSource().getBottomView(message: message, controller: controller, alignment: alignment, additionalConfiguration: additionalConfiguration)
         } options: { message, group, controller in
             guard let message = message, let user = LoggedInUserInformation.getUser() else { return [] }
-            return self.getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
+            return ChatConfigurator.getDataSource().getCommonOptions(loggedInUser: user, messageObject: message, controller: controller, group: group, additionalConfiguration: additionalConfiguration ?? AdditionalConfiguration())
         }
 
     }

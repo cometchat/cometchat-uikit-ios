@@ -24,6 +24,8 @@ open class CometChatMessageComposer: UIView {
         growingTextView.maxHeight = style.textFiledFont.lineHeight * 5
         growingTextView.minHeight = 12
         growingTextView.backgroundColor = .clear
+        // State contract (TEST-PLAN §3.3): an automation id only; the label is unchanged.
+        growingTextView.accessibilityIdentifier = StateContract.composerInput
         // COMMENTED OUT - Rich text formatting disabled for MessageComposer
         // growingTextView.onFormatAction = { [weak self] format in
         //     self?.applyFormat(format)
@@ -246,6 +248,7 @@ open class CometChatMessageComposer: UIView {
         let button = UIButton().withoutAutoresizingMaskConstraints()
         button.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(didSendButtonClicked), for: .primaryActionTriggered)
+        button.accessibilityIdentifier = StateContract.composerSend
         button.pin(anchors: [.height, .width], to: 32)
         button.roundViewCorners(corner: .init(cornerRadius: (32/2)))
         return button
@@ -1330,6 +1333,10 @@ extension CometChatMessageComposer {
         
         viewModel.failure = { [weak self] error in
             self?.onError?(error)
+        }
+        viewModel.onOfflineEditFailed = { [weak self] error in
+            let key = OfflineErrors.isNotConnected(code: error.errorCode) ? "ERROR_INTERNET_UNAVAILABLE" : "SOMETHING_WENT_WRONG_ERROR"
+            CometChatToast.show(message: key.localize(), on: self?.controller, contractIdentifier: StateContract.notice(key))
         }
         
         viewModel.showReplyView = { [weak self] message in

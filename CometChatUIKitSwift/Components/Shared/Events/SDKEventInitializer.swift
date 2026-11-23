@@ -47,19 +47,15 @@ public class SDKEventInitializer : CometChatMessageDelegate {
     /// A per-user conversation pin syncs from the user's other devices; an admin-global pin
     /// (`pinnedBy` == `app_system`) broadcasts to everyone affected. Both land here.
     ///
-    /// Forwarded onto the existing conversation update event rather than a new pin-specific
-    /// one: the payload is a full conversation carrying the new `pinnedAt`, and the list
-    /// already listens for this to reposition the row.
-    ///
-    /// > Important: the `conversation_pin` envelope these ride on is **unverified** — the SDK
-    /// > infers its shape from the confirmed `message_save` frame, both being per-user
-    /// > self-echoes, and no real frame has been captured yet. Message pin/save (below) is
-    /// > confirmed; this pair should be re-checked against live traffic.
+    /// The frame's conversation is compact: its user or group has no name or avatar, and it has
+    /// no last message or unread count. Only its pin state is taken onto the conversation list's
+    /// row (`ccConversationPinStateChanged`, BUG-11); other listeners still get it as today's
+    /// `ccUpdateConversation`.
     public func onConversationPinned(conversation: Conversation) {
-        CometChatConversationEvents.ccUpdateConversation(conversation: conversation)
+        CometChatConversationEvents.ccConversationPinStateChanged(conversation: conversation)
     }
     public func onConversationUnpinned(conversation: Conversation) {
-        CometChatConversationEvents.ccUpdateConversation(conversation: conversation)
+        CometChatConversationEvents.ccConversationPinStateChanged(conversation: conversation)
     }
     
     /// Live frames, forwarded onto the kit's own bus.

@@ -30,6 +30,7 @@ open class CometChatNotificationFeed: CometChatListBase {
     
     // MARK: - Internal
     var viewModel: NotificationFeedViewModel = NotificationFeedViewModel()
+    private lazy var connectionListenerId = "notification-feed-connection-listener-\(ObjectIdentifier(self).hashValue)"
     
     private lazy var filterChipsView: NotificationFeedFilterChipsView = {
         let view = NotificationFeedFilterChipsView()
@@ -166,7 +167,12 @@ open class CometChatNotificationFeed: CometChatListBase {
         viewModel.reload = { [weak self] in
             guard let self = self else { return }
             DispatchQueue.main.async {
-                if self.viewModel.size() == 0 {
+                // Offline ON: nothing to show and no connection (D84 rule 3); false with offline off.
+                let connectToLoad = self.applyConnectToLoad(self.viewModel.size() == 0 && self.viewModel.connectToLoad,
+                                                            key: "CONNECT_TO_LOAD_NOTIFICATIONS", reason: "notifications")
+                if connectToLoad {
+                    self.removeEmptyView()
+                } else if self.viewModel.size() == 0 {
                     self.showEmptyView()
                 } else if self.isEmptyStateVisible {
                     self.removeEmptyView()
@@ -225,9 +231,13 @@ open class CometChatNotificationFeed: CometChatListBase {
     // MARK: - Connection
     public func connect() {
         viewModel.connect()
+        // `connected()` below existed but was never registered, so a reconnect never reached it (D2).
+        // It refreshes in place: the list is replaced only when the new page arrives.
+        CometChat.addConnectionListener(connectionListenerId, self)
     }
     
     public func disconnect() {
+        CometChat.removeConnectionListener(connectionListenerId)
         viewModel.disconnect()
         viewModel.stopUnreadCountPolling()
     }
@@ -252,11 +262,22 @@ open class CometChatNotificationFeed: CometChatListBase {
         }
     }
     
+    /// The failed read leaves nothing on screen: the error view, or, offline and not connected, the
+    /// kit's offline state in its place (the app's own error view still shows, D84 rule 3).
+    private func showFailureState() {
+        if viewModel.connectToLoad {
+            removeEmptyView()
+            applyConnectToLoad(true, key: "CONNECT_TO_LOAD_NOTIFICATIONS", reason: "notifications")
+        } else {
+            showErrorView()
+        }
+    }
+
     /// Removes the loading view first, then shows the error view — prevents overlap.
     private func dismissLoadingThenShowError() {
         guard let startTime = loadingStartTime else {
             removeLoadingView()
-            showErrorView()
+            showFailureState()
             return
         }
         let elapsed = Date().timeIntervalSince(startTime)
@@ -265,12 +286,12 @@ open class CometChatNotificationFeed: CometChatListBase {
         if remaining <= 0 {
             removeLoadingView()
             loadingStartTime = nil
-            showErrorView()
+            showFailureState()
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + remaining) { [weak self] in
                 self?.removeLoadingView()
                 self?.loadingStartTime = nil
-                self?.showErrorView()
+                self?.showFailureState()
             }
         }
     }
@@ -450,6 +471,9 @@ extension CometChatNotificationFeed {
 // MARK: - CometChatConnectionDelegate
 extension CometChatNotificationFeed: CometChatConnectionDelegate {
     public func connected() {
+        // Offline ON: an error view for a non-network error is not reloaded by a reconnect.
+        if viewModel.skipsReconnectReload { return }
+        viewModel.automaticRefetch = true
         viewModel.isRefresh = true
     }
     public func connecting() {}

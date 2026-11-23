@@ -159,6 +159,13 @@ public protocol CometChatMessageEventListener {
     @available(*, deprecated)
     func onMessageReact(message: CometChatSDK.BaseMessage, reaction: CometChatMessageReaction)
 
+    /// Offline messaging only: an own message moved between sending, sent, failed and discarded.
+    func ccMessageSendStateChanged(message: BaseMessage, state: CometChatMessageSendState, reason: CometChat.MessageFailureReason?)
+
+    /// Offline messaging only: the Chat SDK reset its on-device cache. `pendingMessagesLost` is -1
+    /// (`CometChat.offlinePendingCountUnknown`) when unknown.
+    func ccOfflineCacheReset(reason: CometChat.OfflineCacheResetReason, pendingMessagesLost: Int)
+
 }
 
 //Making all functions optional
@@ -196,6 +203,8 @@ public extension CometChatMessageEventListener {
     func onMessageUnsaved(message: BaseMessage) {}
     func ccMessagePinned(message: BaseMessage, status: MessageStatus) {}
     func ccMessageSaved(message: BaseMessage, status: MessageStatus) {}
+    func ccMessageSendStateChanged(message: BaseMessage, state: CometChatMessageSendState, reason: CometChat.MessageFailureReason?) {}
+    func ccOfflineCacheReset(reason: CometChat.OfflineCacheResetReason, pendingMessagesLost: Int) {}
 }
 
 //MARK: Deprecated methods

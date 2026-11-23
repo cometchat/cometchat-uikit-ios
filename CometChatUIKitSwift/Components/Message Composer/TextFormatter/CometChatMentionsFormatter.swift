@@ -142,6 +142,26 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
             .set(searchKeyword: string)
             .build()
         
+        // Offline ON with no keyword (read once for this lookup): the people last seen paint from the
+        // device, then the server's list replaces them (UIT-LIST-09). A keyword has no cache, so it
+        // stays a server read; offline it ends empty, with no error toast, exactly as today.
+        if string.isEmpty, OfflineGate.isOn() {
+            var delivered = false
+            userRequestBuilder!.fetchNext(onCachedUsers: { users in
+                guard !users.isEmpty else { return }
+                delivered = true
+                let items = users.map { self.buildSuggestionItem(user: $0) }
+                DispatchQueue.main.async { listItemModelCallBack?(items) }
+            }, onServerUsers: { users in
+                delivered = true
+                let items = users.map { self.buildSuggestionItem(user: $0) }
+                DispatchQueue.main.async { listItemModelCallBack?(items) }
+            }, onError: { _ in
+                if !delivered { DispatchQueue.main.async { listItemModelCallBack?([]) } }
+            })
+            return
+        }
+
         userRequestBuilder!.fetchNext { users in
             var listItemModel = [SuggestionItem]()
             for user in users {
@@ -166,7 +186,7 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
             .set(searchKeyword: string)
             .build()
         
-        groupMemberRequestBuilder?.fetchNext(onSuccess: { users in
+        let buildItems: ([GroupMember]) -> [SuggestionItem] = { users in
             var listItemModel = [SuggestionItem]()
             
             let trimmed = string.trimmingCharacters(in: .whitespaces)
@@ -195,7 +215,30 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
             for user in users {
                 listItemModel.append(self.buildSuggestionItem(user: user))
             }
-            listItemModelCallBack?(listItemModel)
+            return listItemModel
+        }
+
+        // Offline ON with no keyword (read once for this lookup): members last seen first, then the
+        // server's. With a keyword: the server only; offline it ends empty with no toast, as today.
+        if string.isEmpty, OfflineGate.isOn() {
+            var delivered = false
+            groupMemberRequestBuilder?.fetchNext(onCachedGroupMembers: { users in
+                guard !users.isEmpty else { return }
+                delivered = true
+                let items = buildItems(users)
+                DispatchQueue.main.async { listItemModelCallBack?(items) }
+            }, onServerGroupMembers: { users in
+                delivered = true
+                let items = buildItems(users)
+                DispatchQueue.main.async { listItemModelCallBack?(items) }
+            }, onError: { _ in
+                if !delivered { DispatchQueue.main.async { listItemModelCallBack?([]) } }
+            })
+            return
+        }
+
+        groupMemberRequestBuilder?.fetchNext(onSuccess: { users in
+            listItemModelCallBack?(buildItems(users))
         }, onError: { error in
             listItemModelCallBack?([])
         })
@@ -211,7 +254,16 @@ open class CometChatMentionsFormatter: CometChatTextFormatter {
             style = composerTextStyle.getTextAttributes()
         }
         
-        return SuggestionItem(id: user.uid, name: user.name, leftIconUrl: user.avatar, visibleText: "@\(user.name ?? "")", underlyingText: "<@uid:\(user.uid ?? "")>", visibleTextAttributes: style, status: UserStatus(rawValue: user.status.rawValue) ?? .offline)
+        // Offline ON and not connected: the list comes from the cache, whose presence is stale (ENG-41194).
+        let notConnected = OfflineGate.isOn() && CometChat.getConnectionStatus != .connected
+        return SuggestionItem(id: user.uid, name: user.name, leftIconUrl: user.avatar, visibleText: "@\(user.name ?? "")", underlyingText: "<@uid:\(user.uid ?? "")>", visibleTextAttributes: style, status: Self.suggestionStatus(of: user, notConnected: notConnected))
+    }
+
+    /// The presence a suggestion shows. A cached user's presence is not live while the SDK is not
+    /// connected, so no online dot is drawn then; connected, it is the user's own status.
+    static func suggestionStatus(of user: User, notConnected: Bool) -> UserStatus {
+        if notConnected { return .offline }
+        return UserStatus(rawValue: user.status.rawValue) ?? .offline
     }
     
     open override func onScrollToBottom(suggestionItemList: [SuggestionItem], listItem: (([SuggestionItem]) -> ())?) {

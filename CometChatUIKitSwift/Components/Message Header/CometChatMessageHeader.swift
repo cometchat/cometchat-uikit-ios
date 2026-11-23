@@ -136,6 +136,9 @@ import CometChatSDK
 
     // MARK: - Variables
     public var disableTyping: Bool = false
+    /// Offline ON, not connected: the presence subtitle is hidden because the cached presence is not
+    /// live. Set only when this header hid it, so only this header shows it again.
+    private var presenceSubtitleHiddenOffline = false
     private var hideBackIcon: Bool = false
     private var disableUsersPresence: Bool = false
     weak var controller: UIViewController?
@@ -657,6 +660,21 @@ import CometChatSDK
     open func updateUserStatus(_ isOnline: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, self.viewModel.user != nil else { return }
+            // Offline ON and the SDK not connected: the user's presence is not live, so none is shown.
+            if OfflinePresence.isHidden() {
+                if self.subtitle.subviews.contains(self.subtitleLabel), !self.subtitle.isHidden {
+                    self.presenceSubtitleHiddenOffline = true
+                    self.subtitleLabel.text = ""
+                    self.subtitle.isHidden = true
+                }
+                return
+            }
+            if self.presenceSubtitleHiddenOffline {
+                self.presenceSubtitleHiddenOffline = false
+                if !self.hideUserStatus, !self.disableUsersPresence, self.viewModel.user?.blockedByMe != true {
+                    self.subtitle.isHidden = false
+                }
+            }
             self.viewModel.user?.status = isOnline ? .online : .offline
             if let user = viewModel.user {
                 if !disableUsersPresence {
@@ -706,6 +724,8 @@ import CometChatSDK
     private func updateTypingStatus(user: User?, isTyping: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
+            // A typing indicator cannot arrive while the SDK is not connected: ignore it.
+            if isTyping && OfflinePresence.isHidden() { return }
             if isTyping && !disableTyping {
                 if let group = viewModel.group {
                     let text = (user?.name ?? "") + " " + MessageHeaderConstants.isTyping
@@ -797,8 +817,15 @@ extension CometChatMessageHeader: CometChatConnectionDelegate {
         
     }
     
-    public func connecting() {}
+    public func connecting() { renderPresenceForConnectionChange() }
     
-    public func disconnected() {}
+    public func disconnected() { renderPresenceForConnectionChange() }
+
+    /// Offline ON: the presence the peer shows follows the connection. Connected again, the re-fetch
+    /// in `connected()` puts the user's presence back.
+    private func renderPresenceForConnectionChange() {
+        guard OfflineGate.isOn(), viewModel.user != nil else { return }
+        updateUserStatus(viewModel.user?.status == .online)
+    }
 }
 

@@ -171,6 +171,18 @@ final public class UIKitSettings {
         appSettingsBuilder.overrideClientHost(clientHost)
         return self
     }
+
+    /// Passes the offline messaging configuration through to the Chat SDK
+    /// (`AppSettingsBuilder.setOfflineConfig`). Offline messaging is off unless a config with
+    /// `enabled: true` is set. Requires Chat SDK 4.2.1 or later.
+    ///
+    /// The kit stores nothing and never reads it back: whether offline is on is always asked of the
+    /// SDK at the moment of each operation.
+    @discardableResult
+    public func setOfflineConfig(_ config: OfflineConfig) -> Self {
+        appSettingsBuilder.setOfflineConfig(config)
+        return self
+    }
     
 #if canImport(CometChatCallsSDK)
     @discardableResult

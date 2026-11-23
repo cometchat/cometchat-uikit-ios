@@ -62,11 +62,34 @@ public class CometChatConversationEvents {
     }
     
     public static func ccUpdateConversation(conversation: Conversation) {
-        
+
         for observer in listeners() {
             observer.ccUpdateConversation?(conversation: conversation)
         }
     }
+
+    /// A conversation pin or unpin frame from the SDK (the user's other device, or an admin pin).
+    /// Its conversation is compact, so a conversation list takes only its pin state onto the row
+    /// it shows (BUG-11); any other listener gets today's `ccUpdateConversation`.
+    internal static func ccConversationPinStateChanged(conversation: Conversation) {
+        deliverPinState(conversation, to: listeners())
+    }
+
+    /// The delivery itself, given the listeners, so a test can check it off the shared bus.
+    internal static func deliverPinState(_ conversation: Conversation, to observers: [CometChatConversationEventListener]) {
+        for observer in observers {
+            if let list = observer as? ConversationPinStateListener {
+                list.applyPinState(from: conversation)
+            } else {
+                observer.ccUpdateConversation?(conversation: conversation)
+            }
+        }
+    }
+}
+
+/// A listener that takes only the pin state of a pin or unpin frame (BUG-11).
+internal protocol ConversationPinStateListener: AnyObject {
+    func applyPinState(from event: Conversation)
 }
 
 //MARK: Deprecated Function

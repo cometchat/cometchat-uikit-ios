@@ -60,10 +60,49 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
         }
     }
 
+    /// Offline ON: set by `connected()` just before the refetch it triggers, so a failure of that
+    /// automatic read stays quiet while rows are on screen. Read and cleared at the start of the next fetch.
+    var automaticRefetch = false
     var isFetching = false
     var isFetchedAll = false
+    /// Distinct per list, so two mounted lists never evict each other's hub registration.
+    let offlineListenerID = UUID().uuidString
 
-    var isSearching: Bool = false
+    /// Moves on every keyword search and when the search is cleared. A search answer that carries an
+    /// older value is for a keyword no longer shown, and is dropped (a slow old search replaced the new one).
+    internal var searchGeneration = 0
+    var isSearching: Bool = false {
+        didSet {
+            if !isSearching {
+                searchGeneration &+= 1
+                // "Connect to search" of the search box goes with the search.
+                if searchFailedOffline { connectToSearch = false }
+                searchFailedOffline = false
+                searchReloadOnConnect = false
+            }
+        }
+    }
+    /// Offline ON: the last keyword search failed (any error).
+    var searchFailedOffline = false
+    /// Offline ON: the last keyword search failed because the SDK is not connected; the reconnect
+    /// runs it again, once.
+    var searchReloadOnConnect = false
+    /// The keyword of the last search, for that one run on reconnect.
+    var searchText: String { return searchingText }
+    /// Offline ON: why the offline state or error view is showing over nothing. Cleared when the next
+    /// read starts.
+    var offlineError: OfflineListError = .none
+    /// Offline ON (D84 rule 7): a keyword read could not reach the server and nothing is shown:
+    /// "Connect to search", no `onError`. A filter alone is no keyword (addition B).
+    var connectToSearch = false
+    /// Offline ON (D84 rule 3): the plain list could not load for want of a connection and nothing is
+    /// shown: "Connect to load groups" (the app's error view, if it set one), `onError` once.
+    var connectToLoad: Bool { return offlineError == .notConnected && !connectToSearch }
+    /// Offline ON: the newest read; callbacks of an older read, or of an older session, are dropped.
+    var offlineReadToken = 0
+    /// Asks whether offline is on for this search (`OfflineGate.isOn`, read once per search). A seam so
+    /// a test can force the offline path for this one view model.
+    internal var offlineGate: () -> Bool = { OfflineGate.isOn() }
     private var searchingText: String = ""
     var selectedGroups: [CometChatSDK.Group] = []
     var groupsRequestBuilder: GroupsRequest.GroupsRequestBuilder
@@ -108,7 +147,8 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
     }
     
     func fetchGroups() {
-        
+        let automatic = automaticRefetch
+        automaticRefetch = false
         if isRefresh {
             isFetchedAll = false
             groupsRequestBuilder = GroupsBuilder.getDefaultRequestBuilder()
@@ -117,8 +157,17 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
         
         guard let groupsRequest = groupsRequest else { return }
         if isFetchedAll { return }
-        
+
+        let alreadyFetching = isFetching
         isFetching =  true
+        // Offline ON (read once for this read): two phases, cached then server.
+        if offlineGate() {
+            // The SDK answers a read made during another on this request with an empty page, which
+            // is not the end of the list (BEH-SNAP-14). The read in flight delivers the page.
+            if alreadyFetching && !isRefresh { return }
+            offlineFetchGroups(request: groupsRequest, automatic: automatic)
+            return
+        }
         service.fetchGroups(request: groupsRequest) { [weak self] result in
             guard let this = self else { return }
             switch result {
@@ -146,8 +195,35 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
         self.searchingText = text
         self.filterGroupsRequest = self.groupsRequestBuilder.set(searchKeyword: text).build()
         guard let filterGroupsRequest = filterGroupsRequest else { return }
+        searchGeneration &+= 1
+        let generation = searchGeneration
+        searchFailedOffline = false
+        searchReloadOnConnect = false
+        // Offline ON (read once for this search): a keyword has no cache, so only the server's phase
+        // counts. Not reaching it is "Connect to search", no `onError` (D84 rule 7), and the search runs
+        // again once on reconnect. Any other failure is an error (rows of an older search stay, rule 5).
+        if offlineGate() {
+            let keyword = OfflineReadFailure.isKeyword(text)
+            service.fetchGroupsTwoPhase(request: filterGroupsRequest, onCached: { _ in }, onServer: { [weak self] page in
+                guard let this = self, generation == this.searchGeneration else { return }
+                this.connectToSearch = false
+                this.filteredGroups = page
+            }, onError: { [weak self] error in
+                guard let this = self, generation == this.searchGeneration else { return }
+                let notConnected = OfflineErrors.isNotConnected(code: error?.errorCode)
+                // Rows of an older keyword never stand in for a search that could not run.
+                let rowsShown = !this.filteredGroups.isEmpty && !(notConnected && keyword)
+                let verdict = OfflineReadFailure.evaluate(error, rowsShown: rowsShown, keywordSearch: keyword, kitStarted: false)
+                this.searchFailedOffline = true
+                this.searchReloadOnConnect = notConnected
+                this.connectToSearch = verdict.screen == .connectToSearch
+                if notConnected && keyword { this.filteredGroups = [] }
+                if verdict.reportsError, let error = error { this.failure?(error) }
+            })
+            return
+        }
         service.fetchFilteredGroups(request: filterGroupsRequest) { [weak self] result in
-            guard let this = self else { return }
+            guard let this = self, generation == this.searchGeneration else { return }
             switch result {
             case .success(let filteredGroups):
                 this.filteredGroups = filteredGroups
@@ -157,6 +233,17 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
         }
     }
     
+    /// Whether a failure just reported leaves nothing on screen, so the error view shows. Offline ON, a
+    /// failed search is judged on the search's own rows; otherwise on the list's.
+    var failureLeavesNothing: Bool {
+        return searchFailedOffline && isSearching ? filteredGroups.isEmpty : groups.isEmpty
+    }
+
+    /// Offline ON: the reconnect leaves the list alone while its error view is for a non-network error.
+    var skipsReconnectReload: Bool {
+        return offlineGate() && offlineError.skipsReconnectReload
+    }
+
     func joinGroup(withGuid: String, name: String, groupType: CometChat.GroupType, password: String, indexPath: IndexPath, completion: @escaping (_ joinedGroup: Group?) -> Void) {
         service.joinGroup(guid: withGuid, groupType: groupType, password: password, onSuccess: { [weak self] (joinedGroup) in
             guard let this = self else { return }
@@ -176,11 +263,13 @@ open class GroupsViewModel: NSObject, GroupsViewModelProtocol {
         // New.
         listeners.add(.groupSDK, id: "groups-groups-sdk-listener", listener: self)
         listeners.add(.groupEvents, id: "groups-groups-events-listener", listener: self)
+        listeners.add(.offlineHub, id: "groups-offline-hub-listener-\(offlineListenerID)", listener: self as OfflineHubObserver)
     }
     
     func disconnect() {
         listeners.remove(.groupSDK, id: "groups-groups-sdk-listener")
         listeners.remove(.groupEvents, id: "groups-groups-events-listener")
+        listeners.remove(.offlineHub, id: "groups-offline-hub-listener-\(offlineListenerID)")
     }
 
     @discardableResult

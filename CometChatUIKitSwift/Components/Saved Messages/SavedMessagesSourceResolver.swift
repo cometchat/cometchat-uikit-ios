@@ -9,9 +9,10 @@ import CometChatSDK
 /// Resolves the conversation a saved message came from.
 ///
 /// Saved messages span conversations (doc §6.4), so every row has to say where it is from.
-/// The message payload carries `receiverUid`/`receiverType` but only the raw id, so the
-/// display name is resolved here: cache first, network only on a miss. Never blocks a row —
-/// the caller renders the raw id and repaints when `onResolved` fires (recipe step 1).
+/// The name comes from the message itself first — its `receiver` (a group, or the user it
+/// was sent to) or, for a 1:1 message the user received, its `sender` — as on Android. A
+/// lookup by id runs only when the payload has no name, and never blocks a row: the caller
+/// renders the raw id and repaints when `onResolved` fires (recipe step 1).
 final class SavedMessagesSourceResolver {
 
     /// Resolved display names, keyed by `cacheKey`. Also the in-flight de-duplicator's
@@ -27,12 +28,44 @@ final class SavedMessagesSourceResolver {
     /// Called on the main queue when a lazy hydration finishes.
     var onResolved: ((_ cacheKey: String) -> Void)?
 
+    /// One key per source conversation. A 1:1 message the logged-in user received is
+    /// addressed to themselves, so its conversation is the sender's: keying it by
+    /// `receiverUid` would put every received 1:1 row under one key, and the first sender's
+    /// name would label rows from everyone else.
     static func cacheKey(for message: BaseMessage) -> String {
-        return "\(message.receiverType == .group ? "group" : "user"):\(message.receiverUid)"
+        if message.receiverType == .group {
+            return "group:\(message.receiverUid)"
+        }
+        if isReceivedOneToOne(message), let senderUid = message.sender?.uid, !senderUid.isEmpty {
+            return "user:\(senderUid)"
+        }
+        return "user:\(message.receiverUid)"
+    }
+
+    private static func isReceivedOneToOne(_ message: BaseMessage) -> Bool {
+        return message.receiverType == .user && LoggedInUserInformation.isLoggedInUser(uid: message.receiverUid)
+    }
+
+    /// The source conversation's name and avatar as the message itself carries them, the way
+    /// Android's saved row does (`SavedMessagesAdapter`): the group, or for 1:1 the other
+    /// party, the receiver if the user sent it, the sender if they received it. A message
+    /// read from the offline cache keeps the server's `receiver` and `sender` entities, so
+    /// this names the row with no network. `nil` when the payload has no name, such as a
+    /// receiver known only by its id.
+    static func payloadSource(for message: BaseMessage) -> (name: String, avatar: String)? {
+        if message.receiverType == .group {
+            guard let group = message.receiver as? Group,
+                  let name = group.name, !name.isEmpty else { return nil }
+            return (name, group.icon ?? "")
+        }
+        let peer: User? = isReceivedOneToOne(message) ? message.sender : message.receiver as? User
+        guard let name = peer?.name, !name.isEmpty else { return nil }
+        return (name, peer?.avatar ?? "")
     }
 
     /// The conversation name to draw right now — this is the row's title. Returns a resolved
-    /// name when known, otherwise the raw id, and kicks off a hydration for next time.
+    /// name when known, else the name the message carries, else the raw id while a lookup
+    /// runs for next time.
     func label(for message: BaseMessage) -> String {
         let key = SavedMessagesSourceResolver.cacheKey(for: message)
 
@@ -40,17 +73,13 @@ final class SavedMessagesSourceResolver {
             return name
         }
 
-        hydrate(message: message, key: key)
-
-        // A 1:1 message the logged-in user sent is addressed TO the other party, but one
-        // they received is addressed to themselves — show the sender instead, or the row
-        // would read as the user's own name.
-        if message.receiverType == .user,
-           LoggedInUserInformation.isLoggedInUser(uid: message.receiverUid),
-           let senderName = message.sender?.name, !senderName.isEmpty {
-            return senderName
+        if let source = SavedMessagesSourceResolver.payloadSource(for: message) {
+            names[key] = source.name
+            avatars[key] = source.avatar
+            return source.name
         }
 
+        hydrate(message: message, key: key)
         return message.receiverUid
     }
 
@@ -63,16 +92,7 @@ final class SavedMessagesSourceResolver {
             return avatar
         }
 
-        // Mirrors `label(for:)`: a received 1:1 message resolves to its sender, so the avatar
-        // has to follow the name to the same party or the row pairs one person's picture with
-        // another's name on first render.
-        if message.receiverType == .user,
-           LoggedInUserInformation.isLoggedInUser(uid: message.receiverUid),
-           let senderAvatar = message.sender?.avatar {
-            return senderAvatar
-        }
-
-        return ""
+        return SavedMessagesSourceResolver.payloadSource(for: message)?.avatar ?? ""
     }
 
     private func hydrate(message: BaseMessage, key: String) {
@@ -81,11 +101,7 @@ final class SavedMessagesSourceResolver {
         // A received 1:1 message resolves to its sender, who already arrived with the
         // payload — no fetch needed, and fetching `receiverUid` would return the
         // logged-in user.
-        if message.receiverType == .user, LoggedInUserInformation.isLoggedInUser(uid: message.receiverUid) {
-            if let senderName = message.sender?.name, !senderName.isEmpty {
-                names[key] = senderName
-                avatars[key] = message.sender?.avatar ?? ""
-            }
+        if SavedMessagesSourceResolver.isReceivedOneToOne(message) {
             return
         }
 

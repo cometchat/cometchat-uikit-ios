@@ -35,7 +35,7 @@ extension ConversationsViewModel: CometChatGroupEventListener {
         if service.loggedInUserUid() == kickedUser.uid {
             removerConversation(for: kickedFrom)
         } else if checkForConversationUpdate(action: action) {
-            newMessageReceived?(action)
+            cueNewMessage(action)
             update(lastMessage: action, updateCount: false)
         }
     }
@@ -44,7 +44,7 @@ extension ConversationsViewModel: CometChatGroupEventListener {
         if service.loggedInUserUid() == bannedUser.uid {
             removerConversation(for: bannedFrom)
         } else if checkForConversationUpdate(action: action) {
-            newMessageReceived?(action)
+            cueNewMessage(action)
             update(lastMessage: action, updateCount: false)
         }
     }
@@ -74,7 +74,7 @@ extension ConversationsViewModel: CometChatGroupDelegate {
     
     func onGroupMemberJoined(action: ActionMessage, joinedUser: User, joinedGroup: Group) {
         if checkForConversationUpdate(action: action) {
-            newMessageReceived?(action)
+            cueNewMessage(action)
             update(lastMessage: action, updateCount: false)
         }
     }
@@ -92,7 +92,7 @@ extension ConversationsViewModel: CometChatGroupDelegate {
         if service.loggedInUserUid() == kickedUser.uid {
             removerConversation(for: kickedFrom)
         } else if checkForConversationUpdate(action: action) {
-            newMessageReceived?(action)
+            cueNewMessage(action)
             update(lastMessage: action, updateCount: false)
         }
     }
@@ -101,14 +101,14 @@ extension ConversationsViewModel: CometChatGroupDelegate {
         if service.loggedInUserUid() == bannedUser.uid {
             removerConversation(for: bannedFrom)
         } else if checkForConversationUpdate(action: action) {
-            newMessageReceived?(action)
+            cueNewMessage(action)
             update(lastMessage: action, updateCount: false)
         }
     }
     
     func onGroupMemberUnbanned(action: ActionMessage, unbannedUser: User, unbannedBy: User, unbannedFrom: Group) {
         if checkForConversationUpdate(action: action) {
-            newMessageReceived?(action)
+            cueNewMessage(action)
             update(lastMessage: action, updateCount: false)
         }
     }
@@ -119,7 +119,7 @@ extension ConversationsViewModel: CometChatGroupDelegate {
          appned last message.
          */
         if checkForConversationUpdate(action: action) {
-            newMessageReceived?(action)
+            cueNewMessage(action)
             
             //THIS NEED TO BE FIXED FROM THE BACKEND
             if scopeChangeduser.uid == CometChat.getLoggedInUser()?.uid {
@@ -132,7 +132,7 @@ extension ConversationsViewModel: CometChatGroupDelegate {
     }
     
     func onMemberAddedToGroup(action: ActionMessage, addedBy: User, addedUser: User, addedTo: Group) {
-        newMessageReceived?(action)
+        cueNewMessage(action)
         /*
          
          - updateGroup(group)
@@ -140,7 +140,7 @@ extension ConversationsViewModel: CometChatGroupDelegate {
          
          */
         if checkForConversationUpdate(action: action) {
-            newMessageReceived?(action)
+            cueNewMessage(action)
             update(lastMessage: action, updateCount: false)
         }
     }

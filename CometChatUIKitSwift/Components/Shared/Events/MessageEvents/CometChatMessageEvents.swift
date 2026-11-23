@@ -207,10 +207,36 @@ public class CometChatMessageEvents {
     }
 
     public static func ccMessageSent(message: BaseMessage, status: MessageStatus) {
-        
+        // Offline ON: a send routed through the offline send helper emits each transition once. The
+        // hub has usually reported it already, so the call site's own emission is dropped. A message
+        // the hub does not track (every offline-OFF send) is always admitted: today's sequence.
+        guard OfflineHub.shared.admitPublicSent(message, status: status) else { return }
+        dispatchMessageSent(message: message, status: status)
+    }
+
+    /// The raw `ccMessageSent` broadcast, without the offline once-per-transition guard.
+    internal static func dispatchMessageSent(message: BaseMessage, status: MessageStatus) {
         for value in listeners() {
             value.ccMessageSent(message: message, status: status)
             value.onMessageSent(message: message, status: status)
+        }
+    }
+
+    /// Offline messaging only: an own message moved between sending, sent, failed and discarded.
+    /// Never emitted while offline messaging is disabled.
+    public static func ccMessageSendStateChanged(message: BaseMessage,
+                                                 state: CometChatMessageSendState,
+                                                 reason: CometChat.MessageFailureReason?) {
+        for value in listeners() {
+            value.ccMessageSendStateChanged(message: message, state: state, reason: reason)
+        }
+    }
+
+    /// Offline messaging only: the Chat SDK reset its on-device cache. `pendingMessagesLost` is
+    /// `CometChat.offlinePendingCountUnknown` (-1) when the SDK cannot tell how many were lost.
+    public static func ccOfflineCacheReset(reason: CometChat.OfflineCacheResetReason, pendingMessagesLost: Int) {
+        for value in listeners() {
+            value.ccOfflineCacheReset(reason: reason, pendingMessagesLost: pendingMessagesLost)
         }
     }
 

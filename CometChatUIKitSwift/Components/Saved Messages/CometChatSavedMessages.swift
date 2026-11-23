@@ -211,7 +211,12 @@ open class CometChatSavedMessages: CometChatListBase {
                 this.updateTitle()
 
                 let isEmpty = this.viewModel.messages.isEmpty
-                if isEmpty {
+                // Offline ON: nothing to show and no connection (D84 rule 3); false with offline off.
+                let connectToLoad = this.applyConnectToLoad(isEmpty && this.viewModel.connectToLoad,
+                                                            key: "CONNECT_TO_LOAD_MESSAGES", reason: "messages")
+                if connectToLoad {
+                    this.removeEmptyView()
+                } else if isEmpty {
                     this.showEmptyView()
                     this.onEmpty?()
                 } else {
@@ -245,7 +250,14 @@ open class CometChatSavedMessages: CometChatListBase {
                 this.refreshControl.endRefreshing()
 
                 if this.viewModel.messages.isEmpty {
-                    this.showErrorView()
+                    // Offline and not connected with nothing on screen: the kit's offline state takes the
+                    // error view's place (the app's own error view still shows, D84 rule 3).
+                    if this.viewModel.connectToLoad {
+                        this.removeEmptyView()
+                        this.applyConnectToLoad(true, key: "CONNECT_TO_LOAD_MESSAGES", reason: "messages")
+                    } else {
+                        this.showErrorView()
+                    }
                 }
             }
         }
@@ -383,6 +395,9 @@ extension CometChatSavedMessages {
 extension CometChatSavedMessages: CometChatConnectionDelegate {
 
     public func connected() {
+        // Offline ON: an error view for a non-network error is not reloaded by a reconnect.
+        if viewModel.skipsReconnectReload { return }
+        viewModel.automaticRefetch = true
         viewModel.isRefresh = true
     }
 

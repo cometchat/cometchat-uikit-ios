@@ -356,6 +356,7 @@ class ContextMenuTableView: UITableView, UITableViewDataSource, UITableViewDeleg
     func setUp() {
         dataSource = self
         delegate = self
+        accessibilityIdentifier = StateContract.messageOptions
         layoutMargins = UIEdgeInsets.zero
         separatorInset = UIEdgeInsets.zero
         self.register(ContextMenuTextCell.self, forCellReuseIdentifier: ContextMenuTextCell.identifier)
@@ -381,6 +382,8 @@ class ContextMenuTableView: UITableView, UITableViewDataSource, UITableViewDeleg
             cell.style = option.style
             cell.isAccessibilityElement = true
             cell.accessibilityTraits = .button
+            // State contract (TEST-PLAN §3.3): the option id, never its title.
+            cell.accessibilityIdentifier = StateContract.messageOption(option.id)
             if option.id == MessageOptionConstants.moreOptions {
                 // VoiceOver would otherwise read the ellipsis title as punctuation.
                 cell.accessibilityLabel = "MORE_OPTIONS".localize()

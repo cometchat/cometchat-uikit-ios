@@ -34,6 +34,22 @@ open class ReactionListDataModel {
         return reaction == "All" || reaction == "ALL".localize()
     }
     
+    /// Asks whether offline is on for this read (`OfflineGate.isOn`, read once per read). A seam so a
+    /// test can force the offline path for this one model.
+    internal var offlineGate: () -> Bool = { OfflineGate.isOn() }
+
+    /// Offline ON only: the page in two phases, the on-device copy first.
+    internal var fetchPreviousTwoPhase: (_ request: ReactionsRequest,
+                                         _ onCached: @escaping ([CometChatSDK.Reaction]) -> Void,
+                                         _ onServer: @escaping ([CometChatSDK.Reaction]) -> Void,
+                                         _ onError: @escaping (CometChatSDK.CometChatException?) -> Void) -> Void = { request, onCached, onServer, onError in
+        request.fetchPrevious(onCachedReactions: onCached, onServerReactions: onServer, onError: onError)
+    }
+
+    /// Whoever is waiting on the offline read in flight. The SDK answers a read made during another
+    /// with an empty page (BEH-SNAP-14), which is not the end of the list, so there is only one.
+    private var offlineWaiters: [(success: () -> Void, failure: (CometChatSDK.CometChatException?) -> Void)] = []
+
     func fetchPrevious(onSuccess: @escaping () -> Void, onError: @escaping (_ error: CometChatSDK.CometChatException?) -> Void) {
         
         if reactionsRequest == nil {
@@ -46,6 +62,12 @@ open class ReactionListDataModel {
             reactionsRequest = reactionsRequestBuilder.build()
         }
         
+        // Offline ON (read once for this read): two phases, cached then server.
+        if offlineGate() {
+            offlineFetchPrevious(onSuccess: onSuccess, onError: onError)
+            return
+        }
+
         reactionsRequest?.fetchPrevious(onSuccess: { [weak self] messageReactions in
             guard let self = self else { return }
             if messageReactions.isEmpty {
@@ -57,6 +79,38 @@ open class ReactionListDataModel {
         
     }
     
+    /// The cached page paints, the server's replaces the same slice. Only an empty server page ends
+    /// the list. Not connected over saved reactors is a calm state, not an error (BEH-READ-05).
+    private func offlineFetchPrevious(onSuccess: @escaping () -> Void, onError: @escaping (CometChatSDK.CometChatException?) -> Void) {
+        offlineWaiters.append((onSuccess, onError))
+        guard offlineWaiters.count == 1, let request = reactionsRequest else { return }
+        var cachedKeys = Set<String>()
+        let key: (CometChatSDK.Reaction) -> String? = { "\($0.uid)|\($0.reaction)" }
+
+        fetchPreviousTwoPhase(request, { [weak self] page in
+            guard let self = self, !page.isEmpty else { return }
+            cachedKeys = Set(page.compactMap(key))
+            self.append(page: page)
+            self.offlineWaiters.forEach { $0.success() }
+        }, { [weak self] page in
+            guard let self = self else { return }
+            if page.isEmpty { self.hasAllReactions = true }
+            self.messageReaction = SnapshotRows.reconcile(current: self.messageReaction, cachedKeys: cachedKeys, serverPage: page, key: key)
+            let waiters = self.offlineWaiters
+            self.offlineWaiters.removeAll()
+            waiters.forEach { $0.success() }
+        }, { [weak self] error in
+            guard let self = self else { return }
+            let waiters = self.offlineWaiters
+            self.offlineWaiters.removeAll()
+            if OfflineErrors.isNotConnected(code: error?.errorCode), !self.messageReaction.isEmpty {
+                waiters.forEach { $0.success() }
+            } else {
+                waiters.forEach { $0.failure(error) }
+            }
+        })
+    }
+
     /// Appends a fetched page, skipping reactors already listed for the same emoji
     /// (a page can overlap the previous one, e.g. after a reaction is added mid-scroll).
     func append(page messageReactions: [CometChatSDK.Reaction]) {

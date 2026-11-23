@@ -39,6 +39,15 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
     internal var fetchFeedPage: (_ request: NotificationFeedRequest, _ completion: @escaping (NotificationFeedBuilderResult) -> Void) -> Void = { request, completion in
         NotificationFeedBuilder.fetchFeedItems(request: request, completion: completion)
     }
+    /// Offline ON only: the feed page in two phases (cached, then server).
+    internal var fetchFeedPageTwoPhase: (_ request: NotificationFeedRequest,
+                                         _ onCached: @escaping ([NotificationFeedItem]) -> Void,
+                                         _ onServer: @escaping ([NotificationFeedItem]) -> Void,
+                                         _ onError: @escaping (CometChatException?) -> Void) -> Void = { request, onCached, onServer, onError in
+        request.fetchNext(onCachedNotificationFeedItems: { page in OfflineSnapshotMain.run { onCached(page) } },
+                          onServerNotificationFeedItems: { page in OfflineSnapshotMain.run { onServer(page) } },
+                          onError: { error in OfflineSnapshotMain.run { onError(error) } })
+    }
     internal var fetchCategoryPage: (_ request: NotificationCategoriesRequest, _ completion: @escaping (NotificationCategoriesBuilderResult) -> Void) -> Void = { request, completion in
         NotificationFeedBuilder.fetchCategories(request: request, completion: completion)
     }
@@ -60,6 +69,9 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
     
     // MARK: - Callbacks
     var reload: (() -> Void)?
+    /// Asks whether offline is on for this read (`OfflineGate.isOn`, read once per read). A seam so a
+    /// test can drive the offline path of this one instance without a live SDK.
+    internal var offlineGate: () -> Bool = { OfflineGate.isOn() }
     var failure: ((CometChatException) -> Void)?
     var onCategoriesLoaded: (() -> Void)?
     var onUnreadCountUpdated: (() -> Void)?
@@ -89,6 +101,17 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
     var listenerRandomID = Date().timeIntervalSince1970
     
     // MARK: - Refresh
+    /// Offline ON: set by `connected()` just before the refetch it triggers, so a failure of that
+    /// automatic read stays quiet while rows are on screen. Read and cleared at the start of the next fetch.
+    var automaticRefetch = false
+    /// Offline ON: why the offline state or error view is showing over nothing. Cleared when the next
+    /// read starts.
+    var offlineError: OfflineListError = .none
+    /// Offline ON (D84 rule 3): the feed could not load for want of a connection and shows nothing:
+    /// "Connect to load notifications" (the app's error view, if it set one), `onError` once.
+    var connectToLoad: Bool { return offlineError == .notConnected }
+    /// Offline ON: a reconnect leaves the list alone while its error view is for a non-network error.
+    var skipsReconnectReload: Bool { return offlineGate() && offlineError.skipsReconnectReload }
     var isRefresh: Bool = false {
         didSet {
             if isRefresh {
@@ -159,6 +182,8 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
     
     // MARK: - Fetch Feed Items
     func fetchFeedItems() {
+        let automatic = automaticRefetch
+        automaticRefetch = false
         if isRefresh {
             isFetchedAll = false
             rebuildFeedRequest()
@@ -170,6 +195,11 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
         if isFetchedAll { return }
         
         isFetching = true
+        // Offline ON (read once for this read): two phases, cached then server.
+        if offlineGate() {
+            offlineFetchFeedItems(request: request, automatic: automatic)
+            return
+        }
         fetchFeedPage(request) { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -199,6 +229,67 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
         }
     }
     
+    /// Offline ON: the cached page paints, the server's replaces the same slice (deduped by id, so a
+    /// re-delivery past the last page never repeats an item). A failed read follows D84
+    /// (`OfflineReadFailure`): rows stay and a not-connected failure reports nothing; nothing on screen
+    /// is "Connect to load notifications" when not connected, the error view otherwise.
+    private func offlineFetchFeedItems(request: NotificationFeedRequest, automatic: Bool = false) {
+        let hubGen = OfflineHub.shared.gen
+        // Each phase merges into what is shown NOW, not a copy taken when the read began: an item
+        // that arrived while the read ran (a live delivery) is kept. Dropped: for a refresh, the rows
+        // shown before it; for the server phase, the cached page it replaces. Deduped by id (the SDK
+        // can re-deliver past the end).
+        let key: (NotificationFeedItem) -> String? = { $0.id }
+        let wasRefresh = isRefresh
+        let shownAtStart = Set(feedItems.compactMap(key))
+        // A page after the first, asked for by scrolling: its failure keeps today's handling.
+        let isLoadMore = !wasRefresh && !shownAtStart.isEmpty
+        offlineError = .none
+        let replaced = wasRefresh ? shownAtStart : Set<String>()
+        var cachedKeys = Set<String>()
+        let apply: ([NotificationFeedItem]) -> Void = { [weak self] rows in
+            guard let self = self else { return }
+            self.feedItems = rows
+            self.groupedItems = self.groupByTimestamp(items: rows)
+            self.reload?()
+        }
+        fetchFeedPageTwoPhase(request, { [weak self] page in
+            guard let self = self, !page.isEmpty, hubGen == OfflineHub.shared.gen else { return }
+            // A cached row already shown before this page read is not this page's to drop.
+            cachedKeys = Set(page.compactMap(key)).subtracting(wasRefresh ? [] : shownAtStart)
+            apply(SnapshotRows.reconcile(current: self.feedItems, cachedKeys: replaced, serverPage: page, key: key))
+        }, { [weak self] page in
+            guard let self = self, hubGen == OfflineHub.shared.gen else { return }
+            if page.isEmpty { self.isFetchedAll = true }
+            self.reportDeliveredForItems(page)
+            apply(SnapshotRows.reconcile(current: self.feedItems, cachedKeys: replaced.union(cachedKeys), serverPage: page, key: key))
+            self.isFetching = false
+            self.isRefresh = false
+        }, { [weak self] error in
+            guard let self = self, hubGen == OfflineHub.shared.gen else { return }
+            self.isFetching = false
+            self.isRefresh = false
+            let rowsShown = !self.feedItems.isEmpty
+            if isLoadMore {
+                // Paging waits for the connection quietly.
+                if OfflineErrors.isNotConnected(code: error?.errorCode), rowsShown { return }
+                if automatic && rowsShown { return }
+                if let error = error { self.failure?(error) }
+                return
+            }
+            // Rows on screen stay; nothing on screen is the offline state or the error view. Only an
+            // online failure of a load the user or app started reaches `onError` over rows.
+            let verdict = OfflineReadFailure.evaluate(error, rowsShown: rowsShown, keywordSearch: false, kitStarted: automatic)
+            self.offlineError = OfflineListError.afterFailure(error, rowsShown: rowsShown)
+            if verdict.reportsError, let error = error {
+                self.failure?(error)
+            } else {
+                // No callback to end a pull-to-refresh: redraw.
+                self.reload?()
+            }
+        })
+    }
+
     // MARK: - Category Switching
     func switchCategory(_ category: String?) {
         activeCategory = category
@@ -281,11 +372,13 @@ open class NotificationFeedViewModel: NSObject, NotificationFeedViewModelProtoco
     func connect() {
         let listenerId = "notification-feed-listener-\(listenerRandomID)"
         listeners.add(.notificationFeedSDK, id: listenerId, listener: self)
+        listeners.add(.offlineHub, id: "notification-feed-offline-hub-listener-\(listenerRandomID)", listener: self as OfflineHubObserver)
     }
     
     func disconnect() {
         let listenerId = "notification-feed-listener-\(listenerRandomID)"
         listeners.remove(.notificationFeedSDK, id: listenerId)
+        listeners.remove(.offlineHub, id: "notification-feed-offline-hub-listener-\(listenerRandomID)")
         visibilityTimers.values.forEach { $0.invalidate() }
         visibilityTimers.removeAll()
     }
@@ -417,5 +510,34 @@ extension NotificationFeedViewModel: CometChatNotificationFeedDelegate {
         }
         
         reload?()
+    }
+}
+
+// MARK: - Offline hub
+
+extension NotificationFeedViewModel: OfflineHubObserver {
+
+    /// Logout, user switch or cache reset: no item of the old session survives.
+    func offlineSessionChanged(gen: Int) {
+        feedItems = []
+        groupedItems = []
+        offlineError = .none
+        isFetching = false
+        isFetchedAll = false
+        reload?()
+    }
+
+    /// The cache was rebuilt: read the first page again, two-phase.
+    func offlineCacheReset(_ event: OfflineCacheResetEvent) {
+        guard event.gen == OfflineHub.shared.gen else { return }
+        // The kit's own reload: it fails quietly over rows on screen.
+        automaticRefetch = true
+        isRefresh = true
+    }
+
+    /// A user logged in (a token refresh keeps the cache): reload what was cleared.
+    func offlineSessionStarted(gen: Int) {
+        guard feedItems.isEmpty, gen == OfflineHub.shared.gen else { return }
+        isRefresh = true
     }
 }
